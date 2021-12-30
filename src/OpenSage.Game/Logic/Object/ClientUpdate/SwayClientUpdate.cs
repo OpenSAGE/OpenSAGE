@@ -22,17 +22,17 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadSingle(ref _unknownFloat1);
-            reader.ReadSingle(ref _unknownFloat2);
-            reader.ReadSingle(ref _unknownFloat3);
-            reader.ReadSingle(ref _unknownFloat4);
-            reader.ReadSingle(ref _unknownFloat5);
-            reader.ReadUInt16(ref _unknownShort);
-            reader.ReadBoolean(ref _isActive);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle(ref _unknownFloat3);
+            reader.PersistSingle(ref _unknownFloat4);
+            reader.PersistSingle(ref _unknownFloat5);
+            reader.PersistUInt16(ref _unknownShort);
+            reader.PersistBoolean(ref _isActive);
         }
     }
 

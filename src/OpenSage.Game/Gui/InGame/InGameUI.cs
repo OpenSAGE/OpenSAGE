@@ -366,33 +366,33 @@ namespace OpenSage.Gui.InGame
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            reader.ReadUInt32(ref _unknown1); // 0
-            reader.ReadBoolean(ref _unknown2);
-            reader.ReadBoolean(ref _unknown3);
-            reader.ReadBoolean(ref _unknown4);
-            reader.ReadUInt32(ref _unknown5); // 0
+            reader.PersistUInt32(ref _unknown1); // 0
+            reader.PersistBoolean(ref _unknown2);
+            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _unknown4);
+            reader.PersistUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
             var something = 0u;
-            reader.ReadUInt32(ref something);
+            reader.PersistUInt32(ref something);
             while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
             {
                 var item = new SuperweaponSomething();
 
-                reader.ReadAsciiString(ref item.UnknownString1);
-                reader.ReadAsciiString(ref item.UnknownString2);
+                reader.PersistAsciiString(ref item.UnknownString1);
+                reader.PersistAsciiString(ref item.UnknownString2);
 
-                reader.ReadUInt32(ref item.UnknownInt1);
-                reader.ReadUInt32(ref item.UnknownInt2); // 0xFFFFFFFF
-                reader.ReadBoolean(ref item.UnknownBool1);
-                reader.ReadBoolean(ref item.UnknownBool2);
-                reader.ReadBoolean(ref item.UnknownBool3);
+                reader.PersistUInt32(ref item.UnknownInt1);
+                reader.PersistUInt32(ref item.UnknownInt2); // 0xFFFFFFFF
+                reader.PersistBoolean(ref item.UnknownBool1);
+                reader.PersistBoolean(ref item.UnknownBool2);
+                reader.PersistBoolean(ref item.UnknownBool3);
 
                 _superweaponSomethings.Add(item);
 
-                reader.ReadUInt32(ref something);
+                reader.PersistUInt32(ref something);
             }
         }
     }

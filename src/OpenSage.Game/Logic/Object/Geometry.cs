@@ -42,14 +42,14 @@ namespace OpenSage.Logic.Object
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
-            reader.ReadEnum(ref Type);
-            reader.ReadBoolean(ref IsSmall);
-            reader.ReadSingle(ref Height);
-            reader.ReadSingle(ref MajorRadius);
-            reader.ReadSingle(ref MinorRadius);
-            reader.ReadSingle(ref _unknownFloat1);
-            reader.ReadSingle(ref _unknownFloat2);
+            reader.PersistVersion(1);
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref IsSmall);
+            reader.PersistSingle(ref Height);
+            reader.PersistSingle(ref MajorRadius);
+            reader.PersistSingle(ref MinorRadius);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

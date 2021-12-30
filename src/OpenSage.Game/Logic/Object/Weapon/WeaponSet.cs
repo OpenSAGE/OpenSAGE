@@ -59,15 +59,15 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             // This is the object definition which defined the WeaponSet
             // (either a normal object or DefaultThingTemplate)
             var objectDefinitionName = "";
-            reader.ReadAsciiString(ref objectDefinitionName);
+            reader.PersistAsciiString(ref objectDefinitionName);
 
             var conditions = new BitArray<WeaponSetConditions>();
-            reader.ReadBitArray(ref conditions);
+            reader.PersistBitArray(ref conditions);
 
             _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
 
@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < 3; i++)
             {
                 var slotFilled = _weapons[i] != null;
-                reader.ReadBoolean(ref slotFilled);
+                reader.PersistBoolean(ref slotFilled);
                 if (slotFilled)
                 {
                     _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
@@ -88,13 +88,13 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            reader.ReadEnum(ref _currentWeaponSlot);
-            reader.ReadUInt32(ref _unknown1);
-            reader.ReadUInt32(ref _filledWeaponSlots);
-            reader.ReadEnumFlags(ref _combinedAntiMask);
-            reader.ReadUInt32(ref _unknown2);
-            reader.ReadBoolean(ref _unknown3);
-            reader.ReadBoolean(ref _unknown4);
+            reader.PersistEnum(ref _currentWeaponSlot);
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _filledWeaponSlots);
+            reader.PersistEnumFlags(ref _combinedAntiMask);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _unknown4);
         }
     }
 }

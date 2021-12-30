@@ -15,11 +15,11 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadUInt32(ref _waypointId);
+            reader.PersistUInt32(ref _waypointId);
         }
     }
 }

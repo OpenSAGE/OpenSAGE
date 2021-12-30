@@ -57,13 +57,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             for (var i = 0; i < _particleSystemIds.Length; i++)
             {
-                reader.ReadUInt32(ref _particleSystemIds[i]);
+                reader.PersistUInt32(ref _particleSystemIds[i]);
             }
         }
     }

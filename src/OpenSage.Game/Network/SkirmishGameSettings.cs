@@ -81,17 +81,17 @@ namespace OpenSage.Network
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            reader.ReadUInt32(ref _unknownInt1); // 25600 (160^2)
-            reader.ReadInt32(ref _unknownInt2);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
-            reader.ReadBoolean(ref _unknownBool3);
-            reader.ReadUInt32(ref _unknownInt3); // 0
+            reader.PersistUInt32(ref _unknownInt1); // 25600 (160^2)
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistUInt32(ref _unknownInt3); // 0
 
             var numPlayers = (uint)MaxNumberOfPlayers;
-            reader.ReadUInt32(ref numPlayers); // 8
+            reader.PersistUInt32(ref numPlayers); // 8
             if (numPlayers != MaxNumberOfPlayers)
             {
                 throw new InvalidStateException();
@@ -106,11 +106,11 @@ namespace OpenSage.Network
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadAsciiString(ref _mapName);
-            reader.ReadUInt32(ref _mapFileCrc);
-            reader.ReadUInt32(ref _mapFileSize);
-            reader.ReadUInt32(ref _unknownInt4);
-            reader.ReadUInt32(ref _unknownInt5);
+            reader.PersistAsciiString(ref _mapName);
+            reader.PersistUInt32(ref _mapFileCrc);
+            reader.PersistUInt32(ref _mapFileSize);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
         }
     }
 }

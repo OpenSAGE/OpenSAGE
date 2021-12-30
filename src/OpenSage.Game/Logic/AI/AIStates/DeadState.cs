@@ -6,7 +6,7 @@ namespace OpenSage.Logic.AI.AIStates
     {
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
         }
     }
 }

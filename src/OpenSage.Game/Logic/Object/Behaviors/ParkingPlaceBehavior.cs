@@ -225,12 +225,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(3);
+            reader.PersistVersion(3);
 
             base.Load(reader);
 
             var unknown1 = 4u;
-            reader.ReadUInt32(ref unknown1);
+            reader.PersistUInt32(ref unknown1);
             if (unknown1 != 4)
             {
                 throw new InvalidStateException();
@@ -239,7 +239,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(17);
 
             var unknown2 = 2u;
-            reader.ReadUInt32(ref unknown2);
+            reader.PersistUInt32(ref unknown2);
             if (unknown2 != 2)
             {
                 throw new InvalidStateException();
@@ -248,7 +248,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(29);
 
             var unknown3 = 0x3FFFFFFFu;
-            reader.ReadUInt32(ref unknown3);
+            reader.PersistUInt32(ref unknown3);
             if (unknown3 != 0x3FFFFFFF)
             {
                 throw new InvalidStateException();

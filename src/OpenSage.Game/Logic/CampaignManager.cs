@@ -13,23 +13,23 @@
 
         internal void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion(5);
+            var version = reader.PersistVersion(5);
 
-            reader.ReadAsciiString(ref CampaignName);
-            reader.ReadAsciiString(ref MissionName);
-            reader.ReadUInt32(ref _unknown);
-            reader.ReadUInt32(ref _difficultyMaybe);
+            reader.PersistAsciiString(ref CampaignName);
+            reader.PersistAsciiString(ref MissionName);
+            reader.PersistUInt32(ref _unknown);
+            reader.PersistUInt32(ref _difficultyMaybe);
 
             if (version >= 5)
             {
-                reader.ReadBoolean(ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool1);
 
                 reader.SkipUnknownBytes(4);
             }
 
             if (version == 1 && reader.SageGame >= SageGame.Bfme)
             {
-                reader.ReadBoolean(ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool2);
             }
         }
     }

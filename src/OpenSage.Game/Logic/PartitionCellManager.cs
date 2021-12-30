@@ -43,17 +43,17 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             var partitionCellSize = _partitionCellSize;
-            reader.ReadSingle(ref partitionCellSize);
+            reader.PersistSingle(ref partitionCellSize);
             if (partitionCellSize != _partitionCellSize)
             {
                 throw new InvalidStateException();
             }
 
             var partitionCellCount = (uint)_cells.Length;
-            reader.ReadUInt32(ref partitionCellCount);
+            reader.PersistUInt32(ref partitionCellCount);
             if (partitionCellCount != _cells.Length)
             {
                 throw new InvalidStateException();
@@ -99,7 +99,7 @@ namespace OpenSage.Logic
 #endif
 
             var shroudRevealCount = (uint)_shroudReveals.Count;
-            reader.ReadUInt32(ref shroudRevealCount);
+            reader.PersistUInt32(ref shroudRevealCount);
             for (var i = 0; i < shroudRevealCount; i++)
             {
                 var shroudReveal = new ShroudReveal();
@@ -172,14 +172,14 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             for (var i = 0; i < Values.Length; i++)
             {
                 ref var value = ref Values[i];
 
-                reader.ReadInt16(ref value.State);
-                reader.ReadInt16(ref value.Unknown);
+                reader.PersistInt16(ref value.State);
+                reader.PersistInt16(ref value.Unknown);
 
                 if (value.Unknown != 0)
                 {
@@ -204,12 +204,12 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadVector3(ref Position);
-            reader.ReadSingle(ref VisionRange);
-            reader.ReadUInt16(ref Unknown);
-            reader.ReadFrame(ref FrameSomething);
+            reader.PersistVector3(ref Position);
+            reader.PersistSingle(ref VisionRange);
+            reader.PersistUInt16(ref Unknown);
+            reader.PersistFrame(ref FrameSomething);
         }
     }
 }

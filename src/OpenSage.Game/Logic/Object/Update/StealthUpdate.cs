@@ -12,25 +12,25 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadFrame(ref _unknownFrame1);
-            reader.ReadFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
 
             var unknownBool1 = true;
-            reader.ReadBoolean(ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadSingle(ref _unknownFloat1);
-            reader.ReadSingle(ref _unknownFloat2);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
 
             var unknownInt2 = -1;
-            reader.ReadInt32(ref unknownInt2);
+            reader.PersistInt32(ref unknownInt2);
             if (unknownInt2 != -1)
             {
                 throw new InvalidStateException();

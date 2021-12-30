@@ -37,36 +37,36 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader, GameLogic gameLogic, Game game)
         {
-            reader.ReadVersion(1);
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
+            reader.PersistVersion(1);
 
             uint objectId = 0;
-            reader.ReadObjectID(ref objectId);
+            reader.PersistObjectID(ref objectId);
             _gameObject = gameLogic.GetObjectById(objectId);
 
-            reader.ReadEnum<ObjectGeometry>(ref _geometryType);
+            reader.PersistEnum<ObjectGeometry>(ref _geometryType);
 
             // Sometimes there's a 0xC0, when it should be 0x0.
             byte geometryIsSmall = 0;
-            reader.ReadByte(ref geometryIsSmall);
+            reader.PersistByte(ref geometryIsSmall);
             _geometryIsSmall = geometryIsSmall == 1;
 
-            reader.ReadSingle(ref _geometryMajorRadius);
-            reader.ReadSingle(ref _geometryMinorRadius);
-            reader.ReadSingle(ref _angle);
-            reader.ReadVector3(ref _position);
+            reader.PersistSingle(ref _geometryMajorRadius);
+            reader.PersistSingle(ref _geometryMinorRadius);
+            reader.PersistSingle(ref _angle);
+            reader.PersistVector3(ref _position);
 
             reader.SkipUnknownBytes(12);
 
             for (var i = 0; i < Player.MaxPlayers; i++)
             {
                 byte numModels = 0;
-                reader.ReadByte(ref numModels);
+                reader.PersistByte(ref numModels);
 
                 for (var j = 0; j < numModels; j++)
                 {
                     var modelName = "";
-                    reader.ReadAsciiString(ref modelName);
+                    reader.PersistAsciiString(ref modelName);
 
                     var model = game.AssetStore.Models.GetByName(modelName);
                     var modelInstance = model.CreateInstance(game.AssetStore.LoadContext);
@@ -74,23 +74,23 @@ namespace OpenSage.Logic
                     _modelsPerPlayer[i].Add(modelInstance);
 
                     var scale = 1.0f;
-                    reader.ReadSingle(ref scale);
+                    reader.PersistSingle(ref scale);
                     if (scale != 1.0f)
                     {
                         throw new InvalidStateException();
                     }
 
-                    reader.ReadColorRgba(ref modelInstance.HouseColor);
+                    reader.PersistColorRgba(ref modelInstance.HouseColor);
 
-                    reader.ReadVersion(1);
+                    reader.PersistVersion(1);
 
                     var modelTransform = Matrix4x3.Identity;
-                    reader.ReadMatrix4x3Transposed(ref modelTransform);
+                    reader.PersistMatrix4x3Transposed(ref modelTransform);
 
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
                     var numMeshes = (uint)model.SubObjects.Length;
-                    reader.ReadUInt32(ref numMeshes);
+                    reader.PersistUInt32(ref numMeshes);
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
                         throw new InvalidStateException();
@@ -99,17 +99,17 @@ namespace OpenSage.Logic
                     for (var k = 0; k < numMeshes; k++)
                     {
                         var meshName = "";
-                        reader.ReadAsciiString(ref meshName);
+                        reader.PersistAsciiString(ref meshName);
 
                         if (meshName != model.SubObjects[k].FullName)
                         {
                             throw new InvalidStateException();
                         }
 
-                        reader.ReadBoolean(ref modelInstance.UnknownBools[k]);
+                        reader.PersistBoolean(ref modelInstance.UnknownBools[k]);
 
                         var meshTransform = Matrix4x3.Identity;
-                        reader.ReadMatrix4x3Transposed(ref meshTransform);
+                        reader.PersistMatrix4x3Transposed(ref meshTransform);
 
                         // TODO: meshTransform is actually absolute, not relative.
                         modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
@@ -117,11 +117,11 @@ namespace OpenSage.Logic
                 }
             }
 
-            reader.ReadBoolean(ref _hasUnknownThing);
+            reader.PersistBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.ReadByte(ref _unknownByte);
-                reader.ReadUInt32(ref _unknownInt);
+                reader.PersistByte(ref _unknownByte);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

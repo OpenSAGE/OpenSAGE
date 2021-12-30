@@ -315,10 +315,10 @@ namespace OpenSage.Graphics.Cameras
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadSingle(ref _yaw);
-            reader.ReadVector3(ref _terrainPosition);
+            reader.PersistSingle(ref _yaw);
+            reader.PersistVector3(ref _terrainPosition);
         }
 
         internal void DrawInspector()

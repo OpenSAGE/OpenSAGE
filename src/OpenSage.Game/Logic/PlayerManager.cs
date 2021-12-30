@@ -97,10 +97,10 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader, Game game)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numPlayers = (uint)_players.Count;
-            reader.ReadUInt32(ref numPlayers);
+            reader.PersistUInt32(ref numPlayers);
             if (numPlayers != _players.Count)
             {
                 throw new InvalidStateException();

@@ -28,7 +28,7 @@ namespace OpenSage
             AssetStore = game.AssetStore;
         }
 
-        public byte ReadVersion(byte maximumVersion)
+        public byte PersistVersion(byte maximumVersion)
         {
             var result = _binaryReader.ReadByte();
             if (result == 0 || result > maximumVersion)
@@ -38,66 +38,66 @@ namespace OpenSage
             return result;
         }
 
-        public void ReadByte(ref byte value)
+        public void PersistByte(ref byte value)
         {
             value = _binaryReader.ReadByte();
         }
 
-        public void ReadInt16(ref short value) => value = _binaryReader.ReadInt16();
+        public void PersistInt16(ref short value) => value = _binaryReader.ReadInt16();
 
-        public void ReadUInt16(ref ushort value) => value = _binaryReader.ReadUInt16();
+        public void PersistUInt16(ref ushort value) => value = _binaryReader.ReadUInt16();
 
-        public void ReadInt32(ref int value) => value = _binaryReader.ReadInt32();
+        public void PersistInt32(ref int value) => value = _binaryReader.ReadInt32();
 
-        public void ReadUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
+        public void PersistUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public void ReadBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
+        public void PersistBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
 
-        public void ReadObjectID(ref uint value) => value = _binaryReader.ReadUInt32();
+        public void PersistObjectID(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public void ReadFrame(ref uint value) => value = _binaryReader.ReadUInt32();
+        public void PersistFrame(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public void ReadAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
+        public void PersistAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
-        public void ReadUnicodeString(ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
+        public void PersistUnicodeString(ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
 
-        public void ReadSingle(ref float value) => value = _binaryReader.ReadSingle();
+        public void PersistSingle(ref float value) => value = _binaryReader.ReadSingle();
 
-        public void ReadVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
+        public void PersistVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
 
-        public void ReadPoint2D(ref Point2D value) => value = _binaryReader.ReadPoint2D();
+        public void PersistPoint2D(ref Point2D value) => value = _binaryReader.ReadPoint2D();
 
-        public void ReadPoint3D(ref Point3D value) => value = _binaryReader.ReadPoint3D();
+        public void PersistPoint3D(ref Point3D value) => value = _binaryReader.ReadPoint3D();
 
-        public void ReadEnum<TEnum>(ref TEnum value)
+        public void PersistEnum<TEnum>(ref TEnum value)
             where TEnum : struct
         {
             value = _binaryReader.ReadUInt32AsEnum<TEnum>();
         }
 
-        public void ReadEnumByte<TEnum>(ref TEnum value)
+        public void PersistEnumByte<TEnum>(ref TEnum value)
             where TEnum : struct
         {
             value = _binaryReader.ReadByteAsEnum<TEnum>();
         }
 
-        public void ReadEnumFlags<TEnum>(ref TEnum value)
+        public void PersistEnumFlags<TEnum>(ref TEnum value)
             where TEnum : struct
         {
             value = _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
         }
 
-        public void ReadEnumByteFlags<TEnum>(ref TEnum value)
+        public void PersistEnumByteFlags<TEnum>(ref TEnum value)
             where TEnum : struct
         {
             value = _binaryReader.ReadByteAsEnumFlags<TEnum>();
         }
 
-        public void ReadMatrix4x3(ref Matrix4x3 value, bool readVersion = true)
+        public void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion = true)
         {
             if (readVersion)
             {
-                ReadVersion(1);
+                PersistVersion(1);
             }
 
             var m11 = _binaryReader.ReadSingle();
@@ -122,12 +122,12 @@ namespace OpenSage
                 m41, m42, m43);
         }
 
-        public void ReadMatrix4x3Transposed(ref Matrix4x3 value) => value = _binaryReader.ReadMatrix4x3Transposed();
+        public void PersistMatrix4x3Transposed(ref Matrix4x3 value) => value = _binaryReader.ReadMatrix4x3Transposed();
 
-        public void ReadBitArray<TEnum>(ref BitArray<TEnum> result)
+        public void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
             where TEnum : Enum
         {
-            ReadVersion(1);
+            PersistVersion(1);
 
             result.SetAll(false);
 
@@ -138,7 +138,7 @@ namespace OpenSage
             for (var i = 0; i < count; i++)
             {
                 var stringValue = "";
-                ReadAsciiString(ref stringValue);
+                PersistAsciiString(ref stringValue);
 
                 var enumValue = (TEnum) stringToValueMap[stringValue];
 
@@ -146,31 +146,31 @@ namespace OpenSage
             }
         }
 
-        public void ReadColorRgba(ref ColorRgba value) => value = _binaryReader.ReadColorRgba();
+        public void PersistColorRgba(ref ColorRgba value) => value = _binaryReader.ReadColorRgba();
 
-        public void ReadColorRgbaInt(ref ColorRgba value) => value = _binaryReader.ReadColorRgbaInt();
+        public void PersistColorRgbaInt(ref ColorRgba value) => value = _binaryReader.ReadColorRgbaInt();
 
-        public void ReadDateTime(ref DateTime value) => value = _binaryReader.ReadDateTime();
+        public void PersistDateTime(ref DateTime value) => value = _binaryReader.ReadDateTime();
 
-        public void ReadRandomVariable(ref RandomVariable value) => value = _binaryReader.ReadRandomVariable();
+        public void PersistRandomVariable(ref RandomVariable value) => value = _binaryReader.ReadRandomVariable();
 
-        public void ReadRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value = RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
+        public void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value = RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
 
-        public void ReadRgbColorKeyframe(ref RgbColorKeyframe value) => value = RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
+        public void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value = RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
 
-        public void ReadObjectNameAndIdSet(List<ObjectNameAndId> set)
+        public void PersistObjectNameAndIdSet(List<ObjectNameAndId> set)
         {
-            ReadVersion(1);
+            PersistVersion(1);
 
             var numItems = (ushort)set.Count;
-            ReadUInt16(ref numItems);
+            PersistUInt16(ref numItems);
 
             for (var j = 0; j < numItems; j++)
             {
                 var objectNameAndId = new ObjectNameAndId();
 
-                ReadAsciiString(ref objectNameAndId.Name);
-                ReadObjectID(ref objectNameAndId.ObjectId);
+                PersistAsciiString(ref objectNameAndId.Name);
+                PersistObjectID(ref objectNameAndId.ObjectId);
 
                 set.Add(objectNameAndId);
             }

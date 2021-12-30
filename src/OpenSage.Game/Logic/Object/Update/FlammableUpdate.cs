@@ -22,18 +22,18 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadEnum(ref _state);
-            reader.ReadFrame(ref _aflameEndFrame);
+            reader.PersistEnum(ref _state);
+            reader.PersistFrame(ref _aflameEndFrame);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadFrame(ref _nextDamageFrame);
-            reader.ReadSingle(ref _remainingDamageBeforeCatchingFire);
-            reader.ReadFrame(ref _startedTakingFlameDamageFrame);
+            reader.PersistFrame(ref _nextDamageFrame);
+            reader.PersistSingle(ref _remainingDamageBeforeCatchingFire);
+            reader.PersistFrame(ref _startedTakingFlameDamageFrame);
         }
 
         private enum FlammableState

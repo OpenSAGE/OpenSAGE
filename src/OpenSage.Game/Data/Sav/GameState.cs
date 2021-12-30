@@ -14,15 +14,15 @@ namespace OpenSage.Data.Sav
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            reader.ReadEnum(ref GameType);
-            reader.ReadAsciiString(ref MapPath);
-            reader.ReadDateTime(ref Timestamp);
-            reader.ReadUnicodeString(ref DisplayName);
-            reader.ReadAsciiString(ref MapFileName);
-            reader.ReadAsciiString(ref Side);
-            reader.ReadUInt32(ref MissionIndex);
+            reader.PersistEnum(ref GameType);
+            reader.PersistAsciiString(ref MapPath);
+            reader.PersistDateTime(ref Timestamp);
+            reader.PersistUnicodeString(ref DisplayName);
+            reader.PersistAsciiString(ref MapFileName);
+            reader.PersistAsciiString(ref Side);
+            reader.PersistUInt32(ref MissionIndex);
         }
     }
 }

@@ -19,60 +19,60 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var numObjectsInside = (uint)_containedObjectIds.Count;
-            reader.ReadUInt32(ref numObjectsInside);
+            reader.PersistUInt32(ref numObjectsInside);
 
             for (var i = 0; i < numObjectsInside; i++)
             {
                 uint containedObjectId = 0;
-                reader.ReadObjectID(ref containedObjectId);
+                reader.PersistObjectID(ref containedObjectId);
                 _containedObjectIds.Add(containedObjectId);
             }
 
             reader.SkipUnknownBytes(2);
 
-            reader.ReadFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame1);
 
-            reader.ReadFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame2);
 
             reader.SkipUnknownBytes(8);
 
-            reader.ReadBitArray(ref _modelConditionFlags);
+            reader.PersistBitArray(ref _modelConditionFlags);
 
             // Where does the 32 come from?
             for (var i = 0; i < _unknownTransforms.Length; i++)
             {
-                reader.ReadMatrix4x3Transposed(ref _unknownTransforms[i]);
+                reader.PersistMatrix4x3Transposed(ref _unknownTransforms[i]);
             }
 
             var unknown6 = -1;
-            reader.ReadInt32(ref unknown6);
+            reader.PersistInt32(ref unknown6);
             if (unknown6 != -1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt32(ref _nextFirePointIndex);
-            reader.ReadUInt32(ref _numFirePoints);
-            reader.ReadBoolean(ref _hasNoFirePoints);
+            reader.PersistUInt32(ref _nextFirePointIndex);
+            reader.PersistUInt32(ref _numFirePoints);
+            reader.PersistBoolean(ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);
 
             var unknown9Count = (ushort)_unknownList.Count;
-            reader.ReadUInt16(ref unknown9Count);
+            reader.PersistUInt16(ref unknown9Count);
             for (var i = 0; i < unknown9Count; i++)
             {
                 var something = new OpenContainSomething();
-                reader.ReadObjectID(ref something.ObjectId);
-                reader.ReadInt32(ref something.Unknown);
+                reader.PersistObjectID(ref something.ObjectId);
+                reader.PersistInt32(ref something.Unknown);
                 _unknownList.Add(something);
             }
 
-            reader.ReadInt32(ref _unknownInt);
+            reader.PersistInt32(ref _unknownInt);
         }
 
         private struct OpenContainSomething

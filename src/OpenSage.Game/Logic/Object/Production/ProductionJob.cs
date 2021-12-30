@@ -48,12 +48,12 @@ namespace OpenSage.Logic.Object.Production
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadUInt32(ref _jobId);
-            reader.ReadSingle(ref _unknownFloat);
-            reader.ReadInt32(ref _unknownInt1); // Maybe progress
-            reader.ReadInt32(ref _unknownInt2);
-            reader.ReadInt32(ref _unknownInt3);
-            reader.ReadInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _jobId);
+            reader.PersistSingle(ref _unknownFloat);
+            reader.PersistInt32(ref _unknownInt1); // Maybe progress
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistInt32(ref _unknownInt4);
         }
     }
 

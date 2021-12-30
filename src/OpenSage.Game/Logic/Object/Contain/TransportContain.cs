@@ -37,12 +37,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var unknownInt1 = 1;
-            reader.ReadInt32(ref unknownInt1);
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != 1)
             {
                 throw new InvalidStateException();
@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadFrame(ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame);
         }
     }
 

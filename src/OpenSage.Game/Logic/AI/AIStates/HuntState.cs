@@ -13,10 +13,10 @@
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.ReadBoolean(ref unknownBool);
+            reader.PersistBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();
@@ -24,7 +24,7 @@
 
             _stateMachine.Load(reader);
 
-            reader.ReadUInt32(ref _unknownInt);
+            reader.PersistUInt32(ref _unknownInt);
         }
     }
 }

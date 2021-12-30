@@ -90,46 +90,46 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(4);
+            reader.PersistVersion(4);
 
             base.Load(reader);
 
-            reader.ReadVector3(ref _unknownPosition);
-            reader.ReadUInt32(ref _stateMaybe);
-            reader.ReadFrame(ref _unknownFrame1);
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistUInt32(ref _stateMaybe);
+            reader.PersistFrame(ref _unknownFrame1);
 
             var unknownInt1 = int.MaxValue;
-            reader.ReadInt32(ref unknownInt1);
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != int.MaxValue)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadObjectID(ref _launcherObjectId);
-            reader.ReadObjectID(ref _unknownObjectId);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadFrame(ref _unknownFrame2);
-            reader.ReadSingle(ref _unknownFloat1);
+            reader.PersistObjectID(ref _launcherObjectId);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistSingle(ref _unknownFloat1);
 
             var unknownFloat2 = 99999.0f;
-            reader.ReadSingle(ref unknownFloat2);
+            reader.PersistSingle(ref unknownFloat2);
             if (unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
             var weaponTemplateName = _weaponTemplate?.Name;
-            reader.ReadAsciiString(ref weaponTemplateName);
+            reader.PersistAsciiString(ref weaponTemplateName);
             _weaponTemplate = reader.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
             var exhaustParticleSystemTemplateName = _exhaustParticleSystemTemplate?.Name;
-            reader.ReadAsciiString(ref exhaustParticleSystemTemplateName);
+            reader.PersistAsciiString(ref exhaustParticleSystemTemplateName);
             _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
-            reader.ReadBoolean(ref _unknownBool2);
-            reader.ReadVector3(ref _currentPositionMaybe);
-            reader.ReadInt32(ref _unknownInt1); // 0, 0x20000
-            reader.ReadInt32(ref _unknownInt2); // 1960
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistVector3(ref _currentPositionMaybe);
+            reader.PersistInt32(ref _unknownInt1); // 0, 0x20000
+            reader.PersistInt32(ref _unknownInt2); // 1960
         }
 
         private enum MissileState

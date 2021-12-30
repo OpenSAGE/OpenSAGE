@@ -9,13 +9,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             for (var i = 0; i < _towerIds.Length; i++)
             {
-                reader.ReadObjectID(ref _towerIds[i]);
+                reader.PersistObjectID(ref _towerIds[i]);
             }
 
             reader.SkipUnknownBytes(7);

@@ -617,44 +617,44 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             LoadTemplateData(reader);
 
-            reader.ReadUInt32(ref _systemId);
-            reader.ReadUInt32(ref _attachedToDrawableId);
-            reader.ReadObjectID(ref _attachedToObjectId);
-            reader.ReadBoolean(ref _isIdentityTransform);
-            reader.ReadMatrix4x3Transposed(ref _transform);
-            reader.ReadBoolean(ref _isIdentityTransform2);
-            reader.ReadMatrix4x3Transposed(ref _transform2);
-            reader.ReadUInt32(ref _unknownInt1); // Maybe _nextBurst
-            reader.ReadUInt32(ref _unknownInt2);
-            reader.ReadUInt32(ref _unknownInt3);
-            reader.ReadUInt32(ref _unknownInt4);
-            reader.ReadUInt32(ref _unknownInt5);
-            reader.ReadBoolean(ref _hasInfiniteLifetime);
-            reader.ReadSingle(ref _unknownFloat1);
-            reader.ReadBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _systemId);
+            reader.PersistUInt32(ref _attachedToDrawableId);
+            reader.PersistObjectID(ref _attachedToObjectId);
+            reader.PersistBoolean(ref _isIdentityTransform);
+            reader.PersistMatrix4x3Transposed(ref _transform);
+            reader.PersistBoolean(ref _isIdentityTransform2);
+            reader.PersistMatrix4x3Transposed(ref _transform2);
+            reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistBoolean(ref _hasInfiniteLifetime);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistBoolean(ref _unknownBool1);
 
             for (var i = 0; i < 6; i++)
             {
                 var unknown25 = 1.0f;
-                reader.ReadSingle(ref unknown25);
+                reader.PersistSingle(ref unknown25);
                 if (unknown25 != 1.0f)
                 {
                     throw new InvalidStateException();
                 }
             }
 
-            reader.ReadVector3(ref _position);
-            reader.ReadVector3(ref _positionPrevious);
-            reader.ReadBoolean(ref _unknownBool2);
-            reader.ReadUInt32(ref _slaveSystemId);
-            reader.ReadUInt32(ref _masterSystemId);
+            reader.PersistVector3(ref _position);
+            reader.PersistVector3(ref _positionPrevious);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _slaveSystemId);
+            reader.PersistUInt32(ref _masterSystemId);
 
             var numParticles = 0u;
-            reader.ReadUInt32(ref numParticles);
+            reader.PersistUInt32(ref numParticles);
 
             // TODO: Shouldn't do this.
             _particles = new Particle[numParticles];
@@ -673,143 +673,143 @@ namespace OpenSage.Graphics.ParticleSystems
             // What follows is almost an exact replica of ParticleSystemTemplate,
             // with a few extra fields here and there.
 
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var isOneShot = false;
-            reader.ReadBoolean(ref isOneShot); // IsOneShot
+            reader.PersistBoolean(ref isOneShot); // IsOneShot
 
             ParticleSystemShader shader = default;
-            reader.ReadEnum(ref shader);
+            reader.PersistEnum(ref shader);
             if (shader != Template.Shader)
             {
                 throw new InvalidStateException();
             }
 
             ParticleSystemType type = default;
-            reader.ReadEnum(ref type);
+            reader.PersistEnum(ref type);
             if (type != Template.Type)
             {
                 throw new InvalidStateException();
             }
 
             var texture = "";
-            reader.ReadAsciiString(ref texture);
+            reader.PersistAsciiString(ref texture);
 
             RandomVariable angleX = default;
-            reader.ReadRandomVariable(ref angleX);
+            reader.PersistRandomVariable(ref angleX);
 
             RandomVariable angleY = default;
-            reader.ReadRandomVariable(ref angleY);
+            reader.PersistRandomVariable(ref angleY);
 
             RandomVariable angleZ = default;
-            reader.ReadRandomVariable(ref angleZ);
+            reader.PersistRandomVariable(ref angleZ);
 
             RandomVariable angularRateX = default;
-            reader.ReadRandomVariable(ref angularRateX);
+            reader.PersistRandomVariable(ref angularRateX);
 
             RandomVariable angularRateY = default;
-            reader.ReadRandomVariable(ref angularRateY);
+            reader.PersistRandomVariable(ref angularRateY);
 
             RandomVariable angularRateZ = default;
-            reader.ReadRandomVariable(ref angularRateZ);
+            reader.PersistRandomVariable(ref angularRateZ);
 
             RandomVariable angularDamping = default;
-            reader.ReadRandomVariable(ref angularDamping);
+            reader.PersistRandomVariable(ref angularDamping);
 
             RandomVariable velocityDamping = default;
-            reader.ReadRandomVariable(ref velocityDamping);
+            reader.PersistRandomVariable(ref velocityDamping);
 
             RandomVariable lifetime = default;
-            reader.ReadRandomVariable(ref lifetime);
+            reader.PersistRandomVariable(ref lifetime);
 
             var systemLifetime = 0u;
-            reader.ReadUInt32(ref systemLifetime);
+            reader.PersistUInt32(ref systemLifetime);
 
             RandomVariable size = default;
-            reader.ReadRandomVariable(ref size);
+            reader.PersistRandomVariable(ref size);
 
             RandomVariable startSizeRate = default;
-            reader.ReadRandomVariable(ref startSizeRate);
+            reader.PersistRandomVariable(ref startSizeRate);
 
             RandomVariable sizeRate = default;
-            reader.ReadRandomVariable(ref sizeRate);
+            reader.PersistRandomVariable(ref sizeRate);
 
             RandomVariable sizeRateDamping = default;
-            reader.ReadRandomVariable(ref sizeRateDamping);
+            reader.PersistRandomVariable(ref sizeRateDamping);
 
             for (var i = 0; i < 8; i++)
             {
                 RandomAlphaKeyframe keyframe = default;
-                reader.ReadRandomAlphaKeyframe(ref keyframe);
+                reader.PersistRandomAlphaKeyframe(ref keyframe);
             }
             for (var i = 0; i < 8; i++)
             {
                 RgbColorKeyframe keyframe = default;
-                reader.ReadRgbColorKeyframe(ref keyframe); // ColorKeyframes
+                reader.PersistRgbColorKeyframe(ref keyframe); // ColorKeyframes
             }
 
             RandomVariable colorScale = default;
-            reader.ReadRandomVariable(ref colorScale);
+            reader.PersistRandomVariable(ref colorScale);
 
             RandomVariable burstDelay = default;
-            reader.ReadRandomVariable(ref burstDelay);
+            reader.PersistRandomVariable(ref burstDelay);
 
             RandomVariable burstCount = default;
-            reader.ReadRandomVariable(ref burstCount);
+            reader.PersistRandomVariable(ref burstCount);
 
             RandomVariable initialDelay = default;
-            reader.ReadRandomVariable(ref initialDelay);
+            reader.PersistRandomVariable(ref initialDelay);
 
             Vector3 driftVelocity = default;
-            reader.ReadVector3(ref driftVelocity);
+            reader.PersistVector3(ref driftVelocity);
 
             var gravity = 0.0f;
-            reader.ReadSingle(ref gravity); // Gravity
+            reader.PersistSingle(ref gravity); // Gravity
 
             var slaveSystemName = "";
-            reader.ReadAsciiString(ref slaveSystemName); // SlaveSystemName
+            reader.PersistAsciiString(ref slaveSystemName); // SlaveSystemName
 
             reader.SkipUnknownBytes(13);
 
             ParticleVelocityType velocityType = default;
-            reader.ReadEnum(ref velocityType);
+            reader.PersistEnum(ref velocityType);
             var unknown10 = 0u;
-            reader.ReadUInt32(ref unknown10);
+            reader.PersistUInt32(ref unknown10);
             switch (velocityType)
             {
                 case ParticleVelocityType.Ortho:
                     RandomVariable velocityOrthoX = default;
-                    reader.ReadRandomVariable(ref velocityOrthoX);
+                    reader.PersistRandomVariable(ref velocityOrthoX);
                     RandomVariable velocityOrthoY = default;
-                    reader.ReadRandomVariable(ref velocityOrthoY);
+                    reader.PersistRandomVariable(ref velocityOrthoY);
                     RandomVariable velocityOrthoZ = default;
-                    reader.ReadRandomVariable(ref velocityOrthoZ);
+                    reader.PersistRandomVariable(ref velocityOrthoZ);
                     break;
                 case ParticleVelocityType.Spherical:
                     RandomVariable velocitySpherical = default;
-                    reader.ReadRandomVariable(ref velocitySpherical);
+                    reader.PersistRandomVariable(ref velocitySpherical);
                     break;
                 case ParticleVelocityType.Hemispherical:
                     RandomVariable velocityHemispherical = default;
-                    reader.ReadRandomVariable(ref velocityHemispherical);
+                    reader.PersistRandomVariable(ref velocityHemispherical);
                     break;
                 case ParticleVelocityType.Cylindrical:
                     RandomVariable velocityCylindricalRadial = default;
-                    reader.ReadRandomVariable(ref velocityCylindricalRadial);
+                    reader.PersistRandomVariable(ref velocityCylindricalRadial);
                     RandomVariable velocityCylindricalNormal = default;
-                    reader.ReadRandomVariable(ref velocityCylindricalNormal);
+                    reader.PersistRandomVariable(ref velocityCylindricalNormal);
                     break;
                 case ParticleVelocityType.Outward:
                     RandomVariable velocityOutward = default;
-                    reader.ReadRandomVariable(ref velocityOutward);
+                    reader.PersistRandomVariable(ref velocityOutward);
                     RandomVariable velocityOutwardOther = default;
-                    reader.ReadRandomVariable(ref velocityOutwardOther);
+                    reader.PersistRandomVariable(ref velocityOutwardOther);
                     break;
                 default:
                     throw new NotImplementedException();
             }
             ParticleVolumeType volumeType = default;
-            reader.ReadEnum(ref volumeType);
+            reader.PersistEnum(ref volumeType);
             switch (volumeType)
             {
                 case ParticleVolumeType.Point:
@@ -817,53 +817,53 @@ namespace OpenSage.Graphics.ParticleSystems
                 case ParticleVolumeType.Line:
                     Vector3 lineStartPoint = default;
                     Vector3 lineEndPoint = default;
-                    reader.ReadVector3(ref lineStartPoint);
-                    reader.ReadVector3(ref lineEndPoint);
+                    reader.PersistVector3(ref lineStartPoint);
+                    reader.PersistVector3(ref lineEndPoint);
                     break;
                 case ParticleVolumeType.Box:
                     Vector3 halfSize = default;
-                    reader.ReadVector3(ref halfSize);
+                    reader.PersistVector3(ref halfSize);
                     break;
                 case ParticleVolumeType.Sphere:
                     var volumeSphereRadius = 0.0f;
-                    reader.ReadSingle(ref volumeSphereRadius); // Interesting, value doesn't match ini file
+                    reader.PersistSingle(ref volumeSphereRadius); // Interesting, value doesn't match ini file
                     break;
                 case ParticleVolumeType.Cylinder:
                     var volumeCylinderRadius = 0.0f;
-                    reader.ReadSingle(ref volumeCylinderRadius);
+                    reader.PersistSingle(ref volumeCylinderRadius);
                     var volumeCylinderLength = 0.0f;
-                    reader.ReadSingle(ref volumeCylinderLength);
+                    reader.PersistSingle(ref volumeCylinderLength);
                     break;
                 default:
                     throw new NotImplementedException();
             }
             var unknown11 = 0u;
-            reader.ReadUInt32(ref unknown11);
+            reader.PersistUInt32(ref unknown11);
             ParticleSystemWindMotion windMotion = default;
-            reader.ReadEnum(ref windMotion);
+            reader.PersistEnum(ref windMotion);
             var unknown12 = 0.0f;
-            reader.ReadSingle(ref unknown12);
+            reader.PersistSingle(ref unknown12);
             var unknown13 = 0.0f;
-            reader.ReadSingle(ref unknown13); // Almost same as WindAngleChangeMin
+            reader.PersistSingle(ref unknown13); // Almost same as WindAngleChangeMin
             var windAngleChangeMin = 0.0f;
-            reader.ReadSingle(ref windAngleChangeMin);
+            reader.PersistSingle(ref windAngleChangeMin);
             var windAngleChangeMax = 0.0f;
-            reader.ReadSingle(ref windAngleChangeMax);
+            reader.PersistSingle(ref windAngleChangeMax);
             var unknown14 = 0.0f;
-            reader.ReadSingle(ref unknown14);
+            reader.PersistSingle(ref unknown14);
             var windPingPongStartAngleMin = 0.0f;
-            reader.ReadSingle(ref windPingPongStartAngleMin);
+            reader.PersistSingle(ref windPingPongStartAngleMin);
             var windPingPongStartAngleMax = 0.0f;
-            reader.ReadSingle(ref windPingPongStartAngleMax);
+            reader.PersistSingle(ref windPingPongStartAngleMax);
             var unknown15 = 0.0f;
-            reader.ReadSingle(ref unknown15);
+            reader.PersistSingle(ref unknown15);
             var windPingPongEndAngleMin = 0.0f;
-            reader.ReadSingle(ref windPingPongEndAngleMin);
+            reader.PersistSingle(ref windPingPongEndAngleMin);
             var windPingPongEndAngleMax = 0.0f;
-            reader.ReadSingle(ref windPingPongEndAngleMax);
+            reader.PersistSingle(ref windPingPongEndAngleMax);
 
             var unknown16 = false;
-            reader.ReadBoolean(ref unknown16);
+            reader.PersistBoolean(ref unknown16);
         }
     }
 

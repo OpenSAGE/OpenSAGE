@@ -471,20 +471,20 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var productionQueueCount = (ushort) _productionQueue.Count;
-            reader.ReadUInt16(ref productionQueueCount);
+            reader.PersistUInt16(ref productionQueueCount);
 
             for (var i = 0; i < productionQueueCount; i++)
             {
                 var productionJobType = ProductionJobType.Unit;
-                reader.ReadEnum(ref productionJobType);
+                reader.PersistEnum(ref productionJobType);
 
                 var templateName = "";
-                reader.ReadAsciiString(ref templateName);
+                reader.PersistAsciiString(ref templateName);
 
                 var productionJob = productionJobType switch
                 {
@@ -498,16 +498,16 @@ namespace OpenSage.Logic.Object
                 _productionQueue.Add(productionJob);
             }
 
-            reader.ReadUInt32(ref _nextJobId);
+            reader.PersistUInt32(ref _nextJobId);
 
             var productionJobCount2 = (uint)_productionQueue.Count;
-            reader.ReadUInt32(ref productionJobCount2);
+            reader.PersistUInt32(ref productionJobCount2);
             if (productionJobCount2 != _productionQueue.Count)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame1);
 
             for (var i = 0; i < _unknownSomethings.Length; i++)
             {
@@ -518,7 +518,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < 2; i++)
             {
                 var unknown1 = true;
-                reader.ReadBoolean(ref unknown1);
+                reader.PersistBoolean(ref unknown1);
                 if (!unknown1)
                 {
                     throw new InvalidStateException();
@@ -707,9 +707,9 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadFrame(ref _unknownFrame1);
-            reader.ReadFrame(ref _unknownFrame2);
-            reader.ReadFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }

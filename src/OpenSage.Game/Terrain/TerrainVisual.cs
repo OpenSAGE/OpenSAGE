@@ -6,19 +6,19 @@
 
         internal void Load(StatePersister reader, Game game)
         {
-            reader.ReadVersion(2);
-            reader.ReadVersion(1);
+            reader.PersistVersion(2);
+            reader.PersistVersion(1);
 
-            reader.ReadBoolean(ref _unknownBool);
+            reader.PersistBoolean(ref _unknownBool);
             if (_unknownBool)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
                 var gridCellsX = 0;
-                reader.ReadInt32(ref gridCellsX);
+                reader.PersistInt32(ref gridCellsX);
                 var gridCellsY = 0;
-                reader.ReadInt32(ref gridCellsY);
+                reader.PersistInt32(ref gridCellsY);
 
                 // Don't know why, but this gives the correct length for this array.
                 var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
@@ -26,7 +26,7 @@
             }
 
             var area = game.Scene3D.MapFile.HeightMapData.Area;
-            reader.ReadUInt32(ref area);
+            reader.PersistUInt32(ref area);
             if (area != game.Scene3D.MapFile.HeightMapData.Area)
             {
                 throw new InvalidStateException();
@@ -41,7 +41,7 @@
                 for (var x = 0; x < width; x++)
                 {
                     var elevation = (byte)elevations[x, y];
-                    reader.ReadByte(ref elevation);
+                    reader.PersistByte(ref elevation);
                     elevations[x, y] = elevation;
                 }
             }

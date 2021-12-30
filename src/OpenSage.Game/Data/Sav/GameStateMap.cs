@@ -7,26 +7,26 @@ namespace OpenSage.Data.Sav
     {
         internal static void Load(StatePersister reader, Game game)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             var mapPath1 = "";
-            reader.ReadAsciiString(ref mapPath1);
+            reader.PersistAsciiString(ref mapPath1);
 
             var mapPath2 = "";
-            reader.ReadAsciiString(ref mapPath2);
+            reader.PersistAsciiString(ref mapPath2);
 
             var gameType = GameType.SinglePlayer;
-            reader.ReadEnum(ref gameType);
+            reader.PersistEnum(ref gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown4 = 0u;
-                reader.ReadUInt32(ref unknown4);
+                reader.PersistUInt32(ref unknown4);
 
                 var unknown5 = 0u;
-                reader.ReadUInt32(ref unknown5);
+                reader.PersistUInt32(ref unknown5);
 
                 mapSize -= 8;
             }
@@ -49,15 +49,15 @@ namespace OpenSage.Data.Sav
             reader.EndSegment();
 
             var nextObjectId = 0u;
-            reader.ReadUInt32(ref nextObjectId);
+            reader.PersistUInt32(ref nextObjectId);
 
             var nextDrawableId = 0u;
-            reader.ReadUInt32(ref nextDrawableId);
+            reader.PersistUInt32(ref nextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown6 = false;
-                reader.ReadBoolean(ref unknown6);
+                reader.PersistBoolean(ref unknown6);
             }
 
             if (gameType == GameType.Skirmish)

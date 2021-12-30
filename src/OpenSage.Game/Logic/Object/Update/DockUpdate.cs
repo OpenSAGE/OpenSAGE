@@ -119,56 +119,56 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadVector3(ref _position1);
-            reader.ReadVector3(ref _position2);
-            reader.ReadVector3(ref _position3);
-            reader.ReadInt32(ref _numApproachPositions1);
-            reader.ReadBoolean(ref _unknownBool);
+            reader.PersistVector3(ref _position1);
+            reader.PersistVector3(ref _position2);
+            reader.PersistVector3(ref _position3);
+            reader.PersistInt32(ref _numApproachPositions1);
+            reader.PersistBoolean(ref _unknownBool);
 
             var numberApproachPositions2 = _approachPositions.Count;
-            reader.ReadInt32(ref numberApproachPositions2);
+            reader.PersistInt32(ref numberApproachPositions2);
 
             for (var i = 0; i < numberApproachPositions2; i++)
             {
                 Vector3 approachPosition = default;
-                reader.ReadVector3(ref approachPosition);
+                reader.PersistVector3(ref approachPosition);
                 _approachPositions.Add(approachPosition);
             }
 
             var numberApproachPositions3 = _approachObjectIds.Count;
-            reader.ReadInt32(ref numberApproachPositions3);
+            reader.PersistInt32(ref numberApproachPositions3);
 
             for (var i = 0; i < numberApproachPositions3; i++)
             {
                 uint objectId = 0;
-                reader.ReadObjectID(ref objectId);
+                reader.PersistObjectID(ref objectId);
                 _approachObjectIds.Add(objectId);
             }
 
             var numberApproachPositions4 = _unknownBools.Count;
-            reader.ReadInt32(ref numberApproachPositions4);
+            reader.PersistInt32(ref numberApproachPositions4);
 
             for (var i = 0; i < numberApproachPositions4; i++)
             {
                 var value = false;
-                reader.ReadBoolean(ref value);
+                reader.PersistBoolean(ref value);
                 _unknownBools.Add(value);
             }
 
-            reader.ReadObjectID(ref _unknownObjectId);
+            reader.PersistObjectID(ref _unknownObjectId);
 
-            reader.ReadUInt16(ref _unknownInt1);
+            reader.PersistUInt16(ref _unknownInt1);
             if (_unknownInt1 != 0 && _unknownInt1 != 1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown3 = true;
-            reader.ReadBoolean(ref unknown3);
+            reader.PersistBoolean(ref unknown3);
             if (!unknown3)
             {
                 throw new InvalidStateException();

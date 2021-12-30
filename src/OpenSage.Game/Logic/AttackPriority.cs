@@ -29,18 +29,18 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadAsciiString(ref _name);
+            reader.PersistAsciiString(ref _name);
 
-            reader.ReadInt32(ref _default);
+            reader.PersistInt32(ref _default);
             if (_default != 1)
             {
                 throw new InvalidStateException();
             }
 
             var numTargets = (ushort)Targets.Count;
-            reader.ReadUInt16(ref numTargets);
+            reader.PersistUInt16(ref numTargets);
 
             for (var i = 0; i < numTargets; i++)
             {
@@ -71,8 +71,8 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadAsciiString(ref _target);
-            reader.ReadUInt32(ref _value);
+            reader.PersistAsciiString(ref _target);
+            reader.PersistUInt32(ref _value);
         }
     }
 }

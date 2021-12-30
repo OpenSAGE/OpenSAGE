@@ -18,7 +18,7 @@ namespace OpenSage.Data.Sav
                 while (true)
                 {
                     var chunkName = "";
-                    reader.ReadAsciiString(ref chunkName);
+                    reader.PersistAsciiString(ref chunkName);
 
                     reader.BeginSegment(chunkName);
 
@@ -72,7 +72,7 @@ namespace OpenSage.Data.Sav
             while (true)
             {
                 var chunkName = "";
-                reader.ReadAsciiString(ref chunkName);
+                reader.PersistAsciiString(ref chunkName);
 
                 if (chunkName == "SG_EOF")
                 {

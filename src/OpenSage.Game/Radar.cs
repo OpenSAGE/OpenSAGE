@@ -267,11 +267,11 @@ namespace OpenSage
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadBoolean(ref _unknown1);
+            reader.PersistBoolean(ref _unknown1);
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);
@@ -282,7 +282,7 @@ namespace OpenSage
             _radarEvents.Clear();
 
             var numRadarEvents = (ushort) _radarEvents.Count;
-            reader.ReadUInt16(ref numRadarEvents);
+            reader.PersistUInt16(ref numRadarEvents);
 
             for (var i = 0; i < numRadarEvents; i++)
             {
@@ -291,8 +291,8 @@ namespace OpenSage
                 _radarEvents.Add(radarEvent);
             }
 
-            reader.ReadUInt32(ref _unknown2);
-            reader.ReadUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
         }
     }
 
@@ -300,10 +300,10 @@ namespace OpenSage
     {
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var count = (ushort) Count;
-            reader.ReadUInt16(ref count);
+            reader.PersistUInt16(ref count);
 
             for (var i = 0; i < count; i++)
             {
@@ -324,10 +324,10 @@ namespace OpenSage
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadObjectID(ref ObjectId);
-            reader.ReadColorRgba(ref Color);
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistColorRgba(ref Color);
         }
     }
 
@@ -348,17 +348,17 @@ namespace OpenSage
 
         public void Load(StatePersister reader)
         {
-            reader.ReadEnum(ref Type);
-            reader.ReadBoolean(ref _unknown1);
-            reader.ReadUInt32(ref _unknown2);
-            reader.ReadUInt32(ref _unknown3);
-            reader.ReadUInt32(ref _unknown4);
-            reader.ReadColorRgbaInt(ref _color1);
-            reader.ReadColorRgbaInt(ref _color2);
-            reader.ReadVector3(ref Position);
-            reader.ReadUInt32(ref _unknown5);
-            reader.ReadUInt32(ref _unknown6);
-            reader.ReadBoolean(ref _unknown7);
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown4);
+            reader.PersistColorRgbaInt(ref _color1);
+            reader.PersistColorRgbaInt(ref _color2);
+            reader.PersistVector3(ref Position);
+            reader.PersistUInt32(ref _unknown5);
+            reader.PersistUInt32(ref _unknown6);
+            reader.PersistBoolean(ref _unknown7);
         }
     }
 

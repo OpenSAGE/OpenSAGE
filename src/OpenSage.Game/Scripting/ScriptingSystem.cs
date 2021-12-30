@@ -270,10 +270,10 @@ namespace OpenSage.Scripting
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(5);
+            reader.PersistVersion(5);
 
             var numSequentialScripts = (ushort) _sequentialScripts.Count;
-            reader.ReadUInt16(ref numSequentialScripts);
+            reader.PersistUInt16(ref numSequentialScripts);
 
             for (var i = 0; i < numSequentialScripts; i++)
             {
@@ -282,43 +282,43 @@ namespace OpenSage.Scripting
                 _sequentialScripts.Add(sequentialScript);
             }
 
-            reader.ReadUInt16(ref _numCounters);
+            reader.PersistUInt16(ref _numCounters);
 
             for (var i = 0; i < _numCounters; i++)
             {
                 ref var counter = ref _counters[i];
 
-                reader.ReadInt32(ref counter.Value);
-                reader.ReadAsciiString(ref counter.Name);
-                reader.ReadBoolean(ref counter.IsTimer);
+                reader.PersistInt32(ref counter.Value);
+                reader.PersistAsciiString(ref counter.Name);
+                reader.PersistBoolean(ref counter.IsTimer);
             }
 
             var numTimersAndCounters2 = (uint)_numCounters;
-            reader.ReadUInt32(ref numTimersAndCounters2);
+            reader.PersistUInt32(ref numTimersAndCounters2);
             if (numTimersAndCounters2 != _numCounters)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt16(ref _numFlags);
+            reader.PersistUInt16(ref _numFlags);
 
             for (var i = 0; i < _numFlags; i++)
             {
                 ref var flag = ref _flags[i];
 
-                reader.ReadBoolean(ref flag.Value);
-                reader.ReadAsciiString(ref flag.Name);
+                reader.PersistBoolean(ref flag.Value);
+                reader.PersistAsciiString(ref flag.Name);
             }
 
             var numFlags2 = (uint)_numFlags;
-            reader.ReadUInt32(ref numFlags2);
+            reader.PersistUInt32(ref numFlags2);
             if (numFlags2 != _numFlags)
             {
                 throw new InvalidStateException();
             }
 
             var numAttackPrioritySets = (ushort) _attackPriorities.Count;
-            reader.ReadUInt16(ref numAttackPrioritySets);
+            reader.PersistUInt16(ref numAttackPrioritySets);
 
             for (var i = 0; i < numAttackPrioritySets; i++)
             {
@@ -328,35 +328,35 @@ namespace OpenSage.Scripting
             }
 
             var numAttackPrioritySets2 = (uint)numAttackPrioritySets;
-            reader.ReadUInt32(ref numAttackPrioritySets2);
+            reader.PersistUInt32(ref numAttackPrioritySets2);
             if (numAttackPrioritySets2 != numAttackPrioritySets)
             {
                 throw new InvalidStateException();
             }
 
             var unknown1 = -1;
-            reader.ReadInt32(ref unknown1);
+            reader.PersistInt32(ref unknown1);
             if (unknown1 != -1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown2 = -1;
-            reader.ReadInt32(ref unknown2);
+            reader.PersistInt32(ref unknown2);
             if (unknown2 != -1)
             {
                 throw new InvalidStateException();
             }
 
             var unknownCount = (ushort) _unknownSomethings.Count;
-            reader.ReadUInt16(ref unknownCount);
+            reader.PersistUInt16(ref unknownCount);
 
             for (var i = 0; i < unknownCount; i++)
             {
                 var objectNameAndId = new ObjectNameAndId();
 
-                reader.ReadAsciiString(ref objectNameAndId.Name);
-                reader.ReadObjectID(ref objectNameAndId.ObjectId);
+                reader.PersistAsciiString(ref objectNameAndId.Name);
+                reader.PersistObjectID(ref objectNameAndId.ObjectId);
 
                 _unknownSomethings.Add(objectNameAndId);
             }
@@ -367,13 +367,13 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < 4; i++)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 reader.SkipUnknownBytes(2);
             }
 
             var numSpecialPowerSets = (ushort) _specialPowers.Length;
-            reader.ReadUInt16(ref numSpecialPowerSets);
+            reader.PersistUInt16(ref numSpecialPowerSets);
 
             if (numSpecialPowerSets != _specialPowers.Length)
             {
@@ -382,31 +382,31 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < numSpecialPowerSets; i++)
             {
-                reader.ReadObjectNameAndIdSet(_specialPowers[i]);
+                reader.PersistObjectNameAndIdSet(_specialPowers[i]);
             }
 
             ushort numUnknown1Sets = 0;
-            reader.ReadUInt16(ref numUnknown1Sets);
+            reader.PersistUInt16(ref numUnknown1Sets);
 
             for (var i = 0; i < numUnknown1Sets; i++)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 reader.SkipUnknownBytes(2);
             }
 
             ushort numUnknown2Sets = 0;
-            reader.ReadUInt16(ref numUnknown2Sets);
+            reader.PersistUInt16(ref numUnknown2Sets);
 
             for (var i = 0; i < numUnknown2Sets; i++)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 reader.SkipUnknownBytes(2);
             }
 
             var numUpgradeSets = (ushort)_upgrades.Length;
-            reader.ReadUInt16(ref numUpgradeSets);
+            reader.PersistUInt16(ref numUpgradeSets);
 
             if (numUpgradeSets != _upgrades.Length)
             {
@@ -415,11 +415,11 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < numUpgradeSets; i++)
             {
-                reader.ReadObjectNameAndIdSet(_upgrades[i]);
+                reader.PersistObjectNameAndIdSet(_upgrades[i]);
             }
 
             var numScienceSets = (ushort) _sciences.Length;
-            reader.ReadUInt16(ref numScienceSets);
+            reader.PersistUInt16(ref numScienceSets);
 
             if (numScienceSets != _sciences.Length)
             {
@@ -432,7 +432,7 @@ namespace OpenSage.Scripting
             }
 
             byte unknown14_1 = 1;
-            reader.ReadByte(ref unknown14_1);
+            reader.PersistByte(ref unknown14_1);
             if (unknown14_1 != 1)
             {
                 throw new InvalidStateException();
@@ -442,17 +442,17 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < 6; i++)
             {
-                reader.ReadSingle(ref _unknownFloats[i]);
+                reader.PersistSingle(ref _unknownFloats[i]);
             }
 
             var unknown16 = 150u;
-            reader.ReadUInt32(ref unknown16);
+            reader.PersistUInt32(ref unknown16);
             if (unknown16 != 150)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt32(ref _unknown17);
+            reader.PersistUInt32(ref _unknown17);
             if (_unknown17 != 0 && _unknown17 != 1 && _unknown17 != 2)
             {
                 throw new InvalidStateException();
@@ -461,22 +461,22 @@ namespace OpenSage.Scripting
             reader.SkipUnknownBytes(1);
 
             var numMapReveals = (ushort) _mapReveals.Count;
-            reader.ReadUInt16(ref numMapReveals);
+            reader.PersistUInt16(ref numMapReveals);
 
             for (var i = 0; i < numMapReveals; i++)
             {
                 var mapReveal = new MapReveal();
 
-                reader.ReadAsciiString(ref mapReveal.Name);
-                reader.ReadAsciiString(ref mapReveal.Waypoint);
-                reader.ReadSingle(ref mapReveal.Radius);
-                reader.ReadAsciiString(ref mapReveal.Player);
+                reader.PersistAsciiString(ref mapReveal.Name);
+                reader.PersistAsciiString(ref mapReveal.Waypoint);
+                reader.PersistSingle(ref mapReveal.Radius);
+                reader.PersistAsciiString(ref mapReveal.Player);
 
                 _mapReveals.Add(mapReveal);
             }
 
             var numObjectTypeLists = (ushort) _objectTypeLists.Count;
-            reader.ReadUInt16(ref numObjectTypeLists);
+            reader.PersistUInt16(ref numObjectTypeLists);
 
             for (var i = 0; i < numObjectTypeLists; i++)
             {
@@ -486,13 +486,13 @@ namespace OpenSage.Scripting
             }
 
             byte unknown20 = 1;
-            reader.ReadByte(ref unknown20);
+            reader.PersistByte(ref unknown20);
             if (unknown20 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadAsciiString(ref _musicTrackName);
+            reader.PersistAsciiString(ref _musicTrackName);
 
             reader.SkipUnknownBytes(1);
         }

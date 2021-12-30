@@ -202,29 +202,29 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             var unknownBool1 = true;
-            reader.ReadBoolean(ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
             // Angles maybe.
-            reader.ReadSingle(ref _unknownFloat1);
-            reader.ReadSingle(ref _unknownFloat2);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
 
-            reader.ReadFrame(ref _unknownFrame1);
-            reader.ReadUInt32(ref _unknownInt1); // 0, 1
-            reader.ReadFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistUInt32(ref _unknownInt1); // 0, 1
+            reader.PersistFrame(ref _unknownFrame2);
 
             for (var i = 0; i < 7; i++)
             {
-                reader.ReadBoolean(ref _unknownBools[i]);
+                reader.PersistBoolean(ref _unknownBools[i]);
             }
 
-            reader.ReadFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame3);
         }
     }
 

@@ -16,10 +16,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadBoolean(ref _unknownBool);
-            reader.ReadVector3(ref _unknownPosition);
+            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistVector3(ref _unknownPosition);
 
             _stateMachine.Load(reader);
         }
@@ -37,7 +37,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
         }
@@ -53,16 +53,16 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 base.Load(reader);
 
-                reader.ReadVector3(ref _unknownPosition);
-                reader.ReadFrame(ref _unknownFrame);
-                reader.ReadBoolean(ref _unknownBool1);
-                reader.ReadBoolean(ref _unknownBool2);
-                reader.ReadBoolean(ref _unknownBool3);
-                reader.ReadBoolean(ref _unknownBool4);
+                reader.PersistVector3(ref _unknownPosition);
+                reader.PersistFrame(ref _unknownFrame);
+                reader.PersistBoolean(ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool3);
+                reader.PersistBoolean(ref _unknownBool4);
             }
         }
 
@@ -73,10 +73,10 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
-                reader.ReadBoolean(ref _unknownBool1);
-                reader.ReadBoolean(ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool2);
             }
         }
 
@@ -84,7 +84,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
             }
         }
     }

@@ -10,23 +10,23 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var particleSystemCount = (ushort)_particleSystemIds.Count;
-            reader.ReadUInt16(ref particleSystemCount);
+            reader.PersistUInt16(ref particleSystemCount);
             for (var i = 0; i < particleSystemCount; i++)
             {
                 var particleSystemId = 0u;
-                reader.ReadUInt32(ref particleSystemId);
+                reader.PersistUInt32(ref particleSystemId);
                 _particleSystemIds.Add(particleSystemId);
             }
 
             for (var i = 0; i < 96; i++)
             {
                 var unknown = -1;
-                reader.ReadInt32(ref unknown);
+                reader.PersistInt32(ref unknown);
                 if (unknown != -1)
                 {
                     throw new InvalidStateException();
@@ -36,14 +36,14 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(289 * 4);
 
             var unknown1 = 1;
-            reader.ReadInt32(ref unknown1);
+            reader.PersistInt32(ref unknown1);
             if (unknown1 != 1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown2 = true;
-            reader.ReadBoolean(ref unknown2);
+            reader.PersistBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

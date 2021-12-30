@@ -19,13 +19,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             _upgradeLogic.Load(reader);
 
-            reader.ReadBoolean(ref _unknown);
+            reader.PersistBoolean(ref _unknown);
 
             reader.SkipUnknownBytes(13);
         }

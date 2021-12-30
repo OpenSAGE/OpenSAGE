@@ -84,56 +84,56 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadAsciiString(ref _templateName);
-            reader.ReadInt32(ref _unknownInt1);
-            reader.ReadInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistAsciiString(ref _templateName);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(4);
 
             var unknownBool2 = true;
-            reader.ReadBoolean(ref unknownBool2);
+            reader.PersistBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
             var unknownInt4 = (ushort)_unknownIntList.Count;
-            reader.ReadUInt16(ref unknownInt4);
+            reader.PersistUInt16(ref unknownInt4);
             for (var i = 0; i < unknownInt4; i++)
             {
                 var value = 0u;
-                reader.ReadUInt32(ref value);
+                reader.PersistUInt32(ref value);
                 _unknownIntList.Add(value);
             }
 
             var unknownBool3 = true;
-            reader.ReadBoolean(ref unknownBool3);
+            reader.PersistBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }
 
             var objectCount = (ushort)_unknownObjectList.Count;
-            reader.ReadUInt16(ref objectCount);
+            reader.PersistUInt16(ref objectCount);
             for (var i = 0; i < objectCount; i++)
             {
                 uint objectId = 0;
-                reader.ReadObjectID(ref objectId);
+                reader.PersistObjectID(ref objectId);
                 _unknownObjectList.Add(objectId);
             }
 
-            reader.ReadUInt16(ref _unknownInt3);
+            reader.PersistUInt16(ref _unknownInt3);
             if (_unknownInt3 != 0 && _unknownInt3 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadInt32(ref _unknownInt4);
+            reader.PersistInt32(ref _unknownInt4);
             if (_unknownInt4 != objectCount && _unknownInt4 != -1)
             {
                 throw new InvalidStateException();

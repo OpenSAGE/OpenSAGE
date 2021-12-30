@@ -22,14 +22,14 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             reader.SkipUnknownBytes(1);
 
             var unknown2 = true;
-            reader.ReadBoolean(ref unknown2);
+            reader.PersistBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

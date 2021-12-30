@@ -322,9 +322,9 @@ namespace OpenSage.Scripting
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadBoolean(ref IsActive);
+            reader.PersistBoolean(ref IsActive);
         }
 
         public Script Copy(string appendix)

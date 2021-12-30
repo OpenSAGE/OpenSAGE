@@ -13,10 +13,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.ReadBoolean(ref unknownBool);
+            reader.PersistBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();
@@ -39,12 +39,12 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadObjectID(ref _guardObjectId);
-            reader.ReadVector3(ref _guardPosition);
+            reader.PersistObjectID(ref _guardObjectId);
+            reader.PersistVector3(ref _guardPosition);
         }
 
         private sealed class GuardInTunnelNetworkIdleState : State
@@ -53,9 +53,9 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
-                reader.ReadUInt32(ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
 
@@ -65,11 +65,11 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
                 base.Load(reader);
 
-                reader.ReadUInt32(ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

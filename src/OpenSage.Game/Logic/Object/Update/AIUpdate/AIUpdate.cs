@@ -288,102 +288,102 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(4);
+            reader.PersistVersion(4);
 
             base.Load(reader);
 
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
 
             _stateMachine.Load(reader);
 
-            reader.ReadUInt32(ref _unknownInt3);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
-            reader.ReadUInt32(ref _unknownInt4);
-            reader.ReadUInt32(ref _unknownInt5);
-            reader.ReadSingle(ref _unknownFloat1); // 999999
-            reader.ReadUInt32(ref _unknownInt6); // 2
-            reader.ReadUInt32(ref _unknownInt7); // 3
-            reader.ReadUInt32(ref _unknownInt8); // 3
-            reader.ReadUInt32(ref _unknownInt9); // 3
-            reader.ReadUInt32(ref _unknownInt10); // 0
-            reader.ReadUInt32(ref _unknownInt11); // 0
-            reader.ReadUInt32(ref _unknownInt12); // 0
-            reader.ReadUInt32(ref _unknownInt13); // 0
-            reader.ReadBoolean(ref _unknownBool3);
-            reader.ReadBoolean(ref _unknownBool4);
-            reader.ReadBoolean(ref _unknownBool5); // 0
-            reader.ReadBoolean(ref _unknownBool6); // 0
-            reader.ReadAsciiString(ref _guardAreaPolygonTriggerName);
-            reader.ReadAsciiString(ref _attackPriorityName);
-            reader.ReadUInt32(ref _unknownInt14); // 0
-            reader.ReadBoolean(ref _unknownBool7);
-            reader.ReadUInt32(ref _unknownInt15); // 0
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistSingle(ref _unknownFloat1); // 999999
+            reader.PersistUInt32(ref _unknownInt6); // 2
+            reader.PersistUInt32(ref _unknownInt7); // 3
+            reader.PersistUInt32(ref _unknownInt8); // 3
+            reader.PersistUInt32(ref _unknownInt9); // 3
+            reader.PersistUInt32(ref _unknownInt10); // 0
+            reader.PersistUInt32(ref _unknownInt11); // 0
+            reader.PersistUInt32(ref _unknownInt12); // 0
+            reader.PersistUInt32(ref _unknownInt13); // 0
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool5); // 0
+            reader.PersistBoolean(ref _unknownBool6); // 0
+            reader.PersistAsciiString(ref _guardAreaPolygonTriggerName);
+            reader.PersistAsciiString(ref _attackPriorityName);
+            reader.PersistUInt32(ref _unknownInt14); // 0
+            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistUInt32(ref _unknownInt15); // 0
 
             var unknownInt16 = 0x7FFFFFFFu;
-            reader.ReadUInt32(ref unknownInt16);
+            reader.PersistUInt32(ref unknownInt16);
             if (unknownInt16 != 0x7FFFFFFF)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadBoolean(ref _unknownBool8);
+            reader.PersistBoolean(ref _unknownBool8);
 
             var hasPath = _path != null;
-            reader.ReadBoolean(ref hasPath);
+            reader.PersistBoolean(ref hasPath);
             if (hasPath)
             {
                 _path = new PathfindingPath();
                 _path.Load(reader);
             }
 
-            reader.ReadUInt32(ref _unknownInt16);
-            reader.ReadVector3(ref _unknownPosition1);
+            reader.PersistUInt32(ref _unknownInt16);
+            reader.PersistVector3(ref _unknownPosition1);
 
             reader.SkipUnknownBytes(12);
 
-            reader.ReadObjectID(ref _unknownObjectId);
-            reader.ReadSingle(ref _unknownFloat2);
-            reader.ReadPoint2D(ref _unknownPos2D1);
-            reader.ReadPoint2D(ref _unknownPos2D2);
-            reader.ReadFrame(ref _unknownFrame1);
-            reader.ReadFrame(ref _unknownFrame2);
-            reader.ReadVector3(ref _unknownPosition2);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistPoint2D(ref _unknownPos2D1);
+            reader.PersistPoint2D(ref _unknownPos2D2);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistVector3(ref _unknownPosition2);
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadBoolean(ref _unknownBool9);
-            reader.ReadBoolean(ref _unknownBool10);
+            reader.PersistBoolean(ref _unknownBool9);
+            reader.PersistBoolean(ref _unknownBool10);
 
             reader.SkipUnknownBytes(5);
 
-            reader.ReadBoolean(ref _unknownBool11);
-            reader.ReadBoolean(ref _unknownBool12);
+            reader.PersistBoolean(ref _unknownBool11);
+            reader.PersistBoolean(ref _unknownBool12);
 
             reader.SkipUnknownBytes(8);
 
-            reader.ReadObjectID(ref _unknownObjectId2);
+            reader.PersistObjectID(ref _unknownObjectId2);
 
             reader.SkipUnknownBytes(4);
 
             _locomotorSet.Load(reader);
 
             var currentLocomotorTemplateName = "";
-            reader.ReadAsciiString(ref currentLocomotorTemplateName);
+            reader.PersistAsciiString(ref currentLocomotorTemplateName);
 
             CurrentLocomotor = currentLocomotorTemplateName != ""
                 ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
                 : null;
 
-            reader.ReadUInt32(ref _unknownInt17);
+            reader.PersistUInt32(ref _unknownInt17);
             if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt32(ref _unknownInt18); // 0, 1
-            reader.ReadSingle(ref _angleSomething);
+            reader.PersistUInt32(ref _unknownInt18); // 0, 1
+            reader.PersistSingle(ref _angleSomething);
 
             reader.SkipUnknownBytes(8);
 
@@ -392,15 +392,15 @@ namespace OpenSage.Logic.Object
                 _turretAIUpdate.Load(reader);
             }
 
-            reader.ReadInt32(ref _unknownInt19); // -1, 258
+            reader.PersistInt32(ref _unknownInt19); // -1, 258
 
-            reader.ReadInt32(ref _unknownInt20);
+            reader.PersistInt32(ref _unknownInt20);
             if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }
@@ -549,10 +549,10 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numPathPoints = (uint)_points.Count;
-            reader.ReadUInt32(ref numPathPoints);
+            reader.PersistUInt32(ref numPathPoints);
 
             for (var i = 0; i < numPathPoints; i++)
             {
@@ -561,10 +561,10 @@ namespace OpenSage.Logic.Object
                 _points.Add(pathPoint);
             }
 
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadUInt32(ref _unknownInt2); // 1
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2); // 1
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 
@@ -578,11 +578,11 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadUInt32(ref _id);
-            reader.ReadVector3(ref _position);
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadUInt32(ref _nextId);
+            reader.PersistUInt32(ref _id);
+            reader.PersistVector3(ref _position);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _nextId);
         }
     }
 }

@@ -11,19 +11,19 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadFrame(ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame);
 
             var count = (ushort)_objectIds.Count;
-            reader.ReadUInt16(ref count);
+            reader.PersistUInt16(ref count);
 
             for (var i = 0; i < count; i++)
             {
                 uint objectId = 0;
-                reader.ReadObjectID(ref objectId);
+                reader.PersistObjectID(ref objectId);
                 _objectIds.Add(objectId);
             }
         }

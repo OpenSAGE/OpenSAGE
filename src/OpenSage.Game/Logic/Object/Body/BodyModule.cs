@@ -20,12 +20,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var unknownFloat = 1.0f;
-            reader.ReadSingle(ref unknownFloat);
+            reader.PersistSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();

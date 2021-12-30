@@ -401,21 +401,21 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
             for (var i = 0; i < _unknownSomething.Length; i++)
             {
                 byte unknownCount = 0;
-                reader.ReadByte(ref unknownCount);
+                reader.PersistByte(ref unknownCount);
                 for (var j = 0; j < unknownCount; j++)
                 {
                     var something = new W3dModelDrawSomething();
 
-                    reader.ReadUInt32(ref something.UnknownInt);
-                    reader.ReadSingle(ref something.UnknownFloat1);
-                    reader.ReadSingle(ref something.UnknownFloat2);
+                    reader.PersistUInt32(ref something.UnknownInt);
+                    reader.PersistSingle(ref something.UnknownFloat1);
+                    reader.PersistSingle(ref something.UnknownFloat2);
 
                     _unknownSomething[i].Add(something);
                 }
@@ -423,11 +423,11 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadBoolean(ref _hasUnknownThing);
+            reader.PersistBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.ReadInt32(ref _unknownInt);
-                reader.ReadSingle(ref _unknownFloat);
+                reader.PersistInt32(ref _unknownInt);
+                reader.PersistSingle(ref _unknownFloat);
             }
         }
 

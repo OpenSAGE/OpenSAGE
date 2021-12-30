@@ -22,25 +22,25 @@ namespace OpenSage.Client
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(3);
+            reader.PersistVersion(3);
 
-            reader.ReadUInt32(ref _currentFrame);
+            reader.PersistUInt32(ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
             ushort drawablesCount = 0;
-            reader.ReadUInt16(ref drawablesCount);
+            reader.PersistUInt16(ref drawablesCount);
 
             for (var i = 0; i < drawablesCount; i++)
             {
                 ushort objectDefinitionId = 0;
-                reader.ReadUInt16(ref objectDefinitionId);
+                reader.PersistUInt16(ref objectDefinitionId);
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                 reader.BeginSegment(objectDefinition.Name);
 
                 var objectID = 0u;
-                reader.ReadUInt32(ref objectID);
+                reader.PersistUInt32(ref objectID);
 
                 var gameObject = _gameLogic.GetObjectById(objectID);
 
@@ -52,11 +52,11 @@ namespace OpenSage.Client
             }
 
             var numBriefingTexts = (uint)_briefingTexts.Count;
-            reader.ReadUInt32(ref numBriefingTexts);
+            reader.PersistUInt32(ref numBriefingTexts);
             for (var i = 0; i < numBriefingTexts; i++)
             {
                 var briefingText = "";
-                reader.ReadAsciiString(ref briefingText);
+                reader.PersistAsciiString(ref briefingText);
                 _briefingTexts.Add(briefingText);
             }
         }

@@ -15,17 +15,17 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadAsciiString(ref Name);
+            reader.PersistAsciiString(ref Name);
 
             var numObjects = (ushort)_objectTypes.Count;
-            reader.ReadUInt16(ref numObjects);
+            reader.PersistUInt16(ref numObjects);
 
             for (var i = 0; i < numObjects; i++)
             {
                 var objectType = "";
-                reader.ReadAsciiString(ref objectType);
+                reader.PersistAsciiString(ref objectType);
                 _objectTypes.Add(objectType);
             }
         }

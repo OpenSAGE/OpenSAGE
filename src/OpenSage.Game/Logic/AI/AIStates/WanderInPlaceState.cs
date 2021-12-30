@@ -9,12 +9,12 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadVector3(ref _unknownPos);
-            reader.ReadUInt32(ref _unknownInt);
+            reader.PersistVector3(ref _unknownPos);
+            reader.PersistUInt32(ref _unknownInt);
 
             reader.SkipUnknownBytes(4);
         }

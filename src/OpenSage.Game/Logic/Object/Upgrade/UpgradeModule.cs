@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
@@ -132,9 +132,9 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadBoolean(ref _triggered);
+            reader.PersistBoolean(ref _triggered);
         }
 
         internal void DrawInspector()

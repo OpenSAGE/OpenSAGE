@@ -87,49 +87,49 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadSingle(ref _currentHealth1); // These two values
-            reader.ReadSingle(ref _currentHealth2); // are almost but not quite the same.
-            reader.ReadSingle(ref _maxHealth);
+            reader.PersistSingle(ref _currentHealth1); // These two values
+            reader.PersistSingle(ref _currentHealth2); // are almost but not quite the same.
+            reader.PersistSingle(ref _maxHealth);
 
             var maxHealth2 = _maxHealth;
-            reader.ReadSingle(ref maxHealth2);
+            reader.PersistSingle(ref maxHealth2);
             if (_maxHealth != maxHealth2)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadEnum(ref _damageType);
-            reader.ReadFrame(ref _unknownFrame1);
+            reader.PersistEnum(ref _damageType);
+            reader.PersistFrame(ref _unknownFrame1);
 
             var lastDamageType = (uint)_lastDamageType;
-            reader.ReadUInt32(ref lastDamageType);
+            reader.PersistUInt32(ref lastDamageType);
             _lastDamageType = (DamageType)lastDamageType; // -1 if no last damage
 
             _lastDamage.Load(reader);
 
-            reader.ReadFrame(ref _unknownFrame2);
-            reader.ReadFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(2);
 
-            reader.ReadBoolean(ref _unknownBool);
-            reader.ReadBoolean(ref _indestructible);
+            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean(ref _indestructible);
 
             var particleSystemCount = (ushort) _particleSystemIds.Count;
-            reader.ReadUInt16(ref particleSystemCount);
+            reader.PersistUInt16(ref particleSystemCount);
 
             for (var i = 0; i < particleSystemCount; i++)
             {
                 var particleSystemId = 0u;
-                reader.ReadUInt32(ref particleSystemId);
+                reader.PersistUInt32(ref particleSystemId);
                 _particleSystemIds.Add(particleSystemId);
             }
 
-            reader.ReadBitArray(ref _armorSetConditions);
+            reader.PersistBitArray(ref _armorSetConditions);
         }
     }
 
