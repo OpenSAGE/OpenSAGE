@@ -13,7 +13,7 @@ namespace OpenSage.Data.Sav
             using (var stream = entry.Open())
             using (var binaryReader = new BinaryReader(stream, Encoding.Unicode, true))
             {
-                var reader = new StatePersister(binaryReader, game);
+                var reader = new StateReader(binaryReader, game);
 
                 while (true)
                 {
@@ -46,28 +46,28 @@ namespace OpenSage.Data.Sav
         {
             using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
 
-            var reader = new StatePersister(binaryReader, game);
-
-            if (reader.SageGame >= SageGame.Bfme)
+            if (game.SageGame >= SageGame.Bfme)
             {
-                var header1 = reader.Inner.ReadFourCc(bigEndian: true);
+                var header1 = binaryReader.ReadFourCc(bigEndian: true);
                 if (header1 != "EALA")
                 {
                     throw new InvalidStateException();
                 }
 
-                var header2 = reader.Inner.ReadFourCc(bigEndian: true);
+                var header2 = binaryReader.ReadFourCc(bigEndian: true);
                 if (header2 != "RTS1")
                 {
                     throw new InvalidStateException();
                 }
 
-                var header3 = reader.Inner.ReadUInt32();
+                var header3 = binaryReader.ReadUInt32();
                 if (header3 != 0)
                 {
                     throw new InvalidStateException();
                 }
             }
+
+            var reader = new StateReader(binaryReader, game);
 
             while (true)
             {
