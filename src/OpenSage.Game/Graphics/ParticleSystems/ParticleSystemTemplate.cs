@@ -376,6 +376,12 @@ namespace OpenSage.Graphics.ParticleSystems
             };
         }
 
+        internal void WriteToSaveFile(BinaryWriter writer)
+        {
+            writer.Write(Value);
+            writer.Write(Time);
+        }
+
         public RandomVariable Value;
         public uint Time;
     }
@@ -398,6 +404,12 @@ namespace OpenSage.Graphics.ParticleSystems
                 Color = reader.ReadColorRgbF(),
                 Time = reader.ReadUInt32()
             };
+        }
+
+        internal void WriteToSaveFile(BinaryWriter writer)
+        {
+            writer.Write(Color);
+            writer.Write(Time);
         }
 
         public ColorRgbF Color;

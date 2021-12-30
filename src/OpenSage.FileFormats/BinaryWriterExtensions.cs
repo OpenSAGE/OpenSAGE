@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using OpenSage.Mathematics;
 
@@ -24,6 +26,18 @@ namespace OpenSage.FileFormats
             }
         }
 
+        public static void WriteBytePrefixedAsciiString(this BinaryWriter writer, string value)
+        {
+            if (value.Length > byte.MaxValue)
+            {
+                throw new ArgumentException();
+            }
+
+            writer.Write((byte) value.Length);
+
+            writer.Write(BinaryUtility.AnsiEncoding.GetBytes(value));
+        }
+
         public static void WriteUInt16PrefixedAsciiString(this BinaryWriter writer, string value)
         {
             if (value.Length > ushort.MaxValue)
@@ -34,6 +48,18 @@ namespace OpenSage.FileFormats
             writer.Write((ushort) value.Length);
 
             writer.Write(BinaryUtility.AnsiEncoding.GetBytes(value));
+        }
+
+        public static void WriteBytePrefixedUnicodeString(this BinaryWriter writer, string value)
+        {
+            if (value.Length > byte.MaxValue)
+            {
+                throw new ArgumentException();
+            }
+
+            writer.Write((byte)value.Length);
+
+            writer.Write(Encoding.Unicode.GetBytes(value));
         }
 
         public static void WriteUInt16PrefixedUnicodeString(this BinaryWriter writer, string value)
@@ -176,6 +202,20 @@ namespace OpenSage.FileFormats
             writer.Write(value);
         }
 
+        public static void WriteEnumAsUInt32<TEnum>(this BinaryWriter writer, TEnum value)
+            where TEnum : struct
+        {
+            var uintValue = Unsafe.As<TEnum, uint>(ref value);
+            writer.Write(uintValue);
+        }
+
+        public static void WriteEnumAsByte<TEnum>(this BinaryWriter writer, TEnum value)
+            where TEnum : struct
+        {
+            var byteValue = Unsafe.As<TEnum, byte>(ref value);
+            writer.Write(byteValue);
+        }
+
         public static void Write(this BinaryWriter writer, in Vector2 value)
         {
             writer.Write(value.X);
@@ -195,6 +235,12 @@ namespace OpenSage.FileFormats
             writer.Write(value.Y);
             writer.Write(value.Z);
             writer.Write(value.W);
+        }
+
+        public static void Write(this BinaryWriter writer, in Point2D value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
         }
 
         public static void Write(this BinaryWriter writer, in Point3D value)
@@ -244,6 +290,22 @@ namespace OpenSage.FileFormats
             writer.Write(value.M43);
         }
 
+        public static void WriteMatrix4x3Transposed(this BinaryWriter writer, in Matrix4x3 value)
+        {
+            writer.Write(value.M11);
+            writer.Write(value.M21);
+            writer.Write(value.M31);
+            writer.Write(value.M41);
+            writer.Write(value.M12);
+            writer.Write(value.M22);
+            writer.Write(value.M32);
+            writer.Write(value.M42);
+            writer.Write(value.M13);
+            writer.Write(value.M23);
+            writer.Write(value.M33);
+            writer.Write(value.M43);
+        }
+
         public static void Write(this BinaryWriter writer, in ColorRgb value, bool extraBytePadding = false)
         {
             writer.Write(value.R);
@@ -279,6 +341,14 @@ namespace OpenSage.FileFormats
             }
         }
 
+        public static void WriteColorRgbaInt(this BinaryWriter writer, in ColorRgba value)
+        {
+            writer.Write((uint)value.R);
+            writer.Write((uint)value.G);
+            writer.Write((uint)value.B);
+            writer.Write((uint)value.A);
+        }
+
         public static void Write(this BinaryWriter writer, in ColorRgbF value)
         {
             writer.Write(value.R);
@@ -292,6 +362,24 @@ namespace OpenSage.FileFormats
             writer.Write(value.G);
             writer.Write(value.B);
             writer.Write(value.A);
+        }
+
+        public static void Write(this BinaryWriter writer, DateTime value)
+        {
+            writer.Write((ushort)value.Year);
+            writer.Write((ushort)value.Month);
+            writer.Write((ushort)value.DayOfWeek);
+            writer.Write((ushort)value.Hour);
+            writer.Write((ushort)value.Minute);
+            writer.Write((ushort)value.Second);
+            writer.Write((ushort)value.Millisecond);
+        }
+
+        public static void Write(this BinaryWriter writer, in RandomVariable value)
+        {
+            writer.WriteEnumAsUInt32(value.DistributionType);
+            writer.Write(value.Low);
+            writer.Write(value.High);
         }
 
         public static void WriteFourCc(this BinaryWriter writer, string fourCc, bool bigEndian = false)
