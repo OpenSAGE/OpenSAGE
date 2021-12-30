@@ -17,15 +17,10 @@ namespace OpenSage.Logic.Object
 
             reader.PersistFrame(ref _unknownFrame);
 
-            var count = (ushort)_objectIds.Count;
-            reader.PersistUInt16(ref count);
-
-            for (var i = 0; i < count; i++)
+            reader.PersistList(_objectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint objectId = 0;
-                reader.PersistObjectID(ref objectId);
-                _objectIds.Add(objectId);
-            }
+                persister.PersistObjectID(ref item);
+            });
         }
     }
 

@@ -23,9 +23,9 @@ namespace OpenSage.Logic
         private readonly SupplyManager _supplyManager;
 
         private readonly List<Upgrade> _upgrades;
-        private readonly StringSet _upgradesInProgress;
+        private readonly UpgradeSet _upgradesInProgress;
 
-        public readonly StringSet UpgradesCompleted;
+        public readonly UpgradeSet UpgradesCompleted;
 
         private readonly ScienceSet _sciences;
         private readonly ScienceSet _sciencesDisabled;
@@ -137,8 +137,8 @@ namespace OpenSage.Logic
             _supplyManager = new SupplyManager();
 
             _upgrades = new List<Upgrade>();
-            _upgradesInProgress = new StringSet();
-            UpgradesCompleted = new StringSet();
+            _upgradesInProgress = new UpgradeSet();
+            UpgradesCompleted = new UpgradeSet();
 
             _sciences = new ScienceSet(assetStore);
             _sciencesDisabled = new ScienceSet(assetStore);
@@ -348,12 +348,12 @@ namespace OpenSage.Logic
             switch (status)
             {
                 case UpgradeStatus.Queued:
-                    _upgradesInProgress.Add(template.Name);
+                    _upgradesInProgress.Add(template);
                     break;
 
                 case UpgradeStatus.Completed:
-                    _upgradesInProgress.Remove(template.Name);
-                    UpgradesCompleted.Add(template.Name);
+                    _upgradesInProgress.Remove(template);
+                    UpgradesCompleted.Add(template);
                     break;
             }
 
@@ -897,22 +897,36 @@ namespace OpenSage.Logic
 
     // TODO: I don't know if these are always serialized the same way in .sav files.
     // Maybe we shouldn't use a generic container like this.
-    public sealed class StringSet : HashSet<string>
+    public sealed class UpgradeSet : HashSet<UpgradeTemplate>
     {
-        internal void Load(StatePersister reader)
+        internal void Load(StatePersister persister)
         {
-            reader.PersistVersion(1);
+            persister.PersistVersion(1);
 
             Clear();
 
             var count = (ushort) Count;
-            reader.PersistUInt16(ref count);
+            persister.PersistUInt16(ref count);
 
-            for (var i = 0; i < count; i++)
+            if (persister.Mode == StatePersistMode.Read)
             {
-                var item = "";
-                reader.PersistAsciiString(ref item);
-                Add(item);
+                for (var i = 0; i < count; i++)
+                {
+                    var upgradeName = "";
+                    persister.PersistAsciiString(ref upgradeName);
+
+                    var upgrade = persister.AssetStore.Upgrades.GetByName(upgradeName);
+
+                    Add(upgrade);
+                }
+            }
+            else
+            {
+                foreach (var item in this)
+                {
+                    var name = item.Name;
+                    persister.PersistAsciiString(ref name);
+                }
             }
         }
     }

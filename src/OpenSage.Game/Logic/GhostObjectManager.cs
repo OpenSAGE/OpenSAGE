@@ -14,19 +14,12 @@ namespace OpenSage.Logic
 
             reader.PersistUInt32(ref _unknown1);
 
-            var ghostObjectCount = (ushort)_ghostObjects.Count;
-            reader.PersistUInt16(ref ghostObjectCount);
-
-            for (var i = 0; i < ghostObjectCount; i++)
+            reader.PersistList(_ghostObjects, static (StatePersister persister, ref GhostObject item) =>
             {
-                var ghostObject = new GhostObject();
+                persister.PersistObjectID(ref item.OriginalObjectId);
 
-                reader.PersistObjectID(ref ghostObject.OriginalObjectId);
-                
-                ghostObject.Load(reader, gameLogic, game);
-
-                _ghostObjects.Add(ghostObject);
-            }
+                item.Load(persister);
+            });
         }
     }
 }

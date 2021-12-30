@@ -102,14 +102,10 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var unknownInt4 = (ushort)_unknownIntList.Count;
-            reader.PersistUInt16(ref unknownInt4);
-            for (var i = 0; i < unknownInt4; i++)
+            reader.PersistList(_unknownIntList, static (StatePersister persister, ref uint item) =>
             {
-                var value = 0u;
-                reader.PersistUInt32(ref value);
-                _unknownIntList.Add(value);
-            }
+                persister.PersistUInt32(ref item);
+            });
 
             var unknownBool3 = true;
             reader.PersistBoolean(ref unknownBool3);
@@ -118,14 +114,10 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            var objectCount = (ushort)_unknownObjectList.Count;
-            reader.PersistUInt16(ref objectCount);
-            for (var i = 0; i < objectCount; i++)
+            reader.PersistList(_unknownObjectList, static (StatePersister persister, ref uint item) =>
             {
-                uint objectId = 0;
-                reader.PersistObjectID(ref objectId);
-                _unknownObjectList.Add(objectId);
-            }
+                persister.PersistObjectID(ref item);
+            });
 
             reader.PersistUInt16(ref _unknownInt3);
             if (_unknownInt3 != 0 && _unknownInt3 != 1)
@@ -134,7 +126,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistInt32(ref _unknownInt4);
-            if (_unknownInt4 != objectCount && _unknownInt4 != -1)
+            if (_unknownInt4 != _unknownObjectList.Count && _unknownInt4 != -1)
             {
                 throw new InvalidStateException();
             }

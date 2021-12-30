@@ -61,15 +61,11 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(13);
 
-            var unknown9Count = (ushort)_unknownList.Count;
-            reader.PersistUInt16(ref unknown9Count);
-            for (var i = 0; i < unknown9Count; i++)
+            reader.PersistList(_unknownList, static (StatePersister persister, ref OpenContainSomething item) =>
             {
-                var something = new OpenContainSomething();
-                reader.PersistObjectID(ref something.ObjectId);
-                reader.PersistInt32(ref something.Unknown);
-                _unknownList.Add(something);
-            }
+                persister.PersistObjectID(ref item.ObjectId);
+                persister.PersistInt32(ref item.Unknown);
+            });
 
             reader.PersistInt32(ref _unknownInt);
         }

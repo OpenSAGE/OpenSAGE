@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
             _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
         }
 
-        internal bool CanUpgrade(HashSet<string> existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
+        internal bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
 
         internal override void Update(BehaviorUpdateContext context)
         {
@@ -95,7 +95,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public bool CanUpgrade(HashSet<string> existingUpgrades)
+        public bool CanUpgrade(UpgradeSet existingUpgrades)
         {
             if (_triggered)
             {
@@ -105,7 +105,7 @@ namespace OpenSage.Logic.Object
             return CanUpgradeImpl(existingUpgrades);
         }
 
-        private bool CanUpgradeImpl(HashSet<string> existingUpgrades)
+        private bool CanUpgradeImpl(UpgradeSet existingUpgrades)
         {
             // Does the object / player have the prerequisite upgrades that trigger this upgrade?
             var triggered = _data.RequiresAllTriggers
@@ -185,19 +185,19 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public bool ActiveDuringConstruction { get; internal set; }
 
-        private HashSet<string> _triggeredByHashSet;
-        internal HashSet<string> TriggeredByHashSet
+        private HashSet<UpgradeTemplate> _triggeredByHashSet;
+        internal HashSet<UpgradeTemplate> TriggeredByHashSet
         {
             get
             {
                 if (_triggeredByHashSet == null)
                 {
-                    _triggeredByHashSet = new HashSet<string>();
+                    _triggeredByHashSet = new HashSet<UpgradeTemplate>();
                     if (TriggeredBy != null)
                     {
                         foreach (var upgrade in TriggeredBy)
                         {
-                            _triggeredByHashSet.Add(upgrade.Value.Name);
+                            _triggeredByHashSet.Add(upgrade.Value);
                         }
                     }
                 }
@@ -206,19 +206,19 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private HashSet<string> _conflictsWithHashSet;
-        internal HashSet<string> ConflictsWithHashSet
+        private HashSet<UpgradeTemplate> _conflictsWithHashSet;
+        internal HashSet<UpgradeTemplate> ConflictsWithHashSet
         {
             get
             {
                 if (_conflictsWithHashSet == null)
                 {
-                    _conflictsWithHashSet = new HashSet<string>();
+                    _conflictsWithHashSet = new HashSet<UpgradeTemplate>();
                     if (ConflictsWith != null)
                     {
                         foreach (var upgrade in ConflictsWith)
                         {
-                            _conflictsWithHashSet.Add(upgrade.Value.Name);
+                            _conflictsWithHashSet.Add(upgrade.Value);
                         }
                     }
                 }

@@ -313,11 +313,11 @@ namespace OpenSage.Logic.Object
         public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
-        private readonly HashSet<string> _upgrades;
+        private readonly UpgradeSet _upgrades = new();
 
         // We compute this every time it's requested, but we don't want
         // to allocate a new object every time.
-        private readonly HashSet<string> _upgradesAll;
+        private readonly UpgradeSet _upgradesAll = new();
 
         public int Rank { get; set; }
         public int ExperienceValue { get; set; }
@@ -343,9 +343,6 @@ namespace OpenSage.Logic.Object
             {
                 objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
             }
-
-            _upgrades = new HashSet<string>();
-            _upgradesAll = new HashSet<string>();
 
             _objectMoved = true;
             Hidden = false;
@@ -749,7 +746,7 @@ namespace OpenSage.Logic.Object
 
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasUpgrade(upgrade)
-                : _upgrades.Contains(upgrade.Name);
+                : _upgrades.Contains(upgrade);
         }
 
         internal void StartConstruction(in TimeInterval gameTime)
@@ -960,7 +957,7 @@ namespace OpenSage.Logic.Object
             var hasUpgrade = HasUpgrade(upgrade);
 
             var existingUpgrades = GetUpgradesCompleted();
-            existingUpgrades.Add(upgrade.Name);
+            existingUpgrades.Add(upgrade);
 
             var upgradeModuleCanUpgrade = false;
             foreach (var upgradeModule in FindBehaviors<UpgradeModule>())
@@ -975,7 +972,7 @@ namespace OpenSage.Logic.Object
             return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && upgradeModuleCanUpgrade;
         }
 
-        public HashSet<string> GetUpgradesCompleted()
+        public UpgradeSet GetUpgradesCompleted()
         {
             _upgradesAll.Clear();
             _upgradesAll.UnionWith(_upgrades);
@@ -1002,14 +999,14 @@ namespace OpenSage.Logic.Object
 
         private void DoObjectUpgrade(UpgradeTemplate upgrade)
         {
-            _upgrades.Add(upgrade.Name);
+            _upgrades.Add(upgrade);
         }
 
         public void RemoveUpgrade(UpgradeTemplate upgrade)
         {
             if (upgrade.Type == UpgradeType.Object)
             {
-                _upgrades.Remove(upgrade.Name);
+                _upgrades.Remove(upgrade);
             }
             else if (upgrade.Type == UpgradeType.Player)
             {
@@ -1144,24 +1141,7 @@ namespace OpenSage.Logic.Object
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
             reader.PersistSingle(ref BuildProgress);
 
-            byte unknown3 = 1;
-            reader.PersistByte(ref unknown3);
-            if (unknown3 != 1)
-            {
-                throw new InvalidStateException();
-            }
-
-            var numUpgrades = (ushort)_upgrades.Count;
-            reader.PersistUInt16(ref numUpgrades);
-
-            for (var i = 0; i < numUpgrades; i++)
-            {
-                var upgradeName = "";
-                reader.PersistAsciiString(ref upgradeName);
-
-                var upgrade = _gameContext.AssetLoadContext.AssetStore.Upgrades.GetByName(upgradeName);
-                DoObjectUpgrade(upgrade);
-            }
+            _upgrades.Load(reader);
 
             // Not always (but usually is) the same as the teamId above implies.
             reader.PersistAsciiString(ref _teamName);

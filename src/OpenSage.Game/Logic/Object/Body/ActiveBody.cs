@@ -119,15 +119,10 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref _unknownBool);
             reader.PersistBoolean(ref _indestructible);
 
-            var particleSystemCount = (ushort) _particleSystemIds.Count;
-            reader.PersistUInt16(ref particleSystemCount);
-
-            for (var i = 0; i < particleSystemCount; i++)
+            reader.PersistList(_particleSystemIds, static (StatePersister persister, ref uint item) =>
             {
-                var particleSystemId = 0u;
-                reader.PersistUInt32(ref particleSystemId);
-                _particleSystemIds.Add(particleSystemId);
-            }
+                persister.PersistUInt32(ref item);
+            });
 
             reader.PersistBitArray(ref _armorSetConditions);
         }

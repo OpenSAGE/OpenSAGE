@@ -13,13 +13,19 @@ namespace OpenSage
     {
         protected readonly Stack<Segment> Segments;
 
+        public readonly StatePersistMode Mode;
+
+        public readonly Game Game;
         public readonly SageGame SageGame;
         public readonly AssetStore AssetStore;
 
-        protected StatePersister(Game game)
+        protected StatePersister(Game game, StatePersistMode mode)
         {
             Segments = new Stack<Segment>();
 
+            Mode = mode;
+
+            Game = game;
             SageGame = game.SageGame;
             AssetStore = game.AssetStore;
         }
@@ -85,6 +91,11 @@ namespace OpenSage
 
         public abstract void PersistObjectNameAndIdSet(List<ObjectNameAndId> set);
 
+        public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
+
+        public abstract void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
+            where T : new();
+
         public abstract void ReadBytesIntoStream(Stream destination, int numBytes);
 
         public abstract uint BeginSegment(string segmentName);
@@ -96,12 +107,18 @@ namespace OpenSage
         public abstract void SkipUnknownBytes(int numBytes);
     }
 
+    public enum StatePersistMode
+    {
+        Read,
+        Write,
+    }
+
     public sealed class StateReader : StatePersister
     {
         private readonly BinaryReader _binaryReader;
 
         internal StateReader(BinaryReader binaryReader, Game game)
-            : base(game)
+            : base(game, StatePersistMode.Read)
         {
             _binaryReader = binaryReader;
         }
@@ -211,6 +228,20 @@ namespace OpenSage
             }
         }
 
+        public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
+        {
+            var count = _binaryReader.ReadUInt16();
+
+            for (var i = 0; i < count; i++)
+            {
+                var item = new T();
+
+                callback(this, ref item);
+
+                value.Add(item);
+            }
+        }
+
         public override unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
         {
             const int bufferSize = 1024;
@@ -288,7 +319,7 @@ namespace OpenSage
         private readonly BinaryWriter _binaryWriter;
 
         internal StateWriter(BinaryWriter binaryWriter, Game game)
-            : base(game)
+            : base(game, StatePersistMode.Read)
         {
             _binaryWriter = binaryWriter;
         }
@@ -385,6 +416,17 @@ namespace OpenSage
             {
                 _binaryWriter.WriteBytePrefixedAsciiString(item.Name);
                 _binaryWriter.Write(item.ObjectId);
+            }
+        }
+
+        public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
+        {
+            _binaryWriter.Write((ushort)value.Count);
+
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                callback(this, ref item);
             }
         }
 
