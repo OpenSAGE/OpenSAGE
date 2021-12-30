@@ -26,7 +26,7 @@ namespace OpenSage.Logic
         private byte _unknownByte;
         private uint _unknownInt;
 
-        internal GhostObject()
+        public GhostObject()
         {
             _modelsPerPlayer = new List<ModelInstance>[Player.MaxPlayers];
             for (var i = 0; i < _modelsPerPlayer.Length; i++)
@@ -35,16 +35,16 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(StatePersister reader, GameLogic gameLogic, Game game)
+        internal void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
             reader.PersistVersion(1);
 
             uint objectId = 0;
             reader.PersistObjectID(ref objectId);
-            _gameObject = gameLogic.GetObjectById(objectId);
+            _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
 
-            reader.PersistEnum<ObjectGeometry>(ref _geometryType);
+            reader.PersistEnum(ref _geometryType);
 
             // Sometimes there's a 0xC0, when it should be 0x0.
             byte geometryIsSmall = 0;
@@ -68,8 +68,8 @@ namespace OpenSage.Logic
                     var modelName = "";
                     reader.PersistAsciiString(ref modelName);
 
-                    var model = game.AssetStore.Models.GetByName(modelName);
-                    var modelInstance = model.CreateInstance(game.AssetStore.LoadContext);
+                    var model = reader.AssetStore.Models.GetByName(modelName);
+                    var modelInstance = model.CreateInstance(reader.AssetStore.LoadContext);
 
                     _modelsPerPlayer[i].Add(modelInstance);
 
