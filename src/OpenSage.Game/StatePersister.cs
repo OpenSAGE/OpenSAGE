@@ -68,8 +68,6 @@ namespace OpenSage
 
         public abstract void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion = true);
 
-        public abstract void PersistMatrix4x3Transposed(ref Matrix4x3 value);
-
         public abstract void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
             where TEnum : Enum;
 
@@ -161,29 +159,8 @@ namespace OpenSage
                 PersistVersion(1);
             }
 
-            var m11 = _binaryReader.ReadSingle();
-            var m21 = _binaryReader.ReadSingle();
-            var m31 = _binaryReader.ReadSingle();
-            var m41 = _binaryReader.ReadSingle();
-
-            var m12 = _binaryReader.ReadSingle();
-            var m22 = _binaryReader.ReadSingle();
-            var m32 = _binaryReader.ReadSingle();
-            var m42 = _binaryReader.ReadSingle();
-
-            var m13 = _binaryReader.ReadSingle();
-            var m23 = _binaryReader.ReadSingle();
-            var m33 = _binaryReader.ReadSingle();
-            var m43 = _binaryReader.ReadSingle();
-
-            value = new Matrix4x3(
-                m11, m12, m13,
-                m21, m22, m23,
-                m31, m32, m33,
-                m41, m42, m43);
+            value = _binaryReader.ReadMatrix4x3Transposed();
         }
-
-        public override void PersistMatrix4x3Transposed(ref Matrix4x3 value) => value = _binaryReader.ReadMatrix4x3Transposed();
 
         public override void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
         {
@@ -191,14 +168,13 @@ namespace OpenSage
 
             result.SetAll(false);
 
-            var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
-
             var count = _binaryReader.ReadUInt32();
+
+            var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
 
             for (var i = 0; i < count; i++)
             {
-                var stringValue = "";
-                PersistAsciiString(ref stringValue);
+                var stringValue = _binaryReader.ReadBytePrefixedAsciiString();
 
                 var enumValue = (TEnum)stringToValueMap[stringValue];
 
@@ -222,10 +198,9 @@ namespace OpenSage
         {
             PersistVersion(1);
 
-            var numItems = (ushort)set.Count;
-            PersistUInt16(ref numItems);
+            var numItems = _binaryReader.ReadUInt16();
 
-            for (var j = 0; j < numItems; j++)
+            for (var i = 0; i < numItems; i++)
             {
                 var objectNameAndId = new ObjectNameAndId();
 
@@ -304,6 +279,156 @@ namespace OpenSage
                 {
                     throw new InvalidStateException($"Expected byte (index {i}) at position 0x{_binaryReader.BaseStream.Position - 1:X8} to be 0 but it was {unknown}");
                 }
+            }
+        }
+    }
+
+    public sealed class StateWriter : StatePersister
+    {
+        private readonly BinaryWriter _binaryWriter;
+
+        internal StateWriter(BinaryWriter binaryWriter, Game game)
+            : base(game)
+        {
+            _binaryWriter = binaryWriter;
+        }
+
+        public override byte PersistVersion(byte maximumVersion)
+        {
+            _binaryWriter.Write(maximumVersion);
+            return maximumVersion;
+        }
+
+        public override void PersistByte(ref byte value) => _binaryWriter.Write(value);
+
+        public override void PersistInt16(ref short value) => _binaryWriter.Write(value);
+
+        public override void PersistUInt16(ref ushort value) => _binaryWriter.Write(value);
+
+        public override void PersistInt32(ref int value) => _binaryWriter.Write(value);
+
+        public override void PersistUInt32(ref uint value) => _binaryWriter.Write(value);
+
+        public override void PersistBoolean(ref bool value) => _binaryWriter.Write(value);
+
+        public override void PersistObjectID(ref uint value) => _binaryWriter.Write(value);
+
+        public override void PersistFrame(ref uint value) => _binaryWriter.Write(value);
+
+        public override void PersistAsciiString(ref string value) => _binaryWriter.WriteBytePrefixedAsciiString(value);
+
+        public override void PersistUnicodeString(ref string value) => _binaryWriter.WriteBytePrefixedUnicodeString(value);
+
+        public override void PersistSingle(ref float value) => _binaryWriter.Write(value);
+
+        public override void PersistVector3(ref Vector3 value) => _binaryWriter.Write(value);
+
+        public override void PersistPoint2D(ref Point2D value) => _binaryWriter.Write(value);
+
+        public override void PersistPoint3D(ref Point3D value) => _binaryWriter.Write(value);
+
+        public override void PersistEnum<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
+
+        public override void PersistEnumByte<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
+
+        public override void PersistEnumFlags<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
+
+        public override void PersistEnumByteFlags<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
+
+        public override void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion)
+        {
+            if (readVersion)
+            {
+                PersistVersion(1);
+            }
+
+            _binaryWriter.WriteMatrix4x3Transposed(value);
+        }
+
+        public override void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
+        {
+            PersistVersion(1);
+
+            result.SetAll(false);
+
+            _binaryWriter.Write((uint)result.NumBitsSet);
+
+            var valueToStringMap = Data.Ini.IniParser.GetEnumMapReverse<TEnum>();
+
+            foreach (var setBit in result.GetSetBits())
+            {
+                var stringValue = valueToStringMap[setBit];
+
+                _binaryWriter.WriteBytePrefixedAsciiString(stringValue);
+            }
+        }
+
+        public override void PersistColorRgba(ref ColorRgba value) => _binaryWriter.Write(value);
+
+        public override void PersistColorRgbaInt(ref ColorRgba value) => _binaryWriter.WriteColorRgbaInt(value);
+
+        public override void PersistDateTime(ref DateTime value) => _binaryWriter.Write(value);
+
+        public override void PersistRandomVariable(ref RandomVariable value) => _binaryWriter.Write(value);
+
+        public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value.WriteToSaveFile(_binaryWriter);
+
+        public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value.WriteToSaveFile(_binaryWriter);
+
+        public override void PersistObjectNameAndIdSet(List<ObjectNameAndId> set)
+        {
+            PersistVersion(1);
+
+            _binaryWriter.Write((ushort)set.Count);
+
+            foreach (var item in set)
+            {
+                _binaryWriter.WriteBytePrefixedAsciiString(item.Name);
+                _binaryWriter.Write(item.ObjectId);
+            }
+        }
+
+        public override void ReadBytesIntoStream(Stream destination, int numBytes)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override uint BeginSegment(string segmentName)
+        {
+            if (SageGame >= SageGame.Bfme)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                // Write placeholder for segment length - we'll patch this later.
+                _binaryWriter.Write(0u);
+
+                var currentPosition = _binaryWriter.BaseStream.Position;
+
+                Segments.Push(new Segment(currentPosition, currentPosition, segmentName));
+
+                return 0u;
+            }
+        }
+
+        public override void EndSegment()
+        {
+            var segment = Segments.Pop();
+
+            var currentPosition = _binaryWriter.BaseStream.Position;
+            var segmentLength = currentPosition - segment.Start;
+
+            _binaryWriter.BaseStream.Position = segment.Start - 4;
+            _binaryWriter.Write((uint)segmentLength);
+            _binaryWriter.BaseStream.Position = currentPosition;
+        }
+
+        public override void SkipUnknownBytes(int numBytes)
+        {
+            for (var i = 0; i < numBytes; i++)
+            {
+                _binaryWriter.Write((byte)0);
             }
         }
     }

@@ -625,9 +625,9 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistUInt32(ref _attachedToDrawableId);
             reader.PersistObjectID(ref _attachedToObjectId);
             reader.PersistBoolean(ref _isIdentityTransform);
-            reader.PersistMatrix4x3Transposed(ref _transform);
+            reader.PersistMatrix4x3(ref _transform, readVersion: false);
             reader.PersistBoolean(ref _isIdentityTransform2);
-            reader.PersistMatrix4x3Transposed(ref _transform2);
+            reader.PersistMatrix4x3(ref _transform2, readVersion: false);
             reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistUInt32(ref _unknownInt3);

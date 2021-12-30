@@ -85,7 +85,7 @@ namespace OpenSage.Logic
                     reader.PersistVersion(1);
 
                     var modelTransform = Matrix4x3.Identity;
-                    reader.PersistMatrix4x3Transposed(ref modelTransform);
+                    reader.PersistMatrix4x3(ref modelTransform, readVersion: false);
 
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
@@ -109,7 +109,7 @@ namespace OpenSage.Logic
                         reader.PersistBoolean(ref modelInstance.UnknownBools[k]);
 
                         var meshTransform = Matrix4x3.Identity;
-                        reader.PersistMatrix4x3Transposed(ref meshTransform);
+                        reader.PersistMatrix4x3(ref meshTransform, readVersion: false);
 
                         // TODO: meshTransform is actually absolute, not relative.
                         modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();

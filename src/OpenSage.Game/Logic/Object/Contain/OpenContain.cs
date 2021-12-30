@@ -36,7 +36,6 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(2);
 
             reader.PersistFrame(ref _unknownFrame1);
-
             reader.PersistFrame(ref _unknownFrame2);
 
             reader.SkipUnknownBytes(8);
@@ -46,7 +45,7 @@ namespace OpenSage.Logic.Object
             // Where does the 32 come from?
             for (var i = 0; i < _unknownTransforms.Length; i++)
             {
-                reader.PersistMatrix4x3Transposed(ref _unknownTransforms[i]);
+                reader.PersistMatrix4x3(ref _unknownTransforms[i], readVersion: false);
             }
 
             var unknown6 = -1;
