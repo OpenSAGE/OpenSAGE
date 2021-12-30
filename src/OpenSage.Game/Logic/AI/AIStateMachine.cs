@@ -47,31 +47,31 @@ namespace OpenSage.Logic.AI
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var numTargetPositions = (uint)_targetPositions.Count;
-            reader.ReadUInt32(ref numTargetPositions);
+            reader.PersistUInt32(ref numTargetPositions);
 
             for (var i = 0; i < numTargetPositions; i++)
             {
                 Vector3 targetPosition = default;
-                reader.ReadVector3(ref targetPosition);
+                reader.PersistVector3(ref targetPosition);
                 _targetPositions.Add(targetPosition);
             }
 
-            reader.ReadAsciiString(ref _targetWaypointName);
+            reader.PersistAsciiString(ref _targetWaypointName);
 
             var hasTargetTeam = _targetTeam != null;
-            reader.ReadBoolean(ref hasTargetTeam);
+            reader.PersistBoolean(ref hasTargetTeam);
             if (hasTargetTeam)
             {
                 _targetTeam ??= new TargetTeam();
                 _targetTeam.Load(reader);
             }
 
-            reader.ReadUInt32(ref _stateSomethingId);
+            reader.PersistUInt32(ref _stateSomethingId);
             if (_stateSomethingId != 999999)
             {
                 _stateSomething = GetState(_stateSomethingId);
@@ -88,13 +88,13 @@ namespace OpenSage.Logic.AI
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadInt32(ref _unknownInt);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 
@@ -115,7 +115,7 @@ namespace OpenSage.Logic.AI
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
@@ -132,7 +132,7 @@ namespace OpenSage.Logic.AI
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
         }
@@ -144,15 +144,15 @@ namespace OpenSage.Logic.AI
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numTeamObjects = (ushort)_objectIds.Count;
-            reader.ReadUInt16(ref numTeamObjects);
+            reader.PersistUInt16(ref numTeamObjects);
 
             for (var i = 0; i < numTeamObjects; i++)
             {
                 uint objectId = 0;
-                reader.ReadObjectID(ref objectId);
+                reader.PersistObjectID(ref objectId);
                 _objectIds.Add(objectId);
             }
         }

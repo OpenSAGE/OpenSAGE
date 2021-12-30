@@ -131,37 +131,37 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(3);
+            reader.PersistVersion(3);
 
             var templateName = Template.Name;
-            reader.ReadAsciiString(ref templateName);
+            reader.PersistAsciiString(ref templateName);
             if (templateName != Template.Name)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadUInt32(ref _unknownInt2);
-            reader.ReadUInt32(ref _unknownInt3);
-            reader.ReadFrame(ref _unknownFrame1);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistFrame(ref _unknownFrame1);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadFrame(ref _unknownFrame2);
-            reader.ReadFrame(ref _unknownFrame3);
-            reader.ReadFrame(ref _unknownFrame4);
-            reader.ReadObjectID(ref _unknownObjectId);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame4);
+            reader.PersistObjectID(ref _unknownObjectId);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadUInt32(ref _unknownInt4);
-            reader.ReadUInt32(ref _unknownInt5);
-            reader.ReadUInt32(ref _unknownInt6);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32(ref _unknownInt6);
 
             reader.SkipUnknownBytes(2);
 
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
 
         internal void DrawInspector()

@@ -175,37 +175,37 @@ namespace OpenSage.Network
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadEnum(ref _state);
-            reader.ReadUnicodeString(ref _playerName);
+            reader.PersistEnum(ref _state);
+            reader.PersistUnicodeString(ref _playerName);
 
             ushort unknown1 = 1;
-            reader.ReadUInt16(ref unknown1);
+            reader.PersistUInt16(ref unknown1);
             if (unknown1 != 1)
             {
                 throw new InvalidStateException();
             }
 
             int colorIndex = ColorIndex;
-            reader.ReadInt32(ref colorIndex);
+            reader.PersistInt32(ref colorIndex);
             ColorIndex = (sbyte)colorIndex;
 
             int startPosition = StartPosition;
-            reader.ReadInt32(ref startPosition);
+            reader.PersistInt32(ref startPosition);
             StartPosition = (byte)startPosition;
 
             // Bit ugly... this is really an index into player templates,
             // but FactionIndex only counts playable sides... and also is 1-based.
             int factionIndex = FactionIndex;
-            reader.ReadInt32(ref factionIndex);
+            reader.PersistInt32(ref factionIndex);
             FactionIndex = (byte)(factionIndex - 1);
 
             int team = Team;
-            reader.ReadInt32(ref team);
+            reader.PersistInt32(ref team);
             Team = (sbyte)team;
 
-            reader.ReadInt32(ref _colorChosen);
-            reader.ReadInt32(ref _startPositionChosen);
-            reader.ReadInt32(ref _playerTemplateIndexChosen);
+            reader.PersistInt32(ref _colorChosen);
+            reader.PersistInt32(ref _startPositionChosen);
+            reader.PersistInt32(ref _playerTemplateIndexChosen);
         }
     }
 }

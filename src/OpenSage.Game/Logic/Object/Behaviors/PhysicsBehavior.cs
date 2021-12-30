@@ -102,25 +102,25 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadVector3(ref _unknownVector1);
-            reader.ReadVector3(ref _unknownVector2);
-            reader.ReadVector3(ref _unknownVector3);
-            reader.ReadVector3(ref _unknownVector4);
-            reader.ReadInt32(ref _unknownInt1);
-            reader.ReadUInt32(ref _unknownInt2);
-            reader.ReadUInt32(ref _unknownInt3);
-            reader.ReadSingle(ref _mass);
-            reader.ReadUInt32(ref _unknownInt4);
-            reader.ReadUInt32(ref _unknownInt5);
-            reader.ReadFrame(ref _unknownFrame);
+            reader.PersistVector3(ref _unknownVector1);
+            reader.PersistVector3(ref _unknownVector2);
+            reader.PersistVector3(ref _unknownVector3);
+            reader.PersistVector3(ref _unknownVector4);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistSingle(ref _mass);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(8);
 
-            reader.ReadSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat1);
         }
     }
 

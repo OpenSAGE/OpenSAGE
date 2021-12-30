@@ -9,18 +9,18 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             reader.SkipUnknownBytes(20);
 
-            reader.ReadSingle(ref _unknownFloat);
+            reader.PersistSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(8);
 
             var unknownInt1 = -1;
-            reader.ReadInt32(ref unknownInt1);
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != -1)
             {
                 throw new InvalidStateException();

@@ -41,22 +41,22 @@ namespace OpenSage.Logic.AI
 
         internal virtual void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadFrame(ref _unknownFrame);
-            reader.ReadUInt32(ref _unknownInt1);
+            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistUInt32(ref _unknownInt1);
 
-            reader.ReadUInt32(ref _currentStateId);
+            reader.PersistUInt32(ref _currentStateId);
             _currentState = GetState(_currentStateId);
 
             reader.SkipUnknownBytes(1);
 
             _currentState.Load(reader);
 
-            reader.ReadUInt32(ref _unknownInt2);
-            reader.ReadVector3(ref _unknownPosition);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

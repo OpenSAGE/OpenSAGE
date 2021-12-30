@@ -13,10 +13,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var unknownBool1 = true;
-            reader.ReadBoolean(ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
 
             _stateMachine.Load(reader);
         }
@@ -38,14 +38,14 @@ namespace OpenSage.Logic.AI.AIStates
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadObjectID(ref _guardObjectId);
-            reader.ReadObjectID(ref _guardObjectId2);
-            reader.ReadVector3(ref _guardPosition);
-            reader.ReadAsciiString(ref _guardPolygonTriggerName);
+            reader.PersistObjectID(ref _guardObjectId);
+            reader.PersistObjectID(ref _guardObjectId2);
+            reader.PersistVector3(ref _guardPosition);
+            reader.PersistAsciiString(ref _guardPolygonTriggerName);
         }
 
         private sealed class GuardIdleState : State
@@ -54,9 +54,9 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
-                reader.ReadUInt32(ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
 
@@ -64,7 +64,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
             }
         }
 
@@ -74,9 +74,9 @@ namespace OpenSage.Logic.AI.AIStates
 
             internal override void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
-                reader.ReadUInt32(ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

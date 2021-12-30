@@ -28,30 +28,30 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadObjectID(ref _unknownObjectId);
-            reader.ReadUInt32(ref _unknownInt1);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistUInt32(ref _unknownInt1);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
-            reader.ReadBoolean(ref _unknownBool3);
-            reader.ReadBoolean(ref _unknownBool4);
-            reader.ReadBoolean(ref _unknownBool5);
-            reader.ReadBoolean(ref _unknownBool6);
-            reader.ReadBoolean(ref _unknownBool7);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool5);
+            reader.PersistBoolean(ref _unknownBool6);
+            reader.PersistBoolean(ref _unknownBool7);
 
             reader.SkipUnknownBytes(4);
 
-            reader.ReadBoolean(ref _unknownBool8);
-            reader.ReadInt32(ref _unknownInt2);
-            reader.ReadInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistInt32(ref _unknownInt3);
 
             _something1.Load(reader);
 
@@ -67,29 +67,29 @@ namespace OpenSage.Logic.Object
 
             internal void Load(StatePersister reader)
             {
-                reader.ReadVersion(1);
+                reader.PersistVersion(1);
 
-                reader.ReadSingle(ref _unknownFloat1);
-                reader.ReadSingle(ref _unknownFloat2);
-                reader.ReadSingle(ref _unknownFloat3);
-                reader.ReadVector3(ref _unknownVector);
+                reader.PersistSingle(ref _unknownFloat1);
+                reader.PersistSingle(ref _unknownFloat2);
+                reader.PersistSingle(ref _unknownFloat3);
+                reader.PersistVector3(ref _unknownVector);
 
                 var unknown12 = 0xFACADEu;
-                reader.ReadUInt32(ref unknown12);
+                reader.PersistUInt32(ref unknown12);
                 if (unknown12 != 0xFACADE)
                 {
                     throw new InvalidStateException();
                 }
 
                 var unknown13 = 0xFACADEu;
-                reader.ReadUInt32(ref unknown13);
+                reader.PersistUInt32(ref unknown13);
                 if (unknown13 != 0xFACADE)
                 {
                     throw new InvalidStateException();
                 }
 
                 var unknown14 = 0xFACADEu;
-                reader.ReadUInt32(ref unknown14);
+                reader.PersistUInt32(ref unknown14);
                 if (unknown14 != 0xFACADE)
                 {
                     throw new InvalidStateException();

@@ -64,15 +64,15 @@ namespace OpenSage.Logic.Object
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numLocomotorTemplates = (ushort) _locomotors.Count;
-            reader.ReadUInt16(ref numLocomotorTemplates);
+            reader.PersistUInt16(ref numLocomotorTemplates);
 
             for (var i = 0; i < numLocomotorTemplates; i++)
             {
                 var locomotorTemplateName = "";
-                reader.ReadAsciiString(ref locomotorTemplateName);
+                reader.PersistAsciiString(ref locomotorTemplateName);
 
                 var locomotorTemplate = _gameObject.GameContext.AssetLoadContext.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 
@@ -83,7 +83,7 @@ namespace OpenSage.Logic.Object
                 _locomotors.Add(locomotor);
             }
 
-            reader.ReadEnumFlags(ref _surfaces);
+            reader.PersistEnumFlags(ref _surfaces);
 
             reader.SkipUnknownBytes(1);
         }

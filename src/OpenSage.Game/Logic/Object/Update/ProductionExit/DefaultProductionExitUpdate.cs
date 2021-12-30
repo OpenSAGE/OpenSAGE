@@ -21,12 +21,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadVector3(ref _unknownPos);
-            reader.ReadBoolean(ref _unknownBool);
+            reader.PersistVector3(ref _unknownPos);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 

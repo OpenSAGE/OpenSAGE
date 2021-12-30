@@ -8,13 +8,13 @@
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

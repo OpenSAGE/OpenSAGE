@@ -11,18 +11,18 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             for (var i = 0; i < _objectIds.Length; i++)
             {
-                reader.ReadObjectID(ref _objectIds[i]);
+                reader.PersistObjectID(ref _objectIds[i]);
             }
 
-            reader.ReadUInt32(ref _unknownInt1);
-            reader.ReadUInt32(ref _unknownInt2);
-            reader.ReadObjectID(ref _unknownObjectId);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistObjectID(ref _unknownObjectId);
         }
     }
 

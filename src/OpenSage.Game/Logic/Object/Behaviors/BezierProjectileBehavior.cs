@@ -104,21 +104,21 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadObjectID(ref _launcherObjectId);
-            reader.ReadObjectID(ref _targetObjectId);
-            reader.ReadUInt32(ref _unknown1);
+            reader.PersistObjectID(ref _launcherObjectId);
+            reader.PersistObjectID(ref _targetObjectId);
+            reader.PersistUInt32(ref _unknown1);
 
             for (var i = 0; i < 7; i++)
             {
-                reader.ReadSingle(ref _unknownFloats[i]);
+                reader.PersistSingle(ref _unknownFloats[i]);
             }
 
-            reader.ReadAsciiString(ref _weaponThatFiredThis);
-            reader.ReadUInt32(ref _unknown2);
+            reader.PersistAsciiString(ref _weaponThatFiredThis);
+            reader.PersistUInt32(ref _unknown2);
         }
     }
 

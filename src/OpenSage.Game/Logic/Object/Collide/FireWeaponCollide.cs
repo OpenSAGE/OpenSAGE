@@ -24,15 +24,15 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadBoolean(ref _unknown1);
+            reader.PersistBoolean(ref _unknown1);
 
             _collideWeapon.Load(reader);
 
-            reader.ReadBoolean(ref _unknown2);
+            reader.PersistBoolean(ref _unknown2);
         }
     }
 

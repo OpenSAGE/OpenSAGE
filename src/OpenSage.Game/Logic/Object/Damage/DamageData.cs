@@ -7,7 +7,7 @@
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             Request.Load(reader);
             Result.Load(reader);
@@ -25,13 +25,13 @@
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadObjectID(ref ObjectId);
-            reader.ReadUInt16(ref Unknown1);
-            reader.ReadEnum(ref DamageType);
-            reader.ReadEnum(ref DeathType);
-            reader.ReadSingle(ref Unknown4);
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistUInt16(ref Unknown1);
+            reader.PersistEnum(ref DamageType);
+            reader.PersistEnum(ref DeathType);
+            reader.PersistSingle(ref Unknown4);
         }
     }
 
@@ -43,10 +43,10 @@
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadSingle(ref Unknown1);
-            reader.ReadSingle(ref Unknown2);
+            reader.PersistSingle(ref Unknown1);
+            reader.PersistSingle(ref Unknown2);
 
             reader.SkipUnknownBytes(1);
         }

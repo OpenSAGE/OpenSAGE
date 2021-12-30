@@ -39,17 +39,17 @@ namespace OpenSage.Scripting
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadEnum(ref FadeType);
+            reader.PersistEnum(ref FadeType);
 
-            reader.ReadSingle(ref From);
-            reader.ReadSingle(ref To);
+            reader.PersistSingle(ref From);
+            reader.PersistSingle(ref To);
 
-            reader.ReadSingle(ref CurrentValue);
-            reader.ReadUInt32(ref CurrentFrame);
+            reader.PersistSingle(ref CurrentValue);
+            reader.PersistUInt32(ref CurrentFrame);
 
-            reader.ReadUInt32(ref FramesIncrease);
-            reader.ReadUInt32(ref FramesHold);
-            reader.ReadUInt32(ref FramesDecrease);
+            reader.PersistUInt32(ref FramesIncrease);
+            reader.PersistUInt32(ref FramesHold);
+            reader.PersistUInt32(ref FramesDecrease);
         }
 
         public void Update()

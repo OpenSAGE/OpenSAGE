@@ -14,12 +14,12 @@
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadInt32(ref _unknownInt1);
-            reader.ReadInt32(ref _unknownInt2);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
 
             _stateMachine.Load(reader);
         }
@@ -34,7 +34,7 @@
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
         }

@@ -4,9 +4,9 @@
     {
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             reader.SkipUnknownBytes(8);
         }

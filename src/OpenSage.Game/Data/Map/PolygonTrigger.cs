@@ -167,10 +167,10 @@ namespace OpenSage.Data.Map
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numPoints = (uint)Points.Length;
-            reader.ReadUInt32(ref numPoints);
+            reader.PersistUInt32(ref numPoints);
             if (numPoints != Points.Length)
             {
                 throw new InvalidStateException();
@@ -178,14 +178,14 @@ namespace OpenSage.Data.Map
 
             for (var i = 0; i < numPoints; i++)
             {
-                reader.ReadPoint3D(ref Points[i]);
+                reader.PersistPoint3D(ref Points[i]);
             }
 
             var topLeft = Bounds.TopLeft;
-            reader.ReadPoint2D(ref topLeft);
+            reader.PersistPoint2D(ref topLeft);
 
             var bottomRight = Bounds.BottomRight;
-            reader.ReadPoint2D(ref bottomRight);
+            reader.PersistPoint2D(ref bottomRight);
 
             Bounds = Rectangle.FromCorners(topLeft, bottomRight);
 
@@ -203,7 +203,7 @@ namespace OpenSage.Data.Map
             //
             // As it is, this "radius" is significantly larger than it should be.
             var buggyRadius = 0.0f;
-            reader.ReadSingle(ref buggyRadius);
+            reader.PersistSingle(ref buggyRadius);
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 

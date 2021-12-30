@@ -47,10 +47,10 @@ namespace OpenSage.Data.Map
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numSides = (uint)ScriptLists.Length;
-            reader.ReadUInt32(ref numSides);
+            reader.PersistUInt32(ref numSides);
             if (numSides != ScriptLists.Length)
             {
                 throw new InvalidStateException();
@@ -59,7 +59,7 @@ namespace OpenSage.Data.Map
             for (var i = 0; i < numSides; i++)
             {
                 var hasScripts = ScriptLists.Length > 0;
-                reader.ReadBoolean(ref hasScripts);
+                reader.PersistBoolean(ref hasScripts);
 
                 if (hasScripts)
                 {

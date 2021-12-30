@@ -10,13 +10,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadUInt32(ref _radarExtendEndFrame);
-            reader.ReadBoolean(ref _isRadarExtended);
-            reader.ReadBoolean(ref _isRadarExtending);
+            reader.PersistUInt32(ref _radarExtendEndFrame);
+            reader.PersistBoolean(ref _isRadarExtended);
+            reader.PersistBoolean(ref _isRadarExtending);
         }
     }
 

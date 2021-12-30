@@ -137,15 +137,15 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadFrame(ref _frameSinkStart);
-            reader.ReadFrame(ref _frameMidpoint);
-            reader.ReadFrame(ref _frameDestruction);
-            reader.ReadSingle(ref _slowDeathScale);
-            reader.ReadEnumFlags(ref _flags);
+            reader.PersistFrame(ref _frameSinkStart);
+            reader.PersistFrame(ref _frameMidpoint);
+            reader.PersistFrame(ref _frameDestruction);
+            reader.PersistSingle(ref _slowDeathScale);
+            reader.PersistEnumFlags(ref _flags);
         }
 
         [Flags]

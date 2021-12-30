@@ -53,25 +53,25 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader, PlayerManager players)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             // This will be the same as the existing Owner, unless control of this team has been transferred.
             var ownerPlayerId = Owner.Id;
-            reader.ReadUInt32(ref ownerPlayerId);
+            reader.PersistUInt32(ref ownerPlayerId);
             Owner = players.GetPlayerByIndex(ownerPlayerId);
 
-            reader.ReadAsciiString(ref _attackPriorityName);
-            reader.ReadBoolean(ref _unknown1);
+            reader.PersistAsciiString(ref _attackPriorityName);
+            reader.PersistBoolean(ref _unknown1);
 
             _templateData.Load(reader);
 
             var teamCount = (ushort) _teams.Count;
-            reader.ReadUInt16(ref teamCount);
+            reader.PersistUInt16(ref teamCount);
 
             for (var i = 0; i < teamCount; i++)
             {
                 var id = 0u;
-                reader.ReadUInt32(ref id);
+                reader.PersistUInt32(ref id);
 
                 var team = FindTeamById(id);
                 if (team == null)
@@ -91,9 +91,9 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadInt32(ref ProductionPriority);
+            reader.PersistInt32(ref ProductionPriority);
         }
     }
 }

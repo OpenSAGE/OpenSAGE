@@ -50,31 +50,31 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadVector3(ref Velocity);
-            reader.ReadVector3(ref Position);
-            reader.ReadVector3(ref EmitterPosition);
-            reader.ReadSingle(ref VelocityDamping);
-            reader.ReadSingle(ref AngleX);
-            reader.ReadSingle(ref AngleY);
-            reader.ReadSingle(ref AngleZ);
-            reader.ReadSingle(ref AngularRateX);
-            reader.ReadSingle(ref AngularRateY);
-            reader.ReadSingle(ref AngularRateZ);
-            reader.ReadInt32(ref Lifetime);
-            reader.ReadSingle(ref Size);
-            reader.ReadSingle(ref SizeRate);
-            reader.ReadSingle(ref SizeRateDamping);
+            reader.PersistVector3(ref Velocity);
+            reader.PersistVector3(ref Position);
+            reader.PersistVector3(ref EmitterPosition);
+            reader.PersistSingle(ref VelocityDamping);
+            reader.PersistSingle(ref AngleX);
+            reader.PersistSingle(ref AngleY);
+            reader.PersistSingle(ref AngleZ);
+            reader.PersistSingle(ref AngularRateX);
+            reader.PersistSingle(ref AngularRateY);
+            reader.PersistSingle(ref AngularRateZ);
+            reader.PersistInt32(ref Lifetime);
+            reader.PersistSingle(ref Size);
+            reader.PersistSingle(ref SizeRate);
+            reader.PersistSingle(ref SizeRateDamping);
 
             for (var i = 0; i < 8; i++)
             {
                 var alphaKeyframeAlpha = 0.0f;
-                reader.ReadSingle(ref alphaKeyframeAlpha);
+                reader.PersistSingle(ref alphaKeyframeAlpha);
 
                 var alphaKeyframeTime = 0u;
-                reader.ReadUInt32(ref alphaKeyframeTime);
+                reader.PersistUInt32(ref alphaKeyframeTime);
 
                 AlphaKeyframes.Add(new ParticleAlphaKeyframe(
                     alphaKeyframeTime,
@@ -84,31 +84,31 @@ namespace OpenSage.Graphics.ParticleSystems
             for (var i = 0; i < 8; i++)
             {
                 Vector3 colorKeyframeColor = default;
-                reader.ReadVector3(ref colorKeyframeColor);
+                reader.PersistVector3(ref colorKeyframeColor);
 
                 var colorKeyframeTime = 0u;
-                reader.ReadUInt32(ref colorKeyframeTime);
+                reader.PersistUInt32(ref colorKeyframeTime);
 
                 ColorKeyframes.Add(new ParticleColorKeyframe(
                     colorKeyframeTime,
                     colorKeyframeColor));
             }
 
-            reader.ReadSingle(ref ColorScale);
-            reader.ReadBoolean(ref IsParticleUpTowardsEmitter);
-            reader.ReadSingle(ref UnknownFloat);
-            reader.ReadUInt32(ref ParticleId);
+            reader.PersistSingle(ref ColorScale);
+            reader.PersistBoolean(ref IsParticleUpTowardsEmitter);
+            reader.PersistSingle(ref UnknownFloat);
+            reader.PersistUInt32(ref ParticleId);
 
             reader.SkipUnknownBytes(24);
 
-            reader.ReadUInt32(ref UnknownInt2); // 49
-            reader.ReadUInt32(ref UnknownInt3); // 1176
-            reader.ReadSingle(ref Alpha);
-            reader.ReadUInt32(ref UnknownInt4); // 0
-            reader.ReadUInt32(ref UnknownInt5); // 1
-            reader.ReadVector3(ref Color);
-            reader.ReadVector3(ref UnknownVector);
-            reader.ReadUInt32(ref UnknownInt6); // 1
+            reader.PersistUInt32(ref UnknownInt2); // 49
+            reader.PersistUInt32(ref UnknownInt3); // 1176
+            reader.PersistSingle(ref Alpha);
+            reader.PersistUInt32(ref UnknownInt4); // 0
+            reader.PersistUInt32(ref UnknownInt5); // 1
+            reader.PersistVector3(ref Color);
+            reader.PersistVector3(ref UnknownVector);
+            reader.PersistUInt32(ref UnknownInt6); // 1
 
             reader.SkipUnknownBytes(8);
         }

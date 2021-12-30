@@ -112,20 +112,20 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadSingle(ref _toppleSpeed);
-            reader.ReadSingle(ref _toppleAcceleration);
-            reader.ReadVector3(ref _toppleDirection);
-            reader.ReadEnum(ref _toppleState);
-            reader.ReadSingle(ref _toppleAngle);
-            reader.ReadSingle(ref _unknownFloat);
+            reader.PersistSingle(ref _toppleSpeed);
+            reader.PersistSingle(ref _toppleAcceleration);
+            reader.PersistVector3(ref _toppleDirection);
+            reader.PersistEnum(ref _toppleState);
+            reader.PersistSingle(ref _toppleAngle);
+            reader.PersistSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(9);
 
-            reader.ReadUInt32(ref _stumpId);
+            reader.PersistUInt32(ref _stumpId);
         }
 
         private enum ToppleState

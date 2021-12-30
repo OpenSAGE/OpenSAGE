@@ -103,12 +103,12 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader, PlayerManager players)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadUInt32(ref _lastTeamId);
+            reader.PersistUInt32(ref _lastTeamId);
 
             var count = (ushort) _teamTemplatesById.Count;
-            reader.ReadUInt16(ref count);
+            reader.PersistUInt16(ref count);
 
             if (count != _teamTemplatesById.Count)
             {
@@ -118,7 +118,7 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var id = 0u;
-                reader.ReadUInt32(ref id);
+                reader.PersistUInt32(ref id);
                 var teamTemplate = _teamTemplatesById[id];
                 teamTemplate.Load(reader, players);
             }

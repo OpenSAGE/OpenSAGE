@@ -107,10 +107,10 @@ namespace OpenSage.Scripting
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var numScripts = (ushort) Scripts.Length;
-            reader.ReadUInt16(ref numScripts);
+            reader.PersistUInt16(ref numScripts);
 
             if (numScripts != Scripts.Length)
             {
@@ -123,7 +123,7 @@ namespace OpenSage.Scripting
             }
 
             var numScriptGroups = (ushort) ScriptGroups.Length;
-            reader.ReadUInt16(ref numScriptGroups);
+            reader.PersistUInt16(ref numScriptGroups);
 
             if (numScriptGroups != ScriptGroups.Length)
             {

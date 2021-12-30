@@ -11,15 +11,15 @@
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadUInt32(ref Unknown1);
-            reader.ReadUInt32(ref TeamID);
-            reader.ReadAsciiString(ref ScriptName);
-            reader.ReadUInt32(ref ScriptActionIndex);
-            reader.ReadUInt32(ref LoopsRemaining);
+            reader.PersistUInt32(ref Unknown1);
+            reader.PersistUInt32(ref TeamID);
+            reader.PersistAsciiString(ref ScriptName);
+            reader.PersistUInt32(ref ScriptActionIndex);
+            reader.PersistUInt32(ref LoopsRemaining);
 
-            reader.ReadInt32(ref Unknown2);
+            reader.PersistInt32(ref Unknown2);
             if (Unknown2 != -1)
             {
                 throw new InvalidStateException();

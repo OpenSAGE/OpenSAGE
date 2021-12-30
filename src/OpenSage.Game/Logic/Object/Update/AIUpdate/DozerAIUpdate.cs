@@ -19,14 +19,14 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             // Following is same as WorkerAIUpdate.Load
 
             var unknown1 = 3;
-            reader.ReadInt32(ref unknown1);
+            reader.PersistInt32(ref unknown1);
             if (unknown1 != 3)
             {
                 throw new InvalidStateException();
@@ -34,16 +34,16 @@ namespace OpenSage.Logic.Object
 
             for (var i = 0; i < _unknownList1.Length; i++)
             {
-                reader.ReadObjectID(ref _unknownList1[i].ObjectId);
-                reader.ReadInt32(ref _unknownList1[i].Unknown);
+                reader.PersistObjectID(ref _unknownList1[i].ObjectId);
+                reader.PersistInt32(ref _unknownList1[i].Unknown);
             }
 
             _stateMachine.Load(reader);
 
-            reader.ReadInt32(ref _unknown2);
+            reader.PersistInt32(ref _unknown2);
 
             var unknown3 = 3;
-            reader.ReadInt32(ref unknown3);
+            reader.PersistInt32(ref unknown3);
             if (unknown3 != 3)
             {
                 throw new InvalidStateException();
@@ -53,11 +53,11 @@ namespace OpenSage.Logic.Object
             {
                 _unknownList2[i] = new DozerSomething2();
 
-                reader.ReadBoolean(ref _unknownList2[i].UnknownBool);
-                reader.ReadVector3(ref _unknownList2[i].UnknownPos);
+                reader.PersistBoolean(ref _unknownList2[i].UnknownBool);
+                reader.PersistVector3(ref _unknownList2[i].UnknownPos);
             }
 
-            reader.ReadInt32(ref _unknown4);
+            reader.PersistInt32(ref _unknown4);
         }
     }
 

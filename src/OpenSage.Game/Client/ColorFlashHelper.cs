@@ -16,15 +16,15 @@ namespace OpenSage.Client
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadVector3(ref _increasingColorDelta);
-            reader.ReadVector3(ref _decreasingColorDelta);
-            reader.ReadVector3(ref _targetColor);
-            reader.ReadVector3(ref _currentColor);
-            reader.ReadUInt32(ref _holdFrames);
-            reader.ReadBoolean(ref _isActive);
-            reader.ReadEnumByte(ref _state);
+            reader.PersistVector3(ref _increasingColorDelta);
+            reader.PersistVector3(ref _decreasingColorDelta);
+            reader.PersistVector3(ref _targetColor);
+            reader.PersistVector3(ref _currentColor);
+            reader.PersistUInt32(ref _holdFrames);
+            reader.PersistBoolean(ref _isActive);
+            reader.PersistEnumByte(ref _state);
         }
 
         private enum ColorFlashState : byte

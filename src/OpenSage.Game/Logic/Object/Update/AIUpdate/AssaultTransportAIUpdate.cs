@@ -16,18 +16,18 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var memberCount = _members.Count;
-            reader.ReadInt32(ref memberCount);
+            reader.PersistInt32(ref memberCount);
 
             for (var i = 0; i < memberCount; i++)
             {
                 var member = new AssaultTransportMember();
-                reader.ReadObjectID(ref member.ObjectId);
-                reader.ReadBoolean(ref member.Unknown);
+                reader.PersistObjectID(ref member.ObjectId);
+                reader.PersistBoolean(ref member.Unknown);
                 _members.Add(member);
             }
 

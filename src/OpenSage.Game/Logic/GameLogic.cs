@@ -32,14 +32,14 @@ namespace OpenSage.Logic
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(9);
+            reader.PersistVersion(9);
 
-            reader.ReadUInt32(ref _currentFrame);
+            reader.PersistUInt32(ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
             var gameObjectsCount = (uint)_objects.Count;
-            reader.ReadUInt32(ref gameObjectsCount);
+            reader.PersistUInt32(ref gameObjectsCount);
 
             _objects.Clear();
             _objects.Capacity = (int)gameObjectsCount;
@@ -47,7 +47,7 @@ namespace OpenSage.Logic
             for (var i = 0; i < gameObjectsCount; i++)
             {
                 ushort objectDefinitionId = 0;
-                reader.ReadUInt16(ref objectDefinitionId);
+                reader.PersistUInt16(ref objectDefinitionId);
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                 var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
@@ -70,7 +70,7 @@ namespace OpenSage.Logic
             campaignManager.Load(reader);
 
             var unknown1 = true;
-            reader.ReadBoolean(ref unknown1);
+            reader.PersistBoolean(ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -79,14 +79,14 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(2);
 
             var unknown1_1 = true;
-            reader.ReadBoolean(ref unknown1_1);
+            reader.PersistBoolean(ref unknown1_1);
             if (!unknown1_1)
             {
                 throw new InvalidStateException();
             }
 
             var numPolygonTriggers = (uint)_scene3D.MapFile.PolygonTriggers.Triggers.Length;
-            reader.ReadUInt32(ref numPolygonTriggers);
+            reader.PersistUInt32(ref numPolygonTriggers);
             if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
             {
                 throw new InvalidStateException();
@@ -94,19 +94,19 @@ namespace OpenSage.Logic
             for (var i = 0; i < numPolygonTriggers; i++)
             {
                 var id = 0u;
-                reader.ReadUInt32(ref id);
+                reader.PersistUInt32(ref id);
                 var polygonTrigger = _scene3D.MapFile.PolygonTriggers.GetPolygonTriggerById(id);
                 polygonTrigger.Load(reader);
             }
 
-            reader.ReadUInt32(ref _rankLevelLimit);
+            reader.PersistUInt32(ref _rankLevelLimit);
 
             reader.SkipUnknownBytes(4);
 
             while (true)
             {
                 var objectDefinitionName = "";
-                reader.ReadAsciiString(ref objectDefinitionName);
+                reader.PersistAsciiString(ref objectDefinitionName);
 
                 if (objectDefinitionName == "")
                 {
@@ -114,7 +114,7 @@ namespace OpenSage.Logic
                 }
 
                 ObjectBuildableType buildableStatus = default;
-                reader.ReadEnum(ref buildableStatus);
+                reader.PersistEnum(ref buildableStatus);
 
                 _techTreeOverrides.Add(
                     objectDefinitionName,
@@ -122,28 +122,28 @@ namespace OpenSage.Logic
             }
 
             var unknownBool1 = true;
-            reader.ReadBoolean(ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool2 = true;
-            reader.ReadBoolean(ref unknownBool2);
+            reader.PersistBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool3 = true;
-            reader.ReadBoolean(ref unknownBool3);
+            reader.PersistBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }
 
             var unknown3 = uint.MaxValue;
-            reader.ReadUInt32(ref unknown3);
+            reader.PersistUInt32(ref unknown3);
             if (unknown3 != uint.MaxValue)
             {
                 throw new InvalidStateException();
@@ -153,7 +153,7 @@ namespace OpenSage.Logic
             while (true)
             {
                 var commandSetNamePrefixedWithCommandButtonIndex = "";
-                reader.ReadAsciiString(ref commandSetNamePrefixedWithCommandButtonIndex);
+                reader.PersistAsciiString(ref commandSetNamePrefixedWithCommandButtonIndex);
 
                 if (commandSetNamePrefixedWithCommandButtonIndex == "")
                 {
@@ -192,20 +192,20 @@ namespace OpenSage.Logic
 
         public void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             _nameLookup.Clear();
 
             var count = (uint)_nameLookup.Count;
-            reader.ReadUInt32(ref count);
+            reader.PersistUInt32(ref count);
 
             for (var i = 0; i < count; i++)
             {
                 var name = "";
-                reader.ReadAsciiString(ref name);
+                reader.PersistAsciiString(ref name);
 
                 ushort id = 0;
-                reader.ReadUInt16(ref id);
+                reader.PersistUInt16(ref id);
 
                 _nameLookup.Add(id, name);
             }

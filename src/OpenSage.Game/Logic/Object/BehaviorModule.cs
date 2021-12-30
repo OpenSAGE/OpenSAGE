@@ -18,11 +18,11 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             // The following version number is probably from extra base class in the inheritance hierarchy.
             // Since we don't have that at the moment, just read it here.
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
         }

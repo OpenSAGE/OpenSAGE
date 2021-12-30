@@ -9,19 +9,19 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader, GameLogic gameLogic, Game game)
         {
-            reader.ReadVersion(1);
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
 
             var ghostObjectCount = (ushort)_ghostObjects.Count;
-            reader.ReadUInt16(ref ghostObjectCount);
+            reader.PersistUInt16(ref ghostObjectCount);
 
             for (var i = 0; i < ghostObjectCount; i++)
             {
                 var ghostObject = new GhostObject();
 
-                reader.ReadObjectID(ref ghostObject.OriginalObjectId);
+                reader.PersistObjectID(ref ghostObject.OriginalObjectId);
                 
                 ghostObject.Load(reader, gameLogic, game);
 

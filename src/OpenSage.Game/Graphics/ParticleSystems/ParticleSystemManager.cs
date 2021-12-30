@@ -99,17 +99,17 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
 
             var count = (uint)_particleSystems.Count;
-            reader.ReadUInt32(ref count);
+            reader.PersistUInt32(ref count);
 
             for (var i = 0; i < count; i++)
             {
                 var templateName = "";
-                reader.ReadAsciiString(ref templateName);
+                reader.PersistAsciiString(ref templateName);
 
                 if (templateName != string.Empty)
                 {

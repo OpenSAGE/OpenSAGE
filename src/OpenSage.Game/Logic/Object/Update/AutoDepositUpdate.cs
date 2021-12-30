@@ -40,13 +40,13 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
             base.Load(reader);
 
-            reader.ReadFrame(ref _unknownFrame);
-            reader.ReadBoolean(ref _unknownBool1);
-            reader.ReadBoolean(ref _unknownBool2);
+            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 

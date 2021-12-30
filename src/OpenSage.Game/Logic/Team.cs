@@ -27,44 +27,44 @@ namespace OpenSage.Logic
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             var id = Id;
-            reader.ReadUInt32(ref id);
+            reader.PersistUInt32(ref id);
             if (id != Id)
             {
                 throw new InvalidStateException();
             }
 
             var numObjects = (ushort) ObjectIds.Count;
-            reader.ReadUInt16(ref numObjects);
+            reader.PersistUInt16(ref numObjects);
 
             for (var i = 0; i < numObjects; i++)
             {
                 uint objectId = 0;
-                reader.ReadObjectID(ref objectId);
+                reader.PersistObjectID(ref objectId);
                 ObjectIds.Add(objectId);
             }
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadBoolean(ref _enteredOrExitedPolygonTrigger);
-            reader.ReadBoolean(ref _isAlive);
+            reader.PersistBoolean(ref _enteredOrExitedPolygonTrigger);
+            reader.PersistBoolean(ref _isAlive);
 
             reader.SkipUnknownBytes(5);
 
-            reader.ReadUInt32(ref _numDestroyedSomething);
+            reader.PersistUInt32(ref _numDestroyedSomething);
 
-            reader.ReadUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
             if (_unknown1 != 0 && _unknown1 != ObjectIds.Count)
             {
                 throw new InvalidStateException();
             }
 
-            reader.ReadUInt32(ref _waypointId);
+            reader.PersistUInt32(ref _waypointId);
 
             var unknownCount = (ushort) _unknownBools.Length;
-            reader.ReadUInt16(ref unknownCount);
+            reader.PersistUInt16(ref unknownCount);
 
             if (unknownCount != _unknownBools.Length)
             {
@@ -73,12 +73,12 @@ namespace OpenSage.Logic
 
             for (var i = 0; i < unknownCount; i++)
             {
-                reader.ReadBoolean(ref _unknownBools[i]);
+                reader.PersistBoolean(ref _unknownBools[i]);
             }
 
             reader.SkipUnknownBytes(2);
 
-            reader.ReadObjectID(ref TargetObjectID);
+            reader.PersistObjectID(ref TargetObjectID);
 
             TeamToTeamRelationships.Load(reader);
             TeamToPlayerRelationships.Load(reader);

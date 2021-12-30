@@ -8,11 +8,11 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            reader.ReadBoolean(ref _unknownBool);
+            reader.PersistBoolean(ref _unknownBool);
 
             reader.SkipUnknownBytes(1);
         }

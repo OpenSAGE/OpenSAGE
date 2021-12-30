@@ -12,12 +12,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
             var unknown1 = true;
-            reader.ReadBoolean(ref unknown1);
+            reader.PersistBoolean(ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();

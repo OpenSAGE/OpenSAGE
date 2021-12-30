@@ -19,19 +19,19 @@
 
         internal void Load(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            reader.ReadUInt16(ref _currentImageIndex);
-            reader.ReadFrame(ref _lastUpdatedFrame);
-            reader.ReadUInt16(ref _unknown);
+            reader.PersistUInt16(ref _currentImageIndex);
+            reader.PersistFrame(ref _lastUpdatedFrame);
+            reader.PersistUInt16(ref _unknown);
 
             reader.SkipUnknownBytes(1);
 
-            reader.ReadUInt16(ref _lastImageIndex);
-            reader.ReadUInt32(ref _animationDelayFrames);
+            reader.PersistUInt16(ref _lastImageIndex);
+            reader.PersistUInt32(ref _animationDelayFrames);
 
             var unknownFloat = 1.0f;
-            reader.ReadSingle(ref unknownFloat);
+            reader.PersistSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();
