@@ -3,24 +3,11 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct ColorRgba
+    public readonly record struct ColorRgba(byte R, byte G, byte B, byte A)
     {
         public static readonly ColorRgba Transparent = new ColorRgba(255, 255, 255, 0);
         public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
         public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
-
-        public readonly byte R;
-        public readonly byte G;
-        public readonly byte B;
-        public readonly byte A;
-
-        public ColorRgba(byte r, byte g, byte b, byte a)
-        {
-            R = r;
-            G = g;
-            B = b;
-            A = a;
-        }
 
         public static ColorRgba operator*(ColorRgba value, float scale)
         {

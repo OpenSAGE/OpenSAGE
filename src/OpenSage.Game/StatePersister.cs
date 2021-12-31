@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
 using OpenSage.Graphics.ParticleSystems;
@@ -9,7 +10,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage
 {
-    public abstract class StatePersister
+    public abstract class StatePersister : DisposableBase
     {
         protected readonly Stack<Segment> Segments;
 
@@ -44,9 +45,9 @@ namespace OpenSage
 
         public abstract void PersistBoolean(ref bool value);
 
-        public abstract void PersistObjectID(ref uint value);
+        public void PersistObjectID(ref uint value) => PersistUInt32(ref value);
 
-        public abstract void PersistFrame(ref uint value);
+        public void PersistFrame(ref uint value) => PersistUInt32(ref value);
 
         public abstract void PersistAsciiString(ref string value);
 
@@ -89,8 +90,6 @@ namespace OpenSage
 
         public abstract void PersistRgbColorKeyframe(ref RgbColorKeyframe value);
 
-        public abstract void PersistObjectNameAndIdSet(List<ObjectNameAndId> set);
-
         public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
 
         public abstract void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
@@ -117,10 +116,10 @@ namespace OpenSage
     {
         private readonly BinaryReader _binaryReader;
 
-        internal StateReader(BinaryReader binaryReader, Game game)
+        internal StateReader(Stream stream, Game game)
             : base(game, StatePersistMode.Read)
         {
-            _binaryReader = binaryReader;
+            _binaryReader = AddDisposable(new BinaryReader(stream, Encoding.Unicode, true));
         }
 
         public override byte PersistVersion(byte maximumVersion)
@@ -144,10 +143,6 @@ namespace OpenSage
         public override void PersistUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
 
         public override void PersistBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
-
-        public override void PersistObjectID(ref uint value) => value = _binaryReader.ReadUInt32();
-
-        public override void PersistFrame(ref uint value) => value = _binaryReader.ReadUInt32();
 
         public override void PersistAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
@@ -210,23 +205,6 @@ namespace OpenSage
         public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value = RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
 
         public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value = RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
-
-        public override void PersistObjectNameAndIdSet(List<ObjectNameAndId> set)
-        {
-            PersistVersion(1);
-
-            var numItems = _binaryReader.ReadUInt16();
-
-            for (var i = 0; i < numItems; i++)
-            {
-                var objectNameAndId = new ObjectNameAndId();
-
-                PersistAsciiString(ref objectNameAndId.Name);
-                PersistObjectID(ref objectNameAndId.ObjectId);
-
-                set.Add(objectNameAndId);
-            }
-        }
 
         public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
         {
@@ -318,10 +296,10 @@ namespace OpenSage
     {
         private readonly BinaryWriter _binaryWriter;
 
-        internal StateWriter(BinaryWriter binaryWriter, Game game)
+        internal StateWriter(Stream stream, Game game)
             : base(game, StatePersistMode.Read)
         {
-            _binaryWriter = binaryWriter;
+            _binaryWriter = AddDisposable(new BinaryWriter(stream, Encoding.Unicode, true));
         }
 
         public override byte PersistVersion(byte maximumVersion)
@@ -341,10 +319,6 @@ namespace OpenSage
         public override void PersistUInt32(ref uint value) => _binaryWriter.Write(value);
 
         public override void PersistBoolean(ref bool value) => _binaryWriter.Write(value);
-
-        public override void PersistObjectID(ref uint value) => _binaryWriter.Write(value);
-
-        public override void PersistFrame(ref uint value) => _binaryWriter.Write(value);
 
         public override void PersistAsciiString(ref string value) => _binaryWriter.WriteBytePrefixedAsciiString(value);
 
@@ -405,19 +379,6 @@ namespace OpenSage
         public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value.WriteToSaveFile(_binaryWriter);
 
         public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value.WriteToSaveFile(_binaryWriter);
-
-        public override void PersistObjectNameAndIdSet(List<ObjectNameAndId> set)
-        {
-            PersistVersion(1);
-
-            _binaryWriter.Write((ushort)set.Count);
-
-            foreach (var item in set)
-            {
-                _binaryWriter.WriteBytePrefixedAsciiString(item.Name);
-                _binaryWriter.Write(item.ObjectId);
-            }
-        }
 
         public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
         {
@@ -494,5 +455,19 @@ namespace OpenSage
     {
         public string Name;
         public uint ObjectId;
+    }
+
+    public static class StatePersisterExtensions
+    {
+        public static void PersistObjectNameAndIdList(this StatePersister persister, List<ObjectNameAndId> value)
+        {
+            persister.PersistVersion(1);
+
+            persister.PersistList(value, static (StatePersister persister, ref ObjectNameAndId item) =>
+            {
+                persister.PersistAsciiString(ref item.Name);
+                persister.PersistObjectID(ref item.ObjectId);
+            });
+        }
     }
 }

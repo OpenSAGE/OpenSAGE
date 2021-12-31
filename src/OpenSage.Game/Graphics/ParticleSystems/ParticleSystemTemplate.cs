@@ -353,7 +353,7 @@ namespace OpenSage.Graphics.ParticleSystems
         }
     }
 
-    public sealed class RandomAlphaKeyframe
+    public readonly record struct RandomAlphaKeyframe(RandomVariable Value, uint Time)
     {
         internal static RandomAlphaKeyframe Parse(IniParser parser)
         {
@@ -381,12 +381,9 @@ namespace OpenSage.Graphics.ParticleSystems
             writer.Write(Value);
             writer.Write(Time);
         }
-
-        public RandomVariable Value;
-        public uint Time;
     }
 
-    public sealed class RgbColorKeyframe
+    public readonly record struct RgbColorKeyframe(ColorRgbF Color, uint Time)
     {
         internal static RgbColorKeyframe Parse(IniParser parser)
         {
@@ -411,9 +408,6 @@ namespace OpenSage.Graphics.ParticleSystems
             writer.Write(Color);
             writer.Write(Time);
         }
-
-        public ColorRgbF Color;
-        public uint Time;
     }
 
     public enum ParticleSystemShader

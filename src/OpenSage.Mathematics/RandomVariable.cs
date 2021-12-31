@@ -1,20 +1,7 @@
-﻿using System.Globalization;
-
-namespace OpenSage.Mathematics
+﻿namespace OpenSage.Mathematics
 {
-    public readonly struct RandomVariable
+    public readonly record struct RandomVariable(float Low, float High, DistributionType DistributionType)
     {
-        public readonly float Low;
-        public readonly float High;
-        public readonly DistributionType DistributionType;
-
-        public RandomVariable(float low, float high, DistributionType distributionType)
-        {
-            Low = low;
-            High = high;
-            DistributionType = distributionType;
-        }
-
         public override string ToString()
         {
             return $"{Low},{High} ({DistributionType})";

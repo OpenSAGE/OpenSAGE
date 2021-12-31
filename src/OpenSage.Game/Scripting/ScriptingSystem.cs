@@ -382,7 +382,7 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < numSpecialPowerSets; i++)
             {
-                reader.PersistObjectNameAndIdSet(_specialPowers[i]);
+                reader.PersistObjectNameAndIdList(_specialPowers[i]);
             }
 
             ushort numUnknown1Sets = 0;
@@ -415,7 +415,7 @@ namespace OpenSage.Scripting
 
             for (var i = 0; i < numUpgradeSets; i++)
             {
-                reader.PersistObjectNameAndIdSet(_upgrades[i]);
+                reader.PersistObjectNameAndIdList(_upgrades[i]);
             }
 
             var numScienceSets = (ushort) _sciences.Length;

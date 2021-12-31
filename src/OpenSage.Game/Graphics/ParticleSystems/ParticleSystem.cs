@@ -150,14 +150,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var colors = Template.Colors;
 
-            if (colors.Color1 != null)
+            if (colors.Color1 != default)
             {
                 _colorKeyframes.Add(new ParticleColorKeyframe(colors.Color1));
             }
 
             void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
             {
-                if (keyframe != null && keyframe.Time > previous.Time)
+                if (keyframe != default && keyframe.Time > previous.Time)
                 {
                     _colorKeyframes.Add(new ParticleColorKeyframe(keyframe));
                 }
@@ -426,14 +426,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             if (alphas != null)
             {
-                if (alphas.Alpha1 != null)
+                if (alphas.Alpha1 != default)
                 {
                     alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
                 }
 
                 void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
                 {
-                    if (keyframe != null && previous != null && keyframe.Time > previous.Time)
+                    if (keyframe != default && previous != default && keyframe.Time > previous.Time)
                     {
                         alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
                     }
