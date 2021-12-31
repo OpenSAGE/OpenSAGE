@@ -107,22 +107,6 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistColorRgba(ref ColorRgba value)
-            {
-                ColorRgba comparisonValue = default;
-                _comparisonReader.PersistColorRgba(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistColorRgbaInt(ref ColorRgba value)
-            {
-                ColorRgba comparisonValue = default;
-                _comparisonReader.PersistColorRgbaInt(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
             public override void PersistDateTime(ref DateTime value)
             {
                 DateTime comparisonValue = default;
@@ -192,46 +176,6 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistPoint2D(ref Point2D value)
-            {
-                Point2D comparisonValue = default;
-                _comparisonReader.PersistPoint2D(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistPoint3D(ref Point3D value)
-            {
-                Point3D comparisonValue = default;
-                _comparisonReader.PersistPoint3D(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value)
-            {
-                RandomAlphaKeyframe comparisonValue = default;
-                _comparisonReader.PersistRandomAlphaKeyframe(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistRandomVariable(ref RandomVariable value)
-            {
-                RandomVariable comparisonValue = default;
-                _comparisonReader.PersistRandomVariable(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value)
-            {
-                RgbColorKeyframe comparisonValue = default;
-                _comparisonReader.PersistRgbColorKeyframe(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
             public override void PersistSingle(ref float value)
             {
                 float comparisonValue = default;
@@ -260,14 +204,6 @@ namespace OpenSage.Tests.Data.Sav
             {
                 string comparisonValue = default;
                 _comparisonReader.PersistUnicodeString(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistVector3(ref Vector3 value)
-            {
-                Vector3 comparisonValue = default;
-                _comparisonReader.PersistVector3(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
