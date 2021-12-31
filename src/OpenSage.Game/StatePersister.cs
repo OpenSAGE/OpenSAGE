@@ -55,11 +55,43 @@ namespace OpenSage
 
         public abstract void PersistSingle(ref float value);
 
-        public abstract void PersistVector3(ref Vector3 value);
+        public void PersistVector3(ref Vector3 value)
+        {
+            PersistSingle(ref value.X);
+            PersistSingle(ref value.Y);
+            PersistSingle(ref value.Z);
+        }
 
-        public abstract void PersistPoint2D(ref Point2D value);
+        public void PersistPoint2D(ref Point2D value)
+        {
+            var x = value.X;
+            PersistInt32(ref x);
 
-        public abstract void PersistPoint3D(ref Point3D value);
+            var y = value.Y;
+            PersistInt32(ref y);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new Point2D(x, y);
+            }
+        }
+
+        public void PersistPoint3D(ref Point3D value)
+        {
+            var x = value.X;
+            PersistInt32(ref x);
+
+            var y = value.Y;
+            PersistInt32(ref y);
+
+            var z = value.Z;
+            PersistInt32(ref z);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new Point3D(x, y, z);
+            }
+        }
 
         public abstract void PersistEnum<TEnum>(ref TEnum value)
             where TEnum : struct;
@@ -78,17 +110,114 @@ namespace OpenSage
         public abstract void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
             where TEnum : Enum;
 
-        public abstract void PersistColorRgba(ref ColorRgba value);
+        public void PersistColorRgbF(ref ColorRgbF value)
+        {
+            var r = value.R;
+            PersistSingle(ref r);
 
-        public abstract void PersistColorRgbaInt(ref ColorRgba value);
+            var g = value.G;
+            PersistSingle(ref g);
+
+            var b = value.B;
+            PersistSingle(ref b);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new ColorRgbF(r, g, b);
+            }
+        }
+
+        public void PersistColorRgba(ref ColorRgba value)
+        {
+            var r = value.R;
+            PersistByte(ref r);
+
+            var g = value.G;
+            PersistByte(ref g);
+
+            var b = value.B;
+            PersistByte(ref b);
+
+            var a = value.A;
+            PersistByte(ref a);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new ColorRgba(r, g, b, a);
+            }
+        }
+
+        public void PersistColorRgbaInt(ref ColorRgba value)
+        {
+            var r = (int)value.R;
+            PersistInt32(ref r);
+
+            var g = (int)value.G;
+            PersistInt32(ref g);
+
+            var b = (int)value.B;
+            PersistInt32(ref b);
+
+            var a = (int)value.A;
+            PersistInt32(ref a);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                if (r > 255 || g > 255 || b > 255 || a > 255)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                value = new ColorRgba((byte)r, (byte)g, (byte)b, (byte)a);
+            }
+        }
 
         public abstract void PersistDateTime(ref DateTime value);
 
-        public abstract void PersistRandomVariable(ref RandomVariable value);
+        public void PersistRandomVariable(ref RandomVariable value)
+        {
+            var distributionType = value.DistributionType;
+            PersistEnum(ref distributionType);
 
-        public abstract void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value);
+            var low = value.Low;
+            PersistSingle(ref low);
 
-        public abstract void PersistRgbColorKeyframe(ref RgbColorKeyframe value);
+            var high = value.High;
+            PersistSingle(ref high);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new RandomVariable(low, high, distributionType);
+            }
+        }
+
+        public void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value)
+        {
+            var randomVariable = value.Value;
+            PersistRandomVariable(ref randomVariable);
+
+            var time = value.Time;
+            PersistUInt32(ref time);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new RandomAlphaKeyframe(randomVariable, time);
+            }
+        }
+
+        public void PersistRgbColorKeyframe(ref RgbColorKeyframe value)
+        {
+            var color = value.Color;
+            PersistColorRgbF(ref color);
+
+            var time = value.Time;
+            PersistUInt32(ref time);
+
+            if (Mode == StatePersistMode.Read)
+            {
+                value = new RgbColorKeyframe(color, time);
+            }
+        }
 
         public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
 
@@ -150,12 +279,6 @@ namespace OpenSage
 
         public override void PersistSingle(ref float value) => value = _binaryReader.ReadSingle();
 
-        public override void PersistVector3(ref Vector3 value) => value = _binaryReader.ReadVector3();
-
-        public override void PersistPoint2D(ref Point2D value) => value = _binaryReader.ReadPoint2D();
-
-        public override void PersistPoint3D(ref Point3D value) => value = _binaryReader.ReadPoint3D();
-
         public override void PersistEnum<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt32AsEnum<TEnum>();
 
         public override void PersistEnumByte<TEnum>(ref TEnum value) => value = _binaryReader.ReadByteAsEnum<TEnum>();
@@ -194,17 +317,7 @@ namespace OpenSage
             }
         }
 
-        public override void PersistColorRgba(ref ColorRgba value) => value = _binaryReader.ReadColorRgba();
-
-        public override void PersistColorRgbaInt(ref ColorRgba value) => value = _binaryReader.ReadColorRgbaInt();
-
         public override void PersistDateTime(ref DateTime value) => value = _binaryReader.ReadDateTime();
-
-        public override void PersistRandomVariable(ref RandomVariable value) => value = _binaryReader.ReadRandomVariable();
-
-        public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value = RandomAlphaKeyframe.ReadFromSaveFile(_binaryReader);
-
-        public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value = RgbColorKeyframe.ReadFromSaveFile(_binaryReader);
 
         public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
         {
@@ -326,12 +439,6 @@ namespace OpenSage
 
         public override void PersistSingle(ref float value) => _binaryWriter.Write(value);
 
-        public override void PersistVector3(ref Vector3 value) => _binaryWriter.Write(value);
-
-        public override void PersistPoint2D(ref Point2D value) => _binaryWriter.Write(value);
-
-        public override void PersistPoint3D(ref Point3D value) => _binaryWriter.Write(value);
-
         public override void PersistEnum<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
 
         public override void PersistEnumByte<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
@@ -368,17 +475,7 @@ namespace OpenSage
             }
         }
 
-        public override void PersistColorRgba(ref ColorRgba value) => _binaryWriter.Write(value);
-
-        public override void PersistColorRgbaInt(ref ColorRgba value) => _binaryWriter.WriteColorRgbaInt(value);
-
         public override void PersistDateTime(ref DateTime value) => _binaryWriter.Write(value);
-
-        public override void PersistRandomVariable(ref RandomVariable value) => _binaryWriter.Write(value);
-
-        public override void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value) => value.WriteToSaveFile(_binaryWriter);
-
-        public override void PersistRgbColorKeyframe(ref RgbColorKeyframe value) => value.WriteToSaveFile(_binaryWriter);
 
         public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
         {

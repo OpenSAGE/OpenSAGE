@@ -60,20 +60,23 @@ namespace OpenSage.Data.Sav
                 reader.PersistBoolean(ref unknown6);
             }
 
-            if (gameType == GameType.Skirmish)
+            if (reader.Mode == StatePersistMode.Read)
             {
-                game.SkirmishManager = new LocalSkirmishManager(game);
-                game.SkirmishManager.Settings.Load(reader);
+                if (gameType == GameType.Skirmish)
+                {
+                    game.SkirmishManager = new LocalSkirmishManager(game);
+                    game.SkirmishManager.Settings.Load(reader);
 
-                game.SkirmishManager.Settings.MapName = mapPath1;
+                    game.SkirmishManager.Settings.MapName = mapPath1;
 
-                game.SkirmishManager.HandleStartButtonClickAsync().Wait();
+                    game.SkirmishManager.HandleStartButtonClickAsync().Wait();
 
-                game.SkirmishManager.StartGame();
-            }
-            else
-            {
-                game.StartSinglePlayerGame(mapPath1);
+                    game.SkirmishManager.StartGame();
+                }
+                else
+                {
+                    game.StartSinglePlayerGame(mapPath1);
+                }
             }
         }
     }
