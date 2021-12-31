@@ -366,21 +366,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 Time = parser.ParseUnsignedInteger()
             };
         }
-
-        internal static RandomAlphaKeyframe ReadFromSaveFile(BinaryReader reader)
-        {
-            return new RandomAlphaKeyframe
-            {
-                Value = reader.ReadRandomVariable(),
-                Time = reader.ReadUInt32()
-            };
-        }
-
-        internal void WriteToSaveFile(BinaryWriter writer)
-        {
-            writer.Write(Value);
-            writer.Write(Time);
-        }
     }
 
     public readonly record struct RgbColorKeyframe(ColorRgbF Color, uint Time)
@@ -392,21 +377,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 Color = parser.ParseColorRgb().ToColorRgbF(),
                 Time = parser.ParseUnsignedInteger()
             };
-        }
-
-        internal static RgbColorKeyframe ReadFromSaveFile(BinaryReader reader)
-        {
-            return new RgbColorKeyframe
-            {
-                Color = reader.ReadColorRgbF(),
-                Time = reader.ReadUInt32()
-            };
-        }
-
-        internal void WriteToSaveFile(BinaryWriter writer)
-        {
-            writer.Write(Color);
-            writer.Write(Time);
         }
     }
 
