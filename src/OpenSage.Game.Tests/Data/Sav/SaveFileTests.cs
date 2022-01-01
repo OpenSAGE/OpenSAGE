@@ -43,6 +43,18 @@ namespace OpenSage.Tests.Data.Sav
             game.EndGame();
         }
 
+        [Fact]
+        public void CanLoadTestWeapons()
+        {
+            var fullPath = Path.Combine(RootFolder, "GeneralsTestWeapons\\00000000.sav");
+
+            using var stream = File.OpenRead(fullPath);
+
+            SaveFile.LoadFromStream(stream, _fixture.Game);
+
+            _fixture.Game.EndGame();
+        }
+
         public static IEnumerable<object[]> GetSaveFiles()
         {
             foreach (var file in Directory.GetFiles(RootFolder, "*.sav", SearchOption.AllDirectories))
