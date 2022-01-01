@@ -48,6 +48,54 @@ namespace OpenSage.Logic.Object
             CurrentJetAIState = JetAIState.Parked;
         }
 
+        internal override void Load(SaveFileReader reader)
+        {
+            reader.ReadVersion(2);
+            base.Load(reader);
+
+            var positionSomething = reader.ReadVector3();
+            var unknownInt1 = reader.ReadUInt32(); // 11
+            var unknownInt2 = reader.ReadUInt32(); // 11
+
+            reader.SkipUnknownBytes(12);
+
+            var unknownBoolean1 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(12);
+
+            var unknownInt3 = reader.ReadUInt32();
+            if (unknownInt3 != 0x7FFFFFFF)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBoolean2 = reader.ReadBoolean();
+
+            var unknownInt4 = reader.ReadUInt32();
+            if (unknownInt4 != 0x7FFFFFFF)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBoolean3 = reader.ReadBoolean();
+            var unknownBoolean4 = reader.ReadBoolean();
+
+            reader.SkipUnknownBytes(18);
+
+            var unknownInt5 = reader.ReadUInt32(); // 1
+
+            reader.SkipUnknownBytes(8);
+
+            var unknownInt6 = reader.ReadUInt32(); // 225
+            var unknownInt7 = reader.ReadUInt32(); // 225
+            var unknownInt8 = reader.ReadUInt32(); // 0
+            var unknownInt9 = reader.ReadUInt32(); // 1
+            var unknownInt10 = reader.ReadUInt32(); // 0
+            var unknownInt11 = reader.ReadUInt32(); // 6
+
+            var unknownBoolean5 = reader.ReadBoolean();
+        }
+
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
             if (_moduleData.KeepsParkingSpaceWhenAirborne) // check if not a helicopter
