@@ -12,8 +12,8 @@ namespace OpenSage.Logic
         private readonly bool[] _unknownBools = new bool[16];
 
         public readonly TeamTemplate Template;
-        public uint Id { get; internal set; }
-        public List<uint> ObjectIds = new List<uint>();
+        public readonly uint Id;
+        public readonly List<uint> ObjectIds = new List<uint>();
         public uint TargetObjectID;
 
         public readonly PlayerRelationships TeamToTeamRelationships = new PlayerRelationships();
@@ -36,15 +36,10 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var numObjects = (ushort) ObjectIds.Count;
-            reader.PersistUInt16(ref numObjects);
-
-            for (var i = 0; i < numObjects; i++)
+            reader.PersistList(ObjectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint objectId = 0;
-                reader.PersistObjectID(ref objectId);
-                ObjectIds.Add(objectId);
-            }
+                persister.PersistObjectID(ref item);
+            });
 
             reader.SkipUnknownBytes(1);
 
