@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using OpenSage.Data.Sav;
-using OpenSage.Graphics.ParticleSystems;
-using OpenSage.Mathematics;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Sav
@@ -83,14 +79,6 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistBitArray<TEnum>(ref BitArray<TEnum> value)
-            {
-                BitArray<TEnum> comparisonValue = new();
-                _comparisonReader.PersistBitArray(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
             public override void PersistBoolean(ref bool value)
             {
                 bool comparisonValue = default;
@@ -103,14 +91,6 @@ namespace OpenSage.Tests.Data.Sav
             {
                 byte comparisonValue = default;
                 _comparisonReader.PersistByte(ref comparisonValue);
-
-                CheckEquality(value, comparisonValue);
-            }
-
-            public override void PersistDateTime(ref DateTime value)
-            {
-                DateTime comparisonValue = default;
-                _comparisonReader.PersistDateTime(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -163,19 +143,6 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion = true)
-            {
-                Matrix4x3 comparisonValue = default;
-                _comparisonReader.PersistMatrix4x3(ref comparisonValue, readVersion);
-
-                CheckEquality(value, comparisonValue);
-            }
-
             public override void PersistSingle(ref float value)
             {
                 float comparisonValue = default;
@@ -216,11 +183,6 @@ namespace OpenSage.Tests.Data.Sav
             public override void ReadBytesIntoStream(Stream destination, int numBytes)
             {
                 throw new NotSupportedException();
-            }
-
-            public override void SkipUnknownBytes(int numBytes)
-            {
-                _comparisonReader.SkipUnknownBytes(numBytes);
             }
 
             private static void CheckEquality<T>(T value, T comparisonValue)
