@@ -3,20 +3,21 @@ using OpenSage.Network;
 
 namespace OpenSage.Data.Sav
 {
-    internal static class GameStateMap
+    internal class GameStateMap
     {
-        internal static void Load(StatePersister reader, Game game)
+        private string _mapPath1;
+        private string _mapPath2;
+        private GameType _gameType;
+        private uint _nextObjectId;
+        private uint _nextDrawableId;
+
+        internal void Load(StatePersister reader, Game game)
         {
             reader.PersistVersion(2);
 
-            var mapPath1 = "";
-            reader.PersistAsciiString(ref mapPath1);
-
-            var mapPath2 = "";
-            reader.PersistAsciiString(ref mapPath2);
-
-            var gameType = GameType.SinglePlayer;
-            reader.PersistEnum(ref gameType);
+            reader.PersistAsciiString(ref _mapPath1);
+            reader.PersistAsciiString(ref _mapPath2);
+            reader.PersistEnum(ref _gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 
@@ -34,25 +35,28 @@ namespace OpenSage.Data.Sav
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(
                 game.ContentManager.UserDataFileSystem.RootDirectory,
-                mapPath1);
+                _mapPath1);
             var saveFolder = Path.GetDirectoryName(mapPathInSaveFolder);
             if (!Directory.Exists(saveFolder))
             {
                 Directory.CreateDirectory(saveFolder);
             }
 
-            using (var mapOutputStream = File.OpenWrite(mapPathInSaveFolder))
+            var mapBytes = (reader.Mode == StatePersistMode.Read)
+                ? new byte[mapSize]
+                : File.ReadAllBytes(mapPathInSaveFolder);
+
+            reader.PersistSpan(mapBytes);
+
+            if (reader.Mode == StatePersistMode.Read)
             {
-                reader.ReadBytesIntoStream(mapOutputStream, (int)mapSize);
+                File.WriteAllBytes(mapPathInSaveFolder, mapBytes);
             }
 
             reader.EndSegment();
 
-            var nextObjectId = 0u;
-            reader.PersistUInt32(ref nextObjectId);
-
-            var nextDrawableId = 0u;
-            reader.PersistUInt32(ref nextDrawableId);
+            reader.PersistUInt32(ref _nextObjectId);
+            reader.PersistUInt32(ref _nextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {
@@ -62,12 +66,12 @@ namespace OpenSage.Data.Sav
 
             if (reader.Mode == StatePersistMode.Read)
             {
-                if (gameType == GameType.Skirmish)
+                if (_gameType == GameType.Skirmish)
                 {
                     game.SkirmishManager = new LocalSkirmishManager(game);
                     game.SkirmishManager.Settings.Load(reader);
 
-                    game.SkirmishManager.Settings.MapName = mapPath1;
+                    game.SkirmishManager.Settings.MapName = _mapPath1;
 
                     game.SkirmishManager.HandleStartButtonClickAsync().Wait();
 
@@ -75,8 +79,10 @@ namespace OpenSage.Data.Sav
                 }
                 else
                 {
-                    game.StartSinglePlayerGame(mapPath1);
+                    game.StartSinglePlayerGame(_mapPath1);
                 }
+
+                game.Scene3D.PartitionCellManager.OnNewGame();
             }
         }
     }
