@@ -127,37 +127,22 @@ namespace OpenSage.Logic.Object
             reader.PersistVector3(ref _position2);
             reader.PersistVector3(ref _position3);
             reader.PersistInt32(ref _numApproachPositions1);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
 
-            var numberApproachPositions2 = _approachPositions.Count;
-            reader.PersistInt32(ref numberApproachPositions2);
-
-            for (var i = 0; i < numberApproachPositions2; i++)
+            reader.PersistListWithUInt32Count(_approachPositions, static (StatePersister persister, ref Vector3 item) =>
             {
-                Vector3 approachPosition = default;
-                reader.PersistVector3(ref approachPosition);
-                _approachPositions.Add(approachPosition);
-            }
+                persister.PersistVector3(ref item);
+            });
 
-            var numberApproachPositions3 = _approachObjectIds.Count;
-            reader.PersistInt32(ref numberApproachPositions3);
-
-            for (var i = 0; i < numberApproachPositions3; i++)
+            reader.PersistListWithUInt32Count(_approachObjectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint objectId = 0;
-                reader.PersistObjectID(ref objectId);
-                _approachObjectIds.Add(objectId);
-            }
+                persister.PersistObjectID(ref item);
+            });
 
-            var numberApproachPositions4 = _unknownBools.Count;
-            reader.PersistInt32(ref numberApproachPositions4);
-
-            for (var i = 0; i < numberApproachPositions4; i++)
+            reader.PersistListWithUInt32Count(_unknownBools, static (StatePersister persister, ref bool item) =>
             {
-                var value = false;
-                reader.PersistBoolean(ref value);
-                _unknownBools.Add(value);
-            }
+                persister.PersistBoolean("Value", ref item);
+            });
 
             reader.PersistObjectID(ref _unknownObjectId);
 
@@ -168,7 +153,7 @@ namespace OpenSage.Logic.Object
             }
 
             var unknown3 = true;
-            reader.PersistBoolean(ref unknown3);
+            reader.PersistBoolean("Unknown3", ref unknown3);
             if (!unknown3)
             {
                 throw new InvalidStateException();

@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistBoolean(ref _unknown);
+            reader.PersistBoolean("Unknown", ref _unknown);
         }
     }
 

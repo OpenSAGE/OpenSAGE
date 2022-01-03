@@ -61,7 +61,7 @@ namespace OpenSage.Logic
             Owner = players.GetPlayerByIndex(ownerPlayerId);
 
             reader.PersistAsciiString(ref _attackPriorityName);
-            reader.PersistBoolean(ref _unknown1);
+            reader.PersistBoolean("Unknown1", ref _unknown1);
 
             _templateData.Load(reader);
 

@@ -624,18 +624,18 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistUInt32(ref _systemId);
             reader.PersistUInt32(ref _attachedToDrawableId);
             reader.PersistObjectID(ref _attachedToObjectId);
-            reader.PersistBoolean(ref _isIdentityTransform);
+            reader.PersistBoolean("IsIdentityTransform", ref _isIdentityTransform);
             reader.PersistMatrix4x3(ref _transform, readVersion: false);
-            reader.PersistBoolean(ref _isIdentityTransform2);
+            reader.PersistBoolean("IsIdentityTransform2", ref _isIdentityTransform2);
             reader.PersistMatrix4x3(ref _transform2, readVersion: false);
             reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistUInt32(ref _unknownInt3);
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistBoolean(ref _hasInfiniteLifetime);
+            reader.PersistBoolean("HasInfiniteLifetime", ref _hasInfiniteLifetime);
             reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
 
             for (var i = 0; i < 6; i++)
             {
@@ -649,7 +649,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.PersistVector3(ref _position);
             reader.PersistVector3(ref _positionPrevious);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistUInt32(ref _slaveSystemId);
             reader.PersistUInt32(ref _masterSystemId);
 
@@ -676,7 +676,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistVersion(1);
 
             var isOneShot = false;
-            reader.PersistBoolean(ref isOneShot); // IsOneShot
+            reader.PersistBoolean("IsOneShot", ref isOneShot);
 
             ParticleSystemShader shader = default;
             reader.PersistEnum(ref shader);
@@ -863,7 +863,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistSingle(ref windPingPongEndAngleMax);
 
             var unknown16 = false;
-            reader.PersistBoolean(ref unknown16);
+            reader.PersistBoolean("Unknown16", ref unknown16);
         }
     }
 

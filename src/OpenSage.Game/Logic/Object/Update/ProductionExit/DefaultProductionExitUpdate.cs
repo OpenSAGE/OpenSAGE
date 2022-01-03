@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.PersistVector3(ref _unknownPos);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
         }
     }
 

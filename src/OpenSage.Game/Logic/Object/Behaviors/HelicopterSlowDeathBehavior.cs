@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             var unknown1 = true;
-            reader.PersistBoolean(ref unknown1);
+            reader.PersistBoolean("Unknown1", ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();

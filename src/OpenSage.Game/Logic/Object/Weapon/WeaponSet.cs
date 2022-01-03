@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < 3; i++)
             {
                 var slotFilled = _weapons[i] != null;
-                reader.PersistBoolean(ref slotFilled);
+                reader.PersistBoolean("SlotFilled", ref slotFilled);
                 if (slotFilled)
                 {
                     _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
@@ -93,8 +93,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _filledWeaponSlots);
             reader.PersistEnumFlags(ref _combinedAntiMask);
             reader.PersistUInt32(ref _unknown2);
-            reader.PersistBoolean(ref _unknown3);
-            reader.PersistBoolean(ref _unknown4);
+            reader.PersistBoolean("Unknown3", ref _unknown3);
+            reader.PersistBoolean("Unknown4", ref _unknown4);
         }
     }
 }

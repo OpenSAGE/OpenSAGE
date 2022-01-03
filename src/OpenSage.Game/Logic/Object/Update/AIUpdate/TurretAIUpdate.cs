@@ -205,7 +205,7 @@ namespace OpenSage.Logic.Object
             reader.PersistVersion(2);
 
             var unknownBool1 = true;
-            reader.PersistBoolean(ref unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
@@ -219,10 +219,10 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt1); // 0, 1
             reader.PersistFrame(ref _unknownFrame2);
 
-            for (var i = 0; i < 7; i++)
+            reader.PersistArray(_unknownBools, static (StatePersister persister, ref bool item) =>
             {
-                reader.PersistBoolean(ref _unknownBools[i]);
-            }
+                persister.PersistBoolean("Value", ref item);
+            });
 
             reader.PersistFrame(ref _unknownFrame3);
         }

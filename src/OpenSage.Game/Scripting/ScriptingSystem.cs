@@ -290,7 +290,7 @@ namespace OpenSage.Scripting
 
                 reader.PersistInt32(ref counter.Value);
                 reader.PersistAsciiString(ref counter.Name);
-                reader.PersistBoolean(ref counter.IsTimer);
+                reader.PersistBoolean("IsTimer", ref counter.IsTimer);
             }
 
             var numTimersAndCounters2 = (uint)_numCounters;
@@ -306,7 +306,7 @@ namespace OpenSage.Scripting
             {
                 ref var flag = ref _flags[i];
 
-                reader.PersistBoolean(ref flag.Value);
+                reader.PersistBoolean("Value", ref flag.Value);
                 reader.PersistAsciiString(ref flag.Name);
             }
 
@@ -432,7 +432,7 @@ namespace OpenSage.Scripting
             }
 
             byte unknown14_1 = 1;
-            reader.PersistByte(ref unknown14_1);
+            reader.PersistByte("Unknown14_1", ref unknown14_1);
             if (unknown14_1 != 1)
             {
                 throw new InvalidStateException();
@@ -486,7 +486,7 @@ namespace OpenSage.Scripting
             }
 
             byte unknown20 = 1;
-            reader.PersistByte(ref unknown20);
+            reader.PersistByte("Unknown20", ref unknown20);
             if (unknown20 != 1)
             {
                 throw new InvalidStateException();

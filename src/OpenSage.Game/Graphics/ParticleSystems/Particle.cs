@@ -95,7 +95,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             reader.PersistSingle(ref ColorScale);
-            reader.PersistBoolean(ref IsParticleUpTowardsEmitter);
+            reader.PersistBoolean("IsParticleUpTowardsEmitter", ref IsParticleUpTowardsEmitter);
             reader.PersistSingle(ref UnknownFloat);
             reader.PersistUInt32(ref ParticleId);
 

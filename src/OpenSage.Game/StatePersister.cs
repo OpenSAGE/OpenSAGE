@@ -33,7 +33,7 @@ namespace OpenSage
 
         public abstract byte PersistVersion(byte maximumVersion);
 
-        public abstract void PersistByte(ref byte value);
+        public abstract void PersistByte(string name, ref byte value);
 
         public abstract void PersistInt16(ref short value);
 
@@ -43,11 +43,11 @@ namespace OpenSage
 
         public abstract void PersistUInt32(ref uint value);
 
-        public abstract void PersistBoolean(ref bool value);
+        public abstract void PersistBoolean(string name, ref bool value);
 
         public abstract void PersistAsciiString(ref string value);
 
-        public abstract void PersistUnicodeString(ref string value);
+        public abstract void PersistUnicodeString(string name, ref string value);
 
         public abstract void PersistSingle(ref float value);
 
@@ -71,19 +71,7 @@ namespace OpenSage
 
         protected record struct Segment(long Start, long End, string Name);
 
-        public void SkipUnknownBytes(int numBytes)
-        {
-            for (var i = 0; i < numBytes; i++)
-            {
-                byte value = 0;
-                PersistByte(ref value);
-
-                if (Mode == StatePersistMode.Read && value != 0)
-                {
-                    throw new InvalidStateException($"Expected byte (index {i}) to be 0 but it was {value}");
-                }
-            }
-        }
+        public abstract void SkipUnknownBytes(int numBytes);
     }
 
     public enum StatePersistMode
@@ -112,7 +100,7 @@ namespace OpenSage
             return result;
         }
 
-        public override void PersistByte(ref byte value) => value = _binaryReader.ReadByte();
+        public override void PersistByte(string name, ref byte value) => value = _binaryReader.ReadByte();
 
         public override void PersistInt16(ref short value) => value = _binaryReader.ReadInt16();
 
@@ -122,11 +110,11 @@ namespace OpenSage
 
         public override void PersistUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public override void PersistBoolean(ref bool value) => value = _binaryReader.ReadBooleanChecked();
+        public override void PersistBoolean(string name, ref bool value) => value = _binaryReader.ReadBoolean();
 
         public override void PersistAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
-        public override void PersistUnicodeString(ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
+        public override void PersistUnicodeString(string name, ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
 
         public override void PersistSingle(ref float value) => value = _binaryReader.ReadSingle();
 
@@ -181,6 +169,19 @@ namespace OpenSage
                 throw new InvalidStateException($"Stream position expected to be at 0x{segment.End:X8} but was at 0x{_binaryReader.BaseStream.Position:X8} while reading {segment.Name}");
             }
         }
+
+        public override void SkipUnknownBytes(int numBytes)
+        {
+            for (var i = 0; i < numBytes; i++)
+            {
+                var value = _binaryReader.ReadByte();
+
+                if (value != 0)
+                {
+                    throw new InvalidStateException($"Expected byte (index {i}) to be 0 but it was {value}");
+                }
+            }
+        }
     }
 
     public sealed class StateWriter : StatePersister
@@ -199,7 +200,7 @@ namespace OpenSage
             return maximumVersion;
         }
 
-        public override void PersistByte(ref byte value) => _binaryWriter.Write(value);
+        public override void PersistByte(string name, ref byte value) => _binaryWriter.Write(value);
 
         public override void PersistInt16(ref short value) => _binaryWriter.Write(value);
 
@@ -209,11 +210,11 @@ namespace OpenSage
 
         public override void PersistUInt32(ref uint value) => _binaryWriter.Write(value);
 
-        public override void PersistBoolean(ref bool value) => _binaryWriter.Write(value);
+        public override void PersistBoolean(string name, ref bool value) => _binaryWriter.Write(value);
 
         public override void PersistAsciiString(ref string value) => _binaryWriter.WriteBytePrefixedAsciiString(value);
 
-        public override void PersistUnicodeString(ref string value) => _binaryWriter.WriteBytePrefixedUnicodeString(value);
+        public override void PersistUnicodeString(string name, ref string value) => _binaryWriter.WriteBytePrefixedUnicodeString(value);
 
         public override void PersistSingle(ref float value) => _binaryWriter.Write(value);
 
@@ -256,6 +257,14 @@ namespace OpenSage
             _binaryWriter.BaseStream.Position = segment.Start - 4;
             _binaryWriter.Write((uint)segmentLength);
             _binaryWriter.BaseStream.Position = currentPosition;
+        }
+
+        public override void SkipUnknownBytes(int numBytes)
+        {
+            for (var i = 0; i < numBytes; i++)
+            {
+                _binaryWriter.Write((byte)0);
+            }
         }
     }
 
@@ -437,16 +446,16 @@ namespace OpenSage
         public static void PersistColorRgba(this StatePersister persister, ref ColorRgba value)
         {
             var r = value.R;
-            persister.PersistByte(ref r);
+            persister.PersistByte("R", ref r);
 
             var g = value.G;
-            persister.PersistByte(ref g);
+            persister.PersistByte("G", ref g);
 
             var b = value.B;
-            persister.PersistByte(ref b);
+            persister.PersistByte("B", ref b);
 
             var a = value.A;
-            persister.PersistByte(ref a);
+            persister.PersistByte("A", ref a);
 
             if (persister.Mode == StatePersistMode.Read)
             {
@@ -556,6 +565,29 @@ namespace OpenSage
             }
         }
 
+        public static void PersistArray<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback)
+            where T : new()
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                callback(persister, ref value[i]);
+            }
+        }
+
+        public static void PersistArrayWithUInt16Length<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback)
+            where T : new()
+        {
+            var length = (ushort)value.Length;
+            persister.PersistUInt16(ref length);
+
+            if (length != value.Length)
+            {
+                throw new InvalidStateException();
+            }
+
+            PersistArray(persister, value, callback);
+        }
+
         public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
 
         public static void PersistList<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
@@ -564,6 +596,21 @@ namespace OpenSage
             var count = (ushort)value.Count;
             persister.PersistUInt16(ref count);
 
+            PersistListImpl(persister, value, count, callback);
+        }
+
+        public static void PersistListWithUInt32Count<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
+            where T : new()
+        {
+            var count = (uint)value.Count;
+            persister.PersistUInt32(ref count);
+
+            PersistListImpl(persister, value, count, callback);
+        }
+
+        private static void PersistListImpl<T>(this StatePersister persister, List<T> value, uint count, PersistListItemCallback<T> callback)
+            where T : new()
+        {
             if (persister.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < count; i++)

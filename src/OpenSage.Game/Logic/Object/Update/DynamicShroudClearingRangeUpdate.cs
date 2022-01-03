@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknown7);
 
             var unknown7_1 = true;
-            reader.PersistBoolean(ref unknown7_1);
+            reader.PersistBoolean("Unknown7_1", ref unknown7_1);
             if (!unknown7_1)
             {
                 throw new InvalidStateException();

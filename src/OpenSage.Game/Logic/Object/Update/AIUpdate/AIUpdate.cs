@@ -298,8 +298,8 @@ namespace OpenSage.Logic.Object
             _stateMachine.Load(reader);
 
             reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _unknownInt5);
             reader.PersistSingle(ref _unknownFloat1); // 999999
@@ -311,14 +311,14 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt11); // 0
             reader.PersistUInt32(ref _unknownInt12); // 0
             reader.PersistUInt32(ref _unknownInt13); // 0
-            reader.PersistBoolean(ref _unknownBool3);
-            reader.PersistBoolean(ref _unknownBool4);
-            reader.PersistBoolean(ref _unknownBool5); // 0
-            reader.PersistBoolean(ref _unknownBool6); // 0
+            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
+            reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
+            reader.PersistBoolean("UnknownBool5", ref _unknownBool5); // 0
+            reader.PersistBoolean("UnknownBool6", ref _unknownBool6); // 0
             reader.PersistAsciiString(ref _guardAreaPolygonTriggerName);
             reader.PersistAsciiString(ref _attackPriorityName);
             reader.PersistUInt32(ref _unknownInt14); // 0
-            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistBoolean("UnknownBool7", ref _unknownBool7);
             reader.PersistUInt32(ref _unknownInt15); // 0
 
             var unknownInt16 = 0x7FFFFFFFu;
@@ -328,10 +328,10 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
 
             var hasPath = _path != null;
-            reader.PersistBoolean(ref hasPath);
+            reader.PersistBoolean("HasPath", ref hasPath);
             if (hasPath)
             {
                 _path = new PathfindingPath();
@@ -353,13 +353,13 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref _unknownBool9);
-            reader.PersistBoolean(ref _unknownBool10);
+            reader.PersistBoolean("UnknownBool9", ref _unknownBool9);
+            reader.PersistBoolean("UnknownBool10", ref _unknownBool10);
 
             reader.SkipUnknownBytes(5);
 
-            reader.PersistBoolean(ref _unknownBool11);
-            reader.PersistBoolean(ref _unknownBool12);
+            reader.PersistBoolean("UnknownBool11", ref _unknownBool11);
+            reader.PersistBoolean("UnknownBool12", ref _unknownBool12);
 
             reader.SkipUnknownBytes(8);
 
@@ -561,10 +561,10 @@ namespace OpenSage.Logic.Object
                 _points.Add(pathPoint);
             }
 
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2); // 1
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }
     }
 
@@ -581,7 +581,7 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _id);
             reader.PersistVector3(ref _position);
             reader.PersistUInt32(ref _unknownInt1);
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistUInt32(ref _nextId);
         }
     }

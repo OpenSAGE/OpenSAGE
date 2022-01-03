@@ -61,7 +61,7 @@ namespace OpenSage.Data.Sav
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown6 = false;
-                reader.PersistBoolean(ref unknown6);
+                reader.PersistBoolean("Unknown6", ref unknown6);
             }
 
             if (reader.Mode == StatePersistMode.Read)

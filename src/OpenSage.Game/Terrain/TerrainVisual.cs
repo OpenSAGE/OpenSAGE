@@ -9,7 +9,7 @@
             reader.PersistVersion(2);
             reader.PersistVersion(1);
 
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
             if (_unknownBool)
             {
                 reader.PersistVersion(1);
@@ -41,7 +41,7 @@
                 for (var x = 0; x < width; x++)
                 {
                     var elevation = (byte)elevations[x, y];
-                    reader.PersistByte(ref elevation);
+                    reader.PersistByte("Elevation", ref elevation);
                     elevations[x, y] = elevation;
                 }
             }

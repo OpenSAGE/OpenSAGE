@@ -420,9 +420,9 @@ namespace OpenSage.Logic
             }
 
             reader.PersistUInt32(ref _unknown1);
-            reader.PersistBoolean(ref _unknown2);
+            reader.PersistBoolean("Unknown2", ref _unknown2);
             reader.PersistUInt32(ref _unknown3);
-            reader.PersistBoolean(ref _hasInsufficientPower);
+            reader.PersistBoolean("HasInsufficientPower", ref _hasInsufficientPower);
 
             _upgradesInProgress.Load(reader);
             UpgradesCompleted.Load(reader);
@@ -464,7 +464,7 @@ namespace OpenSage.Logic
             }
 
             var isAIPlayer = AIPlayer != null;
-            reader.PersistBoolean(ref isAIPlayer);
+            reader.PersistBoolean("IsAIPlayer", ref isAIPlayer);
             if (isAIPlayer != (AIPlayer != null))
             {
                 throw new InvalidStateException();
@@ -475,14 +475,14 @@ namespace OpenSage.Logic
             }
 
             var hasSupplyManager = _supplyManager != null;
-            reader.PersistBoolean(ref hasSupplyManager);
+            reader.PersistBoolean("HasSupplyManager", ref hasSupplyManager);
             if (hasSupplyManager)
             {
                 _supplyManager.Load(reader);
             }
 
             var hasTunnelManager = _tunnelManager != null;
-            reader.PersistBoolean(ref hasTunnelManager);
+            reader.PersistBoolean("HasTunnelManager", ref hasTunnelManager);
             if (hasTunnelManager)
             {
                 _tunnelManager = new TunnelManager();
@@ -507,21 +507,21 @@ namespace OpenSage.Logic
             reader.PersistUInt32(ref SkillPointsAvailable);
             reader.PersistUInt32(ref _unknown4); // 800
             reader.PersistUInt32(ref _unknown5); // 0
-            reader.PersistUnicodeString(ref Name);
+            reader.PersistUnicodeString("Name", ref Name);
 
             _playerToPlayerRelationships.Load(reader);
             _playerToTeamRelationships.Load(reader);
 
-            reader.PersistBoolean(ref CanBuildUnits);
-            reader.PersistBoolean(ref CanBuildBuildings);
-            reader.PersistBoolean(ref _unknown6);
+            reader.PersistBoolean("CanBuildUnits", ref CanBuildUnits);
+            reader.PersistBoolean("CanBuildBuildings", ref CanBuildBuildings);
+            reader.PersistBoolean("Unknown6", ref _unknown6);
             reader.PersistSingle(ref GeneralsExperienceMultiplier);
-            reader.PersistBoolean(ref ShowOnScoreScreen);
+            reader.PersistBoolean("ShowOnScoreScreen", ref ShowOnScoreScreen);
 
-            for (var i = 0; i < _attackedByPlayerIds.Length; i++)
+            reader.PersistArray(_attackedByPlayerIds, static (StatePersister persister, ref bool item) =>
             {
-                reader.PersistBoolean(ref _attackedByPlayerIds[i]);
-            }
+                persister.PersistBoolean("Value", ref item);
+            });
 
             reader.SkipUnknownBytes(70);
 
@@ -541,7 +541,7 @@ namespace OpenSage.Logic
             }
 
             var unknown = true;
-            reader.PersistBoolean(ref unknown);
+            reader.PersistBoolean("Unknown", ref unknown);
             if (!unknown)
             {
                 throw new InvalidStateException();
@@ -685,8 +685,8 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
 
             reader.PersistUInt32(ref _unknownInt1);
             if (_unknownInt1 != 2 && _unknownInt1 != 0)
@@ -726,7 +726,7 @@ namespace OpenSage.Logic
             }
 
             reader.PersistVector3(ref _unknownPosition);
-            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
             reader.PersistSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(22);
@@ -753,7 +753,7 @@ namespace OpenSage.Logic
                     _unknownThings.Add(otherThing);
                 }
 
-                reader.PersistBoolean(ref _unknownBool);
+                reader.PersistBoolean("UnknownBool", ref _unknownBool);
                 reader.PersistUInt32(ref _unknownInt1); // 11
                 reader.PersistUInt32(ref _unknownInt2);
 
@@ -778,8 +778,8 @@ namespace OpenSage.Logic
                 reader.PersistObjectID(ref _objectId);
                 reader.PersistUInt32(ref _unknownInt1); // 0
                 reader.PersistUInt32(ref _unknownInt2); // 1
-                reader.PersistBoolean(ref _unknownBool1);
-                reader.PersistBoolean(ref _unknownBool2);
+                reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+                reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             }
         }
     }

@@ -31,7 +31,7 @@ namespace OpenSage.Logic.AI.AIStates
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _waypointIdMaybe1);
             reader.PersistUInt32(ref _waypointIdMaybe2);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
         }
     }
 }

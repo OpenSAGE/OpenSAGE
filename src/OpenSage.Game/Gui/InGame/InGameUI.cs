@@ -369,9 +369,9 @@ namespace OpenSage.Gui.InGame
             reader.PersistVersion(2);
 
             reader.PersistUInt32(ref _unknown1); // 0
-            reader.PersistBoolean(ref _unknown2);
-            reader.PersistBoolean(ref _unknown3);
-            reader.PersistBoolean(ref _unknown4);
+            reader.PersistBoolean("Unknown2", ref _unknown2);
+            reader.PersistBoolean("Unknown3", ref _unknown3);
+            reader.PersistBoolean("Unknown4", ref _unknown4);
             reader.PersistUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
@@ -386,9 +386,9 @@ namespace OpenSage.Gui.InGame
 
                 reader.PersistUInt32(ref item.UnknownInt1);
                 reader.PersistUInt32(ref item.UnknownInt2); // 0xFFFFFFFF
-                reader.PersistBoolean(ref item.UnknownBool1);
-                reader.PersistBoolean(ref item.UnknownBool2);
-                reader.PersistBoolean(ref item.UnknownBool3);
+                reader.PersistBoolean("UnknownBool1", ref item.UnknownBool1);
+                reader.PersistBoolean("UnknownBool2", ref item.UnknownBool2);
+                reader.PersistBoolean("UnknownBool3", ref item.UnknownBool3);
 
                 _superweaponSomethings.Add(item);
 

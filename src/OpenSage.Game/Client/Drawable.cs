@@ -294,7 +294,7 @@ namespace OpenSage.Client
             reader.PersistMatrix4x3(ref _transformMatrix);
 
             var hasSelectionFlashHelper = _selectionFlashHelper != null;
-            reader.PersistBoolean(ref hasSelectionFlashHelper);
+            reader.PersistBoolean("HasSelectionFlashHelper", ref hasSelectionFlashHelper);
             if (hasSelectionFlashHelper)
             {
                 _selectionFlashHelper ??= new ColorFlashHelper();
@@ -302,7 +302,7 @@ namespace OpenSage.Client
             }
 
             var hasScriptedFlashHelper = _scriptedFlashHelper != null;
-            reader.PersistBoolean(ref hasScriptedFlashHelper);
+            reader.PersistBoolean("HasScriptedFlashHelper", ref hasScriptedFlashHelper);
             if (hasScriptedFlashHelper)
             {
                 _scriptedFlashHelper ??= new ColorFlashHelper();
@@ -345,7 +345,7 @@ namespace OpenSage.Client
             reader.PersistUInt32(ref _unknownInt5);
             reader.PersistUInt32(ref _unknownInt6);
 
-            reader.PersistBoolean(ref _hasUnknownFloats);
+            reader.PersistBoolean("HasUnknownFloats", ref _hasUnknownFloats);
             if (_hasUnknownFloats)
             {
                 for (var j = 0; j < 19; j++)
@@ -361,12 +361,12 @@ namespace OpenSage.Client
             reader.PersistUInt32(ref _flashFrameCount);
             reader.PersistColorRgba(ref _flashColor);
 
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBoolean(ref _someMatrixIsIdentity);
+            reader.PersistBoolean("SomeMatrixIsIdentity", ref _someMatrixIsIdentity);
 
             reader.PersistMatrix4x3(ref _someMatrix, false);
 
@@ -380,7 +380,7 @@ namespace OpenSage.Client
             reader.SkipUnknownBytes(8);
 
             var hasAnimation2D = _animation != null;
-            reader.PersistBoolean(ref hasAnimation2D);
+            reader.PersistBoolean("HasAnimation2D", ref hasAnimation2D);
             if (hasAnimation2D)
             {
                 var animation2DName = _animation?.Template.Name;
@@ -402,7 +402,7 @@ namespace OpenSage.Client
             }
 
             var unknownBool2 = true;
-            reader.PersistBoolean(ref unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();

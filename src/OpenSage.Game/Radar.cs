@@ -271,7 +271,7 @@ namespace OpenSage
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref _unknown1);
+            reader.PersistBoolean("Unknown1", ref _unknown1);
 
             _visibleItems.Clear();
             _visibleItems.Load(reader);
@@ -349,7 +349,7 @@ namespace OpenSage
         public void Load(StatePersister reader)
         {
             reader.PersistEnum(ref Type);
-            reader.PersistBoolean(ref _unknown1);
+            reader.PersistBoolean("Unknown1", ref _unknown1);
             reader.PersistUInt32(ref _unknown2);
             reader.PersistUInt32(ref _unknown3);
             reader.PersistUInt32(ref _unknown4);
@@ -358,7 +358,7 @@ namespace OpenSage
             reader.PersistVector3(ref Position);
             reader.PersistUInt32(ref _unknown5);
             reader.PersistUInt32(ref _unknown6);
-            reader.PersistBoolean(ref _unknown7);
+            reader.PersistBoolean("Unknown7", ref _unknown7);
         }
     }
 

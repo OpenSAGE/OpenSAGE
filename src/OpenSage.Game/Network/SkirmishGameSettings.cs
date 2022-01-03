@@ -85,9 +85,9 @@ namespace OpenSage.Network
 
             reader.PersistUInt32(ref _unknownInt1); // 25600 (160^2)
             reader.PersistInt32(ref _unknownInt2);
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
-            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
             reader.PersistUInt32(ref _unknownInt3); // 0
 
             var numPlayers = (uint)MaxNumberOfPlayers;

@@ -161,12 +161,11 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < _unknownList2.Length; i++)
+            reader.PersistArray(_unknownList2, static (StatePersister persister, ref DozerSomething2 item) =>
             {
-                _unknownList2[i] = new DozerSomething2();
-                reader.PersistBoolean(ref _unknownList2[i].UnknownBool);
-                reader.PersistVector3(ref _unknownList2[i].UnknownPos);
-            }
+                persister.PersistBoolean("UnknownBool", ref item.UnknownBool);
+                persister.PersistVector3(ref item.UnknownPos);
+            });
 
             reader.PersistInt32(ref _unknown4);
 
@@ -240,7 +239,7 @@ namespace OpenSage.Logic.Object
 
                 reader.PersistInt32(ref _unknown1);
                 reader.PersistInt32(ref _unknown2);
-                reader.PersistBoolean(ref _unknown3);
+                reader.PersistBoolean("Unknown3", ref _unknown3);
             }
         }
 

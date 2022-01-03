@@ -70,7 +70,7 @@ namespace OpenSage.Logic
             campaignManager.Load(reader);
 
             var unknown1 = true;
-            reader.PersistBoolean(ref unknown1);
+            reader.PersistBoolean("Unknown1", ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -79,7 +79,7 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(2);
 
             var unknown1_1 = true;
-            reader.PersistBoolean(ref unknown1_1);
+            reader.PersistBoolean("Unknown1_1", ref unknown1_1);
             if (!unknown1_1)
             {
                 throw new InvalidStateException();
@@ -122,21 +122,21 @@ namespace OpenSage.Logic
             }
 
             var unknownBool1 = true;
-            reader.PersistBoolean(ref unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool2 = true;
-            reader.PersistBoolean(ref unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool3 = true;
-            reader.PersistBoolean(ref unknownBool3);
+            reader.PersistBoolean("UnknownBool3", ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();

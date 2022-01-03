@@ -43,8 +43,8 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref _enteredOrExitedPolygonTrigger);
-            reader.PersistBoolean(ref _isAlive);
+            reader.PersistBoolean("EnteredOrExitedPolygonTrigger", ref _enteredOrExitedPolygonTrigger);
+            reader.PersistBoolean("IsAlive", ref _isAlive);
 
             reader.SkipUnknownBytes(5);
 
@@ -58,18 +58,10 @@ namespace OpenSage.Logic
 
             reader.PersistUInt32(ref _waypointId);
 
-            var unknownCount = (ushort) _unknownBools.Length;
-            reader.PersistUInt16(ref unknownCount);
-
-            if (unknownCount != _unknownBools.Length)
+            reader.PersistArrayWithUInt16Length(_unknownBools, static (StatePersister persister, ref bool item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < unknownCount; i++)
-            {
-                reader.PersistBoolean(ref _unknownBools[i]);
-            }
+                persister.PersistBoolean("Value", ref item);
+            });
 
             reader.SkipUnknownBytes(2);
 

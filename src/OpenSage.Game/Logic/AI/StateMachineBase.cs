@@ -55,8 +55,8 @@ namespace OpenSage.Logic.AI
 
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistVector3(ref _unknownPosition);
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }
     }
 }

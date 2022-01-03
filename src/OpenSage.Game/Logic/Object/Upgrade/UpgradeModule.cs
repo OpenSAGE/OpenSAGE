@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistBoolean(ref _triggered);
+            reader.PersistBoolean("Triggered", ref _triggered);
         }
 
         internal void DrawInspector()

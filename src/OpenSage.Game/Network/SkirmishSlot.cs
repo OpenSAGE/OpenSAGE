@@ -176,7 +176,7 @@ namespace OpenSage.Network
         internal void Load(StatePersister reader)
         {
             reader.PersistEnum(ref _state);
-            reader.PersistUnicodeString(ref _playerName);
+            reader.PersistUnicodeString("PlayerName", ref _playerName);
 
             ushort unknown1 = 1;
             reader.PersistUInt16(ref unknown1);
