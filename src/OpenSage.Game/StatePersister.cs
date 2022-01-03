@@ -45,53 +45,11 @@ namespace OpenSage
 
         public abstract void PersistBoolean(ref bool value);
 
-        public void PersistObjectID(ref uint value) => PersistUInt32(ref value);
-
-        public void PersistFrame(ref uint value) => PersistUInt32(ref value);
-
         public abstract void PersistAsciiString(ref string value);
 
         public abstract void PersistUnicodeString(ref string value);
 
         public abstract void PersistSingle(ref float value);
-
-        public void PersistVector3(ref Vector3 value)
-        {
-            PersistSingle(ref value.X);
-            PersistSingle(ref value.Y);
-            PersistSingle(ref value.Z);
-        }
-
-        public void PersistPoint2D(ref Point2D value)
-        {
-            var x = value.X;
-            PersistInt32(ref x);
-
-            var y = value.Y;
-            PersistInt32(ref y);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new Point2D(x, y);
-            }
-        }
-
-        public void PersistPoint3D(ref Point3D value)
-        {
-            var x = value.X;
-            PersistInt32(ref x);
-
-            var y = value.Y;
-            PersistInt32(ref y);
-
-            var z = value.Z;
-            PersistInt32(ref z);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new Point3D(x, y, z);
-            }
-        }
 
         public abstract void PersistEnum<TEnum>(ref TEnum value)
             where TEnum : struct;
@@ -105,125 +63,6 @@ namespace OpenSage
         public abstract void PersistEnumByteFlags<TEnum>(ref TEnum value)
             where TEnum : struct;
 
-        public abstract void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion = true);
-
-        public abstract void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
-            where TEnum : Enum;
-
-        public void PersistColorRgbF(ref ColorRgbF value)
-        {
-            var r = value.R;
-            PersistSingle(ref r);
-
-            var g = value.G;
-            PersistSingle(ref g);
-
-            var b = value.B;
-            PersistSingle(ref b);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new ColorRgbF(r, g, b);
-            }
-        }
-
-        public void PersistColorRgba(ref ColorRgba value)
-        {
-            var r = value.R;
-            PersistByte(ref r);
-
-            var g = value.G;
-            PersistByte(ref g);
-
-            var b = value.B;
-            PersistByte(ref b);
-
-            var a = value.A;
-            PersistByte(ref a);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new ColorRgba(r, g, b, a);
-            }
-        }
-
-        public void PersistColorRgbaInt(ref ColorRgba value)
-        {
-            var r = (int)value.R;
-            PersistInt32(ref r);
-
-            var g = (int)value.G;
-            PersistInt32(ref g);
-
-            var b = (int)value.B;
-            PersistInt32(ref b);
-
-            var a = (int)value.A;
-            PersistInt32(ref a);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                if (r > 255 || g > 255 || b > 255 || a > 255)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                value = new ColorRgba((byte)r, (byte)g, (byte)b, (byte)a);
-            }
-        }
-
-        public abstract void PersistDateTime(ref DateTime value);
-
-        public void PersistRandomVariable(ref RandomVariable value)
-        {
-            var distributionType = value.DistributionType;
-            PersistEnum(ref distributionType);
-
-            var low = value.Low;
-            PersistSingle(ref low);
-
-            var high = value.High;
-            PersistSingle(ref high);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new RandomVariable(low, high, distributionType);
-            }
-        }
-
-        public void PersistRandomAlphaKeyframe(ref RandomAlphaKeyframe value)
-        {
-            var randomVariable = value.Value;
-            PersistRandomVariable(ref randomVariable);
-
-            var time = value.Time;
-            PersistUInt32(ref time);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new RandomAlphaKeyframe(randomVariable, time);
-            }
-        }
-
-        public void PersistRgbColorKeyframe(ref RgbColorKeyframe value)
-        {
-            var color = value.Color;
-            PersistColorRgbF(ref color);
-
-            var time = value.Time;
-            PersistUInt32(ref time);
-
-            if (Mode == StatePersistMode.Read)
-            {
-                value = new RgbColorKeyframe(color, time);
-            }
-        }
-
-        public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
-
-        public abstract void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
-            where T : new();
-
         public abstract void ReadBytesIntoStream(Stream destination, int numBytes);
 
         public abstract uint BeginSegment(string segmentName);
@@ -232,7 +71,19 @@ namespace OpenSage
 
         protected record struct Segment(long Start, long End, string Name);
 
-        public abstract void SkipUnknownBytes(int numBytes);
+        public void SkipUnknownBytes(int numBytes)
+        {
+            for (var i = 0; i < numBytes; i++)
+            {
+                byte value = 0;
+                PersistByte(ref value);
+
+                if (Mode == StatePersistMode.Read && value != 0)
+                {
+                    throw new InvalidStateException($"Expected byte (index {i}) to be 0 but it was {value}");
+                }
+            }
+        }
     }
 
     public enum StatePersistMode
@@ -286,52 +137,6 @@ namespace OpenSage
         public override void PersistEnumFlags<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
 
         public override void PersistEnumByteFlags<TEnum>(ref TEnum value) => value = _binaryReader.ReadByteAsEnumFlags<TEnum>();
-
-        public override void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion)
-        {
-            if (readVersion)
-            {
-                PersistVersion(1);
-            }
-
-            value = _binaryReader.ReadMatrix4x3Transposed();
-        }
-
-        public override void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
-        {
-            PersistVersion(1);
-
-            result.SetAll(false);
-
-            var count = _binaryReader.ReadUInt32();
-
-            var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
-
-            for (var i = 0; i < count; i++)
-            {
-                var stringValue = _binaryReader.ReadBytePrefixedAsciiString();
-
-                var enumValue = (TEnum)stringToValueMap[stringValue];
-
-                result.Set(enumValue, true);
-            }
-        }
-
-        public override void PersistDateTime(ref DateTime value) => value = _binaryReader.ReadDateTime();
-
-        public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
-        {
-            var count = _binaryReader.ReadUInt16();
-
-            for (var i = 0; i < count; i++)
-            {
-                var item = new T();
-
-                callback(this, ref item);
-
-                value.Add(item);
-            }
-        }
 
         public override unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
         {
@@ -391,18 +196,6 @@ namespace OpenSage
                 throw new InvalidStateException($"Stream position expected to be at 0x{segment.End:X8} but was at 0x{_binaryReader.BaseStream.Position:X8} while reading {segment.Name}");
             }
         }
-
-        public override void SkipUnknownBytes(int numBytes)
-        {
-            for (var i = 0; i < numBytes; i++)
-            {
-                var unknown = _binaryReader.ReadByte();
-                if (unknown != 0)
-                {
-                    throw new InvalidStateException($"Expected byte (index {i}) at position 0x{_binaryReader.BaseStream.Position - 1:X8} to be 0 but it was {unknown}");
-                }
-            }
-        }
     }
 
     public sealed class StateWriter : StatePersister
@@ -447,47 +240,6 @@ namespace OpenSage
 
         public override void PersistEnumByteFlags<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
 
-        public override void PersistMatrix4x3(ref Matrix4x3 value, bool readVersion)
-        {
-            if (readVersion)
-            {
-                PersistVersion(1);
-            }
-
-            _binaryWriter.WriteMatrix4x3Transposed(value);
-        }
-
-        public override void PersistBitArray<TEnum>(ref BitArray<TEnum> result)
-        {
-            PersistVersion(1);
-
-            result.SetAll(false);
-
-            _binaryWriter.Write((uint)result.NumBitsSet);
-
-            var valueToStringMap = Data.Ini.IniParser.GetEnumMapReverse<TEnum>();
-
-            foreach (var setBit in result.GetSetBits())
-            {
-                var stringValue = valueToStringMap[setBit];
-
-                _binaryWriter.WriteBytePrefixedAsciiString(stringValue);
-            }
-        }
-
-        public override void PersistDateTime(ref DateTime value) => _binaryWriter.Write(value);
-
-        public override void PersistList<T>(List<T> value, PersistListItemCallback<T> callback)
-        {
-            _binaryWriter.Write((ushort)value.Count);
-
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                callback(this, ref item);
-            }
-        }
-
         public override void ReadBytesIntoStream(Stream destination, int numBytes)
         {
             throw new NotSupportedException();
@@ -523,14 +275,6 @@ namespace OpenSage
             _binaryWriter.Write((uint)segmentLength);
             _binaryWriter.BaseStream.Position = currentPosition;
         }
-
-        public override void SkipUnknownBytes(int numBytes)
-        {
-            for (var i = 0; i < numBytes; i++)
-            {
-                _binaryWriter.Write((byte)0);
-            }
-        }
     }
 
     public sealed class InvalidStateException : Exception
@@ -556,6 +300,309 @@ namespace OpenSage
 
     public static class StatePersisterExtensions
     {
+        public static void PersistObjectID(this StatePersister persister, ref uint value) => persister.PersistUInt32(ref value);
+
+        public static void PersistFrame(this StatePersister persister, ref uint value) => persister.PersistUInt32(ref value);
+
+        public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true)
+        {
+            if (readVersion)
+            {
+                persister.PersistVersion(1);
+            }
+
+            var m11 = value.M11;
+            persister.PersistSingle(ref m11);
+
+            var m21 = value.M21;
+            persister.PersistSingle(ref m21);
+
+            var m31 = value.M31;
+            persister.PersistSingle(ref m31);
+
+            var m41 = value.M41;
+            persister.PersistSingle(ref m41);
+
+            var m12 = value.M12;
+            persister.PersistSingle(ref m12);
+
+            var m22 = value.M22;
+            persister.PersistSingle(ref m22);
+
+            var m32 = value.M32;
+            persister.PersistSingle(ref m32);
+
+            var m42 = value.M42;
+            persister.PersistSingle(ref m42);
+
+            var m13 = value.M13;
+            persister.PersistSingle(ref m13);
+
+            var m23 = value.M23;
+            persister.PersistSingle(ref m23);
+
+            var m33 = value.M33;
+            persister.PersistSingle(ref m33);
+
+            var m43 = value.M43;
+            persister.PersistSingle(ref m43);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new Matrix4x3(
+                    m11, m12, m13,
+                    m21, m22, m23,
+                    m31, m32, m33,
+                    m41, m42, m43);
+            }
+        }
+
+        public static void PersistBitArray<TEnum>(this StatePersister persister, ref BitArray<TEnum> result)
+            where TEnum : Enum
+        {
+            persister.PersistVersion(1);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                result.SetAll(false);
+            }
+
+            var count = (uint)result.NumBitsSet;
+            persister.PersistUInt32(ref count);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                var stringToValueMap = Data.Ini.IniParser.GetEnumMap<TEnum>();
+
+                for (var i = 0; i < count; i++)
+                {
+                    string stringValue = default;
+                    persister.PersistAsciiString(ref stringValue);
+
+                    var enumValue = (TEnum)stringToValueMap[stringValue];
+
+                    result.Set(enumValue, true);
+                }
+            }
+            else
+            {
+                var valueToStringMap = Data.Ini.IniParser.GetEnumMapReverse<TEnum>();
+
+                foreach (var setBit in result.GetSetBits())
+                {
+                    var stringValue = valueToStringMap[setBit];
+
+                    persister.PersistAsciiString(ref stringValue);
+                }
+            }
+        }
+
+        public static void PersistVector3(this StatePersister persister, ref Vector3 value)
+        {
+            persister.PersistSingle(ref value.X);
+            persister.PersistSingle(ref value.Y);
+            persister.PersistSingle(ref value.Z);
+        }
+
+        public static void PersistPoint2D(this StatePersister persister, ref Point2D value)
+        {
+            var x = value.X;
+            persister.PersistInt32(ref x);
+
+            var y = value.Y;
+            persister.PersistInt32(ref y);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new Point2D(x, y);
+            }
+        }
+
+        public static void PersistPoint3D(this StatePersister persister, ref Point3D value)
+        {
+            var x = value.X;
+            persister.PersistInt32(ref x);
+
+            var y = value.Y;
+            persister.PersistInt32(ref y);
+
+            var z = value.Z;
+            persister.PersistInt32(ref z);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new Point3D(x, y, z);
+            }
+        }
+
+        public static void PersistColorRgbF(this StatePersister persister, ref ColorRgbF value)
+        {
+            var r = value.R;
+            persister.PersistSingle(ref r);
+
+            var g = value.G;
+            persister.PersistSingle(ref g);
+
+            var b = value.B;
+            persister.PersistSingle(ref b);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new ColorRgbF(r, g, b);
+            }
+        }
+
+        public static void PersistColorRgba(this StatePersister persister, ref ColorRgba value)
+        {
+            var r = value.R;
+            persister.PersistByte(ref r);
+
+            var g = value.G;
+            persister.PersistByte(ref g);
+
+            var b = value.B;
+            persister.PersistByte(ref b);
+
+            var a = value.A;
+            persister.PersistByte(ref a);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new ColorRgba(r, g, b, a);
+            }
+        }
+
+        public static void PersistColorRgbaInt(this StatePersister persister, ref ColorRgba value)
+        {
+            var r = (int)value.R;
+            persister.PersistInt32(ref r);
+
+            var g = (int)value.G;
+            persister.PersistInt32(ref g);
+
+            var b = (int)value.B;
+            persister.PersistInt32(ref b);
+
+            var a = (int)value.A;
+            persister.PersistInt32(ref a);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                if (r > 255 || g > 255 || b > 255 || a > 255)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                value = new ColorRgba((byte)r, (byte)g, (byte)b, (byte)a);
+            }
+        }
+
+        public static void PersistDateTime(this StatePersister persister, ref DateTime value)
+        {
+            var year = (ushort)value.Year;
+            persister.PersistUInt16(ref year);
+
+            var month = (ushort)value.Month;
+            persister.PersistUInt16(ref month);
+
+            var day = (ushort)value.Day;
+            persister.PersistUInt16(ref day);
+
+            var dayOfWeek = (ushort)value.DayOfWeek;
+            persister.PersistUInt16(ref dayOfWeek);
+
+            var hour = (ushort)value.Hour;
+            persister.PersistUInt16(ref hour);
+
+            var minute = (ushort)value.Minute;
+            persister.PersistUInt16(ref minute);
+
+            var second = (ushort)value.Second;
+            persister.PersistUInt16(ref second);
+
+            var millisecond = (ushort)value.Millisecond;
+            persister.PersistUInt16(ref millisecond);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new DateTime(year, month, day, hour, minute, second, millisecond);
+            }
+        }
+
+        public static void PersistRandomVariable(this StatePersister persister, ref RandomVariable value)
+        {
+            var distributionType = value.DistributionType;
+            persister.PersistEnum(ref distributionType);
+
+            var low = value.Low;
+            persister.PersistSingle(ref low);
+
+            var high = value.High;
+            persister.PersistSingle(ref high);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new RandomVariable(low, high, distributionType);
+            }
+        }
+
+        public static void PersistRandomAlphaKeyframe(this StatePersister persister, ref RandomAlphaKeyframe value)
+        {
+            var randomVariable = value.Value;
+            persister.PersistRandomVariable(ref randomVariable);
+
+            var time = value.Time;
+            persister.PersistUInt32(ref time);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new RandomAlphaKeyframe(randomVariable, time);
+            }
+        }
+
+        public static void PersistRgbColorKeyframe(this StatePersister persister, ref RgbColorKeyframe value)
+        {
+            var color = value.Color;
+            persister.PersistColorRgbF(ref color);
+
+            var time = value.Time;
+            persister.PersistUInt32(ref time);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new RgbColorKeyframe(color, time);
+            }
+        }
+
+        public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
+
+        public static void PersistList<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
+            where T : new()
+        {
+            var count = (ushort)value.Count;
+            persister.PersistUInt16(ref count);
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var item = new T();
+
+                    callback(persister, ref item);
+
+                    value.Add(item);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var item = value[i];
+                    callback(persister, ref item);
+                }
+            }
+        }
+
         public static void PersistObjectNameAndIdList(this StatePersister persister, List<ObjectNameAndId> value)
         {
             persister.PersistVersion(1);
