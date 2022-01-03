@@ -63,7 +63,7 @@ namespace OpenSage
         public abstract void PersistEnumByteFlags<TEnum>(ref TEnum value)
             where TEnum : struct;
 
-        public abstract void ReadBytesIntoStream(Stream destination, int numBytes);
+        public abstract void PersistSpan(Span<byte> span);
 
         public abstract uint BeginSegment(string segmentName);
 
@@ -138,22 +138,7 @@ namespace OpenSage
 
         public override void PersistEnumByteFlags<TEnum>(ref TEnum value) => value = _binaryReader.ReadByteAsEnumFlags<TEnum>();
 
-        public override unsafe void ReadBytesIntoStream(Stream destination, int numBytes)
-        {
-            const int bufferSize = 1024;
-            Span<byte> buffer = stackalloc byte[bufferSize];
-
-            var numBytesRemaining = numBytes;
-            while (numBytesRemaining > 0)
-            {
-                var currentSpan = buffer.Slice(0, Math.Min(numBytesRemaining, bufferSize));
-
-                var numBytesRead = _binaryReader.BaseStream.Read(currentSpan);
-                destination.Write(currentSpan);
-
-                numBytesRemaining -= numBytesRead;
-            }
-        }
+        public override void PersistSpan(Span<byte> span) => _binaryReader.BaseStream.Read(span);
 
         public override uint BeginSegment(string segmentName)
         {
@@ -240,10 +225,7 @@ namespace OpenSage
 
         public override void PersistEnumByteFlags<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
 
-        public override void ReadBytesIntoStream(Stream destination, int numBytes)
-        {
-            throw new NotSupportedException();
-        }
+        public override void PersistSpan(Span<byte> span) => _binaryWriter.BaseStream.Write(span);
 
         public override uint BeginSegment(string segmentName)
         {

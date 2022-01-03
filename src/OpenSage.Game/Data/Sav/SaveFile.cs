@@ -56,14 +56,7 @@ namespace OpenSage.Data.Sav
         {
             new ChunkDefinition("CHUNK_GameState", (persister, game) => game.GameState.Load(persister)),
             new ChunkDefinition("CHUNK_Campaign", (persister, game) => game.CampaignManager.Load(persister)),
-            new ChunkDefinition("CHUNK_GameStateMap", (persister, game) =>
-            {
-                GameStateMap.Load(persister, game);
-                if (persister.Mode == StatePersistMode.Read)
-                {
-                    game.Scene3D.PartitionCellManager.OnNewGame();
-                }
-            }),
+            new ChunkDefinition("CHUNK_GameStateMap", (persister, game) => game.GameStateMap.Load(persister, game)),
             new ChunkDefinition("CHUNK_TerrainLogic", (persister, game) => game.TerrainLogic.Load(persister)),
             new ChunkDefinition("CHUNK_TeamFactory", (persister, game) => game.Scene3D.TeamFactory.Load(persister, game.Scene3D.PlayerManager)),
             new ChunkDefinition("CHUNK_Players", (persister, game) => game.Scene3D.PlayerManager.Load(persister, game)),

@@ -180,9 +180,15 @@ namespace OpenSage.Tests.Data.Sav
                 return _comparisonReader.PersistVersion(maximumVersion);
             }
 
-            public override void ReadBytesIntoStream(Stream destination, int numBytes)
+            public override void PersistSpan(Span<byte> span)
             {
-                throw new NotSupportedException();
+                Span<byte> comparisonValue = new byte[span.Length];
+                _comparisonReader.PersistSpan(comparisonValue);
+
+                for (var i = 0; i < span.Length; i++)
+                {
+                    CheckEquality(span[i], comparisonValue[i]);
+                }
             }
 
             private static void CheckEquality<T>(T value, T comparisonValue)

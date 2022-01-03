@@ -100,6 +100,7 @@ namespace OpenSage
         public AudioSystem Audio { get; }
 
         public GameState GameState { get; } = new GameState();
+        internal GameStateMap GameStateMap { get; } = new GameStateMap();
 
         public CampaignManager CampaignManager { get; } = new CampaignManager();
 
