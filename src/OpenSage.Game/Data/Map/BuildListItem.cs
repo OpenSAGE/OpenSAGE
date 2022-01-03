@@ -49,25 +49,25 @@ namespace OpenSage.Data.Map
             reader.SkipUnknownBytes(8);
 
             reader.PersistSingle(ref _angle);
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistUInt32(ref _rebuilds);
 
             reader.SkipUnknownBytes(1);
 
             reader.PersistUInt32(ref _startingHealth);
-            reader.PersistBoolean(ref _unknownBool2);
-            reader.PersistBoolean(ref _unknownBool3);
-            reader.PersistBoolean(ref _unknownBool4);
-            reader.PersistBoolean(ref _unknownBool5);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
+            reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
+            reader.PersistBoolean("UnknownBool5", ref _unknownBool5);
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistBoolean(ref _unknownBool6);
+            reader.PersistBoolean("UnknownBool6", ref _unknownBool6);
 
             reader.SkipUnknownBytes(40);
 
-            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistBoolean("UnknownBool7", ref _unknownBool7);
             reader.PersistInt32(ref _unknownInt3);
-            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
             reader.PersistInt32(ref _unknownInt4);
         }
 

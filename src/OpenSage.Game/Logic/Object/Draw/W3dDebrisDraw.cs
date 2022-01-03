@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
         }
     }
 

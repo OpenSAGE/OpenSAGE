@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
             {
                 _unknownList2[i] = new DozerSomething2();
 
-                reader.PersistBoolean(ref _unknownList2[i].UnknownBool);
+                reader.PersistBoolean("UnknownBool", ref _unknownList2[i].UnknownBool);
                 reader.PersistVector3(ref _unknownList2[i].UnknownPos);
             }
 

@@ -324,7 +324,7 @@ namespace OpenSage.Scripting
         {
             reader.PersistVersion(1);
 
-            reader.PersistBoolean(ref IsActive);
+            reader.PersistBoolean("IsActive", ref IsActive);
         }
 
         public Script Copy(string appendix)

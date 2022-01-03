@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistUInt32(ref _unknownInt1);
 
             reader.SkipUnknownBytes(4);
@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(16);
 
             var unknown1 = true;
-            reader.PersistBoolean(ref unknown1);
+            reader.PersistBoolean("Unknown1", ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -38,14 +38,14 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(7);
 
             reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
 
             var unknown2 = true;
-            reader.PersistBoolean(ref unknown2);
+            reader.PersistBoolean("Unknown2", ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

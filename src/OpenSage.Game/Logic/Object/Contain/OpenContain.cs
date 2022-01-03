@@ -57,7 +57,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistUInt32(ref _nextFirePointIndex);
             reader.PersistUInt32(ref _numFirePoints);
-            reader.PersistBoolean(ref _hasNoFirePoints);
+            reader.PersistBoolean("HasNoFirePoints", ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);
 

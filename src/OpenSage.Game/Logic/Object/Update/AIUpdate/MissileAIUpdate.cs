@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistObjectID(ref _launcherObjectId);
             reader.PersistObjectID(ref _unknownObjectId);
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistFrame(ref _unknownFrame2);
             reader.PersistSingle(ref _unknownFloat1);
 
@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
             reader.PersistAsciiString(ref exhaustParticleSystemTemplateName);
             _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistVector3(ref _currentPositionMaybe);
             reader.PersistInt32(ref _unknownInt1); // 0, 0x20000
             reader.PersistInt32(ref _unknownInt2); // 1960

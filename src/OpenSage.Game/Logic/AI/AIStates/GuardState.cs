@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
             reader.PersistVersion(1);
 
             var unknownBool1 = true;
-            reader.PersistBoolean(ref unknownBool1);
+            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
 
             _stateMachine.Load(reader);
         }

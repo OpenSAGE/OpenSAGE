@@ -39,17 +39,17 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
-            reader.PersistBoolean(ref _unknownBool3);
-            reader.PersistBoolean(ref _unknownBool4);
-            reader.PersistBoolean(ref _unknownBool5);
-            reader.PersistBoolean(ref _unknownBool6);
-            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistBoolean("Unknown1", ref _unknownBool1);
+            reader.PersistBoolean("Unknown2", ref _unknownBool2);
+            reader.PersistBoolean("Unknown3", ref _unknownBool3);
+            reader.PersistBoolean("Unknown4", ref _unknownBool4);
+            reader.PersistBoolean("Unknown5", ref _unknownBool5);
+            reader.PersistBoolean("Unknown6", ref _unknownBool6);
+            reader.PersistBoolean("Unknown7", ref _unknownBool7);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
             reader.PersistInt32(ref _unknownInt2);
             reader.PersistInt32(ref _unknownInt3);
 

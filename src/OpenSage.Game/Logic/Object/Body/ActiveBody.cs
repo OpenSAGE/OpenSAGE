@@ -116,8 +116,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistBoolean(ref _unknownBool);
-            reader.PersistBoolean(ref _indestructible);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistBoolean("Indestructible", ref _indestructible);
 
             reader.PersistList(_particleSystemIds, static (StatePersister persister, ref uint item) =>
             {

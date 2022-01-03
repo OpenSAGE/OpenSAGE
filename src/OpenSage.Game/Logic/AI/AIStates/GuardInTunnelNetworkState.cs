@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
             reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.PersistBoolean(ref unknownBool);
+            reader.PersistBoolean("UnknownBool", ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();

@@ -59,7 +59,7 @@ namespace OpenSage.Data.Map
             for (var i = 0; i < numSides; i++)
             {
                 var hasScripts = ScriptLists.Length > 0;
-                reader.PersistBoolean(ref hasScripts);
+                reader.PersistBoolean("HasScripts", ref hasScripts);
 
                 if (hasScripts)
                 {

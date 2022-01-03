@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             {
                 var member = new AssaultTransportMember();
                 reader.PersistObjectID(ref member.ObjectId);
-                reader.PersistBoolean(ref member.Unknown);
+                reader.PersistBoolean("Unknown", ref member.Unknown);
                 _members.Add(member);
             }
 

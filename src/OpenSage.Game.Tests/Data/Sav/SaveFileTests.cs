@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using OpenSage.Data.Sav;
 using Xunit;
 
@@ -79,18 +80,18 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistBoolean(ref bool value)
+            public override void PersistBoolean(string name, ref bool value)
             {
                 bool comparisonValue = default;
-                _comparisonReader.PersistBoolean(ref comparisonValue);
+                _comparisonReader.PersistBoolean(name, ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistByte(ref byte value)
+            public override void PersistByte(string name, ref byte value)
             {
                 byte comparisonValue = default;
-                _comparisonReader.PersistByte(ref comparisonValue);
+                _comparisonReader.PersistByte(name, ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -167,10 +168,10 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistUnicodeString(ref string value)
+            public override void PersistUnicodeString(string name, ref string value)
             {
                 string comparisonValue = default;
-                _comparisonReader.PersistUnicodeString(ref comparisonValue);
+                _comparisonReader.PersistUnicodeString(name, ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -198,6 +199,113 @@ namespace OpenSage.Tests.Data.Sav
                     throw new InvalidStateException($"Actual value '{value}' does not match comparison value '{comparisonValue}'");
                 }
             }
+
+            public override void SkipUnknownBytes(int numBytes)
+            {
+                _comparisonReader.SkipUnknownBytes(numBytes);
+            }
         }
+
+        //private sealed class JsonSaveWriter : StatePersister
+        //{
+        //    private readonly Utf8JsonWriter _writer;
+
+        //    public JsonSaveWriter(Game game, string filePath)
+        //        : base(game, StatePersistMode.Write)
+        //    {
+        //        var stream = AddDisposable(File.OpenRead(filePath);
+
+        //        _writer = AddDisposable(new Utf8JsonWriter(stream, new JsonWriterOptions
+        //        {
+        //            Indented = true,
+        //            Validating = true,
+        //        }));
+        //    }
+
+        //    public override uint BeginSegment(string segmentName)
+        //    {
+        //        return 0;
+        //    }
+
+        //    public override void EndSegment()
+        //    {
+                
+        //    }
+
+        //    public override void PersistAsciiString(ref string value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistBoolean(ref bool value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistByte(ref byte value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistEnum<TEnum>(ref TEnum value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistEnumByte<TEnum>(ref TEnum value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistEnumByteFlags<TEnum>(ref TEnum value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistEnumFlags<TEnum>(ref TEnum value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistInt16(ref short value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistInt32(ref int value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistSingle(ref float value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistSpan(Span<byte> span)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistUInt16(ref ushort value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistUInt32(ref uint value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override void PersistUnicodeString(ref string value)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public override byte PersistVersion(byte maximumVersion)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
     }
 }

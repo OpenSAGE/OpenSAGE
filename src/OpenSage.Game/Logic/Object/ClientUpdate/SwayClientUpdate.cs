@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle(ref _unknownFloat4);
             reader.PersistSingle(ref _unknownFloat5);
             reader.PersistUInt16(ref _unknownShort);
-            reader.PersistBoolean(ref _isActive);
+            reader.PersistBoolean("IsActive", ref _isActive);
         }
     }
 

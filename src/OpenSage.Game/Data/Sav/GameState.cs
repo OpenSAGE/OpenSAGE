@@ -19,7 +19,7 @@ namespace OpenSage.Data.Sav
             reader.PersistEnum(ref GameType);
             reader.PersistAsciiString(ref MapPath);
             reader.PersistDateTime(ref Timestamp);
-            reader.PersistUnicodeString(ref DisplayName);
+            reader.PersistUnicodeString("DisplayName", ref DisplayName);
             reader.PersistAsciiString(ref MapFileName);
             reader.PersistAsciiString(ref Side);
             reader.PersistUInt32(ref MissionIndex);

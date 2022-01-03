@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistObjectID(ref _dockId);
             reader.PersistInt32(ref _unknownInt);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean("UnknownBool", ref _unknownBool);
         }
     }
 

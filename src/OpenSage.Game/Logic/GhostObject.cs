@@ -46,9 +46,9 @@ namespace OpenSage.Logic
 
             reader.PersistEnum(ref _geometryType);
 
-            // Sometimes there's a 0xC0, when it should be 0x0.
-            byte geometryIsSmall = 0;
-            reader.PersistByte(ref geometryIsSmall);
+            // Sometimes there's a 0xC, which is probably uninitialized data.
+            byte geometryIsSmall = _geometryIsSmall ? (byte)1 : (byte)0;
+            reader.PersistByte("GeometryIsSmall", ref geometryIsSmall);
             _geometryIsSmall = geometryIsSmall == 1;
 
             reader.PersistSingle(ref _geometryMajorRadius);
@@ -61,7 +61,7 @@ namespace OpenSage.Logic
             for (var i = 0; i < Player.MaxPlayers; i++)
             {
                 byte numModels = 0;
-                reader.PersistByte(ref numModels);
+                reader.PersistByte("NumModels", ref numModels);
 
                 for (var j = 0; j < numModels; j++)
                 {
@@ -106,7 +106,7 @@ namespace OpenSage.Logic
                             throw new InvalidStateException();
                         }
 
-                        reader.PersistBoolean(ref modelInstance.UnknownBools[k]);
+                        reader.PersistBoolean("UnknownBool", ref modelInstance.UnknownBools[k]);
 
                         var meshTransform = Matrix4x3.Identity;
                         reader.PersistMatrix4x3(ref meshTransform, readVersion: false);
@@ -117,10 +117,10 @@ namespace OpenSage.Logic
                 }
             }
 
-            reader.PersistBoolean(ref _hasUnknownThing);
+            reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.PersistByte(ref _unknownByte);
+                reader.PersistByte("UnknownByte", ref _unknownByte);
                 reader.PersistUInt32(ref _unknownInt);
             }
         }

@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistBoolean(ref _rodsExtended);
+            reader.PersistBoolean("RodsExtended", ref _rodsExtended);
         }
     }
 

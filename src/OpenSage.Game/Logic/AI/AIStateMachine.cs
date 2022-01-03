@@ -64,7 +64,7 @@ namespace OpenSage.Logic.AI
             reader.PersistAsciiString(ref _targetWaypointName);
 
             var hasTargetTeam = _targetTeam != null;
-            reader.PersistBoolean(ref hasTargetTeam);
+            reader.PersistBoolean("HasTargetTeam", ref hasTargetTeam);
             if (hasTargetTeam)
             {
                 _targetTeam ??= new TargetTeam();
@@ -93,8 +93,8 @@ namespace OpenSage.Logic.AI
             base.Load(reader);
 
             reader.PersistInt32(ref _unknownInt);
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }
     }
 

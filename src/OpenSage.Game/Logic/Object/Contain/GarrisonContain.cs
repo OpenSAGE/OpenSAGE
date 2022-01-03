@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
                 reader.PersistVector3(ref _positions[i]);
             }
 
-            reader.PersistBoolean(ref _unknown2);
+            reader.PersistBoolean("Unknown2", ref _unknown2);
 
             reader.SkipUnknownBytes(13);
         }

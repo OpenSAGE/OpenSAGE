@@ -1107,7 +1107,7 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref Drawable.DrawableID);
             reader.PersistAsciiString(ref _name);
             reader.PersistUInt32(ref _unknown1);
-            reader.PersistByte(ref _unknown2);
+            reader.PersistByte("Unknown2", ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
             _geometry.Load(reader);
@@ -1149,7 +1149,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(16);
 
             byte polygonTriggerStateCount = 0;
-            reader.PersistByte(ref polygonTriggerStateCount);
+            reader.PersistByte("PolygonTriggerStateCount", ref polygonTriggerStateCount);
             _polygonTriggersState = new PolygonTriggerState[polygonTriggerStateCount];
 
             reader.PersistFrame(ref _enteredOrExitedPolygonTriggerFrame);
@@ -1168,7 +1168,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistInt32(ref _unknown5); // 0, 1
-            reader.PersistBoolean(ref IsSelectable);
+            reader.PersistBoolean("IsSelectable", ref IsSelectable);
             reader.PersistFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(4);
@@ -1203,9 +1203,9 @@ namespace OpenSage.Logic.Object
                 weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
 
-            reader.PersistByte(ref _weaponSomethingPrimary);
-            reader.PersistByte(ref _weaponSomethingSecondary);
-            reader.PersistByte(ref _weaponSomethingTertiary);
+            reader.PersistByte("WeaponSomethingPrimary", ref _weaponSomethingPrimary);
+            reader.PersistByte("WeaponSomethingSecondary", ref _weaponSomethingSecondary);
+            reader.PersistByte("WeaponSomethingTertiary", ref _weaponSomethingTertiary);
 
             _weaponSet.Load(reader);
 
@@ -1214,14 +1214,14 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(1);
 
             var unknown6 = true;
-            reader.PersistBoolean(ref unknown6);
+            reader.PersistBoolean("Unknown6", ref unknown6);
             if (!unknown6)
             {
                 throw new InvalidStateException();
             }
 
             var unknown7 = true;
-            reader.PersistBoolean(ref unknown7);
+            reader.PersistBoolean("Unknown7", ref unknown7);
             if (!unknown7)
             {
                 throw new InvalidStateException();
@@ -1349,11 +1349,11 @@ namespace OpenSage.Logic.Object
 
             PolygonTrigger = gameContext.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
 
-            reader.PersistBoolean(ref EnteredThisFrame);
+            reader.PersistBoolean("EnteredThisFrame", ref EnteredThisFrame);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref IsInside);
+            reader.PersistBoolean("IsInside", ref IsInside);
         }
     }
 }

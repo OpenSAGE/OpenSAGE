@@ -23,7 +23,7 @@ namespace OpenSage.Client
             reader.PersistVector3(ref _targetColor);
             reader.PersistVector3(ref _currentColor);
             reader.PersistUInt32(ref _holdFrames);
-            reader.PersistBoolean(ref _isActive);
+            reader.PersistBoolean("IsActive", ref _isActive);
             reader.PersistEnumByte(ref _state);
         }
 

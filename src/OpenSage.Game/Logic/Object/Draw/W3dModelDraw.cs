@@ -408,7 +408,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < _unknownSomething.Length; i++)
             {
                 byte unknownCount = 0;
-                reader.PersistByte(ref unknownCount);
+                reader.PersistByte("UnknownCount", ref unknownCount);
                 for (var j = 0; j < unknownCount; j++)
                 {
                     var something = new W3dModelDrawSomething();
@@ -423,7 +423,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean(ref _hasUnknownThing);
+            reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
                 reader.PersistInt32(ref _unknownInt);
