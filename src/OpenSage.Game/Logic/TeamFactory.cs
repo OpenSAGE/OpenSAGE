@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
@@ -70,6 +71,17 @@ namespace OpenSage.Logic
             return team;
         }
 
+        internal Team AddTeamWithId(TeamTemplate teamTemplate, uint id)
+        {
+            _lastTeamId = Math.Max(_lastTeamId, id);
+
+            var team = new Team(teamTemplate, id);
+
+            teamTemplate.AddTeam(team);
+
+            return team;
+        }
+
         public TeamTemplate FindTeamTemplateByName(string name)
         {
             if (_teamTemplatesByName.TryGetValue(name, out var result))
@@ -107,20 +119,34 @@ namespace OpenSage.Logic
 
             reader.PersistUInt32(ref _lastTeamId);
 
-            var count = (ushort) _teamTemplatesById.Count;
+            var count = (ushort)_teamTemplates.Count;
             reader.PersistUInt16(ref count);
 
-            if (count != _teamTemplatesById.Count)
+            if (count != _teamTemplates.Count)
             {
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < count; i++)
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var id = 0u;
-                reader.PersistUInt32(ref id);
-                var teamTemplate = _teamTemplatesById[id];
-                teamTemplate.Load(reader, players);
+                for (var i = 0; i < count; i++)
+                {
+                    var id = 0u;
+                    reader.PersistUInt32(ref id);
+
+                    var teamTemplate = _teamTemplatesById[id];
+                    teamTemplate.Load(reader, players);
+                }
+            }
+            else
+            {
+                foreach (var teamTemplate in _teamTemplates)
+                {
+                    var id = teamTemplate.ID;
+                    reader.PersistUInt32(ref id);
+
+                    teamTemplate.Load(reader, players);
+                }
             }
         }
     }

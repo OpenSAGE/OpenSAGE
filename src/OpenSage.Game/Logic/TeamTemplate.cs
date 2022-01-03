@@ -68,19 +68,31 @@ namespace OpenSage.Logic
             var teamCount = (ushort) _teams.Count;
             reader.PersistUInt16(ref teamCount);
 
-            for (var i = 0; i < teamCount; i++)
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var id = 0u;
-                reader.PersistUInt32(ref id);
-
-                var team = FindTeamById(id);
-                if (team == null)
+                for (var i = 0; i < teamCount; i++)
                 {
-                    team = TeamFactory.AddTeam(this);
-                    team.Id = id;
-                }
+                    var id = 0u;
+                    reader.PersistUInt32(ref id);
 
-                team.Load(reader);
+                    var team = FindTeamById(id);
+                    if (team == null)
+                    {
+                        team = TeamFactory.AddTeamWithId(this, id);
+                    }
+
+                    team.Load(reader);
+                }
+            }
+            else
+            {
+                foreach (var team in _teams)
+                {
+                    var id = team.Id;
+                    reader.PersistUInt32(ref id);
+
+                    team.Load(reader);
+                }
             }
         }
     }
