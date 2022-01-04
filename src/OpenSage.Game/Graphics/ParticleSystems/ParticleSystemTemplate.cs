@@ -1,14 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystemTemplate : BaseAsset
+    public sealed class ParticleSystemTemplate : BaseAsset, IPersistableObject
     {
         internal static ParticleSystemTemplate Parse(IniParser parser)
         {
@@ -42,22 +40,22 @@ namespace OpenSage.Graphics.ParticleSystems
             { "StartSizeRate", (parser, x) => x.StartSizeRate = parser.ParseRandomVariable() },
             { "SizeRate", (parser, x) => x.SizeRate = parser.ParseRandomVariable() },
             { "SizeRateDamping", (parser, x) => x.SizeRateDamping = parser.ParseRandomVariable() },
-            { "Alpha1", (parser, x) => x.Alpha1 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha2", (parser, x) => x.Alpha2 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha3", (parser, x) => x.Alpha3 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha4", (parser, x) => x.Alpha4 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha5", (parser, x) => x.Alpha5 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha6", (parser, x) => x.Alpha6 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha7", (parser, x) => x.Alpha7 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha8", (parser, x) => x.Alpha8 = RandomAlphaKeyframe.Parse(parser) },
-            { "Color1", (parser, x) => x.Color1 = RgbColorKeyframe.Parse(parser) },
-            { "Color2", (parser, x) => x.Color2 = RgbColorKeyframe.Parse(parser) },
-            { "Color3", (parser, x) => x.Color3 = RgbColorKeyframe.Parse(parser) },
-            { "Color4", (parser, x) => x.Color4 = RgbColorKeyframe.Parse(parser) },
-            { "Color5", (parser, x) => x.Color5 = RgbColorKeyframe.Parse(parser) },
-            { "Color6", (parser, x) => x.Color6 = RgbColorKeyframe.Parse(parser) },
-            { "Color7", (parser, x) => x.Color7 = RgbColorKeyframe.Parse(parser) },
-            { "Color8", (parser, x) => x.Color8 = RgbColorKeyframe.Parse(parser) },
+            { "Alpha1", (parser, x) => x.AlphaKeyframes[0] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha2", (parser, x) => x.AlphaKeyframes[1] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha3", (parser, x) => x.AlphaKeyframes[2] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha4", (parser, x) => x.AlphaKeyframes[3] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha5", (parser, x) => x.AlphaKeyframes[4] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha6", (parser, x) => x.AlphaKeyframes[5] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha7", (parser, x) => x.AlphaKeyframes[6] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha8", (parser, x) => x.AlphaKeyframes[7] = RandomAlphaKeyframe.Parse(parser) },
+            { "Color1", (parser, x) => x.ColorKeyframes[0] = RgbColorKeyframe.Parse(parser) },
+            { "Color2", (parser, x) => x.ColorKeyframes[1] = RgbColorKeyframe.Parse(parser) },
+            { "Color3", (parser, x) => x.ColorKeyframes[2] = RgbColorKeyframe.Parse(parser) },
+            { "Color4", (parser, x) => x.ColorKeyframes[3] = RgbColorKeyframe.Parse(parser) },
+            { "Color5", (parser, x) => x.ColorKeyframes[4] = RgbColorKeyframe.Parse(parser) },
+            { "Color6", (parser, x) => x.ColorKeyframes[5] = RgbColorKeyframe.Parse(parser) },
+            { "Color7", (parser, x) => x.ColorKeyframes[6] = RgbColorKeyframe.Parse(parser) },
+            { "Color8", (parser, x) => x.ColorKeyframes[7] = RgbColorKeyframe.Parse(parser) },
             { "ColorScale", (parser, x) => x.ColorScale = parser.ParseRandomVariable() },
             { "BurstDelay", (parser, x) => x.BurstDelay = parser.ParseRandomVariable() },
             { "BurstCount", (parser, x) => x.BurstCount = parser.ParseRandomVariable() },
@@ -97,71 +95,60 @@ namespace OpenSage.Graphics.ParticleSystems
         };
 
         public ParticleSystemPriority Priority { get; private set; }
-        public bool IsOneShot { get; private set; }
-        public ParticleSystemShader Shader { get; private set; }
-        public ParticleSystemType Type { get; private set; }
+        public bool IsOneShot;
+        public ParticleSystemShader Shader;
+        public ParticleSystemType Type;
         public LazyAssetReference<TextureAsset> Particle { get; private set; }
-        public RandomVariable AngleX { get; private set; }
-        public RandomVariable AngleY { get; private set; }
-        public RandomVariable AngleZ { get; private set; }
-        public RandomVariable AngularRateX { get; private set; }
-        public RandomVariable AngularRateY { get; private set; }
-        public RandomVariable AngularRateZ { get; private set; }
-        public RandomVariable AngularDamping { get; private set; }
-        public RandomVariable VelocityDamping { get; private set; }
-        public float Gravity { get; private set; }
+        public RandomVariable AngleX;
+        public RandomVariable AngleY;
+        public RandomVariable AngleZ;
+        public RandomVariable AngularRateX;
+        public RandomVariable AngularRateY;
+        public RandomVariable AngularRateZ;
+        public RandomVariable AngularDamping;
+        public RandomVariable VelocityDamping;
+        public float Gravity;
         public string PerParticleAttachedSystem { get; private set; }
-        public string SlaveSystem { get; private set; }
+        public string SlaveSystem;
         public Vector3 SlavePosOffset { get; private set; }
-        public RandomVariable Lifetime { get; private set; }
-        public int SystemLifetime { get; private set; }
-        public RandomVariable Size { get; private set; }
-        public RandomVariable StartSizeRate { get; private set; }
-        public RandomVariable SizeRate { get; private set; }
-        public RandomVariable SizeRateDamping { get; private set; }
-        public RandomAlphaKeyframe Alpha1 { get; private set; }
-        public RandomAlphaKeyframe Alpha2 { get; private set; }
-        public RandomAlphaKeyframe Alpha3 { get; private set; }
-        public RandomAlphaKeyframe Alpha4 { get; private set; }
-        public RandomAlphaKeyframe Alpha5 { get; private set; }
-        public RandomAlphaKeyframe Alpha6 { get; private set; }
-        public RandomAlphaKeyframe Alpha7 { get; private set; }
-        public RandomAlphaKeyframe Alpha8 { get; private set; }
-        public RgbColorKeyframe Color1 { get; private set; }
-        public RgbColorKeyframe Color2 { get; private set; }
-        public RgbColorKeyframe Color3 { get; private set; }
-        public RgbColorKeyframe Color4 { get; private set; }
-        public RgbColorKeyframe Color5 { get; private set; }
-        public RgbColorKeyframe Color6 { get; private set; }
-        public RgbColorKeyframe Color7 { get; private set; }
-        public RgbColorKeyframe Color8 { get; private set; }
-        public RandomVariable ColorScale { get; private set; }
-        public RandomVariable BurstDelay { get; private set; }
-        public RandomVariable BurstCount { get; private set; }
-        public RandomVariable InitialDelay { get; private set; }
-        public Vector3 DriftVelocity { get; private set; }
-        public ParticleVelocityType VelocityType { get; private set; }
-        public RandomVariable VelOrthoX { get; private set; }
-        public RandomVariable VelOrthoY { get; private set; }
-        public RandomVariable VelOrthoZ { get; private set; }
-        public RandomVariable VelHemispherical { get; private set; }
-        public RandomVariable VelOutward { get; private set; }
-        public RandomVariable VelOutwardOther { get; private set; }
-        public RandomVariable VelSpherical { get; private set; }
-        public RandomVariable VelCylindricalRadial { get; private set; }
-        public RandomVariable VelCylindricalNormal { get; private set; }
-        public ParticleVolumeType VolumeType { get; private set; }
-        public Vector3 VolLineStart { get; private set; }
-        public Vector3 VolLineEnd { get; private set; }
-        public float VolCylinderRadius { get; private set; }
-        public float VolCylinderLength { get; private set; }
-        public float VolSphereRadius { get; private set; }
-        public Vector3 VolBoxHalfSize { get; private set; }
+        public RandomVariable Lifetime;
+        public int SystemLifetime;
+        public RandomVariable Size;
+        public RandomVariable StartSizeRate;
+        public RandomVariable SizeRate;
+        public RandomVariable SizeRateDamping;
+        public readonly RandomAlphaKeyframe[] AlphaKeyframes = new RandomAlphaKeyframe[ParticleSystem.KeyframeCount];
+        public readonly RgbColorKeyframe[] ColorKeyframes = new RgbColorKeyframe[ParticleSystem.KeyframeCount];
+        public RandomVariable ColorScale;
+        public RandomVariable BurstDelay;
+        public RandomVariable BurstCount;
+        public RandomVariable InitialDelay;
+        public Vector3 DriftVelocity;
+        public ParticleVelocityType VelocityType;
+        public uint Unknown10;
+        public RandomVariable VelOrthoX;
+        public RandomVariable VelOrthoY;
+        public RandomVariable VelOrthoZ;
+        public RandomVariable VelHemispherical;
+        public RandomVariable VelOutward;
+        public RandomVariable VelOutwardOther;
+        public RandomVariable VelSpherical;
+        public RandomVariable VelCylindricalRadial;
+        public RandomVariable VelCylindricalNormal;
+        public ParticleVolumeType VolumeType;
+        public Vector3 VolLineStart;
+        public Vector3 VolLineEnd;
+        public float VolCylinderRadius;
+        public float VolCylinderLength;
+        public float VolSphereRadius;
+        public Vector3 VolBoxHalfSize;
         public bool IsHollow { get; private set; }
         public bool IsGroundAligned { get; private set; }
         public bool IsEmitAboveGroundOnly { get; private set; }
         public bool IsParticleUpTowardsEmitter { get; private set; }
-        public ParticleSystemWindMotion WindMotion { get; private set; }
+
+        public uint Unknown11;
+        public ParticleSystemWindMotion WindMotion;
 
         [AddedIn(SageGame.Bfme)]
         public float WindStrength { get; private set; }
@@ -172,12 +159,18 @@ namespace OpenSage.Graphics.ParticleSystems
         [AddedIn(SageGame.Bfme)]
         public float WindZeroStrengthDist { get; private set; }
 
-        public float WindAngleChangeMin { get; private set; }
-        public float WindAngleChangeMax { get; private set; }
-        public float WindPingPongStartAngleMin { get; private set; }
-        public float WindPingPongStartAngleMax { get; private set; }
-        public float WindPingPongEndAngleMin { get; private set; }
-        public float WindPingPongEndAngleMax { get; private set; }
+        public float Unknown12;
+        public float Unknown13;
+        public float WindAngleChangeMin;
+        public float WindAngleChangeMax;
+        public float Unknown14;
+        public float WindPingPongStartAngleMin;
+        public float WindPingPongStartAngleMax;
+        public float Unknown15;
+        public float WindPingPongEndAngleMin;
+        public float WindPingPongEndAngleMax;
+
+        public bool Unknown16;
 
         public FXParticleSystemTemplate ToFXParticleSystemTemplate()
         {
@@ -275,8 +268,25 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
+            var colors = new FXParticleColor
+            {
+                ColorScale = ColorScale
+            };
+            for (var i = 0; i < ColorKeyframes.Length; i++)
+            {
+                colors.ColorKeyframes[i] = ColorKeyframes[i];
+            }
+
+            var alpha = new FXParticleAlpha();
+            for (var i = 0; i < AlphaKeyframes.Length; i++)
+            {
+                alpha.AlphaKeyframes[i] = AlphaKeyframes[i];
+            }
+
             return new FXParticleSystemTemplate(Name)
             {
+                LegacyTemplate = this,
+
                 Priority = Priority,
                 IsOneShot = IsOneShot,
                 Shader = Shader,
@@ -295,29 +305,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 BurstDelay = BurstDelay,
                 BurstCount = BurstCount,
                 InitialDelay = InitialDelay,
-                Colors = new FXParticleColor
-                {
-                    Color1 = Color1,
-                    Color2 = Color2,
-                    Color3 = Color3,
-                    Color4 = Color4,
-                    Color5 = Color5,
-                    Color6 = Color6,
-                    Color7 = Color7,
-                    Color8 = Color8,
-                    ColorScale = ColorScale
-                },
-                Alpha = new FXParticleAlpha
-                {
-                    Alpha1 = Alpha1,
-                    Alpha2 = Alpha2,
-                    Alpha3 = Alpha3,
-                    Alpha4 = Alpha4,
-                    Alpha5 = Alpha5,
-                    Alpha6 = Alpha6,
-                    Alpha7 = Alpha7,
-                    Alpha8 = Alpha8
-                },
+                Colors = colors,
+                Alpha = alpha,
                 Update = new FXParticleUpdateDefault
                 {
                     AngleZ = AngleZ,
@@ -350,6 +339,155 @@ namespace OpenSage.Graphics.ParticleSystems
                 EmissionVelocity = GetEmissionVelocity(),
                 EmissionVolume = GetEmissionVolume(),  
             };
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistBoolean("IsOneShot", ref IsOneShot);
+            reader.PersistEnum(ref Shader);
+            reader.PersistEnum(ref Type);
+
+            var texture = Particle.Value.Name;
+            reader.PersistAsciiString("Texture", ref texture);
+
+            reader.PersistRandomVariable("AngleX", ref AngleX);
+            reader.PersistRandomVariable("AngleY", ref AngleY);
+            reader.PersistRandomVariable("AngleZ", ref AngleZ);
+            reader.PersistRandomVariable("AngularRateX", ref AngularRateX);
+            reader.PersistRandomVariable("AngularRateY", ref AngularRateY);
+            reader.PersistRandomVariable("AngularRateZ", ref AngularRateZ);
+            reader.PersistRandomVariable("AngularDamping", ref AngularDamping);
+            reader.PersistRandomVariable("VelocityDamping", ref VelocityDamping);
+            reader.PersistRandomVariable("Lifetime", ref Lifetime);
+            reader.PersistInt32(ref SystemLifetime);
+            reader.PersistRandomVariable("Size", ref Size);
+            reader.PersistRandomVariable("StartSizeRate", ref StartSizeRate);
+            reader.PersistRandomVariable("SizeRate", ref SizeRate);
+            reader.PersistRandomVariable("SizeRateDamping", ref SizeRateDamping);
+
+            reader.PersistArray("AlphaKeyframes", AlphaKeyframes, static (StatePersister persister, ref RandomAlphaKeyframe item) =>
+            {
+                persister.BeginObject();
+
+                var randomVariable = item.Value;
+                persister.PersistRandomVariable("Value", ref randomVariable);
+
+                var time = item.Time;
+                persister.PersistUInt32("Time", ref time);
+
+                if (persister.Mode == StatePersistMode.Read)
+                {
+                    item = new RandomAlphaKeyframe(randomVariable, time);
+                }
+
+                persister.EndObject();
+            });
+
+            reader.PersistArray("ColorKeyframes", ColorKeyframes, static (StatePersister persister, ref RgbColorKeyframe item) =>
+            {
+                persister.BeginObject();
+
+                var color = item.Color;
+                persister.PersistColorRgbF("Color", ref color);
+
+                var time = item.Time;
+                persister.PersistUInt32("Time", ref time);
+
+                if (persister.Mode == StatePersistMode.Read)
+                {
+                    item = new RgbColorKeyframe(color, time);
+                }
+
+                persister.EndObject();
+            });
+
+            reader.PersistRandomVariable("ColorScale", ref ColorScale);
+            reader.PersistRandomVariable("BurstDelay", ref BurstDelay);
+            reader.PersistRandomVariable("BurstCount", ref BurstCount);
+            reader.PersistRandomVariable("InitialDelay", ref InitialDelay);
+            reader.PersistVector3("DriftVelocity", ref DriftVelocity);
+            reader.PersistSingle("Gravity", ref Gravity);
+            reader.PersistAsciiString("SlaveSystemName", ref SlaveSystem);
+
+            reader.SkipUnknownBytes(13);
+
+            reader.PersistEnum(ref VelocityType);
+            reader.PersistUInt32("Unknown10", ref Unknown10);
+
+            switch (VelocityType)
+            {
+                case ParticleVelocityType.Ortho:
+                    reader.PersistRandomVariable("VelOrthoX", ref VelOrthoX);
+                    reader.PersistRandomVariable("VelOrthoY", ref VelOrthoY);
+                    reader.PersistRandomVariable("VelOrthoZ", ref VelOrthoZ);
+                    break;
+
+                case ParticleVelocityType.Spherical:
+                    reader.PersistRandomVariable("VelSpherical", ref VelSpherical);
+                    break;
+
+                case ParticleVelocityType.Hemispherical:
+                    reader.PersistRandomVariable("VelHemispherical", ref VelHemispherical);
+                    break;
+
+                case ParticleVelocityType.Cylindrical:
+                    reader.PersistRandomVariable("VelCylindricalRadial", ref VelCylindricalRadial);
+                    reader.PersistRandomVariable("VelCylindricalNormal", ref VelCylindricalNormal);
+                    break;
+
+                case ParticleVelocityType.Outward:
+                    reader.PersistRandomVariable("VelOutward", ref VelOutward);
+                    reader.PersistRandomVariable("VelOutwardOther", ref VelOutwardOther);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            reader.PersistEnum(ref VolumeType);
+
+            switch (VolumeType)
+            {
+                case ParticleVolumeType.Point:
+                    break;
+
+                case ParticleVolumeType.Line:
+                    reader.PersistVector3("VolLineStart", ref VolLineStart);
+                    reader.PersistVector3("VolLineEnd", ref VolLineEnd);
+                    break;
+
+                case ParticleVolumeType.Box:
+                    reader.PersistVector3("VolBoxHalfSize", ref VolBoxHalfSize);
+                    break;
+
+                case ParticleVolumeType.Sphere:
+                    reader.PersistSingle("VolSphereRadius", ref VolSphereRadius); // Interesting, value doesn't match ini file
+                    break;
+
+                case ParticleVolumeType.Cylinder:
+                    reader.PersistSingle("VolCylinderRadius", ref VolCylinderRadius);
+                    reader.PersistSingle("VolCylinderLength", ref VolCylinderLength);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            reader.PersistUInt32("Unknown11", ref Unknown11);
+            reader.PersistEnum(ref WindMotion);
+            reader.PersistSingle("Unknown12", ref Unknown12);
+            reader.PersistSingle("Unknown13", ref Unknown13); // Almost same as WindAngleChangeMin
+            reader.PersistSingle("WindAngleChangeMin", ref WindAngleChangeMin);
+            reader.PersistSingle("WindAngleChangeMax", ref WindAngleChangeMax);
+            reader.PersistSingle("Unknown14", ref Unknown14);
+            reader.PersistSingle("WindPingPongStartAngleMin", ref WindPingPongStartAngleMin);
+            reader.PersistSingle("WindPingPongStartAngleMax", ref WindPingPongStartAngleMax);
+            reader.PersistSingle("Unknown15", ref Unknown15);
+            reader.PersistSingle("WindPingPongEndAngleMin", ref WindPingPongEndAngleMin);
+            reader.PersistSingle("WindPingPongEndAngleMax", ref WindPingPongEndAngleMax);
+            reader.PersistBoolean("Unknown16", ref Unknown16);
         }
     }
 

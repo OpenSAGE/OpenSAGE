@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Scripting
 {
-    internal sealed class SequentialScript
+    internal sealed class SequentialScript : IPersistableObject
     {
         public uint Unknown1;
         public uint TeamID;
@@ -9,15 +9,15 @@
         public uint LoopsRemaining;
         public int Unknown2 = -1;
 
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref Unknown1);
-            reader.PersistUInt32(ref TeamID);
-            reader.PersistAsciiString(ref ScriptName);
-            reader.PersistUInt32(ref ScriptActionIndex);
-            reader.PersistUInt32(ref LoopsRemaining);
+            reader.PersistUInt32("Unknown1", ref Unknown1);
+            reader.PersistUInt32("TeamId", ref TeamID);
+            reader.PersistAsciiString("ScriptName", ref ScriptName);
+            reader.PersistUInt32("ScriptActionIndex", ref ScriptActionIndex);
+            reader.PersistUInt32("LoopsRemaining", ref LoopsRemaining);
 
             reader.PersistInt32(ref Unknown2);
             if (Unknown2 != -1)

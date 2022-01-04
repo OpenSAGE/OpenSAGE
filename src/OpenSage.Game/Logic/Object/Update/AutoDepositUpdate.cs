@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }

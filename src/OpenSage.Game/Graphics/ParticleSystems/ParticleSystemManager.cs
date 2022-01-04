@@ -101,27 +101,46 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32("Unknown1", ref _unknown1);
 
             var count = (uint)_particleSystems.Count;
-            reader.PersistUInt32(ref count);
+            reader.PersistUInt32("ParticleSystemCount", ref count);
 
-            for (var i = 0; i < count; i++)
+            reader.BeginArray();
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var templateName = "";
-                reader.PersistAsciiString(ref templateName);
-
-                if (templateName != string.Empty)
+                for (var i = 0; i < count; i++)
                 {
-                    var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);
+                    reader.BeginObject();
 
-                    var particleSystem = Create(
-                        template,
-                        Matrix4x4.Identity); // TODO
+                    var templateName = "";
+                    reader.PersistAsciiString("TemplateName", ref templateName);
 
-                    particleSystem.Load(reader);
+                    if (templateName != string.Empty)
+                    {
+                        var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);
+
+                        var particleSystem = Create(
+                            template,
+                            Matrix4x4.Identity); // TODO
+
+                        reader.PersistObject("ParticleSystem", particleSystem);
+                    }
+
+                    reader.EndObject();
                 }
             }
+            else
+            {
+                foreach (var particleSystem in _particleSystems)
+                {
+                    var templateName = particleSystem.Template.Name;
+                    reader.PersistAsciiString("TemplateName", ref templateName);
+
+                    reader.PersistObject("ParticleSystem", particleSystem);
+                }
+            }
+            reader.EndArray();
         }
     }
 }

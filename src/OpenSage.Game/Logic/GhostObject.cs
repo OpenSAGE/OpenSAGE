@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
-    public sealed class GhostObject
+    public sealed class GhostObject : IPersistableObject
     {
         public uint OriginalObjectId;
 
@@ -35,13 +35,13 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
             reader.PersistVersion(1);
 
             uint objectId = 0;
-            reader.PersistObjectID(ref objectId);
+            reader.PersistObjectID("ObjectId", ref objectId);
             _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
 
             reader.PersistEnum(ref _geometryType);
@@ -51,10 +51,10 @@ namespace OpenSage.Logic
             reader.PersistByte("GeometryIsSmall", ref geometryIsSmall);
             _geometryIsSmall = geometryIsSmall == 1;
 
-            reader.PersistSingle(ref _geometryMajorRadius);
-            reader.PersistSingle(ref _geometryMinorRadius);
-            reader.PersistSingle(ref _angle);
-            reader.PersistVector3(ref _position);
+            reader.PersistSingle("GeometryMajorRadius", ref _geometryMajorRadius);
+            reader.PersistSingle("GeometryMinorRadius", ref _geometryMinorRadius);
+            reader.PersistSingle("Angle", ref _angle);
+            reader.PersistVector3("Position", ref _position);
 
             reader.SkipUnknownBytes(12);
 
@@ -66,7 +66,7 @@ namespace OpenSage.Logic
                 for (var j = 0; j < numModels; j++)
                 {
                     var modelName = "";
-                    reader.PersistAsciiString(ref modelName);
+                    reader.PersistAsciiString("ModelName", ref modelName);
 
                     var model = reader.AssetStore.Models.GetByName(modelName);
                     var modelInstance = model.CreateInstance(reader.AssetStore.LoadContext);
@@ -74,13 +74,13 @@ namespace OpenSage.Logic
                     _modelsPerPlayer[i].Add(modelInstance);
 
                     var scale = 1.0f;
-                    reader.PersistSingle(ref scale);
+                    reader.PersistSingle("Scale", ref scale);
                     if (scale != 1.0f)
                     {
                         throw new InvalidStateException();
                     }
 
-                    reader.PersistColorRgba(ref modelInstance.HouseColor);
+                    reader.PersistColorRgba("HouseColor", ref modelInstance.HouseColor);
 
                     reader.PersistVersion(1);
 
@@ -90,7 +90,7 @@ namespace OpenSage.Logic
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
                     var numMeshes = (uint)model.SubObjects.Length;
-                    reader.PersistUInt32(ref numMeshes);
+                    reader.PersistUInt32("NumMeshes", ref numMeshes);
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
                         throw new InvalidStateException();
@@ -99,7 +99,7 @@ namespace OpenSage.Logic
                     for (var k = 0; k < numMeshes; k++)
                     {
                         var meshName = "";
-                        reader.PersistAsciiString(ref meshName);
+                        reader.PersistAsciiString("MeshName", ref meshName);
 
                         if (meshName != model.SubObjects[k].FullName)
                         {
@@ -121,7 +121,7 @@ namespace OpenSage.Logic
             if (_hasUnknownThing)
             {
                 reader.PersistByte("UnknownByte", ref _unknownByte);
-                reader.PersistUInt32(ref _unknownInt);
+                reader.PersistUInt32("UnknownInt", ref _unknownInt);
             }
         }
     }

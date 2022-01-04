@@ -69,33 +69,42 @@ namespace OpenSage.Logic.Object
             var numLocomotorTemplates = (ushort) _locomotors.Count;
             reader.PersistUInt16(ref numLocomotorTemplates);
 
+            reader.BeginArray();
             if (reader.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < numLocomotorTemplates; i++)
                 {
+                    reader.BeginObject();
+
                     var locomotorTemplateName = "";
-                    reader.PersistAsciiString(ref locomotorTemplateName);
+                    reader.PersistAsciiString("TemplateName", ref locomotorTemplateName);
 
                     var locomotorTemplate = _gameObject.GameContext.AssetLoadContext.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 
                     var locomotor = new Locomotor(_gameObject, locomotorTemplate, 100);
 
-                    locomotor.Load(reader);
+                    reader.PersistObject("Locomotor", locomotor);
 
                     _locomotors.Add(locomotor);
+
+                    reader.EndArray();
                 }
             }
             else
             {
                 foreach (var locomotor in _locomotors)
                 {
-                    var templateName = locomotor.LocomotorTemplate.Name;
-                    reader.PersistAsciiString(ref templateName);
+                    reader.BeginObject();
 
-                    locomotor.Load(reader);
+                    var templateName = locomotor.LocomotorTemplate.Name;
+                    reader.PersistAsciiString("TemplateName", ref templateName);
+
+                    reader.PersistObject("Locomotor", locomotor);
+
+                    reader.EndObject();
                 }
             }
-            
+            reader.EndArray();
 
             reader.PersistEnumFlags(ref _surfaces);
 

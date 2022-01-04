@@ -11,12 +11,12 @@ namespace OpenSage.Data.Sav
         private uint _nextObjectId;
         private uint _nextDrawableId;
 
-        internal void Load(StatePersister reader, Game game)
+        internal void Load(StatePersister reader)
         {
             reader.PersistVersion(2);
 
-            reader.PersistAsciiString(ref _mapPath1);
-            reader.PersistAsciiString(ref _mapPath2);
+            reader.PersistAsciiString("MapPath1", ref _mapPath1);
+            reader.PersistAsciiString("MapPath2", ref _mapPath2);
             reader.PersistEnum(ref _gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
@@ -24,13 +24,15 @@ namespace OpenSage.Data.Sav
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown4 = 0u;
-                reader.PersistUInt32(ref unknown4);
+                reader.PersistUInt32("Unknown4", ref unknown4);
 
                 var unknown5 = 0u;
-                reader.PersistUInt32(ref unknown5);
+                reader.PersistUInt32("Unknown5", ref unknown5);
 
                 mapSize -= 8;
             }
+
+            var game = reader.Game;
 
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(
@@ -55,8 +57,8 @@ namespace OpenSage.Data.Sav
 
             reader.EndSegment();
 
-            reader.PersistUInt32(ref _nextObjectId);
-            reader.PersistUInt32(ref _nextDrawableId);
+            reader.PersistUInt32("NextObjectId", ref _nextObjectId);
+            reader.PersistUInt32("NextDrawableId", ref _nextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {

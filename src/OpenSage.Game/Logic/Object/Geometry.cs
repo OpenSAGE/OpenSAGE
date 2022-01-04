@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class Geometry
+    public sealed class Geometry : IPersistableObject
     {
         private float _unknownFloat1;
         private float _unknownFloat2;
@@ -40,16 +40,17 @@ namespace OpenSage.Logic.Object
         public bool IsActive;
         public float FrontAngle;
 
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
+
             reader.PersistEnum(ref Type);
             reader.PersistBoolean("IsSmall", ref IsSmall);
-            reader.PersistSingle(ref Height);
-            reader.PersistSingle(ref MajorRadius);
-            reader.PersistSingle(ref MinorRadius);
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle("Height", ref Height);
+            reader.PersistSingle("MajorRadius", ref MajorRadius);
+            reader.PersistSingle("MinorRadius", ref MinorRadius);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistSingle("UnknonwFloat2", ref _unknownFloat2);
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

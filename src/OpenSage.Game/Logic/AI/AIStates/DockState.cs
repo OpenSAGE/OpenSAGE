@@ -47,7 +47,7 @@
 
             base.Load(reader);
 
-            reader.PersistUInt32(ref _unknownInt);
+            reader.PersistUInt32("UnknownInt", ref _unknownInt);
         }
 
         private sealed class DockApproachDockState : MoveTowardsState
@@ -68,7 +68,7 @@
             {
                 reader.PersistVersion(2);
 
-                reader.PersistUInt32(ref _unknownInt);
+                reader.PersistUInt32("UnknownInt", ref _unknownInt);
             }
         }
 

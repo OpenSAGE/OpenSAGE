@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using OpenSage.FileFormats;
 using OpenSage.Graphics.Cameras;
 using OpenSage.IO;
 
@@ -19,7 +17,7 @@ namespace OpenSage.Data.Sav
                 while (true)
                 {
                     var chunkName = "";
-                    reader.PersistAsciiString(ref chunkName);
+                    reader.PersistAsciiString("ChunkName", ref chunkName);
 
                     reader.BeginSegment(chunkName);
 
@@ -52,14 +50,14 @@ namespace OpenSage.Data.Sav
 
         private record struct ChunkDefinition(string ChunkName, Action<StatePersister, Game> PersistCallback);
 
-        private static readonly List<ChunkDefinition> ChunkDefinitions = new List<ChunkDefinition>
+        private static readonly List<ChunkDefinition> ChunkDefinitions = new()
         {
             new ChunkDefinition("CHUNK_GameState", (persister, game) => game.GameState.Load(persister)),
             new ChunkDefinition("CHUNK_Campaign", (persister, game) => game.CampaignManager.Load(persister)),
-            new ChunkDefinition("CHUNK_GameStateMap", (persister, game) => game.GameStateMap.Load(persister, game)),
+            new ChunkDefinition("CHUNK_GameStateMap", (persister, game) => game.GameStateMap.Load(persister)),
             new ChunkDefinition("CHUNK_TerrainLogic", (persister, game) => game.TerrainLogic.Load(persister)),
-            new ChunkDefinition("CHUNK_TeamFactory", (persister, game) => game.Scene3D.TeamFactory.Load(persister, game.Scene3D.PlayerManager)),
-            new ChunkDefinition("CHUNK_Players", (persister, game) => game.Scene3D.PlayerManager.Load(persister, game)),
+            new ChunkDefinition("CHUNK_TeamFactory", (persister, game) => game.Scene3D.TeamFactory.Persist(persister)),
+            new ChunkDefinition("CHUNK_Players", (persister, game) => game.Scene3D.PlayerManager.Persist(persister)),
             new ChunkDefinition("CHUNK_GameLogic", (persister, game) => game.Scene3D.GameLogic.Load(persister)),
             new ChunkDefinition("CHUNK_ParticleSystem", (persister, game) => game.Scene3D.ParticleSystemManager.Load(persister)),
             new ChunkDefinition("CHUNK_Radar", (persister, game) => game.Scene3D.Radar.Load(persister)),
@@ -70,7 +68,7 @@ namespace OpenSage.Data.Sav
             new ChunkDefinition("CHUNK_InGameUI", (persister, game) => game.AssetStore.InGameUI.Current.Load(persister)),
             new ChunkDefinition("CHUNK_Partition", (persister, game) => game.Scene3D.PartitionCellManager.Load(persister)),
             new ChunkDefinition("CHUNK_TerrainVisual", (persister, game) => game.TerrainVisual.Load(persister, game)),
-            new ChunkDefinition("CHUNK_GhostObject", (persister, game) => game.GhostObjectManager.Load(persister, game.Scene3D.GameLogic, game)),
+            new ChunkDefinition("CHUNK_GhostObject", (persister, game) => game.GhostObjectManager.Load(persister)),
 
         };
 
@@ -99,12 +97,16 @@ namespace OpenSage.Data.Sav
             //    }
             //}
 
+            persister.BeginArray();
+
             if (persister.Mode == StatePersistMode.Read)
             {
                 while (true)
                 {
+                    persister.BeginObject();
+
                     var chunkName = "";
-                    persister.PersistAsciiString(ref chunkName);
+                    persister.PersistAsciiString("ChunkName", ref chunkName);
 
                     if (chunkName == "SG_EOF")
                     {
@@ -127,6 +129,8 @@ namespace OpenSage.Data.Sav
                     chunkDefinition.PersistCallback(persister, persister.Game);
 
                     persister.EndSegment();
+
+                    persister.EndObject();
                 }
 
                 // If we haven't started a game yet (which will be the case for
@@ -142,19 +146,29 @@ namespace OpenSage.Data.Sav
             {
                 foreach (var chunkDefinition in ChunkDefinitions)
                 {
+                    persister.BeginObject();
+
                     var chunkName = chunkDefinition.ChunkName;
-                    persister.PersistAsciiString(ref chunkName);
+                    persister.PersistAsciiString("ChunkName", ref chunkName);
 
                     persister.BeginSegment(chunkName);
 
                     chunkDefinition.PersistCallback(persister, persister.Game);
 
                     persister.EndSegment();
+
+                    persister.EndObject();
                 }
 
+                persister.BeginObject();
+
                 var endChunkName = "SG_EOF";
-                persister.PersistAsciiString(ref endChunkName);
+                persister.PersistAsciiString("ChunkName", ref endChunkName);
+
+                persister.EndObject();
             }
+
+            persister.EndArray();
         }
     }
 

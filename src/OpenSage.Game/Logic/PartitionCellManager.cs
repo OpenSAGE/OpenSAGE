@@ -46,23 +46,16 @@ namespace OpenSage.Logic
             reader.PersistVersion(2);
 
             var partitionCellSize = _partitionCellSize;
-            reader.PersistSingle(ref partitionCellSize);
+            reader.PersistSingle("PartitionCellSize", ref partitionCellSize);
             if (partitionCellSize != _partitionCellSize)
             {
                 throw new InvalidStateException();
             }
 
-            var partitionCellCount = (uint)_cells.Length;
-            reader.PersistUInt32(ref partitionCellCount);
-            if (partitionCellCount != _cells.Length)
+            reader.PersistArrayWithUInt32Length("PartitionCells", _cells, static (StatePersister persister, ref PartitionCell item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < partitionCellCount; i++)
-            {
-                _cells[i].Load(reader);
-            }
+                persister.PersistObjectValue(item);
+            });
 
 #if DEBUG
             //var builder = new System.Text.StringBuilder();
@@ -98,14 +91,11 @@ namespace OpenSage.Logic
             //File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
 #endif
 
-            var shroudRevealCount = (uint)_shroudReveals.Count;
-            reader.PersistUInt32(ref shroudRevealCount);
-            for (var i = 0; i < shroudRevealCount; i++)
+            reader.PersistListWithUInt32Count("ShroudReveals", _shroudReveals, static (StatePersister persister, ref ShroudReveal item) =>
             {
-                var shroudReveal = new ShroudReveal();
-                shroudReveal.Load(reader);
-                _shroudReveals.Add(shroudReveal);
-            }
+                item ??= new ShroudReveal();
+                persister.PersistObjectValue(item);
+            });
         }
 
         // TODO: We think the algorithm is:
@@ -161,7 +151,7 @@ namespace OpenSage.Logic
         }
     }
 
-    public sealed class PartitionCell
+    public sealed class PartitionCell : IPersistableObject
     {
         public readonly PartitionCellValue[] Values;
 
@@ -170,46 +160,39 @@ namespace OpenSage.Logic
             Values = new PartitionCellValue[Player.MaxPlayers];
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            for (var i = 0; i < Values.Length; i++)
+            reader.PersistArray("Values", Values, static (StatePersister persister, ref PartitionCellValue item) =>
             {
-                ref var value = ref Values[i];
+                persister.PersistInt16(ref item.State);
 
-                reader.PersistInt16(ref value.State);
-                reader.PersistInt16(ref value.Unknown);
-
-                if (value.Unknown != 0)
-                {
-                    throw new InvalidStateException();
-                }
-            }
+                persister.SkipUnknownBytes(2);
+            });
         }
     }
 
     public struct PartitionCellValue
     {
         public short State;
-        public short Unknown;
     }
 
-    public sealed class ShroudReveal
+    public sealed class ShroudReveal : IPersistableObject
     {
         public Vector3 Position;
         public float VisionRange;
         public ushort Unknown;
         public uint FrameSomething;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistVector3(ref Position);
-            reader.PersistSingle(ref VisionRange);
+            reader.PersistVector3("Position", ref Position);
+            reader.PersistSingle("VisionRange", ref VisionRange);
             reader.PersistUInt16(ref Unknown);
-            reader.PersistFrame(ref FrameSomething);
+            reader.PersistFrame("FrameSomething", ref FrameSomething);
         }
     }
 }

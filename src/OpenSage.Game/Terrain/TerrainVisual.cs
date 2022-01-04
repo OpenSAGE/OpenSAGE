@@ -26,7 +26,7 @@
             }
 
             var area = game.Scene3D.MapFile.HeightMapData.Area;
-            reader.PersistUInt32(ref area);
+            reader.PersistUInt32("Area", ref area);
             if (area != game.Scene3D.MapFile.HeightMapData.Area)
             {
                 throw new InvalidStateException();

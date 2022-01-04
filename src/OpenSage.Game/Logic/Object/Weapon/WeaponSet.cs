@@ -3,7 +3,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSet
+    public sealed class WeaponSet : IPersistableObject
     {
         private readonly GameObject _gameObject;
         private readonly Weapon[] _weapons;
@@ -57,42 +57,48 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
             // This is the object definition which defined the WeaponSet
             // (either a normal object or DefaultThingTemplate)
             var objectDefinitionName = "";
-            reader.PersistAsciiString(ref objectDefinitionName);
+            reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
 
             var conditions = new BitArray<WeaponSetConditions>();
-            reader.PersistBitArray(ref conditions);
+            reader.PersistBitArray("Conditions", ref conditions);
 
             _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
 
             // In Generals there are 3 possible weapons.
             // Later games have up to 5.
+            reader.BeginArray("Weapons");
             for (var i = 0; i < 3; i++)
             {
+                reader.BeginObject();
+
                 var slotFilled = _weapons[i] != null;
                 reader.PersistBoolean("SlotFilled", ref slotFilled);
                 if (slotFilled)
                 {
                     _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
-                    _weapons[i].Load(reader);
+                    reader.PersistObject("Value", _weapons[i]);
                 }
                 else
                 {
                     _weapons[i] = null;
                 }
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
             reader.PersistEnum(ref _currentWeaponSlot);
-            reader.PersistUInt32(ref _unknown1);
-            reader.PersistUInt32(ref _filledWeaponSlots);
+            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistUInt32("FilledWeaponSlots", ref _filledWeaponSlots);
             reader.PersistEnumFlags(ref _combinedAntiMask);
-            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32("Unknown2", ref _unknown2);
             reader.PersistBoolean("Unknown3", ref _unknown3);
             reader.PersistBoolean("Unknown4", ref _unknown4);
         }

@@ -1,25 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
-    public sealed class PlayerManager
+    public sealed class PlayerManager : IPersistableObject
     {
         public IReadOnlyList<Player> Players => _players;
-        private List<Player> _players;
+        private Player[] _players;
 
         public Player LocalPlayer { get; private set; }
 
         internal PlayerManager()
         {
-            _players = new List<Player>();
+            _players = Array.Empty<Player>();
         }
 
         internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game, GameType gameType)
         {
-            _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToList();
+            _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToArray();
 
             LocalPlayer = null;
 
@@ -32,7 +33,7 @@ namespace OpenSage.Logic
                 }
             }
 
-            if (LocalPlayer == null && _players.Count > 2)
+            if (LocalPlayer == null && _players.Length > 2)
             {
                 // TODO: Probably not the right way to do it.
                 LocalPlayer = _players[2];
@@ -71,7 +72,7 @@ namespace OpenSage.Logic
 
         public Player GetPlayerByName(string name)
         {
-            return _players.Find(x => x.Name == name);
+            return Array.Find(_players, x => x.Name == name);
         }
 
         public Player GetPlayerByIndex(uint index)
@@ -81,7 +82,7 @@ namespace OpenSage.Logic
 
         public int GetPlayerIndex(Player player)
         {
-            return _players.IndexOf(player);
+            return Array.IndexOf(_players, player);
         }
 
         // TODO: Is this right?
@@ -95,21 +96,14 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(StatePersister reader, Game game)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var numPlayers = (uint)_players.Count;
-            reader.PersistUInt32(ref numPlayers);
-            if (numPlayers != _players.Count)
+            reader.PersistArrayWithUInt32Length("Players", _players, static (StatePersister persister, ref Player item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < numPlayers; i++)
-            {
-                _players[i].Load(reader, game);
-            }
+                persister.PersistObjectValue(item);
+            });
         }
     }
 }

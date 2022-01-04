@@ -24,13 +24,15 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistSingle(ref _unknownFloat2);
-            reader.PersistSingle(ref _unknownFloat3);
-            reader.PersistSingle(ref _unknownFloat4);
-            reader.PersistSingle(ref _unknownFloat5);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
+            reader.PersistSingle("UnknownFloat3", ref _unknownFloat3);
+            reader.PersistSingle("UnknownFloat4", ref _unknownFloat4);
+            reader.PersistSingle("UnknownFloat5", ref _unknownFloat5);
             reader.PersistUInt16(ref _unknownShort);
             reader.PersistBoolean("IsActive", ref _isActive);
         }

@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic
 {
-    internal sealed class ObjectTypeList
+    internal sealed class ObjectTypeList : IPersistableObject
     {
         private readonly HashSet<string> _objectTypes;
 
@@ -13,21 +13,16 @@ namespace OpenSage.Logic
             _objectTypes = new HashSet<string>();
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistAsciiString(ref Name);
+            reader.PersistAsciiString("Name", ref Name);
 
-            var numObjects = (ushort)_objectTypes.Count;
-            reader.PersistUInt16(ref numObjects);
-
-            for (var i = 0; i < numObjects; i++)
+            reader.PersistHashSet("ObjectTypes", _objectTypes, static (StatePersister persister, ref string item) =>
             {
-                var objectType = "";
-                reader.PersistAsciiString(ref objectType);
-                _objectTypes.Add(objectType);
-            }
+                persister.PersistAsciiStringValue(ref item);
+            });
         }
     }
 }

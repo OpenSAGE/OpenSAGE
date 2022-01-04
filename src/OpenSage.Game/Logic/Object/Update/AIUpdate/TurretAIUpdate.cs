@@ -212,19 +212,19 @@ namespace OpenSage.Logic.Object
             }
 
             // Angles maybe.
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
 
-            reader.PersistFrame(ref _unknownFrame1);
-            reader.PersistUInt32(ref _unknownInt1); // 0, 1
-            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 0, 1
+            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
 
-            reader.PersistArray(_unknownBools, static (StatePersister persister, ref bool item) =>
+            reader.PersistArray("UnknownBools", _unknownBools, static (StatePersister persister, ref bool item) =>
             {
-                persister.PersistBoolean("Value", ref item);
+                persister.PersistBooleanValue(ref item);
             });
 
-            reader.PersistFrame(ref _unknownFrame3);
+            reader.PersistFrame("UnknownFrame3", ref _unknownFrame3);
         }
     }
 

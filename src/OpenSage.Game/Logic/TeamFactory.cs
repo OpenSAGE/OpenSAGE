@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
-    public sealed class TeamFactory
+    public sealed class TeamFactory : IPersistableObject
     {
         private readonly List<TeamTemplate> _teamTemplates;
         private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
@@ -113,11 +113,11 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(StatePersister reader, PlayerManager players)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref _lastTeamId);
+            reader.PersistUInt32("LastTeamId", ref _lastTeamId);
 
             var count = (ushort)_teamTemplates.Count;
             reader.PersistUInt16(ref count);
@@ -127,27 +127,37 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
+            reader.BeginArray("TeamTemplates");
             if (reader.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < count; i++)
                 {
+                    reader.BeginObject();
+
                     var id = 0u;
-                    reader.PersistUInt32(ref id);
+                    reader.PersistUInt32("Id", ref id);
 
                     var teamTemplate = _teamTemplatesById[id];
-                    teamTemplate.Load(reader, players);
+                    reader.PersistObject("TeamTemplate", teamTemplate);
+
+                    reader.EndObject();
                 }
             }
             else
             {
                 foreach (var teamTemplate in _teamTemplates)
                 {
-                    var id = teamTemplate.ID;
-                    reader.PersistUInt32(ref id);
+                    reader.BeginObject();
 
-                    teamTemplate.Load(reader, players);
+                    var id = teamTemplate.ID;
+                    reader.PersistUInt32("Id", ref id);
+
+                    reader.PersistObject("TeamTemplate", teamTemplate);
+
+                    reader.EndObject();
                 }
             }
+            reader.EndArray();
         }
     }
 }

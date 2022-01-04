@@ -25,11 +25,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _upgradeLogic.Load(reader);
+            reader.PersistObject("UpgradeLogic", _upgradeLogic);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
 
             reader.SkipUnknownBytes(1);
         }

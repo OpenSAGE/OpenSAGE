@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _upgradeLogic.Load(reader);
+            reader.PersistObject("UpgradeLogic", _upgradeLogic);
         }
 
         internal override void DrawInspector()
@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
         void OnTrigger(BehaviorUpdateContext context, bool triggered);
     }
 
-    internal sealed class UpgradeLogic
+    internal sealed class UpgradeLogic : IPersistableObject
     {
         private readonly UpgradeLogicData _data;
         private readonly IUpgradeableModule _upgradeableModule;
@@ -130,7 +130,7 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

@@ -16,12 +16,12 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.PersistVector3(ref _unknownPosition1);
-            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistVector3("UnknownPosition1", ref _unknownPosition1);
+            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistVector3(ref _unknownPosition2);
-            reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistVector3("UnknownPosition2", ref _unknownPosition2);
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }
     }

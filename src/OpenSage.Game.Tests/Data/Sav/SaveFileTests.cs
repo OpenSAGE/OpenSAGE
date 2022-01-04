@@ -72,18 +72,18 @@ namespace OpenSage.Tests.Data.Sav
                 _comparisonReader.EndSegment();
             }
 
-            public override void PersistAsciiString(ref string value)
+            public override void PersistAsciiStringValue(ref string value)
             {
                 string comparisonValue = default;
-                _comparisonReader.PersistAsciiString(ref comparisonValue);
+                _comparisonReader.PersistAsciiStringValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistBoolean(string name, ref bool value)
+            public override void PersistBooleanValue(ref bool value)
             {
                 bool comparisonValue = default;
-                _comparisonReader.PersistBoolean(name, ref comparisonValue);
+                _comparisonReader.PersistBooleanValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -144,10 +144,10 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistSingle(ref float value)
+            public override void PersistSingleValue(ref float value)
             {
                 float comparisonValue = default;
-                _comparisonReader.PersistSingle(ref comparisonValue);
+                _comparisonReader.PersistSingleValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -160,10 +160,10 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistUInt32(ref uint value)
+            public override void PersistUInt32Value(ref uint value)
             {
                 uint comparisonValue = default;
-                _comparisonReader.PersistUInt32(ref comparisonValue);
+                _comparisonReader.PersistUInt32Value(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }

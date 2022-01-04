@@ -51,27 +51,22 @@ namespace OpenSage.Logic.AI
 
             base.Load(reader);
 
-            var numTargetPositions = (uint)_targetPositions.Count;
-            reader.PersistUInt32(ref numTargetPositions);
-
-            for (var i = 0; i < numTargetPositions; i++)
+            reader.PersistListWithUInt32Count("TargetPositions", _targetPositions, static (StatePersister persister, ref Vector3 item) =>
             {
-                Vector3 targetPosition = default;
-                reader.PersistVector3(ref targetPosition);
-                _targetPositions.Add(targetPosition);
-            }
+                persister.PersistVector3Value(ref item);
+            });
 
-            reader.PersistAsciiString(ref _targetWaypointName);
+            reader.PersistAsciiString("TargetWaypointName", ref _targetWaypointName);
 
             var hasTargetTeam = _targetTeam != null;
             reader.PersistBoolean("HasTargetTeam", ref hasTargetTeam);
             if (hasTargetTeam)
             {
                 _targetTeam ??= new TargetTeam();
-                _targetTeam.Load(reader);
+                reader.PersistObject("TargetTeam", _targetTeam);
             }
 
-            reader.PersistUInt32(ref _stateSomethingId);
+            reader.PersistUInt32("StateSomethingId", ref _stateSomethingId);
             if (_stateSomethingId != 999999)
             {
                 _stateSomething = GetState(_stateSomethingId);
@@ -138,23 +133,18 @@ namespace OpenSage.Logic.AI
         }
     }
 
-    internal sealed class TargetTeam
+    internal sealed class TargetTeam : IPersistableObject
     {
         private readonly List<uint> _objectIds = new();
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var numTeamObjects = (ushort)_objectIds.Count;
-            reader.PersistUInt16(ref numTeamObjects);
-
-            for (var i = 0; i < numTeamObjects; i++)
+            reader.PersistList("ObjectIds", _objectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint objectId = 0;
-                reader.PersistObjectID(ref objectId);
-                _objectIds.Add(objectId);
-            }
+                persister.PersistObjectIDValue(ref item);
+            });
         }
     }
 }

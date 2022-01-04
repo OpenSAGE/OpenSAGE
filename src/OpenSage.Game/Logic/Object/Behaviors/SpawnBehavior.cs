@@ -89,7 +89,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistAsciiString(ref _templateName);
+            reader.PersistAsciiString("TemplateName", ref _templateName);
             reader.PersistInt32(ref _unknownInt1);
             reader.PersistInt32(ref _unknownInt2);
 
@@ -102,9 +102,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistList(_unknownIntList, static (StatePersister persister, ref uint item) =>
+            reader.PersistList("UnknownIntList", _unknownIntList, static (StatePersister persister, ref uint item) =>
             {
-                persister.PersistUInt32(ref item);
+                persister.PersistUInt32Value(ref item);
             });
 
             var unknownBool3 = true;
@@ -114,9 +114,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistList(_unknownObjectList, static (StatePersister persister, ref uint item) =>
+            reader.PersistList("UnknownObjectList", _unknownObjectList, static (StatePersister persister, ref uint item) =>
             {
-                persister.PersistObjectID(ref item);
+                persister.PersistObjectIDValue(ref item);
             });
 
             reader.PersistUInt16(ref _unknownInt3);

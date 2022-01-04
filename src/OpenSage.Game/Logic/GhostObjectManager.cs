@@ -7,18 +7,23 @@ namespace OpenSage.Logic
         private readonly List<GhostObject> _ghostObjects = new();
         private uint _unknown1;
 
-        internal void Load(StatePersister reader, GameLogic gameLogic, Game game)
+        internal void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32("Unknown1", ref _unknown1);
 
-            reader.PersistList(_ghostObjects, static (StatePersister persister, ref GhostObject item) =>
+            reader.PersistList("GhostObjects", _ghostObjects, static (StatePersister persister, ref GhostObject item) =>
             {
-                persister.PersistObjectID(ref item.OriginalObjectId);
+                persister.BeginObject();
 
-                item.Load(persister);
+                item ??= new GhostObject();
+
+                persister.PersistObjectID("OriginalObjectId", ref item.OriginalObjectId);
+                persister.PersistObject("Value", item);
+
+                persister.EndObject();
             });
         }
     }

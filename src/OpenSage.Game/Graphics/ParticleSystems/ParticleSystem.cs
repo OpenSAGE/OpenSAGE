@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
@@ -14,8 +13,10 @@ using Veldrid;
 namespace OpenSage.Graphics.ParticleSystems
 {
     [DebuggerDisplay("ParticleSystem {Template.Name}")]
-    public sealed class ParticleSystem : DisposableBase
+    public sealed class ParticleSystem : DisposableBase, IPersistableObject
     {
+        public const int KeyframeCount = 8;
+
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
 
         private readonly GetMatrixReferenceDelegate _getWorldMatrix;
@@ -41,7 +42,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private float _startSize;
 
-        private readonly List<ParticleColorKeyframe> _colorKeyframes;
+        internal readonly ParticleColorKeyframe[] ColorKeyframes = new ParticleColorKeyframe[KeyframeCount];
 
         private TimeSpan _nextUpdate;
 
@@ -146,37 +147,15 @@ namespace OpenSage.Graphics.ParticleSystems
             _startSizeRate = Template.StartSizeRate.GetRandomFloat();
             _startSize = 0;
 
-            _colorKeyframes = new List<ParticleColorKeyframe>();
-
-            var colors = Template.Colors;
-
-            if (colors.Color1 != default)
+            for (var i = 0; i < KeyframeCount; i++)
             {
-                _colorKeyframes.Add(new ParticleColorKeyframe(colors.Color1));
+                ColorKeyframes[i] = new ParticleColorKeyframe(Template.Colors.ColorKeyframes[i]);
             }
-
-            void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
-            {
-                if (keyframe != default && keyframe.Time > previous.Time)
-                {
-                    _colorKeyframes.Add(new ParticleColorKeyframe(keyframe));
-                }
-            }
-
-            addColorKeyframe(colors.Color2, colors.Color1);
-            addColorKeyframe(colors.Color3, colors.Color2);
-            addColorKeyframe(colors.Color4, colors.Color3);
-            addColorKeyframe(colors.Color5, colors.Color4);
-            addColorKeyframe(colors.Color6, colors.Color5);
-            addColorKeyframe(colors.Color7, colors.Color6);
-            addColorKeyframe(colors.Color8, colors.Color7);
 
             _particles = new Particle[maxParticles];
             for (var i = 0; i < _particles.Length; i++)
             {
-                _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
-                _particles[i].ColorKeyframes = new List<ParticleColorKeyframe>();
-                _particles[i].Dead = true;
+                _particles[i] = new Particle(this);
             }
 
             _deadList = new List<int>();
@@ -416,36 +395,11 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
 
             var physics = (FXParticleDefaultPhysics) Template.Physics;
-
             particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
 
-            var alphaKeyframes = particle.AlphaKeyframes;
-            alphaKeyframes.Clear();
-
-            var alphas = Template.Alpha;
-
-            if (alphas != null)
+            for (var i = 0; i < KeyframeCount; i++)
             {
-                if (alphas.Alpha1 != default)
-                {
-                    alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
-                }
-
-                void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
-                {
-                    if (keyframe != default && previous != default && keyframe.Time > previous.Time)
-                    {
-                        alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
-                    }
-                }
-
-                addAlphaKeyframe(alphas.Alpha2, alphas.Alpha1);
-                addAlphaKeyframe(alphas.Alpha3, alphas.Alpha2);
-                addAlphaKeyframe(alphas.Alpha4, alphas.Alpha3);
-                addAlphaKeyframe(alphas.Alpha5, alphas.Alpha4);
-                addAlphaKeyframe(alphas.Alpha6, alphas.Alpha5);
-                addAlphaKeyframe(alphas.Alpha7, alphas.Alpha6);
-                addAlphaKeyframe(alphas.Alpha8, alphas.Alpha7);
+                particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
             }
         }
 
@@ -489,7 +443,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.AngleZ += particle.AngularRateZ;
             particle.AngularRateZ *= particle.AngularDamping;
 
-            FindKeyframes(particle.Timer, _colorKeyframes, out var nextC, out var prevC);
+            FindKeyframes(particle.Timer, ColorKeyframes, out var nextC, out var prevC);
 
             if (!prevC.Equals(nextC))
             {
@@ -505,7 +459,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Color.Y += colorVal;
             particle.Color.Z += colorVal;
 
-            if (particle.AlphaKeyframes.Count > 1)
+            if (particle.AlphaKeyframes.Length > 1)
             {
                 FindKeyframes(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
 
@@ -527,8 +481,9 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Timer += 1;
         }
 
-        private static void FindKeyframes<T>(int timer,
-            IReadOnlyList<T> keyFrames,
+        private static void FindKeyframes<T>(
+            int timer,
+            T[] keyFrames,
             out T next, out T prev)
             where T : struct, IParticleKeyframe
         {
@@ -615,255 +570,62 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            LoadTemplateData(reader);
+            reader.PersistObject("TemplateData", Template.LegacyTemplate);
 
-            reader.PersistUInt32(ref _systemId);
-            reader.PersistUInt32(ref _attachedToDrawableId);
-            reader.PersistObjectID(ref _attachedToObjectId);
+            reader.PersistUInt32("SystemId", ref _systemId);
+            reader.PersistUInt32("AttachedToDrawableId", ref _attachedToDrawableId);
+            reader.PersistObjectID("AttachedToObjectId", ref _attachedToObjectId);
             reader.PersistBoolean("IsIdentityTransform", ref _isIdentityTransform);
             reader.PersistMatrix4x3(ref _transform, readVersion: false);
             reader.PersistBoolean("IsIdentityTransform2", ref _isIdentityTransform2);
             reader.PersistMatrix4x3(ref _transform2, readVersion: false);
-            reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
-            reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistUInt32(ref _unknownInt4);
-            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // Maybe _nextBurst
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
+            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
+            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
             reader.PersistBoolean("HasInfiniteLifetime", ref _hasInfiniteLifetime);
-            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
 
+            reader.BeginArray("UnknownFloats");
             for (var i = 0; i < 6; i++)
             {
                 var unknown25 = 1.0f;
-                reader.PersistSingle(ref unknown25);
+                reader.PersistSingleValue(ref unknown25);
                 if (unknown25 != 1.0f)
                 {
                     throw new InvalidStateException();
                 }
             }
+            reader.EndArray();
 
-            reader.PersistVector3(ref _position);
-            reader.PersistVector3(ref _positionPrevious);
+            reader.PersistVector3("Position", ref _position);
+            reader.PersistVector3("PositionPrevious", ref _positionPrevious);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-            reader.PersistUInt32(ref _slaveSystemId);
-            reader.PersistUInt32(ref _masterSystemId);
+            reader.PersistUInt32("SlaveSystemId", ref _slaveSystemId);
+            reader.PersistUInt32("MasterSystemId", ref _masterSystemId);
 
-            var numParticles = 0u;
-            reader.PersistUInt32(ref numParticles);
+            var numParticles = (uint)_particles.Length;
+            reader.PersistUInt32("NumParticles", ref numParticles);
 
             // TODO: Shouldn't do this.
             _particles = new Particle[numParticles];
 
+            reader.BeginArray("Particles");
             for (var i = 0; i < numParticles; i++)
             {
-                _particles[i] = new Particle();
-                _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
-                _particles[i].ColorKeyframes = new List<ParticleColorKeyframe>();
-                _particles[i].Load(reader);
+                if (reader.Mode == StatePersistMode.Read)
+                {
+                    _particles[i] = new Particle(this);
+                }
+                reader.PersistObjectValue(ref _particles[i]);
             }
-        }
-
-        private void LoadTemplateData(StatePersister reader)
-        {
-            // What follows is almost an exact replica of ParticleSystemTemplate,
-            // with a few extra fields here and there.
-
-            reader.PersistVersion(1);
-
-            var isOneShot = false;
-            reader.PersistBoolean("IsOneShot", ref isOneShot);
-
-            ParticleSystemShader shader = default;
-            reader.PersistEnum(ref shader);
-            if (shader != Template.Shader)
-            {
-                throw new InvalidStateException();
-            }
-
-            ParticleSystemType type = default;
-            reader.PersistEnum(ref type);
-            if (type != Template.Type)
-            {
-                throw new InvalidStateException();
-            }
-
-            var texture = "";
-            reader.PersistAsciiString(ref texture);
-
-            RandomVariable angleX = default;
-            reader.PersistRandomVariable(ref angleX);
-
-            RandomVariable angleY = default;
-            reader.PersistRandomVariable(ref angleY);
-
-            RandomVariable angleZ = default;
-            reader.PersistRandomVariable(ref angleZ);
-
-            RandomVariable angularRateX = default;
-            reader.PersistRandomVariable(ref angularRateX);
-
-            RandomVariable angularRateY = default;
-            reader.PersistRandomVariable(ref angularRateY);
-
-            RandomVariable angularRateZ = default;
-            reader.PersistRandomVariable(ref angularRateZ);
-
-            RandomVariable angularDamping = default;
-            reader.PersistRandomVariable(ref angularDamping);
-
-            RandomVariable velocityDamping = default;
-            reader.PersistRandomVariable(ref velocityDamping);
-
-            RandomVariable lifetime = default;
-            reader.PersistRandomVariable(ref lifetime);
-
-            var systemLifetime = 0u;
-            reader.PersistUInt32(ref systemLifetime);
-
-            RandomVariable size = default;
-            reader.PersistRandomVariable(ref size);
-
-            RandomVariable startSizeRate = default;
-            reader.PersistRandomVariable(ref startSizeRate);
-
-            RandomVariable sizeRate = default;
-            reader.PersistRandomVariable(ref sizeRate);
-
-            RandomVariable sizeRateDamping = default;
-            reader.PersistRandomVariable(ref sizeRateDamping);
-
-            for (var i = 0; i < 8; i++)
-            {
-                RandomAlphaKeyframe keyframe = default;
-                reader.PersistRandomAlphaKeyframe(ref keyframe);
-            }
-            for (var i = 0; i < 8; i++)
-            {
-                RgbColorKeyframe keyframe = default;
-                reader.PersistRgbColorKeyframe(ref keyframe); // ColorKeyframes
-            }
-
-            RandomVariable colorScale = default;
-            reader.PersistRandomVariable(ref colorScale);
-
-            RandomVariable burstDelay = default;
-            reader.PersistRandomVariable(ref burstDelay);
-
-            RandomVariable burstCount = default;
-            reader.PersistRandomVariable(ref burstCount);
-
-            RandomVariable initialDelay = default;
-            reader.PersistRandomVariable(ref initialDelay);
-
-            Vector3 driftVelocity = default;
-            reader.PersistVector3(ref driftVelocity);
-
-            var gravity = 0.0f;
-            reader.PersistSingle(ref gravity); // Gravity
-
-            var slaveSystemName = "";
-            reader.PersistAsciiString(ref slaveSystemName); // SlaveSystemName
-
-            reader.SkipUnknownBytes(13);
-
-            ParticleVelocityType velocityType = default;
-            reader.PersistEnum(ref velocityType);
-            var unknown10 = 0u;
-            reader.PersistUInt32(ref unknown10);
-            switch (velocityType)
-            {
-                case ParticleVelocityType.Ortho:
-                    RandomVariable velocityOrthoX = default;
-                    reader.PersistRandomVariable(ref velocityOrthoX);
-                    RandomVariable velocityOrthoY = default;
-                    reader.PersistRandomVariable(ref velocityOrthoY);
-                    RandomVariable velocityOrthoZ = default;
-                    reader.PersistRandomVariable(ref velocityOrthoZ);
-                    break;
-                case ParticleVelocityType.Spherical:
-                    RandomVariable velocitySpherical = default;
-                    reader.PersistRandomVariable(ref velocitySpherical);
-                    break;
-                case ParticleVelocityType.Hemispherical:
-                    RandomVariable velocityHemispherical = default;
-                    reader.PersistRandomVariable(ref velocityHemispherical);
-                    break;
-                case ParticleVelocityType.Cylindrical:
-                    RandomVariable velocityCylindricalRadial = default;
-                    reader.PersistRandomVariable(ref velocityCylindricalRadial);
-                    RandomVariable velocityCylindricalNormal = default;
-                    reader.PersistRandomVariable(ref velocityCylindricalNormal);
-                    break;
-                case ParticleVelocityType.Outward:
-                    RandomVariable velocityOutward = default;
-                    reader.PersistRandomVariable(ref velocityOutward);
-                    RandomVariable velocityOutwardOther = default;
-                    reader.PersistRandomVariable(ref velocityOutwardOther);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            ParticleVolumeType volumeType = default;
-            reader.PersistEnum(ref volumeType);
-            switch (volumeType)
-            {
-                case ParticleVolumeType.Point:
-                    break;
-                case ParticleVolumeType.Line:
-                    Vector3 lineStartPoint = default;
-                    Vector3 lineEndPoint = default;
-                    reader.PersistVector3(ref lineStartPoint);
-                    reader.PersistVector3(ref lineEndPoint);
-                    break;
-                case ParticleVolumeType.Box:
-                    Vector3 halfSize = default;
-                    reader.PersistVector3(ref halfSize);
-                    break;
-                case ParticleVolumeType.Sphere:
-                    var volumeSphereRadius = 0.0f;
-                    reader.PersistSingle(ref volumeSphereRadius); // Interesting, value doesn't match ini file
-                    break;
-                case ParticleVolumeType.Cylinder:
-                    var volumeCylinderRadius = 0.0f;
-                    reader.PersistSingle(ref volumeCylinderRadius);
-                    var volumeCylinderLength = 0.0f;
-                    reader.PersistSingle(ref volumeCylinderLength);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            var unknown11 = 0u;
-            reader.PersistUInt32(ref unknown11);
-            ParticleSystemWindMotion windMotion = default;
-            reader.PersistEnum(ref windMotion);
-            var unknown12 = 0.0f;
-            reader.PersistSingle(ref unknown12);
-            var unknown13 = 0.0f;
-            reader.PersistSingle(ref unknown13); // Almost same as WindAngleChangeMin
-            var windAngleChangeMin = 0.0f;
-            reader.PersistSingle(ref windAngleChangeMin);
-            var windAngleChangeMax = 0.0f;
-            reader.PersistSingle(ref windAngleChangeMax);
-            var unknown14 = 0.0f;
-            reader.PersistSingle(ref unknown14);
-            var windPingPongStartAngleMin = 0.0f;
-            reader.PersistSingle(ref windPingPongStartAngleMin);
-            var windPingPongStartAngleMax = 0.0f;
-            reader.PersistSingle(ref windPingPongStartAngleMax);
-            var unknown15 = 0.0f;
-            reader.PersistSingle(ref unknown15);
-            var windPingPongEndAngleMin = 0.0f;
-            reader.PersistSingle(ref windPingPongEndAngleMin);
-            var windPingPongEndAngleMax = 0.0f;
-            reader.PersistSingle(ref windPingPongEndAngleMax);
-
-            var unknown16 = false;
-            reader.PersistBoolean("Unknown16", ref unknown16);
+            reader.EndArray();
         }
     }
 
@@ -875,10 +637,12 @@ namespace OpenSage.Graphics.ParticleSystems
         Dead
     }
 
-    internal readonly struct ParticleColorKeyframe : IParticleKeyframe
+    internal struct ParticleColorKeyframe : IParticleKeyframe
     {
-        public uint Time { get; }
-        public readonly Vector3 Color;
+        public uint Time;
+        public Vector3 Color;
+
+        uint IParticleKeyframe.Time => Time;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)
         {

@@ -2,7 +2,7 @@
 
 namespace OpenSage.Client
 {
-    internal sealed class ColorFlashHelper
+    internal sealed class ColorFlashHelper : IPersistableObject
     {
         private Vector3 _increasingColorDelta;
         private Vector3 _decreasingColorDelta;
@@ -14,15 +14,15 @@ namespace OpenSage.Client
 
         // TODO: Actual implementation
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistVector3(ref _increasingColorDelta);
-            reader.PersistVector3(ref _decreasingColorDelta);
-            reader.PersistVector3(ref _targetColor);
-            reader.PersistVector3(ref _currentColor);
-            reader.PersistUInt32(ref _holdFrames);
+            reader.PersistVector3("IncreasingColorDelta", ref _increasingColorDelta);
+            reader.PersistVector3("DecreasingColorDelta", ref _decreasingColorDelta);
+            reader.PersistVector3("TargetColor", ref _targetColor);
+            reader.PersistVector3("CurrentColor", ref _currentColor);
+            reader.PersistUInt32("HoldFrames", ref _holdFrames);
             reader.PersistBoolean("IsActive", ref _isActive);
             reader.PersistEnumByte(ref _state);
         }

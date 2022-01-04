@@ -94,9 +94,9 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistVector3(ref _unknownPosition);
-            reader.PersistUInt32(ref _stateMaybe);
-            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistVector3("UnknownPosition", ref _unknownPosition);
+            reader.PersistUInt32("StateMaybe", ref _stateMaybe);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
 
             var unknownInt1 = int.MaxValue;
             reader.PersistInt32(ref unknownInt1);
@@ -105,29 +105,29 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistObjectID(ref _launcherObjectId);
-            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistObjectID("LauncherObjectId", ref _launcherObjectId);
+            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistFrame(ref _unknownFrame2);
-            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
 
             var unknownFloat2 = 99999.0f;
-            reader.PersistSingle(ref unknownFloat2);
+            reader.PersistSingle("UnknownFloat2", ref unknownFloat2);
             if (unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
             var weaponTemplateName = _weaponTemplate?.Name;
-            reader.PersistAsciiString(ref weaponTemplateName);
+            reader.PersistAsciiString("WeaponTemplateName", ref weaponTemplateName);
             _weaponTemplate = reader.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
             var exhaustParticleSystemTemplateName = _exhaustParticleSystemTemplate?.Name;
-            reader.PersistAsciiString(ref exhaustParticleSystemTemplateName);
+            reader.PersistAsciiString("ExhaustParticleSystemTemplateName", ref exhaustParticleSystemTemplateName);
             _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
 
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-            reader.PersistVector3(ref _currentPositionMaybe);
+            reader.PersistVector3("CurrentPositionMaybe", ref _currentPositionMaybe);
             reader.PersistInt32(ref _unknownInt1); // 0, 0x20000
             reader.PersistInt32(ref _unknownInt2); // 1960
         }

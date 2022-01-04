@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
         }
     }
 

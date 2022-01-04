@@ -23,24 +23,19 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var numObjectsInside = (uint)_containedObjectIds.Count;
-            reader.PersistUInt32(ref numObjectsInside);
-
-            for (var i = 0; i < numObjectsInside; i++)
+            reader.PersistListWithUInt32Count("ContainedObjectIds", _containedObjectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint containedObjectId = 0;
-                reader.PersistObjectID(ref containedObjectId);
-                _containedObjectIds.Add(containedObjectId);
-            }
+                persister.PersistObjectIDValue(ref item);
+            });
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistFrame(ref _unknownFrame1);
-            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistBitArray(ref _modelConditionFlags);
+            reader.PersistBitArray("ModelConditionFlags", ref _modelConditionFlags);
 
             // Where does the 32 come from?
             for (var i = 0; i < _unknownTransforms.Length; i++)
@@ -55,16 +50,20 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _nextFirePointIndex);
-            reader.PersistUInt32(ref _numFirePoints);
+            reader.PersistUInt32("NextFirePointIndex", ref _nextFirePointIndex);
+            reader.PersistUInt32("NumFirePoints", ref _numFirePoints);
             reader.PersistBoolean("HasNoFirePoints", ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);
 
-            reader.PersistList(_unknownList, static (StatePersister persister, ref OpenContainSomething item) =>
+            reader.PersistList("UnknownList", _unknownList, static (StatePersister persister, ref OpenContainSomething item) =>
             {
-                persister.PersistObjectID(ref item.ObjectId);
+                persister.BeginObject();
+
+                persister.PersistObjectID("ObjectId", ref item.ObjectId);
                 persister.PersistInt32(ref item.Unknown);
+
+                persister.EndObject();
             });
 
             reader.PersistInt32(ref _unknownInt);

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32("Unknown1", ref _unknown1);
 
             reader.SkipUnknownBytes(1);
 
@@ -29,10 +29,10 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(804);
 
-            for (var i = 0; i < _positions.Length; i++)
+            reader.PersistArray("Positions", _positions, static (StatePersister persister, ref Vector3 item) =>
             {
-                reader.PersistVector3(ref _positions[i]);
-            }
+                persister.PersistVector3Value(ref item);
+            });
 
             reader.PersistBoolean("Unknown2", ref _unknown2);
 
