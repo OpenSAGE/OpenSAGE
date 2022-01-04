@@ -349,7 +349,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistEnum(ref Shader);
             reader.PersistEnum(ref Type);
 
-            var texture = Particle.Value.Name;
+            var texture = Particle.Value?.Name;
             reader.PersistAsciiString("Texture", ref texture);
 
             reader.PersistRandomVariable("AngleX", ref AngleX);

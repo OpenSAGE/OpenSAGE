@@ -831,6 +831,8 @@ namespace OpenSage
 
             if (persister.Mode == StatePersistMode.Read)
             {
+                value.Clear();
+
                 for (var i = 0; i < count; i++)
                 {
                     var item = default(T);

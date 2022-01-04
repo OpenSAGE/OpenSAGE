@@ -610,7 +610,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistUInt32("SlaveSystemId", ref _slaveSystemId);
             reader.PersistUInt32("MasterSystemId", ref _masterSystemId);
 
-            var numParticles = (uint)_particles.Length;
+            var numParticles = (uint)(_particles?.Length ?? 0);
             reader.PersistUInt32("NumParticles", ref numParticles);
 
             // TODO: Shouldn't do this.
