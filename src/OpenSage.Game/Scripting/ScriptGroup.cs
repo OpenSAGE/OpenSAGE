@@ -6,7 +6,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
 {
-    public sealed class ScriptGroup : Asset
+    public sealed class ScriptGroup : Asset, IPersistableObject
     {
         public const string AssetName = "ScriptGroup";
 
@@ -119,22 +119,14 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var numScripts = (ushort) Scripts.Length;
-            reader.PersistUInt16(ref numScripts);
-
-            if (numScripts != Scripts.Length)
+            reader.PersistArrayWithUInt16Length("Scripts", Scripts, static (StatePersister persister, ref Script item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < numScripts; i++)
-            {
-                Scripts[i].Load(reader);
-            }
+                persister.PersistObjectValue(item);
+            });
         }
 
         public ScriptGroup Copy(string appendix)

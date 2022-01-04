@@ -123,28 +123,28 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistVector3(ref _position1);
-            reader.PersistVector3(ref _position2);
-            reader.PersistVector3(ref _position3);
+            reader.PersistVector3("Position1", ref _position1);
+            reader.PersistVector3("Position2", ref _position2);
+            reader.PersistVector3("Position3", ref _position3);
             reader.PersistInt32(ref _numApproachPositions1);
             reader.PersistBoolean("UnknownBool", ref _unknownBool);
 
-            reader.PersistListWithUInt32Count(_approachPositions, static (StatePersister persister, ref Vector3 item) =>
+            reader.PersistListWithUInt32Count("ApproachPositions", _approachPositions, static (StatePersister persister, ref Vector3 item) =>
             {
-                persister.PersistVector3(ref item);
+                persister.PersistVector3Value(ref item);
             });
 
-            reader.PersistListWithUInt32Count(_approachObjectIds, static (StatePersister persister, ref uint item) =>
+            reader.PersistListWithUInt32Count("ApproachObjectIds", _approachObjectIds, static (StatePersister persister, ref uint item) =>
             {
-                persister.PersistObjectID(ref item);
+                persister.PersistObjectIDValue(ref item);
             });
 
-            reader.PersistListWithUInt32Count(_unknownBools, static (StatePersister persister, ref bool item) =>
+            reader.PersistListWithUInt32Count("UnknownBools", _unknownBools, static (StatePersister persister, ref bool item) =>
             {
-                persister.PersistBoolean("Value", ref item);
+                persister.PersistBooleanValue(ref item);
             });
 
-            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
 
             reader.PersistUInt16(ref _unknownInt1);
             if (_unknownInt1 != 0 && _unknownInt1 != 1)

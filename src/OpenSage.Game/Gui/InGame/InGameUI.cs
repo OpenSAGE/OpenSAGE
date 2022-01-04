@@ -368,36 +368,58 @@ namespace OpenSage.Gui.InGame
         {
             reader.PersistVersion(2);
 
-            reader.PersistUInt32(ref _unknown1); // 0
+            reader.PersistUInt32("Unknown1", ref _unknown1); // 0
             reader.PersistBoolean("Unknown2", ref _unknown2);
             reader.PersistBoolean("Unknown3", ref _unknown3);
             reader.PersistBoolean("Unknown4", ref _unknown4);
-            reader.PersistUInt32(ref _unknown5); // 0
+            reader.PersistUInt32("Unknown5", ref _unknown5); // 0
 
             // TODO: Superweapon something...
-            var something = 0u;
-            reader.PersistUInt32(ref something);
-            while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
+            reader.BeginArray("SuperweaponSomethings");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var item = new SuperweaponSomething();
+                while (true)
+                {
+                    reader.BeginObject();
 
-                reader.PersistAsciiString(ref item.UnknownString1);
-                reader.PersistAsciiString(ref item.UnknownString2);
+                    var something = 0u;
+                    reader.PersistUInt32("Something", ref something);
 
-                reader.PersistUInt32(ref item.UnknownInt1);
-                reader.PersistUInt32(ref item.UnknownInt2); // 0xFFFFFFFF
-                reader.PersistBoolean("UnknownBool1", ref item.UnknownBool1);
-                reader.PersistBoolean("UnknownBool2", ref item.UnknownBool2);
-                reader.PersistBoolean("UnknownBool3", ref item.UnknownBool3);
+                    // A way to store things the engine doesn't know the length of?
+                    if (something == uint.MaxValue)
+                    {
+                        break;
+                    }
 
-                _superweaponSomethings.Add(item);
+                    var item = new SuperweaponSomething();
+                    reader.PersistObject("Item", ref item);
+                    _superweaponSomethings.Add(item);
 
-                reader.PersistUInt32(ref something);
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                for (var i = 0u; i < _superweaponSomethings.Count; i++)
+                {
+                    reader.BeginObject();
+
+                    reader.PersistUInt32("Something", ref i);
+
+                    var item = _superweaponSomethings[(int)i];
+                    reader.PersistObject("Item", ref item);
+
+                    reader.EndObject();
+                }
+
+                var somethingEnd = uint.MaxValue;
+                reader.PersistUInt32("Something", ref somethingEnd);
+            }
+            reader.EndArray();
         }
     }
 
-    internal sealed class SuperweaponSomething
+    internal struct SuperweaponSomething : IPersistableObject
     {
         public string UnknownString1;
         public string UnknownString2;
@@ -407,6 +429,18 @@ namespace OpenSage.Gui.InGame
         public bool UnknownBool2;
         public bool UnknownBool3;
         public uint UnknownInt3;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistAsciiString("UnknownString1", ref UnknownString1);
+            reader.PersistAsciiString("UnknownString2", ref UnknownString2);
+
+            reader.PersistUInt32("UnknownInt1", ref UnknownInt1);
+            reader.PersistUInt32("UnknownInt2", ref UnknownInt2); // 0xFFFFFFFF
+            reader.PersistBoolean("UnknownBool1", ref UnknownBool1);
+            reader.PersistBoolean("UnknownBool2", ref UnknownBool2);
+            reader.PersistBoolean("UnknownBool3", ref UnknownBool3);
+        }
     }
 
     public sealed class RadiusCursor

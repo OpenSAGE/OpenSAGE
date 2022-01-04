@@ -24,7 +24,7 @@ namespace OpenSage.Client
         {
             reader.PersistVersion(3);
 
-            reader.PersistUInt32(ref _currentFrame);
+            reader.PersistUInt32("CurrentFrame", ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
@@ -40,7 +40,7 @@ namespace OpenSage.Client
                 reader.BeginSegment(objectDefinition.Name);
 
                 var objectID = 0u;
-                reader.PersistUInt32(ref objectID);
+                reader.PersistUInt32("ObjectId", ref objectID);
 
                 var gameObject = _gameLogic.GetObjectById(objectID);
 
@@ -51,14 +51,10 @@ namespace OpenSage.Client
                 reader.EndSegment();
             }
 
-            var numBriefingTexts = (uint)_briefingTexts.Count;
-            reader.PersistUInt32(ref numBriefingTexts);
-            for (var i = 0; i < numBriefingTexts; i++)
+            reader.PersistListWithUInt32Count("BriefingTexts", _briefingTexts, static (StatePersister persister, ref string item) =>
             {
-                var briefingText = "";
-                reader.PersistAsciiString(ref briefingText);
-                _briefingTexts.Add(briefingText);
-            }
+                persister.PersistAsciiStringValue(ref item);
+            });
         }
     }
 }

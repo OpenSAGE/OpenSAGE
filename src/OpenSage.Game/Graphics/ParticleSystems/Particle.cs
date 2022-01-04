@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    internal struct Particle
+    internal struct Particle : IPersistableObject
     {
+        private readonly ParticleSystem _system;
+
         public int Timer;
 
         public Vector3 Position;
@@ -17,12 +18,8 @@ namespace OpenSage.Graphics.ParticleSystems
         public float SizeRate;
         public float SizeRateDamping;
 
-        public float AngleX;
-        public float AngleY;
         public float AngleZ;
 
-        public float AngularRateX;
-        public float AngularRateY;
         public float AngularRateZ;
 
         public float AngularDamping;
@@ -33,10 +30,8 @@ namespace OpenSage.Graphics.ParticleSystems
         public float ColorScale;
         public Vector3 Color;
 
-        public List<ParticleAlphaKeyframe> AlphaKeyframes;
+        public readonly ParticleAlphaKeyframe[] AlphaKeyframes;
         public float Alpha;
-
-        public List<ParticleColorKeyframe> ColorKeyframes;
 
         public bool IsParticleUpTowardsEmitter;
         public float UnknownFloat;
@@ -48,76 +43,98 @@ namespace OpenSage.Graphics.ParticleSystems
         public Vector3 UnknownVector;
         public uint UnknownInt6;
 
-        public void Load(StatePersister reader)
+        public Particle(ParticleSystem system)
+        {
+            _system = system;
+
+            Timer = 0;
+            Position = Vector3.Zero;
+            EmitterPosition = Vector3.Zero;
+            Velocity = Vector3.Zero;
+            VelocityDamping = 0;
+            Size = 0;
+            SizeRate = 0;
+            SizeRateDamping = 0;
+            AngleZ = 0;
+            AngularRateZ = 0;
+            AngularDamping = 0;
+            Lifetime = 0;
+            Dead = true;
+            ColorScale = 0;
+            Color = Vector3.Zero;
+            AlphaKeyframes = new ParticleAlphaKeyframe[8];
+            Alpha = 0;
+            IsParticleUpTowardsEmitter = false;
+            UnknownFloat = 0;
+            ParticleId = 0;
+            UnknownInt2 = 0;
+            UnknownInt3 = 0;
+            UnknownInt4 = 0;
+            UnknownInt5 = 0;
+            UnknownVector = Vector3.Zero;
+            UnknownInt6 = 0;
+        }
+
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
             reader.PersistVersion(1);
 
-            reader.PersistVector3(ref Velocity);
-            reader.PersistVector3(ref Position);
-            reader.PersistVector3(ref EmitterPosition);
-            reader.PersistSingle(ref VelocityDamping);
-            reader.PersistSingle(ref AngleX);
-            reader.PersistSingle(ref AngleY);
-            reader.PersistSingle(ref AngleZ);
-            reader.PersistSingle(ref AngularRateX);
-            reader.PersistSingle(ref AngularRateY);
-            reader.PersistSingle(ref AngularRateZ);
+            var unusedFloat = 0.0f;
+
+            reader.PersistVector3("Velocity", ref Velocity);
+            reader.PersistVector3("Position", ref Position);
+            reader.PersistVector3("EmitterPosition", ref EmitterPosition);
+            reader.PersistSingle("VelocityDamping", ref VelocityDamping);
+            reader.PersistSingle("AngleX", ref unusedFloat);
+            reader.PersistSingle("AngleY", ref unusedFloat);
+            reader.PersistSingle("AngleZ", ref AngleZ);
+            reader.PersistSingle("AngularRateX", ref unusedFloat);
+            reader.PersistSingle("AngularRateY", ref unusedFloat);
+            reader.PersistSingle("AngularRateZ", ref AngularRateZ);
             reader.PersistInt32(ref Lifetime);
-            reader.PersistSingle(ref Size);
-            reader.PersistSingle(ref SizeRate);
-            reader.PersistSingle(ref SizeRateDamping);
+            reader.PersistSingle("Size", ref Size);
+            reader.PersistSingle("SizeRate", ref SizeRate);
+            reader.PersistSingle("SizeRateDamping", ref SizeRateDamping);
 
-            for (var i = 0; i < 8; i++)
+            reader.PersistArray("AlphaKeyframes", AlphaKeyframes, static (StatePersister persister, ref ParticleAlphaKeyframe item) =>
             {
-                var alphaKeyframeAlpha = 0.0f;
-                reader.PersistSingle(ref alphaKeyframeAlpha);
+                persister.PersistSingle("Alpha", ref item.Alpha);
+                persister.PersistUInt32("Time", ref item.Time);
+            });
 
-                var alphaKeyframeTime = 0u;
-                reader.PersistUInt32(ref alphaKeyframeTime);
-
-                AlphaKeyframes.Add(new ParticleAlphaKeyframe(
-                    alphaKeyframeTime,
-                    alphaKeyframeAlpha));
-            }
-
-            for (var i = 0; i < 8; i++)
+            reader.PersistArray("ColorKeyframes", _system.ColorKeyframes, static (StatePersister persister, ref ParticleColorKeyframe item) =>
             {
-                Vector3 colorKeyframeColor = default;
-                reader.PersistVector3(ref colorKeyframeColor);
+                persister.PersistVector3("Color", ref item.Color);
+                persister.PersistUInt32("Time", ref item.Time);
+            });
 
-                var colorKeyframeTime = 0u;
-                reader.PersistUInt32(ref colorKeyframeTime);
-
-                ColorKeyframes.Add(new ParticleColorKeyframe(
-                    colorKeyframeTime,
-                    colorKeyframeColor));
-            }
-
-            reader.PersistSingle(ref ColorScale);
+            reader.PersistSingle("ColorScale", ref ColorScale);
             reader.PersistBoolean("IsParticleUpTowardsEmitter", ref IsParticleUpTowardsEmitter);
-            reader.PersistSingle(ref UnknownFloat);
-            reader.PersistUInt32(ref ParticleId);
+            reader.PersistSingle("UnknownFloat", ref UnknownFloat);
+            reader.PersistUInt32("ParticleId", ref ParticleId);
 
             reader.SkipUnknownBytes(24);
 
-            reader.PersistUInt32(ref UnknownInt2); // 49
-            reader.PersistUInt32(ref UnknownInt3); // 1176
-            reader.PersistSingle(ref Alpha);
-            reader.PersistUInt32(ref UnknownInt4); // 0
-            reader.PersistUInt32(ref UnknownInt5); // 1
-            reader.PersistVector3(ref Color);
-            reader.PersistVector3(ref UnknownVector);
-            reader.PersistUInt32(ref UnknownInt6); // 1
+            reader.PersistUInt32("UnknownInt2", ref UnknownInt2); // 49
+            reader.PersistUInt32("UnknotnInt3", ref UnknownInt3); // 1176
+            reader.PersistSingle("Alpha", ref Alpha);
+            reader.PersistUInt32("UnknownInt4", ref UnknownInt4); // 0
+            reader.PersistUInt32("UnknownInt5", ref UnknownInt5); // 1
+            reader.PersistVector3("Color", ref Color);
+            reader.PersistVector3("UnknownVector", ref UnknownVector);
+            reader.PersistUInt32("UnknownInt6", ref UnknownInt6); // 1
 
             reader.SkipUnknownBytes(8);
         }
     }
 
-    internal readonly struct ParticleAlphaKeyframe : IParticleKeyframe
+    internal struct ParticleAlphaKeyframe : IParticleKeyframe
     {
-        public uint Time { get; }
-        public readonly float Alpha;
+        public uint Time;
+        public float Alpha;
+
+        uint IParticleKeyframe.Time => Time;
 
         public ParticleAlphaKeyframe(RandomAlphaKeyframe keyframe)
         {

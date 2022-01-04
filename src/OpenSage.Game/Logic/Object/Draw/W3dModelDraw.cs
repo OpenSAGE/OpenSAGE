@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -405,21 +403,13 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < _unknownSomething.Length; i++)
+            reader.PersistArray("UnknownSomethings", _unknownSomething, static (StatePersister persister, ref List<W3dModelDrawSomething> item) =>
             {
-                byte unknownCount = 0;
-                reader.PersistByte("UnknownCount", ref unknownCount);
-                for (var j = 0; j < unknownCount; j++)
+                persister.PersistListWithByteCountValue(item, static (StatePersister persister, ref W3dModelDrawSomething item) =>
                 {
-                    var something = new W3dModelDrawSomething();
-
-                    reader.PersistUInt32(ref something.UnknownInt);
-                    reader.PersistSingle(ref something.UnknownFloat1);
-                    reader.PersistSingle(ref something.UnknownFloat2);
-
-                    _unknownSomething[i].Add(something);
-                }
-            }
+                    persister.PersistObjectValue(ref item);
+                });
+            });
 
             reader.SkipUnknownBytes(1);
 
@@ -427,15 +417,22 @@ namespace OpenSage.Logic.Object
             if (_hasUnknownThing)
             {
                 reader.PersistInt32(ref _unknownInt);
-                reader.PersistSingle(ref _unknownFloat);
+                reader.PersistSingle("UnknownFloat", ref _unknownFloat);
             }
         }
 
-        private struct W3dModelDrawSomething
+        public struct W3dModelDrawSomething : IPersistableObject
         {
             public uint UnknownInt;
             public float UnknownFloat1;
             public float UnknownFloat2;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistUInt32("UnknownInt", ref UnknownInt);
+                persister.PersistSingle("UnknownFloat1", ref UnknownFloat1);
+                persister.PersistSingle("UnknownFloat2", ref UnknownFloat2);
+            }
         }
     }
 

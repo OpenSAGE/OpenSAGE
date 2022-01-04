@@ -24,7 +24,7 @@
 
             _stateMachine.Load(reader);
 
-            reader.PersistUInt32(ref _unknownInt);
+            reader.PersistUInt32("UnknownInt", ref _unknownInt);
         }
     }
 }

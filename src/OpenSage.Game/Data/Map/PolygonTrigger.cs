@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class PolygonTrigger
+    public sealed class PolygonTrigger : IPersistableObject
     {
         public string Name { get; private set; }
         public string LayerName { get; private set; }
@@ -165,21 +165,14 @@ namespace OpenSage.Data.Map
             return inside;
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var numPoints = (uint)Points.Length;
-            reader.PersistUInt32(ref numPoints);
-            if (numPoints != Points.Length)
+            reader.PersistArrayWithUInt32Length("Points", Points, static (StatePersister persister, ref Point3D item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < numPoints; i++)
-            {
-                reader.PersistPoint3D(ref Points[i]);
-            }
+                persister.PersistPoint3D(ref item);
+            });
 
             var topLeft = Bounds.TopLeft;
             reader.PersistPoint2D(ref topLeft);
@@ -203,7 +196,7 @@ namespace OpenSage.Data.Map
             //
             // As it is, this "radius" is significantly larger than it should be.
             var buggyRadius = 0.0f;
-            reader.PersistSingle(ref buggyRadius);
+            reader.PersistSingle("BuggyRadius", ref buggyRadius);
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 

@@ -138,6 +138,8 @@ namespace OpenSage.Graphics.ParticleSystems
             SetNameAndInstanceId("ParticleSystemTemplate", name);
         }
 
+        public ParticleSystemTemplate LegacyTemplate { get; internal set; }
+
         public ParticleSystemPriority Priority { get; internal set; }
         public bool IsOneShot { get; internal set; }
         public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;
@@ -178,26 +180,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private static readonly IniParseTable<FXParticleColor> FieldParseTable = new IniParseTable<FXParticleColor>
         {
-            { "Color1", (parser, x) => x.Color1 = RgbColorKeyframe.Parse(parser) },
-            { "Color2", (parser, x) => x.Color2 = RgbColorKeyframe.Parse(parser) },
-            { "Color3", (parser, x) => x.Color3 = RgbColorKeyframe.Parse(parser) },
-            { "Color4", (parser, x) => x.Color4 = RgbColorKeyframe.Parse(parser) },
-            { "Color5", (parser, x) => x.Color5 = RgbColorKeyframe.Parse(parser) },
-            { "Color6", (parser, x) => x.Color6 = RgbColorKeyframe.Parse(parser) },
-            { "Color7", (parser, x) => x.Color7 = RgbColorKeyframe.Parse(parser) },
-            { "Color8", (parser, x) => x.Color8 = RgbColorKeyframe.Parse(parser) },
+            { "Color1", (parser, x) => x.ColorKeyframes[0] = RgbColorKeyframe.Parse(parser) },
+            { "Color2", (parser, x) => x.ColorKeyframes[1] = RgbColorKeyframe.Parse(parser) },
+            { "Color3", (parser, x) => x.ColorKeyframes[2] = RgbColorKeyframe.Parse(parser) },
+            { "Color4", (parser, x) => x.ColorKeyframes[3] = RgbColorKeyframe.Parse(parser) },
+            { "Color5", (parser, x) => x.ColorKeyframes[4] = RgbColorKeyframe.Parse(parser) },
+            { "Color6", (parser, x) => x.ColorKeyframes[5] = RgbColorKeyframe.Parse(parser) },
+            { "Color7", (parser, x) => x.ColorKeyframes[6] = RgbColorKeyframe.Parse(parser) },
+            { "Color8", (parser, x) => x.ColorKeyframes[7] = RgbColorKeyframe.Parse(parser) },
             { "ColorScale", (parser, x) => x.ColorScale = parser.ParseRandomVariable() },
         };
 
-        public RgbColorKeyframe Color1 { get; internal set; } = new RgbColorKeyframe();
-        public RgbColorKeyframe Color2 { get; internal set; }
-        public RgbColorKeyframe Color3 { get; internal set; }
-        public RgbColorKeyframe Color4 { get; internal set; }
-        public RgbColorKeyframe Color5 { get; internal set; }
-        public RgbColorKeyframe Color6 { get; internal set; }
-        public RgbColorKeyframe Color7 { get; internal set; }
-        public RgbColorKeyframe Color8 { get; internal set; }
-
+        public readonly RgbColorKeyframe[] ColorKeyframes = new RgbColorKeyframe[ParticleSystem.KeyframeCount];
         public RandomVariable ColorScale { get; internal set; }
     }
 
@@ -208,24 +202,17 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private static readonly IniParseTable<FXParticleAlpha> FieldParseTable = new IniParseTable<FXParticleAlpha>
         {
-            { "Alpha1", (parser, x) => x.Alpha1 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha2", (parser, x) => x.Alpha2 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha3", (parser, x) => x.Alpha3 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha4", (parser, x) => x.Alpha4 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha5", (parser, x) => x.Alpha5 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha6", (parser, x) => x.Alpha6 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha7", (parser, x) => x.Alpha7 = RandomAlphaKeyframe.Parse(parser) },
-            { "Alpha8", (parser, x) => x.Alpha8 = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha1", (parser, x) => x.AlphaKeyframes[0] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha2", (parser, x) => x.AlphaKeyframes[1] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha3", (parser, x) => x.AlphaKeyframes[2] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha4", (parser, x) => x.AlphaKeyframes[3] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha5", (parser, x) => x.AlphaKeyframes[4] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha6", (parser, x) => x.AlphaKeyframes[5] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha7", (parser, x) => x.AlphaKeyframes[6] = RandomAlphaKeyframe.Parse(parser) },
+            { "Alpha8", (parser, x) => x.AlphaKeyframes[7] = RandomAlphaKeyframe.Parse(parser) },
         };
 
-        public RandomAlphaKeyframe Alpha1 { get; internal set; }
-        public RandomAlphaKeyframe Alpha2 { get; internal set; }
-        public RandomAlphaKeyframe Alpha3 { get; internal set; }
-        public RandomAlphaKeyframe Alpha4 { get; internal set; }
-        public RandomAlphaKeyframe Alpha5 { get; internal set; }
-        public RandomAlphaKeyframe Alpha6 { get; internal set; }
-        public RandomAlphaKeyframe Alpha7 { get; internal set; }
-        public RandomAlphaKeyframe Alpha8 { get; internal set; }
+        public readonly RandomAlphaKeyframe[] AlphaKeyframes = new RandomAlphaKeyframe[ParticleSystem.KeyframeCount];
     }
 
     [AddedIn(SageGame.Bfme)]

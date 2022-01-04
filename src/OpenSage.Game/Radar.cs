@@ -274,64 +274,71 @@ namespace OpenSage
             reader.PersistBoolean("Unknown1", ref _unknown1);
 
             _visibleItems.Clear();
-            _visibleItems.Load(reader);
+            reader.PersistObject("VisibleItems", _visibleItems);
 
             _hiddenItems.Clear();
-            _hiddenItems.Load(reader);
+            reader.PersistObject("HiddenItems", _hiddenItems);
 
             _radarEvents.Clear();
 
-            var numRadarEvents = (ushort) _radarEvents.Count;
-            reader.PersistUInt16(ref numRadarEvents);
-
-            for (var i = 0; i < numRadarEvents; i++)
+            reader.PersistList("RadarEvents", _radarEvents, static (StatePersister persister, ref RadarEvent item) =>
             {
-                var radarEvent = new RadarEvent();
-                radarEvent.Load(reader);
-                _radarEvents.Add(radarEvent);
-            }
+                item ??= new RadarEvent();
+                persister.PersistObjectValue(item);
+            });
 
-            reader.PersistUInt32(ref _unknown2);
-            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32("Unknown2", ref _unknown2);
+            reader.PersistUInt32("Unknown3", ref _unknown3);
         }
     }
 
-    internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>
+    internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>, IPersistableObject
     {
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
             var count = (ushort) Count;
             reader.PersistUInt16(ref count);
 
-            for (var i = 0; i < count; i++)
+            reader.BeginArray("Items");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var item = new RadarItem();
-                item.Load(reader);
-
-                Add(item);
+                for (var i = 0; i < count; i++)
+                {
+                    var item = new RadarItem();
+                    reader.PersistObjectValue(item);
+                    Add(item);
+                }
             }
+            else
+            {
+                foreach (var item in this)
+                {
+                    reader.PersistObjectValue(item);
+                }
+            }
+            reader.EndArray();
         }
 
         protected override uint GetKeyForItem(RadarItem item) => item.ObjectId;
     }
 
-    internal sealed class RadarItem
+    internal sealed class RadarItem : IPersistableObject
     {
         public uint ObjectId;
         public ColorRgba Color;
 
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistObjectID(ref ObjectId);
-            reader.PersistColorRgba(ref Color);
+            reader.PersistObjectID("ObjectId", ref ObjectId);
+            reader.PersistColorRgba("Color", ref Color);
         }
     }
 
-    internal sealed class RadarEvent
+    internal sealed class RadarEvent : IPersistableObject
     {
         public RadarEventType Type;
         public Vector3 Position;
@@ -346,18 +353,18 @@ namespace OpenSage
         private uint _unknown6;
         private bool _unknown7;
 
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistEnum(ref Type);
             reader.PersistBoolean("Unknown1", ref _unknown1);
-            reader.PersistUInt32(ref _unknown2);
-            reader.PersistUInt32(ref _unknown3);
-            reader.PersistUInt32(ref _unknown4);
-            reader.PersistColorRgbaInt(ref _color1);
-            reader.PersistColorRgbaInt(ref _color2);
-            reader.PersistVector3(ref Position);
-            reader.PersistUInt32(ref _unknown5);
-            reader.PersistUInt32(ref _unknown6);
+            reader.PersistUInt32("Unknown2", ref _unknown2);
+            reader.PersistUInt32("Unknown3", ref _unknown3);
+            reader.PersistUInt32("Unknown4", ref _unknown4);
+            reader.PersistColorRgbaInt("Color1", ref _color1);
+            reader.PersistColorRgbaInt("Color2", ref _color2);
+            reader.PersistVector3("Position", ref Position);
+            reader.PersistUInt32("Unknown5", ref _unknown5);
+            reader.PersistUInt32("Unknown6", ref _unknown6);
             reader.PersistBoolean("Unknown7", ref _unknown7);
         }
     }

@@ -33,6 +33,8 @@ namespace OpenSage
 
         public abstract byte PersistVersion(byte maximumVersion);
 
+        public virtual void PersistFieldName(string name) { }
+
         public abstract void PersistByte(string name, ref byte value);
 
         public abstract void PersistInt16(ref short value);
@@ -41,15 +43,43 @@ namespace OpenSage
 
         public abstract void PersistInt32(ref int value);
 
-        public abstract void PersistUInt32(ref uint value);
+        public void PersistUInt32(string name, ref uint value)
+        {
+            PersistFieldName(name);
 
-        public abstract void PersistBoolean(string name, ref bool value);
+            PersistUInt32Value(ref value);
+        }
 
-        public abstract void PersistAsciiString(ref string value);
+        public abstract void PersistUInt32Value(ref uint value);
+
+        public void PersistBoolean(string name, ref bool value)
+        {
+            PersistFieldName(name);
+
+            PersistBooleanValue(ref value);
+        }
+
+        public abstract void PersistBooleanValue(ref bool value);
+
+        public void PersistAsciiString(string name, ref string value)
+        {
+            PersistFieldName(name);
+
+            PersistAsciiStringValue(ref value);
+        }
+
+        public abstract void PersistAsciiStringValue(ref string value);
 
         public abstract void PersistUnicodeString(string name, ref string value);
 
-        public abstract void PersistSingle(ref float value);
+        public void PersistSingle(string name, ref float value)
+        {
+            PersistFieldName(name);
+
+            PersistSingleValue(ref value);
+        }
+
+        public abstract void PersistSingleValue(ref float value);
 
         public abstract void PersistEnum<TEnum>(ref TEnum value)
             where TEnum : struct;
@@ -63,6 +93,42 @@ namespace OpenSage
         public abstract void PersistEnumByteFlags<TEnum>(ref TEnum value)
             where TEnum : struct;
 
+        public void PersistObject<T>(string name, T value)
+            where T : class, IPersistableObject
+        {
+            PersistFieldName(name);
+
+            PersistObjectValue(value);
+        }
+
+        public void PersistObject<T>(string name, ref T value)
+            where T : struct, IPersistableObject
+        {
+            PersistFieldName(name);
+
+            PersistObjectValue(ref value);
+        }
+
+        public void PersistObjectValue<T>(T value)
+            where T : class, IPersistableObject
+        {
+            BeginObject();
+
+            value.Persist(this);
+
+            EndObject();
+        }
+
+        public void PersistObjectValue<T>(ref T value)
+            where T : struct, IPersistableObject
+        {
+            BeginObject();
+
+            value.Persist(this);
+
+            EndObject();
+        }
+
         public abstract void PersistSpan(Span<byte> span);
 
         public abstract uint BeginSegment(string segmentName);
@@ -70,6 +136,28 @@ namespace OpenSage
         public abstract void EndSegment();
 
         protected record struct Segment(long Start, long End, string Name);
+
+        public void BeginObject(string name)
+        {
+            PersistFieldName(name);
+
+            BeginObject();
+        }
+
+        public virtual void BeginObject() { }
+
+        public virtual void EndObject() { }
+
+        public void BeginArray(string name)
+        {
+            PersistFieldName(name);
+
+            BeginArray();
+        }
+
+        public virtual void BeginArray() { }
+
+        public virtual void EndArray() { }
 
         public abstract void SkipUnknownBytes(int numBytes);
     }
@@ -108,15 +196,15 @@ namespace OpenSage
 
         public override void PersistInt32(ref int value) => value = _binaryReader.ReadInt32();
 
-        public override void PersistUInt32(ref uint value) => value = _binaryReader.ReadUInt32();
+        public override void PersistUInt32Value(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public override void PersistBoolean(string name, ref bool value) => value = _binaryReader.ReadBoolean();
+        public override void PersistBooleanValue(ref bool value) => value = _binaryReader.ReadBoolean();
 
-        public override void PersistAsciiString(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
+        public override void PersistAsciiStringValue(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 
         public override void PersistUnicodeString(string name, ref string value) => value = _binaryReader.ReadBytePrefixedUnicodeString();
 
-        public override void PersistSingle(ref float value) => value = _binaryReader.ReadSingle();
+        public override void PersistSingleValue(ref float value) => value = _binaryReader.ReadSingle();
 
         public override void PersistEnum<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt32AsEnum<TEnum>();
 
@@ -208,15 +296,15 @@ namespace OpenSage
 
         public override void PersistInt32(ref int value) => _binaryWriter.Write(value);
 
-        public override void PersistUInt32(ref uint value) => _binaryWriter.Write(value);
+        public override void PersistUInt32Value(ref uint value) => _binaryWriter.Write(value);
 
-        public override void PersistBoolean(string name, ref bool value) => _binaryWriter.Write(value);
+        public override void PersistBooleanValue(ref bool value) => _binaryWriter.Write(value);
 
-        public override void PersistAsciiString(ref string value) => _binaryWriter.WriteBytePrefixedAsciiString(value);
+        public override void PersistAsciiStringValue(ref string value) => _binaryWriter.WriteBytePrefixedAsciiString(value);
 
         public override void PersistUnicodeString(string name, ref string value) => _binaryWriter.WriteBytePrefixedUnicodeString(value);
 
-        public override void PersistSingle(ref float value) => _binaryWriter.Write(value);
+        public override void PersistSingleValue(ref float value) => _binaryWriter.Write(value);
 
         public override void PersistEnum<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
 
@@ -283,17 +371,42 @@ namespace OpenSage
         }
     }
 
-    public struct ObjectNameAndId
+    public interface IPersistableObject
+    {
+        void Persist(StatePersister persister);
+    }
+
+    public struct ObjectNameAndId : IPersistableObject
     {
         public string Name;
         public uint ObjectId;
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistAsciiString("Name", ref Name);
+            persister.PersistObjectID("ObjectId", ref ObjectId);
+        }
     }
 
     public static class StatePersisterExtensions
     {
-        public static void PersistObjectID(this StatePersister persister, ref uint value) => persister.PersistUInt32(ref value);
+        public static void PersistObjectID(this StatePersister persister, string name, ref uint value)
+        {
+            persister.PersistFieldName(name);
 
-        public static void PersistFrame(this StatePersister persister, ref uint value) => persister.PersistUInt32(ref value);
+            persister.PersistObjectIDValue(ref value);
+        }
+
+        public static void PersistObjectIDValue(this StatePersister persister, ref uint value) => persister.PersistUInt32Value(ref value);
+
+        public static void PersistFrame(this StatePersister persister, string name, ref uint value)
+        {
+            persister.PersistFieldName(name);
+
+            persister.PersistFrameValue(ref value);
+        }
+
+        public static void PersistFrameValue(this StatePersister persister, ref uint value) => persister.PersistUInt32Value(ref value);
 
         public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true)
         {
@@ -303,40 +416,40 @@ namespace OpenSage
             }
 
             var m11 = value.M11;
-            persister.PersistSingle(ref m11);
+            persister.PersistSingle("M11", ref m11);
 
             var m21 = value.M21;
-            persister.PersistSingle(ref m21);
+            persister.PersistSingle("M21", ref m21);
 
             var m31 = value.M31;
-            persister.PersistSingle(ref m31);
+            persister.PersistSingle("M31", ref m31);
 
             var m41 = value.M41;
-            persister.PersistSingle(ref m41);
+            persister.PersistSingle("M41", ref m41);
 
             var m12 = value.M12;
-            persister.PersistSingle(ref m12);
+            persister.PersistSingle("M12", ref m12);
 
             var m22 = value.M22;
-            persister.PersistSingle(ref m22);
+            persister.PersistSingle("M22", ref m22);
 
             var m32 = value.M32;
-            persister.PersistSingle(ref m32);
+            persister.PersistSingle("M32", ref m32);
 
             var m42 = value.M42;
-            persister.PersistSingle(ref m42);
+            persister.PersistSingle("M42", ref m42);
 
             var m13 = value.M13;
-            persister.PersistSingle(ref m13);
+            persister.PersistSingle("M13", ref m13);
 
             var m23 = value.M23;
-            persister.PersistSingle(ref m23);
+            persister.PersistSingle("M23", ref m23);
 
             var m33 = value.M33;
-            persister.PersistSingle(ref m33);
+            persister.PersistSingle("M33", ref m33);
 
             var m43 = value.M43;
-            persister.PersistSingle(ref m43);
+            persister.PersistSingle("M43", ref m43);
 
             if (persister.Mode == StatePersistMode.Read)
             {
@@ -348,9 +461,11 @@ namespace OpenSage
             }
         }
 
-        public static void PersistBitArray<TEnum>(this StatePersister persister, ref BitArray<TEnum> result)
+        public static void PersistBitArray<TEnum>(this StatePersister persister, string name, ref BitArray<TEnum> result)
             where TEnum : Enum
         {
+            persister.BeginObject(name);
+
             persister.PersistVersion(1);
 
             if (persister.Mode == StatePersistMode.Read)
@@ -359,7 +474,9 @@ namespace OpenSage
             }
 
             var count = (uint)result.NumBitsSet;
-            persister.PersistUInt32(ref count);
+            persister.PersistUInt32("Count", ref count);
+
+            persister.BeginArray("Items");
 
             if (persister.Mode == StatePersistMode.Read)
             {
@@ -368,7 +485,7 @@ namespace OpenSage
                 for (var i = 0; i < count; i++)
                 {
                     string stringValue = default;
-                    persister.PersistAsciiString(ref stringValue);
+                    persister.PersistAsciiStringValue(ref stringValue);
 
                     var enumValue = (TEnum)stringToValueMap[stringValue];
 
@@ -383,16 +500,35 @@ namespace OpenSage
                 {
                     var stringValue = valueToStringMap[setBit];
 
-                    persister.PersistAsciiString(ref stringValue);
+                    persister.PersistAsciiStringValue(ref stringValue);
                 }
             }
+
+            persister.EndArray();
+
+            persister.EndObject();
         }
 
-        public static void PersistVector3(this StatePersister persister, ref Vector3 value)
+        public static void PersistVector3(this StatePersister persister, string name, ref Vector3 value)
         {
-            persister.PersistSingle(ref value.X);
-            persister.PersistSingle(ref value.Y);
-            persister.PersistSingle(ref value.Z);
+            persister.BeginObject(name);
+
+            persister.PersistSingle("X", ref value.X);
+            persister.PersistSingle("Y", ref value.Y);
+            persister.PersistSingle("Z", ref value.Z);
+
+            persister.EndObject();
+        }
+
+        public static void PersistVector3Value(this StatePersister persister, ref Vector3 value)
+        {
+            persister.BeginObject();
+
+            persister.PersistSingle("X", ref value.X);
+            persister.PersistSingle("Y", ref value.Y);
+            persister.PersistSingle("Z", ref value.Z);
+
+            persister.EndObject();
         }
 
         public static void PersistPoint2D(this StatePersister persister, ref Point2D value)
@@ -426,16 +562,20 @@ namespace OpenSage
             }
         }
 
-        public static void PersistColorRgbF(this StatePersister persister, ref ColorRgbF value)
+        public static void PersistColorRgbF(this StatePersister persister, string name, ref ColorRgbF value)
         {
+            persister.BeginObject(name);
+
             var r = value.R;
-            persister.PersistSingle(ref r);
+            persister.PersistSingle("R", ref r);
 
             var g = value.G;
-            persister.PersistSingle(ref g);
+            persister.PersistSingle("G", ref g);
 
             var b = value.B;
-            persister.PersistSingle(ref b);
+            persister.PersistSingle("B", ref b);
+
+            persister.EndObject();
 
             if (persister.Mode == StatePersistMode.Read)
             {
@@ -443,8 +583,10 @@ namespace OpenSage
             }
         }
 
-        public static void PersistColorRgba(this StatePersister persister, ref ColorRgba value)
+        public static void PersistColorRgba(this StatePersister persister, string name, ref ColorRgba value)
         {
+            persister.BeginObject(name);
+
             var r = value.R;
             persister.PersistByte("R", ref r);
 
@@ -457,14 +599,18 @@ namespace OpenSage
             var a = value.A;
             persister.PersistByte("A", ref a);
 
+            persister.EndObject();
+
             if (persister.Mode == StatePersistMode.Read)
             {
                 value = new ColorRgba(r, g, b, a);
             }
         }
 
-        public static void PersistColorRgbaInt(this StatePersister persister, ref ColorRgba value)
+        public static void PersistColorRgbaInt(this StatePersister persister, string name, ref ColorRgba value)
         {
+            persister.BeginObject(name);
+
             var r = (int)value.R;
             persister.PersistInt32(ref r);
 
@@ -477,6 +623,8 @@ namespace OpenSage
             var a = (int)value.A;
             persister.PersistInt32(ref a);
 
+            persister.EndObject();
+
             if (persister.Mode == StatePersistMode.Read)
             {
                 if (r > 255 || g > 255 || b > 255 || a > 255)
@@ -488,8 +636,10 @@ namespace OpenSage
             }
         }
 
-        public static void PersistDateTime(this StatePersister persister, ref DateTime value)
+        public static void PersistDateTime(this StatePersister persister, string name, ref DateTime value)
         {
+            persister.BeginObject(name);
+
             var year = (ushort)value.Year;
             persister.PersistUInt16(ref year);
 
@@ -514,22 +664,28 @@ namespace OpenSage
             var millisecond = (ushort)value.Millisecond;
             persister.PersistUInt16(ref millisecond);
 
+            persister.EndObject();
+
             if (persister.Mode == StatePersistMode.Read)
             {
                 value = new DateTime(year, month, day, hour, minute, second, millisecond);
             }
         }
 
-        public static void PersistRandomVariable(this StatePersister persister, ref RandomVariable value)
+        public static void PersistRandomVariable(this StatePersister persister, string name, ref RandomVariable value)
         {
+            persister.BeginObject(name);
+
             var distributionType = value.DistributionType;
             persister.PersistEnum(ref distributionType);
 
             var low = value.Low;
-            persister.PersistSingle(ref low);
+            persister.PersistSingle("Low", ref low);
 
             var high = value.High;
-            persister.PersistSingle(ref high);
+            persister.PersistSingle("High", ref high);
+
+            persister.EndObject();
 
             if (persister.Mode == StatePersistMode.Read)
             {
@@ -537,46 +693,26 @@ namespace OpenSage
             }
         }
 
-        public static void PersistRandomAlphaKeyframe(this StatePersister persister, ref RandomAlphaKeyframe value)
+        public static void PersistArray<T>(this StatePersister persister, string name, T[] value, PersistListItemCallback<T> callback)
         {
-            var randomVariable = value.Value;
-            persister.PersistRandomVariable(ref randomVariable);
+            persister.BeginArray(name);
 
-            var time = value.Time;
-            persister.PersistUInt32(ref time);
-
-            if (persister.Mode == StatePersistMode.Read)
-            {
-                value = new RandomAlphaKeyframe(randomVariable, time);
-            }
-        }
-
-        public static void PersistRgbColorKeyframe(this StatePersister persister, ref RgbColorKeyframe value)
-        {
-            var color = value.Color;
-            persister.PersistColorRgbF(ref color);
-
-            var time = value.Time;
-            persister.PersistUInt32(ref time);
-
-            if (persister.Mode == StatePersistMode.Read)
-            {
-                value = new RgbColorKeyframe(color, time);
-            }
-        }
-
-        public static void PersistArray<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback)
-            where T : new()
-        {
             for (var i = 0; i < value.Length; i++)
             {
+                persister.BeginObject();
+
                 callback(persister, ref value[i]);
+
+                persister.EndObject();
             }
+
+            persister.EndArray();
         }
 
-        public static void PersistArrayWithUInt16Length<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback)
-            where T : new()
+        public static void PersistArrayWithUInt16Length<T>(this StatePersister persister, string name, T[] value, PersistListItemCallback<T> callback)
         {
+            persister.BeginObject(name);
+
             var length = (ushort)value.Length;
             persister.PersistUInt16(ref length);
 
@@ -585,40 +721,120 @@ namespace OpenSage
                 throw new InvalidStateException();
             }
 
-            PersistArray(persister, value, callback);
+            PersistArray(persister, "Items", value, callback);
+
+            persister.EndObject();
         }
 
-        public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
-
-        public static void PersistList<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
-            where T : new()
+        public static void PersistArrayWithUInt32Length<T>(this StatePersister persister, string name, T[] value, PersistListItemCallback<T> callback)
         {
+            persister.BeginObject(name);
+
+            var length = (uint)value.Length;
+            persister.PersistUInt32("Length", ref length);
+
+            if (length != value.Length)
+            {
+                throw new InvalidStateException();
+            }
+
+            PersistArray(persister, "Items", value, callback);
+
+            persister.EndObject();
+        }
+
+        public static void PersistHashSet<T>(this StatePersister persister, string name, HashSet<T> value, PersistListItemCallback<T> callback)
+        {
+            persister.BeginObject(name);
+
             var count = (ushort)value.Count;
             persister.PersistUInt16(ref count);
 
-            PersistListImpl(persister, value, count, callback);
-        }
+            persister.BeginArray("Items");
 
-        public static void PersistListWithUInt32Count<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
-            where T : new()
-        {
-            var count = (uint)value.Count;
-            persister.PersistUInt32(ref count);
-
-            PersistListImpl(persister, value, count, callback);
-        }
-
-        private static void PersistListImpl<T>(this StatePersister persister, List<T> value, uint count, PersistListItemCallback<T> callback)
-            where T : new()
-        {
             if (persister.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < count; i++)
                 {
-                    var item = new T();
-
+                    var item = default(T);
                     callback(persister, ref item);
+                    value.Add(item);
+                }
+            }
+            else
+            {
+                foreach (var item in value)
+                {
+                    var itemCopy = item;
+                    callback(persister, ref itemCopy);
+                }
+            }
 
+            persister.EndArray();
+
+            persister.EndObject();
+        }
+
+        public delegate void PersistListItemCallback<T>(StatePersister persister, ref T item);
+
+        public static void PersistList<T>(this StatePersister persister, string name, List<T> value, PersistListItemCallback<T> callback)
+        {
+            persister.BeginObject(name);
+
+            var count = (ushort)value.Count;
+            persister.PersistUInt16(ref count);
+
+            PersistListImpl(persister, value, count, callback);
+
+            persister.EndObject();
+        }
+
+        public static void PersistListWithByteCount<T>(this StatePersister persister, string name, List<T> value, PersistListItemCallback<T> callback)
+        {
+            persister.BeginObject(name);
+
+            var count = (byte)value.Count;
+            persister.PersistByte("Count", ref count);
+
+            PersistListImpl(persister, value, count, callback);
+
+            persister.EndObject();
+        }
+
+        public static void PersistListWithByteCountValue<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback)
+        {
+            persister.BeginObject();
+
+            var count = (byte)value.Count;
+            persister.PersistByte("Count", ref count);
+
+            PersistListImpl(persister, value, count, callback);
+
+            persister.EndObject();
+        }
+
+        public static void PersistListWithUInt32Count<T>(this StatePersister persister, string name, List<T> value, PersistListItemCallback<T> callback)
+        {
+            persister.BeginObject(name);
+
+            var count = (uint)value.Count;
+            persister.PersistUInt32("Count", ref count);
+
+            PersistListImpl(persister, value, count, callback);
+
+            persister.EndObject();
+        }
+
+        private static void PersistListImpl<T>(this StatePersister persister, List<T> value, uint count, PersistListItemCallback<T> callback)
+        {
+            persister.BeginArray("Items");
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var item = default(T);
+                    callback(persister, ref item);
                     value.Add(item);
                 }
             }
@@ -630,17 +846,22 @@ namespace OpenSage
                     callback(persister, ref item);
                 }
             }
+
+            persister.EndArray();
         }
 
-        public static void PersistObjectNameAndIdList(this StatePersister persister, List<ObjectNameAndId> value)
+        public static void PersistObjectNameAndIdList(this StatePersister persister, string name, List<ObjectNameAndId> value)
         {
+            persister.BeginObject();
+
             persister.PersistVersion(1);
 
-            persister.PersistList(value, static (StatePersister persister, ref ObjectNameAndId item) =>
+            persister.PersistList(name, value, static (StatePersister persister, ref ObjectNameAndId item) =>
             {
-                persister.PersistAsciiString(ref item.Name);
-                persister.PersistObjectID(ref item.ObjectId);
+                persister.PersistObjectValue(ref item);
             });
+
+            persister.EndObject();
         }
     }
 }

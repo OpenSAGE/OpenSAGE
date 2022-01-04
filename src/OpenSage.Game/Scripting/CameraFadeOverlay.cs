@@ -9,7 +9,7 @@ using Veldrid;
 
 namespace OpenSage.Scripting
 {
-    internal sealed class CameraFadeOverlay : DisposableBase
+    internal sealed class CameraFadeOverlay : DisposableBase, IPersistableObject
     {
         private readonly Game _game;
         private readonly DrawingContext2D _drawingContext;
@@ -37,19 +37,19 @@ namespace OpenSage.Scripting
                 RenderPipeline.GameOutputDescription));
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistEnum(ref FadeType);
 
-            reader.PersistSingle(ref From);
-            reader.PersistSingle(ref To);
+            reader.PersistSingle("From", ref From);
+            reader.PersistSingle("To", ref To);
 
-            reader.PersistSingle(ref CurrentValue);
-            reader.PersistUInt32(ref CurrentFrame);
+            reader.PersistSingle("CurrentValue", ref CurrentValue);
+            reader.PersistUInt32("CurrentFrame", ref CurrentFrame);
 
-            reader.PersistUInt32(ref FramesIncrease);
-            reader.PersistUInt32(ref FramesHold);
-            reader.PersistUInt32(ref FramesDecrease);
+            reader.PersistUInt32("FramesIncrease", ref FramesIncrease);
+            reader.PersistUInt32("FramesHold", ref FramesHold);
+            reader.PersistUInt32("FramesDecrease", ref FramesDecrease);
         }
 
         public void Update()

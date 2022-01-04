@@ -20,24 +20,24 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var memberCount = _members.Count;
-            reader.PersistInt32(ref memberCount);
-
-            for (var i = 0; i < memberCount; i++)
+            reader.PersistListWithUInt32Count("Members", _members, static (StatePersister persister, ref AssaultTransportMember item) =>
             {
-                var member = new AssaultTransportMember();
-                reader.PersistObjectID(ref member.ObjectId);
-                reader.PersistBoolean("Unknown", ref member.Unknown);
-                _members.Add(member);
-            }
+                persister.PersistObjectValue(ref item);
+            });
 
             reader.SkipUnknownBytes(26);
         }
 
-        private struct AssaultTransportMember
+        private struct AssaultTransportMember : IPersistableObject
         {
             public uint ObjectId;
             public bool Unknown;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistObjectID("ObjectId", ref ObjectId);
+                persister.PersistBoolean("Unknown", ref Unknown);
+            }
         }
     }
 

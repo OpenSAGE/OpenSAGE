@@ -6,7 +6,7 @@ using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
 {
-    public sealed class ScriptList : Asset
+    public sealed class ScriptList : Asset, IPersistableObject
     {
         public const string AssetName = "ScriptList";
 
@@ -105,35 +105,19 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var numScripts = (ushort) Scripts.Length;
-            reader.PersistUInt16(ref numScripts);
-
-            if (numScripts != Scripts.Length)
+            reader.PersistArrayWithUInt16Length("Scripts", Scripts, static (StatePersister persister, ref Script item) =>
             {
-                throw new InvalidStateException();
-            }
+                persister.PersistObjectValue(item);
+            });
 
-            for (var i = 0; i < numScripts; i++)
+            reader.PersistArrayWithUInt16Length("ScriptGroups", ScriptGroups, static (StatePersister persister, ref ScriptGroup item) =>
             {
-                Scripts[i].Load(reader);
-            }
-
-            var numScriptGroups = (ushort) ScriptGroups.Length;
-            reader.PersistUInt16(ref numScriptGroups);
-
-            if (numScriptGroups != ScriptGroups.Length)
-            {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < numScriptGroups; i++)
-            {
-                ScriptGroups[i].Load(reader);
-            }
+                persister.PersistObjectValue(item);
+            });
         }
 
         internal ScriptList Copy(string appendix)

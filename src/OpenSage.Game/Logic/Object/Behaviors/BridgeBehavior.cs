@@ -13,10 +13,10 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            for (var i = 0; i < _towerIds.Length; i++)
+            reader.PersistArray("TowerIds", _towerIds, static (StatePersister persister, ref uint item) =>
             {
-                reader.PersistObjectID(ref _towerIds[i]);
-            }
+                persister.PersistObjectIDValue(ref item);
+            });
 
             reader.SkipUnknownBytes(7);
         }

@@ -19,8 +19,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Load(reader);
 
-            reader.PersistUInt32(ref _unknownInt1);
-            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
         }
     }
 }

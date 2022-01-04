@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object.Production
 {
-    public sealed class ProductionJob
+    public sealed class ProductionJob : IPersistableObject
     {
         //Duration in milliseconds
         private readonly int _duration;
@@ -46,10 +46,10 @@ namespace OpenSage.Logic.Object.Production
             _duration = (int) (definition.BuildTime * 1000.0f);
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
-            reader.PersistUInt32(ref _jobId);
-            reader.PersistSingle(ref _unknownFloat);
+            reader.PersistUInt32("JobId", ref _jobId);
+            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
             reader.PersistInt32(ref _unknownInt1); // Maybe progress
             reader.PersistInt32(ref _unknownInt2);
             reader.PersistInt32(ref _unknownInt3);

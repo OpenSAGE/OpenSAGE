@@ -6,11 +6,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DozerAIUpdate : AIUpdate
     {
-        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
-        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
-        private int _unknown2;
-        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
-        private int _unknown4;
+        private readonly DozerAndWorkerState _state = new();
 
         internal DozerAIUpdate(GameObject gameObject, DozerAIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
@@ -23,20 +19,24 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // Following is same as WorkerAIUpdate.Load
+            _state.Persist(reader);
+        }
+    }
 
-            var unknown1 = 3;
-            reader.PersistInt32(ref unknown1);
-            if (unknown1 != 3)
-            {
-                throw new InvalidStateException();
-            }
+    internal sealed class DozerAndWorkerState
+    {
+        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
+        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
+        private int _unknown2;
+        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
+        private int _unknown4;
 
-            for (var i = 0; i < _unknownList1.Length; i++)
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistArrayWithUInt32Length("UnknownList2", _unknownList1, static (StatePersister persister, ref DozerSomething1 item) =>
             {
-                reader.PersistObjectID(ref _unknownList1[i].ObjectId);
-                reader.PersistInt32(ref _unknownList1[i].Unknown);
-            }
+                persister.PersistObjectValue(ref item);
+            });
 
             _stateMachine.Load(reader);
 
@@ -49,28 +49,37 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            for (var i = 0; i < _unknownList2.Length; i++)
+            reader.PersistArray("UnknownList2", _unknownList2, static (StatePersister persister, ref DozerSomething2 item) =>
             {
-                _unknownList2[i] = new DozerSomething2();
-
-                reader.PersistBoolean("UnknownBool", ref _unknownList2[i].UnknownBool);
-                reader.PersistVector3(ref _unknownList2[i].UnknownPos);
-            }
+                persister.PersistObjectValue(ref item);
+            });
 
             reader.PersistInt32(ref _unknown4);
         }
     }
 
-    internal struct DozerSomething1
+    internal struct DozerSomething1 : IPersistableObject
     {
         public uint ObjectId;
         public int Unknown;
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistObjectID("ObjectId", ref ObjectId);
+            persister.PersistInt32(ref Unknown);
+        }
     }
 
-    internal struct DozerSomething2
+    internal struct DozerSomething2 : IPersistableObject
     {
         public bool UnknownBool;
         public Vector3 UnknownPos;
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistBoolean("UnknownBool", ref UnknownBool);
+            persister.PersistVector3("UnknownPos", ref UnknownPos);
+        }
     }
 
     /// <summary>

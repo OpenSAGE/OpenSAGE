@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            _upgradeLogic.Load(reader);
+            reader.PersistObject("UpgradeLogic", _upgradeLogic);
         }
     }
 

@@ -1,20 +1,20 @@
 ﻿namespace OpenSage.Logic.Object.Damage
 {
-    public struct DamageData
+    public struct DamageData : IPersistableObject
     {
         public DamageDataRequest Request;
         public DamageDataResult Result;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            Request.Load(reader);
-            Result.Load(reader);
+            reader.PersistObject("Request", ref Request);
+            reader.PersistObject("Result", ref Result);
         }
     }
 
-    public struct DamageDataRequest
+    public struct DamageDataRequest : IPersistableObject
     {
         // These values are the damage inputs that are to be done to the body.
         public uint ObjectId;
@@ -23,30 +23,30 @@
         public DeathType DeathType;
         public float Unknown4;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistObjectID(ref ObjectId);
+            reader.PersistObjectID("ObjectId", ref ObjectId);
             reader.PersistUInt16(ref Unknown1);
             reader.PersistEnum(ref DamageType);
             reader.PersistEnum(ref DeathType);
-            reader.PersistSingle(ref Unknown4);
+            reader.PersistSingle("Unknown4", ref Unknown4);
         }
     }
 
-    public struct DamageDataResult
+    public struct DamageDataResult : IPersistableObject
     {
         // These values are the actual damage that the body calculates for itself.
         public float Unknown1;
         public float Unknown2;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistSingle(ref Unknown1);
-            reader.PersistSingle(ref Unknown2);
+            reader.PersistSingle("Unknown1", ref Unknown1);
+            reader.PersistSingle("Unknown2", ref Unknown2);
 
             reader.SkipUnknownBytes(1);
         }

@@ -475,45 +475,50 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var productionQueueCount = (ushort) _productionQueue.Count;
-            reader.PersistUInt16(ref productionQueueCount);
-
-            for (var i = 0; i < productionQueueCount; i++)
+            reader.PersistList("ProductionQueue", _productionQueue, static (StatePersister persister, ref ProductionJob item) =>
             {
-                var productionJobType = ProductionJobType.Unit;
-                reader.PersistEnum(ref productionJobType);
+                persister.BeginObject();
 
-                var templateName = "";
-                reader.PersistAsciiString(ref templateName);
+                var productionJobType = item?.Type ?? default;
+                persister.PersistEnum(ref productionJobType);
 
-                var productionJob = productionJobType switch
+                var templateName = item != null
+                    ? item.Type == ProductionJobType.Unit
+                        ? item.ObjectDefinition.Name
+                        : item.UpgradeDefinition.Name
+                    : null;
+                persister.PersistAsciiString("TemplateName", ref templateName);
+
+                if (persister.Mode == StatePersistMode.Read)
                 {
-                    ProductionJobType.Unit => new ProductionJob(reader.AssetStore.ObjectDefinitions.GetByName(templateName)),
-                    ProductionJobType.Upgrade => new ProductionJob(reader.AssetStore.Upgrades.GetByName(templateName)),
-                    _ => throw new InvalidStateException(),
-                };
+                    item = productionJobType switch
+                    {
+                        ProductionJobType.Unit => new ProductionJob(persister.AssetStore.ObjectDefinitions.GetByName(templateName)),
+                        ProductionJobType.Upgrade => new ProductionJob(persister.AssetStore.Upgrades.GetByName(templateName)),
+                        _ => throw new InvalidStateException(),
+                    };
+                }
 
-                productionJob.Load(reader);
+                persister.PersistObject("Job", item);
 
-                _productionQueue.Add(productionJob);
-            }
+                persister.EndObject();
+            });
 
-            reader.PersistUInt32(ref _nextJobId);
+            reader.PersistUInt32("NextJobId", ref _nextJobId);
 
             var productionJobCount2 = (uint)_productionQueue.Count;
-            reader.PersistUInt32(ref productionJobCount2);
+            reader.PersistUInt32("ProductionJobCount2", ref productionJobCount2);
             if (productionJobCount2 != _productionQueue.Count)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
 
-            for (var i = 0; i < _unknownSomethings.Length; i++)
+            reader.PersistArray("UnknownSomethings", _unknownSomethings, static (StatePersister persister, ref ProductionUpdateSomething item) =>
             {
-                _unknownSomethings[i] = new ProductionUpdateSomething();
-                _unknownSomethings[i].Load(reader);
-            }
+                persister.PersistObjectValue(ref item);
+            });
 
             for (var i = 0; i < 2; i++)
             {
@@ -699,17 +704,17 @@ namespace OpenSage.Logic.Object
         Infiltrated,
     }
 
-    internal sealed class ProductionUpdateSomething
+    internal struct ProductionUpdateSomething : IPersistableObject
     {
         private uint _unknownFrame1;
         private uint _unknownFrame2;
         private uint _unknownFrame3;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
-            reader.PersistFrame(ref _unknownFrame1);
-            reader.PersistFrame(ref _unknownFrame2);
-            reader.PersistFrame(ref _unknownFrame3);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
+            reader.PersistFrame("UnknownFrame3", ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }

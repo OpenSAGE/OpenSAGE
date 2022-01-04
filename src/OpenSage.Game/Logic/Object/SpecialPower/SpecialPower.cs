@@ -20,15 +20,15 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistFrame(ref _countdownStartFrame);
+            reader.PersistFrame("CountdownStartFrame", ref _countdownStartFrame);
 
-            reader.PersistUInt32(ref _unknown);
+            reader.PersistUInt32("Unknown", ref _unknown);
             if (_unknown != 1 && _unknown != 0)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistFrame(ref _countdownEndFrame);
+            reader.PersistFrame("CountdownEndFrame", ref _countdownEndFrame);
 
             reader.SkipUnknownBytes(4);
         }

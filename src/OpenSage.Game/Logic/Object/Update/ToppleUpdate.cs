@@ -116,16 +116,16 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistSingle(ref _toppleSpeed);
-            reader.PersistSingle(ref _toppleAcceleration);
-            reader.PersistVector3(ref _toppleDirection);
+            reader.PersistSingle("ToppleSpeed", ref _toppleSpeed);
+            reader.PersistSingle("ToppleAcceleration", ref _toppleAcceleration);
+            reader.PersistVector3("ToppleDirection", ref _toppleDirection);
             reader.PersistEnum(ref _toppleState);
-            reader.PersistSingle(ref _toppleAngle);
-            reader.PersistSingle(ref _unknownFloat);
+            reader.PersistSingle("ToppleAngle", ref _toppleAngle);
+            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
 
             reader.SkipUnknownBytes(9);
 
-            reader.PersistUInt32(ref _stumpId);
+            reader.PersistUInt32("StumpId", ref _stumpId);
         }
 
         private enum ToppleState

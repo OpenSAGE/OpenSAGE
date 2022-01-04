@@ -16,8 +16,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistFrame(ref _unknownFrame1);
-            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
 
             var unknownBool1 = true;
             reader.PersistBoolean("UnknownBool1", ref unknownBool1);
@@ -26,8 +26,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
 
             var unknownInt2 = -1;
             reader.PersistInt32(ref unknownInt2);

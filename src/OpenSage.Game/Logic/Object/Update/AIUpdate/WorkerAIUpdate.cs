@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -13,11 +12,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly WorkerAIUpdateModuleData _moduleData;
 
-        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
-        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
-        private int _unknown2;
-        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
-        private int _unknown4;
+        private readonly DozerAndWorkerState _state = new();
+
         private readonly WorkerAIUpdateStateMachine2 _stateMachine2 = new();
         private uint _unknownObjectId;
         private int _unknown5;
@@ -135,43 +131,11 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            // Following is same as DozerAIUpdate.Load
-
-            var unknown1 = 3;
-            reader.PersistInt32(ref unknown1);
-            if (unknown1 != 3)
-            {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < _unknownList1.Length; i++)
-            {
-                reader.PersistObjectID(ref _unknownList1[i].ObjectId);
-                reader.PersistInt32(ref _unknownList1[i].Unknown);
-            }
-
-            _stateMachine.Load(reader);
-
-            reader.PersistInt32(ref _unknown2);
-
-            var unknown3 = 3;
-            reader.PersistInt32(ref unknown3);
-            if (unknown3 != 3)
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.PersistArray(_unknownList2, static (StatePersister persister, ref DozerSomething2 item) =>
-            {
-                persister.PersistBoolean("UnknownBool", ref item.UnknownBool);
-                persister.PersistVector3(ref item.UnknownPos);
-            });
-
-            reader.PersistInt32(ref _unknown4);
+            _state.Persist(reader);
 
             _stateMachine2.Load(reader);
 
-            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
             reader.PersistInt32(ref _unknown5);
 
             reader.SkipUnknownBytes(1);

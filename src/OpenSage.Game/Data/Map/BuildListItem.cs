@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class BuildListItem
+    public sealed class BuildListItem : IPersistableObject
     {
         private string _buildingName;
         private string _name;
@@ -38,29 +38,29 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
-            reader.PersistAsciiString(ref _buildingName);
-            reader.PersistAsciiString(ref _name);
-            reader.PersistVector3(ref _position);
+            reader.PersistAsciiString("BuildingName", ref _buildingName);
+            reader.PersistAsciiString("Name", ref _name);
+            reader.PersistVector3("Position", ref _position);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistSingle(ref _angle);
+            reader.PersistSingle("Angle", ref _angle);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistUInt32(ref _rebuilds);
+            reader.PersistUInt32("Rebuilds", ref _rebuilds);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistUInt32(ref _startingHealth);
+            reader.PersistUInt32("StartingHealth", ref _startingHealth);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
             reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
             reader.PersistBoolean("UnknownBool5", ref _unknownBool5);
-            reader.PersistUInt32(ref _unknownInt1);
-            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
             reader.PersistBoolean("UnknownBool6", ref _unknownBool6);
 
             reader.SkipUnknownBytes(40);

@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(20);
 
-            reader.PersistSingle(ref _unknownFloat);
+            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
 
             reader.SkipUnknownBytes(8);
 

@@ -7,6 +7,7 @@ namespace OpenSage.Logic.Object
     public sealed class BoneFXUpdate : UpdateModule
     {
         private readonly List<uint> _particleSystemIds = new();
+        private readonly int[] _unknownInts = new int[96];
 
         internal override void Load(StatePersister reader)
         {
@@ -14,24 +15,20 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            var particleSystemCount = (ushort)_particleSystemIds.Count;
-            reader.PersistUInt16(ref particleSystemCount);
-            for (var i = 0; i < particleSystemCount; i++)
+            reader.PersistList("ParticleSystemIds", _particleSystemIds, static (StatePersister persister, ref uint item) =>
             {
-                var particleSystemId = 0u;
-                reader.PersistUInt32(ref particleSystemId);
-                _particleSystemIds.Add(particleSystemId);
-            }
+                persister.PersistUInt32Value(ref item);
+            });
 
-            for (var i = 0; i < 96; i++)
+            reader.PersistArray("UnknownInts", _unknownInts, static (StatePersister persister, ref int item) =>
             {
-                var unknown = -1;
-                reader.PersistInt32(ref unknown);
-                if (unknown != -1)
+                persister.PersistInt32(ref item);
+
+                if (persister.Mode == StatePersistMode.Read && item != -1)
                 {
                     throw new InvalidStateException();
                 }
-            }
+            });
 
             reader.SkipUnknownBytes(289 * 4);
 

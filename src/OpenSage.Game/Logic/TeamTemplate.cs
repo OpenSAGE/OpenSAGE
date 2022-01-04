@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
     [DebuggerDisplay("TeamTemplate '{Name}'")]
-    public sealed class TeamTemplate
+    public sealed class TeamTemplate : IPersistableObject
     {
         private readonly List<Team> _teams;
 
@@ -51,16 +50,16 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(StatePersister reader, PlayerManager players)
+        void IPersistableObject.Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
             // This will be the same as the existing Owner, unless control of this team has been transferred.
             var ownerPlayerId = Owner.Id;
-            reader.PersistUInt32(ref ownerPlayerId);
-            Owner = players.GetPlayerByIndex(ownerPlayerId);
+            reader.PersistUInt32("OwnerPlayerId", ref ownerPlayerId);
+            Owner = reader.Game.Scene3D.PlayerManager.GetPlayerByIndex(ownerPlayerId);
 
-            reader.PersistAsciiString(ref _attackPriorityName);
+            reader.PersistAsciiString("AttackPriorityName", ref _attackPriorityName);
             reader.PersistBoolean("Unknown1", ref _unknown1);
 
             _templateData.Load(reader);
@@ -68,12 +67,15 @@ namespace OpenSage.Logic
             var teamCount = (ushort) _teams.Count;
             reader.PersistUInt16(ref teamCount);
 
+            reader.BeginArray("Teams");
             if (reader.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < teamCount; i++)
                 {
+                    reader.BeginObject();
+
                     var id = 0u;
-                    reader.PersistUInt32(ref id);
+                    reader.PersistUInt32("Id", ref id);
 
                     var team = FindTeamById(id);
                     if (team == null)
@@ -81,19 +83,26 @@ namespace OpenSage.Logic
                         team = TeamFactory.AddTeamWithId(this, id);
                     }
 
-                    team.Load(reader);
+                    reader.PersistObject("Value", team);
+
+                    reader.EndObject();
                 }
             }
             else
             {
                 foreach (var team in _teams)
                 {
-                    var id = team.Id;
-                    reader.PersistUInt32(ref id);
+                    reader.BeginObject();
 
-                    team.Load(reader);
+                    var id = team.Id;
+                    reader.PersistUInt32("Id", ref id);
+
+                    reader.PersistObject("Value", team);
+
+                    reader.EndObject();
                 }
             }
+            reader.EndArray();
         }
     }
 

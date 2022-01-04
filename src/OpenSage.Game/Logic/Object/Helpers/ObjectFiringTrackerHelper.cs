@@ -11,8 +11,8 @@
 
             base.Load(reader);
 
-            reader.PersistUInt32(ref _numShotsFiredAtLastTarget);
-            reader.PersistObjectID(ref _lastTargetObjectId);
+            reader.PersistUInt32("NumShotsFiredAtLastTarget", ref _numShotsFiredAtLastTarget);
+            reader.PersistObjectID("LastTargetObjectId", ref _lastTargetObjectId);
 
             reader.SkipUnknownBytes(4);
         }

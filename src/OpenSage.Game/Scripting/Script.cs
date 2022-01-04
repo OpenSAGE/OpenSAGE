@@ -6,7 +6,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
 {
-    public sealed class Script : Asset
+    public sealed class Script : Asset, IPersistableObject
     {
         public const string AssetName = "Script";
 
@@ -320,7 +320,7 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

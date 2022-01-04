@@ -141,10 +141,10 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistFrame(ref _frameSinkStart);
-            reader.PersistFrame(ref _frameMidpoint);
-            reader.PersistFrame(ref _frameDestruction);
-            reader.PersistSingle(ref _slowDeathScale);
+            reader.PersistFrame("FrameSinkStart", ref _frameSinkStart);
+            reader.PersistFrame("FrameMidpoint", ref _frameMidpoint);
+            reader.PersistFrame("FrameDstruction", ref _frameDestruction);
+            reader.PersistSingle("SlowDeathScale", ref _slowDeathScale);
             reader.PersistEnumFlags(ref _flags);
         }
 

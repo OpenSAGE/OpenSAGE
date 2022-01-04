@@ -106,21 +106,21 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistVector3(ref _unknownVector1);
-            reader.PersistVector3(ref _unknownVector2);
-            reader.PersistVector3(ref _unknownVector3);
-            reader.PersistVector3(ref _unknownVector4);
+            reader.PersistVector3("UnknownVector1", ref _unknownVector1);
+            reader.PersistVector3("UnknownVector2", ref _unknownVector2);
+            reader.PersistVector3("UnknownVector3", ref _unknownVector3);
+            reader.PersistVector3("UnknownVector4", ref _unknownVector4);
             reader.PersistInt32(ref _unknownInt1);
-            reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistSingle(ref _mass);
-            reader.PersistUInt32(ref _unknownInt4);
-            reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
+            reader.PersistSingle("Mass", ref _mass);
+            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
+            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
+            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
         }
     }
 

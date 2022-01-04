@@ -12,7 +12,7 @@ using OpenSage.Utilities.Extensions;
 namespace OpenSage.Logic
 {
     [DebuggerDisplay("[Player: {Name}]")]
-    public class Player
+    public class Player : IPersistableObject
     {
         public const int MaxPlayers = 16;
 
@@ -392,11 +392,11 @@ namespace OpenSage.Logic
             return false;
         }
 
-        internal void Load(StatePersister reader, Game game)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(8);
 
-            BankAccount.Load(reader);
+            reader.PersistObject("BankAccount", BankAccount);
 
             var upgradeQueueCount = (ushort)_upgrades.Count;
             reader.PersistUInt16(ref upgradeQueueCount);
@@ -406,10 +406,13 @@ namespace OpenSage.Logic
             _sciencesDisabled.Load(reader);
             _sciencesHidden.Load(reader);
 
+            reader.BeginArray();
             for (var i = 0; i < upgradeQueueCount; i++)
             {
+                reader.BeginObject();
+
                 var upgradeName = "";
-                reader.PersistAsciiString(ref upgradeName);
+                reader.PersistAsciiString("UpgradeName", ref upgradeName);
                 var upgradeTemplate = reader.AssetStore.Upgrades.GetByName(upgradeName);
 
                 // Use UpgradeStatus.Invalid temporarily because we're going to load the
@@ -417,11 +420,14 @@ namespace OpenSage.Logic
                 var upgrade = AddUpgrade(upgradeTemplate, UpgradeStatus.Invalid);
 
                 upgrade.Load(reader);
-            }
 
-            reader.PersistUInt32(ref _unknown1);
+                reader.EndObject();
+            }
+            reader.EndArray();
+
+            reader.PersistUInt32("Unknown1", ref _unknown1);
             reader.PersistBoolean("Unknown2", ref _unknown2);
-            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32("Unknown3", ref _unknown3);
             reader.PersistBoolean("HasInsufficientPower", ref _hasInsufficientPower);
 
             _upgradesInProgress.Load(reader);
@@ -431,37 +437,40 @@ namespace OpenSage.Logic
                 reader.PersistVersion(2);
 
                 var playerId = Id;
-                reader.PersistUInt32(ref playerId);
+                reader.PersistUInt32("PlayerId", ref playerId);
                 if (playerId != Id)
                 {
                     throw new InvalidStateException();
                 }
             }
 
-            var numTeamTemplates = (ushort) _teamTemplates.Count;
-            reader.PersistUInt16(ref numTeamTemplates);
-
-            for (var i = 0; i < numTeamTemplates; i++)
+            reader.PersistList("TeamTemplates", _teamTemplates, static (StatePersister persister, ref TeamTemplate item) =>
             {
-                var teamTemplateId = 0u;
-                reader.PersistUInt32(ref teamTemplateId);
-                var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
-                if (teamTemplate.Owner != this)
+                var teamTemplateId = item?.ID ?? 0u;
+                persister.PersistUInt32Value(ref teamTemplateId);
+
+                if (persister.Mode == StatePersistMode.Read)
                 {
-                    throw new InvalidStateException();
+                    item = persister.Game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
                 }
-                _teamTemplates.Add(teamTemplate);
-            }
+            });
 
-            var buildListItemCount = (ushort) _buildListItems.Count;
-            reader.PersistUInt16(ref buildListItemCount);
-
-            for (var i = 0; i < buildListItemCount; i++)
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var buildListItem = new BuildListItem();
-                buildListItem.Load(reader);
-                _buildListItems.Add(buildListItem);
+                foreach (var teamTemplate in _teamTemplates)
+                {
+                    if (teamTemplate.Owner != this)
+                    {
+                        throw new InvalidStateException();
+                    }
+                }
             }
+
+            reader.PersistList("BuildListItems", _buildListItems, static (StatePersister persister, ref BuildListItem item) =>
+            {
+                item ??= new BuildListItem();
+                persister.PersistObjectValue(item);
+            });
 
             var isAIPlayer = AIPlayer != null;
             reader.PersistBoolean("IsAIPlayer", ref isAIPlayer);
@@ -471,27 +480,27 @@ namespace OpenSage.Logic
             }
             if (isAIPlayer)
             {
-                AIPlayer.Load(reader);
+                reader.PersistObject("AIPlayer", AIPlayer);
             }
 
             var hasSupplyManager = _supplyManager != null;
             reader.PersistBoolean("HasSupplyManager", ref hasSupplyManager);
             if (hasSupplyManager)
             {
-                _supplyManager.Load(reader);
+                reader.PersistObject("SupplyManager", _supplyManager);
             }
 
             var hasTunnelManager = _tunnelManager != null;
             reader.PersistBoolean("HasTunnelManager", ref hasTunnelManager);
             if (hasTunnelManager)
             {
-                _tunnelManager = new TunnelManager();
-                _tunnelManager.Load(reader);
+                _tunnelManager ??= new TunnelManager();
+                reader.PersistObject("TunnelManager", _tunnelManager);
             }
 
             var defaultTeamId = 0u;
-            reader.PersistUInt32(ref defaultTeamId);
-            DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
+            reader.PersistUInt32("DefaultTeamId", ref defaultTeamId);
+            DefaultTeam = reader.Game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
             if (DefaultTeam.Template.Owner != this)
             {
                 throw new InvalidStateException();
@@ -500,45 +509,38 @@ namespace OpenSage.Logic
             _sciences.Load(reader);
 
             var rankId = 0u;
-            reader.PersistUInt32(ref rankId);
+            reader.PersistUInt32("RankId", ref rankId);
             Rank.SetRank((int) rankId);
 
-            reader.PersistUInt32(ref SkillPointsTotal);
-            reader.PersistUInt32(ref SkillPointsAvailable);
-            reader.PersistUInt32(ref _unknown4); // 800
-            reader.PersistUInt32(ref _unknown5); // 0
+            reader.PersistUInt32("SkillPointsTotal", ref SkillPointsTotal);
+            reader.PersistUInt32("SkillPointsAvailable", ref SkillPointsAvailable);
+            reader.PersistUInt32("Unknown4", ref _unknown4); // 800
+            reader.PersistUInt32("Unknown5", ref _unknown5); // 0
             reader.PersistUnicodeString("Name", ref Name);
-
-            _playerToPlayerRelationships.Load(reader);
-            _playerToTeamRelationships.Load(reader);
-
+            reader.PersistObject("PlayerToPlayerRelationships", _playerToPlayerRelationships);
+            reader.PersistObject("PlayerToTeamRelationships", _playerToTeamRelationships);
             reader.PersistBoolean("CanBuildUnits", ref CanBuildUnits);
             reader.PersistBoolean("CanBuildBuildings", ref CanBuildBuildings);
             reader.PersistBoolean("Unknown6", ref _unknown6);
-            reader.PersistSingle(ref GeneralsExperienceMultiplier);
+            reader.PersistSingle("GeneralsExperienceMultiplier", ref GeneralsExperienceMultiplier);
             reader.PersistBoolean("ShowOnScoreScreen", ref ShowOnScoreScreen);
 
-            reader.PersistArray(_attackedByPlayerIds, static (StatePersister persister, ref bool item) =>
+            reader.PersistArray("AttackedByPlayerIds", _attackedByPlayerIds, static (StatePersister persister, ref bool item) =>
             {
-                persister.PersistBoolean("Value", ref item);
+                persister.PersistBooleanValue(ref item);
             });
 
             reader.SkipUnknownBytes(70);
 
-            _scoreManager.Load(reader);
+            reader.PersistObject("ScoreManager", _scoreManager);
 
             reader.SkipUnknownBytes(4);
 
-            var numControlGroups = (ushort)_controlGroups.Count;
-            reader.PersistUInt16(ref numControlGroups);
-
-            for (var i = 0; i < numControlGroups; i++)
+            reader.PersistList("ControlGroups", _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
             {
-                var controlGroup = new ObjectIdSet();
-                controlGroup.Load(reader);
-
-                _controlGroups.Add(controlGroup);
-            }
+                item ??= new ObjectIdSet();
+                persister.PersistObjectValue(item);
+            });
 
             var unknown = true;
             reader.PersistBoolean("Unknown", ref unknown);
@@ -547,7 +549,7 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            _destroyedObjects.Load(reader);
+            reader.PersistObject("DestroyedObjects", _destroyedObjects);
 
             reader.SkipUnknownBytes(14);
         }
@@ -629,7 +631,7 @@ namespace OpenSage.Logic
         }
     }
 
-    public class AIPlayer
+    public class AIPlayer : IPersistableObject
     {
         private readonly Player _owner;
 
@@ -654,32 +656,24 @@ namespace OpenSage.Logic
             _owner = owner;
         }
 
-        internal virtual void Load(StatePersister reader)
+        public virtual void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            var unknownCount = (ushort) _unknownThings.Count;
-            reader.PersistUInt16(ref unknownCount);
-
-            for (var i = 0; i < unknownCount; i++)
+            reader.PersistList("UnknownThings", _unknownThings, static (StatePersister persister, ref AIPlayerUnknownThing item) =>
             {
-                var thing = new AIPlayerUnknownThing();
-                thing.Load(reader);
-                _unknownThings.Add(thing);
-            }
+                item ??= new AIPlayerUnknownThing();
+                persister.PersistObjectValue(item);
+            });
 
-            var unknownCount2 = (ushort) _unknownThings2.Count;
-            reader.PersistUInt16(ref unknownCount2);
-
-            for (var i = 0; i < unknownCount2; i++)
+            reader.PersistList("UnknownThings2", _unknownThings2, static (StatePersister persister, ref AIPlayerUnknownThing item) =>
             {
-                var thing = new AIPlayerUnknownThing();
-                thing.Load(reader);
-                _unknownThings2.Add(thing);
-            }
+                item ??= new AIPlayerUnknownThing();
+                persister.PersistObjectValue(item);
+            });
 
             var playerId = _owner.Id;
-            reader.PersistUInt32(ref playerId);
+            reader.PersistUInt32("PlayerId", ref playerId);
             if (playerId != _owner.Id)
             {
                 throw new InvalidStateException();
@@ -688,7 +682,7 @@ namespace OpenSage.Logic
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
 
-            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32("UnknownInt2", ref _unknownInt1);
             if (_unknownInt1 != 2 && _unknownInt1 != 0)
             {
                 throw new InvalidStateException();
@@ -700,20 +694,20 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt3); // 50, 51, 8, 35
-            reader.PersistUInt32(ref _unknownInt4); // 0, 50
+            reader.PersistUInt32("UnknownInt3", ref _unknownInt3); // 50, 51, 8, 35
+            reader.PersistUInt32("UnknownInt4", ref _unknownInt4); // 0, 50
 
             var unknown6 = 10u;
-            reader.PersistUInt32(ref unknown6);
+            reader.PersistUInt32("Unknown6", ref unknown6);
             if (unknown6 != 10)
             {
                 throw new InvalidDataException();
             }
 
-            reader.PersistObjectID(ref _unknownObjectId);
-            reader.PersistUInt32(ref _unknownInt5); // 0, 1
+            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
+            reader.PersistUInt32("UnknownInt5", ref _unknownInt5); // 0, 1
 
-            reader.PersistUInt32(ref _unknownInt6);
+            reader.PersistUInt32("UnknownInt6", ref _unknownInt6);
             if (_unknownInt6 != 1 && _unknownInt6 != 0 && _unknownInt6 != 2)
             {
                 throw new InvalidStateException();
@@ -725,43 +719,39 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistVector3("UnknownPosition", ref _unknownPosition);
             reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
-            reader.PersistSingle(ref _unknownFloat);
+            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
 
             reader.SkipUnknownBytes(22);
         }
 
-        private sealed class AIPlayerUnknownThing
+        private sealed class AIPlayerUnknownThing : IPersistableObject
         {
             private readonly List<AIPlayerUnknownOtherThing> _unknownThings = new();
             private bool _unknownBool;
             private uint _unknownInt1;
             private uint _unknownInt2;
 
-            internal void Load(StatePersister reader)
+            public void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
-                var count = (ushort) _unknownThings.Count;
-                reader.PersistUInt16(ref count);
-
-                for (var i = 0; i < count; i++)
+                reader.PersistList("UnknownThings", _unknownThings, static (StatePersister persister, ref AIPlayerUnknownOtherThing item) =>
                 {
-                    var otherThing = new AIPlayerUnknownOtherThing();
-                    otherThing.Load(reader);
-                    _unknownThings.Add(otherThing);
-                }
+                    item ??= new AIPlayerUnknownOtherThing();
+                    persister.PersistObjectValue(item);
+                });
 
                 reader.PersistBoolean("UnknownBool", ref _unknownBool);
-                reader.PersistUInt32(ref _unknownInt1); // 11
-                reader.PersistUInt32(ref _unknownInt2);
+                reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 11
+                reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
 
                 reader.SkipUnknownBytes(7);
             }
         }
 
-        private sealed class AIPlayerUnknownOtherThing
+        private sealed class AIPlayerUnknownOtherThing : IPersistableObject
         {
             private string _objectName;
             private uint _objectId;
@@ -770,14 +760,14 @@ namespace OpenSage.Logic
             private bool _unknownBool1;
             private bool _unknownBool2;
 
-            internal void Load(StatePersister reader)
+            public void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
-                reader.PersistAsciiString(ref _objectName);
-                reader.PersistObjectID(ref _objectId);
-                reader.PersistUInt32(ref _unknownInt1); // 0
-                reader.PersistUInt32(ref _unknownInt2); // 1
+                reader.PersistAsciiString("ObjectName", ref _objectName);
+                reader.PersistObjectID("ObjectId", ref _objectId);
+                reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 0
+                reader.PersistUInt32("UnknownInt2", ref _unknownInt2); // 1
                 reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
                 reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             }
@@ -797,22 +787,22 @@ namespace OpenSage.Logic
 
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistInt32(ref _unknownInt1);
             reader.PersistInt32(ref _unknownInt2);
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
 
             reader.SkipUnknownBytes(16);
         }
     }
 
-    public sealed class SupplyManager
+    public sealed class SupplyManager : IPersistableObject
     {
         private readonly ObjectIdSet _supplyWarehouses;
         private readonly ObjectIdSet _supplyCenters;
@@ -823,12 +813,12 @@ namespace OpenSage.Logic
             _supplyCenters = new ObjectIdSet();
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            _supplyWarehouses.Load(reader);
-            _supplyCenters.Load(reader);
+            reader.PersistObject("SupplyWarehouses", _supplyWarehouses);
+            reader.PersistObject("SupplyCenters", _supplyCenters);
         }
     }
 
@@ -839,11 +829,11 @@ namespace OpenSage.Logic
         Allies = 2,
     }
 
-    public sealed class PlayerRelationships
+    public sealed class PlayerRelationships : IPersistableObject
     {
         private readonly Dictionary<uint, RelationshipType> _store = new();
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -852,16 +842,42 @@ namespace OpenSage.Logic
             var count = (ushort)_store.Count;
             reader.PersistUInt16(ref count);
 
-            for (var i = 0; i < count; i++)
+            reader.BeginArray("Items");
+
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var playerOrTeamId = 0u;
-                reader.PersistUInt32(ref playerOrTeamId);
+                for (var i = 0; i < count; i++)
+                {
+                    reader.BeginObject();
 
-                RelationshipType relationship = default;
-                reader.PersistEnum(ref relationship);
+                    var playerOrTeamId = 0u;
+                    reader.PersistUInt32("Id", ref playerOrTeamId);
 
-                _store[playerOrTeamId] = relationship;
+                    RelationshipType relationship = default;
+                    reader.PersistEnum(ref relationship);
+
+                    _store[playerOrTeamId] = relationship;
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                foreach (var kvp in _store)
+                {
+                    reader.BeginObject();
+
+                    var playerOrTeamId = kvp.Key;
+                    reader.PersistUInt32("Id", ref playerOrTeamId);
+
+                    var relationship = kvp.Value;
+                    reader.PersistEnum(ref relationship);
+
+                    reader.EndObject();
+                }
+            }
+
+            reader.EndArray();
         }
     }
 
@@ -886,7 +902,7 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var name = "";
-                reader.PersistAsciiString(ref name);
+                reader.PersistAsciiString("Name", ref name);
 
                 var science = _assetStore.Sciences.GetByName(name);
 
@@ -913,7 +929,7 @@ namespace OpenSage.Logic
                 for (var i = 0; i < count; i++)
                 {
                     var upgradeName = "";
-                    persister.PersistAsciiString(ref upgradeName);
+                    persister.PersistAsciiString("Name", ref upgradeName);
 
                     var upgrade = persister.AssetStore.Upgrades.GetByName(upgradeName);
 
@@ -925,7 +941,7 @@ namespace OpenSage.Logic
                 foreach (var item in this)
                 {
                     var name = item.Name;
-                    persister.PersistAsciiString(ref name);
+                    persister.PersistAsciiString("Name", ref name);
                 }
             }
         }
@@ -933,9 +949,9 @@ namespace OpenSage.Logic
 
     // TODO: I don't know if these are always serialized the same way in .sav files.
     // Maybe we shouldn't use a generic container like this.
-    public sealed class ObjectIdSet : HashSet<uint>
+    public sealed class ObjectIdSet : HashSet<uint>, IPersistableObject
     {
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -944,30 +960,22 @@ namespace OpenSage.Logic
             var count = (ushort) Count;
             reader.PersistUInt16(ref count);
 
+            reader.BeginArray("Items");
+
             for (var i = 0; i < count; i++)
             {
                 var value = 0u;
-                reader.PersistUInt32(ref value);
+                reader.PersistUInt32Value(ref value);
                 Add(value);
             }
+
+            reader.EndArray();
         }
     }
 
-    internal sealed class PlayerStats
+    internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>, IPersistableObject
     {
-        public readonly PlayerStatObjectCollection UnitsDestroyed = new PlayerStatObjectCollection();
-
-        internal void Load(StatePersister reader)
-        {
-            // After 0x10, 3rd entry is ObjectsDestroyed?
-            // After 0x10, 17th entry is ObjectsLost?
-            UnitsDestroyed.Load(reader);
-        }
-    }
-
-    internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>
-    {
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             Clear();
 
@@ -979,10 +987,10 @@ namespace OpenSage.Logic
             for (var i = 0; i < count; i++)
             {
                 var objectType = "";
-                reader.PersistAsciiString(ref objectType);
+                reader.PersistAsciiString("ObjectType", ref objectType);
 
                 var total = 0u;
-                reader.PersistUInt32(ref total);
+                reader.PersistUInt32("Total", ref total);
 
                 Add(objectType, total);
             }
@@ -996,7 +1004,7 @@ namespace OpenSage.Logic
         Completed = 2
     }
 
-    public sealed class BankAccount
+    public sealed class BankAccount : IPersistableObject
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -1025,37 +1033,32 @@ namespace OpenSage.Logic
             Money += amount;
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref Money);
+            reader.PersistUInt32("Money", ref Money);
         }
     }
 
-    public sealed class TunnelManager
+    public sealed class TunnelManager : IPersistableObject
     {
         private readonly ObjectIdSet _tunnelIds = new();
         private readonly List<uint> _containedObjectIds = new();
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            _tunnelIds.Load(reader);
+            reader.PersistObject("TunnelIds", _tunnelIds);
 
-            var containedCount = (uint)_containedObjectIds.Count;
-            reader.PersistUInt32(ref containedCount);
-
-            for (var i = 0; i < containedCount; i++)
+            reader.PersistListWithUInt32Count("ContainedObjectIds", _containedObjectIds, static (StatePersister persister, ref uint item) =>
             {
-                uint containedObjectId = 0;
-                reader.PersistObjectID(ref containedObjectId);
-                _containedObjectIds.Add(containedObjectId);
-            }
+                persister.PersistObjectIDValue(ref item);
+            });
 
             var tunnelCount = (uint)_tunnelIds.Count;
-            reader.PersistUInt32(ref tunnelCount);
+            reader.PersistUInt32("TunnelCount", ref tunnelCount);
             if (tunnelCount != _tunnelIds.Count)
             {
                 throw new InvalidStateException();
@@ -1063,7 +1066,7 @@ namespace OpenSage.Logic
         }
     }
 
-    public sealed class PlayerScoreManager
+    public sealed class PlayerScoreManager : IPersistableObject
     {
         private uint _suppliesCollected;
         private uint _moneySpent;
@@ -1098,51 +1101,42 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref _suppliesCollected);
-            reader.PersistUInt32(ref _moneySpent);
+            reader.PersistUInt32("SuppliesCollected", ref _suppliesCollected);
+            reader.PersistUInt32("MoneySpent", ref _moneySpent);
 
-            for (var i = 0; i < _numUnitsDestroyedPerPlayer.Length; i++)
+            reader.PersistArray("NumUnitsDestroyedPerPlayer", _numUnitsDestroyedPerPlayer, static (StatePersister persister, ref uint item) =>
             {
-                reader.PersistUInt32(ref _numUnitsDestroyedPerPlayer[i]);
-            }
+                persister.PersistUInt32Value(ref item);
+            });
 
-            reader.PersistUInt32(ref _numUnitsBuilt);
-            reader.PersistUInt32(ref _numUnitsLost);
+            reader.PersistUInt32("NumUnitsBuilt", ref _numUnitsBuilt);
+            reader.PersistUInt32("NumUnitsLost", ref _numUnitsLost);
 
-            for (var i = 0; i < _numBuildingsDestroyedPerPlayer.Length; i++)
+            reader.PersistArray("NumBuildingsDestroyedPerPlayer", _numBuildingsDestroyedPerPlayer, static (StatePersister persister, ref uint item) =>
             {
-                reader.PersistUInt32(ref _numBuildingsDestroyedPerPlayer[i]);
-            }
+                persister.PersistUInt32Value(ref item);
+            });
 
-            reader.PersistUInt32(ref _numBuildingsBuilt);
-            reader.PersistUInt32(ref _numBuildingsLost);
-            reader.PersistUInt32(ref _numObjectsCaptured);
+            reader.PersistUInt32("NumBuildingsBuilt", ref _numBuildingsBuilt);
+            reader.PersistUInt32("NumBuildingsLost", ref _numBuildingsLost);
+            reader.PersistUInt32("NumObjectsCaptured", ref _numObjectsCaptured);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistUInt32(ref _playerId);
+            reader.PersistUInt32("PlayerId", ref _playerId);
+            reader.PersistObject("ObjectsBuilt", _objectsBuilt);
 
-            _objectsBuilt.Load(reader);
-
-            var numObjectsDestroyedPerPlayer = (ushort) _objectsDestroyedPerPlayer.Length;
-            reader.PersistUInt16(ref numObjectsDestroyedPerPlayer);
-            if (numObjectsDestroyedPerPlayer != _objectsDestroyedPerPlayer.Length)
+            reader.PersistArrayWithUInt16Length("ObjectsDestroyedPerPlayer", _objectsDestroyedPerPlayer, static (StatePersister persister, ref PlayerStatObjectCollection item) =>
             {
-                throw new InvalidStateException();
-            }
+                persister.PersistObjectValue(item);
+            });
 
-            for (var i = 0; i < _objectsDestroyedPerPlayer.Length; i++)
-            {
-                _objectsDestroyedPerPlayer[i].Load(reader);
-            }
-
-            _objectsLost.Load(reader);
-
-            _objectsCaptured.Load(reader);
+            reader.PersistObject("ObjectsLost", _objectsLost);
+            reader.PersistObject("ObjectsCaptured", _objectsCaptured);
         }
     }
 }

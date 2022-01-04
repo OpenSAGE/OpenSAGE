@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Content;
+using OpenSage.Data.Map;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
@@ -34,12 +35,12 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(9);
 
-            reader.PersistUInt32(ref _currentFrame);
+            reader.PersistUInt32("currentFrame", ref _currentFrame);
 
             _objectDefinitionLookupTable.Load(reader);
 
             var gameObjectsCount = (uint)_objects.Count;
-            reader.PersistUInt32(ref gameObjectsCount);
+            reader.PersistUInt32("GameObjectsCount", ref gameObjectsCount);
 
             _objects.Clear();
             _objects.Capacity = (int)gameObjectsCount;
@@ -85,28 +86,31 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var numPolygonTriggers = (uint)_scene3D.MapFile.PolygonTriggers.Triggers.Length;
-            reader.PersistUInt32(ref numPolygonTriggers);
-            if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
+            reader.PersistArrayWithUInt32Length("PolygonTriggers", _scene3D.MapFile.PolygonTriggers.Triggers, static (StatePersister persister, ref PolygonTrigger item) =>
             {
-                throw new InvalidStateException();
-            }
-            for (var i = 0; i < numPolygonTriggers; i++)
-            {
-                var id = 0u;
-                reader.PersistUInt32(ref id);
-                var polygonTrigger = _scene3D.MapFile.PolygonTriggers.GetPolygonTriggerById(id);
-                polygonTrigger.Load(reader);
-            }
+                persister.BeginObject();
 
-            reader.PersistUInt32(ref _rankLevelLimit);
+                var id = item.UniqueId;
+                persister.PersistUInt32("Id", ref id);
+
+                if (id != item.UniqueId)
+                {
+                    throw new InvalidStateException();
+                }
+
+                persister.PersistObject("Value", item);
+
+                persister.EndObject();
+            });
+
+            reader.PersistUInt32("RankLevelLimit", ref _rankLevelLimit);
 
             reader.SkipUnknownBytes(4);
 
             while (true)
             {
                 var objectDefinitionName = "";
-                reader.PersistAsciiString(ref objectDefinitionName);
+                reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
 
                 if (objectDefinitionName == "")
                 {
@@ -143,7 +147,7 @@ namespace OpenSage.Logic
             }
 
             var unknown3 = uint.MaxValue;
-            reader.PersistUInt32(ref unknown3);
+            reader.PersistUInt32("Unknown3", ref unknown3);
             if (unknown3 != uint.MaxValue)
             {
                 throw new InvalidStateException();
@@ -153,7 +157,7 @@ namespace OpenSage.Logic
             while (true)
             {
                 var commandSetNamePrefixedWithCommandButtonIndex = "";
-                reader.PersistAsciiString(ref commandSetNamePrefixedWithCommandButtonIndex);
+                reader.PersistAsciiString("CommandSetNamePrefixedWithCommandButtonIndex", ref commandSetNamePrefixedWithCommandButtonIndex);
 
                 if (commandSetNamePrefixedWithCommandButtonIndex == "")
                 {
@@ -197,12 +201,12 @@ namespace OpenSage.Logic
             _nameLookup.Clear();
 
             var count = (uint)_nameLookup.Count;
-            reader.PersistUInt32(ref count);
+            reader.PersistUInt32("Count", ref count);
 
             for (var i = 0; i < count; i++)
             {
                 var name = "";
-                reader.PersistAsciiString(ref name);
+                reader.PersistAsciiString("Name", ref name);
 
                 ushort id = 0;
                 reader.PersistUInt16(ref id);

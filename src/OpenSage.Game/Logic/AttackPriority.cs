@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class AttackPriority
+    public sealed class AttackPriority : IPersistableObject
     {
         internal static AttackPriority Parse(IniParser parser)
         {
@@ -27,11 +27,11 @@ namespace OpenSage.Logic
 
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistAsciiString(ref _name);
+            reader.PersistAsciiString("Name", ref _name);
 
             reader.PersistInt32(ref _default);
             if (_default != 1)
@@ -39,20 +39,16 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            var numTargets = (ushort)Targets.Count;
-            reader.PersistUInt16(ref numTargets);
-
-            for (var i = 0; i < numTargets; i++)
+            reader.PersistList("Targets", Targets, static (StatePersister persister, ref AttackPriorityTarget item) =>
             {
-                var target = new AttackPriorityTarget();
-                target.Load(reader);
-                Targets.Add(target);
-            }
+                item ??= new AttackPriorityTarget();
+                persister.PersistObjectValue(item);
+            });
         }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class AttackPriorityTarget
+    public sealed class AttackPriorityTarget : IPersistableObject
     {
         internal static AttackPriorityTarget Parse(IniParser parser)
         {
@@ -69,10 +65,10 @@ namespace OpenSage.Logic
         private uint _value;
         public uint Value => _value;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
-            reader.PersistAsciiString(ref _target);
-            reader.PersistUInt32(ref _value);
+            reader.PersistAsciiString("Target", ref _target);
+            reader.PersistUInt32("Value", ref _value);
         }
     }
 }

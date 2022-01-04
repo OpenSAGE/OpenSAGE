@@ -10,7 +10,7 @@
 
             base.Load(reader);
 
-            reader.PersistObjectID(ref _containerObjectId);
+            reader.PersistObjectID("ContainerObjectId", ref _containerObjectId);
         }
     }
 }

@@ -15,10 +15,10 @@
         {
             var version = reader.PersistVersion(5);
 
-            reader.PersistAsciiString(ref CampaignName);
-            reader.PersistAsciiString(ref MissionName);
-            reader.PersistUInt32(ref _unknown);
-            reader.PersistUInt32(ref _difficultyMaybe);
+            reader.PersistAsciiString("CampaignName", ref CampaignName);
+            reader.PersistAsciiString("MissionName", ref MissionName);
+            reader.PersistUInt32("Unknown", ref _unknown);
+            reader.PersistUInt32("DifficultyMaybe", ref _difficultyMaybe);
 
             if (version >= 5)
             {
