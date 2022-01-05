@@ -272,14 +272,8 @@ namespace OpenSage
             reader.SkipUnknownBytes(1);
 
             reader.PersistBoolean("Unknown1", ref _unknown1);
-
-            _visibleItems.Clear();
             reader.PersistObject("VisibleItems", _visibleItems);
-
-            _hiddenItems.Clear();
             reader.PersistObject("HiddenItems", _hiddenItems);
-
-            _radarEvents.Clear();
 
             reader.PersistList("RadarEvents", _radarEvents, static (StatePersister persister, ref RadarEvent item) =>
             {
@@ -304,6 +298,8 @@ namespace OpenSage
             reader.BeginArray("Items");
             if (reader.Mode == StatePersistMode.Read)
             {
+                Clear();
+
                 for (var i = 0; i < count; i++)
                 {
                     var item = new RadarItem();
