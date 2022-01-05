@@ -10,8 +10,29 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Client
 {
-    public sealed class Drawable : Entity
+    public sealed class Drawable : Entity, IPersistableObject
     {
+        private readonly Dictionary<string, ModuleBase> _tagToModuleLookup = new();
+
+        private void AddDrawModule(string tag, DrawModule module)
+        {
+            module.Tag = tag;
+            _drawModules.Add(module);
+            _tagToModuleLookup.Add(tag, module);
+        }
+
+        private void AddClientUpdateModule(string tag, ClientUpdateModule module)
+        {
+            module.Tag = tag;
+            _clientUpdateModules.Add(module);
+            _tagToModuleLookup.Add(tag, module);
+        }
+
+        private ModuleBase GetModuleByTag(string tag)
+        {
+            return _tagToModuleLookup[tag];
+        }
+
         private readonly ObjectDefinition _definition;
         private readonly GameContext _gameContext;
 
@@ -78,7 +99,7 @@ namespace OpenSage.Client
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            var drawModules = new List<DrawModule>();
+            _drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
                 var drawModuleData = (DrawModuleData) drawDataContainer.Data;
@@ -86,13 +107,11 @@ namespace OpenSage.Client
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(drawDataContainer.Tag, drawModule);
-                    drawModules.Add(drawModule);
+                    AddDrawModule(drawDataContainer.Tag, drawModule);
                 }
             }
-            _drawModules = drawModules;
 
-            ModelConditionStates = drawModules
+            ModelConditionStates = _drawModules
                 .SelectMany(x => x.ModelConditionStates)
                 .Distinct()
                 .OrderBy(x => x.NumBitsSet)
@@ -110,8 +129,7 @@ namespace OpenSage.Client
                 if (clientUpdateModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
-                    _clientUpdateModules.Add(clientUpdateModule);
+                    AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
             }
         }
@@ -281,7 +299,7 @@ namespace OpenSage.Client
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(5);
 
@@ -291,7 +309,7 @@ namespace OpenSage.Client
             reader.PersistBitArray("ModelConditionFlags", ref modelConditionFlags);
             CopyModelConditionFlags(modelConditionFlags);
 
-            reader.PersistMatrix4x3(ref _transformMatrix);
+            reader.PersistMatrix4x3("TransformMatrix", ref _transformMatrix);
 
             var hasSelectionFlashHelper = _selectionFlashHelper != null;
             reader.PersistBoolean("HasSelectionFlashHelper", ref hasSelectionFlashHelper);
@@ -309,7 +327,7 @@ namespace OpenSage.Client
                 reader.PersistObject("ScriptedFlashHelper", _scriptedFlashHelper);
             }
 
-            reader.PersistEnum(ref _objectDecalType);
+            reader.PersistEnum("ObjectDecalType", ref _objectDecalType);
 
             var unknownFloat1 = 1.0f;
             reader.PersistSingle("UnknownFloat1", ref unknownFloat1);
@@ -349,7 +367,7 @@ namespace OpenSage.Client
                 });
             }
 
-            LoadModules(reader);
+            PersistModules(reader);
 
             reader.PersistUInt32("UnknownInt7", ref _unknownInt7);
 
@@ -363,7 +381,7 @@ namespace OpenSage.Client
 
             reader.PersistBoolean("SomeMatrixIsIdentity", ref _someMatrixIsIdentity);
 
-            reader.PersistMatrix4x3(ref _someMatrix, false);
+            reader.PersistMatrix4x3("SomeMatrix", ref _someMatrix, false);
 
             var unknownFloat10 = 1.0f;
             reader.PersistSingle("UnknownFloat10", ref unknownFloat10);
@@ -407,43 +425,60 @@ namespace OpenSage.Client
             }
         }
 
-        private void LoadModules(StatePersister reader)
+        private void PersistModules(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            ushort numModuleGroups = 0;
-            reader.PersistUInt16(ref numModuleGroups);
+            ushort numModuleGroups = 2;
+            reader.PersistUInt16("NumModuleGroups", ref numModuleGroups);
 
-            reader.BeginArray("ModuleGroups");
-            for (var i = 0; i < numModuleGroups; i++)
+            if (numModuleGroups != 2)
+            {
+                throw new InvalidStateException();
+            }
+
+            PersistModuleGroup(reader, "DrawModules", _drawModules);
+            PersistModuleGroup(reader, "ClientUpdateModules", _clientUpdateModules);
+        }
+
+        private void PersistModuleGroup<T>(StatePersister reader, string groupName, List<T> modules)
+            where T : ModuleBase
+        {
+            reader.BeginObject(groupName);
+
+            var numModules = (ushort)modules.Count;
+            reader.PersistUInt16("NumModules", ref numModules);
+
+            reader.BeginArray("Modules");
+            for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
             {
                 reader.BeginObject();
 
-                ushort numModules = 0;
-                reader.PersistUInt16(ref numModules);
-
-                reader.BeginArray("Modules");
-                for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
+                ModuleBase module;
+                if (reader.Mode == StatePersistMode.Read)
                 {
-                    reader.BeginObject();
-
                     var moduleTag = "";
                     reader.PersistAsciiString("ModuleTag", ref moduleTag);
-                    var module = GetModuleByTag(moduleTag);
-
-                    reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");
-
-                    module.Load(reader);
-
-                    reader.EndSegment();
-
-                    reader.EndObject();
+                    module = GetModuleByTag(moduleTag);
                 }
-                reader.EndArray();
+                else
+                {
+                    module = modules[moduleIndex];
+                    var moduleTag = module.Tag;
+                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                }
+
+                reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");
+
+                module.Load(reader);
+
+                reader.EndSegment();
 
                 reader.EndObject();
             }
             reader.EndArray();
+
+            reader.EndObject();
         }
     }
 

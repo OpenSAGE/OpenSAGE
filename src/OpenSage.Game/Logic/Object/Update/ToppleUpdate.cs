@@ -119,7 +119,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle("ToppleSpeed", ref _toppleSpeed);
             reader.PersistSingle("ToppleAcceleration", ref _toppleAcceleration);
             reader.PersistVector3("ToppleDirection", ref _toppleDirection);
-            reader.PersistEnum(ref _toppleState);
+            reader.PersistEnum("ToppleState", ref _toppleState);
             reader.PersistSingle("ToppleAngle", ref _toppleAngle);
             reader.PersistSingle("UnknownFloat", ref _unknownFloat);
 

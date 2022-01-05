@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             var unknownInt1 = 1;
-            reader.PersistInt32(ref unknownInt1);
+            reader.PersistInt32("UnknownInt1", ref unknownInt1);
             if (unknownInt1 != 1)
             {
                 throw new InvalidStateException();

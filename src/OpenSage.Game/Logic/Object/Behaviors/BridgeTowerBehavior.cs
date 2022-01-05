@@ -13,8 +13,8 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistInt32(ref _unknown1);
-            reader.PersistInt32(ref _unknown2);
+            reader.PersistInt32("Unknown1", ref _unknown1);
+            reader.PersistInt32("Unknown2", ref _unknown2);
         }
     }
 

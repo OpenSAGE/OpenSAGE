@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle("UnknownFloat3", ref _unknownFloat3);
             reader.PersistSingle("UnknownFloat4", ref _unknownFloat4);
             reader.PersistSingle("UnknownFloat5", ref _unknownFloat5);
-            reader.PersistUInt16(ref _unknownShort);
+            reader.PersistUInt16("UnknownShort", ref _unknownShort);
             reader.PersistBoolean("IsActive", ref _isActive);
         }
     }

@@ -1258,7 +1258,7 @@ namespace OpenSage.Logic.Object
             result.ClientBehaviors = new Dictionary<string, ModuleDataContainer>(result.ClientBehaviors);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
             result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
-            result.LocomotorSets = new Dictionary<LocomotorSetType, LocomotorSetTemplate>();
+            result.LocomotorSets = new Dictionary<LocomotorSetType, LocomotorSetTemplate>(result.LocomotorSets);
 
             foreach (var pair in result.Behaviors.ToList())
             {

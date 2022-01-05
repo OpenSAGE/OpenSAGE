@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Logic
 {
-    public sealed class CampaignManager
+    public sealed class CampaignManager : IPersistableObject
     {
         public string CampaignName;
         public string MissionName;
@@ -11,7 +11,7 @@
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             var version = reader.PersistVersion(5);
 

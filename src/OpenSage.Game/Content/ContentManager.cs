@@ -91,6 +91,7 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.SpecialPower);
                         SubsystemLoader.Load(Subsystem.InGameUI);
                         SubsystemLoader.Load(Subsystem.Rank);
+                        SubsystemLoader.Load(Subsystem.Animation2D);
                         break;
 
                     case SageGame.Bfme:
@@ -114,6 +115,7 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.SpecialPower);
                         SubsystemLoader.Load(Subsystem.InGameUI);
                         SubsystemLoader.Load(Subsystem.Rank);
+                        SubsystemLoader.Load(Subsystem.Animation2D);
 
                         SubsystemLoader.Load(Subsystem.ExperienceLevels);
                         SubsystemLoader.Load(Subsystem.AttributeModifiers);

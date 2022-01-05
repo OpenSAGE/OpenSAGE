@@ -106,7 +106,7 @@ namespace OpenSage.Graphics.ParticleSystems
             var count = (uint)_particleSystems.Count;
             reader.PersistUInt32("ParticleSystemCount", ref count);
 
-            reader.BeginArray();
+            reader.BeginArray("ParticleSystems");
             if (reader.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < count; i++)
@@ -134,10 +134,14 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 foreach (var particleSystem in _particleSystems)
                 {
+                    reader.BeginObject();
+
                     var templateName = particleSystem.Template.Name;
                     reader.PersistAsciiString("TemplateName", ref templateName);
 
                     reader.PersistObject("ParticleSystem", particleSystem);
+
+                    reader.EndObject();
                 }
             }
             reader.EndArray();

@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistArray("UnknownInts", _unknownInts, static (StatePersister persister, ref int item) =>
             {
-                persister.PersistInt32(ref item);
+                persister.PersistInt32Value(ref item);
 
                 if (persister.Mode == StatePersistMode.Read && item != -1)
                 {
@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(289 * 4);
 
             var unknown1 = 1;
-            reader.PersistInt32(ref unknown1);
+            reader.PersistInt32("Unknown1", ref unknown1);
             if (unknown1 != 1)
             {
                 throw new InvalidStateException();

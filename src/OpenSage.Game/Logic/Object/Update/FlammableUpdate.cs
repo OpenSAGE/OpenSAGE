@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistEnum(ref _state);
+            reader.PersistEnum("State", ref _state);
             reader.PersistFrame("AflameEndFrame", ref _aflameEndFrame);
 
             reader.SkipUnknownBytes(4);

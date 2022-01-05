@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Logic.Object
 {
-    public sealed class Upgrade
+    public sealed class Upgrade : IPersistableObject
     {
         private UpgradeStatus _status;
 
@@ -17,11 +17,11 @@
             internal set => _status = value;
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum(ref _status);
+            reader.PersistEnum("Status", ref _status);
         }
     }
 }

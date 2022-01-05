@@ -102,7 +102,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistEnum(ref _damageType);
+            reader.PersistEnum("DamageType", ref _damageType);
             reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
 
             var lastDamageType = (uint)_lastDamageType;

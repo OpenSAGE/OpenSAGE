@@ -412,8 +412,12 @@ namespace OpenSage.Gui.InGame
                     reader.EndObject();
                 }
 
+                reader.BeginObject();
+
                 var somethingEnd = uint.MaxValue;
                 reader.PersistUInt32("Something", ref somethingEnd);
+
+                reader.EndObject();
             }
             reader.EndArray();
         }

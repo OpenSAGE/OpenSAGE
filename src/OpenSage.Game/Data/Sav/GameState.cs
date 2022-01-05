@@ -16,7 +16,7 @@ namespace OpenSage.Data.Sav
         {
             reader.PersistVersion(2);
 
-            reader.PersistEnum(ref GameType);
+            reader.PersistEnum("GameType", ref GameType);
             reader.PersistAsciiString("MapPath", ref MapPath);
             reader.PersistDateTime("Timestamp", ref Timestamp);
             reader.PersistUnicodeString("DisplayName", ref DisplayName);

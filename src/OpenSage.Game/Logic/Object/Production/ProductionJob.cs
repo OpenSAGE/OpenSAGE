@@ -50,10 +50,10 @@ namespace OpenSage.Logic.Object.Production
         {
             reader.PersistUInt32("JobId", ref _jobId);
             reader.PersistSingle("UnknownFloat", ref _unknownFloat);
-            reader.PersistInt32(ref _unknownInt1); // Maybe progress
-            reader.PersistInt32(ref _unknownInt2);
-            reader.PersistInt32(ref _unknownInt3);
-            reader.PersistInt32(ref _unknownInt4);
+            reader.PersistInt32("UnknownInt1", ref _unknownInt1); // Maybe progress
+            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistInt32("UnknownInt3", ref _unknownInt3);
+            reader.PersistInt32("UnknownInt4", ref _unknownInt4);
         }
     }
 

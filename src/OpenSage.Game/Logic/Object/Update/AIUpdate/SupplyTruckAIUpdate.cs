@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
             _stateMachine.Load(reader);
 
             reader.PersistObjectID("DockId", ref _dockId);
-            reader.PersistInt32(ref _unknownInt);
+            reader.PersistInt32("UnknownInt", ref _unknownInt);
             reader.PersistBoolean("UnknownBool", ref _unknownBool);
         }
     }

@@ -116,6 +116,9 @@ namespace OpenSage.Content
                 case Subsystem.Rank:
                     LoadFiles(@"Data\INI\Rank.ini");
                     break;
+                case Subsystem.Animation2D:
+                    LoadFiles(@"Data\INI\Animation2D.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -402,6 +405,9 @@ namespace OpenSage.Content
                     yield break;
                 case Subsystem.Rank:
                     yield return "TheRankInfoStore";
+                    yield break;
+                case Subsystem.Animation2D:
+                    yield return "Animation2D";
                     yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);

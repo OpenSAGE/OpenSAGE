@@ -88,58 +88,58 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistByte(string name, ref byte value)
+            public override void PersistByteValue(ref byte value)
             {
                 byte comparisonValue = default;
-                _comparisonReader.PersistByte(name, ref comparisonValue);
+                _comparisonReader.PersistByteValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistEnum<TEnum>(ref TEnum value)
+            public override void PersistEnumValue<TEnum>(ref TEnum value)
             {
                 TEnum comparisonValue = default;
-                _comparisonReader.PersistEnum(ref comparisonValue);
+                _comparisonReader.PersistEnumValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistEnumByte<TEnum>(ref TEnum value)
+            public override void PersistEnumByteValue<TEnum>(ref TEnum value)
             {
                 TEnum comparisonValue = default;
-                _comparisonReader.PersistEnum(ref comparisonValue);
+                _comparisonReader.PersistEnumValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistEnumByteFlags<TEnum>(ref TEnum value)
+            public override void PersistEnumByteFlagsValue<TEnum>(ref TEnum value)
             {
                 TEnum comparisonValue = default;
-                _comparisonReader.PersistEnum(ref comparisonValue);
+                _comparisonReader.PersistEnumValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistEnumFlags<TEnum>(ref TEnum value)
+            public override void PersistEnumFlagsValue<TEnum>(ref TEnum value)
             {
                 TEnum comparisonValue = default;
-                _comparisonReader.PersistEnum(ref comparisonValue);
+                _comparisonReader.PersistEnumValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistInt16(ref short value)
+            public override void PersistInt16Value(ref short value)
             {
                 short comparisonValue = default;
-                _comparisonReader.PersistInt16(ref comparisonValue);
+                _comparisonReader.PersistInt16Value(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistInt32(ref int value)
+            public override void PersistInt32Value(ref int value)
             {
                 int comparisonValue = default;
-                _comparisonReader.PersistInt32(ref comparisonValue);
+                _comparisonReader.PersistInt32Value(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -152,10 +152,10 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistUInt16(ref ushort value)
+            public override void PersistUInt16Value(ref ushort value)
             {
                 ushort comparisonValue = default;
-                _comparisonReader.PersistUInt16(ref comparisonValue);
+                _comparisonReader.PersistUInt16Value(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
             }
@@ -168,17 +168,12 @@ namespace OpenSage.Tests.Data.Sav
                 CheckEquality(value, comparisonValue);
             }
 
-            public override void PersistUnicodeString(string name, ref string value)
+            public override void PersistUnicodeStringValue(ref string value)
             {
                 string comparisonValue = default;
-                _comparisonReader.PersistUnicodeString(name, ref comparisonValue);
+                _comparisonReader.PersistUnicodeStringValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
-            }
-
-            public override byte PersistVersion(byte maximumVersion)
-            {
-                return _comparisonReader.PersistVersion(maximumVersion);
             }
 
             public override void PersistSpan(Span<byte> span)
@@ -205,107 +200,5 @@ namespace OpenSage.Tests.Data.Sav
                 _comparisonReader.SkipUnknownBytes(numBytes);
             }
         }
-
-        //private sealed class JsonSaveWriter : StatePersister
-        //{
-        //    private readonly Utf8JsonWriter _writer;
-
-        //    public JsonSaveWriter(Game game, string filePath)
-        //        : base(game, StatePersistMode.Write)
-        //    {
-        //        var stream = AddDisposable(File.OpenRead(filePath);
-
-        //        _writer = AddDisposable(new Utf8JsonWriter(stream, new JsonWriterOptions
-        //        {
-        //            Indented = true,
-        //            Validating = true,
-        //        }));
-        //    }
-
-        //    public override uint BeginSegment(string segmentName)
-        //    {
-        //        return 0;
-        //    }
-
-        //    public override void EndSegment()
-        //    {
-                
-        //    }
-
-        //    public override void PersistAsciiString(ref string value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistBoolean(ref bool value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistByte(ref byte value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistEnum<TEnum>(ref TEnum value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistEnumByte<TEnum>(ref TEnum value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistEnumByteFlags<TEnum>(ref TEnum value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistEnumFlags<TEnum>(ref TEnum value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistInt16(ref short value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistInt32(ref int value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistSingle(ref float value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistSpan(Span<byte> span)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistUInt16(ref ushort value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistUInt32(ref uint value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override void PersistUnicodeString(ref string value)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-
-        //    public override byte PersistVersion(byte maximumVersion)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
     }
 }

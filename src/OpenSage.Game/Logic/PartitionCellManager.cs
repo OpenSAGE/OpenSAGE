@@ -166,7 +166,7 @@ namespace OpenSage.Logic
 
             reader.PersistArray("Values", Values, static (StatePersister persister, ref PartitionCellValue item) =>
             {
-                persister.PersistInt16(ref item.State);
+                persister.PersistInt16Value(ref item.State);
 
                 persister.SkipUnknownBytes(2);
             });
@@ -191,7 +191,7 @@ namespace OpenSage.Logic
 
             reader.PersistVector3("Position", ref Position);
             reader.PersistSingle("VisionRange", ref VisionRange);
-            reader.PersistUInt16(ref Unknown);
+            reader.PersistUInt16("Unknown", ref Unknown);
             reader.PersistFrame("FrameSomething", ref FrameSomething);
         }
     }

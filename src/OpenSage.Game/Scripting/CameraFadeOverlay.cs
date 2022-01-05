@@ -39,7 +39,7 @@ namespace OpenSage.Scripting
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistEnum(ref FadeType);
+            reader.PersistEnum("FadeType", ref FadeType);
 
             reader.PersistSingle("From", ref From);
             reader.PersistSingle("To", ref To);

@@ -480,7 +480,7 @@ namespace OpenSage.Logic.Object
                 persister.BeginObject();
 
                 var productionJobType = item?.Type ?? default;
-                persister.PersistEnum(ref productionJobType);
+                persister.PersistEnum("JobType", ref productionJobType);
 
                 var templateName = item != null
                     ? item.Type == ProductionJobType.Unit
