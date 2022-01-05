@@ -1,5 +1,4 @@
-﻿using OpenSage.Data.Sav;
-using OpenSage.Mathematics;
+﻿using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -82,7 +81,13 @@ namespace OpenSage.Logic.Object
                 reader.PersistBoolean("SlotFilled", ref slotFilled);
                 if (slotFilled)
                 {
-                    _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        _weapons[i] = new Weapon(
+                            _gameObject,
+                            _currentWeaponTemplateSet.Slots[i].Weapon.Value,
+                            (WeaponSlot)i, _gameObject.GameContext);
+                    }
                     reader.PersistObject("Value", _weapons[i]);
                 }
                 else
@@ -94,10 +99,10 @@ namespace OpenSage.Logic.Object
             }
             reader.EndArray();
 
-            reader.PersistEnum(ref _currentWeaponSlot);
+            reader.PersistEnum("CurrentWeaponSlot", ref _currentWeaponSlot);
             reader.PersistUInt32("Unknown1", ref _unknown1);
             reader.PersistUInt32("FilledWeaponSlots", ref _filledWeaponSlots);
-            reader.PersistEnumFlags(ref _combinedAntiMask);
+            reader.PersistEnumFlags("CombinedAntiMask", ref _combinedAntiMask);
             reader.PersistUInt32("Unknown2", ref _unknown2);
             reader.PersistBoolean("Unknown3", ref _unknown3);
             reader.PersistBoolean("Unknown4", ref _unknown4);

@@ -87,7 +87,7 @@ namespace OpenSage.Logic.AI
 
             base.Load(reader);
 
-            reader.PersistInt32(ref _unknownInt);
+            reader.PersistInt32("UnknownInt", ref _unknownInt);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }

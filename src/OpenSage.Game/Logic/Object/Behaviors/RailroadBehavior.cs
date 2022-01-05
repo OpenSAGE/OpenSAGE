@@ -50,8 +50,8 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
-            reader.PersistInt32(ref _unknownInt2);
-            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistInt32("UnknownInt3", ref _unknownInt3);
             reader.PersistObject("Something1", _something1);
             reader.PersistObject("Something2", _something2);
         }

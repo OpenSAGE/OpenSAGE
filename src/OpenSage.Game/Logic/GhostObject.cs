@@ -40,11 +40,14 @@ namespace OpenSage.Logic
             reader.PersistVersion(1);
             reader.PersistVersion(1);
 
-            uint objectId = 0;
+            uint objectId = _gameObject?.ID ?? 0u;
             reader.PersistObjectID("ObjectId", ref objectId);
-            _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
+            }
 
-            reader.PersistEnum(ref _geometryType);
+            reader.PersistEnum("GeometryType", ref _geometryType);
 
             // Sometimes there's a 0xC, which is probably uninitialized data.
             byte geometryIsSmall = _geometryIsSmall ? (byte)1 : (byte)0;
@@ -58,13 +61,19 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(12);
 
+            reader.BeginArray("ModelsPerPlayer");
             for (var i = 0; i < Player.MaxPlayers; i++)
             {
+                reader.BeginObject();
+
                 byte numModels = 0;
                 reader.PersistByte("NumModels", ref numModels);
 
+                reader.BeginArray("Models");
                 for (var j = 0; j < numModels; j++)
                 {
+                    reader.BeginObject();
+
                     var modelName = "";
                     reader.PersistAsciiString("ModelName", ref modelName);
 
@@ -85,7 +94,7 @@ namespace OpenSage.Logic
                     reader.PersistVersion(1);
 
                     var modelTransform = Matrix4x3.Identity;
-                    reader.PersistMatrix4x3(ref modelTransform, readVersion: false);
+                    reader.PersistMatrix4x3("ModelTransform", ref modelTransform, readVersion: false);
 
                     modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
 
@@ -109,13 +118,19 @@ namespace OpenSage.Logic
                         reader.PersistBoolean("UnknownBool", ref modelInstance.UnknownBools[k]);
 
                         var meshTransform = Matrix4x3.Identity;
-                        reader.PersistMatrix4x3(ref meshTransform, readVersion: false);
+                        reader.PersistMatrix4x3("MeshTransform", ref meshTransform, readVersion: false);
 
                         // TODO: meshTransform is actually absolute, not relative.
                         modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
                     }
+
+                    reader.EndObject();
                 }
+                reader.EndArray();
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
             reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
             if (_hasUnknownThing)

@@ -24,7 +24,7 @@ using OpenSage.FileFormats;
 namespace OpenSage.Logic.Object
 {
     [DebuggerDisplay("[Object:{Definition.Name} ({Owner})]")]
-    public sealed class GameObject : Entity, IInspectable, ICollidable
+    public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistableObject
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
@@ -98,6 +98,21 @@ namespace OpenSage.Logic.Object
             }
 
             return gameObject;
+        }
+
+        private readonly Dictionary<string, ModuleBase> _tagToModuleLookup = new();
+        private readonly List<ModuleBase> _modules = new();
+
+        private void AddModule(string tag, ModuleBase module)
+        {
+            module.Tag = tag;
+            _modules.Add(module);
+            _tagToModuleLookup.Add(tag, module);
+        }
+
+        private ModuleBase GetModuleByTag(string tag)
+        {
+            return _tagToModuleLookup[tag];
         }
 
         private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
@@ -1088,14 +1103,14 @@ namespace OpenSage.Logic.Object
             _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(7);
 
             reader.PersistObjectID("ObjectId", ref _id);
 
             var transform = Matrix4x3.Identity;
-            reader.PersistMatrix4x3(ref transform);
+            reader.PersistMatrix4x3("Transform", ref transform);
             SetTransformMatrix(transform.ToMatrix4x4());
 
             var teamId = Team?.Id ?? 0u;
@@ -1108,7 +1123,7 @@ namespace OpenSage.Logic.Object
             reader.PersistAsciiString("Name", ref _name);
             reader.PersistUInt32("Unknown1", ref _unknown1);
             reader.PersistByte("Unknown2", ref _unknown2);
-            reader.PersistEnumByteFlags(ref _unknownFlags);
+            reader.PersistEnumByteFlags("UnknownFlags", ref _unknownFlags);
 
             reader.PersistObject("Geometry", _geometry);
 
@@ -1137,7 +1152,7 @@ namespace OpenSage.Logic.Object
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
             reader.PersistSingle("BuildProgress", ref BuildProgress);
 
-            _upgrades.Load(reader);
+            reader.PersistObject("Upgrades", _upgrades);
 
             // Not always (but usually is) the same as the teamId above implies.
             reader.PersistAsciiString("TeamName", ref _teamName);
@@ -1152,7 +1167,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistFrame("EnteredOrExitedPolygonTriggerFrame", ref _enteredOrExitedPolygonTriggerFrame);
-            reader.PersistPoint3D(ref _integerPosition);
+            reader.PersistPoint3D("IntegerPosition", ref _integerPosition);
 
             reader.BeginArray("PolygonTriggerStates");
             for (var i = 0; i < polygonTriggerStateCount; i++)
@@ -1162,34 +1177,62 @@ namespace OpenSage.Logic.Object
             reader.EndArray();
 
             var unknown4 = 1;
-            reader.PersistInt32(ref unknown4);
+            reader.PersistInt32("Unknown4", ref unknown4);
             if (unknown4 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistInt32(ref _unknown5); // 0, 1
+            reader.PersistInt32("Unknown5", ref _unknown5); // 0, 1
             reader.PersistBoolean("IsSelectable", ref IsSelectable);
             reader.PersistFrame("UnknownFrame", ref _unknownFrame);
 
             reader.SkipUnknownBytes(4);
 
             // Modules
-            ushort numModules = 0;
-            reader.PersistUInt16(ref numModules);
-            for (var i = 0; i < numModules; i++)
+            var numModules = (ushort)_modules.Count;
+            reader.PersistUInt16("NumModules", ref numModules);
+
+            reader.BeginArray("Modules");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var moduleTag = "";
-                reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                for (var i = 0; i < numModules; i++)
+                {
+                    reader.BeginObject();
 
-                var module = GetModuleByTag(moduleTag);
+                    var moduleTag = "";
+                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
 
-                reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
+                    var module = GetModuleByTag(moduleTag);
 
-                module.Load(reader);
+                    reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                reader.EndSegment();
+                    module.Load(reader);
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                foreach (var module in _modules)
+                {
+                    reader.BeginObject();
+
+                    var moduleTag = module.Tag;
+                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+
+                    reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
+
+                    module.Load(reader);
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
 
             reader.PersistObjectID("HealedByObjectId", ref _healedByObjectId);
             reader.PersistFrame("HealedEndFrame", ref _healedEndFrame);
@@ -1328,8 +1371,8 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum(ref _veterancyLevel);
-            reader.PersistInt32(ref _experiencePoints);
+            reader.PersistEnum("VeterancyLevel", ref _veterancyLevel);
+            reader.PersistInt32("ExperiencePoints", ref _experiencePoints);
             reader.PersistObjectID("ExperienceSinkObjectId", ref _experienceSinkObjectId);
             reader.PersistSingle("ExperienceScalar", ref _experienceScalar);
         }

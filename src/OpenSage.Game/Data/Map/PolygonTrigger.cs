@@ -171,14 +171,14 @@ namespace OpenSage.Data.Map
 
             reader.PersistArrayWithUInt32Length("Points", Points, static (StatePersister persister, ref Point3D item) =>
             {
-                persister.PersistPoint3D(ref item);
+                persister.PersistPoint3DValue(ref item);
             });
 
             var topLeft = Bounds.TopLeft;
-            reader.PersistPoint2D(ref topLeft);
+            reader.PersistPoint2D("TopLeft", ref topLeft);
 
             var bottomRight = Bounds.BottomRight;
-            reader.PersistPoint2D(ref bottomRight);
+            reader.PersistPoint2D("BottomRight", ref bottomRight);
 
             Bounds = Rectangle.FromCorners(topLeft, bottomRight);
 

@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
 
             var unknownInt2 = -1;
-            reader.PersistInt32(ref unknownInt2);
+            reader.PersistInt32("UnknownInt2", ref unknownInt2);
             if (unknownInt2 != -1)
             {
                 throw new InvalidStateException();

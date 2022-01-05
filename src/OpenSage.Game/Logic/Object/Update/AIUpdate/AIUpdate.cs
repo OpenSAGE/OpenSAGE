@@ -345,8 +345,8 @@ namespace OpenSage.Logic.Object
 
             reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
             reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
-            reader.PersistPoint2D(ref _unknownPos2D1);
-            reader.PersistPoint2D(ref _unknownPos2D2);
+            reader.PersistPoint2D("UnknownPos2D1", ref _unknownPos2D1);
+            reader.PersistPoint2D("UnknownPos2D2", ref _unknownPos2D2);
             reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
             reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
             reader.PersistVector3("UnknownPosition2", ref _unknownPosition2);
@@ -367,14 +367,17 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            _locomotorSet.Load(reader);
+            reader.PersistObject("LocomotorSet", _locomotorSet);
 
-            var currentLocomotorTemplateName = "";
+            var currentLocomotorTemplateName = CurrentLocomotor?.LocomotorTemplate.Name;
             reader.PersistAsciiString("CurrentLocomotorTemplateName", ref currentLocomotorTemplateName);
 
-            CurrentLocomotor = currentLocomotorTemplateName != ""
-                ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
-                : null;
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                CurrentLocomotor = currentLocomotorTemplateName != ""
+                    ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
+                    : null;
+            }
 
             reader.PersistUInt32("UnknownInt17", ref _unknownInt17);
             if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
@@ -392,9 +395,9 @@ namespace OpenSage.Logic.Object
                 _turretAIUpdate.Load(reader);
             }
 
-            reader.PersistInt32(ref _unknownInt19); // -1, 258
+            reader.PersistInt32("UnknownInt19", ref _unknownInt19); // -1, 258
 
-            reader.PersistInt32(ref _unknownInt20);
+            reader.PersistInt32("UnknownInt20", ref _unknownInt20);
             if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
             {
                 throw new InvalidStateException();

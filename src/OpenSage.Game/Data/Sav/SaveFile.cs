@@ -53,7 +53,7 @@ namespace OpenSage.Data.Sav
         private static readonly List<ChunkDefinition> ChunkDefinitions = new()
         {
             new ChunkDefinition("CHUNK_GameState", (persister, game) => game.GameState.Load(persister)),
-            new ChunkDefinition("CHUNK_Campaign", (persister, game) => game.CampaignManager.Load(persister)),
+            new ChunkDefinition("CHUNK_Campaign", (persister, game) => game.CampaignManager.Persist(persister)),
             new ChunkDefinition("CHUNK_GameStateMap", (persister, game) => game.GameStateMap.Load(persister)),
             new ChunkDefinition("CHUNK_TerrainLogic", (persister, game) => game.TerrainLogic.Load(persister)),
             new ChunkDefinition("CHUNK_TeamFactory", (persister, game) => game.Scene3D.TeamFactory.Persist(persister)),

@@ -24,7 +24,7 @@ namespace OpenSage.Client
             reader.PersistVector3("CurrentColor", ref _currentColor);
             reader.PersistUInt32("HoldFrames", ref _holdFrames);
             reader.PersistBoolean("IsActive", ref _isActive);
-            reader.PersistEnumByte(ref _state);
+            reader.PersistEnumByte("State", ref _state);
         }
 
         private enum ColorFlashState : byte

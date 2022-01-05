@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class LocomotorSet
+    public sealed class LocomotorSet : IPersistableObject
     {
         private readonly GameObject _gameObject;
         private readonly List<Locomotor> _locomotors;
@@ -62,14 +62,19 @@ namespace OpenSage.Logic.Object
             throw new InvalidOperationException();
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _locomotors.Clear();
+            }
+
             reader.PersistVersion(1);
 
             var numLocomotorTemplates = (ushort) _locomotors.Count;
-            reader.PersistUInt16(ref numLocomotorTemplates);
+            reader.PersistUInt16("NumLocomotors", ref numLocomotorTemplates);
 
-            reader.BeginArray();
+            reader.BeginArray("Locomotors");
             if (reader.Mode == StatePersistMode.Read)
             {
                 for (var i = 0; i < numLocomotorTemplates; i++)
@@ -79,7 +84,7 @@ namespace OpenSage.Logic.Object
                     var locomotorTemplateName = "";
                     reader.PersistAsciiString("TemplateName", ref locomotorTemplateName);
 
-                    var locomotorTemplate = _gameObject.GameContext.AssetLoadContext.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
+                    var locomotorTemplate = reader.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 
                     var locomotor = new Locomotor(_gameObject, locomotorTemplate, 100);
 
@@ -106,7 +111,7 @@ namespace OpenSage.Logic.Object
             }
             reader.EndArray();
 
-            reader.PersistEnumFlags(ref _surfaces);
+            reader.PersistEnumFlags("Surfaces", ref _surfaces);
 
             reader.SkipUnknownBytes(1);
         }

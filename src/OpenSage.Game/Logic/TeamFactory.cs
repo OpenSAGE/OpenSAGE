@@ -120,7 +120,7 @@ namespace OpenSage.Logic
             reader.PersistUInt32("LastTeamId", ref _lastTeamId);
 
             var count = (ushort)_teamTemplates.Count;
-            reader.PersistUInt16(ref count);
+            reader.PersistUInt16("TeamTemplatesCount", ref count);
 
             if (count != _teamTemplates.Count)
             {

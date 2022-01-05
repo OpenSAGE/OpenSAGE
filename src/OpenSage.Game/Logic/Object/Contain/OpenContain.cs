@@ -38,13 +38,13 @@ namespace OpenSage.Logic.Object
             reader.PersistBitArray("ModelConditionFlags", ref _modelConditionFlags);
 
             // Where does the 32 come from?
-            for (var i = 0; i < _unknownTransforms.Length; i++)
+            reader.PersistArray("UnknownTransforms", _unknownTransforms, static (StatePersister persister, ref Matrix4x3 item) =>
             {
-                reader.PersistMatrix4x3(ref _unknownTransforms[i], readVersion: false);
-            }
+                persister.PersistMatrix4x3Value(ref item, readVersion: false);
+            });
 
             var unknown6 = -1;
-            reader.PersistInt32(ref unknown6);
+            reader.PersistInt32("Unknown6", ref unknown6);
             if (unknown6 != -1)
             {
                 throw new InvalidStateException();
@@ -58,21 +58,22 @@ namespace OpenSage.Logic.Object
 
             reader.PersistList("UnknownList", _unknownList, static (StatePersister persister, ref OpenContainSomething item) =>
             {
-                persister.BeginObject();
-
-                persister.PersistObjectID("ObjectId", ref item.ObjectId);
-                persister.PersistInt32(ref item.Unknown);
-
-                persister.EndObject();
+                persister.PersistObjectValue(ref item);
             });
 
-            reader.PersistInt32(ref _unknownInt);
+            reader.PersistInt32("UnknownInt", ref _unknownInt);
         }
 
-        private struct OpenContainSomething
+        private struct OpenContainSomething : IPersistableObject
         {
             public uint ObjectId;
             public int Unknown;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistObjectID("ObjectId", ref ObjectId);
+                persister.PersistInt32("Unknown", ref Unknown);
+            }
         }
     }
 

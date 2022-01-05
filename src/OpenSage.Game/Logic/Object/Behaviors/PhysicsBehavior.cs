@@ -110,7 +110,7 @@ namespace OpenSage.Logic.Object
             reader.PersistVector3("UnknownVector2", ref _unknownVector2);
             reader.PersistVector3("UnknownVector3", ref _unknownVector3);
             reader.PersistVector3("UnknownVector4", ref _unknownVector4);
-            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
             reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
             reader.PersistSingle("Mass", ref _mass);

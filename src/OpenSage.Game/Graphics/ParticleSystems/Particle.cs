@@ -92,21 +92,19 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistSingle("AngularRateX", ref unusedFloat);
             reader.PersistSingle("AngularRateY", ref unusedFloat);
             reader.PersistSingle("AngularRateZ", ref AngularRateZ);
-            reader.PersistInt32(ref Lifetime);
+            reader.PersistInt32("Lifetime", ref Lifetime);
             reader.PersistSingle("Size", ref Size);
             reader.PersistSingle("SizeRate", ref SizeRate);
             reader.PersistSingle("SizeRateDamping", ref SizeRateDamping);
 
             reader.PersistArray("AlphaKeyframes", AlphaKeyframes, static (StatePersister persister, ref ParticleAlphaKeyframe item) =>
             {
-                persister.PersistSingle("Alpha", ref item.Alpha);
-                persister.PersistUInt32("Time", ref item.Time);
+                persister.PersistObjectValue(ref item);
             });
 
             reader.PersistArray("ColorKeyframes", _system.ColorKeyframes, static (StatePersister persister, ref ParticleColorKeyframe item) =>
             {
-                persister.PersistVector3("Color", ref item.Color);
-                persister.PersistUInt32("Time", ref item.Time);
+                persister.PersistObjectValue(ref item);
             });
 
             reader.PersistSingle("ColorScale", ref ColorScale);
@@ -117,7 +115,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.SkipUnknownBytes(24);
 
             reader.PersistUInt32("UnknownInt2", ref UnknownInt2); // 49
-            reader.PersistUInt32("UnknotnInt3", ref UnknownInt3); // 1176
+            reader.PersistUInt32("UnknownInt3", ref UnknownInt3); // 1176
             reader.PersistSingle("Alpha", ref Alpha);
             reader.PersistUInt32("UnknownInt4", ref UnknownInt4); // 0
             reader.PersistUInt32("UnknownInt5", ref UnknownInt5); // 1
@@ -129,7 +127,7 @@ namespace OpenSage.Graphics.ParticleSystems
         }
     }
 
-    internal struct ParticleAlphaKeyframe : IParticleKeyframe
+    internal struct ParticleAlphaKeyframe : IParticleKeyframe, IPersistableObject
     {
         public uint Time;
         public float Alpha;
@@ -146,6 +144,12 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             Time = time;
             Alpha = alpha;
+        }
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistSingle("Alpha", ref Alpha);
+            persister.PersistUInt32("Time", ref Time);
         }
     }
 }

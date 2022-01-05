@@ -7,6 +7,7 @@ namespace OpenSage.Client
     {
         private readonly GameLogic _gameLogic;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
+        private readonly List<Drawable> _drawables = new();
         private readonly Dictionary<uint, Drawable> _drawablesById = new();
         private readonly List<string> _briefingTexts = new();
 
@@ -25,31 +26,66 @@ namespace OpenSage.Client
             reader.PersistVersion(3);
 
             reader.PersistUInt32("CurrentFrame", ref _currentFrame);
+            reader.PersistObject("ObjectDefinitions", _objectDefinitionLookupTable);
 
-            _objectDefinitionLookupTable.Load(reader);
+            var drawablesCount = (ushort)_drawables.Count;
+            reader.PersistUInt16("DrawablesCount", ref drawablesCount);
 
-            ushort drawablesCount = 0;
-            reader.PersistUInt16(ref drawablesCount);
-
-            for (var i = 0; i < drawablesCount; i++)
+            reader.BeginArray("Drawables");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                ushort objectDefinitionId = 0;
-                reader.PersistUInt16(ref objectDefinitionId);
-                var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
+                _drawables.Clear();
+                _drawables.Capacity = drawablesCount;
 
-                reader.BeginSegment(objectDefinition.Name);
+                for (var i = 0; i < drawablesCount; i++)
+                {
+                    reader.BeginObject();
 
-                var objectID = 0u;
-                reader.PersistUInt32("ObjectId", ref objectID);
+                    ushort objectDefinitionId = 0;
+                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+                    var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
-                var gameObject = _gameLogic.GetObjectById(objectID);
+                    reader.BeginSegment(objectDefinition.Name);
 
-                gameObject.Drawable.Load(reader);
+                    var objectID = 0u;
+                    reader.PersistUInt32("ObjectId", ref objectID);
 
-                _drawablesById[gameObject.Drawable.DrawableID] = gameObject.Drawable;
+                    var gameObject = _gameLogic.GetObjectById(objectID);
 
-                reader.EndSegment();
+                    reader.PersistObject("Drawable", gameObject.Drawable);
+
+                    _drawables.Add(gameObject.Drawable);
+                    _drawablesById[gameObject.Drawable.DrawableID] = gameObject.Drawable;
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                foreach (var drawable in _drawables)
+                {
+                    reader.BeginObject();
+
+                    var gameObject = drawable.GameObject;
+
+                    var objectDefinitionId = _objectDefinitionLookupTable.GetId(gameObject.Definition);
+                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+
+                    reader.BeginSegment(gameObject.Definition.Name);
+
+                    var objectID = gameObject.ID;
+                    reader.PersistUInt32("ObjectId", ref objectID);
+
+                    reader.PersistObject("Drawable", gameObject.Drawable);
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
 
             reader.PersistListWithUInt32Count("BriefingTexts", _briefingTexts, static (StatePersister persister, ref string item) =>
             {

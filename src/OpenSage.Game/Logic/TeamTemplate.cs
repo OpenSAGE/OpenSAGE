@@ -50,7 +50,7 @@ namespace OpenSage.Logic
             return null;
         }
 
-        void IPersistableObject.Persist(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
@@ -61,11 +61,10 @@ namespace OpenSage.Logic
 
             reader.PersistAsciiString("AttackPriorityName", ref _attackPriorityName);
             reader.PersistBoolean("Unknown1", ref _unknown1);
-
-            _templateData.Load(reader);
+            reader.PersistObject("TemplateData", _templateData);
 
             var teamCount = (ushort) _teams.Count;
-            reader.PersistUInt16(ref teamCount);
+            reader.PersistUInt16("TeamCount", ref teamCount);
 
             reader.BeginArray("Teams");
             if (reader.Mode == StatePersistMode.Read)
@@ -106,15 +105,15 @@ namespace OpenSage.Logic
         }
     }
 
-    internal sealed class TeamTemplateData
+    internal sealed class TeamTemplateData : IPersistableObject
     {
         public int ProductionPriority;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistInt32(ref ProductionPriority);
+            reader.PersistInt32("ProductionPriority", ref ProductionPriority);
         }
     }
 }

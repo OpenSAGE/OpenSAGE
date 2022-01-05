@@ -299,7 +299,7 @@ namespace OpenSage
             reader.PersistVersion(1);
 
             var count = (ushort) Count;
-            reader.PersistUInt16(ref count);
+            reader.PersistUInt16("Count", ref count);
 
             reader.BeginArray("Items");
             if (reader.Mode == StatePersistMode.Read)
@@ -355,7 +355,7 @@ namespace OpenSage
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistEnum(ref Type);
+            reader.PersistEnum("Type", ref Type);
             reader.PersistBoolean("Unknown1", ref _unknown1);
             reader.PersistUInt32("Unknown2", ref _unknown2);
             reader.PersistUInt32("Unknown3", ref _unknown3);

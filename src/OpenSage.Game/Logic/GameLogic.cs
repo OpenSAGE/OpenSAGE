@@ -35,40 +35,70 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(9);
 
-            reader.PersistUInt32("currentFrame", ref _currentFrame);
-
-            _objectDefinitionLookupTable.Load(reader);
+            reader.PersistUInt32("CurrentFrame", ref _currentFrame);
+            reader.PersistObject("ObjectDefinitions", _objectDefinitionLookupTable);
 
             var gameObjectsCount = (uint)_objects.Count;
-            reader.PersistUInt32("GameObjectsCount", ref gameObjectsCount);
+            reader.PersistUInt32("ObjectsCount", ref gameObjectsCount);
 
-            _objects.Clear();
-            _objects.Capacity = (int)gameObjectsCount;
-
-            for (var i = 0; i < gameObjectsCount; i++)
+            reader.BeginArray("Objects");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                ushort objectDefinitionId = 0;
-                reader.PersistUInt16(ref objectDefinitionId);
-                var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
+                _objects.Clear();
+                _objects.Capacity = (int)gameObjectsCount;
 
-                var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
-
-                reader.BeginSegment(objectDefinition.Name);
-
-                gameObject.Load(reader);
-
-                while (_objects.Count <= gameObject.ID)
+                for (var i = 0; i < gameObjectsCount; i++)
                 {
-                    _objects.Add(null);
-                }
-                _objects[(int)gameObject.ID] = gameObject;
+                    reader.BeginObject();
 
-                reader.EndSegment();
+                    ushort objectDefinitionId = 0;
+                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+                    var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
+
+                    var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
+
+                    reader.BeginSegment(objectDefinition.Name);
+
+                    reader.PersistObject("Object", gameObject);
+
+                    while (_objects.Count <= gameObject.ID)
+                    {
+                        _objects.Add(null);
+                    }
+                    _objects[(int)gameObject.ID] = gameObject;
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                foreach (var gameObject in _objects)
+                {
+                    if (gameObject == null)
+                    {
+                        continue;
+                    }
+
+                    reader.BeginObject();
+
+                    var objectDefinitionId = _objectDefinitionLookupTable.GetId(gameObject.Definition);
+                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+
+                    reader.BeginSegment(gameObject.Definition.Name);
+
+                    reader.PersistObject("Object", gameObject);
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
 
             // Don't know why this is duplicated here. It's also loaded by a top-level .sav chunk.
-            var campaignManager = new CampaignManager();
-            campaignManager.Load(reader);
+            reader.PersistObject("CampaignManager", reader.Game.CampaignManager);
 
             var unknown1 = true;
             reader.PersistBoolean("Unknown1", ref unknown1);
@@ -107,23 +137,55 @@ namespace OpenSage.Logic
 
             reader.SkipUnknownBytes(4);
 
-            while (true)
+            reader.BeginArray("TechTreeOverrides");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var objectDefinitionName = "";
-                reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
-
-                if (objectDefinitionName == "")
+                while (true)
                 {
-                    break;
+                    reader.BeginObject();
+
+                    var objectDefinitionName = "";
+                    reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
+
+                    if (objectDefinitionName == "")
+                    {
+                        reader.EndObject();
+                        break;
+                    }
+
+                    ObjectBuildableType buildableStatus = default;
+                    reader.PersistEnum("BuildableStatus", ref buildableStatus);
+
+                    _techTreeOverrides.Add(
+                        objectDefinitionName,
+                        buildableStatus);
+
+                    reader.EndObject();
+                }
+            }
+            else
+            {
+                foreach (var techTreeOverride in _techTreeOverrides)
+                {
+                    reader.BeginObject();
+
+                    var objectDefinitionName = techTreeOverride.Key;
+                    reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
+
+                    var buildableStatus = techTreeOverride.Value;
+                    reader.PersistEnum("BuildableStatus", ref buildableStatus);
+
+                    reader.EndObject();
                 }
 
-                ObjectBuildableType buildableStatus = default;
-                reader.PersistEnum(ref buildableStatus);
+                reader.BeginObject();
 
-                _techTreeOverrides.Add(
-                    objectDefinitionName,
-                    buildableStatus);
+                var endString = "";
+                reader.PersistAsciiString("ObjectDefinitionName", ref endString);
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
             var unknownBool1 = true;
             reader.PersistBoolean("UnknownBool1", ref unknownBool1);
@@ -154,64 +216,106 @@ namespace OpenSage.Logic
             }
 
             // Command button overrides
-            while (true)
+            reader.BeginArray("CommandButtonOverrides");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var commandSetNamePrefixedWithCommandButtonIndex = "";
-                reader.PersistAsciiString("CommandSetNamePrefixedWithCommandButtonIndex", ref commandSetNamePrefixedWithCommandButtonIndex);
-
-                if (commandSetNamePrefixedWithCommandButtonIndex == "")
+                while (true)
                 {
-                    break;
+                    var commandSetNamePrefixedWithCommandButtonIndex = "";
+                    reader.PersistAsciiStringValue(ref commandSetNamePrefixedWithCommandButtonIndex);
+
+                    if (commandSetNamePrefixedWithCommandButtonIndex == "")
+                    {
+                        break;
+                    }
+
+                    _commandSetNamesPrefixedWithCommandButtonIndex.Add(commandSetNamePrefixedWithCommandButtonIndex);
+
+                    reader.SkipUnknownBytes(1);
+                }
+            }
+            else
+            {
+                foreach (var commandSetName in _commandSetNamesPrefixedWithCommandButtonIndex)
+                {
+                    var commandSetNameCopy = commandSetName;
+                    reader.PersistAsciiStringValue(ref commandSetNameCopy);
+
+                    reader.SkipUnknownBytes(1);
                 }
 
-                _commandSetNamesPrefixedWithCommandButtonIndex.Add(commandSetNamePrefixedWithCommandButtonIndex);
-
-                reader.SkipUnknownBytes(1);
+                var endString = "";
+                reader.PersistAsciiStringValue(ref endString);
             }
+            reader.EndArray();
 
             reader.SkipUnknownBytes(4);
         }
     }
 
-    internal sealed class ObjectDefinitionLookupTable
+    internal sealed class ObjectDefinitionLookupTable : IPersistableObject
     {
         private readonly ScopedAssetCollection<ObjectDefinition> _objectDefinitions;
-        private readonly Dictionary<ushort, string> _nameLookup;
+        private readonly List<ObjectDefinitionLookupEntry> _entries = new();
 
         public ObjectDefinitionLookupTable(ScopedAssetCollection<ObjectDefinition> objectDefinitions)
         {
             _objectDefinitions = objectDefinitions;
-            _nameLookup = new Dictionary<ushort, string>();
         }
 
         public ObjectDefinition GetById(ushort id)
         {
-            if (_nameLookup.TryGetValue(id, out var objectDefinitionName))
+            foreach (var entry in _entries)
             {
-                return _objectDefinitions.GetByName(objectDefinitionName);
+                if (entry.Id == id)
+                {
+                    return _objectDefinitions.GetByName(entry.Name);
+                }
             }
 
             throw new InvalidOperationException();
         }
 
-        public void Load(StatePersister reader)
+        public ushort GetId(ObjectDefinition objectDefinition)
+        {
+            foreach (var entry in _entries)
+            {
+                if (entry.Name == objectDefinition.Name)
+                {
+                    return entry.Id;
+                }
+            }
+
+            var newEntry = new ObjectDefinitionLookupEntry
+            {
+                Name = objectDefinition.Name,
+                Id = (ushort)_entries.Count
+            };
+
+            _entries.Add(newEntry);
+
+            return newEntry.Id;
+        }
+
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            _nameLookup.Clear();
-
-            var count = (uint)_nameLookup.Count;
-            reader.PersistUInt32("Count", ref count);
-
-            for (var i = 0; i < count; i++)
+            reader.PersistListWithUInt32Count("Entries", _entries, static (StatePersister persister, ref ObjectDefinitionLookupEntry item) =>
             {
-                var name = "";
-                reader.PersistAsciiString("Name", ref name);
+                persister.PersistObjectValue(ref item);
+            });
+        }
 
-                ushort id = 0;
-                reader.PersistUInt16(ref id);
+        private struct ObjectDefinitionLookupEntry : IPersistableObject
+        {
+            public string Name;
+            public ushort Id;
 
-                _nameLookup.Add(id, name);
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistAsciiString("Name", ref Name);
+                persister.PersistUInt16("Id", ref Id);
             }
         }
     }

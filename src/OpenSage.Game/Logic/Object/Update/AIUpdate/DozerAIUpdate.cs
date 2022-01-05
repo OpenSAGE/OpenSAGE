@@ -40,10 +40,10 @@ namespace OpenSage.Logic.Object
 
             _stateMachine.Load(reader);
 
-            reader.PersistInt32(ref _unknown2);
+            reader.PersistInt32("Unknown2", ref _unknown2);
 
             var unknown3 = 3;
-            reader.PersistInt32(ref unknown3);
+            reader.PersistInt32("Unknown3", ref unknown3);
             if (unknown3 != 3)
             {
                 throw new InvalidStateException();
@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
                 persister.PersistObjectValue(ref item);
             });
 
-            reader.PersistInt32(ref _unknown4);
+            reader.PersistInt32("Unknown4", ref _unknown4);
         }
     }
 
@@ -66,7 +66,7 @@ namespace OpenSage.Logic.Object
         public void Persist(StatePersister persister)
         {
             persister.PersistObjectID("ObjectId", ref ObjectId);
-            persister.PersistInt32(ref Unknown);
+            persister.PersistInt32("Unknown", ref Unknown);
         }
     }
 

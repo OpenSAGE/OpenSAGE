@@ -346,8 +346,8 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistVersion(1);
 
             reader.PersistBoolean("IsOneShot", ref IsOneShot);
-            reader.PersistEnum(ref Shader);
-            reader.PersistEnum(ref Type);
+            reader.PersistEnum("Shader", ref Shader);
+            reader.PersistEnum("Type", ref Type);
 
             var texture = Particle.Value?.Name;
             reader.PersistAsciiString("Texture", ref texture);
@@ -361,7 +361,7 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistRandomVariable("AngularDamping", ref AngularDamping);
             reader.PersistRandomVariable("VelocityDamping", ref VelocityDamping);
             reader.PersistRandomVariable("Lifetime", ref Lifetime);
-            reader.PersistInt32(ref SystemLifetime);
+            reader.PersistInt32("SystemLifetime", ref SystemLifetime);
             reader.PersistRandomVariable("Size", ref Size);
             reader.PersistRandomVariable("StartSizeRate", ref StartSizeRate);
             reader.PersistRandomVariable("SizeRate", ref SizeRate);
@@ -413,7 +413,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             reader.SkipUnknownBytes(13);
 
-            reader.PersistEnum(ref VelocityType);
+            reader.PersistEnum("VelocityType", ref VelocityType);
             reader.PersistUInt32("Unknown10", ref Unknown10);
 
             switch (VelocityType)
@@ -446,7 +446,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     throw new NotImplementedException();
             }
 
-            reader.PersistEnum(ref VolumeType);
+            reader.PersistEnum("VolumeType", ref VolumeType);
 
             switch (VolumeType)
             {
@@ -476,7 +476,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             reader.PersistUInt32("Unknown11", ref Unknown11);
-            reader.PersistEnum(ref WindMotion);
+            reader.PersistEnum("WindMotion", ref WindMotion);
             reader.PersistSingle("Unknown12", ref Unknown12);
             reader.PersistSingle("Unknown13", ref Unknown13); // Almost same as WindAngleChangeMin
             reader.PersistSingle("WindAngleChangeMin", ref WindAngleChangeMin);

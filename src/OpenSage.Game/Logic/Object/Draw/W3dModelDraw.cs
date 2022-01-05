@@ -416,7 +416,7 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.PersistInt32(ref _unknownInt);
+                reader.PersistInt32("UnknownInt", ref _unknownInt);
                 reader.PersistSingle("UnknownFloat", ref _unknownFloat);
             }
         }

@@ -66,9 +66,9 @@ namespace OpenSage.Data.Map
             reader.SkipUnknownBytes(40);
 
             reader.PersistBoolean("UnknownBool7", ref _unknownBool7);
-            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistInt32("UnknownInt3", ref _unknownInt3);
             reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
-            reader.PersistInt32(ref _unknownInt4);
+            reader.PersistInt32("UnknownInt4", ref _unknownInt4);
         }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)

@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
             _stateMachine2.Load(reader);
 
             reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
-            reader.PersistInt32(ref _unknown5);
+            reader.PersistInt32("Unknown5", ref _unknown5);
 
             reader.SkipUnknownBytes(1);
 
@@ -201,8 +201,8 @@ namespace OpenSage.Logic.Object
             {
                 reader.PersistVersion(1);
 
-                reader.PersistInt32(ref _unknown1);
-                reader.PersistInt32(ref _unknown2);
+                reader.PersistInt32("Unknown1", ref _unknown1);
+                reader.PersistInt32("Unknown2", ref _unknown2);
                 reader.PersistBoolean("Unknown3", ref _unknown3);
             }
         }
@@ -216,7 +216,7 @@ namespace OpenSage.Logic.Object
                 reader.SkipUnknownBytes(4);
 
                 var unknown2 = 1;
-                reader.PersistInt32(ref unknown2);
+                reader.PersistInt32("Unknown2", ref unknown2);
                 if (unknown2 != 1)
                 {
                     throw new InvalidStateException();

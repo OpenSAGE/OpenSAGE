@@ -84,7 +84,7 @@ namespace OpenSage.Network
             reader.PersistVersion(2);
 
             reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 25600 (160^2)
-            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
@@ -97,11 +97,14 @@ namespace OpenSage.Network
                 throw new InvalidStateException();
             }
 
-            Slots = new SkirmishSlot[MaxNumberOfPlayers];
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                Slots = new SkirmishSlot[MaxNumberOfPlayers];
+            }
             for (var i = 0; i < Slots.Length; i++)
             {
-                Slots[i] = new SkirmishSlot(i);
-                Slots[i].Load(reader);
+                Slots[i] ??= new SkirmishSlot(i);
+                reader.PersistObjectValue(Slots[i]);
             }
 
             reader.SkipUnknownBytes(4);

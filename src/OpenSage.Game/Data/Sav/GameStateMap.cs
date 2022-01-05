@@ -17,7 +17,7 @@ namespace OpenSage.Data.Sav
 
             reader.PersistAsciiString("MapPath1", ref _mapPath1);
             reader.PersistAsciiString("MapPath2", ref _mapPath2);
-            reader.PersistEnum(ref _gameType);
+            reader.PersistEnum("GameType", ref _gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 

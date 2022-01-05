@@ -580,9 +580,9 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistUInt32("AttachedToDrawableId", ref _attachedToDrawableId);
             reader.PersistObjectID("AttachedToObjectId", ref _attachedToObjectId);
             reader.PersistBoolean("IsIdentityTransform", ref _isIdentityTransform);
-            reader.PersistMatrix4x3(ref _transform, readVersion: false);
+            reader.PersistMatrix4x3("Transform", ref _transform, readVersion: false);
             reader.PersistBoolean("IsIdentityTransform2", ref _isIdentityTransform2);
-            reader.PersistMatrix4x3(ref _transform2, readVersion: false);
+            reader.PersistMatrix4x3("Transform2", ref _transform2, readVersion: false);
             reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // Maybe _nextBurst
             reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
             reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
@@ -613,8 +613,11 @@ namespace OpenSage.Graphics.ParticleSystems
             var numParticles = (uint)(_particles?.Length ?? 0);
             reader.PersistUInt32("NumParticles", ref numParticles);
 
-            // TODO: Shouldn't do this.
-            _particles = new Particle[numParticles];
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                // TODO: Shouldn't do this.
+                _particles = new Particle[numParticles];
+            }
 
             reader.BeginArray("Particles");
             for (var i = 0; i < numParticles; i++)
@@ -637,7 +640,7 @@ namespace OpenSage.Graphics.ParticleSystems
         Dead
     }
 
-    internal struct ParticleColorKeyframe : IParticleKeyframe
+    internal struct ParticleColorKeyframe : IParticleKeyframe, IPersistableObject
     {
         public uint Time;
         public Vector3 Color;
@@ -654,6 +657,12 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             Time = time;
             Color = color;
+        }
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistVector3("Color", ref Color);
+            persister.PersistUInt32("Time", ref Time);
         }
     }
 

@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum(ref Type);
+            reader.PersistEnum("Type", ref Type);
             reader.PersistBoolean("IsSmall", ref IsSmall);
             reader.PersistSingle("Height", ref Height);
             reader.PersistSingle("MajorRadius", ref MajorRadius);

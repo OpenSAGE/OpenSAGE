@@ -19,7 +19,7 @@
             reader.PersistUInt32("ScriptActionIndex", ref ScriptActionIndex);
             reader.PersistUInt32("LoopsRemaining", ref LoopsRemaining);
 
-            reader.PersistInt32(ref Unknown2);
+            reader.PersistInt32("Unknown2", ref Unknown2);
             if (Unknown2 != -1)
             {
                 throw new InvalidStateException();

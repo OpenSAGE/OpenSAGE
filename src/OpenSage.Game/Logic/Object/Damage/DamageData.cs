@@ -28,9 +28,9 @@
             reader.PersistVersion(1);
 
             reader.PersistObjectID("ObjectId", ref ObjectId);
-            reader.PersistUInt16(ref Unknown1);
-            reader.PersistEnum(ref DamageType);
-            reader.PersistEnum(ref DeathType);
+            reader.PersistUInt16("Unknown1", ref Unknown1);
+            reader.PersistEnum("DamageType", ref DamageType);
+            reader.PersistEnum("DeathType", ref DeathType);
             reader.PersistSingle("Unknown4", ref Unknown4);
         }
     }

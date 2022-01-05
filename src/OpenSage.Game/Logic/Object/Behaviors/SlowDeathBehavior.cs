@@ -145,7 +145,7 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame("FrameMidpoint", ref _frameMidpoint);
             reader.PersistFrame("FrameDstruction", ref _frameDestruction);
             reader.PersistSingle("SlowDeathScale", ref _slowDeathScale);
-            reader.PersistEnumFlags(ref _flags);
+            reader.PersistEnumFlags("Flags", ref _flags);
         }
 
         [Flags]

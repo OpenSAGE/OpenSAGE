@@ -99,7 +99,7 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
 
             var unknownInt1 = int.MaxValue;
-            reader.PersistInt32(ref unknownInt1);
+            reader.PersistInt32("UnknownInt1", ref unknownInt1);
             if (unknownInt1 != int.MaxValue)
             {
                 throw new InvalidStateException();
@@ -124,12 +124,15 @@ namespace OpenSage.Logic.Object
 
             var exhaustParticleSystemTemplateName = _exhaustParticleSystemTemplate?.Name;
             reader.PersistAsciiString("ExhaustParticleSystemTemplateName", ref exhaustParticleSystemTemplateName);
-            _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
+            }
 
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistVector3("CurrentPositionMaybe", ref _currentPositionMaybe);
-            reader.PersistInt32(ref _unknownInt1); // 0, 0x20000
-            reader.PersistInt32(ref _unknownInt2); // 1960
+            reader.PersistInt32("UnknownInt1", ref _unknownInt1); // 0, 0x20000
+            reader.PersistInt32("UnknownInt2", ref _unknownInt2); // 1960
         }
 
         private enum MissileState

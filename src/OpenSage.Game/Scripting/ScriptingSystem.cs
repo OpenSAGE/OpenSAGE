@@ -66,7 +66,7 @@ namespace OpenSage.Scripting
             _sciences = new ScienceSet[Player.MaxPlayers];
             for (var i = 0; i < _sciences.Length; i++)
             {
-                _sciences[i] = new ScienceSet(game.AssetStore);
+                _sciences[i] = new ScienceSet();
             }
         }
 
@@ -278,7 +278,7 @@ namespace OpenSage.Scripting
                 persister.PersistObjectValue(item);
             });
 
-            reader.PersistUInt16(ref _numCounters);
+            reader.PersistUInt16("NumCounts", ref _numCounters);
 
             reader.BeginArray("Counters");
             for (var i = 0; i < _numCounters; i++)
@@ -287,7 +287,7 @@ namespace OpenSage.Scripting
 
                 reader.BeginObject();
 
-                reader.PersistInt32(ref counter.Value);
+                reader.PersistInt32("Value", ref counter.Value);
                 reader.PersistAsciiString("Name", ref counter.Name);
                 reader.PersistBoolean("IsTimer", ref counter.IsTimer);
 
@@ -302,15 +302,21 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt16(ref _numFlags);
+            reader.PersistUInt16("NumFlags", ref _numFlags);
 
+            reader.BeginArray("Flags");
             for (var i = 0; i < _numFlags; i++)
             {
                 ref var flag = ref _flags[i];
 
+                reader.BeginObject();
+
                 reader.PersistBoolean("Value", ref flag.Value);
                 reader.PersistAsciiString("Name", ref flag.Name);
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
             var numFlags2 = (uint)_numFlags;
             reader.PersistUInt32("NumFlags2", ref numFlags2);
@@ -333,14 +339,14 @@ namespace OpenSage.Scripting
             }
 
             var unknown1 = -1;
-            reader.PersistInt32(ref unknown1);
+            reader.PersistInt32("Unknown1", ref unknown1);
             if (unknown1 != -1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown2 = -1;
-            reader.PersistInt32(ref unknown2);
+            reader.PersistInt32("Unknown2", ref unknown2);
             if (unknown2 != -1)
             {
                 throw new InvalidStateException();
@@ -368,7 +374,7 @@ namespace OpenSage.Scripting
             });
 
             ushort numUnknown1Sets = 0;
-            reader.PersistUInt16(ref numUnknown1Sets);
+            reader.PersistUInt16("NumUnknown1Sets", ref numUnknown1Sets);
 
             for (var i = 0; i < numUnknown1Sets; i++)
             {
@@ -378,7 +384,7 @@ namespace OpenSage.Scripting
             }
 
             ushort numUnknown2Sets = 0;
-            reader.PersistUInt16(ref numUnknown2Sets);
+            reader.PersistUInt16("NumUnknown2Sets", ref numUnknown2Sets);
 
             for (var i = 0; i < numUnknown2Sets; i++)
             {
@@ -392,18 +398,10 @@ namespace OpenSage.Scripting
                 persister.PersistObjectNameAndIdList("List", item);
             });
 
-            var numScienceSets = (ushort) _sciences.Length;
-            reader.PersistUInt16(ref numScienceSets);
-
-            if (numScienceSets != _sciences.Length)
+            reader.PersistArrayWithUInt16Length("Sciences", _sciences, static (StatePersister persister, ref ScienceSet item) =>
             {
-                throw new InvalidStateException();
-            }
-
-            for (var i = 0; i < numScienceSets; i++)
-            {
-                _sciences[i].Load(reader);
-            }
+                persister.PersistObjectValue(item);
+            });
 
             byte unknown14_1 = 1;
             reader.PersistByte("Unknown14_1", ref unknown14_1);
