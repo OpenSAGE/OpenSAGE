@@ -9,7 +9,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class RtsCameraController : ICameraController
+    public sealed class RtsCameraController : ICameraController, IPersistableObject
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.0005f;
@@ -313,7 +313,7 @@ namespace OpenSage.Graphics.Cameras
             TerrainPosition = gameObject.Translation;
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

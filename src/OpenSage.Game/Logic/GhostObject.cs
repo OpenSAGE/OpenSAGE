@@ -38,7 +38,10 @@ namespace OpenSage.Logic
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
             reader.PersistVersion(1);
+            reader.EndObject();
 
             uint objectId = _gameObject?.ID ?? 0u;
             reader.PersistObjectID("ObjectId", ref objectId);
@@ -66,7 +69,7 @@ namespace OpenSage.Logic
             {
                 reader.BeginObject();
 
-                byte numModels = 0;
+                byte numModels = (byte)_modelsPerPlayer[i].Count;
                 reader.PersistByte("NumModels", ref numModels);
 
                 reader.BeginArray("Models");
@@ -74,13 +77,25 @@ namespace OpenSage.Logic
                 {
                     reader.BeginObject();
 
-                    var modelName = "";
+                    var modelName = reader.Mode == StatePersistMode.Write
+                        ? _modelsPerPlayer[i][j].Model.Name
+                        : "";
                     reader.PersistAsciiString("ModelName", ref modelName);
 
-                    var model = reader.AssetStore.Models.GetByName(modelName);
-                    var modelInstance = model.CreateInstance(reader.AssetStore.LoadContext);
+                    Model model;
+                    ModelInstance modelInstance;
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        model = reader.AssetStore.Models.GetByName(modelName);
+                        modelInstance = model.CreateInstance(reader.AssetStore.LoadContext);
 
-                    _modelsPerPlayer[i].Add(modelInstance);
+                        _modelsPerPlayer[i].Add(modelInstance);
+                    }
+                    else
+                    {
+                        modelInstance = _modelsPerPlayer[i][j];
+                        model = modelInstance.Model;
+                    }
 
                     var scale = 1.0f;
                     reader.PersistSingle("Scale", ref scale);
@@ -93,10 +108,15 @@ namespace OpenSage.Logic
 
                     reader.PersistVersion(1);
 
-                    var modelTransform = Matrix4x3.Identity;
+                    var modelTransform = reader.Mode == StatePersistMode.Write
+                        ? Matrix4x3.FromMatrix4x4(modelInstance.GetWorldMatrix())
+                        : Matrix4x3.Identity;
                     reader.PersistMatrix4x3("ModelTransform", ref modelTransform, readVersion: false);
 
-                    modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
+                    }
 
                     var numMeshes = (uint)model.SubObjects.Length;
                     reader.PersistUInt32("NumMeshes", ref numMeshes);
@@ -105,9 +125,12 @@ namespace OpenSage.Logic
                         throw new InvalidStateException();
                     }
 
+                    reader.BeginArray("Meshes");
                     for (var k = 0; k < numMeshes; k++)
                     {
-                        var meshName = "";
+                        reader.BeginObject();
+
+                        var meshName = model.SubObjects[k].FullName;
                         reader.PersistAsciiString("MeshName", ref meshName);
 
                         if (meshName != model.SubObjects[k].FullName)
@@ -117,12 +140,20 @@ namespace OpenSage.Logic
 
                         reader.PersistBoolean("UnknownBool", ref modelInstance.UnknownBools[k]);
 
-                        var meshTransform = Matrix4x3.Identity;
+                        var meshTransform = reader.Mode == StatePersistMode.Write
+                            ? Matrix4x3.FromMatrix4x4(modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index])
+                            : Matrix4x3.Identity;
                         reader.PersistMatrix4x3("MeshTransform", ref meshTransform, readVersion: false);
 
-                        // TODO: meshTransform is actually absolute, not relative.
-                        modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
+                        if (reader.Mode == StatePersistMode.Read)
+                        {
+                            // TODO: meshTransform is actually absolute, not relative.
+                            modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
+                        }
+
+                        reader.EndObject();
                     }
+                    reader.EndArray();
 
                     reader.EndObject();
                 }

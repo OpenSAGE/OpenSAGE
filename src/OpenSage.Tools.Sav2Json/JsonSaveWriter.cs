@@ -50,6 +50,16 @@ internal sealed class JsonSaveWriter : StatePersister
         _writer.WriteEndObject();
     }
 
+    protected override void OnPersistObjectValue<T>(T value)
+    {
+        _writer.WriteString("_Type", value.GetType().Name);
+    }
+
+    protected override void OnPersistObjectValue<T>(ref T value)
+    {
+        _writer.WriteString("_Type", value.GetType().Name);
+    }
+
     public override void PersistFieldName(string name)
     {
         _writer.WritePropertyName(name);

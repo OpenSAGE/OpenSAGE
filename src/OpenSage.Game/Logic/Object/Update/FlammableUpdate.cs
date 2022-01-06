@@ -24,7 +24,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistEnum("State", ref _state);
             reader.PersistFrame("AflameEndFrame", ref _aflameEndFrame);

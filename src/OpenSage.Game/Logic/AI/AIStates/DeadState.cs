@@ -4,7 +4,7 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class DeadState : State
     {
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
         }

@@ -401,7 +401,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistArray("UnknownSomethings", _unknownSomething, static (StatePersister persister, ref List<W3dModelDrawSomething> item) =>
             {

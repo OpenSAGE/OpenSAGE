@@ -7,7 +7,7 @@ using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    internal sealed class ParticleSystemManager : DisposableBase
+    internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
     {
         private readonly AssetLoadContext _loadContext;
         private readonly int _maxParticleCount;
@@ -97,7 +97,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

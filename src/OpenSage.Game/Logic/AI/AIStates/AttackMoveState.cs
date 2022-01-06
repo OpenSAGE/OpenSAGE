@@ -12,16 +12,15 @@
             _stateMachine = new AttackMoveStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistInt32("UnknownInt2", ref _unknownInt2);
-
-            _stateMachine.Load(reader);
+            reader.PersistObject("StateMachine", _stateMachine);
         }
     }
 
@@ -32,11 +31,11 @@
             AddState(0, new IdleState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
         }
     }
 }

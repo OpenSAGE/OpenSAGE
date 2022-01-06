@@ -9,7 +9,9 @@
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("NumShotsFiredAtLastTarget", ref _numShotsFiredAtLastTarget);
             reader.PersistObjectID("LastTargetObjectId", ref _lastTargetObjectId);

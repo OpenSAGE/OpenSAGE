@@ -86,7 +86,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistAsciiString("TemplateName", ref _templateName);

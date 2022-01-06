@@ -199,6 +199,8 @@ namespace OpenSage.Graphics
             _graphicsDevice.UpdateBuffer(_skinningBuffer, 0, _skinningBones);
         }
 
+        public ref readonly Matrix4x4 GetWorldMatrix() => ref _worldMatrix;
+
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
             _worldMatrix = worldMatrix;

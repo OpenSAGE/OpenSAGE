@@ -114,7 +114,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistSingle("ToppleSpeed", ref _toppleSpeed);
             reader.PersistSingle("ToppleAcceleration", ref _toppleAcceleration);

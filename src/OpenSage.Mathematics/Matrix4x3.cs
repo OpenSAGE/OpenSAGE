@@ -98,6 +98,15 @@ namespace OpenSage.Mathematics
                 M41, M42, M43, 1);
         }
 
+        public static Matrix4x3 FromMatrix4x4(in Matrix4x4 value)
+        {
+            return new Matrix4x3(
+                value.M11, value.M12, value.M13,
+                value.M21, value.M22, value.M23,
+                value.M31, value.M32, value.M33,
+                value.M41, value.M42, value.M43);
+        }
+
         public static bool operator ==(in Matrix4x3 left, in Matrix4x3 right)
         {
             return left.Equals(right);

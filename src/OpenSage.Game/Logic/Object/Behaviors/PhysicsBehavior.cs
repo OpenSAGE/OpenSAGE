@@ -104,7 +104,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistVector3("UnknownVector1", ref _unknownVector1);
             reader.PersistVector3("UnknownVector2", ref _unknownVector2);

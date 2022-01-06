@@ -450,6 +450,8 @@ namespace OpenSage.Logic
             reader.PersistObject("UpgradesCompleted", UpgradesCompleted);
 
             {
+                reader.BeginObject("UnknownThing");
+
                 reader.PersistVersion(2);
 
                 var playerId = Id;
@@ -458,6 +460,8 @@ namespace OpenSage.Logic
                 {
                     throw new InvalidStateException();
                 }
+
+                reader.EndObject();
             }
 
             reader.PersistList("TeamTemplates", _teamTemplates, static (StatePersister persister, ref TeamTemplate item) =>
@@ -810,7 +814,9 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Persist(reader);
+            reader.EndObject();
 
             reader.PersistInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistInt32("UnknownInt2", ref _unknownInt2);

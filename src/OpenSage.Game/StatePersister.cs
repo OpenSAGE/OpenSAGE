@@ -191,6 +191,8 @@ namespace OpenSage
         {
             BeginObject();
 
+            OnPersistObjectValue(value);
+
             value.Persist(this);
 
             EndObject();
@@ -201,9 +203,21 @@ namespace OpenSage
         {
             BeginObject();
 
+            OnPersistObjectValue(ref value);
+
             value.Persist(this);
 
             EndObject();
+        }
+
+        protected virtual void OnPersistObjectValue<T>(T value)
+            where T : class, IPersistableObject
+        {
+        }
+
+        protected virtual void OnPersistObjectValue<T>(ref T value)
+            where T : struct, IPersistableObject
+        {
         }
 
         public abstract void PersistSpan(Span<byte> span);

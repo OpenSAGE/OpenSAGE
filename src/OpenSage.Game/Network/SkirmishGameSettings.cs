@@ -2,7 +2,7 @@
 
 namespace OpenSage.Network
 {
-    public class SkirmishGameSettings
+    public class SkirmishGameSettings : IPersistableObject
     {
         public const int MaxNumberOfPlayers = 8;
 
@@ -79,7 +79,7 @@ namespace OpenSage.Network
         public SkirmishSlot LocalSlot { get { return (LocalSlotIndex < 0 || LocalSlotIndex >= Slots.Length) ? null : Slots[LocalSlotIndex]; } }
         public int Seed { get; internal set; }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
@@ -101,11 +101,14 @@ namespace OpenSage.Network
             {
                 Slots = new SkirmishSlot[MaxNumberOfPlayers];
             }
+
+            reader.BeginArray("SkirmishSlots");
             for (var i = 0; i < Slots.Length; i++)
             {
                 Slots[i] ??= new SkirmishSlot(i);
                 reader.PersistObjectValue(Slots[i]);
             }
+            reader.EndArray();
 
             reader.SkipUnknownBytes(4);
 

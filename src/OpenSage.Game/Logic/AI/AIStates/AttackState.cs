@@ -14,14 +14,13 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new AttackStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
             reader.PersistBoolean("UnknownBool", ref _unknownBool);
             reader.PersistVector3("UnknownPosition", ref _unknownPosition);
-
-            _stateMachine.Load(reader);
+            reader.PersistObject("StateMachine", _stateMachine);
         }
     }
 
@@ -35,11 +34,13 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(3, new AttackFireWeaponState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
         }
 
         private sealed class AttackMoveTowardsTargetState : MoveTowardsState
@@ -51,11 +52,13 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool3;
             private bool _unknownBool4;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
-                base.Load(reader);
+                reader.BeginObject("Base");
+                base.Persist(reader);
+                reader.EndObject();
 
                 reader.PersistVector3("UnknownPosition", ref _unknownPosition);
                 reader.PersistFrame("UnknownFrame", ref _unknownFrame);
@@ -71,7 +74,7 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool1;
             private bool _unknownBool2;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
@@ -82,7 +85,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackFireWeaponState : State
         {
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
             }

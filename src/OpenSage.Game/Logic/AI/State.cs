@@ -1,7 +1,7 @@
 ﻿namespace OpenSage.Logic.AI
 {
-    internal abstract class State
+    internal abstract class State : IPersistableObject
     {
-        internal abstract void Load(StatePersister reader);
+        public abstract void Persist(StatePersister reader);
     }
 }

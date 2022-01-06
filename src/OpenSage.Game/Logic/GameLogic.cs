@@ -6,7 +6,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
 {
-    internal sealed class GameLogic
+    internal sealed class GameLogic : IPersistableObject
     {
         private readonly Scene3D _scene3D;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
@@ -31,7 +31,7 @@ namespace OpenSage.Logic
             return _objects[(int)id];
         }
 
-        public void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(9);
 

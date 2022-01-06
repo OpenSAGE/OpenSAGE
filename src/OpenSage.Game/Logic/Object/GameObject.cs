@@ -1207,7 +1207,7 @@ namespace OpenSage.Logic.Object
 
                     reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                    module.Load(reader);
+                    reader.PersistObject("Module", module);
 
                     reader.EndSegment();
 
@@ -1225,7 +1225,7 @@ namespace OpenSage.Logic.Object
 
                     reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                    module.Load(reader);
+                    reader.PersistObject("Module", module);
 
                     reader.EndSegment();
 
@@ -1389,7 +1389,10 @@ namespace OpenSage.Logic.Object
             var polygonTriggerName = PolygonTrigger?.Name;
             reader.PersistAsciiString("PolygonTriggerName", ref polygonTriggerName);
 
-            PolygonTrigger = reader.Game.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                PolygonTrigger = reader.Game.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
+            }
 
             reader.PersistBoolean("EnteredThisFrame", ref EnteredThisFrame);
 

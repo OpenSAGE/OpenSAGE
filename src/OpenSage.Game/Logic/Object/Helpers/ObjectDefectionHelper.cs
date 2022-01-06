@@ -10,7 +10,9 @@
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("FrameStart", ref _frameStart);
             reader.PersistUInt32("FrameEnd", ref _frameEnd);

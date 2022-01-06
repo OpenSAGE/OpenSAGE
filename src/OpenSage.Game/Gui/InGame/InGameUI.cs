@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.InGame
 {
-    public sealed class InGameUI : BaseSingletonAsset
+    public sealed class InGameUI : BaseSingletonAsset, IPersistableObject
     {
         internal static void Parse(IniParser parser, InGameUI value) => parser.ParseBlockContent(value, FieldParseTable);
 
@@ -364,7 +363,7 @@ namespace OpenSage.Gui.InGame
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 

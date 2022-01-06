@@ -14,7 +14,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
             reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);

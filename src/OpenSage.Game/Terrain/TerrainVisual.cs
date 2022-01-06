@@ -1,17 +1,22 @@
 ﻿namespace OpenSage.Terrain
 {
-    public sealed class TerrainVisual
+    public sealed class TerrainVisual : IPersistableObject
     {
         private bool _unknownBool;
 
-        internal void Load(StatePersister reader, Game game)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
+
+            reader.BeginObject("Base");
             reader.PersistVersion(1);
+            reader.EndObject();
 
             reader.PersistBoolean("UnknownBool", ref _unknownBool);
             if (_unknownBool)
             {
+                reader.BeginObject("UnknownThing");
+
                 reader.PersistVersion(1);
 
                 // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
@@ -23,7 +28,11 @@
                 // Don't know why, but this gives the correct length for this array.
                 var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
                 reader.SkipUnknownBytes(dataCount);
+
+                reader.EndObject();
             }
+
+            var game = reader.Game;
 
             var area = game.Scene3D.MapFile.HeightMapData.Area;
             reader.PersistUInt32("Area", ref area);

@@ -89,7 +89,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistSingle("CurrentHealth1", ref _currentHealth1); // These two values
             reader.PersistSingle("CurrentHealth2", ref _currentHealth2); // are almost but not quite the same.

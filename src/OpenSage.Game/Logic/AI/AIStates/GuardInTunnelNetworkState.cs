@@ -11,7 +11,7 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new GuardInTunnelNetworkStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -22,7 +22,7 @@ namespace OpenSage.Logic.AI.AIStates
                 throw new InvalidStateException();
             }
 
-            _stateMachine.Load(reader);
+            reader.PersistObject("StateMachine", _stateMachine);
         }
     }
 
@@ -37,11 +37,11 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(5003, new GuardInTunnelNetworkEnterTunnelState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistObjectID("GuardObjectId", ref _guardObjectId);
             reader.PersistVector3("GuardPosition", ref _guardPosition);
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
@@ -63,11 +63,11 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
-                base.Load(reader);
+                base.Persist(reader);
 
                 reader.PersistUInt32("UnknownInt", ref _unknownInt);
             }

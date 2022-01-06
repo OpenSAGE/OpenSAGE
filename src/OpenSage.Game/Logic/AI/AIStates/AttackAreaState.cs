@@ -11,7 +11,7 @@
             _stateMachine = new AttackAreaStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -22,8 +22,7 @@
                 throw new InvalidStateException();
             }
 
-            _stateMachine.Load(reader);
-
+            reader.PersistObject("StateMachine", _stateMachine);
             reader.PersistUInt32("UnknownInt", ref _unknownInt);
         }
     }
@@ -36,11 +35,13 @@
             AddState(10, new AttackState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
         }
     }
 }

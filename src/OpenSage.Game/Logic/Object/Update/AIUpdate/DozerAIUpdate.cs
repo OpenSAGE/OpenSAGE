@@ -17,7 +17,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             _state.Persist(reader);
         }
@@ -33,13 +35,12 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistArrayWithUInt32Length("UnknownList2", _unknownList1, static (StatePersister persister, ref DozerSomething1 item) =>
+            reader.PersistArrayWithUInt32Length("UnknownList1", _unknownList1, static (StatePersister persister, ref DozerSomething1 item) =>
             {
                 persister.PersistObjectValue(ref item);
             });
 
-            _stateMachine.Load(reader);
-
+            reader.PersistObject("StateMachine", _stateMachine);
             reader.PersistInt32("Unknown2", ref _unknown2);
 
             var unknown3 = 3;

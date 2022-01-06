@@ -290,13 +290,13 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(4);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-
-            _stateMachine.Load(reader);
-
+            reader.PersistObject("StateMachine", _stateMachine);
             reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
@@ -392,7 +392,7 @@ namespace OpenSage.Logic.Object
 
             if (_moduleData.Turret != null)
             {
-                _turretAIUpdate.Load(reader);
+                reader.PersistObject("TurretAI", _turretAIUpdate);
             }
 
             reader.PersistInt32("UnknownInt19", ref _unknownInt19); // -1, 258

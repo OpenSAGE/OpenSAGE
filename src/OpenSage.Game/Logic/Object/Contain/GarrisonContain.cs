@@ -8,13 +8,15 @@ namespace OpenSage.Logic.Object
     {
         private uint _unknown1;
         private readonly Vector3[] _positions = new Vector3[120];
-        private bool _unknown2;
+        private bool _unknown3;
 
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("Unknown1", ref _unknown1);
 
@@ -34,7 +36,7 @@ namespace OpenSage.Logic.Object
                 persister.PersistVector3Value(ref item);
             });
 
-            reader.PersistBoolean("Unknown2", ref _unknown2);
+            reader.PersistBoolean("Unknown3", ref _unknown3);
 
             reader.SkipUnknownBytes(13);
         }

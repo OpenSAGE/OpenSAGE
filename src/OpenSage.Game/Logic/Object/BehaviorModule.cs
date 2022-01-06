@@ -20,11 +20,17 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
+
             // The following version number is probably from extra base class in the inheritance hierarchy.
             // Since we don't have that at the moment, just read it here.
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
+
+            reader.EndObject();
         }
     }
 

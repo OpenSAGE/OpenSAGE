@@ -45,11 +45,13 @@ namespace OpenSage.Logic.AI
             AddState(40, new WanderInPlaceState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
 
             reader.PersistListWithUInt32Count("TargetPositions", _targetPositions, static (StatePersister persister, ref Vector3 item) =>
             {
@@ -70,7 +72,7 @@ namespace OpenSage.Logic.AI
             if (_stateSomethingId != 999999)
             {
                 _stateSomething = GetState(_stateSomethingId);
-                _stateSomething.Load(reader);
+                reader.PersistObject("StateSomething", _stateSomething);
             }
         }
     }
@@ -81,11 +83,11 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistInt32("UnknownInt", ref _unknownInt);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
@@ -108,13 +110,13 @@ namespace OpenSage.Logic.AI
             _stateMachine = new AIState32StateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
-            _stateMachine.Load(reader);
+            reader.PersistObject("StateMachine", _stateMachine);
         }
     }
 
@@ -125,11 +127,11 @@ namespace OpenSage.Logic.AI
             AddState(0, new IdleState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
         }
     }
 
