@@ -12,7 +12,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("NumVirtualMachines", ref _numVirtualMachines);
             reader.PersistFrame("UnknownFrame", ref _unknownFrame);

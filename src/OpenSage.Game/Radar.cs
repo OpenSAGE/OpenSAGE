@@ -10,7 +10,7 @@ using Veldrid;
 
 namespace OpenSage
 {
-    public sealed class Radar
+    public sealed class Radar : IPersistableObject
     {
         private readonly Scene3D _scene;
         private readonly Texture _miniMapTexture;
@@ -265,7 +265,7 @@ namespace OpenSage
             DrawFrustumLine(terrain3.Value, terrain0.Value);
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

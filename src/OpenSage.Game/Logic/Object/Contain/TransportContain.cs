@@ -39,7 +39,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             var unknownInt1 = 1;
             reader.PersistInt32("UnknownInt1", ref unknownInt1);

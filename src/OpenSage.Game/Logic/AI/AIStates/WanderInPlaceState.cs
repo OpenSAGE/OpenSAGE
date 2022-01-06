@@ -7,11 +7,11 @@ namespace OpenSage.Logic.AI.AIStates
         private Vector3 _unknownPos;
         private uint _unknownInt;
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistVector3("UnknownPos", ref _unknownPos);
             reader.PersistUInt32("UnknownInt", ref _unknownInt);

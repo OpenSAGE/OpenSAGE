@@ -8,7 +8,9 @@
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             // Maybe some kind of frame timer? But sometimes it's -2.
             reader.PersistFrame("FrameSomething", ref _frameSomething);

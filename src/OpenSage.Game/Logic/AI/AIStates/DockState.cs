@@ -11,7 +11,7 @@
             _stateMachine = new DockStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -22,8 +22,7 @@
                 throw new InvalidStateException();
             }
 
-            _stateMachine.Load(reader);
-
+            reader.PersistObject("StateMachine", _stateMachine);
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
         }
     }
@@ -41,22 +40,24 @@
             AddState(5, new DockWaitForActionState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
 
             reader.PersistUInt32("UnknownInt", ref _unknownInt);
         }
 
         private sealed class DockApproachDockState : MoveTowardsState
         {
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
 
-                base.Load(reader);
+                base.Persist(reader);
             }
         }
 
@@ -64,7 +65,7 @@
         {
             private uint _unknownInt;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
 
@@ -84,7 +85,7 @@
         {
             // Time spent in this state matches SupplyWarehouseActionDelay
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
             }

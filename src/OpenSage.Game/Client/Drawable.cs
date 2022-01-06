@@ -305,9 +305,12 @@ namespace OpenSage.Client
 
             reader.PersistUInt32("DrawableId", ref DrawableID);
 
-            var modelConditionFlags = new BitArray<ModelConditionFlag>();
+            var modelConditionFlags = ModelConditionFlags.Clone();
             reader.PersistBitArray("ModelConditionFlags", ref modelConditionFlags);
-            CopyModelConditionFlags(modelConditionFlags);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                CopyModelConditionFlags(modelConditionFlags);
+            }
 
             reader.PersistMatrix4x3("TransformMatrix", ref _transformMatrix);
 
@@ -417,9 +420,9 @@ namespace OpenSage.Client
                 reader.PersistObject("Animation2D", _animation);
             }
 
-            var unknownBool2 = true;
-            reader.PersistBoolean("UnknownBool2", ref unknownBool2);
-            if (!unknownBool2)
+            var unknownBool3 = true;
+            reader.PersistBoolean("UnknownBool3", ref unknownBool3);
+            if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }
@@ -427,6 +430,8 @@ namespace OpenSage.Client
 
         private void PersistModules(StatePersister reader)
         {
+            reader.BeginObject("ModuleGroups");
+
             reader.PersistVersion(1);
 
             ushort numModuleGroups = 2;
@@ -439,6 +444,8 @@ namespace OpenSage.Client
 
             PersistModuleGroup(reader, "DrawModules", _drawModules);
             PersistModuleGroup(reader, "ClientUpdateModules", _clientUpdateModules);
+
+            reader.EndObject();
         }
 
         private void PersistModuleGroup<T>(StatePersister reader, string groupName, List<T> modules)
@@ -470,7 +477,7 @@ namespace OpenSage.Client
 
                 reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");
 
-                module.Load(reader);
+                reader.PersistObject("Module", module);
 
                 reader.EndSegment();
 

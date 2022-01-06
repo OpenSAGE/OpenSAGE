@@ -2,15 +2,18 @@
 
 namespace OpenSage.Logic
 {
-    public sealed class GhostObjectManager
+    public sealed class GhostObjectManager : IPersistableObject
     {
         private readonly List<GhostObject> _ghostObjects = new();
         private uint _unknown1;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
             reader.PersistVersion(1);
+            reader.EndObject();
 
             reader.PersistUInt32("Unknown1", ref _unknown1);
 

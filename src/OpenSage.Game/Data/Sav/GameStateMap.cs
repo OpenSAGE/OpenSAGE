@@ -3,7 +3,7 @@ using OpenSage.Network;
 
 namespace OpenSage.Data.Sav
 {
-    internal class GameStateMap
+    internal sealed class GameStateMap : IPersistableObject
     {
         private string _mapPath1;
         private string _mapPath2;
@@ -11,7 +11,7 @@ namespace OpenSage.Data.Sav
         private uint _nextObjectId;
         private uint _nextDrawableId;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
@@ -71,7 +71,8 @@ namespace OpenSage.Data.Sav
                 if (_gameType == GameType.Skirmish)
                 {
                     game.SkirmishManager = new LocalSkirmishManager(game);
-                    game.SkirmishManager.Settings.Load(reader);
+
+                    reader.PersistObject("SkirmishGameSettings", game.SkirmishManager.Settings);
 
                     game.SkirmishManager.Settings.MapName = _mapPath1;
 
@@ -85,6 +86,13 @@ namespace OpenSage.Data.Sav
                 }
 
                 game.Scene3D.PartitionCellManager.OnNewGame();
+            }
+            else
+            {
+                if (_gameType == GameType.Skirmish)
+                {
+                    reader.PersistObject("SkirmishGameSettings", game.SkirmishManager.Settings);
+                }
             }
         }
     }

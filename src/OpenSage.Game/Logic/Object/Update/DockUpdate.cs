@@ -121,7 +121,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistVector3("Position1", ref _position1);
             reader.PersistVector3("Position2", ref _position2);

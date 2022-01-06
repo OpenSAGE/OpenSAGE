@@ -4,7 +4,7 @@ using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class PlayerScriptsList : Asset
+    public sealed class PlayerScriptsList : Asset, IPersistableObject
     {
         public const string AssetName = "PlayerScriptsList";
 
@@ -45,7 +45,7 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

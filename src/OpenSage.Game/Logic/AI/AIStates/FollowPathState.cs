@@ -6,11 +6,11 @@
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);

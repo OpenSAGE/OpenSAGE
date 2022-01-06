@@ -139,7 +139,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistFrame("FrameSinkStart", ref _frameSinkStart);
             reader.PersistFrame("FrameMidpoint", ref _frameMidpoint);

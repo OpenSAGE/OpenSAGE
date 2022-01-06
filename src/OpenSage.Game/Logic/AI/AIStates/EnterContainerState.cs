@@ -4,11 +4,11 @@
     {
         private uint _containerObjectId;
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistObjectID("ContainerObjectId", ref _containerObjectId);
         }

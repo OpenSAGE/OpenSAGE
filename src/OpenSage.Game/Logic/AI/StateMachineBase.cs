@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace OpenSage.Logic.AI
 {
-    internal abstract class StateMachineBase
+    internal abstract class StateMachineBase : IPersistableObject
     {
         private readonly Dictionary<uint, State> _states;
 
@@ -39,7 +39,7 @@ namespace OpenSage.Logic.AI
             throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
         }
 
-        internal virtual void Load(StatePersister reader)
+        public virtual void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
@@ -51,8 +51,7 @@ namespace OpenSage.Logic.AI
 
             reader.SkipUnknownBytes(1);
 
-            _currentState.Load(reader);
-
+            reader.PersistObject("CurrentState", _currentState);
             reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
             reader.PersistVector3("UnknownPosition", ref _unknownPosition);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);

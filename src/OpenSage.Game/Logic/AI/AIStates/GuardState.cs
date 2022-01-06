@@ -11,14 +11,14 @@ namespace OpenSage.Logic.AI.AIStates
             _stateMachine = new GuardStateMachine();
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
             var unknownBool1 = true;
             reader.PersistBoolean("UnknownBool1", ref unknownBool1);
 
-            _stateMachine.Load(reader);
+            reader.PersistObject("StateMachine", _stateMachine);
         }
     }
 
@@ -36,11 +36,13 @@ namespace OpenSage.Logic.AI.AIStates
             AddState(5003, new GuardMoveState());
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 
-            base.Load(reader);
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
 
             reader.PersistObjectID("GuardObjectId", ref _guardObjectId);
             reader.PersistObjectID("GuardObjectId2", ref _guardObjectId2);
@@ -52,7 +54,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 
@@ -62,7 +64,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardUnknown5002State : State
         {
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
             }
@@ -72,7 +74,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal override void Load(StatePersister reader)
+            public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
 

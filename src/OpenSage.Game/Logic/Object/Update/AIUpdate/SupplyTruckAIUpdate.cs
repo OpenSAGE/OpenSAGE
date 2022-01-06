@@ -25,10 +25,11 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            _stateMachine.Load(reader);
-
+            reader.PersistObject("StateMachine", _stateMachine);
             reader.PersistObjectID("DockId", ref _dockId);
             reader.PersistInt32("UnknownInt", ref _unknownInt);
             reader.PersistBoolean("UnknownBool", ref _unknownBool);

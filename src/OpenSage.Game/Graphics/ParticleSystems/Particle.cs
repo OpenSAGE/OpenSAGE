@@ -78,7 +78,10 @@ namespace OpenSage.Graphics.ParticleSystems
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
             reader.PersistVersion(1);
+            reader.EndObject();
 
             var unusedFloat = 0.0f;
 

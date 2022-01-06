@@ -26,7 +26,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistBoolean("Unknown1", ref _unknown1);
             reader.PersistObject("CollideWeapon", _collideWeapon);

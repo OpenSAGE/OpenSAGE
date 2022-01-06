@@ -19,11 +19,11 @@ namespace OpenSage.Logic.AI.AIStates
             _asTeam = asTeam;
         }
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            base.Persist(reader);
 
             reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
             reader.PersistUInt32("UnknownInt2", ref _unknownInt2);

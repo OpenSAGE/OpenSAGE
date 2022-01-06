@@ -8,7 +8,7 @@ namespace OpenSage.Scripting
     public delegate bool ScriptingCondition(ScriptExecutionContext context, ScriptCondition condition);
     public delegate void ScriptingAction(ScriptExecutionContext context, ScriptAction action);
 
-    public sealed class ScriptingSystem : GameSystem
+    public sealed class ScriptingSystem : GameSystem, IPersistableObject
     {
         private readonly List<SequentialScript> _sequentialScripts = new();
 
@@ -268,7 +268,7 @@ namespace OpenSage.Scripting
             CameraFadeOverlay.Update();
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(5);
 
@@ -361,12 +361,18 @@ namespace OpenSage.Scripting
 
             reader.PersistObject("CameraFadeOverlay", CameraFadeOverlay);
 
+            reader.BeginArray("UnknownArray");
             for (var i = 0; i < 4; i++)
             {
+                reader.BeginObject();
+
                 reader.PersistVersion(1);
 
                 reader.SkipUnknownBytes(2);
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
             reader.PersistArrayWithUInt16Length("SpecialPowers", _specialPowers, static (StatePersister persister, ref List<ObjectNameAndId> item) =>
             {

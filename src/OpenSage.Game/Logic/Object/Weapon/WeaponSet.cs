@@ -60,15 +60,16 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            // This is the object definition which defined the WeaponSet
-            // (either a normal object or DefaultThingTemplate)
-            var objectDefinitionName = "";
+            var objectDefinitionName = _currentWeaponTemplateSet?.ObjectDefinition.Name;
             reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
 
-            var conditions = new BitArray<WeaponSetConditions>();
+            var conditions = _currentWeaponTemplateSet?.Conditions ?? new BitArray<WeaponSetConditions>();
             reader.PersistBitArray("Conditions", ref conditions);
 
-            _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
+            }
 
             // In Generals there are 3 possible weapons.
             // Later games have up to 5.

@@ -30,7 +30,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.SkipUnknownBytes(4);
 

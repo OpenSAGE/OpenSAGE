@@ -42,7 +42,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistFrame("UnknownFrame", ref _unknownFrame);
             reader.PersistBoolean("UnknownBool1", ref _unknownBool1);

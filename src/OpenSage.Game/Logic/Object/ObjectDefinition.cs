@@ -104,7 +104,7 @@ namespace OpenSage.Logic.Object
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
-            { "WeaponSet", (parser, x) => { var wts = WeaponTemplateSet.Parse(parser); x.WeaponSets[wts.Conditions] = wts; } },
+            { "WeaponSet", (parser, x) => { var wts = WeaponTemplateSet.Parse(parser); wts.ObjectDefinition = x; x.WeaponSets[wts.Conditions] = wts; } },
             { "ArmorSet", (parser, x) => { var ams = ArmorTemplateSet.Parse(parser); x.ArmorSets[ams.Conditions] = ams; } },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },

@@ -6,7 +6,7 @@ using ImGuiNET;
 
 namespace OpenSage.Logic
 {
-    public sealed class PartitionCellManager
+    public sealed class PartitionCellManager : IPersistableObject
     {
         private readonly Game _game;
         private readonly float _partitionCellSize;
@@ -41,7 +41,7 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 

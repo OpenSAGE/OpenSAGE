@@ -59,7 +59,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistArray("ParticleSystemIds", _particleSystemIds, static (StatePersister persister, ref uint item) =>
             {

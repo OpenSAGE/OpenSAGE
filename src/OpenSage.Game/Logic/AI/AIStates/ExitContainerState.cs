@@ -4,7 +4,7 @@
     {
         private uint _containerObjectId;
 
-        internal override void Load(StatePersister reader)
+        public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 

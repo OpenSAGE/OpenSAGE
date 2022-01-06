@@ -22,7 +22,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             var unknownFloat = 1.0f;
             reader.PersistSingle("UnknownFloat", ref unknownFloat);

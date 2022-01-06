@@ -26,8 +26,8 @@ namespace OpenSage.Logic.Object
         private FXParticleSystemTemplate _exhaustParticleSystemTemplate;
         private bool _unknownBool2;
         private Vector3 _currentPositionMaybe;
-        private int _unknownInt1;
         private int _unknownInt2;
+        private int _unknownInt3;
 
         internal FXList DetonationFX { get; set; }
 
@@ -92,7 +92,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(4);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistVector3("UnknownPosition", ref _unknownPosition);
             reader.PersistUInt32("StateMaybe", ref _stateMaybe);
@@ -131,8 +133,8 @@ namespace OpenSage.Logic.Object
 
             reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
             reader.PersistVector3("CurrentPositionMaybe", ref _currentPositionMaybe);
-            reader.PersistInt32("UnknownInt1", ref _unknownInt1); // 0, 0x20000
-            reader.PersistInt32("UnknownInt2", ref _unknownInt2); // 1960
+            reader.PersistInt32("UnknownInt2", ref _unknownInt2); // 0, 0x20000
+            reader.PersistInt32("UnknownInt3", ref _unknownInt3); // 1960
         }
 
         private enum MissileState

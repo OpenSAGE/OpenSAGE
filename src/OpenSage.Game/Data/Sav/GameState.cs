@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Sav
 {
-    public sealed class GameState
+    public sealed class GameState : IPersistableObject
     {
         public SaveGameType GameType;
         public string MapPath;
@@ -12,7 +12,7 @@ namespace OpenSage.Data.Sav
         public string Side;
         public uint MissionIndex;
 
-        internal void Load(StatePersister reader)
+        public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
 

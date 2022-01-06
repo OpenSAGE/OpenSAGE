@@ -473,7 +473,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             reader.PersistList("ProductionQueue", _productionQueue, static (StatePersister persister, ref ProductionJob item) =>
             {
@@ -520,10 +522,11 @@ namespace OpenSage.Logic.Object
                 persister.PersistObjectValue(ref item);
             });
 
+            reader.BeginArray("UnknownArray");
             for (var i = 0; i < 2; i++)
             {
                 var unknown1 = true;
-                reader.PersistBoolean("Unknown1", ref unknown1);
+                reader.PersistBooleanValue(ref unknown1);
                 if (!unknown1)
                 {
                     throw new InvalidStateException();
@@ -531,6 +534,7 @@ namespace OpenSage.Logic.Object
 
                 reader.SkipUnknownBytes(4);
             }
+            reader.EndArray();
 
             reader.SkipUnknownBytes(1);
         }
