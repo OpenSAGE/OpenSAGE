@@ -12,6 +12,11 @@ namespace OpenSage.Logic.Object
         protected override void OnUpgrade()
         {
             _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
+
+            foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
+            {
+                powerPlantUpdate.ExtendRods();
+            }
         }
 
         internal override void Load(StatePersister reader)
