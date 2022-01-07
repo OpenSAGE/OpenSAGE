@@ -120,11 +120,7 @@ namespace OpenSage.Data.Map
                     if (version == 7)
                     {
                         // C&C Generals clips partial bytes from each row of passability data,
-                        // if the border width is large enough to fully contain the clipped data.
-                        if (passabilityWidth % 8 <= 6 && passabilityWidth % 8 <= heightMapData.BorderWidth)
-                        {
-                            passabilityWidth -= passabilityWidth % 8;
-                        }
+                        passabilityWidth = ((passabilityWidth + 1) / 8) * 8;
                     }
 
                     // If terrain is passable, there's a 0 in the data file.
