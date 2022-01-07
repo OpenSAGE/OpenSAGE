@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Apt
         // TODO: Should be deprecated or implemented in other way. This one causes nothing but mess.
         public AptWindow Window { get; }
         public AptFile AptFile { get; }
-        public ConstantData Constants => AptFile.Constants;
+        public ConstantStorage Constants => AptFile.Constants;
         public uint MsPerFrame => AptFile != null ? AptFile.Movie.MillisecondsPerFrame : MsPerFrameDefault; // Java style. Any fancier implementations?
         public static readonly uint MsPerFrameDefault = 30;
         public SpriteItem Root { get; set; }

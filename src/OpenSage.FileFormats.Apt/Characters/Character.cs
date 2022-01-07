@@ -28,7 +28,7 @@ namespace OpenSage.FileFormats.Apt.Characters
     }
 
     //base class for all characters used in apt
-    public abstract class Character : IDataStorage
+    public abstract class Character : IMemoryStorage
     {
         public const uint SIGNATURE = 0x09876543;
         public AptFile Container { get; protected set; }
@@ -99,7 +99,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             return character;
         }
 
-        public abstract void Write(BinaryWriter writer, MemoryPool pool);
+        public abstract void Write(BinaryWriter writer, BinaryMemoryChain pool);
     }
 
 

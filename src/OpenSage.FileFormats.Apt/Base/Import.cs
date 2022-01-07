@@ -3,7 +3,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class Import : IDataStorage
+    public sealed class Import : IMemoryStorage
     {
         public string Movie { get; private set; }
         public string Name { get; private set; }
@@ -21,7 +21,7 @@ namespace OpenSage.FileFormats.Apt
             return import;
         }
 
-        public void Write(BinaryWriter writer, MemoryPool pool)
+        public void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.WriteStringAtOffset(Movie, pool);
             writer.WriteStringAtOffset(Name, pool);

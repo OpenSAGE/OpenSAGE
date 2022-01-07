@@ -51,7 +51,7 @@ namespace OpenSage.FileFormats.Apt
         }
     }
 
-    public sealed class ImageMap　: IDataStorage
+    public sealed class ImageMap　: IMemoryStorage
     {
         public Dictionary<int, IImageAssignment> Mapping;
 
@@ -115,7 +115,7 @@ namespace OpenSage.FileFormats.Apt
             return map;
         }
 
-        public void Write(BinaryWriter writer, MemoryPool pool)
+        public void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             var stream = new MemoryStream();
             using (var writer2 = new StreamWriter(stream))

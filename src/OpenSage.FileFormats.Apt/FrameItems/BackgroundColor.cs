@@ -15,7 +15,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             backgroundColor.Color = reader.ReadColorRgba();
             return backgroundColor;
         }
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) FrameItemType.BackgroundColor);
             writer.Write(Color);

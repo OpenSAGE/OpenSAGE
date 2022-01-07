@@ -41,12 +41,12 @@ namespace OpenSage.FileFormats.Apt.Characters
             return movie;
         }
 
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             Write(writer, pool, false, null);
         }
 
-        public void Write(BinaryWriter writer, MemoryPool poolPost, bool writeHead = false, Dictionary<Movie, (MemoryPool, uint)> additional = null)
+        public void Write(BinaryWriter writer, BinaryMemoryChain poolPost, bool writeHead = false, Dictionary<Movie, (BinaryMemoryChain, uint)> additional = null)
         {
             if (writeHead)
             {
@@ -65,7 +65,7 @@ namespace OpenSage.FileFormats.Apt.Characters
 
             writer.WriteArrayAtOffsetWithSize(Frames, poolPost);
             writer.Write(Unknown);
-            Func<int, BinaryWriter, MemoryPool, bool> f = (i, w, p) =>
+            Func<int, BinaryWriter, BinaryMemoryChain, bool> f = (i, w, p) =>
             {
                 var chr = Characters[i];
                 var flag = true;

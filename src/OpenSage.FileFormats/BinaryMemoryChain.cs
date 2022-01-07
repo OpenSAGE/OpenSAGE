@@ -2,16 +2,17 @@
 using System.Linq;
 using System.IO;
 using System;
-using OpenSage.FileFormats;
 
-namespace OpenSage.FileFormats.Apt
+namespace OpenSage.FileFormats
 {
-    public sealed class MemoryPool: IDisposable
+    public sealed class BinaryMemoryChain: IDisposable
     {
-        public delegate (uint, uint) AlignedObjectWriter(BinaryWriter writer, MemoryPool pool);
+        public const uint IntPtrSize = 4;
 
-        private readonly Dictionary<uint, (MemoryPool, uint)> _preMapping;
-        private readonly Dictionary<uint, (MemoryPool, uint)> _preMapping2;
+        public delegate (uint, uint) AlignedObjectWriter(BinaryWriter writer, BinaryMemoryChain memory);
+
+        private readonly Dictionary<uint, (BinaryMemoryChain, uint)> _preMapping;
+        private readonly Dictionary<uint, (BinaryMemoryChain, uint)> _preMapping2;
         private readonly Dictionary<uint, AlignedObjectWriter> _globalAlign;
         private Dictionary<uint, uint> _postMapping;
         private MemoryStream _stream;
@@ -21,10 +22,10 @@ namespace OpenSage.FileFormats.Apt
 
         public BinaryWriter Writer => _writer;
 
-        private MemoryPool _post = null; 
-        private MemoryPool _pre = null;
+        private BinaryMemoryChain _post = null; 
+        private BinaryMemoryChain _pre = null;
 
-        private MemoryPool _postAutoCreate
+        private BinaryMemoryChain _postAutoCreate
         {
             get
             {
@@ -34,12 +35,12 @@ namespace OpenSage.FileFormats.Apt
             }
         }
 
-        public MemoryPool Pre => _pre;
-        public MemoryPool Post => _postAutoCreate;
+        public BinaryMemoryChain Pre => _pre;
+        public BinaryMemoryChain Post => _postAutoCreate;
 
-        public MemoryPool() : this(null) { }
+        public BinaryMemoryChain() : this(null) { }
 
-        public MemoryPool(MemoryPool pre) 
+        public BinaryMemoryChain(BinaryMemoryChain pre) 
         {
             _pre = pre;
             _preMapping = new();
@@ -114,7 +115,7 @@ namespace OpenSage.FileFormats.Apt
         /// <param name="target"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public uint RegisterPreOffset(MemoryPool target, uint offset, uint align = 1)
+        public uint RegisterPreOffset(BinaryMemoryChain target, uint offset, uint align = 1)
         {
             Align(align);
             var ret = (uint) _stream.Position;
@@ -124,7 +125,7 @@ namespace OpenSage.FileFormats.Apt
         }
 
         /*
-        public (MemoryPool, uint) RemovePreOffset(MemoryPool target, uint offset)
+        public (BinaryMemoryChain, uint) RemovePreOffset(BinaryMemoryChain target, uint offset)
         {
             var ret = target._preMapping[offset];
             var pm = target == null ? _preMapping2 : target._preMapping;
@@ -185,7 +186,7 @@ namespace OpenSage.FileFormats.Apt
             _writer.WriteNullTerminatedString(val);
         }
 
-        public void WriteArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action, uint align = 4)
+        public void WriteArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, BinaryMemoryChain, bool> action, uint align = 4)
         {
             Align(align);
             RegisterPostOffset(offset);
@@ -197,9 +198,9 @@ namespace OpenSage.FileFormats.Apt
             }
         }
 
-        public void WritePointerArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, MemoryPool, bool> action, uint align = 4)
+        public void WritePointerArrayAtOffset(uint offset, int length, Func<int, BinaryWriter, BinaryMemoryChain, bool> action, uint align = 4)
         {
-            Align(Constants.IntPtrSize); // since the pointers are 4 bytes long
+            Align(IntPtrSize); // since the pointers are 4 bytes long
             RegisterPostOffset(offset);
             for (int i = 0; i < length; ++i)
             {
@@ -215,17 +216,17 @@ namespace OpenSage.FileFormats.Apt
 
         /// <summary>
         /// STRONGLY NOT RECOMMENDED TO CALL although it is public. 
-        /// Use BinaryIOExtensions.DumpMemoryPool Instead. 
+        /// Use BinaryIOExtensions.DumpMemoryChain Instead. 
         /// </summary>
         /// <param name="writer">the writer of the most outer layer (usually a file writer).</param>
-        /// <param name="offset">the offset from file start to pool start.</param>
+        /// <param name="offset">the offset from file start to chain start.</param>
         /// <param name="offsets"></param>
         /// <param name="align"></param>
         /// <returns></returns>
         public Dictionary<uint, AlignedObjectWriter> SerializeAndGatherAlignment(
             BinaryWriter writer,
             uint offsetRaw = 0,
-            Dictionary<MemoryPool, uint> offsets = null,
+            Dictionary<BinaryMemoryChain, uint> offsets = null,
             Dictionary<uint, AlignedObjectWriter> align = null
             )
         {
@@ -246,7 +247,7 @@ namespace OpenSage.FileFormats.Apt
                 offsets = new();
             offsets[this] = offsetAligned;
 
-            // the last pool muse be serialized first
+            // the last chain muse be serialized first
             if (_post != null)
                 _post.SerializeAndGatherAlignment(writer, offsetAligned + curBlockLength, offsets, align);
 

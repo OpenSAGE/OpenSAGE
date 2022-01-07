@@ -7,7 +7,7 @@ namespace OpenSage.Tools.AptEditor.UI.Widgets
 {
     internal class ConstantPool : IWidget
     {
-        ConstantData _data = null;
+        ConstantStorage _data = null;
         InputComboBox _editBox = new AutoSuggestionBox
         {
             Suggestions = InstructionUtility.InstructionNames

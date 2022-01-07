@@ -5,7 +5,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class Frame : IDataStorage
+    public sealed class Frame : IMemoryStorage
     {
         [DataStorageList(typeof(FrameItem), new[] { typeof(Action), typeof(BackgroundColor), typeof(FrameLabel), typeof(InitAction), typeof(PlaceObject), typeof(RemoveObject) })]
         public List<FrameItem> FrameItems { get; private set; }
@@ -18,7 +18,7 @@ namespace OpenSage.FileFormats.Apt
             return frame;
         }
 
-        public void Write(BinaryWriter writer, MemoryPool memory)
+        public void Write(BinaryWriter writer, BinaryMemoryChain memory)
         {
             writer.WriteArrayAtOffsetWithSize(FrameItems, memory, true);
         }

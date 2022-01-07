@@ -30,7 +30,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
         Initialize = 0x000001,
     }
 
-    public sealed class ClipEvent : IDataStorage
+    public sealed class ClipEvent : IMemoryStorage
     {
         public ClipEventFlags Flags { get; set; }
         public Byte KeyCode { get; set; }
@@ -48,7 +48,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             ev.Instructions = InstructionStorage.Parse(reader.BaseStream, instructionsPosition);
             return ev;
         }
-        public void Write(BinaryWriter writer, MemoryPool pool)
+        public void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.WriteUInt24((uint) Flags);
             writer.Write(KeyCode);
@@ -141,7 +141,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             return placeobject;
         }
 
-        public override void Write(BinaryWriter writer, MemoryPool memory)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain memory)
         {
             writer.Write((UInt32) FrameItemType.PlaceObject);
             writer.Write((UInt32) Flags);

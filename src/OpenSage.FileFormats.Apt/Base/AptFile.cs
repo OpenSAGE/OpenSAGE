@@ -123,14 +123,14 @@ namespace OpenSage.FileFormats.Apt
 
     {
         public string RootDirectory { get; }
-        public ConstantData Constants { get; }
+        public ConstantStorage Constants { get; }
         public string MovieName { get; }
 
         public Movie Movie { get; private set; }
         public ImageMap ImageMap { get; private set; }
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
 
-        private AptFile(ConstantData constants, string movieName, string rootPath)
+        private AptFile(ConstantStorage constants, string movieName, string rootPath)
         {
             Constants = constants;
             MovieName = movieName;
@@ -154,7 +154,7 @@ namespace OpenSage.FileFormats.Apt
                 using (var constStream = getter.GetStream(DataType.Const))
                 using (var constReader = new BinaryReader(constStream))
                 {
-                    var constFile = ConstantData.Parse(constReader);
+                    var constFile = ConstantStorage.Parse(constReader);
 
                     // create container & load .apt file
                     var apt = new AptFile(constFile, getter.GetMovieName(), getter.GetRootPath());
@@ -198,17 +198,17 @@ namespace OpenSage.FileFormats.Apt
             var mode = FileMode.Create;
             foreach (var dir in getter.EnsureDirectory())
                 Directory.CreateDirectory(dir);
-            
-            BinaryIOExtensions.Write(
+
+            BinaryWriterExtensions2.Write(
                 (w, p) => { Movie.Write(w, p, true); return -1; },
                 () => getter.GetStream(DataType.Apt, mode)
                 );
             Constants.AptDataEntryOffset = Apt.Constants.AptFileStartPos;
-            BinaryIOExtensions.Write(
+            BinaryWriterExtensions2.Write(
                 (w, p) => { Constants.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Const, mode)
                 );
-            BinaryIOExtensions.Write(
+            BinaryWriterExtensions2.Write(
                 (w, p) => { ImageMap.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Dat, mode)
                 );
@@ -231,16 +231,16 @@ namespace OpenSage.FileFormats.Apt
 
             var tasks = new List<Task>();
 
-            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+            tasks.Add(Task.Run(() => BinaryWriterExtensions2.Write(
                 (w, p) => { Movie.Write(w, p, true); return -1; },
                 () => getter.GetStream(DataType.Apt, mode)
                 )));
             Constants.AptDataEntryOffset = Apt.Constants.AptFileStartPos;
-            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+            tasks.Add(Task.Run(() => BinaryWriterExtensions2.Write(
                 (w, p) => { Constants.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Const, mode)
                 )));
-            tasks.Add(Task.Run(() => BinaryIOExtensions.Write(
+            tasks.Add(Task.Run(() => BinaryWriterExtensions2.Write(
                 (w, p) => { ImageMap.Write(w, p); return -1; },
                 () => getter.GetStream(DataType.Dat, mode)
                 )));
@@ -324,7 +324,7 @@ namespace OpenSage.FileFormats.Apt
 
         public static AptFile CreateEmpty(string name, int width, int height, int millisecondsPerFrame)
         {
-            var constData = new ConstantData();
+            var constData = new ConstantStorage();
             var apt = new AptFile(constData, name, string.Empty)
             {
                 ImageMap = new ImageMap(),

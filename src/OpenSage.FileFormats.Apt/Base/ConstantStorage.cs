@@ -2,23 +2,23 @@
 using System.IO;
 using System;
 using System.Text;
-using OpenSage.FileFormats;
+using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class ConstantData : IDataStorage
+    public sealed class ConstantStorage : IMemoryStorage
     {
         public List<ConstantEntry> Entries { get; internal set; }
         public uint AptDataEntryOffset { get; internal set; }
 
-        public ConstantData()
+        public ConstantStorage()
         {
             Entries = new List<ConstantEntry>();
         }
 
-        public static ConstantData Parse(BinaryReader reader)
+        public static ConstantStorage Parse(BinaryReader reader)
         {
-            var data = new ConstantData();
+            var data = new ConstantStorage();
 
             //validate that this is a correct const
             var magic = reader.ReadFixedLengthString(17);
@@ -42,33 +42,33 @@ namespace OpenSage.FileFormats.Apt
             {
                 var constEntry = new ConstantEntry
                 {
-                    Type = reader.ReadUInt32AsEnum<ConstantEntryType>()
+                    Type = reader.ReadUInt32AsEnum<ConstantType>()
                 };
 
                 //read the number/ string offset
                 switch (constEntry.Type)
                 {
-                    case ConstantEntryType.Undef:
+                    case ConstantType.Undef:
                         throw new InvalidDataException("Undefined const entry");
-                    case ConstantEntryType.String:
+                    case ConstantType.String:
                         constEntry.Value = reader.ReadStringAtOffset();
                         break;
-                    case ConstantEntryType.Register:
+                    case ConstantType.Register:
                         constEntry.Value = reader.ReadUInt32();
                         break;
-                    case ConstantEntryType.Boolean:
+                    case ConstantType.Boolean:
                         constEntry.Value = reader.ReadBooleanUInt32Checked();
                         break;
-                    case ConstantEntryType.Float:
+                    case ConstantType.Float:
                         constEntry.Value = reader.ReadSingle();
                         break;
-                    case ConstantEntryType.Integer:
+                    case ConstantType.Integer:
                         constEntry.Value = reader.ReadInt32();
                         break;
-                    case ConstantEntryType.Lookup:
+                    case ConstantType.Lookup:
                         constEntry.Value = reader.ReadUInt32();
                         break;
-                    case ConstantEntryType.None:
+                    case ConstantType.None:
                         constEntry.Value = null;
                         break;
                     default:
@@ -80,7 +80,7 @@ namespace OpenSage.FileFormats.Apt
 
             return data;
         }
-        public void Write(BinaryWriter writer, MemoryPool memory)
+        public void Write(BinaryWriter writer, BinaryMemoryChain memory)
         {
             writer.Write(Encoding.ASCII.GetBytes(Constants.ConstFileHeader));
             writer.Write((UInt32) AptDataEntryOffset); 
@@ -96,24 +96,24 @@ namespace OpenSage.FileFormats.Apt
 
                 switch (entry.Type)
                 {
-                    case ConstantEntryType.Undef:
+                    case ConstantType.Undef:
                         throw new InvalidDataException("Undefined const entry");
-                    case ConstantEntryType.String:
+                    case ConstantType.String:
                         writer.WriteStringAtOffset((string) entry.Value, memory);
                         break;
-                    case ConstantEntryType.Register:
+                    case ConstantType.Register:
                         writer.Write((UInt32) entry.Value);
                         break;
-                    case ConstantEntryType.Boolean:
+                    case ConstantType.Boolean:
                         writer.WriteBooleanUInt32((Boolean) entry.Value);
                         break;
-                    case ConstantEntryType.Float:
+                    case ConstantType.Float:
                         writer.Write((Single) entry.Value);
                         break;
-                    case ConstantEntryType.Integer:
+                    case ConstantType.Integer:
                         writer.Write((Int32) entry.Value);
                         break;
-                    case ConstantEntryType.Lookup:
+                    case ConstantType.Lookup:
                         writer.Write((UInt32) entry.Value);
                         break;
                     default:
@@ -123,23 +123,4 @@ namespace OpenSage.FileFormats.Apt
         }
     }
 
-    public enum ConstantEntryType
-    {
-        //TODO: validate that all those types are correct
-        Undef = 0,
-        String = 1,
-        Property = 2,
-        None = 3,
-        Register = 4,
-        Boolean = 5,
-        Float = 6,
-        Integer = 7,
-        Lookup = 8
-    }
-
-    public sealed class ConstantEntry
-    {
-        public ConstantEntryType Type { get; internal set; }
-        public object Value { get; internal set; }
-    }
 }

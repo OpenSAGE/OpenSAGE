@@ -22,7 +22,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             label.FrameId = reader.ReadUInt32();
             return label;
         }
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) FrameItemType.FrameLabel);
             writer.WriteStringAtOffset(Name, pool);

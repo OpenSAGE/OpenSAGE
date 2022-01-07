@@ -27,7 +27,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             writer.Write((byte) type);
             if (argument.HasValue)
             {
-                if (InstructionAlignment.IsAligned(type))
+                if (Definition.IsAlignmentRequired(type))
                 {
                     Align(writer);
                 }

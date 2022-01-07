@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-
+using OpenSage.FileFormats;
 using OpenSage.FileFormats.Apt;
 
 namespace OpenSage.Tools.AptEditor.Util
@@ -189,7 +189,7 @@ namespace OpenSage.Tools.AptEditor.Util
                 object[] attrs = field.GetCustomAttributes(typeof(DataStorageListAttribute), true);
                 if (attrs.Length > 0)
                     _listProperties.Add(field.Name, (field, (DataStorageListAttribute) attrs[0]));
-                else if (field.PropertyType.GetInterfaces().Contains(typeof(IDataStorage)))
+                else if (field.PropertyType.GetInterfaces().Contains(typeof(IMemoryStorage)))
                     _nodeProperties.Add(field.Name, field);
                 else
                     _normalProperties.Add(field.Name, field);

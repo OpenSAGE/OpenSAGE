@@ -19,7 +19,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             return action;
         }
 
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) FrameItemType.InitAction);
             writer.Write(Sprite);

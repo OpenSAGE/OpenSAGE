@@ -38,7 +38,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             };
         }
 
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) CharacterType.Shape);
             writer.Write((UInt32) Character.SIGNATURE);

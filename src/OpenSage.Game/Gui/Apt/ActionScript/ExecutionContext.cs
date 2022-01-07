@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Library;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
@@ -76,10 +76,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                 var entry = GlobalConstantPool[Parameters[i].ToInteger()];
                 switch (entry.Type)
                 {
-                    case ConstantEntryType.String:
+                    case ConstantType.String:
                         result = Value.FromString((string) entry.Value);
                         break;
-                    case ConstantEntryType.Register:
+                    case ConstantType.Register:
                         result = Value.FromRegister((uint) entry.Value);
                         break;
                     default:

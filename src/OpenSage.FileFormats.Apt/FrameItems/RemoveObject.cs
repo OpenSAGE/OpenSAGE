@@ -15,7 +15,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             };
         }
 
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) FrameItemType.RemoveObject);
             writer.Write(Depth);

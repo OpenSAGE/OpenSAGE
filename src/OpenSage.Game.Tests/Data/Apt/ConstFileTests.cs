@@ -22,7 +22,7 @@ namespace OpenSage.Tests.Data.Apt
             InstalledFilesTestData.ReadFiles(".const", _output, entry =>
             {
                 using var reader = new BinaryReader(entry.Open());
-                var constFile = ConstantData.Parse(reader);
+                var constFile = ConstantStorage.Parse(reader);
 
                 Assert.NotNull(constFile);
             });
@@ -38,7 +38,7 @@ namespace OpenSage.Tests.Data.Apt
                 var entry = bigArchive.GetEntry(@"MainMenu.const");
 
                 using var reader = new BinaryReader(entry.Open());
-                var data = ConstantData.Parse(reader);
+                var data = ConstantStorage.Parse(reader);
                 Assert.NotNull(data);
 
                 //requires unmodified main menu

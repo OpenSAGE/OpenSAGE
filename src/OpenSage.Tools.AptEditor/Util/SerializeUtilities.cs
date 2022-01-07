@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.Tools.AptEditor.Util

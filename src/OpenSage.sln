@@ -56,7 +56,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game.CodeGen", "Op
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Apt", "OpenSage.FileFormats.Apt\OpenSage.FileFormats.Apt.csproj", "{B06C94EC-937A-4762-A9C1-E4DA67A9F938}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.AptEditor.WinUI", "OpenSage.Tools.AptEditor.WinUI\OpenSage.Tools.AptEditor.WinUI.csproj", "{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.AptEditor.WinUI", "OpenSage.Tools.AptEditor.WinUI\OpenSage.Tools.AptEditor.WinUI.csproj", "{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAS2", "OpenAS2\OpenAS2.csproj", "{81F18F1C-D009-447F-93DE-40794D5AAC4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -156,6 +158,10 @@ Global
 		{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81F18F1C-D009-447F-93DE-40794D5AAC4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81F18F1C-D009-447F-93DE-40794D5AAC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81F18F1C-D009-447F-93DE-40794D5AAC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81F18F1C-D009-447F-93DE-40794D5AAC4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

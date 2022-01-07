@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenSage.FileFormats.Apt
+namespace OpenSage.FileFormats
 {
-    public interface IDataStorage
+    public interface IMemoryStorage
     {
         // DO NOT ALIGN A STORAGE ITSELF INSIDE THIS FUNCTION!
-        public abstract void Write(BinaryWriter writer, MemoryPool pool);
+        public abstract void Write(BinaryWriter writer, BinaryMemoryChain memory);
     }
 
 

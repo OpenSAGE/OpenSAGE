@@ -192,7 +192,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public static Value Undefined() { return new Value(ValueType.Undefined); }
 
-        public static Value FromStorage(ValueStorage s)
+        public static Value FromStorage(RawValue s)
         {
             switch (s.Type)
             {

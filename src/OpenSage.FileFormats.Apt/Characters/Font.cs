@@ -23,7 +23,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             font.Glyphs = reader.ReadListAtOffset<uint>(() => reader.ReadUInt32());
             return font;
         }
-        public override void Write(BinaryWriter writer, MemoryPool memory)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain memory)
         {
             writer.Write((UInt32) CharacterType.Font);
             writer.Write((UInt32) Character.SIGNATURE);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using OpenSage.FileFormats;
+using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 

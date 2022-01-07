@@ -11,7 +11,7 @@ namespace OpenSage.Data
     public sealed class AptFileHelper
     {
         public FileSystem FileSystem { get; }
-        public ConstantData Constants { get; }
+        public ConstantStorage Constants { get; }
         public string MovieName { get; }
 
         public Movie Movie { get; private set; }

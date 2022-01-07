@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Graphics;

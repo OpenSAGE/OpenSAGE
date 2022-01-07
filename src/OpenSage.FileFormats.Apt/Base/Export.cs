@@ -4,7 +4,7 @@ using OpenSage.FileFormats;
 
 namespace OpenSage.FileFormats.Apt
 {
-    public sealed class Export : IDataStorage
+    public sealed class Export : IMemoryStorage
     {
         public string Name { get; private set; }
         public uint Character { get; private set; }
@@ -18,7 +18,7 @@ namespace OpenSage.FileFormats.Apt
             };
         }
 
-        public void Write(BinaryWriter writer, MemoryPool memory)
+        public void Write(BinaryWriter writer, BinaryMemoryChain memory)
         {
             writer.WriteStringAtOffset(Name, memory);
             writer.Write(Character);

@@ -13,7 +13,7 @@ namespace OpenSage.FileFormats.Apt.FrameItems
         InitAction = 8
     };
 
-    public abstract class FrameItem : IDataStorage
+    public abstract class FrameItem : IMemoryStorage
     {
         public static FrameItem Parse(BinaryReader reader)
         {
@@ -46,6 +46,6 @@ namespace OpenSage.FileFormats.Apt.FrameItems
             return frameItem;
         }
 
-        public abstract void Write(BinaryWriter writer, MemoryPool pool);
+        public abstract void Write(BinaryWriter writer, BinaryMemoryChain pool);
     }
 }

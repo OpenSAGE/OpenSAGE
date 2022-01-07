@@ -19,7 +19,7 @@ namespace OpenSage.FileFormats.Apt.Characters
         StateHit = 8
     }
 
-    public struct ButtonRecord : IDataStorage
+    public struct ButtonRecord : IMemoryStorage
     {
         public ButtonRecordFlags Flags;
         public uint Reserved;
@@ -57,7 +57,7 @@ namespace OpenSage.FileFormats.Apt.Characters
                 );
         }
 
-        public void Write(BinaryWriter writer, MemoryPool _)
+        public void Write(BinaryWriter writer, BinaryMemoryChain _)
         {
             writer.Write((byte) Flags);
             writer.WriteUInt24(Reserved);
@@ -97,7 +97,7 @@ namespace OpenSage.FileFormats.Apt.Characters
         Unknown = 240,
     }
 
-    public struct ButtonAction : IDataStorage
+    public struct ButtonAction : IMemoryStorage
     {
         public ButtonActionFlags Flags;
         public ButtonInput KeyCode;
@@ -122,7 +122,7 @@ namespace OpenSage.FileFormats.Apt.Characters
                 InstructionStorage.Parse(reader.BaseStream, reader.ReadUInt32()));
         }
 
-        public void Write(BinaryWriter writer, MemoryPool pool)
+        public void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((byte) Flags);
             writer.Write((UInt16) KeyCode);
@@ -155,7 +155,7 @@ namespace OpenSage.FileFormats.Apt.Characters
             button.Actions = reader.ReadListAtOffset<ButtonAction>(() => ButtonAction.Parse(reader));
             return button;
         }
-        public override void Write(BinaryWriter writer, MemoryPool pool)
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
         {
             writer.Write((UInt32) CharacterType.Button);
             writer.Write((UInt32) Character.SIGNATURE);

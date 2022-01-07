@@ -188,6 +188,8 @@ namespace OpenSage.Tools.AptEditor.UI
                 var apt = _fileSystem.LoadApt(path);
                 _fileSystem.LoadImportTree(apt);
                 SetApt(path, apt);
+                if (true)
+                    DebugUtils.OutputAllAptCodes(apt, "E:/aptcodes");
             }
             catch (FileNotFoundException loadFailure)
             {
