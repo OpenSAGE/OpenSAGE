@@ -390,6 +390,8 @@ namespace OpenSage.Logic.Object
         {
             var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime / _gameObject.ProductionModifier);
             _productionQueue.Add(job);
+
+            // TODO: Set ModelConditionFlag.ActivelyConstructing.
         }
 
         internal void Spawn(ObjectDefinition objectDefinition)

@@ -207,7 +207,7 @@ namespace OpenSage.Logic.Object
                     }
                 }
 
-                return _triggeredByHashSet;
+                return _conflictsWithHashSet;
             }
         }
     }
