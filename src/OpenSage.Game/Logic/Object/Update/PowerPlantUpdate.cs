@@ -5,7 +5,40 @@ namespace OpenSage.Logic.Object
 {
     public sealed class PowerPlantUpdate : UpdateModule
     {
+        private readonly GameObject _gameObject;
+        private readonly PowerPlantUpdateModuleData _moduleData;
+
         private bool _rodsExtended;
+
+        // TODO: This should be in frame numbers.
+        private TimeSpan _rodsExtendedEndTime;
+
+        internal PowerPlantUpdate(GameObject gameObject, PowerPlantUpdateModuleData moduleData)
+        {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+        }
+
+        internal void ExtendRods()
+        {
+            _rodsExtended = true;
+
+            _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
+
+            _rodsExtendedEndTime = _gameObject.GameContext.Scene3D.Game.GetTimeInterval().TotalTime + _moduleData.RodsExtendTime;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+
+            if (_rodsExtended && _rodsExtendedEndTime < context.Time.TotalTime)
+            {
+                _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
+                _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, true);
+                _rodsExtendedEndTime = TimeSpan.MaxValue;
+            }
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -15,7 +48,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean("RodsExtended", ref _rodsExtended);
+            reader.PersistBoolean("RodsExtending", ref _rodsExtended);
         }
     }
 
@@ -37,7 +70,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new PowerPlantUpdate();
+            return new PowerPlantUpdate(gameObject, this);
         }
     }
 }
