@@ -13,6 +13,7 @@ namespace OpenSage.Logic
 
         public readonly TeamTemplate Template;
         public readonly uint Id;
+        // TODO: Store actual objects here, not just IDs.
         public readonly List<uint> ObjectIds = new List<uint>();
         public uint TargetObjectID;
 

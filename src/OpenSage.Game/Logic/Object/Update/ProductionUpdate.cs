@@ -103,18 +103,18 @@ namespace OpenSage.Logic.Object
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
 
-                            ProduceObject(front);
+                            ProduceObject(front.ObjectDefinition);
                         }
                         else
                         {
-                            ProduceObject(front);
+                            ProduceObject(front.ObjectDefinition);
                             MoveProducedObjectOut();
                             _productionQueue.RemoveAt(0);
                         }
                     }
                     else if (front.Type == ProductionJobType.Upgrade)
                     {
-                        GrantUpgrade(front);
+                        front.UpgradeDefinition.GrantUpgrade(_gameObject);
                         _productionQueue.RemoveAt(0);
                     }
                 }
@@ -205,31 +205,6 @@ namespace OpenSage.Logic.Object
                     closing = ModelConditionFlag.Door4Closing;
                     break;
             }
-        }
-
-        private void ProduceObject(ProductionJob job)
-        {
-            switch (job.Type)
-            {
-                case ProductionJobType.Unit:
-                    ProduceObject(job.ObjectDefinition);
-                    break;
-            }
-        }
-
-        private void GrantUpgrade(ProductionJob job)
-        {
-            switch (job.Type)
-            {
-                case ProductionJobType.Upgrade:
-                    GrantUpgrade(job.UpgradeDefinition);
-                    break;
-            }
-        }
-
-        private void GrantUpgrade(UpgradeTemplate upgradeDefinition)
-        {
-            _gameObject.Upgrade(upgradeDefinition);
         }
 
         internal bool CanProduceObject(ObjectDefinition objectDefinition)

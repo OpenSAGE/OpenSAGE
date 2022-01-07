@@ -9,10 +9,14 @@ namespace OpenSage.Logic.Object
 
         internal GenerateMinefieldBehavior(GenerateMinefieldBehaviorModuleData moduleData)
         {
-            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
-        void IUpgradeableModule.OnTrigger(BehaviorUpdateContext context, bool triggered)
+        public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
+
+        public void TryUpgrade(UpgradeSet completedUpgrades) => _upgradeLogic.TryUpgrade(completedUpgrades);
+
+        private void OnUpgrade()
         {
             // TODO
         }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Content;
+﻿using System;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
 
@@ -124,6 +125,40 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int GroupOrder { get; private set; }
+
+        internal void GrantUpgrade(GameObject gameObject)
+        {
+            switch (Type)
+            {
+                case UpgradeType.Player:
+                    gameObject.Owner.AddUpgrade(this, UpgradeStatus.Completed);
+                    break;
+
+                case UpgradeType.Object:
+                    gameObject.Upgrade(this);
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        internal void RemoveUpgrade(GameObject gameObject)
+        {
+            switch (Type)
+            {
+                case UpgradeType.Player:
+                    gameObject.Owner.RemoveUpgrade(this);
+                    break;
+
+                case UpgradeType.Object:
+                    gameObject.RemoveUpgrade(this);
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
     }
 
     public enum UpgradeType

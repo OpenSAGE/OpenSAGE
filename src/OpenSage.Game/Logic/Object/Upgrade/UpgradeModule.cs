@@ -17,22 +17,14 @@ namespace OpenSage.Logic.Object
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
-            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, this);
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
-        internal bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
+        public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
 
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            _upgradeLogic.Update(context);
-        }
+        public void TryUpgrade(UpgradeSet completedUpgrades) => _upgradeLogic.TryUpgrade(completedUpgrades);
 
-        void IUpgradeableModule.OnTrigger(BehaviorUpdateContext context, bool triggered)
-        {
-            OnTrigger(context, triggered);
-        }
-
-        internal virtual void OnTrigger(BehaviorUpdateContext context, bool triggered) { }
+        protected virtual void OnUpgrade() { }
 
         internal override void Load(StatePersister reader)
         {
@@ -53,48 +45,43 @@ namespace OpenSage.Logic.Object
 
     internal interface IUpgradeableModule
     {
-        void OnTrigger(BehaviorUpdateContext context, bool triggered);
+        bool CanUpgrade(UpgradeSet existingUpgrades);
+
+        void TryUpgrade(UpgradeSet completedUpgrades);
     }
+
+    internal delegate void TriggerUpgradeDelegate();
 
     internal sealed class UpgradeLogic : IPersistableObject
     {
         private readonly UpgradeLogicData _data;
-        private readonly IUpgradeableModule _upgradeableModule;
+        private readonly TriggerUpgradeDelegate _triggerUpgradeCallback;
         private bool _triggered;
 
         public bool Triggered => _triggered;
 
-        public UpgradeLogic(UpgradeLogicData data, IUpgradeableModule upgradeableModule)
+        public UpgradeLogic(UpgradeLogicData data, TriggerUpgradeDelegate triggerUpgradeCallback)
         {
             _data = data;
-            _upgradeableModule = upgradeableModule;
+            _triggerUpgradeCallback = triggerUpgradeCallback;
 
             if (data.StartsActive)
             {
                 //DoUpgrade();
-                _triggered = data.StartsActive;
+                //_triggered = data.StartsActive;
             }
         }
 
-        public void Update(BehaviorUpdateContext context)
+        public void TryUpgrade(UpgradeSet completedUpgrades)
         {
-            // TODO: This is expensive to do every single update.
-            var canUpgrade = CanUpgrade(context.GameObject.GetUpgradesCompleted());
-
-            // what objects do use initial here?
-            if (canUpgrade != _triggered)
+            if (!CanUpgrade(completedUpgrades))
             {
-                DoUpgrade(context);
+                return;
             }
-        }
 
-        private void DoUpgrade(BehaviorUpdateContext context)
-        {
-            if (_triggered)
-            {
-                _triggered = true;
-                _upgradeableModule.OnTrigger(context, _triggered);
-            }
+            _triggerUpgradeCallback();
+
+            _triggered = true;
         }
 
         public bool CanUpgrade(UpgradeSet existingUpgrades)
@@ -104,11 +91,6 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            return CanUpgradeImpl(existingUpgrades);
-        }
-
-        private bool CanUpgradeImpl(UpgradeSet existingUpgrades)
-        {
             // Does the object / player have the prerequisite upgrades that trigger this upgrade?
             var triggered = _data.RequiresAllTriggers
                 ? existingUpgrades.SetEquals(_data.TriggeredByHashSet)

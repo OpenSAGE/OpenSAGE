@@ -13,25 +13,22 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
+            switch (_moduleData.ChangeType)
             {
-                switch (_moduleData.ChangeType)
-                {
-                    case MaxHealthChangeType.PreserveRatio:
-                        _gameObject.Health += _gameObject.HealthPercentage * (Fix64) _moduleData.AddMaxHealth;
-                        break;
-                    case MaxHealthChangeType.AddCurrentHealthToo:
-                        _gameObject.Health += (Fix64) _moduleData.AddMaxHealth;
-                        break;
-                    case MaxHealthChangeType.SameCurrentHealth:
-                        // Don't add any new health
-                        break;
-                }
-
-                _gameObject.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
+                case MaxHealthChangeType.PreserveRatio:
+                    _gameObject.Health += _gameObject.HealthPercentage * (Fix64) _moduleData.AddMaxHealth;
+                    break;
+                case MaxHealthChangeType.AddCurrentHealthToo:
+                    _gameObject.Health += (Fix64) _moduleData.AddMaxHealth;
+                    break;
+                case MaxHealthChangeType.SameCurrentHealth:
+                    // Don't add any new health
+                    break;
             }
+
+            _gameObject.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
         }
 
         internal override void Load(StatePersister reader)

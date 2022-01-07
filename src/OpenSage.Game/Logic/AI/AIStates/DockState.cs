@@ -57,7 +57,9 @@
             {
                 reader.PersistVersion(2);
 
+                reader.BeginObject("Base");
                 base.Persist(reader);
+                reader.EndObject();
             }
         }
 

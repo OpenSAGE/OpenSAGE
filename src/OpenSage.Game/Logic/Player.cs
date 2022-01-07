@@ -353,6 +353,7 @@ namespace OpenSage.Logic
                 case UpgradeStatus.Completed:
                     _upgradesInProgress.Remove(template);
                     UpgradesCompleted.Add(template);
+                    // TODO: Iterate all game objects owned by this player and call their UpdateUpgradeableModules methods.
                     break;
             }
 
