@@ -11,6 +11,16 @@ namespace OpenSage.Logic.Object
         private TimeSpan _lifeTime;
         private bool _initial = true;
 
+        public TimeSpan Lifetime
+        {
+            get => _lifeTime;
+            set
+            {
+                _lifeTime = value;
+                _initial = false;
+            }
+        }
+
         // TODO: This shouold replace _lifeTime above
         private uint _frameToDie;
 

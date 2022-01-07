@@ -58,7 +58,7 @@ namespace OpenSage.Logic
                 {
                     if (_modifierList.Upgrade.Delay == 0)
                     {
-                        gameObject.Upgrade(upgrade.Value);
+                        upgrade.Value.GrantUpgrade(gameObject);
                     }
                     else
                     {
@@ -92,7 +92,7 @@ namespace OpenSage.Logic
                 var (upgrade, activatesAt) = _delayedUpgrades[i];
                 if (time.TotalTime > activatesAt)
                 {
-                    gameObject.Upgrade(upgrade);
+                    upgrade.GrantUpgrade(gameObject);
                     _delayedUpgrades.RemoveAt(i);
                 }
             }
@@ -118,7 +118,7 @@ namespace OpenSage.Logic
             {
                 foreach (var upgrade in _modifierList.Upgrade.Upgrades)
                 {
-                    gameObject.RemoveUpgrade(upgrade.Value);
+                    upgrade.Value.RemoveUpgrade(gameObject);
                 }
             }
 

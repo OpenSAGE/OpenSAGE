@@ -845,11 +845,13 @@ namespace OpenSage
 
             // TODO: What is the order?
             // TODO: Calculate time correctly.
-            var timeInterval = new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
+            var timeInterval = GetTimeInterval();
             Scene3D?.LogicTick(frame, timeInterval);
 
             CurrentFrame += 1;
         }
+
+        internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
 
         public void ToggleLogicRunning()
         {

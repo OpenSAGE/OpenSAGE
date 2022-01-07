@@ -11,9 +11,9 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            _gameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, triggered);
+            _gameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, true);
         }
 
         internal override void Load(StatePersister reader)

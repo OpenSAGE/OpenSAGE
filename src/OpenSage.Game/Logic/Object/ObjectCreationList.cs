@@ -343,6 +343,13 @@ namespace OpenSage.Logic.Object
                     newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
                 }
 
+                var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
+                if (lifetimeUpdate != null)
+                {
+                    var lifetime = context.GameContext.Random.NextDouble() * (MaxLifetime - MinLifetime) + MinLifetime;
+                    lifetimeUpdate.Lifetime = context.Time.TotalTime + TimeSpan.FromMilliseconds(lifetime);
+                }
+
                 result.Add(newGameObject);
             }
 

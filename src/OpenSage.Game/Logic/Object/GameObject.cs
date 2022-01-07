@@ -519,9 +519,6 @@ namespace OpenSage.Logic.Object
             _attributeModifiers[name].Invalid = true;
         }
 
-        
-
-
         public void ShowCollider(string name)
         {
             if (Colliders.Any(x => x.Name.Equals(name)))
@@ -987,7 +984,7 @@ namespace OpenSage.Logic.Object
             return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && upgradeModuleCanUpgrade;
         }
 
-        public UpgradeSet GetUpgradesCompleted()
+        private UpgradeSet GetUpgradesCompleted()
         {
             _upgradesAll.Clear();
             _upgradesAll.UnionWith(_upgrades);
@@ -997,40 +994,29 @@ namespace OpenSage.Logic.Object
 
         public void Upgrade(UpgradeTemplate upgrade)
         {
-            switch (upgrade.Type)
-            {
-                case UpgradeType.Object:
-                    DoObjectUpgrade(upgrade);
-                    break;
+            _upgrades.Add(upgrade);
 
-                case UpgradeType.Player:
-                    Owner.AddUpgrade(upgrade, UpgradeStatus.Completed);
-                    break;
-
-                default:
-                    throw new InvalidOperationException("This should not happen");
-            }
+            UpdateUpgradeableModules();
         }
 
-        private void DoObjectUpgrade(UpgradeTemplate upgrade)
+        internal void UpdateUpgradeableModules()
         {
-            _upgrades.Add(upgrade);
+            var completedUpgrades = GetUpgradesCompleted();
+
+            foreach (var module in _modules)
+            {
+                if (module is IUpgradeableModule upgradeableModule)
+                {
+                    upgradeableModule.TryUpgrade(completedUpgrades);
+                }
+            }
         }
 
         public void RemoveUpgrade(UpgradeTemplate upgrade)
         {
-            if (upgrade.Type == UpgradeType.Object)
-            {
-                _upgrades.Remove(upgrade);
-            }
-            else if (upgrade.Type == UpgradeType.Player)
-            {
-                Owner.RemoveUpgrade(upgrade);
-            }
-            else
-            {
-                throw new InvalidOperationException("This should not happen");
-            }
+            _upgrades.Remove(upgrade);
+
+            // TODO: Set _triggered to false for all affected upgrade modules
         }
 
         internal void Kill(DeathType deathType, TimeInterval time)
@@ -1109,9 +1095,14 @@ namespace OpenSage.Logic.Object
 
             reader.PersistObjectID("ObjectId", ref _id);
 
-            var transform = Matrix4x3.Identity;
+            var transform = reader.Mode == StatePersistMode.Write
+                ? Matrix4x3.FromMatrix4x4(_transform.Matrix)
+                : Matrix4x3.Identity;
             reader.PersistMatrix4x3("Transform", ref transform);
-            SetTransformMatrix(transform.ToMatrix4x4());
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                SetTransformMatrix(transform.ToMatrix4x4());
+            }
 
             var teamId = Team?.Id ?? 0u;
             reader.PersistUInt32("TeamId", ref teamId);

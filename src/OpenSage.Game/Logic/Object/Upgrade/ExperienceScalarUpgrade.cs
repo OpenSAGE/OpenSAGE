@@ -12,12 +12,9 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
-            {
-                _gameObject.ExperienceMultiplier += _moduleData.AddXPScalar;
-            }
+            _gameObject.ExperienceMultiplier += _moduleData.AddXPScalar;
         }
 
         internal override void Load(StatePersister reader)

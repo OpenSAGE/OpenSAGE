@@ -4,16 +4,14 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class PowerPlantUpgrade : UpgradeModule
     {
-        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
-            {
-                _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
-            }
+            _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
         }
 
         internal override void Load(StatePersister reader)
