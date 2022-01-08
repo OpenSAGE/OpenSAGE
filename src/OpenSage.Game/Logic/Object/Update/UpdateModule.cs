@@ -2,7 +2,7 @@
 {
     public abstract class UpdateModule : BehaviorModule
     {
-        private uint _frameSomething;
+        private UpdateFrame _updateFrame;
 
         internal override void Load(StatePersister reader)
         {
@@ -12,8 +12,24 @@
             base.Load(reader);
             reader.EndObject();
 
-            // Maybe some kind of frame timer? But sometimes it's -2.
-            reader.PersistFrame(ref _frameSomething);
+            reader.PersistFrame(ref _updateFrame.RawValue, "UpdateFrame");
+        }
+
+        private struct UpdateFrame
+        {
+            public uint RawValue;
+
+            public uint Frame
+            {
+                get => RawValue >> 2;
+                set => RawValue = (value << 2) | (RawValue & 0x3);
+            }
+
+            public byte Something
+            {
+                get => (byte)(RawValue & 0x3);
+                set => RawValue = (RawValue & 0xFFFFFFFC) | (value);
+            }
         }
     }
 
