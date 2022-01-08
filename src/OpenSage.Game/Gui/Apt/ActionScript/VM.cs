@@ -54,8 +54,8 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public void RegisterClass(string className, Type classType)
         {
-            var cst_param = new VM[] { this };
-            var newProto = (ASObject) Activator.CreateInstance(classType, cst_param);
+            var cstParams = new VM[] { this };
+            var newProto = (ASObject) Activator.CreateInstance(classType, cstParams);
             var props = (Dictionary<string, Func<VM, Property>>) classType.GetField("PropertiesDefined").GetValue(null);
             var stats = (Dictionary<string, Func<VM, Property>>) classType.GetField("StaticPropertiesDefined").GetValue(null);
             foreach (var p in props)

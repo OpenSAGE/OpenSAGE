@@ -2,7 +2,7 @@
 
 namespace OpenAS2.Runtime
 {
-    public sealed class ExternObject : ASObject
+    public sealed class ExternObject : ESObject
     {
         private VirtualMachine _vm;
 
@@ -16,12 +16,12 @@ namespace OpenAS2.Runtime
         /// </summary>
         /// <param name="name">Name of the engine variable</param>
         /// <returns></returns>
-        public override Value GetMember(string name)
+        public override Value IGet(string name)
         {
             return _vm.Dom.VariableHandler(name);
         }
 
-        public override void SetMember(string name, Value val)
+        public override void IPut(string name, Value val)
         {
             throw new NotImplementedException();
         }

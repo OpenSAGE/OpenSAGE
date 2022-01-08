@@ -12,8 +12,8 @@ namespace OpenAS2.Runtime.Library
     public static class Builtin
     {
         public static readonly Dictionary<string, Type> BuiltinClasses;
-        public static readonly Dictionary<string, Func<ExecutionContext, ASObject, Value[], Value>> BuiltinFunctions;
-        public static Dictionary<string, Func<VirtualMachine, Property>> BuiltinVariables;
+        public static readonly Dictionary<string, Func<ExecutionContext, ESObject, Value[], Value>> BuiltinFunctions;
+        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> BuiltinVariables;
         public static DateTime InitTimeStamp { get; } = DateTime.Now;
 
         static Builtin()
@@ -21,8 +21,8 @@ namespace OpenAS2.Runtime.Library
             // list of builtin objects and their corresponding constructors
             BuiltinClasses = new Dictionary<string, Type>()
             {
-                ["Object"] = typeof(ASObject),
-                ["Function"] = typeof(ASFunction),
+                ["Object"] = typeof(ESObject),
+                ["Function"] = typeof(ESFunction),
                 ["Array"] = typeof(ASArray),
                 ["Color"] = typeof(ASColor),
                 ["String"] = typeof(ASString),
@@ -31,7 +31,7 @@ namespace OpenAS2.Runtime.Library
             };
 
             // list of builtin functions
-            BuiltinFunctions = new Dictionary<string, Func<ExecutionContext, ASObject, Value[], Value>>()
+            BuiltinFunctions = new Dictionary<string, Func<ExecutionContext, ESObject, Value[], Value>>()
             {
                 // Global constructors / functions
                 ["Boolean"] = (actx, ctx, args) => Value.FromBoolean(args[0].ToBoolean()),
@@ -47,19 +47,19 @@ namespace OpenAS2.Runtime.Library
             };
 
             // list of builtin variables
-            BuiltinVariables = new Dictionary<string, Func<VirtualMachine, Property>>()
+            BuiltinVariables = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
             {
                 // properties
-                ["_root"] = (avm) => Property.A(
+                ["_root"] = (avm) => PropertyDescriptor.A(
                      (tv) => {
                          if (tv is not StageObject) return Value.Undefined();
                          return Value.FromObject(((StageObject) tv).Item.Context.Root.ScriptObject);
                      },
                      null, false, false),
-                ["_global"] = (avm) => Property.A(
+                ["_global"] = (avm) => PropertyDescriptor.A(
                      (tv) => Value.FromObject(avm.GlobalObject),
                      null, false, false),
-                ["extern"] = (avm) => Property.A(
+                ["extern"] = (avm) => PropertyDescriptor.A(
                      (tv) => Value.FromObject(avm.ExternObject),
                      null, false, false),
 
@@ -74,47 +74,47 @@ namespace OpenAS2.Runtime.Library
             return result;
         }
 
-        public static Value SetInterval(ExecutionContext context, ASObject ctx, Value[] args)
+        public static Value SetInterval(ExecutionContext context, ESObject ctx, Value[] args)
         {
             var vm = context.Avm;
             var name = context.Pop().ToString();
 
             vm.CreateInterval(name, args[1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
-            ctx.SetMember(name, Value.FromString(name));
+            ctx.IPut(name, Value.FromString(name));
 
             return null;
         }
 
-        public static Value ClearInterval(ExecutionContext context, ASObject ctx, Value[] args)
+        public static Value ClearInterval(ExecutionContext context, ESObject ctx, Value[] args)
         {
             var vm = context.Avm;
             var name = args[0].ToString();
 
             vm.ClearInterval(name);
-            ctx.DeleteMember(name);
+            ctx.IDelete(name);
 
             return null;
         }
 
-        public static void ASSetPropFlags(ASObject obj, Value properties, int setFlags, int clearFlags)
+        public static void ASSetPropFlags(ESObject obj, Value properties, int setFlags, int clearFlags)
         {
             if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ASString))
             {
                 var _prop = properties.ToString();
                 var _props = _prop.Split(",");
                 foreach (var p in _props)
-                    obj.SetPropertyFlags(p, setFlags, clearFlags);
+                    obj.ASSetFlags(p, setFlags, clearFlags);
             }
             else if (properties.Type == ValueType.Object && properties.ToObject() is ASArray)
             {
                 var _arr = properties.ToObject<ASArray>();
                 var l = _arr.GetLength();
                 for (int i = 0; i < l; ++i)
-                    obj.SetPropertyFlags(_arr.GetValue(l).ToString(), setFlags, clearFlags);
+                    obj.ASSetFlags(_arr.GetValue(l).ToString(), setFlags, clearFlags);
             }
             else if ((properties.Type == ValueType.Object && properties.ToObject() == null) || properties == null) // null means all properties
                 foreach (var p in obj.GetAllProperties())
-                    obj.SetPropertyFlags(p, setFlags, clearFlags);
+                    obj.ASSetFlags(p, setFlags, clearFlags);
             else
                 throw new InvalidOperationException($"Invalid argument: properties {properties}");
         }

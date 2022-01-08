@@ -27,7 +27,7 @@ namespace OpenAS2.Runtime.Opcodes
 
             if (obj != null)
             {
-                context.Push(obj.GetMember(member));
+                context.Push(obj.IGet(member));
             }
             else
             {
@@ -60,7 +60,7 @@ namespace OpenAS2.Runtime.Opcodes
             if (obj is null)
                 throw new NotImplementedException("Do not know what to do in this situation");
             else
-                obj.SetMember(memberName, valueVal);
+                obj.IPut(memberName, valueVal);
 
         }
         public override int Precendence => 3;
@@ -110,7 +110,7 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var name = context.Pop().ToString();
-            context.This.SetMember(name, Parameters[0]);
+            context.This.IPut(name, Parameters[0]);
         }
         public override int Precendence => 3;
         public override string ToString(string[] p)
@@ -132,7 +132,7 @@ namespace OpenAS2.Runtime.Opcodes
         {
             //pop the value
             var variableName = context.Pop().ToString();
-            Value variable = context.This.GetMember(variableName);
+            Value variable = context.This.IGet(variableName);
             context.Push(variable);
         }
         public override int Precendence => 18;
@@ -154,7 +154,7 @@ namespace OpenAS2.Runtime.Opcodes
         {
             var valueVal = context.Pop();
             var memberName = context.Pop().ToString();
-            context.This.SetMember(memberName, valueVal);
+            context.This.IPut(memberName, valueVal);
         }
         public override int Precendence => 3;
         public override string ToString(string[] p)
@@ -178,7 +178,7 @@ namespace OpenAS2.Runtime.Opcodes
             var obj = context.Pop().ToObject();
 
             // TODO What about arrays?
-            context.Push(obj.GetMember(member.ToString()));
+            context.Push(obj.IGet(member.ToString()));
         }
         public override int Precendence => 18;
         public override string ToString(string[] p)
@@ -284,7 +284,7 @@ namespace OpenAS2.Runtime.Opcodes
             //pop the object
             var objectVal = context.Pop();
 
-            var valueVal = objectVal.ToObject().GetMember(memberVal.ToString());
+            var valueVal = objectVal.ToObject().IGet(memberVal.ToString());
 
             context.Push(valueVal);
         }
@@ -306,7 +306,7 @@ namespace OpenAS2.Runtime.Opcodes
             var memberVal = context.Pop().ToString();
             var objectVal = context.Pop().ToObject();
 
-            objectVal.SetMember(memberVal, Parameters[0]);
+            objectVal.IPut(memberVal, Parameters[0]);
         }
         public override int Precendence => 3;
         public override string ToString(string[] p)
@@ -353,7 +353,7 @@ namespace OpenAS2.Runtime.Opcodes
             var obj = context.Pop();
             var args = FunctionCommon.GetArgumentsFromStack(context);
             
-            if (nameVal.Type != ValueType.Undefined && name.Length != 0) obj = obj.ToObject().GetMember(name);
+            if (nameVal.Type != ValueType.Undefined && name.Length != 0) obj = obj.ToObject().IGet(name);
 
             context.ConstructObjectAndPush(obj, args);
             
@@ -376,12 +376,12 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var nArgs = context.Pop().ToInteger();
-            var obj = new ASObject(context.Avm);
+            var obj = new ESObject(context.Avm);
             for (int i = 0; i < nArgs; ++i)
             {
                 var vi = context.Pop();
                 var ni = context.Pop().ToString();
-                obj.SetMember(ni, vi);
+                obj.IPut(ni, vi);
             }
 
             context.Push(Value.FromObject(obj));
@@ -421,7 +421,7 @@ namespace OpenAS2.Runtime.Opcodes
             // I followed the document, but don't know if will cause issues.
             var sup = context.Pop().ToFunction();
             var cls = context.Pop().ToFunction();
-            var obj = new ASObject(context.Avm);
+            var obj = new ESObject(context.Avm);
             obj.__proto__ = sup.prototype;
             obj.constructor = sup;
             cls.prototype = obj;

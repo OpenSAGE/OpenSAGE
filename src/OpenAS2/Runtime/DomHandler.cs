@@ -20,7 +20,7 @@ namespace OpenAS2.Runtime
         public delegate AptFile HandleExternalMovie(string movie);
         public HandleExternalMovie movieHandler;
 
-        public ASObject RootObject;
+        public ESObject RootObject;
         public DomHandler(HandleCommand hc, HandleExternVariable hev, HandleExternalMovie hem)
         {
             cmdHandler = hc;
@@ -41,7 +41,7 @@ namespace OpenAS2.Runtime
             else
             {
                 //DO STUFF
-                var targetObject = context.This.GetMember(target).ToObject<StageObject>();
+                var targetObject = context.This.IGet(target).ToObject<StageObject>();
 
                 if (!(targetObject.Item is SpriteItem))
                 {

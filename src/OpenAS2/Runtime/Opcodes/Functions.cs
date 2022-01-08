@@ -23,7 +23,7 @@ namespace OpenAS2.Runtime.Opcodes
 
         // TODO this function is no longer safe. try to use the new model.
         // TODO try to fix compatibility
-        public static Value ExecuteFunction(Value funcVal, Value[] args, ASObject scope, VirtualMachine vm)
+        public static Value ExecuteFunction(Value funcVal, Value[] args, ESObject scope, VirtualMachine vm)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
@@ -38,17 +38,17 @@ namespace OpenAS2.Runtime.Opcodes
             return Value.Undefined();
         }
 
-        public static Value StartExecutingFunction(string funcName, Value[] args, ExecutionContext context, ASObject thisVar = null)
+        public static Value StartExecutingFunction(string funcName, Value[] args, ExecutionContext context, ESObject thisVar = null)
         {
             return StartExecutingFunction(context.GetValueOnChain(funcName), args, context, thisVar);
         }
-        public static Value StartExecutingFunction(Value funcVal, Value[] args, ExecutionContext context, ASObject thisVar = null)
+        public static Value StartExecutingFunction(Value funcVal, Value[] args, ExecutionContext context, ESObject thisVar = null)
         {
             if (funcVal.Type != ValueType.Undefined)
             {
                 var func = funcVal.ToFunction();
                 if (thisVar == null) thisVar = context.Global;
-                return func.Invoke(context, thisVar, args);
+                return func.ICall(context, thisVar, args);
             }
             else
             {
@@ -105,7 +105,7 @@ namespace OpenAS2.Runtime.Opcodes
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.SetMember(name, funcVal);
+                context.This.IPut(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -171,7 +171,7 @@ namespace OpenAS2.Runtime.Opcodes
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.SetMember(name, funcVal);
+                context.This.IPut(name, funcVal);
             //anonymous function/lambda function
             else
                 context.Push(funcVal);

@@ -23,7 +23,7 @@ namespace OpenAS2.Runtime.Execution
         {
             var obj = objv.ToObject();
             var cst = cstv.ToFunction();
-            ASObject val = obj.InstanceOf(cst) ? obj : null;
+            ESObject val = obj.InstanceOf(cst) ? obj : null;
             return Value.FromObject(val);
         };
         static readonly OPR2 InstanceOf = (a, b) =>
@@ -49,7 +49,7 @@ namespace OpenAS2.Runtime.Execution
                 case InstructionType.Extends:
                     var sup = context.Pop().ToFunction();
                     var cls = context.Pop().ToFunction();
-                    var obj = new ASObject(context.Avm);
+                    var obj = new ESObject(context.Avm);
                     obj.__proto__ = sup.prototype;
                     obj.constructor = sup;
                     cls.prototype = obj;

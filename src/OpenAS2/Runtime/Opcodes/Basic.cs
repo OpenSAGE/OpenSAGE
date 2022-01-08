@@ -119,7 +119,7 @@ namespace OpenAS2.Runtime.Opcodes
         {
             var property = context.Pop().ToString();
             var target = context.GetTarget(context.Pop().ToString());
-            target.ToObject().DeleteMember(property);
+            target.ToObject().IDelete(property);
         }
         public override int Precendence => 15;
         public override string ToString(string[] p)
@@ -287,7 +287,7 @@ namespace OpenAS2.Runtime.Opcodes
             {
                 var obj = objv.ToObject();
                 var cst = cstv.ToFunction();
-                ASObject val = obj.InstanceOf(cst) ? obj : null;
+                ESObject val = obj.InstanceOf(cst) ? obj : null;
                 return Value.FromObject(val);
             };
         public override InstructionType Type => InstructionType.CastOp;

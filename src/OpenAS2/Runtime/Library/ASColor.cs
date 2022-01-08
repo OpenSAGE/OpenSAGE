@@ -5,19 +5,19 @@ using OpenSage.Mathematics;
 
 namespace OpenAS2.Runtime.Library
 {
-    internal sealed class ASColor : ASObject
+    internal sealed class ASColor : ESObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, Property>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
             // methods
-            ["getRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+            ["getRGB"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (vm, tv, args) => {
                      var ans = ((ASColor) tv).getRGB();
                      return ans;
                  }
                  , avm)), true, false, false),
-            ["setRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+            ["setRGB"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                 (vm, tv, args) => {
                     ((ASColor) tv).setRGB(args);
                     return null;
@@ -25,7 +25,7 @@ namespace OpenAS2.Runtime.Library
                 , avm)), true, false, false),
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             
         };

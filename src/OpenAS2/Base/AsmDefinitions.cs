@@ -9,25 +9,11 @@ namespace OpenAS2.Base
 {
     public enum InstructionType : byte
     {
-        /// <summary>
-        /// End the current instruction stream
-        /// </summary>
+
         End = 0x00,
-        /// <summary>
-        /// Go to the next frame of the current object (must be sprite)
-        /// </summary>
         NextFrame = 0x04,
-        /// <summary>
-        /// Go to the previous frame of the current object (must be sprite)
-        /// </summary>
         PrevFrame = 0x05,
-        /// <summary>
-        /// Start playback of current object (must be sprite)
-        /// </summary>
         Play = 0x06,
-        /// <summary>
-        /// Stop playback of current object (must be sprite)
-        /// </summary>
         Stop = 0x07,
         ToggleQuality = 0x08,
         StopSounds = 0x09,
@@ -171,6 +157,22 @@ namespace OpenAS2.Base
         EA_PushRegister = 0xB9,
 
         Padding = 0xFF,
+    }
+
+    [Flags]
+    public enum FunctionPreloadFlags
+    {
+        PreloadExtern = 0x010000,   //this seems to be added by EA
+        PreloadParent = 0x008000,
+        PreloadRoot = 0x004000,
+
+        SupressSuper = 0x002000,
+        PreloadSuper = 0x001000,
+        SupressArguments = 0x000800,
+        PreloadArguments = 0x000400,
+        SupressThis = 0x000200,
+        PreloadThis = 0x000100,
+        PreloadGlobal = 0x000001
     }
 
     public enum RawParamType

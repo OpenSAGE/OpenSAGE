@@ -3,30 +3,30 @@ using System;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ASString : ASObject
+    class ASString : ESObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, Property>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
-            ["constructor"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+            ["constructor"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
-                     ((ASString) tv).PrototypeInternal = actx.Avm.Prototypes["String"];
+                     ((ASString) tv).IPrototype = actx.Avm.Prototypes["String"];
                      ((ASString) tv)._value = args[0].ToString();
                      return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
-            ["length"] = (avm) => Property.A(
+            ["length"] = (avm) => PropertyDescriptor.A(
                 (tv) => Value.FromInteger(((ASString) tv).GetLength()),
                 null
                 , false, false),
             // methods
-            ["substr"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+            ["substr"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (vm, tv, args) => ((ASString) tv).substr(args)
                  , avm)), true, false, false),
             // TODO
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             
         };

@@ -123,7 +123,7 @@ namespace OpenAS2.Runtime.Opcodes
         {
             // TODO: check if this is correct
             var name = context.Pop();
-            context.This.SetMember(name.ToString(), Value.FromInteger(0));
+            context.This.IPut(name.ToString(), Value.FromInteger(0));
         }
         public override int Precendence => 3;
         public override string ToString(string[] p)

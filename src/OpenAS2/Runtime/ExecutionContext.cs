@@ -10,8 +10,8 @@ namespace OpenAS2.Runtime
     public sealed class ExecutionContext
     {
 
-        public ASObject This { get; private set; }
-        public ASObject Global { get; private set; }
+        public ESObject This { get; private set; }
+        public ESObject Global { get; private set; }
         public ExecutionContext Outer { get; private set; }
 
         public DomHandler Dom => Avm == null ? null : Avm.Dom;
@@ -33,7 +33,7 @@ namespace OpenAS2.Runtime
         private Stack<Instruction> _immiexec;
         private Value[] _registers { get; set; }
 
-        public ExecutionContext(VirtualMachine avm, ASObject globalVar, ASObject thisVar, ExecutionContext outerVar, int numRegisters = 0)
+        public ExecutionContext(VirtualMachine avm, ESObject globalVar, ESObject thisVar, ExecutionContext outerVar, int numRegisters = 0)
         {
             // assignments
             Avm = avm;
@@ -269,7 +269,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                return Global.HasMember(name);
+                return Global.IHasProperty(name);
             }
             
         }
@@ -304,7 +304,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                return Global.GetMember(name);
+                return Global.IGet(name);
             }
         }
 
@@ -340,7 +340,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                Global.SetMember(name, val);
+                Global.IPut(name, val);
             }
         }
 
@@ -367,7 +367,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                Global.DeleteMember(name);
+                Global.IDelete(name);
             }
         }
 
@@ -397,7 +397,7 @@ namespace OpenAS2.Runtime
                 return Value.FromObject(This);
 
             //depending on wether or not this is a relative path or not
-            ASObject obj = target.First() == '/' ? Dom.RootScriptObject : This;
+            ESObject obj = target.First() == '/' ? Dom.RootScriptObject : This;
 
             foreach (var part in target.Split('/'))
             {
@@ -407,7 +407,7 @@ namespace OpenAS2.Runtime
                 }
                 else
                 {
-                    obj = obj.GetMember(part).ToObject();
+                    obj = obj.IGet(part).ToObject();
                 }
             }
 
@@ -433,9 +433,8 @@ namespace OpenAS2.Runtime
             else
             {
                 var cst_func = funcVal.ToFunction();
-                var thisVar = Avm.ConstructClass(cst_func);
+                var thisVar = cst_func.IConstruct(this, cst_func, args);
                 PushRecallCode(new InstructionPushValue(Value.FromObject(thisVar)));
-                cst_func.Invoke(this, thisVar, args);
             }
         }
 

@@ -33,26 +33,28 @@ namespace OpenAS2.Runtime
         private readonly bool _boolean;
         private readonly int _number;
         private readonly double _decimal;
-        private readonly ASObject _object;
-        private readonly ExecutionContext _actx;
+        private readonly ESObject? _object;
+        private readonly ExecutionContext? _context;
 
         public string DisplayString { get; set; }
 
         protected Value(ValueType type,
-            string s = null,
+            string? s = null,
             bool b = false,
             int n = 0,
             double d = 0,
-            ASObject o = null,
-            ExecutionContext a = null)
+            ESObject? o = null,
+            ExecutionContext? a = null)
         {
             Type = type;
-            _string = s;
+            _string = s ?? string.Empty;
             _boolean = b;
             _number = n;
             _decimal = d;
             _object = o;
-            _actx = a;
+            _context = a;
+
+            DisplayString = string.Empty;
         }
 
         // judgement
@@ -69,7 +71,7 @@ namespace OpenAS2.Runtime
         public bool IsNumber() { return Type == ValueType.Float || Type == ValueType.Integer; }
         public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ASString); }
 
-        public static bool IsCallable(Value v) { return v != null && (v._object as ASFunction) != null; }
+        public static bool IsCallable(Value v) { return v != null && (v._object as ESFunction) != null; }
         public static bool IsPrimitive(Value v) { return IsNull(v) || v.Type != ValueType.Object; }
 
         public bool IsCallable() { return IsCallable(this); }
@@ -115,24 +117,24 @@ namespace OpenAS2.Runtime
         {
             if (Type != ValueType.Return)
                 return this;
-            return _actx.Return ? _actx.ReturnValue : Undefined();
+            return _context!.Return ? _context.ReturnValue : Undefined();
         }
 
-        public Value Resolve(ExecutionContext context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
+        public Value Resolve(ExecutionContext? context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
 
         // from
 
-        public static Value FromFunction(ASFunction func)
+        public static Value FromFunction(ESFunction func)
         {
             if (func == null)
                 return Null();
             return new Value(ValueType.Object, o: func);
         }
 
-        public static Value FromObject(ASObject obj)
+        public static Value FromObject(ESObject? obj)
         {
             if (obj != null && obj.IsFunction())
-                return FromFunction((ASFunction) obj);
+                return FromFunction((ESFunction) obj);
             else if (obj == null)
                 return Null();
             return new Value(ValueType.Object, o: obj);
@@ -213,8 +215,6 @@ namespace OpenAS2.Runtime
         }
 
         // conversion without AS
-
-
         public double ToFloat()
         {
             switch (Type)
@@ -280,53 +280,8 @@ namespace OpenAS2.Runtime
         // conversion with AS
         // TODO \up
 
-        // constant & register
-        // Used by AptEditor to get actual id of constant / register
-        public uint GetIDValue()
-        {
-            if (Type != ValueType.Constant && Type != ValueType.Register)
-                throw new InvalidOperationException();
 
-            return (uint) _number;
-        }
-
-        public T ToObject<T>() where T : ASObject
-        {
-            if (IsUndefined())
-            {
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-            else if (IsNull())
-                return null;
-            if (Type != ValueType.Object)
-                throw new InvalidOperationException();
-
-            return (T) _object;
-        }
-
-        public ASObject ToObject()
-        {
-            if (Type == ValueType.Undefined)
-            {
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-
-            if (Type == ValueType.String)
-            {
-                return new ASString(this, null);
-            }
-
-            if (Type != ValueType.Object)
-                throw new InvalidOperationException();
-
-            return _object;
-        }
-
-        // numbers
-
-        public Value ToNumber(ExecutionContext actx = null)
+        public Value ToNumber(ExecutionContext? actx = null)
         {
             if (IsSpecialType())
             {
@@ -349,13 +304,81 @@ namespace OpenAS2.Runtime
                     double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
             else
             {
-                var r = _object.DefaultValue(2, actx);
+                var r = _object!.IDefaultValue(2, actx);
                 if (r.Type == ValueType.Object && !IsNull(r)) return FromFloat(double.NaN);
                 else return r.ToNumber(actx);
             }
         }
 
-        
+        public Value ToPrimitive(ExecutionContext? context = null, int preferredType = 0)
+        {
+            if (IsPrimitive())
+                return Resolve(context);
+            else
+                return _object!.IDefaultValue(preferredType, context);
+        }
+
+
+
+        // constant & register
+        // Used by AptEditor to get actual id of constant / register
+        public uint GetIDValue()
+        {
+            if (Type != ValueType.Constant && Type != ValueType.Register)
+                throw new InvalidOperationException();
+
+            return (uint) _number;
+        }
+
+        public T? ToObject<T>() where T : ESObject
+        {
+            if (IsUndefined())
+            {
+                Logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+            else if (IsNull())
+                return null;
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+            
+            return (T?) _object;
+        }
+
+        public ESObject? ToObject()
+        {
+            if (Type == ValueType.Undefined)
+            {
+                Logger.Error("Cannot create object from undefined!");
+                return null;
+            }
+
+            if (Type == ValueType.String)
+            {
+                return new ASString(this, null);
+            }
+
+            if (Type != ValueType.Object)
+                throw new InvalidOperationException();
+
+            return _object;
+        }
+
+        public Value ToObject(VirtualMachine vm)
+        {
+            if (_object != null)
+                return FromObject(_object);
+            else if (Type == ValueType.Boolean)
+                throw new NotImplementedException();
+            else if (Type == ValueType.String)
+                throw new NotImplementedException();
+            else if (IsNumber())
+                throw new NotImplementedException();
+            else
+                throw new NotImplementedException("TypeError");
+        }
+
+        // numbers
 
         public uint ToUInteger()
         {
@@ -370,7 +393,7 @@ namespace OpenAS2.Runtime
             switch (Type)
             {
                 case ValueType.String:
-                    var = _string.Length > 0;
+                    var = _string != null && _string.Length > 0;
                     break;
                 case ValueType.Object:
                     var = _object == null;
@@ -394,17 +417,16 @@ namespace OpenAS2.Runtime
             return var;
         }
 
-        public ASFunction ToFunction()
+        public ESFunction ToFunction()
         {
             if (Type == ValueType.Undefined)
             {
-                Logger.Error("Undefined Function!");
-                return null;
+                throw new InvalidOperationException();
             }
-            if (Type != ValueType.Object || _object is not ASFunction)
+            if (Type != ValueType.Object || _object is not ESFunction)
                 throw new InvalidOperationException();
 
-            return (ASFunction) _object;
+            return (ESFunction) _object;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -429,7 +451,7 @@ namespace OpenAS2.Runtime
                 case ValueType.Object:
                     return _object == null ? "null" : _object.ToString();
                 case ValueType.Return:
-                    return _actx.ReturnValue == null ? "undefined" : _actx.ReturnValue.ToString();
+                    return _context!.ReturnValue == null ? "undefined" : _context.ReturnValue.ToString();
                 default:
                     throw new NotImplementedException(Type.ToString());
             }
@@ -437,37 +459,29 @@ namespace OpenAS2.Runtime
 
         public string GetStringType()
         {
-            string result = null;
             switch (Type)
             {
                 case ValueType.String:
-                    result = "string";
-                    break;
+                    return "string";
                 case ValueType.Boolean:
-                    result = "boolean";
-                    break;
+                    return "boolean";
                 case ValueType.Integer:
                 case ValueType.Float:
-                    result = "number";
-                    break;
+                    return "number";
                 case ValueType.Object:
                     if (_object is MovieClip)
-                        result = "movieclip";
-                    else if (_object is ASFunction)
-                        result = "function";
+                        return "movieclip";
+                    else if (_object is ESFunction)
+                        return "function";
                     else
-                        result = "object";
-                    break;
+                        return "object";
                 case ValueType.Undefined:
-                    result = "undefined";
-                    break;
+                    return "undefined";
                 case ValueType.Null:
-                    result = "null";
-                    break;
+                    return "null";
                 default:
                     throw new InvalidOperationException(Type.ToString());
             }
-            return result;
         }
 
         // only used in debugging
@@ -499,7 +513,7 @@ namespace OpenAS2.Runtime
         }
 
         // TODO not comprehensive; ActionContext needed
-        public Value ToPrimirive(int hint = 0, ExecutionContext actx = null)
+        public Value ToPrimirive(int hint = 0, ExecutionContext? actx = null)
         {
             switch (Type)
             {
@@ -511,7 +525,7 @@ namespace OpenAS2.Runtime
                 case ValueType.String:
                     return this;
                 case ValueType.Object:
-                    return _object.DefaultValue(hint, actx);
+                    return _object!.IDefaultValue(hint, actx);
                 default:
                     throw new NotImplementedException();
             }
@@ -614,12 +628,12 @@ namespace OpenAS2.Runtime
             else if (IsNumber(x))
                 return NumberEquals(x, y);
             else
-                return ASObject.EqualsAS(x.ToObject(), y.ToObject(), actx); 
+                return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, actx); 
         }
 
         // TODO
         // 11.8.5
-        public static Value AbstractLess(Value x, Value y, ExecutionContext actx = null)
+        public static Value AbstractLess(Value x, Value y, ExecutionContext? actx = null)
         {
             var arg3 = x.ToFloat();
             var arg4 = y.ToFloat();

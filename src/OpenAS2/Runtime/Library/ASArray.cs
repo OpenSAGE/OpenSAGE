@@ -3,19 +3,19 @@ using System;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ASArray : ASObject
+    class ASArray : ESObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, Property>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
-            ["constructor"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
+            ["constructor"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
-                     ((ASArray) tv).PrototypeInternal = actx.Avm.Prototypes["Array"];
+                     ((ASArray) tv).IPrototype = actx.Avm.Prototypes["Array"];
                      ((ASArray) tv)._values = new List<Value>(args);
                      return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
-            ["length"] = (avm) => Property.A(
+            ["length"] = (avm) => PropertyDescriptor.A(
                 (tv) => Value.FromInteger(((ASArray) tv).GetLength()),
                 (tv, val) =>
                 {
@@ -27,7 +27,7 @@ namespace OpenAS2.Runtime.Library
             // TODO
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, Property>>()
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             
         };

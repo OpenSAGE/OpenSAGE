@@ -17,96 +17,98 @@ namespace OpenAS2.Runtime
         private TimeInterval _lastTick;
         private DateTime _pauseTick;
         private bool _paused;
-        private Dictionary<string, ValueTuple<TimeInterval, int, ASFunction, ASObject, Value[]>> _intervals;
+        private Dictionary<string, ValueTuple<TimeInterval, int, ESFunction, ESObject, Value[]>> _intervals;
 
         public DomHandler Dom { get; private set; }
 
         private Stack<ExecutionContext> _callStack;
         private Queue<ExecutionContext> _execQueue;
 
-        public ASObject GlobalObject { get; }
+        public ESObject GlobalObject { get; }
         public ExecutionContext GlobalContext { get; }
-        public ASObject ExternObject { get; }
+        public ESObject ExternObject { get; }
         
-        public Dictionary<string, ASObject> Prototypes { get; private set; }
-        public Dictionary<ASObject, Type> PrototypesInverse { get; private set; }
+        public Dictionary<string, ESObject> Prototypes { get; private set; }
+        public Dictionary<ESObject, Type> PrototypesInverse { get; private set; }
 
-        public ASObject GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
+        public ESObject GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
 
         public void RegisterClass(string className, Type classType)
         {
             var cst_param = new VirtualMachine[] { this };
-            var newProto = (ASObject) Activator.CreateInstance(classType, cst_param);
-            var props = (Dictionary<string, Func<VirtualMachine, Property>>) classType.GetField("PropertiesDefined").GetValue(null);
-            var stats = (Dictionary<string, Func<VirtualMachine, Property>>) classType.GetField("StaticPropertiesDefined").GetValue(null);
+            var newProto = (ESObject) Activator.CreateInstance(classType, cst_param)!;
+            var props = (Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>) classType.GetField("PropertiesDefined").GetValue(null)!;
+            var stats = (Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>) classType.GetField("StaticPropertiesDefined").GetValue(null)!;
             foreach (var p in props)
-                newProto.SetOwnProperty(p.Key, p.Value(this));
-            if (!newProto.HasOwnMember("constructor"))
+                newProto.IDefineOwnProperty(p.Key, p.Value(this));
+            if (!newProto.IHasOwnProperty("constructor"))
                 newProto.constructor = new NativeFunction((actx, tv, args) => Value.Undefined(), this); // TODO not sure if it is correct
             var cst = newProto.constructor; 
             cst.prototype = newProto;
             foreach (var p in stats)
-                cst.SetOwnProperty(p.Key, p.Value(this));
+                cst.IDefineOwnProperty(p.Key, p.Value(this));
             Prototypes[className] = newProto;
             PrototypesInverse[newProto] = classType;
         }
 
-        public ASObject ConstructClass(ASFunction cstFunc)
-        {
-            var proto = cstFunc.prototype;
-            while (proto != null)
-            {
-                if (PrototypesInverse.ContainsKey(proto)) break;
-                proto = proto.__proto__;
-            }
-            var paramsOfCst = new VirtualMachine[] { this };
-            var ret = (ASObject) Activator.CreateInstance(PrototypesInverse[proto], paramsOfCst);
-            ret.__proto__ = cstFunc.prototype;
-            return ret;
-        }
-
-        public VirtualMachine(DomHandler dom = null)
+        public VirtualMachine(DomHandler? dom = null)
         {
             Dom = dom; // TODO
 
-            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, ASFunction, ASObject, Value[]>>();
+            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, ESFunction, ESObject, Value[]>>();
             _paused = false;
 
             _callStack = new Stack<ExecutionContext>();
             _execQueue = new Queue<ExecutionContext>();
 
             // initialize prototypes and constructors of Object and Function class
-            Prototypes = new Dictionary<string, ASObject>() { ["Object"] = new ASObject(null) };
-            var objProto = Prototypes["Object"];
-            var funcProto = new NativeFunction(objProto); // Set the PrototypeInternal property
+            Prototypes = new Dictionary<string, ESObject>();
+
+            var objProto = new ESObject("Object", true, null, null);
+            var funcProto = new ESFunction("Function", true, objProto, null, FunctionUtils.ReturnUndefined, FunctionUtils.ReturnUndefined, null);
+            var errProto = new ESError("Error", true, objProto, null);
+            var objCst = new ESFunction("Function", true, funcProto, null, ESObject.ICallObj, ESObject.IConstructObj, new string[1] { "arg1" });
+            var funcCst = new ESFunction("Function", true, funcProto, null, ESFunction.IConstructAndCall, ESFunction.IConstructAndCall, new string[1] { "code" });
+            var errCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall, ESError.IConstructAndCall, new string[1] { "message" });
+
+            objCst.ConnectPrototype(objProto, true);
+            funcCst.ConnectPrototype(funcProto, true);
+            errCst.ConnectPrototype(errProto, true);
+
+            // TODO strict mode
+
+
+            Prototypes["Object"] = objProto;
             Prototypes["Function"] = funcProto;
-            PrototypesInverse = new Dictionary<ASObject, Type>() { [objProto] = typeof(ASObject), [funcProto] = typeof(DefinedFunction), };
+            Prototypes["Error"] = errProto;
 
-            foreach (var p in ASObject.PropertiesDefined)
-                objProto.SetOwnProperty(p.Key, p.Value(this));
-            foreach (var p in ASFunction.PropertiesDefined)
-                funcProto.SetOwnProperty(p.Key, p.Value(this));
+            PrototypesInverse = new Dictionary<ESObject, Type>() { [objProto] = typeof(ESObject), [funcProto] = typeof(DefinedFunction), [errProto] = typeof(ESError). };
 
-            var obj_cst = objProto.constructor;
-            var func_cst = funcProto.constructor;
-            obj_cst.prototype = objProto;
-            func_cst.prototype = funcProto;
+            foreach (var p in ESObject.PropertiesDefined)
+                objProto.IDefineOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ESFunction.PropertiesDefined)
+                funcProto.IDefineOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ESError.PropertiesDefined)
+                errProto.IDefineOwnProperty(p.Key, p.Value(this));
 
-            foreach (var p in ASObject.StaticPropertiesDefined)
-                obj_cst.SetOwnProperty(p.Key, p.Value(this));
-            foreach (var p in ASFunction.StaticPropertiesDefined)
-                func_cst.SetOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ESObject.StaticPropertiesDefined)
+                objCst.IDefineOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ESFunction.StaticPropertiesDefined)
+                funcCst.IDefineOwnProperty(p.Key, p.Value(this));
+            foreach (var p in ESError.StaticPropertiesDefined)
+                errCst.IDefineOwnProperty(p.Key, p.Value(this));
+
 
             // initialize built-in classes
             foreach (var c in Builtin.BuiltinClasses)
             {
-                if (c.Key == "Object" || c.Key == "Function")
+                if (c.Key == "Object" || c.Key == "Function" || c.Key == "Error")
                     continue;
                 RegisterClass(c.Key, c.Value);
             }
 
             // initialize global vars and methods
-            GlobalObject = new ASObject(this); // TODO replace it to Stage
+            GlobalObject = new ESObject(this); // TODO replace it to Stage
             GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, null, 4) { DisplayName = "GlobalContext", };
             ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
@@ -114,21 +116,21 @@ namespace OpenAS2.Runtime
             // expose builtin stuffs
             // classes
             foreach (var c in Prototypes)
-                GlobalObject.SetMember(c.Key, Value.FromFunction(c.Value.constructor));
+                GlobalObject.IPut(c.Key, Value.FromFunction(c.Value.constructor));
             // variables
             foreach (var c in Builtin.BuiltinVariables)
-                GlobalObject.SetOwnProperty(c.Key, c.Value(this));
+                GlobalObject.IDefineOwnProperty(c.Key, c.Value(this));
             // functions
             foreach (var c in Builtin.BuiltinFunctions)
             {
                 var f = Value.FromFunction(new NativeFunction(c.Value, this));
-                GlobalObject.SetOwnProperty(c.Key, Property.D(f, false, false, false));
+                GlobalObject.IDefineOwnProperty(c.Key, PropertyDescriptor.D(f, false, false, false));
             }
         }
 
         // interval & debug operations
 
-        public void CreateInterval(string name, int duration, ASFunction func, ASObject context, Value[] args)
+        public void CreateInterval(string name, int duration, ESFunction func, ESObject context, Value[] args)
         {
             _intervals[name] = (_lastTick,
                                 duration, // milliseconds
@@ -179,6 +181,15 @@ namespace OpenAS2.Runtime
                 _lastTick = new TimeInterval(_lastTick.TotalTime.Add(span), _lastTick.DeltaTime);
             }
         }
+
+        // error handling?
+
+        public void ThrowError(ESError e)
+        {
+            // TODO
+            throw new Exception(e.ToString());
+        }
+
 
         // stack & queue operations
 
@@ -235,19 +246,19 @@ namespace OpenAS2.Runtime
         }
 
         public ExecutionContext GetQueueContext(int index) { return _execQueue.ElementAt(index); }
-        public void EnqueueContext(ASFunction f, ASObject thisVar, Value[] args, string name = null)
+        public void EnqueueContext(ESFunction f, ESObject thisVar, Value[] args, string name = null)
         {
             if (f is DefinedFunction fd)
                 EnqueueContext(fd.GetContext(this, args, thisVar));
             else
             {
-                Action<ExecutionContext> f1 = (_) => f.Invoke(GlobalContext, thisVar, args);
+                Action<ExecutionContext> f1 = (_) => f.ICall(GlobalContext, thisVar, args);
                 EnqueueContext(GetActionContext(GlobalContext, thisVar, 4, null, InstructionCollection.Native(f1), name));
             }
         }
 
         // context, execution & debug
-        public ExecutionContext GetActionContext(ExecutionContext outerVar, ASObject thisVar, int numRegisters, List<Value> consts, InstructionCollection code, string name = null)
+        public ExecutionContext GetActionContext(ExecutionContext outerVar, ESObject thisVar, int numRegisters, List<Value> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ExecutionContext(this, GlobalObject, thisVar, outerVar, numRegisters)
@@ -262,7 +273,7 @@ namespace OpenAS2.Runtime
             return context;
         }
 
-        public ExecutionContext GetActionContext(ASObject thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code, string name = null)
+        public ExecutionContext GetActionContext(ESObject thisVar, int numRegisters, List<ConstantEntry> consts, InstructionCollection code, string name = null)
         {
             if (thisVar is null) thisVar = GlobalObject;
             var context = new ExecutionContext(this, GlobalObject, thisVar, GlobalContext, numRegisters)
@@ -359,9 +370,9 @@ namespace OpenAS2.Runtime
             return ans;
         }
 
-        public Value Execute(ASFunction func, Value[] args, ASObject thisVar)
+        public Value Execute(ESFunction func, Value[] args, ESObject thisVar)
         {
-            var ret = func.Invoke(CurrentContext(), thisVar, args);
+            var ret = func.ICall(CurrentContext(), thisVar, args);
             if (func is DefinedFunction)
                 ExecuteUntilHalt();
             return ret.ResolveReturn();
