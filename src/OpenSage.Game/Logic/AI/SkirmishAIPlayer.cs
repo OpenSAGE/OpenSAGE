@@ -21,10 +21,10 @@
             base.Persist(reader);
             reader.EndObject();
 
-            reader.PersistInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
-            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
 
             reader.SkipUnknownBytes(16);
         }

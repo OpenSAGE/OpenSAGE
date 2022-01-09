@@ -574,23 +574,23 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject("TemplateData", Template.LegacyTemplate);
+            reader.PersistObject(Template.LegacyTemplate, "TemplateData");
 
-            reader.PersistUInt32("SystemId", ref _systemId);
-            reader.PersistUInt32("AttachedToDrawableId", ref _attachedToDrawableId);
-            reader.PersistObjectID("AttachedToObjectId", ref _attachedToObjectId);
-            reader.PersistBoolean("IsIdentityTransform", ref _isIdentityTransform);
-            reader.PersistMatrix4x3("Transform", ref _transform, readVersion: false);
-            reader.PersistBoolean("IsIdentityTransform2", ref _isIdentityTransform2);
-            reader.PersistMatrix4x3("Transform2", ref _transform2, readVersion: false);
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // Maybe _nextBurst
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
-            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
-            reader.PersistBoolean("HasInfiniteLifetime", ref _hasInfiniteLifetime);
-            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistUInt32(ref _systemId);
+            reader.PersistUInt32(ref _attachedToDrawableId);
+            reader.PersistObjectID(ref _attachedToObjectId);
+            reader.PersistBoolean(ref _isIdentityTransform);
+            reader.PersistMatrix4x3(ref _transform, readVersion: false);
+            reader.PersistBoolean(ref _isIdentityTransform2);
+            reader.PersistMatrix4x3(ref _transform2, readVersion: false);
+            reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistBoolean(ref _hasInfiniteLifetime);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistBoolean(ref _unknownBool1);
 
             reader.BeginArray("UnknownFloats");
             for (var i = 0; i < 6; i++)
@@ -604,14 +604,14 @@ namespace OpenSage.Graphics.ParticleSystems
             }
             reader.EndArray();
 
-            reader.PersistVector3("Position", ref _position);
-            reader.PersistVector3("PositionPrevious", ref _positionPrevious);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-            reader.PersistUInt32("SlaveSystemId", ref _slaveSystemId);
-            reader.PersistUInt32("MasterSystemId", ref _masterSystemId);
+            reader.PersistVector3(ref _position);
+            reader.PersistVector3(ref _positionPrevious);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _slaveSystemId);
+            reader.PersistUInt32(ref _masterSystemId);
 
             var numParticles = (uint)(_particles?.Length ?? 0);
-            reader.PersistUInt32("NumParticles", ref numParticles);
+            reader.PersistUInt32(ref numParticles);
 
             if (reader.Mode == StatePersistMode.Read)
             {
@@ -661,8 +661,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistVector3("Color", ref Color);
-            persister.PersistUInt32("Time", ref Time);
+            persister.PersistVector3(ref Color);
+            persister.PersistUInt32(ref Time);
         }
     }
 

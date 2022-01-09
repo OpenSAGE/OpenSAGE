@@ -117,10 +117,10 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32("LastTeamId", ref _lastTeamId);
+            reader.PersistUInt32(ref _lastTeamId);
 
             var count = (ushort)_teamTemplates.Count;
-            reader.PersistUInt16("TeamTemplatesCount", ref count);
+            reader.PersistUInt16(ref count, "TeamTemplatesCount");
 
             if (count != _teamTemplates.Count)
             {
@@ -135,10 +135,10 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var id = 0u;
-                    reader.PersistUInt32("Id", ref id);
+                    reader.PersistUInt32(ref id);
 
                     var teamTemplate = _teamTemplatesById[id];
-                    reader.PersistObject("TeamTemplate", teamTemplate);
+                    reader.PersistObject(teamTemplate);
 
                     reader.EndObject();
                 }
@@ -150,9 +150,9 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var id = teamTemplate.ID;
-                    reader.PersistUInt32("Id", ref id);
+                    reader.PersistUInt32(ref id);
 
-                    reader.PersistObject("TeamTemplate", teamTemplate);
+                    reader.PersistObject(teamTemplate);
 
                     reader.EndObject();
                 }

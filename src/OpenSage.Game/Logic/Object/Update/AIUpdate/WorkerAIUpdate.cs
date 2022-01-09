@@ -135,13 +135,13 @@ namespace OpenSage.Logic.Object
 
             _state.Persist(reader);
 
-            reader.PersistObject("StateMachine2", _stateMachine2);
-            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
-            reader.PersistInt32("Unknown5", ref _unknown5);
+            reader.PersistObject(_stateMachine2);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistInt32(ref _unknown5);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistObject("StateMachine3", _stateMachine3);
+            reader.PersistObject(_stateMachine3);
         }
 
         private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
@@ -206,9 +206,9 @@ namespace OpenSage.Logic.Object
             {
                 reader.PersistVersion(1);
 
-                reader.PersistInt32("Unknown1", ref _unknown1);
-                reader.PersistInt32("Unknown2", ref _unknown2);
-                reader.PersistBoolean("Unknown3", ref _unknown3);
+                reader.PersistInt32(ref _unknown1);
+                reader.PersistInt32(ref _unknown2);
+                reader.PersistBoolean(ref _unknown3);
             }
         }
 
@@ -221,7 +221,7 @@ namespace OpenSage.Logic.Object
                 reader.SkipUnknownBytes(4);
 
                 var unknown2 = 1;
-                reader.PersistInt32("Unknown2", ref unknown2);
+                reader.PersistInt32(ref unknown2);
                 if (unknown2 != 1)
                 {
                     throw new InvalidStateException();

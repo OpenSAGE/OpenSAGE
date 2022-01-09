@@ -20,10 +20,12 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistListWithUInt32Count("Members", _members, static (StatePersister persister, ref AssaultTransportMember item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistListWithUInt32Count(
+                _members,
+                static (StatePersister persister, ref AssaultTransportMember item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
             reader.SkipUnknownBytes(26);
         }
@@ -35,8 +37,8 @@ namespace OpenSage.Logic.Object
 
             public void Persist(StatePersister persister)
             {
-                persister.PersistObjectID("ObjectId", ref ObjectId);
-                persister.PersistBoolean("Unknown", ref Unknown);
+                persister.PersistObjectID(ref ObjectId);
+                persister.PersistBoolean(ref Unknown);
             }
         }
     }

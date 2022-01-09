@@ -12,7 +12,7 @@
             reader.PersistVersion(1);
             reader.EndObject();
 
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistBoolean(ref _unknownBool);
             if (_unknownBool)
             {
                 reader.BeginObject("UnknownThing");
@@ -21,9 +21,9 @@
 
                 // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
                 var gridCellsX = 0;
-                reader.PersistInt32("GridCellsX", ref gridCellsX);
+                reader.PersistInt32(ref gridCellsX);
                 var gridCellsY = 0;
-                reader.PersistInt32("GridCellsY", ref gridCellsY);
+                reader.PersistInt32(ref gridCellsY);
 
                 // Don't know why, but this gives the correct length for this array.
                 var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
@@ -35,7 +35,7 @@
             var game = reader.Game;
 
             var area = game.Scene3D.MapFile.HeightMapData.Area;
-            reader.PersistUInt32("Area", ref area);
+            reader.PersistUInt32(ref area);
             if (area != game.Scene3D.MapFile.HeightMapData.Area)
             {
                 throw new InvalidStateException();

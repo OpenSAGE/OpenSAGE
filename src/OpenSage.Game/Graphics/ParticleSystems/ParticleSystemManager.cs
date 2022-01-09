@@ -101,10 +101,10 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
 
             var count = (uint)_particleSystems.Count;
-            reader.PersistUInt32("ParticleSystemCount", ref count);
+            reader.PersistUInt32(ref count);
 
             reader.BeginArray("ParticleSystems");
             if (reader.Mode == StatePersistMode.Read)
@@ -114,7 +114,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     reader.BeginObject();
 
                     var templateName = "";
-                    reader.PersistAsciiString("TemplateName", ref templateName);
+                    reader.PersistAsciiString(ref templateName);
 
                     if (templateName != string.Empty)
                     {
@@ -124,7 +124,7 @@ namespace OpenSage.Graphics.ParticleSystems
                             template,
                             Matrix4x4.Identity); // TODO
 
-                        reader.PersistObject("ParticleSystem", particleSystem);
+                        reader.PersistObject(particleSystem);
                     }
 
                     reader.EndObject();
@@ -137,9 +137,9 @@ namespace OpenSage.Graphics.ParticleSystems
                     reader.BeginObject();
 
                     var templateName = particleSystem.Template.Name;
-                    reader.PersistAsciiString("TemplateName", ref templateName);
+                    reader.PersistAsciiString(ref templateName);
 
-                    reader.PersistObject("ParticleSystem", particleSystem);
+                    reader.PersistObject(particleSystem);
 
                     reader.EndObject();
                 }

@@ -17,32 +17,35 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistList("ParticleSystemIds", _particleSystemIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
-
-            reader.PersistArray("UnknownInts", _unknownInts, static (StatePersister persister, ref int item) =>
-            {
-                persister.PersistInt32Value(ref item);
-
-                if (persister.Mode == StatePersistMode.Read && item != -1)
+            reader.PersistList(
+                _particleSystemIds,
+                static (StatePersister persister, ref uint item) =>
                 {
-                    throw new InvalidStateException();
-                }
-            });
+                    persister.PersistUInt32Value(ref item);
+                });
+
+            reader.PersistArray(
+                _unknownInts, static (StatePersister persister, ref int item) =>
+                {
+                    persister.PersistInt32Value(ref item);
+
+                    if (persister.Mode == StatePersistMode.Read && item != -1)
+                    {
+                        throw new InvalidStateException();
+                    }
+                });
 
             reader.SkipUnknownBytes(289 * 4);
 
             var unknown1 = 1;
-            reader.PersistInt32("Unknown1", ref unknown1);
+            reader.PersistInt32(ref unknown1);
             if (unknown1 != 1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown2 = true;
-            reader.PersistBoolean("Unknown2", ref unknown2);
+            reader.PersistBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

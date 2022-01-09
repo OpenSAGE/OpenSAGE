@@ -20,16 +20,16 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
-            reader.PersistUInt32("Unknown2", ref _unknown2);
-            reader.PersistUInt32("Unknown3", ref _unknown3);
-            reader.PersistUInt32("Unknown4", ref _unknown4);
-            reader.PersistUInt32("Unknown5", ref _unknown5);
-            reader.PersistUInt32("Unknown6", ref _unknown6);
-            reader.PersistUInt32("Unknown7", ref _unknown7);
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown4);
+            reader.PersistUInt32(ref _unknown5);
+            reader.PersistUInt32(ref _unknown6);
+            reader.PersistUInt32(ref _unknown7);
 
             var unknown7_1 = true;
-            reader.PersistBoolean("Unknown7_1", ref unknown7_1);
+            reader.PersistBoolean(ref unknown7_1);
             if (!unknown7_1)
             {
                 throw new InvalidStateException();
@@ -38,13 +38,13 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             var unknown9 = 300.0f;
-            reader.PersistSingle("Unknown9", ref unknown9);
+            reader.PersistSingle(ref unknown9);
             if (unknown9 != 300.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
+            reader.PersistSingle(ref _unknownFloat);
         }
     }
 

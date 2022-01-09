@@ -305,68 +305,68 @@ namespace OpenSage.Client
         {
             reader.PersistVersion(5);
 
-            reader.PersistUInt32("DrawableId", ref DrawableID);
+            reader.PersistUInt32(ref DrawableID);
 
             var modelConditionFlags = ModelConditionFlags.Clone();
-            reader.PersistBitArray("ModelConditionFlags", ref modelConditionFlags);
+            reader.PersistBitArray(ref modelConditionFlags);
             if (reader.Mode == StatePersistMode.Read)
             {
                 CopyModelConditionFlags(modelConditionFlags);
             }
 
-            reader.PersistMatrix4x3("TransformMatrix", ref _transformMatrix);
+            reader.PersistMatrix4x3(ref _transformMatrix);
 
             var hasSelectionFlashHelper = _selectionFlashHelper != null;
-            reader.PersistBoolean("HasSelectionFlashHelper", ref hasSelectionFlashHelper);
+            reader.PersistBoolean(ref hasSelectionFlashHelper);
             if (hasSelectionFlashHelper)
             {
                 _selectionFlashHelper ??= new ColorFlashHelper();
-                reader.PersistObject("SelectionFlashHelper", _selectionFlashHelper);
+                reader.PersistObject(_selectionFlashHelper);
             }
 
             var hasScriptedFlashHelper = _scriptedFlashHelper != null;
-            reader.PersistBoolean("HasScriptedFlashHelper", ref hasScriptedFlashHelper);
+            reader.PersistBoolean(ref hasScriptedFlashHelper);
             if (hasScriptedFlashHelper)
             {
                 _scriptedFlashHelper ??= new ColorFlashHelper();
-                reader.PersistObject("ScriptedFlashHelper", _scriptedFlashHelper);
+                reader.PersistObject(_scriptedFlashHelper);
             }
 
-            reader.PersistEnum("ObjectDecalType", ref _objectDecalType);
+            reader.PersistEnum(ref _objectDecalType);
 
             var unknownFloat1 = 1.0f;
-            reader.PersistSingle("UnknownFloat1", ref unknownFloat1);
+            reader.PersistSingle(ref unknownFloat1);
             if (unknownFloat1 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2); // 0, 1
-            reader.PersistSingle("UnknownFloat3", ref _unknownFloat3); // 0, 1
-            reader.PersistSingle("UnknownFloat4", ref _unknownFloat4); // 0, 1
+            reader.PersistSingle(ref _unknownFloat2); // 0, 1
+            reader.PersistSingle(ref _unknownFloat3); // 0, 1
+            reader.PersistSingle(ref _unknownFloat4); // 0, 1
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistSingle("UnknownFloat6", ref _unknownFloat6); // 0, 1
+            reader.PersistSingle(ref _unknownFloat6); // 0, 1
 
             var objectId = GameObjectID;
-            reader.PersistUInt32("ObjectId", ref objectId);
+            reader.PersistUInt32(ref objectId);
             if (objectId != GameObjectID)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2); // 0, 1
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
-            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
-            reader.PersistUInt32("UnknownInt6", ref _unknownInt6);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2); // 0, 1
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32(ref _unknownInt6);
 
-            reader.PersistBoolean("HasUnknownFloats", ref _hasUnknownFloats);
+            reader.PersistBoolean(ref _hasUnknownFloats);
             if (_hasUnknownFloats)
             {
-                reader.PersistArray("UnknownFloats", _unknownFloats, static (StatePersister persister, ref float item) =>
+                reader.PersistArray(_unknownFloats, static (StatePersister persister, ref float item) =>
                 {
                     persister.PersistSingleValue(ref item);
                 });
@@ -374,22 +374,22 @@ namespace OpenSage.Client
 
             PersistModules(reader);
 
-            reader.PersistUInt32("UnknownInt7", ref _unknownInt7);
+            reader.PersistUInt32(ref _unknownInt7);
 
-            reader.PersistUInt32("FlashFrameCount", ref _flashFrameCount);
-            reader.PersistColorRgba("FlashColor", ref _flashColor);
+            reader.PersistUInt32(ref _flashFrameCount);
+            reader.PersistColorRgba(ref _flashColor);
 
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBoolean("SomeMatrixIsIdentity", ref _someMatrixIsIdentity);
+            reader.PersistBoolean(ref _someMatrixIsIdentity);
 
-            reader.PersistMatrix4x3("SomeMatrix", ref _someMatrix, false);
+            reader.PersistMatrix4x3(ref _someMatrix, false);
 
             var unknownFloat10 = 1.0f;
-            reader.PersistSingle("UnknownFloat10", ref unknownFloat10);
+            reader.PersistSingle(ref unknownFloat10);
             if (unknownFloat10 != 1)
             {
                 throw new InvalidStateException();
@@ -398,19 +398,19 @@ namespace OpenSage.Client
             reader.SkipUnknownBytes(4);
 
             var unknownInt8 = 0u;
-            reader.PersistUInt32("UnknownInt8", ref unknownInt8); // 232...frameSomething?
+            reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
 
             var hasAnimation2D = _animation != null;
-            reader.PersistBoolean("HasAnimation2D", ref hasAnimation2D);
+            reader.PersistBoolean(ref hasAnimation2D);
             if (hasAnimation2D)
             {
                 var animation2DName = _animation?.Template.Name;
-                reader.PersistAsciiString("Animation2DName", ref animation2DName);
+                reader.PersistAsciiString(ref animation2DName);
 
                 reader.SkipUnknownBytes(4);
 
                 var animation2DName2 = animation2DName;
-                reader.PersistAsciiString("Animation2DName2", ref animation2DName2);
+                reader.PersistAsciiString(ref animation2DName2);
                 if (animation2DName2 != animation2DName)
                 {
                     throw new InvalidStateException();
@@ -422,11 +422,11 @@ namespace OpenSage.Client
                     _animation = new Animation(animationTemplate);
                 }
 
-                reader.PersistObject("Animation2D", _animation);
+                reader.PersistObject(_animation);
             }
 
             var unknownBool3 = true;
-            reader.PersistBoolean("UnknownBool3", ref unknownBool3);
+            reader.PersistBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();
@@ -440,7 +440,7 @@ namespace OpenSage.Client
             reader.PersistVersion(1);
 
             ushort numModuleGroups = 2;
-            reader.PersistUInt16("NumModuleGroups", ref numModuleGroups);
+            reader.PersistUInt16(ref numModuleGroups);
 
             if (numModuleGroups != 2)
             {
@@ -459,7 +459,7 @@ namespace OpenSage.Client
             reader.BeginObject(groupName);
 
             var numModules = (ushort)modules.Count;
-            reader.PersistUInt16("NumModules", ref numModules);
+            reader.PersistUInt16(ref numModules);
 
             reader.BeginArray("Modules");
             for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
@@ -470,19 +470,19 @@ namespace OpenSage.Client
                 if (reader.Mode == StatePersistMode.Read)
                 {
                     var moduleTag = "";
-                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                    reader.PersistAsciiString(ref moduleTag);
                     module = GetModuleByTag(moduleTag);
                 }
                 else
                 {
                     module = modules[moduleIndex];
                     var moduleTag = module.Tag;
-                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                    reader.PersistAsciiString(ref moduleTag);
                 }
 
                 reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                reader.PersistObject("Module", module);
+                reader.PersistObject(module);
 
                 reader.EndSegment();
 

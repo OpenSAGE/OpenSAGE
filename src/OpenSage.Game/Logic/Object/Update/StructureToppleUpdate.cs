@@ -15,12 +15,12 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(20);
 
-            reader.PersistSingle("UnknownFloat", ref _unknownFloat);
+            reader.PersistSingle(ref _unknownFloat);
 
             reader.SkipUnknownBytes(8);
 
             var unknownInt1 = -1;
-            reader.PersistInt32("UnknownInt1", ref unknownInt1);
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != -1)
             {
                 throw new InvalidStateException();

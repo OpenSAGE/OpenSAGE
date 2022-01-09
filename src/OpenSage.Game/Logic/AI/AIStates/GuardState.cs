@@ -16,9 +16,9 @@ namespace OpenSage.Logic.AI.AIStates
             reader.PersistVersion(1);
 
             var unknownBool1 = true;
-            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
 
-            reader.PersistObject("StateMachine", _stateMachine);
+            reader.PersistObject(_stateMachine);
         }
     }
 
@@ -44,10 +44,10 @@ namespace OpenSage.Logic.AI.AIStates
             base.Persist(reader);
             reader.EndObject();
 
-            reader.PersistObjectID("GuardObjectId", ref _guardObjectId);
-            reader.PersistObjectID("GuardObjectId2", ref _guardObjectId2);
-            reader.PersistVector3("GuardPosition", ref _guardPosition);
-            reader.PersistAsciiString("GuardPolygonTriggerName", ref _guardPolygonTriggerName);
+            reader.PersistObjectID(ref _guardObjectId);
+            reader.PersistObjectID(ref _guardObjectId2);
+            reader.PersistVector3(ref _guardPosition);
+            reader.PersistAsciiString(ref _guardPolygonTriggerName);
         }
 
         private sealed class GuardIdleState : State
@@ -58,7 +58,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
 
@@ -78,7 +78,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

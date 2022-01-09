@@ -272,13 +272,15 @@ namespace OpenSage.Scripting
         {
             reader.PersistVersion(5);
 
-            reader.PersistList("SequentialScripts", _sequentialScripts, static (StatePersister persister, ref SequentialScript item) =>
-            {
-                item ??= new SequentialScript();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _sequentialScripts,
+                static (StatePersister persister, ref SequentialScript item) =>
+                {
+                    item ??= new SequentialScript();
+                    persister.PersistObjectValue(item);
+                });
 
-            reader.PersistUInt16("NumCounts", ref _numCounters);
+            reader.PersistUInt16(ref _numCounters);
 
             reader.BeginArray("Counters");
             for (var i = 0; i < _numCounters; i++)
@@ -287,22 +289,22 @@ namespace OpenSage.Scripting
 
                 reader.BeginObject();
 
-                reader.PersistInt32("Value", ref counter.Value);
-                reader.PersistAsciiString("Name", ref counter.Name);
-                reader.PersistBoolean("IsTimer", ref counter.IsTimer);
+                reader.PersistInt32(ref counter.Value, "Value");
+                reader.PersistAsciiString(ref counter.Name, "Name");
+                reader.PersistBoolean(ref counter.IsTimer, "IsTimer");
 
                 reader.EndObject();
             }
             reader.EndArray();
 
             var numTimersAndCounters2 = (uint)_numCounters;
-            reader.PersistUInt32("NumTimersAndCounters2", ref numTimersAndCounters2);
+            reader.PersistUInt32(ref numTimersAndCounters2);
             if (numTimersAndCounters2 != _numCounters)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt16("NumFlags", ref _numFlags);
+            reader.PersistUInt16(ref _numFlags);
 
             reader.BeginArray("Flags");
             for (var i = 0; i < _numFlags; i++)
@@ -311,55 +313,59 @@ namespace OpenSage.Scripting
 
                 reader.BeginObject();
 
-                reader.PersistBoolean("Value", ref flag.Value);
-                reader.PersistAsciiString("Name", ref flag.Name);
+                reader.PersistBoolean(ref flag.Value);
+                reader.PersistAsciiString(ref flag.Name);
 
                 reader.EndObject();
             }
             reader.EndArray();
 
             var numFlags2 = (uint)_numFlags;
-            reader.PersistUInt32("NumFlags2", ref numFlags2);
+            reader.PersistUInt32(ref numFlags2);
             if (numFlags2 != _numFlags)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("AttackPriorities", _attackPriorities, static (StatePersister persister, ref AttackPriority item) =>
-            {
-                item ??= new AttackPriority();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _attackPriorities,
+                static (StatePersister persister, ref AttackPriority item) =>
+                {
+                    item ??= new AttackPriority();
+                    persister.PersistObjectValue(item);
+                });
 
             var numAttackPrioritySets2 = (uint)_attackPriorities.Count;
-            reader.PersistUInt32("NumAttackPrioritySets2", ref numAttackPrioritySets2);
+            reader.PersistUInt32(ref numAttackPrioritySets2);
             if (numAttackPrioritySets2 != _attackPriorities.Count)
             {
                 throw new InvalidStateException();
             }
 
             var unknown1 = -1;
-            reader.PersistInt32("Unknown1", ref unknown1);
+            reader.PersistInt32(ref unknown1);
             if (unknown1 != -1)
             {
                 throw new InvalidStateException();
             }
 
             var unknown2 = -1;
-            reader.PersistInt32("Unknown2", ref unknown2);
+            reader.PersistInt32(ref unknown2);
             if (unknown2 != -1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("UnknownSomethings", _unknownSomethings, static (StatePersister persister, ref ObjectNameAndId item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistList(
+                _unknownSomethings,
+                static (StatePersister persister, ref ObjectNameAndId item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistObject("CameraFadeOverlay", CameraFadeOverlay);
+            reader.PersistObject(CameraFadeOverlay);
 
             reader.BeginArray("UnknownArray");
             for (var i = 0; i < 4; i++)
@@ -374,13 +380,15 @@ namespace OpenSage.Scripting
             }
             reader.EndArray();
 
-            reader.PersistArrayWithUInt16Length("SpecialPowers", _specialPowers, static (StatePersister persister, ref List<ObjectNameAndId> item) =>
-            {
-                persister.PersistObjectNameAndIdList("List", item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                _specialPowers,
+                static (StatePersister persister, ref List<ObjectNameAndId> item) =>
+                {
+                    persister.PersistObjectNameAndIdList(item);
+                });
 
             ushort numUnknown1Sets = 0;
-            reader.PersistUInt16("NumUnknown1Sets", ref numUnknown1Sets);
+            reader.PersistUInt16(ref numUnknown1Sets);
 
             for (var i = 0; i < numUnknown1Sets; i++)
             {
@@ -390,7 +398,7 @@ namespace OpenSage.Scripting
             }
 
             ushort numUnknown2Sets = 0;
-            reader.PersistUInt16("NumUnknown2Sets", ref numUnknown2Sets);
+            reader.PersistUInt16(ref numUnknown2Sets);
 
             for (var i = 0; i < numUnknown2Sets; i++)
             {
@@ -399,18 +407,21 @@ namespace OpenSage.Scripting
                 reader.SkipUnknownBytes(2);
             }
 
-            reader.PersistArrayWithUInt16Length("Upgrades", _upgrades, static (StatePersister persister, ref List<ObjectNameAndId> item) =>
-            {
-                persister.PersistObjectNameAndIdList("List", item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                _upgrades, static (StatePersister persister, ref List<ObjectNameAndId> item) =>
+                {
+                    persister.PersistObjectNameAndIdList(item);
+                });
 
-            reader.PersistArrayWithUInt16Length("Sciences", _sciences, static (StatePersister persister, ref ScienceSet item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                _sciences,
+                static (StatePersister persister, ref ScienceSet item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
 
             byte unknown14_1 = 1;
-            reader.PersistByte("Unknown14_1", ref unknown14_1);
+            reader.PersistByte(ref unknown14_1);
             if (unknown14_1 != 1)
             {
                 throw new InvalidStateException();
@@ -418,19 +429,21 @@ namespace OpenSage.Scripting
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistArray("UnknownFloats", _unknownFloats, static (StatePersister persister, ref float item) =>
-            {
-                persister.PersistSingleValue(ref item);
-            });
+            reader.PersistArray(
+                _unknownFloats,
+                static (StatePersister persister, ref float item) =>
+                {
+                    persister.PersistSingleValue(ref item);
+                });
 
             var unknown16 = 150u;
-            reader.PersistUInt32("Unknown16", ref unknown16);
+            reader.PersistUInt32(ref unknown16);
             if (unknown16 != 150)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("Unknown17", ref _unknown17);
+            reader.PersistUInt32(ref _unknown17);
             if (_unknown17 != 0 && _unknown17 != 1 && _unknown17 != 2)
             {
                 throw new InvalidStateException();
@@ -438,32 +451,36 @@ namespace OpenSage.Scripting
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistList("MapReveals", _mapReveals, static (StatePersister persister, ref MapReveal item) =>
-            {
-                persister.BeginObject();
+            reader.PersistList(
+                _mapReveals,
+                static (StatePersister persister, ref MapReveal item) =>
+                {
+                    persister.BeginObject();
 
-                persister.PersistAsciiString("Name", ref item.Name);
-                persister.PersistAsciiString("Waypoint", ref item.Waypoint);
-                persister.PersistSingle("Radius", ref item.Radius);
-                persister.PersistAsciiString("Player", ref item.Player);
+                    persister.PersistAsciiString(ref item.Name);
+                    persister.PersistAsciiString(ref item.Waypoint);
+                    persister.PersistSingle(ref item.Radius);
+                    persister.PersistAsciiString(ref item.Player);
 
-                persister.EndObject();
-            });
+                    persister.EndObject();
+                });
 
-            reader.PersistList("ObjectTypeLists", _objectTypeLists, static (StatePersister persister, ref ObjectTypeList item) =>
-            {
-                item ??= new ObjectTypeList();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _objectTypeLists,
+                static (StatePersister persister, ref ObjectTypeList item) =>
+                {
+                    item ??= new ObjectTypeList();
+                    persister.PersistObjectValue(item);
+                });
 
             byte unknown20 = 1;
-            reader.PersistByte("Unknown20", ref unknown20);
+            reader.PersistByte(ref unknown20);
             if (unknown20 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistAsciiString("MusicTrackName", ref _musicTrackName);
+            reader.PersistAsciiString(ref _musicTrackName);
 
             reader.SkipUnknownBytes(1);
         }

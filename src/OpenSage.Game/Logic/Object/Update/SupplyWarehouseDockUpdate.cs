@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistInt32("CurrentBoxes", ref _currentBoxes);
+            reader.PersistInt32(ref _currentBoxes);
         }
     }
 

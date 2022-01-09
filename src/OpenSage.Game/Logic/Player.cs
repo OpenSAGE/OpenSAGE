@@ -396,15 +396,15 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(8);
 
-            reader.PersistObject("BankAccount", BankAccount);
+            reader.PersistObject(BankAccount);
 
             var upgradeQueueCount = (ushort)_upgrades.Count;
-            reader.PersistUInt16("UpgradeQueueCount", ref upgradeQueueCount);
+            reader.PersistUInt16(ref upgradeQueueCount);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistObject("SciencesDisabled", _sciencesDisabled);
-            reader.PersistObject("SciencesHidden", _sciencesHidden);
+            reader.PersistObject(_sciencesDisabled);
+            reader.PersistObject(_sciencesHidden);
 
             reader.BeginArray("Upgrades");
             if (reader.Mode == StatePersistMode.Read)
@@ -414,14 +414,14 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var upgradeName = "";
-                    reader.PersistAsciiString("UpgradeName", ref upgradeName);
+                    reader.PersistAsciiString(ref upgradeName);
                     var upgradeTemplate = reader.AssetStore.Upgrades.GetByName(upgradeName);
 
                     // Use UpgradeStatus.Invalid temporarily because we're going to load the
                     // actual queued / completed status below.
                     var upgrade = AddUpgrade(upgradeTemplate, UpgradeStatus.Invalid);
 
-                    reader.PersistObject("Upgrade", upgrade);
+                    reader.PersistObject(upgrade);
 
                     reader.EndObject();
                 }
@@ -433,21 +433,21 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var upgradeName = upgrade.Template.Name;
-                    reader.PersistAsciiString("UpgradeName", ref upgradeName);
+                    reader.PersistAsciiString(ref upgradeName);
 
-                    reader.PersistObject("Upgrade", upgrade);
+                    reader.PersistObject(upgrade);
 
                     reader.EndObject();
                 }
             }
             reader.EndArray();
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
-            reader.PersistBoolean("Unknown2", ref _unknown2);
-            reader.PersistUInt32("Unknown3", ref _unknown3);
-            reader.PersistBoolean("HasInsufficientPower", ref _hasInsufficientPower);
-            reader.PersistObject("UpgradesInProgress", _upgradesInProgress);
-            reader.PersistObject("UpgradesCompleted", UpgradesCompleted);
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistBoolean(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistBoolean(ref _hasInsufficientPower);
+            reader.PersistObject(_upgradesInProgress);
+            reader.PersistObject(UpgradesCompleted);
 
             {
                 reader.BeginObject("UnknownThing");
@@ -455,7 +455,7 @@ namespace OpenSage.Logic
                 reader.PersistVersion(2);
 
                 var playerId = Id;
-                reader.PersistUInt32("PlayerId", ref playerId);
+                reader.PersistUInt32(ref playerId);
                 if (playerId != Id)
                 {
                     throw new InvalidStateException();
@@ -464,16 +464,18 @@ namespace OpenSage.Logic
                 reader.EndObject();
             }
 
-            reader.PersistList("TeamTemplates", _teamTemplates, static (StatePersister persister, ref TeamTemplate item) =>
-            {
-                var teamTemplateId = item?.ID ?? 0u;
-                persister.PersistUInt32Value(ref teamTemplateId);
-
-                if (persister.Mode == StatePersistMode.Read)
+            reader.PersistList(
+                _teamTemplates,
+                static (StatePersister persister, ref TeamTemplate item) =>
                 {
-                    item = persister.Game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
-                }
-            });
+                    var teamTemplateId = item?.ID ?? 0u;
+                    persister.PersistUInt32Value(ref teamTemplateId);
+
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.Game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                    }
+                });
 
             if (reader.Mode == StatePersistMode.Read)
             {
@@ -486,40 +488,42 @@ namespace OpenSage.Logic
                 }
             }
 
-            reader.PersistList("BuildListItems", _buildListItems, static (StatePersister persister, ref BuildListItem item) =>
-            {
-                item ??= new BuildListItem();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _buildListItems,
+                static (StatePersister persister, ref BuildListItem item) =>
+                {
+                    item ??= new BuildListItem();
+                    persister.PersistObjectValue(item);
+                });
 
             var isAIPlayer = AIPlayer != null;
-            reader.PersistBoolean("IsAIPlayer", ref isAIPlayer);
+            reader.PersistBoolean(ref isAIPlayer);
             if (isAIPlayer != (AIPlayer != null))
             {
                 throw new InvalidStateException();
             }
             if (isAIPlayer)
             {
-                reader.PersistObject("AIPlayer", AIPlayer);
+                reader.PersistObject(AIPlayer);
             }
 
             var hasSupplyManager = _supplyManager != null;
-            reader.PersistBoolean("HasSupplyManager", ref hasSupplyManager);
+            reader.PersistBoolean(ref hasSupplyManager);
             if (hasSupplyManager)
             {
-                reader.PersistObject("SupplyManager", _supplyManager);
+                reader.PersistObject(_supplyManager);
             }
 
             var hasTunnelManager = _tunnelManager != null;
-            reader.PersistBoolean("HasTunnelManager", ref hasTunnelManager);
+            reader.PersistBoolean(ref hasTunnelManager);
             if (hasTunnelManager)
             {
                 _tunnelManager ??= new TunnelManager();
-                reader.PersistObject("TunnelManager", _tunnelManager);
+                reader.PersistObject(_tunnelManager);
             }
 
             var defaultTeamId = DefaultTeam?.Id ?? 0u;
-            reader.PersistUInt32("DefaultTeamId", ref defaultTeamId);
+            reader.PersistUInt32(ref defaultTeamId);
             if (reader.Mode == StatePersistMode.Read)
             {
                 DefaultTeam = reader.Game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
@@ -529,50 +533,53 @@ namespace OpenSage.Logic
                 }
             }
 
-            reader.PersistObject("Sciences", _sciences);
+            reader.PersistObject(_sciences);
 
             var rankId = (uint)Rank.CurrentRank;
-            reader.PersistUInt32("RankId", ref rankId);
+            reader.PersistUInt32(ref rankId);
             Rank.SetRank((int) rankId);
 
-            reader.PersistUInt32("SkillPointsTotal", ref SkillPointsTotal);
-            reader.PersistUInt32("SkillPointsAvailable", ref SkillPointsAvailable);
-            reader.PersistUInt32("Unknown4", ref _unknown4); // 800
-            reader.PersistUInt32("Unknown5", ref _unknown5); // 0
-            reader.PersistUnicodeString("Name", ref Name);
-            reader.PersistObject("PlayerToPlayerRelationships", _playerToPlayerRelationships);
-            reader.PersistObject("PlayerToTeamRelationships", _playerToTeamRelationships);
-            reader.PersistBoolean("CanBuildUnits", ref CanBuildUnits);
-            reader.PersistBoolean("CanBuildBuildings", ref CanBuildBuildings);
-            reader.PersistBoolean("Unknown6", ref _unknown6);
-            reader.PersistSingle("GeneralsExperienceMultiplier", ref GeneralsExperienceMultiplier);
-            reader.PersistBoolean("ShowOnScoreScreen", ref ShowOnScoreScreen);
+            reader.PersistUInt32(ref SkillPointsTotal);
+            reader.PersistUInt32(ref SkillPointsAvailable);
+            reader.PersistUInt32(ref _unknown4); // 800
+            reader.PersistUInt32(ref _unknown5); // 0
+            reader.PersistUnicodeString(ref Name);
+            reader.PersistObject(_playerToPlayerRelationships);
+            reader.PersistObject(_playerToTeamRelationships);
+            reader.PersistBoolean(ref CanBuildUnits);
+            reader.PersistBoolean(ref CanBuildBuildings);
+            reader.PersistBoolean(ref _unknown6);
+            reader.PersistSingle(ref GeneralsExperienceMultiplier);
+            reader.PersistBoolean(ref ShowOnScoreScreen);
 
-            reader.PersistArray("AttackedByPlayerIds", _attackedByPlayerIds, static (StatePersister persister, ref bool item) =>
-            {
-                persister.PersistBooleanValue(ref item);
-            });
+            reader.PersistArray(
+                _attackedByPlayerIds,
+                static (StatePersister persister, ref bool item) =>
+                {
+                    persister.PersistBooleanValue(ref item);
+                });
 
             reader.SkipUnknownBytes(70);
 
-            reader.PersistObject("ScoreManager", _scoreManager);
+            reader.PersistObject(_scoreManager);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistList("ControlGroups", _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
-            {
-                item ??= new ObjectIdSet();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
+                {
+                    item ??= new ObjectIdSet();
+                    persister.PersistObjectValue(item);
+                });
 
             var unknown = true;
-            reader.PersistBoolean("Unknown", ref unknown);
+            reader.PersistBoolean(ref unknown);
             if (!unknown)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistObject("DestroyedObjects", _destroyedObjects);
+            reader.PersistObject(_destroyedObjects);
 
             reader.SkipUnknownBytes(14);
         }
@@ -671,8 +678,8 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject("SupplyWarehouses", _supplyWarehouses);
-            reader.PersistObject("SupplyCenters", _supplyCenters);
+            reader.PersistObject(_supplyWarehouses);
+            reader.PersistObject(_supplyCenters);
         }
     }
 
@@ -691,11 +698,14 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistDictionary("Dictionary", _store, static (StatePersister persister, ref uint key, ref RelationshipType value) =>
+            reader.PersistDictionary(
+                _store,
+                static (StatePersister persister, ref uint key, ref RelationshipType value) =>
             {
-                persister.PersistUInt32("PlayerOrTeamId", ref key);
-                persister.PersistEnum("RelationshipType", ref value);
-            });
+                persister.PersistUInt32(ref key);
+                persister.PersistEnum(ref value);
+            },
+            "Dictionary");
         }
     }
 
@@ -705,16 +715,19 @@ namespace OpenSage.Logic
         {
             persister.PersistVersion(1);
 
-            persister.PersistHashSet("Values", this, static (StatePersister persister, ref Science item) =>
-            {
-                var name = item?.Name ?? "";
-                persister.PersistAsciiStringValue(ref name);
-
-                if (persister.Mode == StatePersistMode.Read)
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref Science item) =>
                 {
-                    item = persister.AssetStore.Sciences.GetByName(name);
-                }
-            });
+                    var name = item?.Name ?? "";
+                    persister.PersistAsciiStringValue(ref name);
+
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.AssetStore.Sciences.GetByName(name);
+                    }
+                },
+                "Values");
         }
     }
 
@@ -724,16 +737,19 @@ namespace OpenSage.Logic
         {
             persister.PersistVersion(1);
 
-            persister.PersistHashSet("Values", this, static (StatePersister persister, ref UpgradeTemplate item) =>
-            {
-                var name = item?.Name ?? "";
-                persister.PersistAsciiStringValue(ref name);
-
-                if (persister.Mode == StatePersistMode.Read)
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref UpgradeTemplate item) =>
                 {
-                    item = persister.AssetStore.Upgrades.GetByName(name);
-                }
-            });
+                    var name = item?.Name ?? "";
+                    persister.PersistAsciiStringValue(ref name);
+
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.AssetStore.Upgrades.GetByName(name);
+                    }
+                },
+                "Values");
         }
     }
 
@@ -743,10 +759,13 @@ namespace OpenSage.Logic
         {
             persister.PersistVersion(1);
 
-            persister.PersistHashSet("Values", this, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                },
+                "Values");
         }
     }
 
@@ -756,11 +775,14 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistDictionary("Dictionary", this, static (StatePersister persister, ref string key, ref uint value) =>
-            {
-                persister.PersistAsciiString("ObjectType", ref key);
-                persister.PersistUInt32("Total", ref value);
-            });
+            reader.PersistDictionary(
+                this,
+                static (StatePersister persister, ref string key, ref uint value) =>
+                {
+                    persister.PersistAsciiString(ref key);
+                    persister.PersistUInt32(ref value);
+                },
+                "Dictionary");
         }
     }
 
@@ -804,7 +826,7 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32("Money", ref Money);
+            reader.PersistUInt32(ref Money);
         }
     }
 
@@ -817,15 +839,17 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject("TunnelIds", _tunnelIds);
+            reader.PersistObject(_tunnelIds);
 
-            reader.PersistListWithUInt32Count("ContainedObjectIds", _containedObjectIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistListWithUInt32Count(
+                _containedObjectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
 
             var tunnelCount = (uint)_tunnelIds.Count;
-            reader.PersistUInt32("TunnelCount", ref tunnelCount);
+            reader.PersistUInt32(ref tunnelCount);
             if (tunnelCount != _tunnelIds.Count)
             {
                 throw new InvalidStateException();
@@ -872,38 +896,44 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32("SuppliesCollected", ref _suppliesCollected);
-            reader.PersistUInt32("MoneySpent", ref _moneySpent);
+            reader.PersistUInt32(ref _suppliesCollected);
+            reader.PersistUInt32(ref _moneySpent);
 
-            reader.PersistArray("NumUnitsDestroyedPerPlayer", _numUnitsDestroyedPerPlayer, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            reader.PersistArray(
+                _numUnitsDestroyedPerPlayer,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
 
-            reader.PersistUInt32("NumUnitsBuilt", ref _numUnitsBuilt);
-            reader.PersistUInt32("NumUnitsLost", ref _numUnitsLost);
+            reader.PersistUInt32(ref _numUnitsBuilt);
+            reader.PersistUInt32(ref _numUnitsLost);
 
-            reader.PersistArray("NumBuildingsDestroyedPerPlayer", _numBuildingsDestroyedPerPlayer, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            reader.PersistArray(
+                _numBuildingsDestroyedPerPlayer,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
 
-            reader.PersistUInt32("NumBuildingsBuilt", ref _numBuildingsBuilt);
-            reader.PersistUInt32("NumBuildingsLost", ref _numBuildingsLost);
-            reader.PersistUInt32("NumObjectsCaptured", ref _numObjectsCaptured);
+            reader.PersistUInt32(ref _numBuildingsBuilt);
+            reader.PersistUInt32(ref _numBuildingsLost);
+            reader.PersistUInt32(ref _numObjectsCaptured);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistUInt32("PlayerId", ref _playerId);
-            reader.PersistObject("ObjectsBuilt", _objectsBuilt);
+            reader.PersistUInt32(ref _playerId);
+            reader.PersistObject(_objectsBuilt);
 
-            reader.PersistArrayWithUInt16Length("ObjectsDestroyedPerPlayer", _objectsDestroyedPerPlayer, static (StatePersister persister, ref PlayerStatObjectCollection item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                _objectsDestroyedPerPlayer,
+                static (StatePersister persister, ref PlayerStatObjectCollection item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
 
-            reader.PersistObject("ObjectsLost", _objectsLost);
-            reader.PersistObject("ObjectsCaptured", _objectsCaptured);
+            reader.PersistObject(_objectsLost);
+            reader.PersistObject(_objectsCaptured);
         }
     }
 }

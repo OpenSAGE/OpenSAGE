@@ -21,7 +21,7 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum("Status", ref _status);
+            reader.PersistEnum(ref _status);
         }
     }
 }

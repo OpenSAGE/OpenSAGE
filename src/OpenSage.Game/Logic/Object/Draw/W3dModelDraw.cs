@@ -405,21 +405,23 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistArray("UnknownSomethings", _unknownSomething, static (StatePersister persister, ref List<W3dModelDrawSomething> item) =>
-            {
-                persister.PersistListWithByteCountValue(item, static (StatePersister persister, ref W3dModelDrawSomething item) =>
+            reader.PersistArray(
+                _unknownSomething,
+                static (StatePersister persister, ref List<W3dModelDrawSomething> item) =>
                 {
-                    persister.PersistObjectValue(ref item);
+                    persister.PersistListWithByteCountValue(item, static (StatePersister persister, ref W3dModelDrawSomething item) =>
+                    {
+                        persister.PersistObjectValue(ref item);
+                    });
                 });
-            });
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
+            reader.PersistBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.PersistInt32("UnknownInt", ref _unknownInt);
-                reader.PersistSingle("UnknownFloat", ref _unknownFloat);
+                reader.PersistInt32(ref _unknownInt);
+                reader.PersistSingle(ref _unknownFloat);
             }
         }
 
@@ -431,9 +433,9 @@ namespace OpenSage.Logic.Object
 
             public void Persist(StatePersister persister)
             {
-                persister.PersistUInt32("UnknownInt", ref UnknownInt);
-                persister.PersistSingle("UnknownFloat1", ref UnknownFloat1);
-                persister.PersistSingle("UnknownFloat2", ref UnknownFloat2);
+                persister.PersistUInt32(ref UnknownInt);
+                persister.PersistSingle(ref UnknownFloat1);
+                persister.PersistSingle(ref UnknownFloat2);
             }
         }
     }

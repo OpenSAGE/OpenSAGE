@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObject("UpgradeLogic", _upgradeLogic);
+            reader.PersistObject(_upgradeLogic);
         }
     }
 

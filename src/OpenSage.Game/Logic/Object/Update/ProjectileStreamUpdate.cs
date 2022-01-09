@@ -17,14 +17,15 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistArray("ObjectIds", _objectIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistArray(
+                _objectIds, static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistObjectID(ref _unknownObjectId);
         }
     }
 

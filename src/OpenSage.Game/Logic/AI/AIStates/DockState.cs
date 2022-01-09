@@ -16,14 +16,14 @@
             reader.PersistVersion(1);
 
             var unknownBool1 = true;
-            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistObject("StateMachine", _stateMachine);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistObject(_stateMachine);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 
@@ -48,7 +48,7 @@
             base.Persist(reader);
             reader.EndObject();
 
-            reader.PersistUInt32("UnknownInt", ref _unknownInt);
+            reader.PersistUInt32(ref _unknownInt);
         }
 
         private sealed class DockApproachDockState : MoveTowardsState
@@ -71,7 +71,7 @@
             {
                 reader.PersistVersion(2);
 
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
 

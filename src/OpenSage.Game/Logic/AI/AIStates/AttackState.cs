@@ -18,9 +18,9 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
-            reader.PersistVector3("UnknownPosition", ref _unknownPosition);
-            reader.PersistObject("StateMachine", _stateMachine);
+            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistObject(_stateMachine);
         }
     }
 
@@ -60,12 +60,12 @@ namespace OpenSage.Logic.AI.AIStates
                 base.Persist(reader);
                 reader.EndObject();
 
-                reader.PersistVector3("UnknownPosition", ref _unknownPosition);
-                reader.PersistFrame("UnknownFrame", ref _unknownFrame);
-                reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-                reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-                reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
-                reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
+                reader.PersistVector3(ref _unknownPosition);
+                reader.PersistFrame(ref _unknownFrame);
+                reader.PersistBoolean(ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool3);
+                reader.PersistBoolean(ref _unknownBool4);
             }
         }
 
@@ -78,8 +78,8 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-                reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool2);
             }
         }
 

@@ -46,16 +46,18 @@ namespace OpenSage.Logic
             reader.PersistVersion(2);
 
             var partitionCellSize = _partitionCellSize;
-            reader.PersistSingle("PartitionCellSize", ref partitionCellSize);
+            reader.PersistSingle(ref partitionCellSize);
             if (partitionCellSize != _partitionCellSize)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistArrayWithUInt32Length("PartitionCells", _cells, static (StatePersister persister, ref PartitionCell item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt32Length(
+                _cells, static (StatePersister persister, ref PartitionCell item) =>
+                {
+                    persister.PersistObjectValue(item);
+                },
+                "PartitionCells");
 
 #if DEBUG
             //var builder = new System.Text.StringBuilder();
@@ -91,11 +93,13 @@ namespace OpenSage.Logic
             //File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
 #endif
 
-            reader.PersistListWithUInt32Count("ShroudReveals", _shroudReveals, static (StatePersister persister, ref ShroudReveal item) =>
-            {
-                item ??= new ShroudReveal();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistListWithUInt32Count(
+                _shroudReveals,
+                static (StatePersister persister, ref ShroudReveal item) =>
+                {
+                    item ??= new ShroudReveal();
+                    persister.PersistObjectValue(item);
+                });
         }
 
         // TODO: We think the algorithm is:
@@ -164,12 +168,14 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistArray("Values", Values, static (StatePersister persister, ref PartitionCellValue item) =>
-            {
-                persister.PersistInt16Value(ref item.State);
+            reader.PersistArray(
+                Values,
+                static (StatePersister persister, ref PartitionCellValue item) =>
+                {
+                    persister.PersistInt16Value(ref item.State);
 
-                persister.SkipUnknownBytes(2);
-            });
+                    persister.SkipUnknownBytes(2);
+                });
         }
     }
 
@@ -189,10 +195,10 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistVector3("Position", ref Position);
-            reader.PersistSingle("VisionRange", ref VisionRange);
-            reader.PersistUInt16("Unknown", ref Unknown);
-            reader.PersistFrame("FrameSomething", ref FrameSomething);
+            reader.PersistVector3(ref Position);
+            reader.PersistSingle(ref VisionRange);
+            reader.PersistUInt16(ref Unknown);
+            reader.PersistFrame(ref FrameSomething);
         }
     }
 }

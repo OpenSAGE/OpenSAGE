@@ -16,13 +16,13 @@ namespace OpenSage.Data.Sav
         {
             reader.PersistVersion(2);
 
-            reader.PersistEnum("GameType", ref GameType);
-            reader.PersistAsciiString("MapPath", ref MapPath);
-            reader.PersistDateTime("Timestamp", ref Timestamp);
-            reader.PersistUnicodeString("DisplayName", ref DisplayName);
-            reader.PersistAsciiString("MapFileName", ref MapFileName);
-            reader.PersistAsciiString("Side", ref Side);
-            reader.PersistUInt32("MissionIndex", ref MissionIndex);
+            reader.PersistEnum(ref GameType);
+            reader.PersistAsciiString(ref MapPath);
+            reader.PersistDateTime(ref Timestamp);
+            reader.PersistUnicodeString(ref DisplayName);
+            reader.PersistAsciiString(ref MapFileName);
+            reader.PersistAsciiString(ref Side);
+            reader.PersistUInt32(ref MissionIndex);
         }
     }
 }

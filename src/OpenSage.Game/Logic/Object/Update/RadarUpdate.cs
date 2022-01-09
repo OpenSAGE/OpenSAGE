@@ -16,9 +16,9 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32("RadarExtendedFrame", ref _radarExtendEndFrame);
-            reader.PersistBoolean("IsRadarExtended", ref _isRadarExtended);
-            reader.PersistBoolean("IsRadarExtending", ref _isRadarExtending);
+            reader.PersistUInt32(ref _radarExtendEndFrame);
+            reader.PersistBoolean(ref _isRadarExtended);
+            reader.PersistBoolean(ref _isRadarExtending);
         }
     }
 

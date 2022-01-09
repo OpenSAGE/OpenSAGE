@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32("Unknown", ref _unknown);
+            reader.PersistUInt32(ref _unknown);
         }
     }
 

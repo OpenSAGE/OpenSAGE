@@ -13,13 +13,13 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32("Unknown1", ref Unknown1);
-            reader.PersistUInt32("TeamId", ref TeamID);
-            reader.PersistAsciiString("ScriptName", ref ScriptName);
-            reader.PersistUInt32("ScriptActionIndex", ref ScriptActionIndex);
-            reader.PersistUInt32("LoopsRemaining", ref LoopsRemaining);
+            reader.PersistUInt32(ref Unknown1);
+            reader.PersistUInt32(ref TeamID);
+            reader.PersistAsciiString(ref ScriptName);
+            reader.PersistUInt32(ref ScriptActionIndex);
+            reader.PersistUInt32(ref LoopsRemaining);
 
-            reader.PersistInt32("Unknown2", ref Unknown2);
+            reader.PersistInt32(ref Unknown2);
             if (Unknown2 != -1)
             {
                 throw new InvalidStateException();

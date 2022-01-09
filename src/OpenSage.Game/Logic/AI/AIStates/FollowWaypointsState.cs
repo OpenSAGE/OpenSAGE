@@ -25,13 +25,13 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Persist(reader);
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
-            reader.PersistUInt32("WaypointIdMaybe1", ref _waypointIdMaybe1);
-            reader.PersistUInt32("WaypointIdMaybe2", ref _waypointIdMaybe2);
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _waypointIdMaybe1);
+            reader.PersistUInt32(ref _waypointIdMaybe2);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 }

@@ -62,7 +62,16 @@ internal sealed class JsonSaveWriter : StatePersister
 
     public override void PersistFieldName(string name)
     {
-        _writer.WritePropertyName(name);
+        var normalized = name.TrimStart('_');
+        if (normalized.Length > 0 && char.IsLower(normalized[0]))
+        {
+            var array = normalized.ToCharArray();
+            array[0] = char.ToUpper(array[0]);
+            normalized = new string(array);
+        }
+
+        _writer.WritePropertyName(normalized);
+
     }
 
     public override void PersistAsciiStringValue(ref string value)

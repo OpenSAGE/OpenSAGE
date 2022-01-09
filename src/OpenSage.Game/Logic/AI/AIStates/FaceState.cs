@@ -14,7 +14,7 @@
             reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.PersistBoolean("UnknownBool", ref unknownBool);
+            reader.PersistBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();

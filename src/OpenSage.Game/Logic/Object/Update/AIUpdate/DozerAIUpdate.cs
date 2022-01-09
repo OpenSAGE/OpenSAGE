@@ -35,27 +35,31 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistArrayWithUInt32Length("UnknownList1", _unknownList1, static (StatePersister persister, ref DozerSomething1 item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistArrayWithUInt32Length(
+                _unknownList1,
+                static (StatePersister persister, ref DozerSomething1 item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
-            reader.PersistObject("StateMachine", _stateMachine);
-            reader.PersistInt32("Unknown2", ref _unknown2);
+            reader.PersistObject(_stateMachine);
+            reader.PersistInt32(ref _unknown2);
 
             var unknown3 = 3;
-            reader.PersistInt32("Unknown3", ref unknown3);
+            reader.PersistInt32(ref unknown3);
             if (unknown3 != 3)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistArray("UnknownList2", _unknownList2, static (StatePersister persister, ref DozerSomething2 item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistArray(
+                _unknownList2,
+                static (StatePersister persister, ref DozerSomething2 item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
-            reader.PersistInt32("Unknown4", ref _unknown4);
+            reader.PersistInt32(ref _unknown4);
         }
     }
 
@@ -66,8 +70,8 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID("ObjectId", ref ObjectId);
-            persister.PersistInt32("Unknown", ref Unknown);
+            persister.PersistObjectID(ref ObjectId);
+            persister.PersistInt32(ref Unknown);
         }
     }
 
@@ -78,8 +82,8 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistBoolean("UnknownBool", ref UnknownBool);
-            persister.PersistVector3("UnknownPos", ref UnknownPos);
+            persister.PersistBoolean(ref UnknownBool);
+            persister.PersistVector3(ref UnknownPos);
         }
     }
 

@@ -15,12 +15,14 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame);
 
-            reader.PersistList("ObjectIds", _objectIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistList(
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
         }
     }
 

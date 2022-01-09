@@ -13,8 +13,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Persist(reader);
 
-            reader.PersistVector3("UnknownPos", ref _unknownPos);
-            reader.PersistUInt32("UnknownInt", ref _unknownInt);
+            reader.PersistVector3(ref _unknownPos);
+            reader.PersistUInt32(ref _unknownInt);
 
             reader.SkipUnknownBytes(4);
         }

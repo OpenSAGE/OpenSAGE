@@ -39,17 +39,17 @@ namespace OpenSage.Scripting
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistEnum("FadeType", ref FadeType);
+            reader.PersistEnum(ref FadeType);
 
-            reader.PersistSingle("From", ref From);
-            reader.PersistSingle("To", ref To);
+            reader.PersistSingle(ref From);
+            reader.PersistSingle(ref To);
 
-            reader.PersistSingle("CurrentValue", ref CurrentValue);
-            reader.PersistUInt32("CurrentFrame", ref CurrentFrame);
+            reader.PersistSingle(ref CurrentValue);
+            reader.PersistUInt32(ref CurrentFrame);
 
-            reader.PersistUInt32("FramesIncrease", ref FramesIncrease);
-            reader.PersistUInt32("FramesHold", ref FramesHold);
-            reader.PersistUInt32("FramesDecrease", ref FramesDecrease);
+            reader.PersistUInt32(ref FramesIncrease);
+            reader.PersistUInt32(ref FramesHold);
+            reader.PersistUInt32(ref FramesDecrease);
         }
 
         public void Update()

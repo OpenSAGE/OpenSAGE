@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistBoolean(ref _unknownBool);
 
             reader.SkipUnknownBytes(1);
         }

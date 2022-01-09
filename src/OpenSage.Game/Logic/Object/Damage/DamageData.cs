@@ -9,8 +9,8 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject("Request", ref Request);
-            reader.PersistObject("Result", ref Result);
+            reader.PersistObject(ref Request);
+            reader.PersistObject(ref Result);
         }
     }
 
@@ -27,11 +27,11 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistObjectID("ObjectId", ref ObjectId);
-            reader.PersistUInt16("Unknown1", ref Unknown1);
-            reader.PersistEnum("DamageType", ref DamageType);
-            reader.PersistEnum("DeathType", ref DeathType);
-            reader.PersistSingle("Unknown4", ref Unknown4);
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistUInt16(ref Unknown1);
+            reader.PersistEnum(ref DamageType);
+            reader.PersistEnum(ref DeathType);
+            reader.PersistSingle(ref Unknown4);
         }
     }
 
@@ -45,8 +45,8 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistSingle("Unknown1", ref Unknown1);
-            reader.PersistSingle("Unknown2", ref Unknown2);
+            reader.PersistSingle(ref Unknown1);
+            reader.PersistSingle(ref Unknown2);
 
             reader.SkipUnknownBytes(1);
         }

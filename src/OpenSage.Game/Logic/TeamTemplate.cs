@@ -56,15 +56,15 @@ namespace OpenSage.Logic
 
             // This will be the same as the existing Owner, unless control of this team has been transferred.
             var ownerPlayerId = Owner.Id;
-            reader.PersistUInt32("OwnerPlayerId", ref ownerPlayerId);
+            reader.PersistUInt32(ref ownerPlayerId);
             Owner = reader.Game.Scene3D.PlayerManager.GetPlayerByIndex(ownerPlayerId);
 
-            reader.PersistAsciiString("AttackPriorityName", ref _attackPriorityName);
-            reader.PersistBoolean("Unknown1", ref _unknown1);
-            reader.PersistObject("TemplateData", _templateData);
+            reader.PersistAsciiString(ref _attackPriorityName);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistObject(_templateData);
 
             var teamCount = (ushort) _teams.Count;
-            reader.PersistUInt16("TeamCount", ref teamCount);
+            reader.PersistUInt16(ref teamCount);
 
             reader.BeginArray("Teams");
             if (reader.Mode == StatePersistMode.Read)
@@ -74,7 +74,7 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var id = 0u;
-                    reader.PersistUInt32("Id", ref id);
+                    reader.PersistUInt32(ref id);
 
                     var team = FindTeamById(id);
                     if (team == null)
@@ -82,7 +82,7 @@ namespace OpenSage.Logic
                         team = TeamFactory.AddTeamWithId(this, id);
                     }
 
-                    reader.PersistObject("Value", team);
+                    reader.PersistObject(team, "Value");
 
                     reader.EndObject();
                 }
@@ -94,9 +94,9 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var id = team.Id;
-                    reader.PersistUInt32("Id", ref id);
+                    reader.PersistUInt32(ref id);
 
-                    reader.PersistObject("Value", team);
+                    reader.PersistObject(team, "Value");
 
                     reader.EndObject();
                 }
@@ -113,7 +113,7 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistInt32("ProductionPriority", ref ProductionPriority);
+            reader.PersistInt32(ref ProductionPriority);
         }
     }
 }

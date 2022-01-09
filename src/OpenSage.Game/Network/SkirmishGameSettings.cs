@@ -83,15 +83,15 @@ namespace OpenSage.Network
         {
             reader.PersistVersion(2);
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 25600 (160^2)
-            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3); // 0
+            reader.PersistUInt32(ref _unknownInt1); // 25600 (160^2)
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistUInt32(ref _unknownInt3); // 0
 
             var numPlayers = (uint)MaxNumberOfPlayers;
-            reader.PersistUInt32("NumPlayers", ref numPlayers); // 8
+            reader.PersistUInt32(ref numPlayers); // 8
             if (numPlayers != MaxNumberOfPlayers)
             {
                 throw new InvalidStateException();
@@ -112,11 +112,11 @@ namespace OpenSage.Network
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistAsciiString("MapName", ref _mapName);
-            reader.PersistUInt32("MapFileCrc", ref _mapFileCrc);
-            reader.PersistUInt32("MapFileSize", ref _mapFileSize);
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
-            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
+            reader.PersistAsciiString(ref _mapName);
+            reader.PersistUInt32(ref _mapFileCrc);
+            reader.PersistUInt32(ref _mapFileSize);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
         }
     }
 }

@@ -271,18 +271,20 @@ namespace OpenSage
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean("Unknown1", ref _unknown1);
-            reader.PersistObject("VisibleItems", _visibleItems);
-            reader.PersistObject("HiddenItems", _hiddenItems);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistObject(_visibleItems);
+            reader.PersistObject(_hiddenItems);
 
-            reader.PersistList("RadarEvents", _radarEvents, static (StatePersister persister, ref RadarEvent item) =>
-            {
-                item ??= new RadarEvent();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                _radarEvents,
+                static (StatePersister persister, ref RadarEvent item) =>
+                {
+                    item ??= new RadarEvent();
+                    persister.PersistObjectValue(item);
+                });
 
-            reader.PersistUInt32("Unknown2", ref _unknown2);
-            reader.PersistUInt32("Unknown3", ref _unknown3);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
         }
     }
 
@@ -293,7 +295,7 @@ namespace OpenSage
             reader.PersistVersion(1);
 
             var count = (ushort) Count;
-            reader.PersistUInt16("Count", ref count);
+            reader.PersistUInt16(ref count);
 
             reader.BeginArray("Items");
             if (reader.Mode == StatePersistMode.Read)
@@ -329,8 +331,8 @@ namespace OpenSage
         {
             reader.PersistVersion(1);
 
-            reader.PersistObjectID("ObjectId", ref ObjectId);
-            reader.PersistColorRgba("Color", ref Color);
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistColorRgba(ref Color);
         }
     }
 
@@ -351,17 +353,17 @@ namespace OpenSage
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistEnum("Type", ref Type);
-            reader.PersistBoolean("Unknown1", ref _unknown1);
-            reader.PersistUInt32("Unknown2", ref _unknown2);
-            reader.PersistUInt32("Unknown3", ref _unknown3);
-            reader.PersistUInt32("Unknown4", ref _unknown4);
-            reader.PersistColorRgbaInt("Color1", ref _color1);
-            reader.PersistColorRgbaInt("Color2", ref _color2);
-            reader.PersistVector3("Position", ref Position);
-            reader.PersistUInt32("Unknown5", ref _unknown5);
-            reader.PersistUInt32("Unknown6", ref _unknown6);
-            reader.PersistBoolean("Unknown7", ref _unknown7);
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown4);
+            reader.PersistColorRgbaInt(ref _color1);
+            reader.PersistColorRgbaInt(ref _color2);
+            reader.PersistVector3(ref Position);
+            reader.PersistUInt32(ref _unknown5);
+            reader.PersistUInt32(ref _unknown6);
+            reader.PersistBoolean(ref _unknown7);
         }
     }
 

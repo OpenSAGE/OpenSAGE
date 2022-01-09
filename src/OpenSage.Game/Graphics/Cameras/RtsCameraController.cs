@@ -317,8 +317,8 @@ namespace OpenSage.Graphics.Cameras
         {
             reader.PersistVersion(1);
 
-            reader.PersistSingle("Yaw", ref _yaw);
-            reader.PersistVector3("TerrainPosition", ref _terrainPosition);
+            reader.PersistSingle(ref _yaw);
+            reader.PersistVector3(ref _terrainPosition);
         }
 
         internal void DrawInspector()

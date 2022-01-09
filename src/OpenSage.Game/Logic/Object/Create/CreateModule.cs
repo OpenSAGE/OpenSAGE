@@ -14,7 +14,7 @@
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean("Unknown", ref _unknown);
+            reader.PersistBoolean(ref _unknown);
         }
     }
 

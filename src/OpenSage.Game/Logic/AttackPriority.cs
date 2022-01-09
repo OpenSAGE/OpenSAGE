@@ -31,19 +31,21 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistAsciiString("Name", ref _name);
+            reader.PersistAsciiString(ref _name);
 
-            reader.PersistInt32("Default", ref _default);
+            reader.PersistInt32(ref _default);
             if (_default != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("Targets", Targets, static (StatePersister persister, ref AttackPriorityTarget item) =>
-            {
-                item ??= new AttackPriorityTarget();
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistList(
+                Targets,
+                static (StatePersister persister, ref AttackPriorityTarget item) =>
+                {
+                    item ??= new AttackPriorityTarget();
+                    persister.PersistObjectValue(item);
+                });
         }
     }
 
@@ -67,8 +69,8 @@ namespace OpenSage.Logic
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistAsciiString("Target", ref _target);
-            reader.PersistUInt32("Value", ref _value);
+            reader.PersistAsciiString(ref _target);
+            reader.PersistUInt32(ref _value);
         }
     }
 }

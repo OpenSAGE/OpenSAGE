@@ -21,17 +21,17 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt16("CurrentImageIndex", ref _currentImageIndex);
-            reader.PersistFrame("LastUpdatedFrame", ref _lastUpdatedFrame);
-            reader.PersistUInt16("Unknown", ref _unknown);
+            reader.PersistUInt16(ref _currentImageIndex);
+            reader.PersistFrame(ref _lastUpdatedFrame);
+            reader.PersistUInt16(ref _unknown);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistUInt16("LastDamageIndex", ref _lastImageIndex);
-            reader.PersistUInt32("AnimationDelayFrames", ref _animationDelayFrames);
+            reader.PersistUInt16(ref _lastImageIndex);
+            reader.PersistUInt32(ref _animationDelayFrames);
 
             var unknownFloat = 1.0f;
-            reader.PersistSingle("UnknownFloat", ref unknownFloat);
+            reader.PersistSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();

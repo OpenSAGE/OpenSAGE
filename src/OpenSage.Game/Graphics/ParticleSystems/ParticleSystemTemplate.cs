@@ -345,108 +345,112 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.PersistVersion(1);
 
-            reader.PersistBoolean("IsOneShot", ref IsOneShot);
-            reader.PersistEnum("Shader", ref Shader);
-            reader.PersistEnum("Type", ref Type);
+            reader.PersistBoolean(ref IsOneShot);
+            reader.PersistEnum(ref Shader);
+            reader.PersistEnum(ref Type);
 
             var texture = Particle.Value?.Name;
-            reader.PersistAsciiString("Texture", ref texture);
+            reader.PersistAsciiString(ref texture);
 
-            reader.PersistRandomVariable("AngleX", ref AngleX);
-            reader.PersistRandomVariable("AngleY", ref AngleY);
-            reader.PersistRandomVariable("AngleZ", ref AngleZ);
-            reader.PersistRandomVariable("AngularRateX", ref AngularRateX);
-            reader.PersistRandomVariable("AngularRateY", ref AngularRateY);
-            reader.PersistRandomVariable("AngularRateZ", ref AngularRateZ);
-            reader.PersistRandomVariable("AngularDamping", ref AngularDamping);
-            reader.PersistRandomVariable("VelocityDamping", ref VelocityDamping);
-            reader.PersistRandomVariable("Lifetime", ref Lifetime);
-            reader.PersistInt32("SystemLifetime", ref SystemLifetime);
-            reader.PersistRandomVariable("Size", ref Size);
-            reader.PersistRandomVariable("StartSizeRate", ref StartSizeRate);
-            reader.PersistRandomVariable("SizeRate", ref SizeRate);
-            reader.PersistRandomVariable("SizeRateDamping", ref SizeRateDamping);
+            reader.PersistRandomVariable(ref AngleX);
+            reader.PersistRandomVariable(ref AngleY);
+            reader.PersistRandomVariable(ref AngleZ);
+            reader.PersistRandomVariable(ref AngularRateX);
+            reader.PersistRandomVariable(ref AngularRateY);
+            reader.PersistRandomVariable(ref AngularRateZ);
+            reader.PersistRandomVariable(ref AngularDamping);
+            reader.PersistRandomVariable(ref VelocityDamping);
+            reader.PersistRandomVariable(ref Lifetime);
+            reader.PersistInt32(ref SystemLifetime);
+            reader.PersistRandomVariable(ref Size);
+            reader.PersistRandomVariable(ref StartSizeRate);
+            reader.PersistRandomVariable(ref SizeRate);
+            reader.PersistRandomVariable(ref SizeRateDamping);
 
-            reader.PersistArray("AlphaKeyframes", AlphaKeyframes, static (StatePersister persister, ref RandomAlphaKeyframe item) =>
-            {
-                persister.BeginObject();
-
-                var randomVariable = item.Value;
-                persister.PersistRandomVariable("Value", ref randomVariable);
-
-                var time = item.Time;
-                persister.PersistUInt32("Time", ref time);
-
-                if (persister.Mode == StatePersistMode.Read)
+            reader.PersistArray(
+                AlphaKeyframes,
+                static (StatePersister persister, ref RandomAlphaKeyframe item) =>
                 {
-                    item = new RandomAlphaKeyframe(randomVariable, time);
-                }
+                    persister.BeginObject();
 
-                persister.EndObject();
-            });
+                    var randomVariable = item.Value;
+                    persister.PersistRandomVariable(ref randomVariable, "Value");
 
-            reader.PersistArray("ColorKeyframes", ColorKeyframes, static (StatePersister persister, ref RgbColorKeyframe item) =>
-            {
-                persister.BeginObject();
+                    var time = item.Time;
+                    persister.PersistUInt32(ref time);
 
-                var color = item.Color;
-                persister.PersistColorRgbF("Color", ref color);
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = new RandomAlphaKeyframe(randomVariable, time);
+                    }
 
-                var time = item.Time;
-                persister.PersistUInt32("Time", ref time);
+                    persister.EndObject();
+                });
 
-                if (persister.Mode == StatePersistMode.Read)
+            reader.PersistArray(
+                ColorKeyframes,
+                static (StatePersister persister, ref RgbColorKeyframe item) =>
                 {
-                    item = new RgbColorKeyframe(color, time);
-                }
+                    persister.BeginObject();
 
-                persister.EndObject();
-            });
+                    var color = item.Color;
+                    persister.PersistColorRgbF(ref color);
 
-            reader.PersistRandomVariable("ColorScale", ref ColorScale);
-            reader.PersistRandomVariable("BurstDelay", ref BurstDelay);
-            reader.PersistRandomVariable("BurstCount", ref BurstCount);
-            reader.PersistRandomVariable("InitialDelay", ref InitialDelay);
-            reader.PersistVector3("DriftVelocity", ref DriftVelocity);
-            reader.PersistSingle("Gravity", ref Gravity);
-            reader.PersistAsciiString("SlaveSystemName", ref SlaveSystem);
+                    var time = item.Time;
+                    persister.PersistUInt32(ref time);
+
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = new RgbColorKeyframe(color, time);
+                    }
+
+                    persister.EndObject();
+                });
+
+            reader.PersistRandomVariable(ref ColorScale);
+            reader.PersistRandomVariable(ref BurstDelay);
+            reader.PersistRandomVariable(ref BurstCount);
+            reader.PersistRandomVariable(ref InitialDelay);
+            reader.PersistVector3(ref DriftVelocity);
+            reader.PersistSingle(ref Gravity);
+            reader.PersistAsciiString(ref SlaveSystem);
 
             reader.SkipUnknownBytes(13);
 
-            reader.PersistEnum("VelocityType", ref VelocityType);
-            reader.PersistUInt32("Unknown10", ref Unknown10);
+            reader.PersistEnum(ref VelocityType);
+            reader.PersistUInt32(ref Unknown10);
 
             switch (VelocityType)
             {
                 case ParticleVelocityType.Ortho:
-                    reader.PersistRandomVariable("VelOrthoX", ref VelOrthoX);
-                    reader.PersistRandomVariable("VelOrthoY", ref VelOrthoY);
-                    reader.PersistRandomVariable("VelOrthoZ", ref VelOrthoZ);
+                    reader.PersistRandomVariable(ref VelOrthoX);
+                    reader.PersistRandomVariable(ref VelOrthoY);
+                    reader.PersistRandomVariable(ref VelOrthoZ);
                     break;
 
                 case ParticleVelocityType.Spherical:
-                    reader.PersistRandomVariable("VelSpherical", ref VelSpherical);
+                    reader.PersistRandomVariable(ref VelSpherical);
                     break;
 
                 case ParticleVelocityType.Hemispherical:
-                    reader.PersistRandomVariable("VelHemispherical", ref VelHemispherical);
+                    reader.PersistRandomVariable(ref VelHemispherical);
                     break;
 
                 case ParticleVelocityType.Cylindrical:
-                    reader.PersistRandomVariable("VelCylindricalRadial", ref VelCylindricalRadial);
-                    reader.PersistRandomVariable("VelCylindricalNormal", ref VelCylindricalNormal);
+                    reader.PersistRandomVariable(ref VelCylindricalRadial);
+                    reader.PersistRandomVariable(ref VelCylindricalNormal);
                     break;
 
                 case ParticleVelocityType.Outward:
-                    reader.PersistRandomVariable("VelOutward", ref VelOutward);
-                    reader.PersistRandomVariable("VelOutwardOther", ref VelOutwardOther);
+                    reader.PersistRandomVariable(ref VelOutward);
+                    reader.PersistRandomVariable(ref VelOutwardOther);
                     break;
 
                 default:
                     throw new NotImplementedException();
             }
 
-            reader.PersistEnum("VolumeType", ref VolumeType);
+            reader.PersistEnum(ref VolumeType);
 
             switch (VolumeType)
             {
@@ -454,40 +458,40 @@ namespace OpenSage.Graphics.ParticleSystems
                     break;
 
                 case ParticleVolumeType.Line:
-                    reader.PersistVector3("VolLineStart", ref VolLineStart);
-                    reader.PersistVector3("VolLineEnd", ref VolLineEnd);
+                    reader.PersistVector3(ref VolLineStart);
+                    reader.PersistVector3(ref VolLineEnd);
                     break;
 
                 case ParticleVolumeType.Box:
-                    reader.PersistVector3("VolBoxHalfSize", ref VolBoxHalfSize);
+                    reader.PersistVector3(ref VolBoxHalfSize);
                     break;
 
                 case ParticleVolumeType.Sphere:
-                    reader.PersistSingle("VolSphereRadius", ref VolSphereRadius); // Interesting, value doesn't match ini file
+                    reader.PersistSingle(ref VolSphereRadius); // Interesting, value doesn't match ini file
                     break;
 
                 case ParticleVolumeType.Cylinder:
-                    reader.PersistSingle("VolCylinderRadius", ref VolCylinderRadius);
-                    reader.PersistSingle("VolCylinderLength", ref VolCylinderLength);
+                    reader.PersistSingle(ref VolCylinderRadius);
+                    reader.PersistSingle(ref VolCylinderLength);
                     break;
 
                 default:
                     throw new NotImplementedException();
             }
 
-            reader.PersistUInt32("Unknown11", ref Unknown11);
-            reader.PersistEnum("WindMotion", ref WindMotion);
-            reader.PersistSingle("Unknown12", ref Unknown12);
-            reader.PersistSingle("Unknown13", ref Unknown13); // Almost same as WindAngleChangeMin
-            reader.PersistSingle("WindAngleChangeMin", ref WindAngleChangeMin);
-            reader.PersistSingle("WindAngleChangeMax", ref WindAngleChangeMax);
-            reader.PersistSingle("Unknown14", ref Unknown14);
-            reader.PersistSingle("WindPingPongStartAngleMin", ref WindPingPongStartAngleMin);
-            reader.PersistSingle("WindPingPongStartAngleMax", ref WindPingPongStartAngleMax);
-            reader.PersistSingle("Unknown15", ref Unknown15);
-            reader.PersistSingle("WindPingPongEndAngleMin", ref WindPingPongEndAngleMin);
-            reader.PersistSingle("WindPingPongEndAngleMax", ref WindPingPongEndAngleMax);
-            reader.PersistBoolean("Unknown16", ref Unknown16);
+            reader.PersistUInt32(ref Unknown11);
+            reader.PersistEnum(ref WindMotion);
+            reader.PersistSingle(ref Unknown12);
+            reader.PersistSingle(ref Unknown13); // Almost same as WindAngleChangeMin
+            reader.PersistSingle(ref WindAngleChangeMin);
+            reader.PersistSingle(ref WindAngleChangeMax);
+            reader.PersistSingle(ref Unknown14);
+            reader.PersistSingle(ref WindPingPongStartAngleMin);
+            reader.PersistSingle(ref WindPingPongStartAngleMax);
+            reader.PersistSingle(ref Unknown15);
+            reader.PersistSingle(ref WindPingPongEndAngleMin);
+            reader.PersistSingle(ref WindPingPongEndAngleMax);
+            reader.PersistBoolean(ref Unknown16);
         }
     }
 

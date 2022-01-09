@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(1);
 
             var unknown2 = true;
-            reader.PersistBoolean("Unknown2", ref unknown2);
+            reader.PersistBoolean(ref unknown2);
             if (!unknown2)
             {
                 throw new InvalidStateException();

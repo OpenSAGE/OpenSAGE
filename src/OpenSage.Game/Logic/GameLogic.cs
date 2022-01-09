@@ -35,31 +35,31 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(9);
 
-            reader.PersistUInt32("CurrentFrame", ref _currentFrame);
-            reader.PersistObject("ObjectDefinitions", _objectDefinitionLookupTable);
+            reader.PersistUInt32(ref _currentFrame);
+            reader.PersistObject(_objectDefinitionLookupTable, "ObjectDefinitions");
 
-            var gameObjectsCount = (uint)_objects.Count;
-            reader.PersistUInt32("ObjectsCount", ref gameObjectsCount);
+            var objectsCount = (uint)_objects.Count;
+            reader.PersistUInt32(ref objectsCount);
 
             reader.BeginArray("Objects");
             if (reader.Mode == StatePersistMode.Read)
             {
                 _objects.Clear();
-                _objects.Capacity = (int)gameObjectsCount;
+                _objects.Capacity = (int)objectsCount;
 
-                for (var i = 0; i < gameObjectsCount; i++)
+                for (var i = 0; i < objectsCount; i++)
                 {
                     reader.BeginObject();
 
                     ushort objectDefinitionId = 0;
-                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+                    reader.PersistUInt16(ref objectDefinitionId);
                     var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                     var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
 
                     reader.BeginSegment(objectDefinition.Name);
 
-                    reader.PersistObject("Object", gameObject);
+                    reader.PersistObject(gameObject);
 
                     while (_objects.Count <= gameObject.ID)
                     {
@@ -84,11 +84,11 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var objectDefinitionId = _objectDefinitionLookupTable.GetId(gameObject.Definition);
-                    reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
+                    reader.PersistUInt16(ref objectDefinitionId);
 
                     reader.BeginSegment(gameObject.Definition.Name);
 
-                    reader.PersistObject("Object", gameObject);
+                    reader.PersistObject(gameObject, "Object");
 
                     reader.EndSegment();
 
@@ -98,10 +98,10 @@ namespace OpenSage.Logic
             reader.EndArray();
 
             // Don't know why this is duplicated here. It's also loaded by a top-level .sav chunk.
-            reader.PersistObject("CampaignManager", reader.Game.CampaignManager);
+            reader.PersistObject(reader.Game.CampaignManager, "CampaignManager");
 
             var unknown1 = true;
-            reader.PersistBoolean("Unknown1", ref unknown1);
+            reader.PersistBoolean(ref unknown1);
             if (!unknown1)
             {
                 throw new InvalidStateException();
@@ -110,30 +110,33 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(2);
 
             var unknown1_1 = true;
-            reader.PersistBoolean("Unknown1_1", ref unknown1_1);
+            reader.PersistBoolean(ref unknown1_1);
             if (!unknown1_1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistArrayWithUInt32Length("PolygonTriggers", _scene3D.MapFile.PolygonTriggers.Triggers, static (StatePersister persister, ref PolygonTrigger item) =>
-            {
-                persister.BeginObject();
-
-                var id = item.UniqueId;
-                persister.PersistUInt32("Id", ref id);
-
-                if (id != item.UniqueId)
+            reader.PersistArrayWithUInt32Length(
+                _scene3D.MapFile.PolygonTriggers.Triggers,
+                static (StatePersister persister, ref PolygonTrigger item) =>
                 {
-                    throw new InvalidStateException();
-                }
+                    persister.BeginObject();
 
-                persister.PersistObject("Value", item);
+                    var id = item.UniqueId;
+                    persister.PersistUInt32(ref id);
 
-                persister.EndObject();
-            });
+                    if (id != item.UniqueId)
+                    {
+                        throw new InvalidStateException();
+                    }
 
-            reader.PersistUInt32("RankLevelLimit", ref _rankLevelLimit);
+                    persister.PersistObject(item);
+
+                    persister.EndObject();
+                },
+                "PolygonTriggers");
+
+            reader.PersistUInt32(ref _rankLevelLimit);
 
             reader.SkipUnknownBytes(4);
 
@@ -145,7 +148,7 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var objectDefinitionName = "";
-                    reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
+                    reader.PersistAsciiString(ref objectDefinitionName);
 
                     if (objectDefinitionName == "")
                     {
@@ -154,7 +157,7 @@ namespace OpenSage.Logic
                     }
 
                     ObjectBuildableType buildableStatus = default;
-                    reader.PersistEnum("BuildableStatus", ref buildableStatus);
+                    reader.PersistEnum(ref buildableStatus);
 
                     _techTreeOverrides.Add(
                         objectDefinitionName,
@@ -170,10 +173,10 @@ namespace OpenSage.Logic
                     reader.BeginObject();
 
                     var objectDefinitionName = techTreeOverride.Key;
-                    reader.PersistAsciiString("ObjectDefinitionName", ref objectDefinitionName);
+                    reader.PersistAsciiString(ref objectDefinitionName);
 
                     var buildableStatus = techTreeOverride.Value;
-                    reader.PersistEnum("BuildableStatus", ref buildableStatus);
+                    reader.PersistEnum(ref buildableStatus);
 
                     reader.EndObject();
                 }
@@ -181,35 +184,35 @@ namespace OpenSage.Logic
                 reader.BeginObject();
 
                 var endString = "";
-                reader.PersistAsciiString("ObjectDefinitionName", ref endString);
+                reader.PersistAsciiString(ref endString);
 
                 reader.EndObject();
             }
             reader.EndArray();
 
             var unknownBool1 = true;
-            reader.PersistBoolean("UnknownBool1", ref unknownBool1);
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool2 = true;
-            reader.PersistBoolean("UnknownBool2", ref unknownBool2);
+            reader.PersistBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
             var unknownBool3 = true;
-            reader.PersistBoolean("UnknownBool3", ref unknownBool3);
+            reader.PersistBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }
 
             var unknown3 = uint.MaxValue;
-            reader.PersistUInt32("Unknown3", ref unknown3);
+            reader.PersistUInt32(ref unknown3);
             if (unknown3 != uint.MaxValue)
             {
                 throw new InvalidStateException();
@@ -301,10 +304,12 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistListWithUInt32Count("Entries", _entries, static (StatePersister persister, ref ObjectDefinitionLookupEntry item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistListWithUInt32Count(
+                _entries,
+                static (StatePersister persister, ref ObjectDefinitionLookupEntry item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
         }
 
         private struct ObjectDefinitionLookupEntry : IPersistableObject
@@ -314,8 +319,8 @@ namespace OpenSage.Logic
 
             public void Persist(StatePersister persister)
             {
-                persister.PersistAsciiString("Name", ref Name);
-                persister.PersistUInt16("Id", ref Id);
+                persister.PersistAsciiString(ref Name);
+                persister.PersistUInt16(ref Id);
             }
         }
     }

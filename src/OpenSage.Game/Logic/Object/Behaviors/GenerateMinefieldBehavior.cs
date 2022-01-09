@@ -29,8 +29,8 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObject("UpgradeLogic", _upgradeLogic);
-            reader.PersistBoolean("Unknown", ref _unknown);
+            reader.PersistObject(_upgradeLogic);
+            reader.PersistBoolean(ref _unknown);
 
             reader.SkipUnknownBytes(13);
         }

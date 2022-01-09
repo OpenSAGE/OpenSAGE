@@ -17,12 +17,14 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistAsciiString("Name", ref Name);
+            reader.PersistAsciiString(ref Name);
 
-            reader.PersistHashSet("ObjectTypes", _objectTypes, static (StatePersister persister, ref string item) =>
-            {
-                persister.PersistAsciiStringValue(ref item);
-            });
+            reader.PersistHashSet(
+                _objectTypes,
+                static (StatePersister persister, ref string item) =>
+                {
+                    persister.PersistAsciiStringValue(ref item);
+                });
         }
     }
 }
