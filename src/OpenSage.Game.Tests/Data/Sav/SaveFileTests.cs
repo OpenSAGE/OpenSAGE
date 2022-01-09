@@ -50,9 +50,11 @@ namespace OpenSage.Tests.Data.Sav
 
             using var stream = File.OpenRead(fullPath);
 
-            SaveFile.LoadFromStream(stream, _fixture.Game);
+            var game = _fixture.GetGame(SageGame.CncGenerals);
 
-            _fixture.Game.EndGame();
+            SaveFile.LoadFromStream(stream, game);
+
+            game.EndGame();
         }
 
         public static IEnumerable<object[]> GetSaveFiles()
