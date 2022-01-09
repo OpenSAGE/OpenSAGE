@@ -26,7 +26,7 @@ namespace OpenSage.Client
             reader.PersistVersion(3);
 
             reader.PersistUInt32(ref _currentFrame);
-            reader.PersistObject(_objectDefinitionLookupTable);
+            reader.PersistObject(_objectDefinitionLookupTable, "ObjectDefinitions");
 
             var drawablesCount = (ushort)_drawables.Count;
             reader.PersistUInt16(ref drawablesCount);

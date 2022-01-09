@@ -608,9 +608,9 @@ namespace OpenSage
         {
             persister.BeginObject(name);
 
-            persister.PersistSingle(ref value.X);
-            persister.PersistSingle(ref value.Y);
-            persister.PersistSingle(ref value.Z);
+            persister.PersistSingle(ref value.X, "X");
+            persister.PersistSingle(ref value.Y, "Y");
+            persister.PersistSingle(ref value.Z, "Z");
 
             persister.EndObject();
         }
@@ -619,9 +619,9 @@ namespace OpenSage
         {
             persister.BeginObject();
 
-            persister.PersistSingle(ref value.X);
-            persister.PersistSingle(ref value.Y);
-            persister.PersistSingle(ref value.Z);
+            persister.PersistSingle(ref value.X, "X");
+            persister.PersistSingle(ref value.Y, "Y");
+            persister.PersistSingle(ref value.Z, "Z");
 
             persister.EndObject();
         }
