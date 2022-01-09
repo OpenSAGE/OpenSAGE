@@ -59,7 +59,7 @@ namespace OpenSage.Logic
 
                     reader.BeginSegment(objectDefinition.Name);
 
-                    reader.PersistObject(gameObject);
+                    reader.PersistObject(gameObject, "Object");
 
                     while (_objects.Count <= gameObject.ID)
                     {
@@ -184,7 +184,7 @@ namespace OpenSage.Logic
                 reader.BeginObject();
 
                 var endString = "";
-                reader.PersistAsciiString(ref endString);
+                reader.PersistAsciiString(ref endString, "ObjectDefinitionName");
 
                 reader.EndObject();
             }

@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             reader.PersistArray(
-                _objectIds, static (StatePersister persister, ref uint item) =>
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
                 {
                     persister.PersistObjectIDValue(ref item);
                 });

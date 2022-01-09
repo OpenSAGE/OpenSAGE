@@ -82,7 +82,7 @@ namespace OpenSage.Logic.Object
                     reader.BeginObject();
 
                     var locomotorTemplateName = "";
-                    reader.PersistAsciiString(ref locomotorTemplateName);
+                    reader.PersistAsciiString(ref locomotorTemplateName, "TemplateName");
 
                     var locomotorTemplate = reader.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 

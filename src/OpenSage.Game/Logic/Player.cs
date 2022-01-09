@@ -702,8 +702,8 @@ namespace OpenSage.Logic
                 _store,
                 static (StatePersister persister, ref uint key, ref RelationshipType value) =>
             {
-                persister.PersistUInt32(ref key);
-                persister.PersistEnum(ref value);
+                persister.PersistUInt32(ref key, "PlayerOrTeamId");
+                persister.PersistEnum(ref value, "RelationshipType");
             },
             "Dictionary");
         }
@@ -779,8 +779,8 @@ namespace OpenSage.Logic
                 this,
                 static (StatePersister persister, ref string key, ref uint value) =>
                 {
-                    persister.PersistAsciiString(ref key);
-                    persister.PersistUInt32(ref value);
+                    persister.PersistAsciiString(ref key, "ObjectType");
+                    persister.PersistUInt32(ref value, "Total");
                 },
                 "Dictionary");
         }
