@@ -8,7 +8,7 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistObjectID("ContainerObjectId", ref _containerObjectId);
+            reader.PersistObjectID(ref _containerObjectId);
         }
     }
 }

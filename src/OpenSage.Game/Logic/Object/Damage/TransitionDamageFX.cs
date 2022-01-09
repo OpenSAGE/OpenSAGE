@@ -63,10 +63,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistArray("ParticleSystemIds", _particleSystemIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            reader.PersistArray(
+                _particleSystemIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
         }
     }
 

@@ -1093,72 +1093,74 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(7);
 
-            reader.PersistObjectID("ObjectId", ref _id);
+            reader.PersistObjectID(ref _id, "ObjectId");
 
             var transform = reader.Mode == StatePersistMode.Write
                 ? Matrix4x3.FromMatrix4x4(_transform.Matrix)
                 : Matrix4x3.Identity;
-            reader.PersistMatrix4x3("Transform", ref transform);
+            reader.PersistMatrix4x3(ref transform);
             if (reader.Mode == StatePersistMode.Read)
             {
                 SetTransformMatrix(transform.ToMatrix4x4());
             }
 
             var teamId = Team?.Id ?? 0u;
-            reader.PersistUInt32("TeamId", ref teamId);
+            reader.PersistUInt32(ref teamId);
             Team = GameContext.Scene3D.TeamFactory.FindTeamById(teamId);
 
-            reader.PersistObjectID("CreatedByObjectId", ref _createdByObjectID);
-            reader.PersistUInt32("BuiltByObjectId", ref _builtByObjectID);
-            reader.PersistUInt32("DrawableId", ref Drawable.DrawableID);
-            reader.PersistAsciiString("Name", ref _name);
-            reader.PersistUInt32("Unknown1", ref _unknown1);
-            reader.PersistByte("Unknown2", ref _unknown2);
-            reader.PersistEnumByteFlags("UnknownFlags", ref _unknownFlags);
+            reader.PersistObjectID(ref _createdByObjectID);
+            reader.PersistUInt32(ref _builtByObjectID);
+            reader.PersistUInt32(ref Drawable.DrawableID);
+            reader.PersistAsciiString(ref _name);
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistByte(ref _unknown2);
+            reader.PersistEnumByteFlags(ref _unknownFlags);
 
-            reader.PersistObject("Geometry", _geometry);
+            reader.PersistObject(_geometry);
 
-            reader.PersistObject("ShroudRevealSomething1", _shroudRevealSomething1);
-            reader.PersistObject("ShroudRevealSomething2", _shroudRevealSomething2);
-            reader.PersistSingle("VisionRange", ref _visionRange);
-            reader.PersistSingle("ShroudClearingRange", ref _shroudClearingRange);
+            reader.PersistObject(_shroudRevealSomething1);
+            reader.PersistObject(_shroudRevealSomething2);
+            reader.PersistSingle(ref _visionRange);
+            reader.PersistSingle(ref _shroudClearingRange);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBitArray("DisabledTypes", ref _disabledTypes);
+            reader.PersistBitArray(ref _disabledTypes);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistArray("DisabledTypesFrames", _disabledTypesFrames, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistFrameValue(ref item);
-            });
+            reader.PersistArray(
+                _disabledTypesFrames,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistFrameValue(ref item);
+                });
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistObject("VeterancyHelper", _veterancyHelper);
-            reader.PersistObjectID("ContainerId", ref _containerId);
-            reader.PersistFrame("ContainedFrame", ref _containedFrame);
+            reader.PersistObject(_veterancyHelper);
+            reader.PersistObjectID(ref _containerId);
+            reader.PersistFrame(ref _containedFrame);
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
-            reader.PersistSingle("BuildProgress", ref BuildProgress);
+            reader.PersistSingle(ref BuildProgress);
 
-            reader.PersistObject("Upgrades", _upgrades);
+            reader.PersistObject(_upgrades);
 
             // Not always (but usually is) the same as the teamId above implies.
-            reader.PersistAsciiString("TeamName", ref _teamName);
+            reader.PersistAsciiString(ref _teamName);
 
             reader.SkipUnknownBytes(16);
 
             byte polygonTriggerStateCount = (byte)(_polygonTriggersState?.Length ?? 0);
-            reader.PersistByte("PolygonTriggerStateCount", ref polygonTriggerStateCount);
+            reader.PersistByte(ref polygonTriggerStateCount);
             if (reader.Mode == StatePersistMode.Read)
             {
                 _polygonTriggersState = new PolygonTriggerState[polygonTriggerStateCount];
             }
 
-            reader.PersistFrame("EnteredOrExitedPolygonTriggerFrame", ref _enteredOrExitedPolygonTriggerFrame);
-            reader.PersistPoint3D("IntegerPosition", ref _integerPosition);
+            reader.PersistFrame(ref _enteredOrExitedPolygonTriggerFrame);
+            reader.PersistPoint3D(ref _integerPosition);
 
             reader.BeginArray("PolygonTriggerStates");
             for (var i = 0; i < polygonTriggerStateCount; i++)
@@ -1168,21 +1170,21 @@ namespace OpenSage.Logic.Object
             reader.EndArray();
 
             var unknown4 = 1;
-            reader.PersistInt32("Unknown4", ref unknown4);
+            reader.PersistInt32(ref unknown4);
             if (unknown4 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistInt32("Unknown5", ref _unknown5); // 0, 1
-            reader.PersistBoolean("IsSelectable", ref IsSelectable);
-            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
+            reader.PersistInt32(ref _unknown5); // 0, 1
+            reader.PersistBoolean(ref IsSelectable);
+            reader.PersistFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(4);
 
             // Modules
             var numModules = (ushort)_modules.Count;
-            reader.PersistUInt16("NumModules", ref numModules);
+            reader.PersistUInt16(ref numModules);
 
             reader.BeginArray("Modules");
             if (reader.Mode == StatePersistMode.Read)
@@ -1192,13 +1194,13 @@ namespace OpenSage.Logic.Object
                     reader.BeginObject();
 
                     var moduleTag = "";
-                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                    reader.PersistAsciiString(ref moduleTag);
 
                     var module = GetModuleByTag(moduleTag);
 
                     reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                    reader.PersistObject("Module", module);
+                    reader.PersistObject(module);
 
                     reader.EndSegment();
 
@@ -1212,11 +1214,11 @@ namespace OpenSage.Logic.Object
                     reader.BeginObject();
 
                     var moduleTag = module.Tag;
-                    reader.PersistAsciiString("ModuleTag", ref moduleTag);
+                    reader.PersistAsciiString(ref moduleTag);
 
                     reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
-                    reader.PersistObject("Module", module);
+                    reader.PersistObject(module);
 
                     reader.EndSegment();
 
@@ -1225,10 +1227,10 @@ namespace OpenSage.Logic.Object
             }
             reader.EndArray();
 
-            reader.PersistObjectID("HealedByObjectId", ref _healedByObjectId);
-            reader.PersistFrame("HealedEndFrame", ref _healedEndFrame);
-            reader.PersistBitArray("WeaponSetConditions", ref WeaponSetConditions);
-            reader.PersistUInt32("WeaponBonusTypes", ref _weaponBonusTypes);
+            reader.PersistObjectID(ref _healedByObjectId);
+            reader.PersistFrame(ref _healedEndFrame);
+            reader.PersistBitArray(ref WeaponSetConditions);
+            reader.PersistUInt32(ref _weaponBonusTypes);
 
             var weaponBonusTypesBitArray = new BitArray<WeaponBonusType>();
             var weaponBonusTypeCount = EnumUtility.GetEnumCount<WeaponBonusType>();
@@ -1238,23 +1240,23 @@ namespace OpenSage.Logic.Object
                 weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
 
-            reader.PersistByte("WeaponSomethingPrimary", ref _weaponSomethingPrimary);
-            reader.PersistByte("WeaponSomethingSecondary", ref _weaponSomethingSecondary);
-            reader.PersistByte("WeaponSomethingTertiary", ref _weaponSomethingTertiary);
-            reader.PersistObject("WeaponSet", _weaponSet);
-            reader.PersistBitArray("SpecialPowers", ref _specialPowers);
+            reader.PersistByte(ref _weaponSomethingPrimary);
+            reader.PersistByte(ref _weaponSomethingSecondary);
+            reader.PersistByte(ref _weaponSomethingTertiary);
+            reader.PersistObject(_weaponSet);
+            reader.PersistBitArray(ref _specialPowers);
 
             reader.SkipUnknownBytes(1);
 
             var unknown6 = true;
-            reader.PersistBoolean("Unknown6", ref unknown6);
+            reader.PersistBoolean(ref unknown6);
             if (!unknown6)
             {
                 throw new InvalidStateException();
             }
 
             var unknown7 = true;
-            reader.PersistBoolean("Unknown7", ref unknown7);
+            reader.PersistBoolean(ref unknown7);
             if (!unknown7)
             {
                 throw new InvalidStateException();
@@ -1362,10 +1364,10 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum("VeterancyLevel", ref _veterancyLevel);
-            reader.PersistInt32("ExperiencePoints", ref _experiencePoints);
-            reader.PersistObjectID("ExperienceSinkObjectId", ref _experienceSinkObjectId);
-            reader.PersistSingle("ExperienceScalar", ref _experienceScalar);
+            reader.PersistEnum(ref _veterancyLevel);
+            reader.PersistInt32(ref _experiencePoints);
+            reader.PersistObjectID(ref _experienceSinkObjectId);
+            reader.PersistSingle(ref _experienceScalar);
         }
     }
 
@@ -1378,18 +1380,18 @@ namespace OpenSage.Logic.Object
         public void Persist(StatePersister reader)
         {
             var polygonTriggerName = PolygonTrigger?.Name;
-            reader.PersistAsciiString("PolygonTriggerName", ref polygonTriggerName);
+            reader.PersistAsciiString(ref polygonTriggerName);
 
             if (reader.Mode == StatePersistMode.Read)
             {
                 PolygonTrigger = reader.Game.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(polygonTriggerName);
             }
 
-            reader.PersistBoolean("EnteredThisFrame", ref EnteredThisFrame);
+            reader.PersistBoolean(ref EnteredThisFrame);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean("IsInside", ref IsInside);
+            reader.PersistBoolean(ref IsInside);
         }
     }
 }

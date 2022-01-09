@@ -10,9 +10,9 @@
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt16("UnknownShort", ref _unknownShort);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistUInt16(ref _unknownShort);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

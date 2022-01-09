@@ -15,21 +15,21 @@
         {
             var version = reader.PersistVersion(5);
 
-            reader.PersistAsciiString("CampaignName", ref CampaignName);
-            reader.PersistAsciiString("MissionName", ref MissionName);
-            reader.PersistUInt32("Unknown", ref _unknown);
-            reader.PersistUInt32("DifficultyMaybe", ref _difficultyMaybe);
+            reader.PersistAsciiString(ref CampaignName);
+            reader.PersistAsciiString(ref MissionName);
+            reader.PersistUInt32(ref _unknown);
+            reader.PersistUInt32(ref _difficultyMaybe);
 
             if (version >= 5)
             {
-                reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+                reader.PersistBoolean(ref _unknownBool1);
 
                 reader.SkipUnknownBytes(4);
             }
 
             if (version == 1 && reader.SageGame >= SageGame.Bfme)
             {
-                reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+                reader.PersistBoolean(ref _unknownBool2);
             }
         }
     }

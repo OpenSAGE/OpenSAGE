@@ -31,11 +31,11 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObject("UpgradeLogic", _upgradeLogic);
+            reader.PersistObject(_upgradeLogic);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame);
 
             reader.SkipUnknownBytes(1);
         }

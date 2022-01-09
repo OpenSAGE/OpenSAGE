@@ -85,46 +85,49 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var unusedFloat = 0.0f;
 
-            reader.PersistVector3("Velocity", ref Velocity);
-            reader.PersistVector3("Position", ref Position);
-            reader.PersistVector3("EmitterPosition", ref EmitterPosition);
-            reader.PersistSingle("VelocityDamping", ref VelocityDamping);
-            reader.PersistSingle("AngleX", ref unusedFloat);
-            reader.PersistSingle("AngleY", ref unusedFloat);
-            reader.PersistSingle("AngleZ", ref AngleZ);
-            reader.PersistSingle("AngularRateX", ref unusedFloat);
-            reader.PersistSingle("AngularRateY", ref unusedFloat);
-            reader.PersistSingle("AngularRateZ", ref AngularRateZ);
-            reader.PersistInt32("Lifetime", ref Lifetime);
-            reader.PersistSingle("Size", ref Size);
-            reader.PersistSingle("SizeRate", ref SizeRate);
-            reader.PersistSingle("SizeRateDamping", ref SizeRateDamping);
+            reader.PersistVector3(ref Velocity);
+            reader.PersistVector3(ref Position);
+            reader.PersistVector3(ref EmitterPosition);
+            reader.PersistSingle(ref VelocityDamping);
+            reader.PersistSingle(ref unusedFloat, "AngleX");
+            reader.PersistSingle(ref unusedFloat, "AngleY");
+            reader.PersistSingle(ref AngleZ, "AngleZ");
+            reader.PersistSingle(ref unusedFloat, "AngularRateX");
+            reader.PersistSingle(ref unusedFloat, "AngularRateY");
+            reader.PersistSingle(ref AngularRateZ);
+            reader.PersistInt32(ref Lifetime);
+            reader.PersistSingle(ref Size);
+            reader.PersistSingle(ref SizeRate);
+            reader.PersistSingle(ref SizeRateDamping);
 
-            reader.PersistArray("AlphaKeyframes", AlphaKeyframes, static (StatePersister persister, ref ParticleAlphaKeyframe item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistArray(AlphaKeyframes,
+                static (StatePersister persister, ref ParticleAlphaKeyframe item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
-            reader.PersistArray("ColorKeyframes", _system.ColorKeyframes, static (StatePersister persister, ref ParticleColorKeyframe item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistArray(_system.ColorKeyframes,
+                static (StatePersister persister, ref ParticleColorKeyframe item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                },
+                "ColorKeyframes");
 
-            reader.PersistSingle("ColorScale", ref ColorScale);
-            reader.PersistBoolean("IsParticleUpTowardsEmitter", ref IsParticleUpTowardsEmitter);
-            reader.PersistSingle("UnknownFloat", ref UnknownFloat);
-            reader.PersistUInt32("ParticleId", ref ParticleId);
+            reader.PersistSingle(ref ColorScale);
+            reader.PersistBoolean(ref IsParticleUpTowardsEmitter);
+            reader.PersistSingle(ref UnknownFloat);
+            reader.PersistUInt32(ref ParticleId);
 
             reader.SkipUnknownBytes(24);
 
-            reader.PersistUInt32("UnknownInt2", ref UnknownInt2); // 49
-            reader.PersistUInt32("UnknownInt3", ref UnknownInt3); // 1176
-            reader.PersistSingle("Alpha", ref Alpha);
-            reader.PersistUInt32("UnknownInt4", ref UnknownInt4); // 0
-            reader.PersistUInt32("UnknownInt5", ref UnknownInt5); // 1
-            reader.PersistVector3("Color", ref Color);
-            reader.PersistVector3("UnknownVector", ref UnknownVector);
-            reader.PersistUInt32("UnknownInt6", ref UnknownInt6); // 1
+            reader.PersistUInt32(ref UnknownInt2); // 49
+            reader.PersistUInt32(ref UnknownInt3); // 1176
+            reader.PersistSingle(ref Alpha);
+            reader.PersistUInt32(ref UnknownInt4); // 0
+            reader.PersistUInt32(ref UnknownInt5); // 1
+            reader.PersistVector3(ref Color);
+            reader.PersistVector3(ref UnknownVector);
+            reader.PersistUInt32(ref UnknownInt6); // 1
 
             reader.SkipUnknownBytes(8);
         }
@@ -151,8 +154,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistSingle("Alpha", ref Alpha);
-            persister.PersistUInt32("Time", ref Time);
+            persister.PersistSingle(ref Alpha);
+            persister.PersistUInt32(ref Time);
         }
     }
 }

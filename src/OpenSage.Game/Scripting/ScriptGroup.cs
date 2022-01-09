@@ -123,10 +123,12 @@ namespace OpenSage.Scripting
         {
             reader.PersistVersion(1);
 
-            reader.PersistArrayWithUInt16Length("Scripts", Scripts, static (StatePersister persister, ref Script item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                Scripts,
+                static (StatePersister persister, ref Script item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
 
         public ScriptGroup Copy(string appendix)

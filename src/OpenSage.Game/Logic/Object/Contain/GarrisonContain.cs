@@ -18,12 +18,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
 
             reader.SkipUnknownBytes(1);
 
             ushort unknown2 = 40;
-            reader.PersistUInt16("Unknown2", ref unknown2);
+            reader.PersistUInt16(ref unknown2);
             if (unknown2 != 40)
             {
                 throw new InvalidStateException();
@@ -31,12 +31,14 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(804);
 
-            reader.PersistArray("Positions", _positions, static (StatePersister persister, ref Vector3 item) =>
-            {
-                persister.PersistVector3Value(ref item);
-            });
+            reader.PersistArray(
+                _positions,
+                static (StatePersister persister, ref Vector3 item) =>
+                {
+                    persister.PersistVector3Value(ref item);
+                });
 
-            reader.PersistBoolean("Unknown3", ref _unknown3);
+            reader.PersistBoolean(ref _unknown3);
 
             reader.SkipUnknownBytes(13);
         }

@@ -19,7 +19,7 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Persist(reader);
 
-            reader.PersistUInt32("WaypointId", ref _waypointId);
+            reader.PersistUInt32(ref _waypointId);
         }
     }
 }

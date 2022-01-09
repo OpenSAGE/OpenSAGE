@@ -109,15 +109,19 @@ namespace OpenSage.Scripting
         {
             reader.PersistVersion(1);
 
-            reader.PersistArrayWithUInt16Length("Scripts", Scripts, static (StatePersister persister, ref Script item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                Scripts,
+                static (StatePersister persister, ref Script item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
 
-            reader.PersistArrayWithUInt16Length("ScriptGroups", ScriptGroups, static (StatePersister persister, ref ScriptGroup item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                ScriptGroups,
+                static (StatePersister persister, ref ScriptGroup item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
 
         internal ScriptList Copy(string appendix)

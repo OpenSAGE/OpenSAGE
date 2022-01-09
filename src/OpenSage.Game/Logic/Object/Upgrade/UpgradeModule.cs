@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObject("UpgradeLogic", _upgradeLogic);
+            reader.PersistObject(_upgradeLogic);
         }
 
         internal override void DrawInspector()
@@ -118,7 +118,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistBoolean("Triggered", ref _triggered);
+            reader.PersistBoolean(ref _triggered);
         }
 
         internal void DrawInspector()

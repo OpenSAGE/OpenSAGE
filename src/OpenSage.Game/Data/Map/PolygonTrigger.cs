@@ -169,16 +169,18 @@ namespace OpenSage.Data.Map
         {
             reader.PersistVersion(1);
 
-            reader.PersistArrayWithUInt32Length("Points", Points, static (StatePersister persister, ref Point3D item) =>
-            {
-                persister.PersistPoint3DValue(ref item);
-            });
+            reader.PersistArrayWithUInt32Length(
+                Points,
+                static (StatePersister persister, ref Point3D item) =>
+                {
+                    persister.PersistPoint3DValue(ref item);
+                });
 
             var topLeft = Bounds.TopLeft;
-            reader.PersistPoint2D("TopLeft", ref topLeft);
+            reader.PersistPoint2D(ref topLeft);
 
             var bottomRight = Bounds.BottomRight;
-            reader.PersistPoint2D("BottomRight", ref bottomRight);
+            reader.PersistPoint2D(ref bottomRight);
 
             Bounds = Rectangle.FromCorners(topLeft, bottomRight);
 
@@ -196,7 +198,7 @@ namespace OpenSage.Data.Map
             //
             // As it is, this "radius" is significantly larger than it should be.
             var buggyRadius = 0.0f;
-            reader.PersistSingle("BuggyRadius", ref buggyRadius);
+            reader.PersistSingle(ref buggyRadius);
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 

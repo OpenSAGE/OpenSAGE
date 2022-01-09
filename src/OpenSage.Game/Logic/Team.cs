@@ -31,44 +31,48 @@ namespace OpenSage.Logic
             reader.PersistVersion(1);
 
             var id = Id;
-            reader.PersistUInt32("Id", ref id);
+            reader.PersistUInt32(ref id);
             if (id != Id)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("ObjectIds", ObjectIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistList(
+                ObjectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistBoolean("EnteredOrExitedPolygonTrigger", ref _enteredOrExitedPolygonTrigger);
-            reader.PersistBoolean("IsAlive", ref _isAlive);
+            reader.PersistBoolean(ref _enteredOrExitedPolygonTrigger);
+            reader.PersistBoolean(ref _isAlive);
 
             reader.SkipUnknownBytes(5);
 
-            reader.PersistUInt32("NumDestroyedSomething", ref _numDestroyedSomething);
+            reader.PersistUInt32(ref _numDestroyedSomething);
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
             if (_unknown1 != 0 && _unknown1 != ObjectIds.Count)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("WaypointId", ref _waypointId);
+            reader.PersistUInt32(ref _waypointId);
 
-            reader.PersistArrayWithUInt16Length("UnknownBools", _unknownBools, static (StatePersister persister, ref bool item) =>
-            {
-                persister.PersistBooleanValue(ref item);
-            });
+            reader.PersistArrayWithUInt16Length(
+                _unknownBools,
+                static (StatePersister persister, ref bool item) =>
+                {
+                    persister.PersistBooleanValue(ref item);
+                });
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistObjectID("TargetObjectId", ref TargetObjectID);
-            reader.PersistObject("TeamToTeamRelationships", TeamToTeamRelationships);
-            reader.PersistObject("TeamToPlayerRelationships", TeamToPlayerRelationships);
+            reader.PersistObjectID(ref TargetObjectID);
+            reader.PersistObject(TeamToTeamRelationships);
+            reader.PersistObject(TeamToPlayerRelationships);
         }
     }
 }

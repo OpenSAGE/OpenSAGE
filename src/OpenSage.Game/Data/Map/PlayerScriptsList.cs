@@ -49,20 +49,22 @@ namespace OpenSage.Data.Map
         {
             reader.PersistVersion(1);
 
-            reader.PersistArrayWithUInt32Length("ScriptLists", ScriptLists, static (StatePersister persister, ref ScriptList item) =>
-            {
-                persister.BeginObject();
-
-                var hasScripts = item.Scripts.Length > 0;
-                persister.PersistBoolean("HasScripts", ref hasScripts);
-
-                if (hasScripts)
+            reader.PersistArrayWithUInt32Length(
+                ScriptLists,
+                static (StatePersister persister, ref ScriptList scriptList) =>
                 {
-                    persister.PersistObject("ScriptList", item);
-                }
+                    persister.BeginObject();
 
-                persister.EndObject();
-            });
+                    var hasScripts = scriptList.Scripts.Length > 0;
+                    persister.PersistBoolean(ref hasScripts);
+
+                    if (hasScripts)
+                    {
+                        persister.PersistObject(scriptList);
+                    }
+
+                    persister.EndObject();
+                });
         }
     }
 }

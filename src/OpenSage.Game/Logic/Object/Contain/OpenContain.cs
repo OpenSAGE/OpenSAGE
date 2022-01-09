@@ -25,45 +25,51 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistListWithUInt32Count("ContainedObjectIds", _containedObjectIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistListWithUInt32Count(
+                _containedObjectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
-            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistBitArray("ModelConditionFlags", ref _modelConditionFlags);
+            reader.PersistBitArray(ref _modelConditionFlags);
 
             // Where does the 32 come from?
-            reader.PersistArray("UnknownTransforms", _unknownTransforms, static (StatePersister persister, ref Matrix4x3 item) =>
-            {
-                persister.PersistMatrix4x3Value(ref item, readVersion: false);
-            });
+            reader.PersistArray(
+                _unknownTransforms,
+                static (StatePersister persister, ref Matrix4x3 item) =>
+                {
+                    persister.PersistMatrix4x3Value(ref item, readVersion: false);
+                });
 
             var unknown6 = -1;
-            reader.PersistInt32("Unknown6", ref unknown6);
+            reader.PersistInt32(ref unknown6);
             if (unknown6 != -1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("NextFirePointIndex", ref _nextFirePointIndex);
-            reader.PersistUInt32("NumFirePoints", ref _numFirePoints);
-            reader.PersistBoolean("HasNoFirePoints", ref _hasNoFirePoints);
+            reader.PersistUInt32(ref _nextFirePointIndex);
+            reader.PersistUInt32(ref _numFirePoints);
+            reader.PersistBoolean(ref _hasNoFirePoints);
 
             reader.SkipUnknownBytes(13);
 
-            reader.PersistList("UnknownList", _unknownList, static (StatePersister persister, ref OpenContainSomething item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistList(
+                _unknownList,
+                static (StatePersister persister, ref OpenContainSomething item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
-            reader.PersistInt32("UnknownInt", ref _unknownInt);
+            reader.PersistInt32(ref _unknownInt);
         }
 
         private struct OpenContainSomething : IPersistableObject
@@ -73,8 +79,8 @@ namespace OpenSage.Logic.Object
 
             public void Persist(StatePersister persister)
             {
-                persister.PersistObjectID("ObjectId", ref ObjectId);
-                persister.PersistInt32("Unknown", ref Unknown);
+                persister.PersistObjectID(ref ObjectId);
+                persister.PersistInt32(ref Unknown);
             }
         }
     }

@@ -52,7 +52,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame("FrameToDie", ref _frameToDie);
+            reader.PersistFrame(ref _frameToDie);
         }
     }
 

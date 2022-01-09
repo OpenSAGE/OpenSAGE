@@ -44,13 +44,13 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum("Type", ref Type);
-            reader.PersistBoolean("IsSmall", ref IsSmall);
-            reader.PersistSingle("Height", ref Height);
-            reader.PersistSingle("MajorRadius", ref MajorRadius);
-            reader.PersistSingle("MinorRadius", ref MinorRadius);
-            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
-            reader.PersistSingle("UnknonwFloat2", ref _unknownFloat2);
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref IsSmall);
+            reader.PersistSingle(ref Height);
+            reader.PersistSingle(ref MajorRadius);
+            reader.PersistSingle(ref MinorRadius);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

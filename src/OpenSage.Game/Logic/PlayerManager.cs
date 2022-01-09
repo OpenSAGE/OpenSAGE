@@ -100,10 +100,12 @@ namespace OpenSage.Logic
         {
             reader.PersistVersion(1);
 
-            reader.PersistArrayWithUInt32Length("Players", _players, static (StatePersister persister, ref Player item) =>
-            {
-                persister.PersistObjectValue(item);
-            });
+            reader.PersistArrayWithUInt32Length(
+                _players,
+                static (StatePersister persister, ref Player item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
     }
 }

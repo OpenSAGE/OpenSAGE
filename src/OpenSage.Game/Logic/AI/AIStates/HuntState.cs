@@ -16,14 +16,14 @@
             reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.PersistBoolean("UnknownBool", ref unknownBool);
+            reader.PersistBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistObject("StateMachine", _stateMachine);
-            reader.PersistUInt32("UnknownInt", ref _unknownInt);
+            reader.PersistObject(_stateMachine);
+            reader.PersistUInt32(ref _unknownInt);
         }
     }
 }

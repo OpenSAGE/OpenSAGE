@@ -370,53 +370,53 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
-            reader.PersistFrame("FrameSomething", ref _frameSomething);
-            reader.PersistVector3("PositionSomething", ref _positionSomething);
-            reader.PersistSingle("UnknownFloat1", ref _unknownFloat1);
+            reader.PersistFrame(ref _frameSomething);
+            reader.PersistVector3(ref _positionSomething);
+            reader.PersistSingle(ref _unknownFloat1);
 
-            reader.PersistSingle("UnknownFloat2", ref _unknownFloat2); // 99999
+            reader.PersistSingle(ref _unknownFloat2); // 99999
             if (_unknownFloat2 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat3", ref _unknownFloat3); // 99999
+            reader.PersistSingle(ref _unknownFloat3); // 99999
             if (_unknownFloat3 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat4", ref _unknownFloat4); // 99999
+            reader.PersistSingle(ref _unknownFloat4); // 99999
             if (_unknownFloat4 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat5", ref _unknownFloat5); // 99999
+            reader.PersistSingle(ref _unknownFloat5); // 99999
             if (_unknownFloat5 != 99999.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat6", ref _unknownFloat6); // 99999, 0
+            reader.PersistSingle(ref _unknownFloat6); // 99999, 0
 
-            reader.PersistSingle("UnknownFloat7", ref _unknownFloat7); // 1
+            reader.PersistSingle(ref _unknownFloat7); // 1
             if (_unknownFloat7 != 1.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 0, 4
-            reader.PersistSingle("UnknownFloat8", ref _unknownFloat8); // 0, 100
+            reader.PersistUInt32(ref _unknownInt1); // 0, 4
+            reader.PersistSingle(ref _unknownFloat8); // 0, 100
 
-            reader.PersistSingle("UnknownFloat9", ref _unknownFloat9);
+            reader.PersistSingle(ref _unknownFloat9);
             if (_unknownFloat9 != 1.0f)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistSingle("UnknownFloat10", ref _unknownFloat10); // 0.4849...
-            reader.PersistSingle("UnknownFloat11", ref _unknownFloat11); // 0.0892...
+            reader.PersistSingle(ref _unknownFloat10); // 0.4849...
+            reader.PersistSingle(ref _unknownFloat11); // 0.0892...
         }
     }
 }

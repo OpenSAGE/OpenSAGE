@@ -73,47 +73,47 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistVector3("PositionSomething", ref _positionSomething);
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1); // 11
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2); // 11
+            reader.PersistVector3(ref _positionSomething);
+            reader.PersistUInt32(ref _unknownInt1); // 11
+            reader.PersistUInt32(ref _unknownInt2); // 11
 
             reader.SkipUnknownBytes(12);
 
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool1);
 
             reader.SkipUnknownBytes(12);
 
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt3);
             if (_unknownInt3 != 0x7FFFFFFF)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool2);
 
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt4);
             if (_unknownInt4 != 0x7FFFFFFF)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
-            reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
 
             reader.SkipUnknownBytes(18);
 
-            reader.PersistUInt32("UnknownInt5", ref _unknownInt5); // 1
+            reader.PersistUInt32(ref _unknownInt5); // 1
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistUInt32("UnknownInt6", ref _unknownInt6); // 255, probably frameSomething
-            reader.PersistUInt32("UnknownInt7", ref _unknownInt7); // 255, probably frameSomething
-            reader.PersistUInt32("UnknownInt8", ref _unknownInt8); // 0
-            reader.PersistUInt32("UnknownInt9", ref _unknownInt9); // 1
-            reader.PersistUInt32("UnknownInt10", ref _unknownInt10); // 0
-            reader.PersistUInt32("UnknownInt11", ref _unknownInt11); // 6
+            reader.PersistUInt32(ref _unknownInt6); // 255, probably frameSomething
+            reader.PersistUInt32(ref _unknownInt7); // 255, probably frameSomething
+            reader.PersistUInt32(ref _unknownInt8); // 0
+            reader.PersistUInt32(ref _unknownInt9); // 1
+            reader.PersistUInt32(ref _unknownInt10); // 0
+            reader.PersistUInt32(ref _unknownInt11); // 6
 
-            reader.PersistBoolean("UnknownBool4", ref _unknownBool5);
+            reader.PersistBoolean(ref _unknownBool5);
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)

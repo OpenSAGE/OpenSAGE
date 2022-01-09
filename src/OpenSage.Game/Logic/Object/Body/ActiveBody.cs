@@ -93,39 +93,41 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistSingle("CurrentHealth1", ref _currentHealth1); // These two values
-            reader.PersistSingle("CurrentHealth2", ref _currentHealth2); // are almost but not quite the same.
-            reader.PersistSingle("MaxHealth", ref _maxHealth);
+            reader.PersistSingle(ref _currentHealth1); // These two values
+            reader.PersistSingle(ref _currentHealth2); // are almost but not quite the same.
+            reader.PersistSingle(ref _maxHealth);
 
             var maxHealth2 = _maxHealth;
-            reader.PersistSingle("MaxHealth2", ref maxHealth2);
+            reader.PersistSingle(ref maxHealth2);
             if (_maxHealth != maxHealth2)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistEnum("DamageType", ref _damageType);
-            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistEnum(ref _damageType);
+            reader.PersistFrame(ref _unknownFrame1);
 
             var lastDamageType = (uint)_lastDamageType;
-            reader.PersistUInt32("LastDamageType", ref lastDamageType);
+            reader.PersistUInt32(ref lastDamageType);
             _lastDamageType = (DamageType)lastDamageType; // -1 if no last damage
 
-            reader.PersistObject("LastDamage", ref _lastDamage);
-            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
-            reader.PersistFrame("UnknownFrame3", ref _unknownFrame3);
+            reader.PersistObject(ref _lastDamage);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
-            reader.PersistBoolean("Indestructible", ref _indestructible);
+            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean(ref _indestructible);
 
-            reader.PersistList("ParticleSystemIds", _particleSystemIds, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            reader.PersistList(
+                _particleSystemIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
 
-            reader.PersistBitArray("ArmorSetConditions", ref _armorSetConditions);
+            reader.PersistBitArray(ref _armorSetConditions);
         }
     }
 

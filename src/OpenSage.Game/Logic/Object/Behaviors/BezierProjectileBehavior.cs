@@ -110,17 +110,19 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObjectID("LauncherObjectId", ref _launcherObjectId);
-            reader.PersistObjectID("TargetObjectId", ref _targetObjectId);
-            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistObjectID(ref _launcherObjectId);
+            reader.PersistObjectID(ref _targetObjectId);
+            reader.PersistUInt32(ref _unknown1);
 
-            reader.PersistArray("UnknownFloats", _unknownFloats, static (StatePersister persister, ref float item) =>
-            {
-                persister.PersistSingleValue(ref item);
-            });
+            reader.PersistArray(
+                _unknownFloats,
+                static (StatePersister persister, ref float item) =>
+                {
+                    persister.PersistSingleValue(ref item);
+                });
 
-            reader.PersistAsciiString("WeaponThatFiredThis", ref _weaponThatFiredThis);
-            reader.PersistUInt32("Unknown2", ref _unknown2);
+            reader.PersistAsciiString(ref _weaponThatFiredThis);
+            reader.PersistUInt32(ref _unknown2);
         }
     }
 

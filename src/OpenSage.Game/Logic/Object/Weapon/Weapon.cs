@@ -134,34 +134,34 @@ namespace OpenSage.Logic.Object
             reader.PersistVersion(3);
 
             var templateName = Template.Name;
-            reader.PersistAsciiString("TemplateName", ref templateName);
+            reader.PersistAsciiString(ref templateName);
             if (templateName != Template.Name)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistUInt32("UnknownInt3", ref _unknownInt3);
-            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistFrame(ref _unknownFrame1);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
-            reader.PersistFrame("UnknownFrame3", ref _unknownFrame3);
-            reader.PersistFrame("UnknownFrame4", ref _unknownFrame4);
-            reader.PersistObjectID("UnknownObjectId", ref _unknownObjectId);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame4);
+            reader.PersistObjectID(ref _unknownObjectId);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistUInt32("UnknownInt4", ref _unknownInt4);
-            reader.PersistUInt32("UnknownInt5", ref _unknownInt5);
-            reader.PersistUInt32("UnknownInt6", ref _unknownInt6);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32(ref _unknownInt6);
 
             reader.SkipUnknownBytes(2);
 
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
 
         internal void DrawInspector()

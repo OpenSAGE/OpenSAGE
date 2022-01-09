@@ -12,9 +12,9 @@
 
             base.Persist(reader);
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

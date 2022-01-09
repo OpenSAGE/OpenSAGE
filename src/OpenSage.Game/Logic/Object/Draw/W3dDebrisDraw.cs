@@ -87,13 +87,13 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistAsciiString("ModelName", ref _modelName);
+            reader.PersistAsciiString(ref _modelName);
 
             reader.SkipUnknownBytes(7);
 
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 

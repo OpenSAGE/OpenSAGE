@@ -28,14 +28,14 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistEnum("State", ref _state);
-            reader.PersistFrame("AflameEndFrame", ref _aflameEndFrame);
+            reader.PersistEnum(ref _state);
+            reader.PersistFrame(ref _aflameEndFrame);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame("NextDamageFrame", ref _nextDamageFrame);
-            reader.PersistSingle("RemainingDamageBeforeCatchingFire", ref _remainingDamageBeforeCatchingFire);
-            reader.PersistFrame("StartedTakingFlameDamageFrame", ref _startedTakingFlameDamageFrame);
+            reader.PersistFrame(ref _nextDamageFrame);
+            reader.PersistSingle(ref _remainingDamageBeforeCatchingFire);
+            reader.PersistFrame(ref _startedTakingFlameDamageFrame);
         }
 
         private enum FlammableState

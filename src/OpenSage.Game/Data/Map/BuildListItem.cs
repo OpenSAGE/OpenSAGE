@@ -42,33 +42,33 @@ namespace OpenSage.Data.Map
         {
             reader.PersistVersion(2);
 
-            reader.PersistAsciiString("BuildingName", ref _buildingName);
-            reader.PersistAsciiString("Name", ref _name);
-            reader.PersistVector3("Position", ref _position);
+            reader.PersistAsciiString(ref _buildingName);
+            reader.PersistAsciiString(ref _name);
+            reader.PersistVector3(ref _position);
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistSingle("Angle", ref _angle);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistUInt32("Rebuilds", ref _rebuilds);
+            reader.PersistSingle(ref _angle);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _rebuilds);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistUInt32("StartingHealth", ref _startingHealth);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
-            reader.PersistBoolean("UnknownBool3", ref _unknownBool3);
-            reader.PersistBoolean("UnknownBool4", ref _unknownBool4);
-            reader.PersistBoolean("UnknownBool5", ref _unknownBool5);
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistBoolean("UnknownBool6", ref _unknownBool6);
+            reader.PersistUInt32(ref _startingHealth);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool5);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool6);
 
             reader.SkipUnknownBytes(40);
 
-            reader.PersistBoolean("UnknownBool7", ref _unknownBool7);
-            reader.PersistInt32("UnknownInt3", ref _unknownInt3);
-            reader.PersistBoolean("UnknownBool8", ref _unknownBool8);
-            reader.PersistInt32("UnknownInt4", ref _unknownInt4);
+            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistInt32(ref _unknownInt4);
         }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)

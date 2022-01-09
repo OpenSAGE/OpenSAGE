@@ -13,7 +13,7 @@
             reader.EndObject();
 
             // Maybe some kind of frame timer? But sometimes it's -2.
-            reader.PersistFrame("FrameSomething", ref _frameSomething);
+            reader.PersistFrame(ref _frameSomething);
         }
     }
 

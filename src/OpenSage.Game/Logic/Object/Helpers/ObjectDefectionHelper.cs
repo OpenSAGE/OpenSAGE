@@ -14,12 +14,12 @@
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32("FrameStart", ref _frameStart);
-            reader.PersistUInt32("FrameEnd", ref _frameEnd);
+            reader.PersistUInt32(ref _frameStart);
+            reader.PersistUInt32(ref _frameEnd);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistBoolean("Unknown", ref _unknown);
+            reader.PersistBoolean(ref _unknown);
         }
     }
 }

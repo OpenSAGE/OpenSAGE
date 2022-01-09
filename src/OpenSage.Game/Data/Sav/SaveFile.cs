@@ -17,7 +17,7 @@ namespace OpenSage.Data.Sav
                 while (true)
                 {
                     var chunkName = "";
-                    reader.PersistAsciiString("ChunkName", ref chunkName);
+                    reader.PersistAsciiString(ref chunkName);
 
                     reader.BeginSegment(chunkName);
 
@@ -106,7 +106,7 @@ namespace OpenSage.Data.Sav
                     persister.BeginObject();
 
                     var chunkName = "";
-                    persister.PersistAsciiString("ChunkName", ref chunkName);
+                    persister.PersistAsciiString(ref chunkName);
 
                     if (chunkName == "SG_EOF")
                     {
@@ -127,7 +127,7 @@ namespace OpenSage.Data.Sav
                     }
 
                     var persistableObject = chunkDefinition.GetPersistableObject(persister.Game);
-                    persister.PersistObject("ChunkData", persistableObject);
+                    persister.PersistObject(persistableObject, "ChunkData");
 
                     persister.EndSegment();
 
@@ -150,12 +150,12 @@ namespace OpenSage.Data.Sav
                     persister.BeginObject();
 
                     var chunkName = chunkDefinition.ChunkName;
-                    persister.PersistAsciiString("ChunkName", ref chunkName);
+                    persister.PersistAsciiString(ref chunkName);
 
                     persister.BeginSegment(chunkName);
 
                     var persistableObject = chunkDefinition.GetPersistableObject(persister.Game);
-                    persister.PersistObject("ChunkData", persistableObject);
+                    persister.PersistObject(persistableObject, "ChunkData");
 
                     persister.EndSegment();
 
@@ -165,7 +165,7 @@ namespace OpenSage.Data.Sav
                 persister.BeginObject();
 
                 var endChunkName = "SG_EOF";
-                persister.PersistAsciiString("ChunkName", ref endChunkName);
+                persister.PersistAsciiString(ref endChunkName, "ChunkName");
 
                 persister.EndObject();
             }

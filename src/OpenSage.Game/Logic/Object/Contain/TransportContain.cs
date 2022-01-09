@@ -44,7 +44,7 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             var unknownInt1 = 1;
-            reader.PersistInt32("UnknownInt1", ref unknownInt1);
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != 1)
             {
                 throw new InvalidStateException();
@@ -52,7 +52,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame);
         }
     }
 

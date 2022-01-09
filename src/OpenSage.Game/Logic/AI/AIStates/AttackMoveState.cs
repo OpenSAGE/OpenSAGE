@@ -18,9 +18,9 @@
 
             base.Persist(reader);
 
-            reader.PersistInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistObject("StateMachine", _stateMachine);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistObject(_stateMachine);
         }
     }
 

@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistAsciiString("CommandButtonName", ref _commandButtonName);
+            reader.PersistAsciiString(ref _commandButtonName);
         }
     }
 

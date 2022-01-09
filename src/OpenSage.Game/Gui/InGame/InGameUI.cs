@@ -367,11 +367,11 @@ namespace OpenSage.Gui.InGame
         {
             reader.PersistVersion(2);
 
-            reader.PersistUInt32("Unknown1", ref _unknown1); // 0
-            reader.PersistBoolean("Unknown2", ref _unknown2);
-            reader.PersistBoolean("Unknown3", ref _unknown3);
-            reader.PersistBoolean("Unknown4", ref _unknown4);
-            reader.PersistUInt32("Unknown5", ref _unknown5); // 0
+            reader.PersistUInt32(ref _unknown1); // 0
+            reader.PersistBoolean(ref _unknown2);
+            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _unknown4);
+            reader.PersistUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
             reader.BeginArray("SuperweaponSomethings");
@@ -382,7 +382,7 @@ namespace OpenSage.Gui.InGame
                     reader.BeginObject();
 
                     var something = 0u;
-                    reader.PersistUInt32("Something", ref something);
+                    reader.PersistUInt32(ref something);
 
                     // A way to store things the engine doesn't know the length of?
                     if (something == uint.MaxValue)
@@ -391,7 +391,7 @@ namespace OpenSage.Gui.InGame
                     }
 
                     var item = new SuperweaponSomething();
-                    reader.PersistObject("Item", ref item);
+                    reader.PersistObject(ref item);
                     _superweaponSomethings.Add(item);
 
                     reader.EndObject();
@@ -403,10 +403,10 @@ namespace OpenSage.Gui.InGame
                 {
                     reader.BeginObject();
 
-                    reader.PersistUInt32("Something", ref i);
+                    reader.PersistUInt32(ref i, "Something");
 
                     var item = _superweaponSomethings[(int)i];
-                    reader.PersistObject("Item", ref item);
+                    reader.PersistObject(ref item);
 
                     reader.EndObject();
                 }
@@ -414,7 +414,7 @@ namespace OpenSage.Gui.InGame
                 reader.BeginObject();
 
                 var somethingEnd = uint.MaxValue;
-                reader.PersistUInt32("Something", ref somethingEnd);
+                reader.PersistUInt32(ref somethingEnd, "Something");
 
                 reader.EndObject();
             }
@@ -435,14 +435,14 @@ namespace OpenSage.Gui.InGame
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistAsciiString("UnknownString1", ref UnknownString1);
-            reader.PersistAsciiString("UnknownString2", ref UnknownString2);
+            reader.PersistAsciiString(ref UnknownString1);
+            reader.PersistAsciiString(ref UnknownString2);
 
-            reader.PersistUInt32("UnknownInt1", ref UnknownInt1);
-            reader.PersistUInt32("UnknownInt2", ref UnknownInt2); // 0xFFFFFFFF
-            reader.PersistBoolean("UnknownBool1", ref UnknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref UnknownBool2);
-            reader.PersistBoolean("UnknownBool3", ref UnknownBool3);
+            reader.PersistUInt32(ref UnknownInt1);
+            reader.PersistUInt32(ref UnknownInt2); // 0xFFFFFFFF
+            reader.PersistBoolean(ref UnknownBool1);
+            reader.PersistBoolean(ref UnknownBool2);
+            reader.PersistBoolean(ref UnknownBool3);
         }
     }
 

@@ -30,9 +30,9 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean("Unknown1", ref _unknown1);
-            reader.PersistObject("CollideWeapon", _collideWeapon);
-            reader.PersistBoolean("Unknown2", ref _unknown2);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistObject(_collideWeapon);
+            reader.PersistBoolean(ref _unknown2);
         }
     }
 

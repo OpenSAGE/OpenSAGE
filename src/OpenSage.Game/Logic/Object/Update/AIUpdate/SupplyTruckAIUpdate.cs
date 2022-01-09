@@ -29,10 +29,10 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistObject("StateMachine", _stateMachine);
-            reader.PersistObjectID("DockId", ref _dockId);
-            reader.PersistInt32("UnknownInt", ref _unknownInt);
-            reader.PersistBoolean("UnknownBool", ref _unknownBool);
+            reader.PersistObject(_stateMachine);
+            reader.PersistObjectID(ref _dockId);
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 

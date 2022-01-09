@@ -90,44 +90,48 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistAsciiString("TemplateName", ref _templateName);
-            reader.PersistInt32("UnknownInt1", ref _unknownInt1);
-            reader.PersistInt32("UnknownInt2", ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistAsciiString(ref _templateName);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(4);
 
             var unknownBool2 = true;
-            reader.PersistBoolean("UnknownBool2", ref unknownBool2);
+            reader.PersistBoolean(ref unknownBool2);
             if (!unknownBool2)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("UnknownIntList", _unknownIntList, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistUInt32Value(ref item);
-            });
+            reader.PersistList(
+                _unknownIntList,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
 
             var unknownBool3 = true;
-            reader.PersistBoolean("UnknownBool3", ref unknownBool3);
+            reader.PersistBoolean(ref unknownBool3);
             if (!unknownBool3)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistList("UnknownObjectList", _unknownObjectList, static (StatePersister persister, ref uint item) =>
-            {
-                persister.PersistObjectIDValue(ref item);
-            });
+            reader.PersistList(
+                _unknownObjectList,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
 
-            reader.PersistUInt16("UnknownInt3", ref _unknownInt3);
+            reader.PersistUInt16(ref _unknownInt3);
             if (_unknownInt3 != 0 && _unknownInt3 != 1)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistInt32("UnknownInt4", ref _unknownInt4);
+            reader.PersistInt32(ref _unknownInt4);
             if (_unknownInt4 != _unknownObjectList.Count && _unknownInt4 != -1)
             {
                 throw new InvalidStateException();

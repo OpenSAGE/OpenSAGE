@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             var unknownFloat = 1.0f;
-            reader.PersistSingle("UnknownFloat", ref unknownFloat);
+            reader.PersistSingle(ref unknownFloat);
             if (unknownFloat != 1.0f)
             {
                 throw new InvalidStateException();

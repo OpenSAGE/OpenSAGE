@@ -15,19 +15,19 @@ namespace OpenSage.Data.Sav
         {
             reader.PersistVersion(2);
 
-            reader.PersistAsciiString("MapPath1", ref _mapPath1);
-            reader.PersistAsciiString("MapPath2", ref _mapPath2);
-            reader.PersistEnum("GameType", ref _gameType);
+            reader.PersistAsciiString(ref _mapPath1);
+            reader.PersistAsciiString(ref _mapPath2);
+            reader.PersistEnum(ref _gameType);
 
             var mapSize = reader.BeginSegment("EmbeddedMap");
 
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown4 = 0u;
-                reader.PersistUInt32("Unknown4", ref unknown4);
+                reader.PersistUInt32(ref unknown4);
 
                 var unknown5 = 0u;
-                reader.PersistUInt32("Unknown5", ref unknown5);
+                reader.PersistUInt32(ref unknown5);
 
                 mapSize -= 8;
             }
@@ -57,13 +57,13 @@ namespace OpenSage.Data.Sav
 
             reader.EndSegment();
 
-            reader.PersistUInt32("NextObjectId", ref _nextObjectId);
-            reader.PersistUInt32("NextDrawableId", ref _nextDrawableId);
+            reader.PersistUInt32(ref _nextObjectId);
+            reader.PersistUInt32(ref _nextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {
                 var unknown6 = false;
-                reader.PersistBoolean("Unknown6", ref unknown6);
+                reader.PersistBoolean(ref unknown6);
             }
 
             if (reader.Mode == StatePersistMode.Read)
@@ -72,7 +72,7 @@ namespace OpenSage.Data.Sav
                 {
                     game.SkirmishManager = new LocalSkirmishManager(game);
 
-                    reader.PersistObject("SkirmishGameSettings", game.SkirmishManager.Settings);
+                    reader.PersistObject(game.SkirmishManager.Settings, "SkirmishGameSettings");
 
                     game.SkirmishManager.Settings.MapName = _mapPath1;
 
@@ -91,7 +91,7 @@ namespace OpenSage.Data.Sav
             {
                 if (_gameType == GameType.Skirmish)
                 {
-                    reader.PersistObject("SkirmishGameSettings", game.SkirmishManager.Settings);
+                    reader.PersistObject(game.SkirmishManager.Settings, "SkirmishGameSettings");
                 }
             }
         }

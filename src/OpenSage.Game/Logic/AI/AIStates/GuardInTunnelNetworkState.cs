@@ -16,13 +16,13 @@ namespace OpenSage.Logic.AI.AIStates
             reader.PersistVersion(1);
 
             var unknownBool = true;
-            reader.PersistBoolean("UnknownBool", ref unknownBool);
+            reader.PersistBoolean(ref unknownBool);
             if (!unknownBool)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistObject("StateMachine", _stateMachine);
+            reader.PersistObject(_stateMachine);
         }
     }
 
@@ -43,8 +43,8 @@ namespace OpenSage.Logic.AI.AIStates
 
             base.Persist(reader);
 
-            reader.PersistObjectID("GuardObjectId", ref _guardObjectId);
-            reader.PersistVector3("GuardPosition", ref _guardPosition);
+            reader.PersistObjectID(ref _guardObjectId);
+            reader.PersistVector3(ref _guardPosition);
         }
 
         private sealed class GuardInTunnelNetworkIdleState : State
@@ -55,7 +55,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
 
@@ -69,7 +69,7 @@ namespace OpenSage.Logic.AI.AIStates
 
                 base.Persist(reader);
 
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

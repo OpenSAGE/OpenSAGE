@@ -454,19 +454,19 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistList("ProductionQueue", _productionQueue, static (StatePersister persister, ref ProductionJob item) =>
+            reader.PersistList(_productionQueue, static (StatePersister persister, ref ProductionJob item) =>
             {
                 persister.BeginObject();
 
                 var productionJobType = item?.Type ?? default;
-                persister.PersistEnum("JobType", ref productionJobType);
+                persister.PersistEnum(ref productionJobType, "JobType");
 
                 var templateName = item != null
                     ? item.Type == ProductionJobType.Unit
                         ? item.ObjectDefinition.Name
                         : item.UpgradeDefinition.Name
                     : null;
-                persister.PersistAsciiString("TemplateName", ref templateName);
+                persister.PersistAsciiString(ref templateName);
 
                 if (persister.Mode == StatePersistMode.Read)
                 {
@@ -478,26 +478,28 @@ namespace OpenSage.Logic.Object
                     };
                 }
 
-                persister.PersistObject("Job", item);
+                persister.PersistObject(item, "Job");
 
                 persister.EndObject();
             });
 
-            reader.PersistUInt32("NextJobId", ref _nextJobId);
+            reader.PersistUInt32(ref _nextJobId);
 
             var productionJobCount2 = (uint)_productionQueue.Count;
-            reader.PersistUInt32("ProductionJobCount2", ref productionJobCount2);
+            reader.PersistUInt32(ref productionJobCount2);
             if (productionJobCount2 != _productionQueue.Count)
             {
                 throw new InvalidStateException();
             }
 
-            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame1);
 
-            reader.PersistArray("UnknownSomethings", _unknownSomethings, static (StatePersister persister, ref ProductionUpdateSomething item) =>
-            {
-                persister.PersistObjectValue(ref item);
-            });
+            reader.PersistArray(
+                _unknownSomethings,
+                static (StatePersister persister, ref ProductionUpdateSomething item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
 
             reader.BeginArray("UnknownArray");
             for (var i = 0; i < 2; i++)
@@ -693,9 +695,9 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistFrame("UnknownFrame1", ref _unknownFrame1);
-            reader.PersistFrame("UnknownFrame2", ref _unknownFrame2);
-            reader.PersistFrame("UnknownFrame3", ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
 
             reader.SkipUnknownBytes(4);
         }

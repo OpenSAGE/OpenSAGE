@@ -53,26 +53,28 @@ namespace OpenSage.Logic.AI
             base.Persist(reader);
             reader.EndObject();
 
-            reader.PersistListWithUInt32Count("TargetPositions", _targetPositions, static (StatePersister persister, ref Vector3 item) =>
-            {
-                persister.PersistVector3Value(ref item);
-            });
+            reader.PersistListWithUInt32Count(
+                _targetPositions,
+                static (StatePersister persister, ref Vector3 item) =>
+                {
+                    persister.PersistVector3Value(ref item);
+                });
 
-            reader.PersistAsciiString("TargetWaypointName", ref _targetWaypointName);
+            reader.PersistAsciiString(ref _targetWaypointName);
 
             var hasTargetTeam = _targetTeam != null;
-            reader.PersistBoolean("HasTargetTeam", ref hasTargetTeam);
+            reader.PersistBoolean(ref hasTargetTeam);
             if (hasTargetTeam)
             {
                 _targetTeam ??= new TargetTeam();
-                reader.PersistObject("TargetTeam", _targetTeam);
+                reader.PersistObject(_targetTeam);
             }
 
-            reader.PersistUInt32("StateSomethingId", ref _stateSomethingId);
+            reader.PersistUInt32(ref _stateSomethingId);
             if (_stateSomethingId != 999999)
             {
                 _stateSomething = GetState(_stateSomethingId);
-                reader.PersistObject("StateSomething", _stateSomething);
+                reader.PersistObject(_stateSomething);
             }
         }
     }
@@ -89,9 +91,9 @@ namespace OpenSage.Logic.AI
 
             base.Persist(reader);
 
-            reader.PersistInt32("UnknownInt", ref _unknownInt);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 
@@ -116,7 +118,7 @@ namespace OpenSage.Logic.AI
 
             base.Persist(reader);
 
-            reader.PersistObject("StateMachine", _stateMachine);
+            reader.PersistObject(_stateMachine);
         }
     }
 
@@ -143,7 +145,9 @@ namespace OpenSage.Logic.AI
         {
             reader.PersistVersion(1);
 
-            reader.PersistList("ObjectIds", _objectIds, static (StatePersister persister, ref uint item) =>
+            reader.PersistList(
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
             {
                 persister.PersistObjectIDValue(ref item);
             });

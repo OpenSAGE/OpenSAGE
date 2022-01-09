@@ -43,19 +43,19 @@ namespace OpenSage.Logic.AI
         {
             reader.PersistVersion(1);
 
-            reader.PersistFrame("UnknownFrame", ref _unknownFrame);
-            reader.PersistUInt32("UnknownInt1", ref _unknownInt1);
+            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistUInt32(ref _unknownInt1);
 
-            reader.PersistUInt32("CurrentStateId", ref _currentStateId);
+            reader.PersistUInt32(ref _currentStateId);
             _currentState = GetState(_currentStateId);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistObject("CurrentState", _currentState);
-            reader.PersistUInt32("UnknownInt2", ref _unknownInt2);
-            reader.PersistVector3("UnknownPosition", ref _unknownPosition);
-            reader.PersistBoolean("UnknownBool1", ref _unknownBool1);
-            reader.PersistBoolean("UnknownBool2", ref _unknownBool2);
+            reader.PersistObject(_currentState);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

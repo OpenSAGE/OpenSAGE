@@ -15,19 +15,21 @@ namespace OpenSage.Logic
             reader.PersistVersion(1);
             reader.EndObject();
 
-            reader.PersistUInt32("Unknown1", ref _unknown1);
+            reader.PersistUInt32(ref _unknown1);
 
-            reader.PersistList("GhostObjects", _ghostObjects, static (StatePersister persister, ref GhostObject item) =>
-            {
-                persister.BeginObject();
+            reader.PersistList(
+                _ghostObjects,
+                static (StatePersister persister, ref GhostObject item) =>
+                {
+                    persister.BeginObject();
 
-                item ??= new GhostObject();
+                    item ??= new GhostObject();
 
-                persister.PersistObjectID("OriginalObjectId", ref item.OriginalObjectId);
-                persister.PersistObject("Value", item);
+                    persister.PersistObjectID(ref item.OriginalObjectId);
+                    persister.PersistObject(item, "Value");
 
-                persister.EndObject();
-            });
+                    persister.EndObject();
+                });
         }
     }
 }

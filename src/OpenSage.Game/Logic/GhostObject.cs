@@ -44,23 +44,23 @@ namespace OpenSage.Logic
             reader.EndObject();
 
             uint objectId = _gameObject?.ID ?? 0u;
-            reader.PersistObjectID("ObjectId", ref objectId);
+            reader.PersistObjectID(ref objectId);
             if (reader.Mode == StatePersistMode.Read)
             {
                 _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
             }
 
-            reader.PersistEnum("GeometryType", ref _geometryType);
+            reader.PersistEnum(ref _geometryType);
 
             // Sometimes there's a 0xC, which is probably uninitialized data.
             byte geometryIsSmall = _geometryIsSmall ? (byte)1 : (byte)0;
-            reader.PersistByte("GeometryIsSmall", ref geometryIsSmall);
+            reader.PersistByte(ref geometryIsSmall);
             _geometryIsSmall = geometryIsSmall == 1;
 
-            reader.PersistSingle("GeometryMajorRadius", ref _geometryMajorRadius);
-            reader.PersistSingle("GeometryMinorRadius", ref _geometryMinorRadius);
-            reader.PersistSingle("Angle", ref _angle);
-            reader.PersistVector3("Position", ref _position);
+            reader.PersistSingle(ref _geometryMajorRadius);
+            reader.PersistSingle(ref _geometryMinorRadius);
+            reader.PersistSingle(ref _angle);
+            reader.PersistVector3(ref _position);
 
             reader.SkipUnknownBytes(12);
 
@@ -70,7 +70,7 @@ namespace OpenSage.Logic
                 reader.BeginObject();
 
                 byte numModels = (byte)_modelsPerPlayer[i].Count;
-                reader.PersistByte("NumModels", ref numModels);
+                reader.PersistByte(ref numModels);
 
                 reader.BeginArray("Models");
                 for (var j = 0; j < numModels; j++)
@@ -80,7 +80,7 @@ namespace OpenSage.Logic
                     var modelName = reader.Mode == StatePersistMode.Write
                         ? _modelsPerPlayer[i][j].Model.Name
                         : "";
-                    reader.PersistAsciiString("ModelName", ref modelName);
+                    reader.PersistAsciiString(ref modelName);
 
                     Model model;
                     ModelInstance modelInstance;
@@ -98,20 +98,20 @@ namespace OpenSage.Logic
                     }
 
                     var scale = 1.0f;
-                    reader.PersistSingle("Scale", ref scale);
+                    reader.PersistSingle(ref scale);
                     if (scale != 1.0f)
                     {
                         throw new InvalidStateException();
                     }
 
-                    reader.PersistColorRgba("HouseColor", ref modelInstance.HouseColor);
+                    reader.PersistColorRgba(ref modelInstance.HouseColor, "HouseColor");
 
                     reader.PersistVersion(1);
 
                     var modelTransform = reader.Mode == StatePersistMode.Write
                         ? Matrix4x3.FromMatrix4x4(modelInstance.GetWorldMatrix())
                         : Matrix4x3.Identity;
-                    reader.PersistMatrix4x3("ModelTransform", ref modelTransform, readVersion: false);
+                    reader.PersistMatrix4x3(ref modelTransform, readVersion: false);
 
                     if (reader.Mode == StatePersistMode.Read)
                     {
@@ -119,7 +119,7 @@ namespace OpenSage.Logic
                     }
 
                     var numMeshes = (uint)model.SubObjects.Length;
-                    reader.PersistUInt32("NumMeshes", ref numMeshes);
+                    reader.PersistUInt32(ref numMeshes);
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
                         throw new InvalidStateException();
@@ -131,19 +131,19 @@ namespace OpenSage.Logic
                         reader.BeginObject();
 
                         var meshName = model.SubObjects[k].FullName;
-                        reader.PersistAsciiString("MeshName", ref meshName);
+                        reader.PersistAsciiString(ref meshName);
 
                         if (meshName != model.SubObjects[k].FullName)
                         {
                             throw new InvalidStateException();
                         }
 
-                        reader.PersistBoolean("UnknownBool", ref modelInstance.UnknownBools[k]);
+                        reader.PersistBoolean(ref modelInstance.UnknownBools[k], "UnknownBool");
 
                         var meshTransform = reader.Mode == StatePersistMode.Write
                             ? Matrix4x3.FromMatrix4x4(modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index])
                             : Matrix4x3.Identity;
-                        reader.PersistMatrix4x3("MeshTransform", ref meshTransform, readVersion: false);
+                        reader.PersistMatrix4x3(ref meshTransform, readVersion: false);
 
                         if (reader.Mode == StatePersistMode.Read)
                         {
@@ -163,11 +163,11 @@ namespace OpenSage.Logic
             }
             reader.EndArray();
 
-            reader.PersistBoolean("HasUnknownThing", ref _hasUnknownThing);
+            reader.PersistBoolean(ref _hasUnknownThing);
             if (_hasUnknownThing)
             {
-                reader.PersistByte("UnknownByte", ref _unknownByte);
-                reader.PersistUInt32("UnknownInt", ref _unknownInt);
+                reader.PersistByte(ref _unknownByte);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }
