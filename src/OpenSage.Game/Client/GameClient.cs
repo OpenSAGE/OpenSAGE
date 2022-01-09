@@ -50,12 +50,14 @@ namespace OpenSage.Client
                     var objectID = 0u;
                     reader.PersistUInt32("ObjectId", ref objectID);
 
-                    var gameObject = _gameLogic.GetObjectById(objectID);
+                    var drawable = objectID != 0u
+                        ? _gameLogic.GetObjectById(objectID).Drawable
+                        : new Drawable(objectDefinition, reader.Game.Scene3D.GameContext, null);
 
-                    reader.PersistObject("Drawable", gameObject.Drawable);
+                    reader.PersistObject("Drawable", drawable);
 
-                    _drawables.Add(gameObject.Drawable);
-                    _drawablesById[gameObject.Drawable.DrawableID] = gameObject.Drawable;
+                    _drawables.Add(drawable);
+                    _drawablesById[drawable.DrawableID] = drawable;
 
                     reader.EndSegment();
 
@@ -68,17 +70,15 @@ namespace OpenSage.Client
                 {
                     reader.BeginObject();
 
-                    var gameObject = drawable.GameObject;
-
-                    var objectDefinitionId = _objectDefinitionLookupTable.GetId(gameObject.Definition);
+                    var objectDefinitionId = _objectDefinitionLookupTable.GetId(drawable.Definition);
                     reader.PersistUInt16("ObjectDefinitionId", ref objectDefinitionId);
 
-                    reader.BeginSegment(gameObject.Definition.Name);
+                    reader.BeginSegment(drawable.Definition.Name);
 
-                    var objectID = gameObject.ID;
+                    var objectID = drawable.GameObjectID;
                     reader.PersistUInt32("ObjectId", ref objectID);
 
-                    reader.PersistObject("Drawable", gameObject.Drawable);
+                    reader.PersistObject("Drawable", drawable);
 
                     reader.EndSegment();
 

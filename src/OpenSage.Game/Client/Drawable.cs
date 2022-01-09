@@ -33,7 +33,6 @@ namespace OpenSage.Client
             return _tagToModuleLookup[tag];
         }
 
-        private readonly ObjectDefinition _definition;
         private readonly GameContext _gameContext;
 
         private readonly List<string> _hiddenDrawModules;
@@ -41,6 +40,7 @@ namespace OpenSage.Client
         private readonly Dictionary<string, bool> _shownSubObjects;
 
         public readonly GameObject GameObject;
+        public readonly ObjectDefinition Definition;
 
         public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
 
@@ -55,6 +55,8 @@ namespace OpenSage.Client
 
         // TODO: Make this a property.
         public uint DrawableID;
+
+        public uint GameObjectID => GameObject?.ID ?? 0u;
 
         private Matrix4x3 _transformMatrix;
 
@@ -93,7 +95,7 @@ namespace OpenSage.Client
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
-            _definition = objectDefinition;
+            Definition = objectDefinition;
             _gameContext = gameContext;
             GameObject = gameObject;
 
@@ -196,7 +198,7 @@ namespace OpenSage.Client
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime, in Matrix4x4 worldMatrix, in MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
             var castsShadow = false;
-            switch (_definition.Shadow)
+            switch (Definition.Shadow)
             {
                 case ObjectShadowType.ShadowVolume:
                 case ObjectShadowType.ShadowVolumeNew:
@@ -347,9 +349,9 @@ namespace OpenSage.Client
 
             reader.PersistSingle("UnknownFloat6", ref _unknownFloat6); // 0, 1
 
-            var objectId = GameObject.ID;
+            var objectId = GameObjectID;
             reader.PersistUInt32("ObjectId", ref objectId);
-            if (objectId != GameObject.ID)
+            if (objectId != GameObjectID)
             {
                 throw new InvalidStateException();
             }
@@ -393,7 +395,10 @@ namespace OpenSage.Client
                 throw new InvalidStateException();
             }
 
-            reader.SkipUnknownBytes(8);
+            reader.SkipUnknownBytes(4);
+
+            var unknownInt8 = 0u;
+            reader.PersistUInt32("UnknownInt8", ref unknownInt8); // 232...frameSomething?
 
             var hasAnimation2D = _animation != null;
             reader.PersistBoolean("HasAnimation2D", ref hasAnimation2D);
@@ -475,7 +480,7 @@ namespace OpenSage.Client
                     reader.PersistAsciiString("ModuleTag", ref moduleTag);
                 }
 
-                reader.BeginSegment($"{module.GetType().Name} module in game object {GameObject.Definition.Name}");
+                reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
 
                 reader.PersistObject("Module", module);
 
