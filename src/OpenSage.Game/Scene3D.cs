@@ -133,6 +133,10 @@ namespace OpenSage
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
 
+            GameLogic = AddDisposable(new GameLogic(GameContext));
+
+            GameClient = new GameClient(this, GameLogic);
+
             LoadObjects(
                 game.AssetStore.LoadContext,
                 Terrain.HeightMap,
@@ -161,10 +165,6 @@ namespace OpenSage
             };
 
             contentManager.GraphicsDevice.WaitForIdle();
-
-            GameLogic = new GameLogic(this);
-
-            GameClient = new GameClient(this, GameLogic);
         }
 
         private void LoadObjects(

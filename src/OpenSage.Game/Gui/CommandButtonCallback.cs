@@ -90,8 +90,7 @@ namespace OpenSage.Gui
                         break;
                     }
 
-                    var objId = game.Scene3D.GameObjects.GetObjectId(selection.First());
-                    order.AddIntegerArgument((int)objId);
+                    order.AddIntegerArgument((int)selection.First().ID);
 
                     var upgrade = commandButton.Upgrade.Value;
                     order.AddIntegerArgument(upgrade.InternalId);

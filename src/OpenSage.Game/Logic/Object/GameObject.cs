@@ -119,7 +119,11 @@ namespace OpenSage.Logic.Object
 
         private uint _id;
 
-        public uint ID => _id;
+        public uint ID
+        {
+            get => _id;
+            internal set => _id = value;
+        }
 
         public Percentage ProductionModifier { get; set; } = new Percentage(1);
         public Fix64 HealthModifier { get; set; }
@@ -349,8 +353,7 @@ namespace OpenSage.Logic.Object
         internal GameObject(
             ObjectDefinition objectDefinition,
             GameContext gameContext,
-            Player owner,
-            GameObjectCollection parent)
+            Player owner)
         {
             if (objectDefinition.BuildVariations != null && objectDefinition.BuildVariations.Count() > 0)
             {
@@ -368,7 +371,7 @@ namespace OpenSage.Logic.Object
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
             Owner = owner ?? gameContext.Scene3D.PlayerManager.GetCivilianPlayer();
-            Parent = parent;
+            Parent = gameContext.GameObjects;
 
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
 
@@ -465,7 +468,7 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner, parent));
+                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner));
             }
 
             if (Definition.KindOf.Get(ObjectKinds.Projectile))
