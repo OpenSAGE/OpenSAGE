@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
 
         internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
         {
-            _gameObject.Destroy();
+            context.GameContext.GameObjects.DestroyObject(_gameObject);
         }
 
         internal override void Load(StatePersister reader)

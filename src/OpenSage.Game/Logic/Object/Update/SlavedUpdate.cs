@@ -132,7 +132,7 @@ namespace OpenSage.Logic.Object
             else if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
                 // stay near target
-                var target = _gameObject.CurrentWeapon.CurrentTarget.TargetObject;
+                var target = _gameObject.CurrentWeapon.CurrentTarget.GetTargetObject();
 
                 if (target != null)
                 {

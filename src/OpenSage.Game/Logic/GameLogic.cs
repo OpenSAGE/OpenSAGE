@@ -55,7 +55,7 @@ namespace OpenSage.Logic
                     reader.PersistUInt16(ref objectDefinitionId);
                     var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
-                    var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
+                    var gameObject = _scene3D.GameObjects.Add(objectDefinition, null);
 
                     reader.BeginSegment(objectDefinition.Name);
 

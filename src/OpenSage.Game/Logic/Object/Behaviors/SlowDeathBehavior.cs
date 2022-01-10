@@ -108,7 +108,7 @@ namespace OpenSage.Logic.Object
             {
                 ExecutePhaseActions(context, SlowDeathPhase.Final);
                 context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
-                context.GameObject.Destroy();
+                context.GameContext.GameObjects.DestroyObject(context.GameObject);
                 _isDying = false;
             }
 

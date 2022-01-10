@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Content.Loaders;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
@@ -15,19 +13,18 @@ namespace OpenSage.Terrain
 {
     public sealed class Bridge : DisposableBase
     {
+        private readonly GameObject _bridgeObject;
         private readonly Model _model;
         private readonly ModelInstance _modelInstance;
         private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
 
         internal Bridge(
-            AssetLoadContext loadContext,
-            HeightMap heightMap,
+            GameContext gameContext,
             MapObject mapObject,
             in Vector3 startPosition,
-            in Vector3 endPosition,
-            GameObjectCollection parent)
+            in Vector3 endPosition)
         {
-            var template = loadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
+            var template = gameContext.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
             if (template == null)
             {
                 return;
@@ -39,30 +36,34 @@ namespace OpenSage.Terrain
                 return;
             }
 
+            // TODO: Cache this.
+            var genericBridgeDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericBridge");
+
+            _bridgeObject = gameContext.GameObjects.Add(genericBridgeDefinition, null);
+            _bridgeObject.SetMapObjectProperties(mapObject);
+
             _model = model;
 
-            _modelInstance = AddDisposable(_model.CreateInstance(loadContext));
+            _modelInstance = AddDisposable(_model.CreateInstance(gameContext.AssetLoadContext));
 
             _modelInstance.Update(TimeInterval.Zero);
 
             _meshes = CreateMeshes(
-                heightMap,
+                gameContext,
                 template,
                 startPosition,
                 endPosition,
                 _model,
-                _modelInstance,
-                parent);
+                _modelInstance);
         }
 
         private List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
-            HeightMap heightMap,
+            GameContext gameContext,
             BridgeTemplate template,
             in Vector3 startPosition,
             in Vector3 endPosition,
             Model model,
-            ModelInstance modelInstance,
-            GameObjectCollection gameObjects)
+            ModelInstance modelInstance)
         {
             const float heightBias = 1f;
 
@@ -82,10 +83,10 @@ namespace OpenSage.Terrain
             var lengthRight = GetLength(bridgeRight) * template.BridgeScale;
 
             var startPositionWithHeight = startPosition;
-            startPositionWithHeight.Z = heightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
+            startPositionWithHeight.Z = gameContext.Scene3D.Terrain.HeightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
 
             var endPositionWithHeight = endPosition;
-            endPositionWithHeight.Z = heightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
+            endPositionWithHeight.Z = gameContext.Scene3D.Terrain.HeightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
 
             var horizontalDistance = Vector3.Distance(startPosition, endPosition);
 
@@ -142,7 +143,8 @@ namespace OpenSage.Terrain
 
             new BridgeTowers(
                 template,
-                gameObjects,
+                _bridgeObject.Owner,
+                gameContext,
                 worldMatrix,
                 0,
                 transformedLeftBounds.Min.Y,

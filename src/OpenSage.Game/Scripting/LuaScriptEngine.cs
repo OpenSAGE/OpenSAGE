@@ -194,7 +194,8 @@ namespace OpenSage.Scripting
         public string Spawn(string objectType)  //quick spawn
         {
             if (objectType.Equals("")) { objectType = "AmericaVehicleDozer"; }
-            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, Game.Scene3D.LocalPlayer);
+            var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, Game.Scene3D.LocalPlayer);
             var localPlayerStartPosition = Game.Scene3D.Waypoints[$"Player_{1}_Start"].Position;
             localPlayerStartPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(localPlayerStartPosition.X, localPlayerStartPosition.Y);
             var spawnUnitPosition = localPlayerStartPosition;
@@ -208,7 +209,8 @@ namespace OpenSage.Scripting
         public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
         {
             var player = Game.Scene3D.LocalPlayer;
-            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, player);
+            var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, player);
             var spawnPosition = new System.Numerics.Vector3(xPos, yPos, zPos);
             spawnPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(spawnPosition.X, spawnPosition.Y);
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }
