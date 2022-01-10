@@ -197,7 +197,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teamFactory: TeamFactory);
+                                GameObject.FromMapObject(mapObject, GameContext, overwriteAngle: null);
                                 break;
                         }
                         break;
@@ -214,12 +214,10 @@ namespace OpenSage
                         var bridgeEnd = mapObjects[++i];
 
                         bridgesList.Add(AddDisposable(new Bridge(
-                            loadContext,
-                            heightMap,
+                            GameContext,
                             mapObject,
                             mapObject.Position,
-                            bridgeEnd.Position,
-                            GameObjects)));
+                            bridgeEnd.Position)));
 
                         break;
 
@@ -259,7 +257,6 @@ namespace OpenSage
                 loadContext.GraphicsDevice.WaitForIdle();
             }
 
-            GameObjects.InsertCreated();
             cameras = new CameraCollection(namedCameras?.Cameras);
             roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap, Terrain.RadiusCursorDecalsResourceSet));
             waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
@@ -363,15 +360,14 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            GameObjects.DeleteDestroyed();
-            GameObjects.InsertCreated();
-
             PlayerManager.LogicTick();
 
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.LogicTick(frame, time);
             }
+
+            GameObjects.DeleteDestroyed();
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT)

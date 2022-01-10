@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
 
             if (context.Time.TotalTime > _lifeTime)
             {
-                _gameObject.Destroy();
+                context.GameContext.GameObjects.DestroyObject(_gameObject);
             }
         }
 

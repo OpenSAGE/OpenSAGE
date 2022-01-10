@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            context.GameObject.Destroy();
+            _gameObject.GameContext.GameObjects.DestroyObject(_gameObject);
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 

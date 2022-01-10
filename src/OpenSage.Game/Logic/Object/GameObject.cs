@@ -6,7 +6,6 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Client;
-using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
@@ -28,76 +27,77 @@ namespace OpenSage.Logic.Object
     {
         internal static GameObject FromMapObject(
             MapObject mapObject,
-            AssetStore assetStore,
-            GameObjectCollection gameObjects,
-            HeightMap heightMap,
+            GameContext gameContext,
             bool useRotationAnchorOffset = true,
-            in float? overwriteAngle = 0.0f,
-            TeamFactory teamFactory = null)
+            in float? overwriteAngle = 0.0f)
         {
-            var gameObject = gameObjects.Add(mapObject.TypeName);
-
-            // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
-            if (gameObject == null)
+            TeamTemplate teamTemplate = null;
+            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
             {
-                return null;
+                var name = (string)teamName.Value;
+                if (name.Contains('/'))
+                {
+                    name = name.Split('/')[1];
+                }
+                teamTemplate = gameContext.Scene3D.TeamFactory.FindTeamTemplateByName(name);
             }
 
-            if (gameObject._body != null)
+            var gameObjectDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
+
+            var gameObject = gameContext.GameObjects.Add(gameObjectDefinition, teamTemplate?.Owner);
+
+            // TODO: Is there any valid case where we'd want to allow a game object to be null?
+            if (gameObject != null)
+            {
+                gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
+            }
+
+            return gameObject;
+        }
+
+        internal void SetMapObjectProperties(
+            MapObject mapObject,
+            bool useRotationAnchorOffset = true,
+            in float? overwriteAngle = 0.0f)
+        {
+            if (_body != null)
             {
                 var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
                     ? (uint) health.Value / 100.0f
                     : 1.0f;
 
-                gameObject._body.SetInitialHealth(healthMultiplier);
+                _body.SetInitialHealth(healthMultiplier);
             }
 
             if (mapObject.Properties.TryGetValue("objectName", out var objectName))
             {
-                gameObject.Name = (string) objectName.Value;
-            }
-
-            if (teamFactory != null)
-            {
-                if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
-                {
-                    var name = (string) teamName.Value;
-                    if (name.Contains('/'))
-                    {
-                        name = name.Split('/')[1];
-                    }
-                    var team = teamFactory.FindTeamTemplateByName(name);
-                    gameObject.TeamTemplate = team;
-                    gameObject.Owner = team?.Owner;
-                }
+                Name = (string) objectName.Value;
             }
 
             if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
             {
-                gameObject.IsSelectable = (bool) selectable.Value;
+                IsSelectable = (bool) selectable.Value;
             }
 
             // TODO: handle "align to terrain" property
             var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, overwriteAngle ?? mapObject.Angle);
             var rotationOffset = useRotationAnchorOffset
-                ? Vector4.Transform(new Vector4(gameObject.Definition.RotationAnchorOffset.X, gameObject.Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation)
+                ? Vector4.Transform(new Vector4(Definition.RotationAnchorOffset.X, Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation)
                 : Vector4.UnitW;
             var position = mapObject.Position + rotationOffset.ToVector3();
-            var height = heightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
-            gameObject.UpdateTransform(new Vector3(position.X, position.Y, height), rotation,
-                gameObject.Definition.Scale);
+            var height = _gameContext.Scene3D.Terrain.HeightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
+            UpdateTransform(new Vector3(position.X, position.Y, height), rotation,
+                Definition.Scale);
 
-            if (gameObject.Definition.IsBridge)
+            if (Definition.IsBridge)
             {
-                BridgeTowers.CreateForLandmarkBridge(assetStore, gameObjects, gameObject, mapObject);
+                BridgeTowers.CreateForLandmarkBridge(_gameContext, this);
             }
 
-            if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+            if (Definition.KindOf.Get(ObjectKinds.Horde))
             {
-                gameObject.FindBehavior<HordeContainBehavior>().Unpack();
+                FindBehavior<HordeContainBehavior>().Unpack();
             }
-
-            return gameObject;
         }
 
         private readonly Dictionary<string, ModuleBase> _tagToModuleLookup = new();
@@ -264,7 +264,7 @@ namespace OpenSage.Logic.Object
         public string Name
         {
             get => _name;
-            set
+            private set
             {
                 if (_name != null)
                 {
@@ -297,8 +297,6 @@ namespace OpenSage.Logic.Object
         public TimeSpan? LifeTime { get; set; }
 
         public float BuildProgress;
-
-        public bool Destroyed { get; set; }
 
         public bool Hidden { get; set; }
 
@@ -369,7 +367,7 @@ namespace OpenSage.Logic.Object
 
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
-            Owner = owner;
+            Owner = owner ?? gameContext.Scene3D.PlayerManager.GetCivilianPlayer();
             Parent = parent;
 
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
@@ -593,11 +591,6 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            if (Destroyed)
-            {
-                return;
-            }
-
             if (_objectMoved)
             {
                 UpdateColliders();
@@ -830,18 +823,6 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            if (Destroyed)
-            {
-                return;
-            }
-
-            if (LifeTime != null && gameTime.TotalTime > LifeTime)
-            {
-                Die(DeathType.Normal, gameTime);
-                Destroyed = true;
-                return;
-            }
-
             HandleConstruction(gameTime);
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
@@ -849,7 +830,7 @@ namespace OpenSage.Logic.Object
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
-            if (Destroyed || ModelConditionFlags.Get(ModelConditionFlag.Sold) || Hidden)
+            if (ModelConditionFlags.Get(ModelConditionFlag.Sold) || Hidden)
             {
                 return;
             }
@@ -1062,12 +1043,6 @@ namespace OpenSage.Logic.Object
             {
                 dieModule.OnDie(_behaviorUpdateContext, deathType);
             }
-        }
-
-        internal void Destroy()
-        {
-            Drawable.Destroy();
-            Destroyed = true;
         }
 
         internal void GainExperience(int experience)

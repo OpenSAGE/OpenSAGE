@@ -124,7 +124,10 @@ namespace OpenSage.Logic.Object
 
         internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
         {
-            var debrisObject = context.GameContext.GameObjects.Add("GenericDebris", context.GameObject.Owner);
+            // TODO: Cache this.
+            var debrisObjectDefinition = context.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
+
+            var debrisObject = context.GameContext.GameObjects.Add(debrisObjectDefinition, context.GameObject.Owner);
 
             var lifeTime = context.GameContext.Random.NextDouble() * (MaxLifetime - MinLifetime) + MinLifetime;
             debrisObject.LifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(lifeTime);
