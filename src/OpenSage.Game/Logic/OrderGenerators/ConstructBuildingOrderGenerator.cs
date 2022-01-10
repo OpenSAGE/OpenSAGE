@@ -47,8 +47,7 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject = new GameObject(
                 buildingDefinition,
                 gameContext,
-                player,
-                null)
+                player)
             {
                 IsPlacementPreview = true
             };

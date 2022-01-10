@@ -31,7 +31,7 @@ namespace OpenSage.Logic.OrderGenerators
             var objectIds = new List<uint>();
             foreach (var gameObject in scene.LocalPlayer.SelectedUnits)
             {
-                objectIds.Add(scene.GameObjects.GetObjectId(gameObject));
+                objectIds.Add(gameObject.ID);
             }
 
             var order = Order.CreateSetRallyPointOrder(playerId, objectIds, _position);

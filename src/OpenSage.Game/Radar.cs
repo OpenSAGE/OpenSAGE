@@ -81,7 +81,7 @@ namespace OpenSage
             return _scene.Terrain.HeightMap.GetPosition((int) position2D.X, (int) position2D.Y);
         }
 
-        public void AddGameObject(GameObject gameObject, uint objectId)
+        public void AddGameObject(GameObject gameObject)
         {
             switch (gameObject.Definition.RadarPriority)
             {
@@ -99,14 +99,14 @@ namespace OpenSage
 
             items.Add(new RadarItem
             {
-                ObjectId = objectId,
+                ObjectId = gameObject.ID,
                 Color = gameObject.Owner.Color.ToColorRgba()
             });
         }
 
         public void RemoveGameObject(GameObject gameObject)
         {
-            var objectId = (uint) _scene.GameObjects.GetObjectId(gameObject);
+            var objectId = gameObject.ID;
 
             _visibleItems.Remove(objectId);
             _hiddenItems.Remove(objectId);

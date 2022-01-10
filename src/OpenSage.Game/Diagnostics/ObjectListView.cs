@@ -88,7 +88,7 @@ namespace OpenSage.Diagnostics
 
         private string GetObjectName(GameObject gameObject)
         {
-            return Context.Game.Scene3D.GameObjects.GetObjectId(gameObject) + " - " + (gameObject.Name ?? gameObject.Definition.Name);
+            return gameObject.ID + " - " + (gameObject.Name ?? gameObject.Definition.Name);
         }
     }
 }

@@ -80,9 +80,7 @@ namespace OpenSage.Logic.OrderGenerators
                 unit.OnLocalAttack(_game.Audio);
                 if (_worldObject != null)
                 {
-                    var objectId = scene.GameObjects.GetObjectId(_worldObject);
-
-                    order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), (uint) objectId, true);
+                    order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, true);
                 }
                 else
                 {
@@ -93,21 +91,19 @@ namespace OpenSage.Logic.OrderGenerators
             {
                 if (_worldObject != null)
                 {
-                    var objectId = scene.GameObjects.GetObjectId(_worldObject);
-
                     // TODO: Should take allies into account.
                     if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                     {
                         // TODO: handle hordes properly
                         unit.OnLocalAttack(_game.Audio);
-                        order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), (uint) objectId, false);
+                        order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, false);
                     }
                     else if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
                     {
                         // SoundEnter
                         // VoiceEnter
                         // TODO: Also need to check TransportSlotCount, Slots, etc.
-                        order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), objectId);
+                        order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
                     }
                     else
                     {

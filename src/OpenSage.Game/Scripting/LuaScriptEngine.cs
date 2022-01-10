@@ -203,7 +203,7 @@ namespace OpenSage.Scripting
             var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
             spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
             spawnUnit.SetTranslation(spawnUnitPosition);
-            return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
+            return GetLuaObjectIndex(spawnUnit.ID);
         }
 
         public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
@@ -217,7 +217,7 @@ namespace OpenSage.Scripting
             var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
             spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
             spawnUnit.SetTranslation(spawnPosition);
-            return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
+            return GetLuaObjectIndex(spawnUnit.ID);
         }
 
         public string GetActionNameVariant(string action, int variant)
@@ -355,7 +355,7 @@ namespace OpenSage.Scripting
 
         public string ObjectDescription(string gameObject)  //EXAMPLE C&C3: "Object 1187 (_jIWv4) [NODAvatar, owned by player 3 (MetaIdea)]"
         {
-            var ObjectID = Game.Scene3D.GameObjects.GetObjectId(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)));
+            var ObjectID = GetLuaObjectID(gameObject);
             var ObjectNameRef = "TODO";
             var ObjectTypeName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Definition.Name;
             var PlayerIndex = "TODO";
