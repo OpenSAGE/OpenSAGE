@@ -39,8 +39,9 @@ namespace OpenSage.Diagnostics
 
             ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), true);
 
-            var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper(_items.Count, ImGui.GetTextLineHeightWithSpacing());
+            var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper();
             var clipper = new ImGuiListClipperPtr(clipperPtr);
+            clipper.Begin(_items.Count, ImGui.GetTextLineHeightWithSpacing());
             while (clipper.Step())
             {
                 for (var i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)

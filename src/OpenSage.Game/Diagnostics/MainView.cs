@@ -75,7 +75,7 @@ namespace OpenSage.Diagnostics
 
             var buttonSize = new Vector2(80.0f, 0);
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 250);
             ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
 
             if (ImGui.Button(playPauseText, buttonSize))
@@ -85,7 +85,7 @@ namespace OpenSage.Diagnostics
 
             ImGui.PopStyleColor();
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 160);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 160);
 
             if (!_context.Game.IsLogicRunning)
             {
@@ -105,8 +105,8 @@ namespace OpenSage.Diagnostics
         public void Draw(ref bool isGameViewFocused)
         {
             var viewport = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(viewport.GetWorkPos());
-            ImGui.SetNextWindowSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowPos(viewport.WorkPos);
+            ImGui.SetNextWindowSize(viewport.WorkSize);
             ImGui.SetNextWindowViewport(viewport.ID);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
@@ -292,7 +292,7 @@ namespace OpenSage.Diagnostics
 
                 var fpsText = $"{ImGui.GetIO().Framerate:N2} FPS";
                 var fpsTextSize = ImGui.CalcTextSize(fpsText).X;
-                ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - fpsTextSize);
+                ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - fpsTextSize);
                 ImGui.Text(fpsText);
 
                 ImGui.EndMenuBar();
