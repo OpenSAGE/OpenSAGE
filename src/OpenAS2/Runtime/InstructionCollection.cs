@@ -4,36 +4,36 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using OpenAS2.Base;
-using OpenAS2.Runtime.Opcodes;
+using OpenAS2.Compilation.Syntax;
 
 namespace OpenAS2.Runtime
 {
     public sealed class InstructionCollection
     {
-        private readonly SortedList<int, Instruction> _instructions;
+        private readonly SortedList<int, InstructionBase> _instructions;
 
         public int Count => _instructions.Count;
 
-        public InstructionCollection(SortedList<int, Instruction> instructions)
+        public InstructionCollection(SortedList<int, InstructionBase> instructions)
         {
             _instructions = instructions;
         }
 
-        public IReadOnlyCollection<KeyValuePair<int, Instruction>> GetPositionedInstructions()
+        public IReadOnlyCollection<KeyValuePair<int, InstructionBase>> GetPositionedInstructions()
         {
             return _instructions;
         }
 
-        public ReadOnlyCollection<Instruction> GetInstructions()
+        public ReadOnlyCollection<InstructionBase> GetInstructions()
         {
-            return new ReadOnlyCollection<Instruction>(_instructions.Values);
+            return new ReadOnlyCollection<InstructionBase>(_instructions.Values);
         }
 
         public InstructionCollection AddEnd()
         {
             if (_instructions.Values.Last().Type == InstructionType.End)
                 return this;
-            var _inst = new SortedList<int, Instruction>(_instructions);
+            var _inst = new SortedList<int, InstructionBase>(_instructions);
             _inst[_inst.Keys.Last() + 1] = new End();
             return new InstructionCollection(_inst);
         }
@@ -41,7 +41,7 @@ namespace OpenAS2.Runtime
         public static InstructionCollection Native(Action<ExecutionContext> act)
         {
             var inst = new ExecNativeCode(act);
-            var insts = new SortedList<int, Instruction> { [0] = inst, };
+            var insts = new SortedList<int, InstructionBase> { [0] = inst, };
             return new InstructionCollection(insts);
         }
 
@@ -63,12 +63,12 @@ namespace OpenAS2.Runtime
             return index;
         }
 
-        public Instruction GetInstructionByIndex(int index)
+        public InstructionBase GetInstructionByIndex(int index)
         {
             return _instructions.Values[index];
         }
 
-        public Instruction GetInstructionByPosition(int position)
+        public InstructionBase GetInstructionByPosition(int position)
         {
             return _instructions[position];
         }
@@ -77,7 +77,7 @@ namespace OpenAS2.Runtime
         {
 
             var codes = insts.GetPositionedInstructions();
-            var instructions = new SortedList<int, Instruction>();
+            var instructions = new SortedList<int, InstructionBase>();
             {
                 
                 foreach(var kvp in codes)
@@ -86,7 +86,7 @@ namespace OpenAS2.Runtime
                     var type = kvp.Value.Type;
                     var parameters = kvp.Value.Parameters;
 
-                    Instruction instruction = null;
+                    InstructionBase instruction = null;
                     
                     switch (type)
                     {

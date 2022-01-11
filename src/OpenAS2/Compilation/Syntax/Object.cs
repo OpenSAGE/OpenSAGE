@@ -3,13 +3,13 @@ using OpenAS2.Runtime.Library;
 using System.Linq;
 using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
     /// <summary>
     /// Pop an object from stack and retrieve the member name from the pool. Push the member of
     /// the object to stack.
     /// </summary>
-    public sealed class GetNamedMember : InstructionMonoPushPop
+    public sealed class GetNamedMember : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.EA_GetNamedMember;
         public override uint Size => 1;
@@ -34,7 +34,7 @@ namespace OpenAS2.Runtime.Opcodes
                 context.Push(Value.Undefined());
             }
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"{p[1]}.{p[0]}";
@@ -44,7 +44,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// set the member of a specific object (everything on stack)
     /// </summary>
-    public sealed class SetMember : InstructionMonoPush
+    public sealed class SetMember : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.SetMember;
         public override uint StackPop => 3;
@@ -63,7 +63,7 @@ namespace OpenAS2.Runtime.Opcodes
                 obj.IPut(memberName, valueVal);
 
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"{p[2]}.{p[1]} = {p[0]}";
@@ -73,7 +73,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Get a variable from the current object and push it to the stack
     /// </summary>
-    public sealed class GetStringVar : InstructionMonoPushPop
+    public sealed class GetStringVar : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.EA_GetStringVar;
         public override uint Size => 4;
@@ -101,7 +101,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Set a string variable in the current scope
     /// </summary>
-    public sealed class SetStringVar : InstructionMonoPushPop
+    public sealed class SetStringVar : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.EA_SetStringVar;
         public override uint Size => 4;
@@ -109,10 +109,9 @@ namespace OpenAS2.Runtime.Opcodes
 
         public override void Execute(ExecutionContext context)
         {
-            var name = context.Pop().ToString();
-            context.This.IPut(name, Parameters[0]);
+            context.This.IPut(context.Pop().ToString(), Parameters[0]);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"this.{p[0]} = {Parameters[0]}";
@@ -122,7 +121,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops variable name and pushes the corresponding variable back to stack
     /// </summary>
-    public sealed class GetVariable : InstructionMonoPushPop
+    public sealed class GetVariable : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.GetVariable;
         public override bool PopStack => true;
@@ -135,7 +134,7 @@ namespace OpenAS2.Runtime.Opcodes
             Value variable = context.This.IGet(variableName);
             context.Push(variable);
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"this.{p[0]}";
@@ -145,7 +144,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops variable name and value from the stack. Then set the variable to that value.
     /// </summary>
-    public sealed class SetVariable : InstructionMonoPush
+    public sealed class SetVariable : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.SetVariable;
         public override uint StackPop => 2;
@@ -156,7 +155,7 @@ namespace OpenAS2.Runtime.Opcodes
             var memberName = context.Pop().ToString();
             context.This.IPut(memberName, valueVal);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"this.{p[1]} = {p[0]}";
@@ -166,7 +165,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// get the member of a specific object. Result will be pushed to stack
     /// </summary>
-    public sealed class GetMember : InstructionMonoPush
+    public sealed class GetMember : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.GetMember;
         public override uint StackPop => 2;
@@ -180,7 +179,7 @@ namespace OpenAS2.Runtime.Opcodes
             // TODO What about arrays?
             context.Push(obj.IGet(member.ToString()));
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"{p[1]}.{p[0]}";
@@ -190,7 +189,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// get a property and push it to the stack
     /// </summary>
-    public sealed class GetProperty : InstructionMonoPush
+    public sealed class GetProperty : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.GetProperty;
         public override uint StackPop => 2;
@@ -204,7 +203,7 @@ namespace OpenAS2.Runtime.Opcodes
             var prop = ((StageObject) target.ToObject()).GetProperty(property);
             context.Push(prop);
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"(target)\"{p[1]}\".{p[0]}";
@@ -214,7 +213,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// set a property. Get value, name and object from stack
     /// </summary>
-    public sealed class SetProperty : InstructionMonoPush
+    public sealed class SetProperty : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.SetProperty;
         public override uint StackPop => 3;
@@ -227,7 +226,7 @@ namespace OpenAS2.Runtime.Opcodes
 
              target.ToObject<StageObject>().SetProperty(property, value);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"(target)\"{p[2]}\".{p[1]} = {p[0]}";
@@ -237,7 +236,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// clones a sprite to assigned depth and target.
     /// </summary>
-    public sealed class CloneSprite : InstructionMonoPush
+    public sealed class CloneSprite : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.CloneSprite;
         public override uint StackPop => 3;
@@ -254,7 +253,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// removes a sprite.
     /// </summary>
-    public sealed class RemoveSprite : InstructionMonoPushPop
+    public sealed class RemoveSprite : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.RemoveSprite;
         public override bool PopStack => true;
@@ -269,7 +268,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops an object from the stack and retrieves a member variable which is pushed to stack
     /// </summary>
-    public sealed class GetStringMember : InstructionMonoPushPop
+    public sealed class GetStringMember : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.EA_GetStringMember;
         public override uint Size => 4;
@@ -288,14 +287,14 @@ namespace OpenAS2.Runtime.Opcodes
 
             context.Push(valueVal);
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"{p[0]}.{Parameters[0]}";
         }
     }
 
-    public sealed class SetStringMember : InstructionMonoPush
+    public sealed class SetStringMember : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.EA_SetStringMember;
         public override uint Size => 4;
@@ -308,7 +307,7 @@ namespace OpenAS2.Runtime.Opcodes
 
             objectVal.IPut(memberVal, Parameters[0]);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"{p[1]}.{p[0]} = {Parameters[0]}";
@@ -326,11 +325,11 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var name = context.Pop().ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
 
             context.ConstructObjectAndPush(name, args);
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"new {p[0]}({string.Join(", ", p.Skip(1))})";
@@ -351,14 +350,14 @@ namespace OpenAS2.Runtime.Opcodes
             var nameVal = context.Pop();
             var name = nameVal.ToString();
             var obj = context.Pop();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
             
             if (nameVal.Type != ValueType.Undefined && name.Length != 0) obj = obj.ToObject().IGet(name);
 
             context.ConstructObjectAndPush(obj, args);
             
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"new {p[1]}{(p[0] == "undefined" || p[0] == "" ? "" : ".")}{p[0]}({string.Join(", ", p.Skip(2))})";
@@ -395,11 +394,11 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops a value from the stack pushes it's type as a string to stack
     /// </summary>
-    public sealed class TypeOf : InstructionMonoOperator
+    public sealed class TypeOf : InstructionCalculableUnary
     {
         public override Func<Value, Value> Operator => (v) => Value.FromString(v.GetStringType());
         public override InstructionType Type => InstructionType.TypeOf;
-        public override int Precendence => 15;
+        public override int LowestPrecendence => 15;
         public override string ToString(string[] p)
         {
             return $"typeof {p[0]}";
@@ -410,7 +409,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// Set the inheritance structure of a class.
     /// See https://www.adobe.com/content/dam/acom/en/devnet/pdf/swf-file-format-spec.pdf p.114 "ActionExtends"
     /// </summary>
-    public sealed class Extends : InstructionMonoPush
+    public sealed class Extends : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.Extends;
         public override uint StackPop => 2;
@@ -426,7 +425,7 @@ namespace OpenAS2.Runtime.Opcodes
             obj.constructor = sup;
             cls.prototype = obj;
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"{p[1]}.prototype.__proto__ = {p[0]}.prototype";
@@ -436,7 +435,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Corresponds to the `instanceof` keyword of ECMAScript.
     /// </summary>
-    public sealed class InstanceOf : InstructionMonoPush
+    public sealed class InstanceOf : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.InstanceOf;
         public override uint StackPop => 2;
@@ -449,7 +448,7 @@ namespace OpenAS2.Runtime.Opcodes
             var val = obj.InstanceOf(constr);
             context.Push(Value.FromBoolean(val));
         }
-        public override int Precendence => 11;
+        public override int LowestPrecendence => 11;
         public override string ToString(string[] p)
         {
             return $"{p[1]} instanceof {p[0]}";

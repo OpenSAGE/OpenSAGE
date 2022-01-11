@@ -13,10 +13,10 @@ namespace OpenAS2.Base
     {
         public RawValueType Type { get; internal set; }
 
-        public string String { get; internal set; }
+        public string String { get; internal set; } = string.Empty;
         public bool Boolean { get; internal set; }
-        public int Number { get; internal set; }
-        public double Decimal { get; internal set; }
+        public int Integer { get; internal set; }
+        public double Double { get; internal set; }
 
         public override string ToString()
         {
@@ -36,10 +36,10 @@ namespace OpenAS2.Base
                 case RawValueType.Integer:
                 case RawValueType.Constant:
                 case RawValueType.Register:
-                    ans = Number.ToString();
+                    ans = Integer.ToString();
                     break;
                 case RawValueType.Float:
-                    ans = Decimal.ToString();
+                    ans = Double.ToString();
                     break;
                 default:
                     throw new NotImplementedException();
@@ -60,7 +60,7 @@ namespace OpenAS2.Base
             switch (t)
             {
                 case RawValueType.String:
-                    ans.String = JsonSerializer.Deserialize<string>(content);
+                    ans.String = JsonSerializer.Deserialize<string>(content) ?? string.Empty;
                     break;
                 case RawValueType.Boolean:
                     ans.Boolean = content.StartsWith("true");
@@ -71,13 +71,13 @@ namespace OpenAS2.Base
                     if (!int.TryParse(content, out var n))
                         throw new InvalidDataException();
                     else
-                        ans.Number = n;
+                        ans.Integer = n;
                     break;
                 case RawValueType.Float:
                     if (!double.TryParse(content, out var d))
                         throw new InvalidDataException();
                     else
-                        ans.Decimal = d;
+                        ans.Double = d;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -89,7 +89,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Register;
-            v.Number = (int) num;
+            v.Integer = (int) num;
             return v;
         }
 
@@ -97,7 +97,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Constant;
-            v.Number = (int) id;
+            v.Integer = (int) id;
             return v;
         }
 
@@ -106,7 +106,7 @@ namespace OpenAS2.Base
             if (Type != RawValueType.Integer && Type != RawValueType.Constant && Type != RawValueType.Register)
                 throw new InvalidOperationException();
             else
-                return FromRegister((uint) Number);
+                return FromRegister((uint) Integer);
         }
 
         public RawValue ToConstant()
@@ -114,7 +114,7 @@ namespace OpenAS2.Base
             if (Type != RawValueType.Integer && Type != RawValueType.Constant && Type != RawValueType.Register)
                 throw new InvalidOperationException();
             else
-                return FromConstant((uint) Number);
+                return FromConstant((uint) Integer);
         }
 
         public static RawValue FromBoolean(bool cond)
@@ -137,7 +137,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Integer;
-            v.Number = num;
+            v.Integer = num;
             return v;
         }
 
@@ -148,12 +148,12 @@ namespace OpenAS2.Base
             if (num > 0x0FFFFFFF)
             {
                 v.Type = RawValueType.Float;
-                v.Decimal = (double) num;
+                v.Double = (double) num;
             }
             else
             {
                 v.Type = RawValueType.Integer;
-                v.Number = (int) num;
+                v.Integer = (int) num;
             }
             return v;
         }
@@ -162,7 +162,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Float;
-            v.Decimal = num;
+            v.Double = num;
             return v;
         }
 

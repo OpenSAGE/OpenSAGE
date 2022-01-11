@@ -18,10 +18,6 @@ namespace OpenAS2.Runtime
 
         String,
         Object,
-
-        Constant,
-        Register,
-        Return,
     }
 
     public class Value
@@ -34,7 +30,8 @@ namespace OpenAS2.Runtime
         private readonly int _number;
         private readonly double _decimal;
         private readonly ESObject? _object;
-        private readonly ExecutionContext? _context;
+
+        public readonly bool IsThrow = false;
 
         public string DisplayString { get; set; }
 
@@ -44,7 +41,7 @@ namespace OpenAS2.Runtime
             int n = 0,
             double d = 0,
             ESObject? o = null,
-            ExecutionContext? a = null)
+            bool isThrow = false)
         {
             Type = type;
             _string = s ?? string.Empty;
@@ -52,14 +49,13 @@ namespace OpenAS2.Runtime
             _number = n;
             _decimal = d;
             _object = o;
-            _context = a;
 
+            IsThrow = isThrow;
             DisplayString = string.Empty;
         }
 
         // judgement
 
-        public bool IsSpecialType() { return Type == ValueType.Constant || Type == ValueType.Register || Type == ValueType.Return; }
 
         public static bool IsUndefined(Value v) { return v != null && v.Type == ValueType.Undefined; }
         public static bool IsNull(Value v) { return v == null || (v.Type == ValueType.Null); }
@@ -84,43 +80,6 @@ namespace OpenAS2.Runtime
             return false;
         }
 
-        // resolve
-
-        public Value ResolveRegister(ExecutionContext context)
-        {
-            if (Type != ValueType.Register || context == null)
-                return this;
-
-            var result = this;
-            if (_number < context.RegisterCount && context.RegisterStored(_number))
-            {
-                var entry = context.GetRegister(_number);
-                result = entry;
-            }
-            return result;
-        }
-
-        public Value ResolveConstant(ExecutionContext context)
-        {
-            if (Type != ValueType.Constant || context == null)
-                return this;
-
-            var result = this;
-            if (_number < context.Constants.Count) {
-                var entry = context.Constants[_number];
-                result = entry;
-            }
-            return result;
-        }
-
-        public Value ResolveReturn()
-        {
-            if (Type != ValueType.Return)
-                return this;
-            return _context!.Return ? _context.ReturnValue : Undefined();
-        }
-
-        public Value Resolve(ExecutionContext? context) { return context == null ? this : ResolveReturn().ResolveConstant(context).ResolveRegister(context); }
 
         // from
 
@@ -140,24 +99,9 @@ namespace OpenAS2.Runtime
             return new Value(ValueType.Object, o: obj);
         }
 
-        public static Value FromArray(Value[] array, VirtualMachine vm)
+        public static Value FromArray(IEnumerable<Value> array, VirtualMachine vm)
         {
             return new Value(ValueType.Object, o: new ASArray(array, vm));
-        }
-
-        public static Value FromRegister(uint num)
-        {
-            return new Value(ValueType.Register, n: (int) num);
-        }
-
-        public static Value FromConstant(uint id)
-        {
-            return new Value(ValueType.Constant, n: (int) id);
-        }
-
-        public static Value ReturnValue(ExecutionContext actx)
-        {
-            return new Value(ValueType.Return, a: actx);
         }
 
         public static Value FromBoolean(bool cond)
@@ -193,34 +137,40 @@ namespace OpenAS2.Runtime
 
         public static Value Undefined() { return new Value(ValueType.Undefined); }
 
-        public static Value FromStorage(RawValue s)
+        public static Value FromRaw(RawValue s)
         {
             switch (s.Type)
             {
                 case RawValueType.String:
                     return FromString(s.String);
                 case RawValueType.Integer:
-                    return FromInteger(s.Number);
+                    return FromInteger(s.Integer);
                 case RawValueType.Float:
-                    return FromFloat(s.Decimal);
+                    return FromFloat(s.Double);
                 case RawValueType.Boolean:
                     return FromBoolean(s.Boolean);
                 case RawValueType.Constant:
-                    return FromConstant((uint) s.Number);
                 case RawValueType.Register:
-                    return FromRegister((uint) s.Number);
                 default:
                     throw new InvalidOperationException("Well...This situation is really weird to be reached.");
             }
         }
+
+        // error procession
+        public static Value Throw(VirtualMachine? vm, ESError e)
+        {
+            if (vm == null)
+                throw new InvalidOperationException("The throw statement requires a VM instance!");
+            else
+                return new(ValueType.Object, o: e, isThrow: true);
+        }
+
 
         // conversion without AS
         public double ToFloat()
         {
             switch (Type)
             {
-                case ValueType.Constant:
-                case ValueType.Register:
                 case ValueType.Integer:
                     return _number;
                 case ValueType.Float:
@@ -251,8 +201,6 @@ namespace OpenAS2.Runtime
         {
             switch (Type)
             {
-                case ValueType.Constant:
-                case ValueType.Register:
                 case ValueType.Integer:
                     return _number;
                 case ValueType.Float:
@@ -283,12 +231,7 @@ namespace OpenAS2.Runtime
 
         public Value ToNumber(ExecutionContext? actx = null)
         {
-            if (IsSpecialType())
-            {
-                var r = Resolve(actx);
-                if (r.IsSpecialType()) return FromFloat(double.NaN);
-                else return r.ToNumber(actx);
-            }
+           
 
             if (IsNumber())
                 return this;
@@ -313,22 +256,13 @@ namespace OpenAS2.Runtime
         public Value ToPrimitive(ExecutionContext? context = null, int preferredType = 0)
         {
             if (IsPrimitive())
-                return Resolve(context);
+                return this;
             else
                 return _object!.IDefaultValue(preferredType, context);
         }
 
 
 
-        // constant & register
-        // Used by AptEditor to get actual id of constant / register
-        public uint GetIDValue()
-        {
-            if (Type != ValueType.Constant && Type != ValueType.Register)
-                throw new InvalidOperationException();
-
-            return (uint) _number;
-        }
 
         public T? ToObject<T>() where T : ESObject
         {
@@ -349,6 +283,7 @@ namespace OpenAS2.Runtime
         {
             if (Type == ValueType.Undefined)
             {
+                // TODO throw typeerror
                 Logger.Error("Cannot create object from undefined!");
                 return null;
             }
@@ -439,8 +374,6 @@ namespace OpenAS2.Runtime
                 case ValueType.Boolean:
                     return _boolean.ToString();
                 case ValueType.Integer:
-                case ValueType.Constant:
-                case ValueType.Register:
                     return _number.ToString();
                 case ValueType.Float:
                     return _decimal.ToString();
@@ -450,8 +383,6 @@ namespace OpenAS2.Runtime
                     return "null";
                 case ValueType.Object:
                     return _object == null ? "null" : _object.ToString();
-                case ValueType.Return:
-                    return _context!.ReturnValue == null ? "undefined" : _context.ReturnValue.ToString();
                 default:
                     throw new NotImplementedException(Type.ToString());
             }
@@ -486,7 +417,7 @@ namespace OpenAS2.Runtime
 
         // only used in debugging
 
-        public string ToStringWithType(ExecutionContext ctx)
+        public virtual string ToStringWithType(ExecutionContext ctx)
         {
             var ttype = "?";
             try { ttype = this.Type.ToString().Substring(0, 3); }
@@ -494,11 +425,7 @@ namespace OpenAS2.Runtime
             string tstr = DisplayString;
             if (tstr == null || tstr == "")
             {
-                if (this.Type == ValueType.Constant && ctx != null) tstr = this.ResolveConstant(ctx).ToString();
-                else if (this.Type == ValueType.Register && ctx != null) tstr = this.ResolveRegister(ctx).ToString();
-                else if (this.Type == ValueType.Return) tstr = this.ResolveReturn().ToString();
-                else if (this.Type == ValueType.Object) tstr = this.ToString();
-                else tstr = this.ToString();
+                tstr = ToString();
             }
             return $"({ttype}){tstr}";
             }

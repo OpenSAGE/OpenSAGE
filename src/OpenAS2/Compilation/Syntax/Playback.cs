@@ -2,12 +2,12 @@
 using OpenAS2.Runtime.Library;
 using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
     /// <summary>
     /// Start playback of the current object (must be sprite)
     /// </summary>
-    public sealed class Play : InstructionMonoPushPop
+    public sealed class Play : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Play;
 
@@ -28,7 +28,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Stop playback of the current object (must be sprite)
     /// </summary>
-    public sealed class Stop : InstructionMonoPushPop
+    public sealed class Stop : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Stop;
 
@@ -49,7 +49,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Jump to a specific frame number (must be sprite)
     /// </summary>
-    public sealed class GotoFrame : InstructionMonoPushPop
+    public sealed class GotoFrame : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.GotoFrame;
         public override uint Size => 4;
@@ -72,7 +72,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Jump to a specific frame (label or number) and start playing or stop
     /// </summary>
-    public sealed class GotoFrame2 : InstructionMonoPushPop
+    public sealed class GotoFrame2 : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.GotoFrame2;
         public override uint Size => 4;
@@ -114,7 +114,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Jump to a labeled frame (must be sprite)
     /// </summary>
-    public sealed class GotoLabel : InstructionMonoPushPop
+    public sealed class GotoLabel : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.GotoLabel;
         public override uint Size => 4;
@@ -134,7 +134,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// NextFrame 
     /// </summary>
-    public sealed class NextFrame : InstructionMonoPushPop
+    public sealed class NextFrame : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.NextFrame;
 

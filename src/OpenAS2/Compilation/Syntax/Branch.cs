@@ -1,11 +1,11 @@
 ﻿using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
     /// <summary>
     /// Pops a bool from the stack. If the bool is true jump to the byte offset (parameter)
     /// </summary>
-    public sealed class BranchIfTrue : InstructionMonoPushPop
+    public sealed class BranchIfTrue : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.BranchIfTrue;
         public override uint Size => 4;
@@ -24,7 +24,7 @@ namespace OpenAS2.Runtime.Opcodes
     // <summary>
     /// Jump to the byte offset (parameter)
     /// </summary>
-    public sealed class BranchAlways : InstructionMonoPushPop
+    public sealed class BranchAlways : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.BranchAlways;
         public override uint Size => 4;

@@ -3,67 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
-    public static class FunctionCommon
-    {
-
-        public static Value[] GetArgumentsFromStack(ExecutionContext context)
-        {
-            var argCount = context.Pop().ToInteger();
-
-            var args = new Value[argCount];
-            for (int i = 0; i < argCount; ++i)
-            {
-                args[i] = context.Pop();
-            }
-
-            return args;
-        }
-
-        // TODO this function is no longer safe. try to use the new model.
-        // TODO try to fix compatibility
-        public static Value ExecuteFunction(Value funcVal, Value[] args, ESObject scope, VirtualMachine vm)
-        {
-            if (funcVal.Type != ValueType.Undefined)
-            {
-                var func = funcVal.ToFunction();
-                var ret = vm.Execute(func, args, scope);
-                return ret;
-            }
-            else
-            {
-                Logger.Warn($"Function val is wrong is wrong type: {funcVal}");
-            }
-            return Value.Undefined();
-        }
-
-        public static Value StartExecutingFunction(string funcName, Value[] args, ExecutionContext context, ESObject thisVar = null)
-        {
-            return StartExecutingFunction(context.GetValueOnChain(funcName), args, context, thisVar);
-        }
-        public static Value StartExecutingFunction(Value funcVal, Value[] args, ExecutionContext context, ESObject thisVar = null)
-        {
-            if (funcVal.Type != ValueType.Undefined)
-            {
-                var func = funcVal.ToFunction();
-                if (thisVar == null) thisVar = context.Global;
-                return func.ICall(context, thisVar, args);
-            }
-            else
-            {
-                Logger.Warn($"Function val is wrong is wrong type: {funcVal}");
-            }
-            return null;
-        }
-    
-    }
 
     /// <summary>
     /// Declare a new named or anonymous function (depending on function name) that will either be
     /// pushed to stack or set as a variable. 
     /// </summary>
-    public sealed class DefineFunction : InstructionMonoPushPop
+    public sealed class DefineFunction : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.DefineFunction;
         public override uint Size => 24;
@@ -96,9 +43,9 @@ namespace OpenAS2.Runtime.Opcodes
             {
                 Parameters = paramList,
                 Instructions = code,
-                NumberRegisters = 4,
+                RegisterNumber = 4,
                 Constants = context.Constants, // do not need copy, see df2
-                DefinedContext = context, 
+                IScope = context, 
                 IsNewVersion = false
             };
 
@@ -124,7 +71,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// Declare a new named or anonymous function (depending on function name) that will either be
     /// pushed to stack or set as a variable. 
     /// </summary>
-    public sealed class DefineFunction2 : InstructionMonoPushPop
+    public sealed class DefineFunction2 : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.DefineFunction2;
         public override uint Size => 28;
@@ -161,9 +108,9 @@ namespace OpenAS2.Runtime.Opcodes
             {
                 Parameters = paramList,
                 Instructions = code,
-                NumberRegisters = nRegisters,
+                RegisterNumber = nRegisters,
                 Constants = context.Constants, // do not need shallow copy anymore since won't override
-                DefinedContext = context,
+                IScope = context,
                 Flags = flags,
                 IsNewVersion = true
             };
@@ -192,7 +139,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// If the function does not have a return statement, the value should be null
     /// Else, the value is set to anything other than null (including undefined)
     /// </summary>
-    public sealed class Return : InstructionMonoPushPop
+    public sealed class Return : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Return;
         public override bool PopStack => true;
@@ -200,7 +147,7 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             context.Return = true;
-            context.Halt = true;
+            context.Halted = true;
             var ret = context.Pop();
             context.ReturnValue = ret == null ? Value.FromObject(null) : ret;
         }
@@ -253,22 +200,22 @@ namespace OpenAS2.Runtime.Opcodes
         {
             var funcNameVal = context.Pop();
             var funcName = funcNameVal.ToString();
-            var ret = (Value) null;
+            ESCallable.Result ret;
             // If funcname is defined we need get the function from an object
             if (funcNameVal.Type != ValueType.Undefined && funcName.Length > 0)
             {
                 var obj = context.Pop().ToObject();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-                ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+                var args = FunctionUtils.GetArgumentsFromStack(context);
+                ret = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
             }
             // Else the function is on the stack
             else
             {
                 var funcVal = context.Pop();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-                ret = FunctionCommon.StartExecutingFunction(funcVal, args, context);
+                var args = FunctionUtils.GetArgumentsFromStack(context);
+                ret = FunctionUtils.TryExecuteFunction(funcVal, args, context);
             }
-            context.PushRecallCode(new DealWithReturnValue(ret));
+            context.PushRecallCode(ret);
         }
         public override string ToString(string[] p)
         {
@@ -306,10 +253,10 @@ namespace OpenAS2.Runtime.Opcodes
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
             var obj = context.Pop().ToObject();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
-            context.PushRecallCode(new DealWithReturnValue(ret));
+            var ret = FunctionUtils.StartExecutingFunction(funcName, args, context, obj);
+            context.PushRecallCode(ret);
         }
         public override string ToString(string[] p)
         {
@@ -329,10 +276,10 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
-            context.PushRecallCode(new DealWithReturnValue(ret));
+            var ret = FunctionUtils.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(ret);
         }
         public override string ToString(string[] p)
         {
@@ -352,10 +299,10 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var funcName = Parameters[0].ResolveConstant(context).ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
-            context.PushRecallCode(new DealWithReturnValue(ret));
+            var ret = FunctionUtils.StartExecutingFunction(funcName, args, context);
+            context.PushRecallCode(ret);
         }
         public override string ToString(string[] p)
         {
@@ -375,8 +322,8 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var funcName = context.Pop().ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
+            var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
         public override string ToString(string[] p)
@@ -414,18 +361,18 @@ namespace OpenAS2.Runtime.Opcodes
             var id = Parameters[0].ToInteger();
             var funcName = context.Constants[id].ToString();
             var obj = context.Pop().ToObject();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
+            FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
             context.Avm.ExecuteUntilHalt();
 
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context, obj);
-            context.PushRecallCode(new ExecNativeCode((_) =>
+            var ret = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
+            context.PushRecallCode((_) =>
             {
                 var result = ret.ResolveReturn();
                 var varName = context.Pop();
                 context.SetValueOnLocal(varName.ToString(), result);
-            }));
+            });
 
         }
         public override string ToString(string[] p)
@@ -445,8 +392,8 @@ namespace OpenAS2.Runtime.Opcodes
         public override void Execute(ExecutionContext context)
         {
             var funcName = context.Pop().ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
-            var ret = FunctionCommon.StartExecutingFunction(funcName, args, context);
+            var args = FunctionUtils.GetArgumentsFromStack(context);
+            var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
             context.PushRecallCode(new DealWithReturnValue(ret));
         }
         public override string ToString(string[] p)

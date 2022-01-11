@@ -1,11 +1,11 @@
 ﻿using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
     /// <summary>
     /// Used to get variables from the engine (?)
     /// </summary>
-    public sealed class GetUrl : InstructionMonoPushPop
+    public sealed class GetUrl : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.GetURL;
         public override uint Size => 8;
@@ -26,7 +26,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Used to get variables from the engine (?) (stack based)
     /// </summary>
-    public sealed class GetUrl2 : InstructionMonoPushPop
+    public sealed class GetUrl2 : InstructionEvaluableMonoInput
     {
         public override uint StackPop => 2;
         public override InstructionType Type => InstructionType.GetURL2;

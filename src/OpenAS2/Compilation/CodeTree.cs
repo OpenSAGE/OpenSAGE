@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenAS2.Base;
 using OpenAS2.Runtime;
-using OpenAS2.Runtime.Opcodes;
+using OpenAS2.Compilation.Syntax;
 using Value = OpenAS2.Runtime.Value;
 using ValueType = OpenAS2.Runtime.ValueType;
 
@@ -14,8 +14,8 @@ namespace OpenAS2.Compilation
 
     public class LogicalValue : Value
     {
-        public readonly Node N;
-        public LogicalValue(Node n) : base(ValueType.Undefined)
+        public readonly SyntaxNode N;
+        public LogicalValue(SyntaxNode n) : base(ValueType.Undefined)
         {
             N = n;
         }
@@ -28,7 +28,7 @@ namespace OpenAS2.Compilation
 
     public class StatementCollection
     {
-        public IEnumerable<Node> Nodes { get; private set; }
+        public IEnumerable<SyntaxNode> Nodes { get; private set; }
         public IEnumerable<Value> Constants { get; }
         public Dictionary<int, string> RegNames { get; }
         public Dictionary<int, Value> Registers { get; }
@@ -82,7 +82,7 @@ namespace OpenAS2.Compilation
             if (string.IsNullOrWhiteSpace(hint))
                 hint = $"reg{id}";
             while ((!forceOverwrite) && NodeNames.ContainsKey(hint))
-                hint = InstUtils.GetIncrementedName(hint);
+                hint = InstructionUtils.GetIncrementedName(hint);
             RegNames[id] = hint;
             if (!NodeNames.ContainsKey(hint))
                 NodeNames[hint] = null;
@@ -92,7 +92,7 @@ namespace OpenAS2.Compilation
         public string NameVariable(Value val, string name, bool forceOverwrite = false)
         {
             while ((!forceOverwrite) && NodeNames.ContainsKey(name))
-                name = InstUtils.GetIncrementedName(name);
+                name = InstructionUtils.GetIncrementedName(name);
             NodeNames[name] = val;
             NodeNames2[val] = name;
             return name;
@@ -137,14 +137,14 @@ namespace OpenAS2.Compilation
                     else
                     {
                         var code = node.Code.AddLabels(node.Labels);
-                        if (node is NodeExpression)
+                        if (node is SNExpression)
                         { 
                             if (node.Instruction.Type == InstructionType.PushData || node.Instruction.Type.ToString().StartsWith("EA_Push"))
                                 code = $"// __push__({code})@";
                         }
                         if (string.IsNullOrWhiteSpace(code))
                             continue;
-                        code = code.Replace("@; //", ",");
+                        code = code.Replace("@; //", ", ");
                         if (code.EndsWith("@"))
                             sb.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
                         else
@@ -214,8 +214,8 @@ namespace OpenAS2.Compilation
          */
 
         // change through process
-        public List<Node> NodeList { get; }
-        private Dictionary<Node, int> _special = new();
+        public List<SyntaxNode> NodeList { get; }
+        private Dictionary<SyntaxNode, int> _special = new();
         public int ParentNodeDivision { get; private set; }
 
         // should not be modified
@@ -262,7 +262,7 @@ namespace OpenAS2.Compilation
         {
             if (parent != null)
             {
-                NodeList = new(parent.NodeList.Where(x => x is NodeExpression));
+                NodeList = new(parent.NodeList.Where(x => x is SNExpression));
                 ParentNodeDivision = NodeList.Count;
                 Constants = parent.Constants;
                 RegNames = new();
@@ -275,15 +275,15 @@ namespace OpenAS2.Compilation
             }
         }
 
-        public NodeExpression? PopExpression(bool deleteIfPossible = true)
+        public SNExpression? PopExpression(bool deleteIfPossible = true)
         {
-            var ind = NodeList.FindLastIndex(n => n is NodeExpression);
-            NodeExpression? ret = null;
+            var ind = NodeList.FindLastIndex(n => n is SNExpression);
+            SNExpression? ret = null;
             if (ind == -1)
                 ret = null;
             else
             {
-                var node = (NodeExpression) NodeList[ind];
+                var node = (SNExpression) NodeList[ind];
 
                 // some special nodes shouldn't be deleted like Enumerate
                 var ableToDelete = true; 
@@ -302,14 +302,14 @@ namespace OpenAS2.Compilation
             }
             return ret;
         }
-        public NodeArray PopArray(bool readPair = false, bool ensureCount = true)
+        public SNArray PopArray(bool readPair = false, bool ensureCount = true)
         {
-            NodeArray ans = new();
+            SNArray ans = new();
             var nexp = PopExpression();
             Value? countVal = null;
             // another trygetvalue()
 
-            var flag = nexp == null ? false : nexp.TryGetValue(x => InstUtils.ParseValue(x, Constants.ElementAt, null), out countVal);
+            var flag = nexp == null ? false : nexp.TryGetValue(x => InstructionUtils.ParseValue(x, Constants.ElementAt, null), out countVal);
             if (flag)
             {
                 var count = countVal!.ToInteger();
@@ -323,18 +323,18 @@ namespace OpenAS2.Compilation
             }
             return ans;
         }
-        public IEnumerable<NodeStatement> PopStatements()
+        public IEnumerable<SNStatement> PopStatements()
         {
-            return NodeList.Skip(ParentNodeDivision).Where(x => x is NodeStatement && !_special.ContainsKey(x)).Cast<NodeStatement>();
+            return NodeList.Skip(ParentNodeDivision).Where(x => x is SNStatement && !_special.ContainsKey(x)).Cast<SNStatement>();
         }
-        public IEnumerable<Node> PopNodes()
+        public IEnumerable<SyntaxNode> PopNodes()
         {
             return NodeList.Skip(ParentNodeDivision).Where(x => !_special.ContainsKey(x));
         }
 
         public void PushInstruction(InstructionBase inst)
         {
-            Node n;
+            SyntaxNode n;
             if (inst is LogicalFunctionContext fc)
             {
                 var subpool = new NodePool(fc, this);
@@ -348,7 +348,7 @@ namespace OpenAS2.Compilation
                 // a null object and the enumerated objects are pushed
                 // but due to the mechanism of this class, only the latter
                 // is needed
-                n = new NodeEnumerate(inst);
+                n = new SNEnumerate(inst);
                 n.Expressions.Add(obj);
             }
             else if (inst.Type == InstructionType.InitArray)
@@ -360,7 +360,7 @@ namespace OpenAS2.Compilation
             }
             else
             {
-                n = inst.IsStatement ? new NodeStatement(inst) : new NodeExpression(inst);
+                n = inst.IsStatement ? new SNStatement(inst) : new SNExpression(inst);
                 n.GetExpressions(this);
                 // find if there are any functions, if there are functions, wrap n
                 if (n.Expressions.Any(x => x is NodeFunctionBody))
@@ -421,13 +421,13 @@ namespace OpenAS2.Compilation
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[1]);
                 sub2.PushChain(chain.AdditionalData[2]);
-                NodeCase n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
+                NodeCase n = new(branch!, bexp as SNExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
                 // add expressions inside the loop
                 // TODO more judgements
                 foreach (var ns2 in sub2.PopNodes())
                 {
-                    if (ns2 is NodeExpression)
+                    if (ns2 is SNExpression)
                     {
                         _special[ns2] = 1;
                         NodeList.Add(ns2);
@@ -450,12 +450,12 @@ namespace OpenAS2.Compilation
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[0]);
                 sub2.PushChain(chain.AdditionalData[1]);
-                NodeLoop n = new(branch!, bexp as NodeExpression, new(sub1), new(sub2));
+                NodeLoop n = new(branch!, bexp as SNExpression, new(sub1), new(sub2));
                 NodeList.Add(n);
                 // add expressions inside the loop?
                 foreach (var ns2 in sub2.PopNodes())
                 {
-                    if (ns2 is NodeExpression)
+                    if (ns2 is SNExpression)
                     {
                         _special[ns2] = 1;
                         NodeList.Add(ns2);
@@ -486,26 +486,29 @@ namespace OpenAS2.Compilation
 
     // Nodes
 
-    public abstract class Node
+    public abstract class SyntaxNode
     {
-        public readonly List<NodeExpression?> Expressions;
+        public readonly List<SNExpression?> Expressions;
         public readonly List<string> Labels;
         public readonly InstructionBase Instruction;
+
         public string? Code { get; protected set; }
 
-        protected Node(InstructionBase inst)
+        protected SyntaxNode(InstructionBase inst)
         {
             Instruction = inst;
             Expressions = new();
             Labels = new();
         }
 
+        public abstract string TryComposeRaw();
+
         public void GetExpressions(NodePool pool)
         {
             Expressions.Clear();
             var instruction = Instruction;
             if (Instruction is LogicalTaggedInstruction itag)
-                instruction = itag.FinalInnerAction;
+                instruction = itag.MostInner;
             // special process and overriding regular process
             var flagSpecialProc = true;
             switch (instruction.Type)
@@ -539,16 +542,16 @@ namespace OpenAS2.Compilation
                     break;
                 case InstructionType.EA_CallNamedFuncPop:
                 case InstructionType.EA_CallNamedFunc:
-                    Expressions.Add(new NodeValue(instruction));
+                    Expressions.Add(new SNLiteral(instruction));
                     Expressions.Add(pool.PopArray());
                     break;
                 case InstructionType.EA_CallNamedMethodPop:
-                    Expressions.Add(new NodeValue(instruction));
+                    Expressions.Add(new SNLiteral(instruction));
                     Expressions.Add(pool.PopExpression());
                     Expressions.Add(pool.PopArray());
                     break;
                 case InstructionType.EA_CallNamedMethod:
-                    Expressions.Add(new NodeValue(instruction)); 
+                    Expressions.Add(new SNLiteral(instruction)); 
                     Expressions.Add(pool.PopExpression());
                     Expressions.Add(pool.PopArray());
                     Expressions.Add(pool.PopExpression());
@@ -559,11 +562,11 @@ namespace OpenAS2.Compilation
 
                 // type 3: constant resolve needed
                 case InstructionType.EA_GetNamedMember:
-                    Expressions.Add(new NodeValue(instruction)); 
+                    Expressions.Add(new SNLiteral(instruction)); 
                     Expressions.Add(pool.PopExpression());
                     break;
                 case InstructionType.EA_PushValueOfVar:
-                    Expressions.Add(new NodeValue(instruction)); 
+                    Expressions.Add(new SNLiteral(instruction)); 
                     break;
                 case InstructionType.EA_PushGlobalVar:
                 case InstructionType.EA_PushThisVar:
@@ -572,10 +575,10 @@ namespace OpenAS2.Compilation
                     break; // nothing needed
                 case InstructionType.EA_PushConstantByte:
                 case InstructionType.EA_PushConstantWord:
-                    Expressions.Add(new NodeValue(instruction)); 
+                    Expressions.Add(new SNLiteral(instruction)); 
                     break;
                 case InstructionType.EA_PushRegister:
-                    Expressions.Add(new NodeValue(instruction)); 
+                    Expressions.Add(new SNLiteral(instruction)); 
                     break;
 
                 // type 4: variable output count
@@ -594,7 +597,7 @@ namespace OpenAS2.Compilation
                     flagSpecialProc = false;
                     break;
             }
-            if ((!flagSpecialProc) && instruction is InstructionMonoPush inst)
+            if ((!flagSpecialProc) && instruction is InstructionEvaluable inst)
             {
                 // TODO string output
                 for (int i = 0; i < inst.StackPop; ++i)
@@ -621,7 +624,7 @@ namespace OpenAS2.Compilation
                     val[i] = null;
                     continue;
                 }
-                else if (ncur.TryGetValue(InstUtils.ParseValueWrapped(sta), out var nval) && !(nval is LogicalValue))
+                else if (ncur.TryGetValue(InstructionUtils.ParseValueWrapped(sta), out var nval) && !(nval is LogicalValue))
                 {
                     valCode[i] = sta.GetExpression(nval!);
                     val[i] = nval;
@@ -638,7 +641,7 @@ namespace OpenAS2.Compilation
                     val[i] = null;
                     // fix precendence
                     // only needed for compiled codes
-                    if (ncur.Instruction != null && Instruction.Precendence > ncur.Instruction.Precendence)
+                    if (ncur.Instruction != null && Instruction.LowestPrecendence > ncur.Instruction.LowestPrecendence)
                         valCode[i] = $"({valCode[i]})";
                 }
             }
@@ -694,7 +697,7 @@ namespace OpenAS2.Compilation
                         while (itmp is LogicalTaggedInstruction itag)
                         {
                             lbl = string.IsNullOrEmpty(itag.Label) && itag.TagType == TagType.GotoLabel ? lbl : itag.Label;
-                            itmp = itag.InnerAction;
+                            itmp = itag.Inner;
                         }
                         if (itmp.Type == InstructionType.BranchAlways)
                             if (itmp.Parameters[0].ToInteger() > 0)
@@ -704,7 +707,7 @@ namespace OpenAS2.Compilation
                         else
                         {
                             tmp = valCode[0];
-                            (tmp, ttmp) = InstUtils.SimplifyCondition(tmp, ttmp);
+                            (tmp, ttmp) = InstructionUtils.SimplifyCondition(tmp, ttmp);
                             ret = $"__{(ttmp == InstructionType.BranchIfTrue ? "jz" : "jnz")}__({lbl!.ToCodingForm()}, {tmp})";
                         }
 
@@ -719,7 +722,7 @@ namespace OpenAS2.Compilation
                         var c = (val[0] != null ? 2 : 1) + (co ? 2 : 0);
                         if (!regSet || co)
                         {
-                            nReg = sta.NameRegister(nrReg, InstUtils.JustifyName(valCode[0]));
+                            nReg = sta.NameRegister(nrReg, InstructionUtils.JustifyName(valCode[0]));
                             if (val[0] != null)
                                 sta.NameVariable(val[0]!, nReg, true);
                             ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case {c}@";
@@ -775,13 +778,13 @@ namespace OpenAS2.Compilation
     }
 
 
-    public class NodeExpression : Node
+    public abstract class SNExpression : SyntaxNode
     {
-        public Value? Value { get; protected set; }
+        public virtual int LowestPrecendence => 18; // Just a meme, as long as it is a negative number it is okay
 
         private static Dictionary<InstructionType, int> NIE = new();
 
-        public NodeExpression(InstructionBase inst) : base(inst) { }
+        public SNExpression(InstructionBase inst) : base(inst) { }
 
         public virtual bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
         {
@@ -813,7 +816,7 @@ namespace OpenAS2.Compilation
             
             try
             {
-                if (Instruction is InstructionMonoPush inst && inst.PushStack)
+                if (Instruction is InstructionEvaluable inst && inst.PushStack)
                 {
                     // NIE optimization
                     if (NIE.TryGetValue(Instruction.Type, out var c) && c > 4)
@@ -847,7 +850,7 @@ namespace OpenAS2.Compilation
         {
             // TODO use sta
             string ret = string.Empty;
-            if (TryGetValue(InstUtils.ParseValueWrapped(sta), out var val))
+            if (TryGetValue(InstructionUtils.ParseValueWrapped(sta), out var val))
             {
                 if (val == null)
                     ret = "null";
@@ -864,11 +867,12 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class NodeEnumerate : NodeExpression
+    public class SNEnumerate : SNExpression
     {
-        public NodeEnumerate(InstructionBase inst) : base(inst)
+        public SNExpression Node { get; protected set; }
+        public SNEnumerate(SNExpression node) : base()
         {
-
+            Node = node;
         }
 
         public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
@@ -877,32 +881,75 @@ namespace OpenAS2.Compilation
             return false;
         }
 
-        public override void TryCompile(StatementCollection sta, bool compileBranches = false)
+        public override string TryComposeRaw()
         {
-            Code = "[[enumerate node]]";
+            return "[[enumerate node]]";
         }
     }
 
-    public class NodeValue : NodeExpression
+    public class SNLiteral : SNExpression
     {
-        public NodeValue(InstructionBase inst, Value? v = null) : base(inst)
+        public RawValue Value { get; protected set; }
+        public bool IsStringLiteral => Value.Type == RawValueType.String;
+
+        public SNLiteral(RawValue v) : base()
         {
-            Value = v == null ? inst.Parameters[0] : v;
+            Value = v;
         }
-        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
+
+        public override string TryComposeRaw()
         {
-            // Better not use FromArray()
-            ret = Value;
-            if (parse != null)
-                ret = parse(ret);
-            return ret == null ? false : true;
+            switch (Value.Type)
+            {
+                case RawValueType.String:
+                    return Value.String.ToCodingForm();
+                case RawValueType.Integer:
+                    return $"{Value.Integer}";
+                case RawValueType.Float:
+                    return $"{Value.Double}";
+                case RawValueType.Boolean:
+                    return Value.Boolean ? "true" : "false";
+                case RawValueType.Constant:
+                case RawValueType.Register:
+                default:
+                    throw new InvalidOperationException("Well...This situation is really weird to be reached.");
+            }
+        }
+
+        public string GetRawString() { return Value.String; }
+        
+    }
+
+    public class SNNominator: SNExpression
+    {
+        public string Name { get; set; }
+
+        public SNNominator(string name): base()
+        {
+            Name = name;
+        }
+
+        public override string TryComposeRaw()
+        {
+            return Name;
+        }
+
+    }
+
+    public class SNRegisterRef: SNExpression
+    {
+        public int RegId { get; set; }
+
+        public SNRegisterRef(int rid): base()
+        {
+            RegId = rid;
         }
     }
 
-    public class NodeArray : NodeExpression
+    public class SNArray : SNExpression
     {
         private readonly LogicalValue _v;
-        public NodeArray() : base(new InitArray())
+        public SNArray() : base(new InitArray())
         {
             _v = new(this);
         }
@@ -924,7 +971,7 @@ namespace OpenAS2.Compilation
                     vals[i] = $"__args__[{i}]";
                     continue;
                 }
-                var flag = node.TryGetValue(InstUtils.ParseValueWrapped(sta), out var val);
+                var flag = node.TryGetValue(InstructionUtils.ParseValueWrapped(sta), out var val);
                 if (!flag || val is LogicalValue)
                 {
                     node.TryCompile(sta, compileBranches);
@@ -939,7 +986,7 @@ namespace OpenAS2.Compilation
                     //    vals[i] = node.Code == null ? $"__args__[{i}]" : node.Code; // do not care empty string
                     //}
                 }
-                if (node is NodeArray)
+                if (node is SNArray)
                 {
                     vals[i] = $"[{vals[i]}]";
                 }
@@ -948,7 +995,7 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class NodeFunctionBody : NodeExpression
+    public class NodeFunctionBody : SNExpression
     {
         public StatementCollection Body;
         public static readonly string NoIndentMark = "/*@([{@%@)]}@*/";
@@ -968,7 +1015,7 @@ namespace OpenAS2.Compilation
         public override void TryCompile(StatementCollection sta, bool compileBranches = false)
         {
             StringBuilder sb = new();
-            var (name, args) = InstUtils.GetNameAndArguments(Instruction);
+            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
             var head = $"function({string.Join(", ", args.ToArray())})\n";
             // sb.Append(NoIndentMark);
             sb.Append(head);
@@ -982,13 +1029,22 @@ namespace OpenAS2.Compilation
     }
 
 
-    public class NodeStatement : Node
+    public abstract class SNStatement : SyntaxNode
     {
-        public NodeStatement(InstructionBase inst) : base(inst) { }
+        public SNStatement() : base() { }
         public override void TryCompile(StatementCollection sta, bool compileBranches = false) { base.TryCompile(sta, compileBranches); }
     }
 
-    public abstract class NodeControl : NodeStatement
+    public class SNAssignValue : SNStatement
+    {
+        public override string TryComposeRaw()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public abstract class NodeControl : SNStatement
     {
         public NodeControl(InstructionBase inst) : base(inst) { }
         public override void TryCompile(StatementCollection sta, bool compileBranches = false) { base.TryCompile(sta, compileBranches); }
@@ -998,8 +1054,8 @@ namespace OpenAS2.Compilation
 
     public class NodeIncludeFunction : NodeControl
     { 
-        public readonly Node n;
-        public NodeIncludeFunction(Node body) : base(body.Instruction)
+        public readonly SyntaxNode n;
+        public NodeIncludeFunction(SyntaxNode body) : base(body.Instruction)
         {
             n = body;
         }
@@ -1041,7 +1097,7 @@ namespace OpenAS2.Compilation
 
         public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
         {
-            var (name, args) = InstUtils.GetNameAndArguments(Instruction);
+            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
             var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
             sb.Append(head.ToStringWithIndent(indent));
             sb.Append("{\n".ToStringWithIndent(indent));
@@ -1053,13 +1109,13 @@ namespace OpenAS2.Compilation
     public class NodeCase: NodeControl
     {
 
-        public NodeExpression? Condition;
+        public SNExpression? Condition;
         public StatementCollection Unbranch;
         public StatementCollection Branch;
 
         public NodeCase(
             InstructionBase inst,
-            NodeExpression? condition,
+            SNExpression? condition,
             StatementCollection unbranch, 
             StatementCollection branch
             ) : base(inst)
@@ -1130,7 +1186,7 @@ namespace OpenAS2.Compilation
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
             if (Instruction.Type == InstructionType.BranchIfTrue)
-                tmp = InstUtils.ReverseCondition(tmp);
+                tmp = InstructionUtils.ReverseCondition(tmp);
 
             if (ei1 ^ ei2)
             {
@@ -1142,7 +1198,7 @@ namespace OpenAS2.Compilation
                     var nc3 = nc2;
                     nc2 = nc1;
                     nc1 = nc3;
-                    tmp = InstUtils.ReverseCondition(tmp);
+                    tmp = InstructionUtils.ReverseCondition(tmp);
                 }
                 var ifBranch = elseIfBranch ? $"if ({tmp})\n" : $"if ({tmp})\n".ToStringWithIndent(indent);
                 sb.Append(ifBranch);
@@ -1173,13 +1229,13 @@ namespace OpenAS2.Compilation
     public class NodeLoop : NodeControl
     {
 
-        public NodeExpression? Condition;
+        public SNExpression? Condition;
         public StatementCollection Maintain;
         public StatementCollection Branch;
 
         public NodeLoop(
             InstructionBase inst,
-            NodeExpression? condition,
+            SNExpression? condition,
             StatementCollection maintain,
             StatementCollection branch
             ) : base(inst)

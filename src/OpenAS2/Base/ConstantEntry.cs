@@ -11,6 +11,7 @@ namespace OpenAS2.Base
 
     public sealed class ConstantEntry
     {
+
         public ConstantType Type { get; internal set; }
         public object Value { get; internal set; }
 

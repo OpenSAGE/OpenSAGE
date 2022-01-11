@@ -52,7 +52,7 @@ namespace OpenAS2.Runtime.Library
         }
 
         public ASArray(VirtualMachine vm) : this(null, vm) { }
-        public ASArray(Value[] args, VirtualMachine vm): base(vm, "Array")
+        public ASArray(IEnumerable<Value> args, VirtualMachine vm): base(vm, "Array")
         {
             if (args == null) _values = new List<Value>();
             else _values = new List<Value>(args);
@@ -69,7 +69,7 @@ namespace OpenAS2.Runtime.Library
 
         public override string ToString()
         {
-            return $"[{String.Join(",", _values)}]";
+            return $"[{String.Join(", ", _values)}]";
         }
     }
 }

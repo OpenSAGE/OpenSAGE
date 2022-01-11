@@ -27,23 +27,29 @@ namespace OpenAS2.Runtime.Library
             // ["prototype"] = (avm) => Property.D(Value.FromObject(avm.GetPrototype("Function")), true, false, false),
         };
 
+        public static string[] NativeErrorList = new string[] { "EvalError", "RangeError", "ReferenceError", "SyntaxError", "URIError", "TypeError" };
+
         public ESError(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces): base(classIndicator, extensible, prototype, interfaces)
         {
 
         }
 
-        public ESError(VirtualMachine vm, string? message) : base(vm, "Error")
+        public ESError(VirtualMachine vm, string? message, string? name = null) : base(vm, "Error")
         {
-            if (message != null)
-                IPut("message", Value.FromString(message));
+            IPut("message", Value.FromString(message ?? string.Empty));
+            if (name != null)
+                IPut("name", Value.FromString(name)); 
         }
 
-        public static Value IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value> args)
+
+        public static ESCallable.Result IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value> args, string? name)
         {
             if (args.Count > 0 && !args.First().IsUndefined())
-                return Value.FromObject(new ESError(ec.Avm, args.First().ToString()));
+                return ESCallable.Return(Value.FromObject(new ESError(ec.Avm, args.First().ToString(), name)));
             else
-                return Value.FromObject(new ESError(ec.Avm, null));
+                return ESCallable.Return(Value.FromObject(new ESError(ec.Avm, null, name)));
         }
+
+        public static ESCallable.Func IConstructAndCall(string? name) { return (a, b, c) => IConstructAndCall(a, b, c, name); }
     }
 }

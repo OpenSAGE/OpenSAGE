@@ -3,25 +3,25 @@ using OpenAS2.Runtime.Library;
 using OpenAS2.Base;
 using System.Linq;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
     /// <summary>
     /// End the execution of the current Action
     /// </summary>
-    public sealed class End : InstructionMonoPushPop
+    public sealed class End : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.End;
 
         public override void Execute(ExecutionContext context)
         {
-            context.Halt = true;
+            context.Halted = true;
         }
     }
 
     /// <summary>
     /// Declare a pool of constants that will be used in the current scope. Mostly used at start.
     /// </summary>
-    public sealed class ConstantPool : InstructionMonoPushPop
+    public sealed class ConstantPool : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.ConstantPool;
         public override uint Size => 8;
@@ -42,7 +42,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pop a string from stack and print it to console. Used for debug purposes.
     /// </summary>
-    public sealed class Trace : InstructionMonoPushPop
+    public sealed class Trace : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Trace;
         public override bool PopStack => true;
@@ -77,7 +77,7 @@ namespace OpenAS2.Runtime.Opcodes
             var reg = Parameters[0].ToInteger();
             context.SetRegister(reg, val);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"__reg__[{Parameters[0]}] = {p[0]}";
@@ -98,7 +98,7 @@ namespace OpenAS2.Runtime.Opcodes
 
             context.Push(Value.FromArray(args, context.Avm));
         }
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"[{p[0]}]";
@@ -110,7 +110,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// The description file says "property", but one can't access a property from a string,
     /// so I take the "property" as "member".
     /// </summary>
-    public sealed class Delete : InstructionMonoPushPop
+    public sealed class Delete : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Delete;
         public override bool PopStack => true;
@@ -121,7 +121,7 @@ namespace OpenAS2.Runtime.Opcodes
             var target = context.GetTarget(context.Pop().ToString());
             target.ToObject().IDelete(property);
         }
-        public override int Precendence => 15;
+        public override int LowestPrecendence => 15;
         public override string ToString(string[] p)
         {
             return $"delete {p[1]}.{p[0]}";
@@ -131,7 +131,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops a property name from the stack. Then deletes the property
     /// </summary>
-    public sealed class Delete2 : InstructionMonoPushPop
+    public sealed class Delete2 : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Delete2;
         public override bool PopStack => true;
@@ -141,7 +141,7 @@ namespace OpenAS2.Runtime.Opcodes
             var property = context.Pop().ToString();
             context.DeleteValueOnChain(property);
         }
-        public override int Precendence => 15;
+        public override int LowestPrecendence => 15;
         public override string ToString(string[] p)
         {
             return $"delete {p[0]}";
@@ -151,7 +151,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops name & value. Then set the variable. If value is already defined, overwrite it
     /// </summary>
-    public sealed class DefineLocal : InstructionMonoPush
+    public sealed class DefineLocal : InstructionEvaluable
     {
         public override InstructionType Type => InstructionType.DefineLocal;
         public override uint StackPop => 2;
@@ -162,7 +162,7 @@ namespace OpenAS2.Runtime.Opcodes
             var varName = context.Pop().ToString();
             context.SetValueOnLocal(varName, value);
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"{p[1]} = {p[0]}";
@@ -172,7 +172,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops name. Then set the variable to undefined if name is not already defined.
     /// </summary>
-    public sealed class DefineLocal2 : InstructionMonoPushPop
+    public sealed class DefineLocal2 : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => InstructionType.Var;
         public override bool PopStack => true;
@@ -185,7 +185,7 @@ namespace OpenAS2.Runtime.Opcodes
             else
                 context.SetValueOnLocal(varName, Value.Undefined()); 
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"{p[0]} = typeof({p[0]}) == \"undefined\" ? undefined : {p[0]}";
@@ -195,7 +195,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToInteger : InstructionMonoOperator
+    public sealed class ToInteger : InstructionCalculableUnary
     {
         public override Func<Value, Value> Operator =>
             (a) => Value.FromInteger(a.ToInteger());
@@ -209,12 +209,12 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops a value from the stack, converts it to integer and pushes it back
     /// </summary>
-    public sealed class ToStringOpCode : InstructionMonoOperator
+    public sealed class ToStringOpCode : InstructionCalculableUnary
     {
         public override Func<Value, Value> Operator =>
             (a) => Value.FromString(a.ToString());
         public override InstructionType Type => InstructionType.ToString;
-        public override int Precendence => 18;
+        public override int LowestPrecendence => 18;
         public override string ToString(string[] p)
         {
             return $"String({p[0]})";
@@ -245,7 +245,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pops an object from stack and enumerates it's slots
     /// </summary>
-    public sealed class RandomNumber : InstructionMonoPushPop
+    public sealed class RandomNumber : InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override bool PopStack => true;
@@ -273,14 +273,14 @@ namespace OpenAS2.Runtime.Opcodes
         {
             // throw new NotImplementedException(context.DumpStack());
             var cst = context.Pop().ToFunction();
-            Value[] args = FunctionCommon.GetArgumentsFromStack(context);
+            Value[] args = FunctionUtils.GetArgumentsFromStack(context);
         }
     }
 
     /// <summary>
     /// Unknown yet
     /// </summary>
-    public sealed class CastOp : InstructionDiOperator
+    public sealed class CastOp : InstructionCalculableBinary
     {
         public override Func<Value, Value, Value> Operator =>
             (objv, cstv) =>
@@ -299,7 +299,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// So this action will get the millseconds since the program started.
     /// The return value shall be put in stack.
     /// </summary>
-    public sealed class GetTime: InstructionMonoPushPop
+    public sealed class GetTime: InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override void Execute(ExecutionContext context)

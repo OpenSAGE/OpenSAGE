@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
-    
+
 
     /// <summary>
-    /// The baseclass used for all Instructions. Set default variables accordingly
+    /// The baseclass used for all Instructions. Set default variables OpenAS2.Compilation.Syntax
     /// </summary>
     public abstract class InstructionBase
     {
@@ -18,7 +18,7 @@ namespace OpenAS2.Runtime.Opcodes
         public virtual List<Value> Parameters { get; set; }
         public virtual bool Breakpoint { get; set; }
         public virtual bool IsStatement => true;
-        public virtual int Precendence => IsStatement ? 114-514-1919-810 : 18; // Just a meme, as long as it is a negative number it is okay
+        public virtual int LowestPrecendence => IsStatement ? 114 - 514 - 1919 - 810 : 18; // Just a meme, as long as it is a negative number it is okay
 
         public abstract void Execute(ExecutionContext context);
         public override string ToString()
@@ -46,7 +46,7 @@ namespace OpenAS2.Runtime.Opcodes
         public virtual string ToString(string[] p) { return ToString2(p); }
     }
 
-    public abstract class InstructionFixedStackOpr: InstructionBase
+    public abstract class InstructionFixedOprCount : InstructionBase
     {
         public virtual uint StackPush => 0;
         public virtual uint StackPop => 0;
@@ -63,7 +63,7 @@ namespace OpenAS2.Runtime.Opcodes
         public abstract Value[] ExecuteWithArgs(Value[] poppedVals);
     }
 
-    public abstract class InstructionMonoPush : InstructionFixedStackOpr
+    public abstract class InstructionEvaluable : InstructionFixedOprCount
     {
         public override uint StackPush => PushStack ? 1u : 0u;
         public override uint StackPop => 0;
@@ -92,7 +92,7 @@ namespace OpenAS2.Runtime.Opcodes
         }
     }
 
-    public abstract class InstructionMonoPushPop : InstructionMonoPush
+    public abstract class InstructionEvaluableMonoInput : InstructionEvaluable
     {
         public override uint StackPop => PopStack ? 1u : 0u;
         public virtual bool PopStack => false;
@@ -124,7 +124,7 @@ namespace OpenAS2.Runtime.Opcodes
             throw new NotImplementedException();
         }
     }
-    public class InstructionPushValue : InstructionMonoPushPop
+    public class InstructionPushValue : InstructionEvaluableMonoInput
     {
         public override InstructionType Type => throw new InvalidOperationException("Should not be called since this is not a standard instruction");
         public override bool PushStack => true;
@@ -142,7 +142,7 @@ namespace OpenAS2.Runtime.Opcodes
         }
     }
 
-    public abstract class InstructionMonoOperator: InstructionMonoPushPop
+    public abstract class InstructionCalculableUnary : InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override bool PopStack => true;
@@ -158,7 +158,7 @@ namespace OpenAS2.Runtime.Opcodes
         }
     }
 
-    public abstract class InstructionDiOperator : InstructionMonoPush
+    public abstract class InstructionCalculableBinary : InstructionEvaluable
     {
         public override bool PushStack => true;
         public override uint StackPop => 2;
@@ -176,28 +176,4 @@ namespace OpenAS2.Runtime.Opcodes
         }
     }
 
-    /// <summary>
-    /// This padding does exist in the InstructionStream because of alignment requirements of some instructions
-    /// </summary>
-    public sealed class Padding : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.Padding;
-        public override uint Size { get; set; }
-
-        public override List<Value> Parameters
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
-
-        public override void Execute(ExecutionContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Padding(uint size)
-        {
-            Size = size;
-        }
-    }
 }

@@ -11,7 +11,7 @@ namespace OpenAS2.Runtime.Execution
 {
     public static class General
     {
-        public static bool ExecuteBinInput(ExecutionContext context, Instruction inst)
+        public static bool ExecuteBinInput(ExecutionContext context, RawInstruction inst)
         {
             var a = context.Pop();
             var b = context.Pop();
@@ -117,7 +117,7 @@ namespace OpenAS2.Runtime.Execution
             return true;
         }
 
-        public static bool ExecuteUnInput(ExecutionContext context, Instruction inst)
+        public static bool ExecuteUnInput(ExecutionContext context, RawInstruction inst)
         {
             var a = context.Pop();
             Value res = null;
@@ -174,13 +174,13 @@ namespace OpenAS2.Runtime.Execution
             return true;
         }
 
-        public static bool ExecuteStackRegOpr(ExecutionContext context, Instruction inst)
+        public static bool ExecuteStackRegOpr(ExecutionContext context, RawInstruction inst)
         {
             switch (inst.Type)
             {
                 case InstructionType.SetRegister:
                     var val = context.Peek();
-                    var reg = inst.Parameters[0].ToInteger();
+                    var reg = inst.Parameters[0].Integer;
                     context.SetRegister(reg, val);
                     break;
                 case InstructionType.StackSwap:
@@ -194,7 +194,7 @@ namespace OpenAS2.Runtime.Execution
                     break;
                 case InstructionType.PushData:
                     foreach (var constant in inst.Parameters.Skip(1))
-                        context.Push(constant.ResolveConstant(context));
+                        context.Push(context.ResolveConstant(constant.Integer));
                     break;
 
                 case InstructionType.EA_PushUndefined:
@@ -221,16 +221,16 @@ namespace OpenAS2.Runtime.Execution
                 case InstructionType.EA_PushLong:
                 case InstructionType.EA_PushFloat:
                 case InstructionType.EA_PushString:
-                    context.Push(inst.Parameters[0]);
+                    context.Push(Value.FromRaw(inst.Parameters[0]));
                     break;
 
                 case InstructionType.EA_PushConstantByte:
                 case InstructionType.EA_PushConstantWord:
-                    context.PushConstant(inst.Parameters[0]);
+                    context.PushConstant(inst.Parameters[0].Integer);
                     break;
 
                 case InstructionType.EA_PushRegister:
-                    context.Push(inst.Parameters[0].ResolveRegister(context));
+                    context.Push(context.ResolveRegister(inst.Parameters[0].Integer));
                     break;
 
                 default:
@@ -239,7 +239,7 @@ namespace OpenAS2.Runtime.Execution
             return true;
         }
 
-        public static bool Execute(ExecutionContext context, Instruction inst)
+        public static bool Execute(ExecutionContext context, RawInstruction inst)
         {
             switch (inst.Type)
             {

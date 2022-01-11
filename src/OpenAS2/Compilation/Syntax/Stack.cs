@@ -3,13 +3,13 @@ using System.Linq;
 using System.Collections.Generic;
 using OpenAS2.Base;
 
-namespace OpenAS2.Runtime.Opcodes
+namespace OpenAS2.Compilation.Syntax
 {
 
     /// <summary>
     /// Pop a value from the stack
     /// </summary>
-    public sealed class Pop : InstructionMonoPushPop
+    public sealed class Pop : InstructionEvaluableMonoInput
     {
         public override bool PopStack => true;
         public override InstructionType Type => InstructionType.Pop;
@@ -23,7 +23,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Pop a value from the stack and convert it to number push it back
     /// </summary>
-    public sealed class ToNumber : InstructionMonoOperator
+    public sealed class ToNumber : InstructionCalculableUnary
     {
         public override InstructionType Type => InstructionType.ToNumber;
 
@@ -46,7 +46,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Push the current object to the stack
     /// </summary>
-    public class PushThisVar : InstructionMonoPushPop
+    public class PushThisVar : InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushThisVar;
@@ -65,7 +65,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Read the variable name from the pool and push that variable's value to the stack
     /// </summary>
-    public sealed class PushValueOfVar : InstructionMonoPushPop
+    public sealed class PushValueOfVar : InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushValueOfVar;
@@ -73,20 +73,9 @@ namespace OpenAS2.Runtime.Opcodes
 
         public override void Execute(ExecutionContext context)
         {
-            var id = Parameters[0].ToInteger();
-            var str = context.Constants[id].ToString();
-
-            Value result;
-
-            if (context.CheckParameter(str))
-            {
-                result = context.GetParameter(str);
-            }
-            else
-            {
-                result = context.GetValueOnChain(str);
-            }
-            context.Push(result);
+            var cid = Parameters[0].Resolve(context);
+            var str = cid.ToString();
+            context.Push(context.HasParameter(str) ? context.GetParameter(str) : context.GetValueOnChain(str));
         }
         public override string ToString(string[] p)
         {
@@ -114,7 +103,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Push a zero variable to the stack
     /// </summary>
-    public sealed class ZeroVar : InstructionMonoPushPop
+    public sealed class ZeroVar : InstructionEvaluableMonoInput
     {
         public override bool PopStack => true;
         public override InstructionType Type => InstructionType.EA_ZeroVar;
@@ -125,7 +114,7 @@ namespace OpenAS2.Runtime.Opcodes
             var name = context.Pop();
             context.This.IPut(name.ToString(), Value.FromInteger(0));
         }
-        public override int Precendence => 3;
+        public override int LowestPrecendence => 3;
         public override string ToString(string[] p)
         {
             return $"this.{p[0]} = 0";
@@ -135,7 +124,7 @@ namespace OpenAS2.Runtime.Opcodes
     /// <summary>
     /// Push the global object to the stack
     /// </summary>
-    public sealed class PushGlobalVar : InstructionMonoPushPop
+    public sealed class PushGlobalVar : InstructionEvaluableMonoInput
     {
         public override bool PushStack => true;
         public override InstructionType Type => InstructionType.EA_PushGlobalVar;

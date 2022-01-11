@@ -5,14 +5,42 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenAS2.Base;
 using OpenAS2.Runtime;
-using OpenAS2.Runtime.Opcodes;
+using OpenAS2.Compilation.Syntax;
 using Value = OpenAS2.Runtime.Value;
 using ValueType = OpenAS2.Runtime.ValueType;
 
 namespace OpenAS2.Compilation
 {
-    public static class InstUtils
+    public static class InstructionUtils
     {
+        public static List<Value> CreateConstantPool(IList<RawValue> parameters, IList<ConstantEntry> globalPool)
+        {
+            var pool = new List<Value>();
+
+            // The first parameter is the constant count, omit it
+            for (var i = 1; i < parameters.Count; ++i)
+            {
+                Value result;
+                var entry = globalPool[parameters[i].Integer];
+                switch (entry.Type)
+                {
+                    case ConstantType.String:
+                        result = Value.FromString((string) entry.Value);
+                        break;
+                        // to solve it, consider expanding wrapped value in EC to wider usages
+                        /*
+                    case ConstantType.Register:
+                        result = Value.FromRegister((uint) entry.Value);
+                        break;
+                        */
+                    default:
+                        throw new NotImplementedException();
+                }
+                pool.Add(result);
+            }
+
+            return pool;
+        }
         public static Func<Value?, Value?> ParseValueWrapped(StatementCollection s)
         {
             return x => ParseValue(x, s.Constants.ElementAt, x => { var a = s.HasRegisterValue(x, out var b); return (a, b); });
@@ -201,6 +229,7 @@ namespace OpenAS2.Compilation
             Console.WriteLine("\nGan Si Huang Xu Dong");
 
             var c = StructurizedBlockChain.Parse(g.BaseBlock);
+            // TODO constpool & constsource
             var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
 
             // var c = BlockChainifyUtils.Parse(g.BaseBlock);

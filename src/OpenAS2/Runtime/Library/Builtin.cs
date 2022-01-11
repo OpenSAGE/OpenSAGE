@@ -101,7 +101,7 @@ namespace OpenAS2.Runtime.Library
             if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ASString))
             {
                 var _prop = properties.ToString();
-                var _props = _prop.Split(",");
+                var _props = _prop.Split(", ");
                 foreach (var p in _props)
                     obj.ASSetFlags(p, setFlags, clearFlags);
             }

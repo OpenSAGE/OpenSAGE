@@ -234,6 +234,26 @@ namespace OpenAS2.Base
     public static class Definition
     {
         public const uint IntPtrSize = 4;
+        private static Dictionary<InstructionType, List<RawParamType>> _typeParams;
+        private static Dictionary<InstructionType, int> _typeLength;
+
+        static Definition()
+        {
+            _typeParams = new();
+            _typeLength = new();
+            foreach (var itype in Enum.GetValues(typeof(InstructionType)).Cast<InstructionType>())
+            {
+                try
+                {
+                    _typeParams[itype] = GetParamSequenceInner(itype);
+                    _typeLength[itype] = CalcLengthInner(_typeParams[itype]);
+                }
+                catch (NotImplementedException nie)
+                {
+
+                }
+            }
+        }
 
         public static bool IsAlignmentRequired(InstructionType type)
         {
@@ -265,6 +285,81 @@ namespace OpenAS2.Base
         }
 
         public static List<RawParamType> GetParamSequence(InstructionType type)
+        {
+            return _typeParams.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
+        }
+
+        public static int GetParamLength(InstructionType type)
+        {
+            return _typeLength.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
+        }
+
+        private static int GetTypeLengthInner(RawParamType t)
+        {
+            switch (t)
+            {
+                case RawParamType.UI8:
+                case RawParamType.Jump8:
+                case RawParamType.Boolean:
+                    return 1;
+
+                case RawParamType.UI16:
+                case RawParamType.I16:
+                case RawParamType.Jump16:
+                    return 2;
+
+                case RawParamType.UI24:
+                    return 3;
+
+                case RawParamType.UI32:
+                case RawParamType.I32:
+                case RawParamType.Jump32:
+                case RawParamType.Float:
+                    return 4;
+                
+                case RawParamType.Jump64:
+                case RawParamType.Double:
+                    return 8;
+
+                // pointer size
+                case RawParamType.ArrayBegin:
+                case RawParamType.String:
+                    return 4;
+
+                // marker, no size
+                case RawParamType.ArrayEnd:
+                case RawParamType.ArraySize:
+                case RawParamType.BranchOffset:
+                case RawParamType.Constant:
+                case RawParamType.Register:
+
+                default:
+                    return 0;
+            }
+        }
+
+        private static int CalcLengthInner(List<RawParamType> types)
+        {
+            int ans = 0;
+            bool mark = false;
+            foreach (var t in types)
+            {
+                if (t == RawParamType.ArrayBegin)
+                {
+                    if (mark)
+                        throw new InvalidOperationException();
+                    else
+                        mark = true;
+                }
+                else if (t == RawParamType.ArrayEnd)
+                    mark = false;
+                if (!mark)
+                    ans += GetTypeLengthInner(t);
+            }
+            return ans;
+        }
+
+        private static List<RawParamType> GetParamSequenceInner(InstructionType type)
         {
             var paramSequence = new List<RawParamType>();
 
@@ -381,7 +476,9 @@ namespace OpenAS2.Base
 
                 case InstructionType.SetRegister:
                     paramSequence.Add(RawParamType.UI32);
-                    paramSequence.Add(RawParamType.Register);
+                    // do not cancel this commet
+                    // otherwise the parameter will be parsed as a reference but not a numerical index
+                    // paramSequence.Add(RawParamType.Register);
                     break;
                 case InstructionType.EA_PushLong:
                     paramSequence.Add(RawParamType.UI32);

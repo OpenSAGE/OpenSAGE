@@ -12,12 +12,13 @@ namespace OpenAS2.Base
     public class RawInstruction
     {
         public virtual InstructionType Type { get; internal set; }
-        public List<RawValue> Parameters { get; private set; }
+        public virtual IList<RawValue> Parameters { get; private set; }
 
-        public RawInstruction(InstructionType type, List<RawValue> parameters = null)
+        public RawInstruction(InstructionType type, List<RawValue>? parameters = null, bool reformList = true)
         {
             Type = type;
-            Parameters = parameters;
+            parameters = parameters ?? new();
+            Parameters = (reformList ? new List<RawValue>(parameters) : parameters).AsReadOnly();
         }
 
         public string Serialize()
@@ -37,6 +38,20 @@ namespace OpenAS2.Base
                 pars.Add(RawValue.Deserialize(val));
             return new RawInstruction(p, pars);
         }
+
+        public static RawInstruction CreateEnd() { return new(InstructionType.End, null, false); }
+
+        // judgements
+
+        public bool IsEnd => Type == InstructionType.End;
+
+        public bool IsBranch => Type == InstructionType.BranchIfTrue || Type == InstructionType.EA_BranchIfFalse || Type == InstructionType.BranchAlways;
+        public bool IsBranchAlways => Type == InstructionType.BranchAlways;
+        public bool IsConditionalBranch => Type == InstructionType.BranchIfTrue || Type == InstructionType.EA_BranchIfFalse;
+
+        public bool IsEnumerate => Type == InstructionType.Enumerate || Type == InstructionType.Enumerate2;
+
+        public bool IsDefineFunction => Type == InstructionType.DefineFunction || Type == InstructionType.DefineFunction2;
 
     }
 }
