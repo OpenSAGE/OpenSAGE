@@ -11,9 +11,11 @@ using ValueType = OpenAS2.Runtime.ValueType;
 
 namespace OpenAS2.Compilation
 {
+    using RawInstructionStorage = SortedList<int, RawInstruction>;
+
     public static class InstructionUtils
     {
-        public static List<Value> CreateConstantPool(IList<RawValue> parameters, IList<ConstantEntry> globalPool)
+        public static IList<Value> CreateConstantPool(IList<RawValue> parameters, IList<ConstantEntry> globalPool)
         {
             var pool = new List<Value>();
 
@@ -39,8 +41,9 @@ namespace OpenAS2.Compilation
                 pool.Add(result);
             }
 
-            return pool;
+            return pool.AsReadOnly();
         }
+        /*
         public static Func<Value?, Value?> ParseValueWrapped(StatementCollection s)
         {
             return x => ParseValue(x, s.Constants.ElementAt, x => { var a = s.HasRegisterValue(x, out var b); return (a, b); });
@@ -74,7 +77,7 @@ namespace OpenAS2.Compilation
             }
             return v;
         }
-
+        */
         public static (string, List<string>) GetNameAndArguments(InstructionBase function)
         {
             string name = function.Parameters[0].ToString();
@@ -210,19 +213,22 @@ namespace OpenAS2.Compilation
         }
 
 
+
+
         public static InstructionGraph? Graphify(
-            InstructionCollection? ci, 
+            RawInstructionStorage? ci, 
             List<ConstantEntry>? constSource = null,
-            List<Value>? constPool = null,
             Dictionary<int, string>? regNames = null
             )
         {
             if (ci == null)
                 return null;
 
-            var g = new InstructionGraph(ci, constSource, 0, constPool, regNames);
+            var g = new InstructionGraph(ci, 0, null, regNames);
 
             if (constSource == null) return g;
+
+            g = InstructionGraph.OptimizeGraph(g);
 
             // wtf
             
@@ -230,7 +236,10 @@ namespace OpenAS2.Compilation
 
             var c = StructurizedBlockChain.Parse(g.BaseBlock);
             // TODO constpool & constsource
-            var p = NodePool.ConvertToAST(c, g.ConstPool, g.RegNames);
+
+            // try form const pool
+            var cp = g != null ? CreateConstantPool(g.ConstPool.Parameters, constSource) : new List<Value>();
+            var p = NodePool.ConvertToAST(c, cp, g.RegNames);
 
             // var c = BlockChainifyUtils.Parse(g.BaseBlock);
             // var p = new NodePool(g.ConstPool, g.RegNames);

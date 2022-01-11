@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenAS2.Runtime.Library;
-using OpenAS2.Runtime.Opcodes;
+using OpenAS2.Compilation.Syntax;
 
 namespace OpenAS2.Runtime
 {

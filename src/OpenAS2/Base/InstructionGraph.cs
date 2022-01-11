@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using OpenAS2.Base;
 using OpenAS2.Runtime;
-using Value = OpenAS2.Runtime.Value;
 
 namespace OpenAS2.Base
 {
@@ -67,8 +66,7 @@ namespace OpenAS2.Base
         public InstructionGraph Instructions { get; private set; }
 
         public LogicalFunctionContext(RawInstruction instruction,
-            RawInstructionStorage insts,
-            List<ConstantEntry>? constSource,
+            RawInstructionStorage? insts,
             int indexOffset = 0,
             RawInstruction? constPool = null,
             Dictionary<int, string>? regNames = null) : base(instruction, "", TagType.DefineFunction)
@@ -78,9 +76,17 @@ namespace OpenAS2.Base
                 var flags = (FunctionPreloadFlags) instruction.Parameters[3].Integer;
                 regNames = Preload(flags, instruction.Parameters);
             }
-            Instructions = new InstructionGraph(insts, constSource, indexOffset, constPool, regNames);
+            Instructions = insts != null ? new (insts!, indexOffset, constPool, regNames) : new(new()) ;
             
         }
+
+        public static LogicalFunctionContext OptimizeGraph(LogicalFunctionContext fc)
+        {
+            var ans = new LogicalFunctionContext(fc.Inner, null);
+            ans.Instructions = InstructionGraph.OptimizeGraph(fc.Instructions);
+            return ans;
+        }
+
         public static Dictionary<int, string> Preload(FunctionPreloadFlags flags, IEnumerable<RawValue> parameters)
         {
             int reg = 1;
@@ -138,12 +144,15 @@ namespace OpenAS2.Base
 
         public LogicalTaggedInstruction? BranchCondition { get; set; }
         public InstructionBlock? NextBlockCondition { get; set; }
-        public InstructionBlock? NextBlockDefault { get; private set; }
+        public InstructionBlock? NextBlockDefault { get; private set; } // set automatically in most cases
+        public readonly List<string> Labels;
+
+        // set automatically
 
         public readonly InstructionBlock? PreviousBlock;
         public readonly int Hierarchy;
 
-        public readonly List<string> Labels;
+        // judgements
 
         public bool IsFirstBlock => PreviousBlock == null;
         public bool IsLastBlock => NextBlockDefault == null;
@@ -187,7 +196,7 @@ namespace OpenAS2.Base
 
     public class InstructionGraph
     {
-        public SortedDictionary<int, RawInstruction> Items { get; set; }
+        // public SortedDictionary<int, RawInstruction> Items { get; set; }
         public InstructionBlock BaseBlock { get; set; }
         public RawInstructionStorage Insts { get; private set; }
         public int IndexOffset;
@@ -196,8 +205,17 @@ namespace OpenAS2.Base
 
         // public
 
+        // used to copy graphs
+        public InstructionGraph(InstructionGraph g, InstructionBlock b)
+        {
+            BaseBlock = b;
+            Insts = g.Insts;
+            IndexOffset = g.IndexOffset;
+            ConstPool = g.ConstPool;
+            RegNames = g.RegNames;
+        }
+
         public InstructionGraph(RawInstructionStorage insts,
-            List<ConstantEntry>? constSource = null,
             int indexOffset = 0,
             RawInstruction? constPool = null,
             Dictionary<int, string>? regNames = null)
@@ -213,7 +231,7 @@ namespace OpenAS2.Base
 
             // sub graphs & mark items
 
-            Items = new();
+            SortedDictionary<int, RawInstruction> tempItems = new();
             var mapBranchTagToIndex = new Dictionary<string, int>(); // position: label
             var labelCount = 0;
             while (!stream.IsFinished())
@@ -224,7 +242,7 @@ namespace OpenAS2.Base
 
                 // create the constant pool
                 // TODO what if multiple pools are created (especially not in the main path)?
-                if (instType == InstructionType.ConstantPool && constSource != null)
+                if (instType == InstructionType.ConstantPool)
                 {
                     ConstPool = instruction;
                 }
@@ -239,7 +257,7 @@ namespace OpenAS2.Base
                         instruction.Parameters[4 + nParams * 2].Integer;
 
                     var codes = stream.GetInstructions(size, true, true);
-                    instruction = new LogicalFunctionContext(instruction, codes, constSource, IndexOffset + index + 1, ConstPool, RegNames);
+                    instruction = new LogicalFunctionContext(instruction, codes, IndexOffset + index + 1, ConstPool, RegNames);
                     ((LogicalFunctionContext) instruction).Instructions.ConstPool = ConstPool;
                 }
 
@@ -262,15 +280,15 @@ namespace OpenAS2.Base
                     instruction = new LogicalTaggedInstruction(instruction, "goto " + tag, TagType.GotoLabel) { Label = tag };
                 }
 
-                Items.Add(index, instruction);
+                tempItems.Add(index, instruction);
             }
             // branch destination tag
             foreach (var kvp in mapBranchTagToIndex)
             {
-                var instOrig = Items[kvp.Value];
+                var instOrig = tempItems[kvp.Value];
                 if (instOrig is LogicalTaggedInstruction inst && inst.TagType == TagType.Label)
                     throw new InvalidOperationException();
-                Items[kvp.Value] = new LogicalTaggedInstruction(instOrig, kvp.Key, TagType.Label) { Label = kvp.Key };
+                tempItems[kvp.Value] = new LogicalTaggedInstruction(instOrig, kvp.Key, TagType.Label) { Label = kvp.Key };
             }
 
             // block division
@@ -279,7 +297,7 @@ namespace OpenAS2.Base
             var currentBlock = BaseBlock;
 
             // first iter: maintain BranchCondition & NextBlockDefault
-            foreach (var kvp in Items)
+            foreach (var kvp in tempItems)
             {
                 var pos = kvp.Key;
                 var inst = kvp.Value;
@@ -345,6 +363,93 @@ namespace OpenAS2.Base
                 currentBlock = currentBlock.NextBlockDefault;
             }
 
+        }
+
+        /// <summary>
+        /// replace all blocks with no meaningful operations inside it
+        /// strip all labels and tags
+        /// </summary>
+        /// <param name="g"></param>
+        /// <returns></returns>
+        public static InstructionGraph OptimizeGraph(InstructionGraph g, bool optimizeSubGraphs = false, bool stripTags = false)
+        {
+            Dictionary<InstructionBlock, bool> empty = new();
+            Dictionary<InstructionBlock, (InstructionBlock?, InstructionBlock?)> jump = new();
+            Dictionary<InstructionBlock, InstructionBlock> map = new();
+
+            // init dicts
+            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
+            {
+                // judge empty
+                var flagEmpty = true;
+                foreach (var (pos, inst) in b.Items)
+                {
+                    var it = inst.Type;
+                    flagEmpty = flagEmpty && (it == InstructionType.End || it == InstructionType.Padding || (
+                            it == InstructionType.BranchAlways && b.NextBlockCondition == b.NextBlockDefault
+                        ));
+                }
+                empty[b] = flagEmpty;
+
+                // store jump
+                jump[b] = (b.NextBlockDefault, b.NextBlockCondition);
+
+                // init map dict
+                map[b] = b;
+            }
+
+            // fix map array
+            foreach (var (b, e) in empty)
+            {
+                if (!e) continue;
+                var bo = b;
+                while (bo.NextBlockDefault != null && empty[bo])
+                    bo = bo.NextBlockDefault;
+                map[b] = bo;
+            }
+
+            // create main block chain
+            InstructionBlock? prev = null;
+            Dictionary<InstructionBlock, InstructionBlock> newBlocks = new();
+            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
+            {
+                var bm = map[b];
+                if (newBlocks.TryGetValue(bm, out var nbm))
+                {
+                    prev = nbm;
+                    nbm.Labels.AddRange(b.Labels);
+                    continue;
+                }
+                var nb = new InstructionBlock(prev);
+                nb.BranchCondition = bm.BranchCondition;
+                nb.Labels.AddRange(b.Labels);
+                foreach (var (pos, inst) in bm.Items)
+                {
+                    if (inst is LogicalTaggedInstruction lti)
+                        if (lti is LogicalFunctionContext lfc)
+                            if (optimizeSubGraphs)
+                                nb.Items.Add(pos, LogicalFunctionContext.OptimizeGraph(lfc));
+                            else
+                                nb.Items.Add(pos, lfc); // TODO strip
+                        else if (!(inst.Type == InstructionType.End || inst.Type == InstructionType.Padding))
+                            nb.Items.Add(pos, stripTags ? lti.MostInner : lti);
+                    else
+                        nb.Items.Add(pos, inst);
+                }
+                newBlocks[bm] = nb;
+                prev = nb;
+            }
+
+            // fix branches
+            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
+            {
+                var nb = newBlocks[map[b]];
+                var (bd, bc) = jump[b];
+                var nbc = bc == null ? null : newBlocks[map[bc]];
+                nb.NextBlockCondition = nbc;
+            }
+
+            return new(g, newBlocks[map[g.BaseBlock]]);
         }
 
     }

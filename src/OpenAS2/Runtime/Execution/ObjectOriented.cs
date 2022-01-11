@@ -113,7 +113,7 @@ namespace OpenAS2.Runtime.Execution
             }
         }
 
-        public static OPR2 GetMember = (member, vobj) =>
+        public static readonly OPR2 GetMember = (member, vobj) =>
         {
             var obj = vobj.ToObject();
             // arrays stay the same
