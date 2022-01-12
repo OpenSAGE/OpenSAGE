@@ -12,7 +12,7 @@ namespace OpenAS2.Compilation.Syntax
 {
     public static class General
     {
-        public static bool ExecuteBinInput(NodePool np, RawInstruction inst)
+        public static bool ExecuteBinInput(SyntaxNodePool np, RawInstruction inst)
         {
             var a = np.PopExpression();
             var b = np.PopExpression();
@@ -92,7 +92,7 @@ namespace OpenAS2.Compilation.Syntax
             return true;
         }
 
-        public static bool ExecuteUnInput(NodePool np, RawInstruction inst)
+        public static bool ExecuteUnInput(SyntaxNodePool np, RawInstruction inst)
         {
             var a = np.PopExpression();
             SNExpression res = null;
@@ -165,7 +165,7 @@ namespace OpenAS2.Compilation.Syntax
             return true;
         }
 
-        public static bool ExecuteStackRegOpr(NodePool np, RawInstruction inst)
+        public static bool ExecuteStackRegOpr(SyntaxNodePool np, RawInstruction inst)
         {
             switch (inst.Type)
             {
@@ -229,7 +229,7 @@ namespace OpenAS2.Compilation.Syntax
             return true;
         }
 
-        public static bool Parse(NodePool np, RawInstruction inst)
+        public static bool Parse(SyntaxNodePool np, RawInstruction inst)
         {
             switch (inst.Type)
             {

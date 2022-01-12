@@ -19,9 +19,12 @@ namespace OpenAS2.Compilation
         public Dictionary<string, Value?> NodeNames { get; }
         public Dictionary<Value, string> NodeNames2 { get; }
 
-        private StatementCollection? _parent;
+        public StatementCollection? _parent { get; private set; }
+        public StringBuilder? _currentBuilder { get; private set; }
+        public int _currentIndent { get; private set; }
+        public int _dIndent { get; private set; }
 
-        public StatementCollection(NodePool pool)
+        public StatementCollection(SyntaxNodePool pool)
         {
             Nodes = pool.PopNodes();
             Constants = pool.Constants;
@@ -31,7 +34,12 @@ namespace OpenAS2.Compilation
             NodeNames2 = new();
             foreach (var (reg, rname) in RegNames)
                 NodeNames[rname] = null; // don't care overwriting
+
             _parent = null;
+            _currentBuilder = null;
+            _currentIndent = 0;
+            _dIndent = 4;
+
         }
 
         // nomination
@@ -89,101 +97,73 @@ namespace OpenAS2.Compilation
 
         public bool IsEmpty() { return Nodes.Count() == 0; } // TODO optimization may be needed
 
+
+        private void CompileInner(bool compileSubcollections)
+        {
+            var sb = _currentBuilder!;
+            var curIndent = _currentIndent;
+            var dIndent = _dIndent;
+            var indentStr = "".ToStringWithIndent(curIndent);
+            foreach (var node in Nodes)
+            {
+                sb.Append(indentStr);
+                var flag = node.TryCompose(this, sb);
+                if (flag)
+                    sb.Append(';');
+
+
+                var labels = InstructionUtils.FormLabels(node.Labels);
+                if (!string.IsNullOrWhiteSpace(labels))
+                {
+                    sb.Append(" // ");
+                    sb.Append(labels);
+                }
+                
+                sb.Append("\n");
+
+            }
+        }
+
         // compilation
         public StringBuilder Compile(StringBuilder? sb = null,
             int startIndent = 0,
             int dIndent = 4,
             bool compileSubCollections = true,
-            bool ignoreLastBranch = false,
             StatementCollection? parent = null)
         {
             sb = sb == null ? new() : sb;
-            var curIndent = startIndent;
+            var osb = _currentBuilder;
+            var oci = _currentIndent;
+            var odi = _dIndent;
+            var opr = _parent;
 
-            var p = _parent;
-            if (parent != null)
-                _parent = parent;
+            _currentBuilder = sb;
+            _currentIndent = startIndent;
+            _dIndent = dIndent;
+            _parent = parent;
 
-            foreach (var node in Nodes)
-            {
-                if (node == null)
-                    sb.Append("// null node\n".ToStringWithIndent(curIndent));
-                else
-                {
-                    // TODO CSC
-                    if (node is NodeControl nc && compileSubCollections)
-                    {
-                        nc.TryCompile2(this, sb, curIndent, dIndent, compileSubCollections);
-                        continue;
-                    }
-                    node.TryCompose(this, !ignoreLastBranch || node != Nodes.Last());
-                    if (node.Code == null)
-                        sb.Append("// no compiling result\n".ToStringWithIndent(curIndent));
-                    else
-                    {
-                        var code = node.Code.AddLabels(node.Labels);
-                        if (node is SNExpression)
-                        {
-                            if (node.Instruction.Type == InstructionType.PushData || node.Instruction.Type.ToString().StartsWith("EA_Push"))
-                                code = $"// __push__({code})@";
-                        }
-                        if (string.IsNullOrWhiteSpace(code))
-                            continue;
-                        code = code.Replace("@; //", ", ");
-                        if (code.EndsWith("@"))
-                            sb.Append(code.Substring(0, code.Length - 1).ToStringWithIndent(curIndent));
-                        else
-                        {
-                            sb.Append(code.ToStringWithIndent(curIndent));
-                            sb.Append(";");
-                        }
-                        sb.Append("\n");
-                    }
-                }
-            }
+            CompileInner(compileSubCollections);
 
-            _parent = p;
+            _currentBuilder = osb;
+            _currentIndent = oci;
+            _dIndent = odi;
+            _parent = opr;
+
             return sb;
         }
 
-        public string GetExpression(Value v)
+        public void CallSubCollection(StatementCollection sub, StringBuilder? sb = null, string? prefix = null, string? suffix = null)
         {
-            var ret = string.Empty;
-            if (v.Type == ValueType.Constant)
-                if (Constants != null && v.ToInteger() >= 0 && v.ToInteger() < Constants.Count())
-                {
-                    v = Constants.ElementAt(v.ToInteger());
-                }
-                else
-                {
-                    ret = $"__const__[{v.ToInteger()}]";
-                }
-
-            if (v.Type == ValueType.Register)
-                if (HasRegisterName(v.ToInteger(), out var reg, out var _))
-                {
-                    ret = reg;
-                }
-                else
-                {
-                    ret = $"__reg__[{v.ToInteger()}]";
-                }
-
-            if (string.IsNullOrEmpty(ret))
-            {
-                if (NodeNames2.TryGetValue(v, out var ret2))
-                    ret = ret2;
-                else
-                    ret = v.ToString();
-            }
-
-            return ret;
+            sb = sb ?? _currentBuilder!;
+            sb.Append(("{" + prefix ?? string.Empty + '\n').ToStringWithIndent(_currentIndent));
+            sub.Compile(sb, _currentIndent + _dIndent, _dIndent, true, this);
+            sb.Append(("}" + suffix ?? string.Empty + '\n').ToStringWithIndent(_currentIndent));
         }
 
     }
 
     // AST
-    public class NodePool
+    public class SyntaxNodePool
     {
         /*
          * This class is used to change StructurizedBlockChain's to some structure
@@ -220,13 +200,13 @@ namespace OpenAS2.Compilation
 
 
         // brand new pool
-        public NodePool(IList<ConstantEntry> globalPool, IDictionary<int, string>? regNames = null)
+        public SyntaxNodePool(IList<ConstantEntry> globalPool, IDictionary<int, string>? regNames = null)
         {
             GlobalPool = globalPool;
             _labels = new();
             NodeList = new();
             Constants = new List<Value>();
-            
+
             if (regNames != null)
                 RegNames = new(regNames);
             else
@@ -238,7 +218,7 @@ namespace OpenAS2.Compilation
         }
 
         // subpool of function
-        public NodePool(LogicalFunctionContext defFunc, NodePool parent, IList<Value>? consts = null)
+        public SyntaxNodePool(LogicalFunctionContext defFunc, SyntaxNodePool parent, IList<Value>? consts = null)
         {
             GlobalPool = parent.GlobalPool;
             NodeList = new();
@@ -259,7 +239,7 @@ namespace OpenAS2.Compilation
         }
 
         // subpool of control
-        public NodePool(NodePool parent, IList<Value>? consts = null)
+        public SyntaxNodePool(SyntaxNodePool parent, IList<Value>? consts = null)
         {
             GlobalPool = parent.GlobalPool;
             _labels = new();
@@ -278,7 +258,7 @@ namespace OpenAS2.Compilation
                 RegNames = new();
                 RegValues = new();
             }
-            
+
         }
 
         public SNExpression PopExpression(bool deleteIfPossible = true)
@@ -312,7 +292,7 @@ namespace OpenAS2.Compilation
         }
         public SNArray PopArray(bool readPair = false, bool ensureCount = true) // TODO remove ensurecount?
         {
-            
+
             List<SNExpression?> expressions = new();
             var nexp = PopExpression();
             var count = 0;
@@ -345,7 +325,7 @@ namespace OpenAS2.Compilation
             return NodeList.Skip(ParentNodeDivision).Where(x => !_special.ContainsKey(x));
         }
 
-        public static IEnumerable<SNStatement> GatherNodes(NodePool np1, NodePool np2)
+        public static IEnumerable<SNStatement> GatherNodes(SyntaxNodePool np1, SyntaxNodePool np2)
         {
             var ans = new List<SNStatement>();
             throw new NotImplementedException();
@@ -381,17 +361,20 @@ namespace OpenAS2.Compilation
         {
             if (inst is LogicalTaggedInstruction ltag)
                 _labels.AddRange(ltag.GetLabels());
+
             if (inst is LogicalFunctionContext fc)
             {
-                var subpool = new NodePool(fc, this);
+                var subpool = new SyntaxNodePool(fc, this);
                 if (chain.ChainRecord.TryGetValue(fc, out var cfc))
                     subpool.PushChain(cfc);
                 else
                     throw new InvalidOperationException();
                 StatementCollection sc = new(subpool);
-                var n = new NodeDefineFunction(fc, sc);
+                var (name, _) = InstructionUtils.GetNameAndArguments(fc);
+                SyntaxNode n = string.IsNullOrWhiteSpace(name) ? new SNFunctionBody(fc, sc) : new NodeDefineFunction(fc, sc);
+                PushNode(n);
             }
-            
+
             else
             {
                 var flag =
@@ -447,11 +430,11 @@ namespace OpenAS2.Compilation
                 }
 
                 // create node expression
-                NodePool sub1 = new(this);
-                NodePool sub2 = new(this);
+                SyntaxNodePool sub1 = new(this);
+                SyntaxNodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[1]);
                 sub2.PushChain(chain.AdditionalData[2]);
-                NodeCase n = new(bexp as SNExpression, new(sub1), new(sub2));
+                SNControlCase n = new(bexp as SNExpression, new(sub1), new(sub2));
                 PushNode(n);
                 // add expressions inside the loop
                 // TODO more judgements
@@ -475,11 +458,11 @@ namespace OpenAS2.Compilation
                 }
                 // create node expression
                 // this one needs more than condition!!!
-                NodePool sub1 = new(this);
-                NodePool sub2 = new(this);
+                SyntaxNodePool sub1 = new(this);
+                SyntaxNodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[0]);
                 sub2.PushChain(chain.AdditionalData[1]);
-                NodeLoop n = new(bexp as SNExpression, new(sub1), new(sub2));
+                SNControlLoop n = new(bexp as SNExpression, new(sub1), new(sub2));
                 PushNode(n);
                 // add expressions inside the loop?
                 foreach (var ns2 in sub2.PopNodes())
@@ -504,9 +487,9 @@ namespace OpenAS2.Compilation
                 PushChainRaw(chain, false);
         }
 
-        public static NodePool ConvertToAST(StructurizedBlockChain chain, IList<ConstantEntry>? constants, IDictionary<int, string>? regNames)
+        public static SyntaxNodePool ConvertToAST(StructurizedBlockChain chain, IList<ConstantEntry>? constants, IDictionary<int, string>? regNames)
         {
-            NodePool pool = new(constants ?? new List<ConstantEntry>().AsReadOnly(), regNames);
+            SyntaxNodePool pool = new(constants ?? new List<ConstantEntry>().AsReadOnly(), regNames);
             pool.PushChain(chain);
             return pool;
         }

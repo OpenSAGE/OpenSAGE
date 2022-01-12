@@ -19,12 +19,12 @@ namespace OpenAS2.Compilation.Syntax
     public static class ObjectOriented
     {
 
-        static void ExecUnaryOprOnStack(this NodePool np, OPR1 opr)
+        static void ExecUnaryOprOnStack(this SyntaxNodePool np, OPR1 opr)
         {
             np.PushNode(opr(np.PopExpression()));
         }
 
-        static void ExecBinaryOprOnStack(this NodePool np, OPR2 opr)
+        static void ExecBinaryOprOnStack(this SyntaxNodePool np, OPR2 opr)
         {
             var a = np.PopExpression();
             var b = np.PopExpression();
@@ -35,7 +35,7 @@ namespace OpenAS2.Compilation.Syntax
         static readonly OPR2 CastOp = (objv, cstv) => OprUtils.Cast(objv, cstv);
         static readonly OPR2 InstanceOf = (a, b) => OprUtils.InstanceOf(b, a);
 
-        static void DoExtends(NodePool np) // this should work
+        static void DoExtends(SyntaxNodePool np) // this should work
         {
             var sup = np.PopExpression();
             var cls = np.PopExpression();
@@ -44,7 +44,7 @@ namespace OpenAS2.Compilation.Syntax
         
 
         // all sorts of null check...
-        public static void DoNewMethod(NodePool np)
+        public static void DoNewMethod(SyntaxNodePool np)
         {
             var nameVal = np.PopExpression();
             var obj = np.PopExpression();
@@ -53,7 +53,7 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
-        public static void DoNewObject(NodePool np)
+        public static void DoNewObject(SyntaxNodePool np)
         {
             var name = np.PopExpression();
             var args = np.PopArray();
@@ -61,39 +61,39 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
-        public static void DoInitObject(NodePool np)
+        public static void DoInitObject(SyntaxNodePool np)
         {
             var args = np.PopArray(readPair: true);
             var ret = OprUtils.New(new SNNominator("Object"), args);
             np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
-        public static void DoInitArray(NodePool np)
+        public static void DoInitArray(SyntaxNodePool np)
         {
             var ret = np.PopArray();
             np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
 
-        public static void DoDefineLocal(NodePool np)
+        public static void DoDefineLocal(SyntaxNodePool np)
         {
             var value = np.PopExpression();
             var varName = np.PopExpression();
             np.PushNode(new SNValAssign(varName, value, true));
         }
-        public static void DoDefineLocal2(NodePool np)
+        public static void DoDefineLocal2(SyntaxNodePool np)
         {
             var varName = np.PopExpression();
             np.PushNode(new SNValAssign(varName, new SNLiteralUndefined(), true));
         }
-        public static void DoDelete2(NodePool np)
+        public static void DoDelete2(SyntaxNodePool np)
         {
             np.PushNode(new SNKeyWord("delete", SNNominator.Check(np.PopExpression())));
         }
 
         public static readonly OPR2 GetMember = (member, vobj) => new SNMemberAccess(new SNCheckTarget(SNNominator.Check(vobj)), member);
 
-        public static void DoSetMember(NodePool np)
+        public static void DoSetMember(SyntaxNodePool np)
         {
             //pop the value
             var valueVal = np.PopExpression();
@@ -104,36 +104,36 @@ namespace OpenAS2.Compilation.Syntax
 
             np.PushNode(new SNValAssign(new SNMemberAccess(SNNominator.Check(obj), memberName), valueVal));
         }
-        public static void DoDelete(NodePool np)
+        public static void DoDelete(SyntaxNodePool np)
         {
             var property = np.PopExpression();
             var target = np.PopExpression();// TODO wtf? np.GetTarget(np.PopExpression().ToString());
             np.PushNode(new SNKeyWord("delete", new SNMemberAccess(new SNCheckTarget(SNNominator.Check(target)), property)));
         }
 
-        public static void DoCallFunction(NodePool np)
+        public static void DoCallFunction(SyntaxNodePool np)
         {
             var funcName = SNNominator.Check(np.PopExpression());
             var args = np.PopArray();
             np.PushNode(OprUtils.FunctionCall(funcName, args));
 
         }
-        public static void DoCallMethod(NodePool np)
+        public static void DoCallMethod(SyntaxNodePool np)
         {
             var funcName = np.PopExpression();
             var funcBody = np.PopExpression();
             var args = np.PopArray();
             np.PushNode(OprUtils.FunctionCall(new SNMemberAccess(SNNominator.Check(funcName), funcBody), args));
         }
-        public static void DoGetNamedMember(NodePool np, int cid)
+        public static void DoGetNamedMember(SyntaxNodePool np, int cid)
         {
             np.PushNodeConstant(cid, member => new SNMemberAccess(SNNominator.Check(np.PopExpression()), member));
         }
-        public static void DoCallNamedFunc(NodePool np, int cid)
+        public static void DoCallNamedFunc(SyntaxNodePool np, int cid)
         {
             np.PushNodeConstant(cid, fname => OprUtils.FunctionCall(SNNominator.Check(fname), np.PopArray()));
         }
-        public static void DoCallNamedMethod(NodePool np, int cid, bool pop = false)
+        public static void DoCallNamedMethod(SyntaxNodePool np, int cid, bool pop = false)
         {
             np.PushNodeConstant(cid, fname => {
                 var obj = SNNominator.Check(np.PopExpression());
@@ -152,11 +152,11 @@ namespace OpenAS2.Compilation.Syntax
             
         }
 
-        public static void DoGetStringVar(NodePool np, RawInstruction inst)
+        public static void DoGetStringVar(SyntaxNodePool np, RawInstruction inst)
         {
             np.PushNode(new SNNominator(inst.Parameters[0].String));
         }
-        public static void DoGetStringMember(NodePool np, RawInstruction inst)
+        public static void DoGetStringMember(SyntaxNodePool np, RawInstruction inst)
         {
             // pop member name???
             var memberName = new SNNominator(inst.Parameters[0].String);
@@ -166,7 +166,7 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(valueVal);
         }
 
-        public static bool Parse(NodePool np, RawInstruction inst)
+        public static bool Parse(SyntaxNodePool np, RawInstruction inst)
         {
             switch (inst.Type)
             {

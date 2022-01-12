@@ -106,12 +106,9 @@ namespace OpenAS2.Compilation
             return s.ToString();
         }
 
-        public static string AddLabels(this string s, IEnumerable<string> l)
+        public static string FormLabels(IEnumerable<string> l)
         {
-            if (l.Count() == 0)
-                return s;
-            var s1 = string.IsNullOrWhiteSpace(s) ? string.Empty : s + "; ";
-            return $"{s1}// {string.Join(", ", l.ToArray())}@";
+            return string.Join(", ", l.ToArray());
         }
 
         public static string ReverseCondition(string s)
@@ -238,7 +235,7 @@ namespace OpenAS2.Compilation
             // TODO constpool & constsource
 
             // try form const pool
-            var p = NodePool.ConvertToAST(c, constSource, g.RegNames);
+            var p = SyntaxNodePool.ConvertToAST(c, constSource, g.RegNames);
 
             // var c = BlockChainifyUtils.Parse(g.BaseBlock);
             // var p = new NodePool(g.ConstPool, g.RegNames);

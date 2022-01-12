@@ -10,7 +10,7 @@ namespace OpenAS2.Compilation.Syntax
 {
     public static class Control
     {
-        public static bool Parse(NodePool np, RawInstruction inst)
+        public static bool Parse(SyntaxNodePool np, RawInstruction inst)
         {
             switch (inst.Type)
             {

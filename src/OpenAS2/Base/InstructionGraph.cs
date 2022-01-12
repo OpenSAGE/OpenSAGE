@@ -48,7 +48,7 @@ namespace OpenAS2.Base
         {
             var ans = new List<string>();
             for (RawInstruction it = this; it != null && it is LogicalTaggedInstruction itl; it = itl.Inner)
-                if (itl.TagType == TagType.Label && !string.IsNullOrEmpty(itl.Label))
+                if (itl.TagType == TagType.Label && !string.IsNullOrWhiteSpace(itl.Label))
                     ans.Add(itl.Label);
             return ans;
         }

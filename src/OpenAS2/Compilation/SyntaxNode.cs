@@ -24,9 +24,16 @@ namespace OpenAS2.Compilation
 
         public abstract string TryComposeRaw(StatementCollection sta);
 
-        public virtual string TryCompose(StatementCollection sta, bool compileBranches = false)
+        /// <summary>
+        /// do not need to process indent, labels etc.
+        /// return if ; is necessary
+        /// </summary>
+        /// <param name="sta"></param>
+        /// <param name="sb"></param>
+        public virtual bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            return TryComposeRaw(sta);
+            sb.Append(TryComposeRaw(sta));
+            return true;
         }
         
     }
@@ -43,15 +50,21 @@ namespace OpenAS2.Compilation
 
         public override abstract string TryComposeRaw(StatementCollection sta);
 
-        public override string TryCompose(StatementCollection sta, bool branch) { return TryCompose(sta, 24); }
-        public virtual string TryCompose(StatementCollection sta, int targetPrec = 24)
+        public virtual string TryComposeWithPrecendence(StatementCollection sta, int targetPrec = 24)
         {
-            var s = TryCompose(sta);
+            var s = TryComposeWithPrecendence(sta);
             if (targetPrec > LowestPrecendence)
             {
                 s = $"({s})";
             }
             return s;
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            var s = TryComposeWithPrecendence(sta, 24);
+            sb.Append(s);
+            return true;
         }
     }
 
@@ -68,11 +81,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"[[enumerate node: {Node.TryCompose(sta, false)}]]";
-        }
-        public override string TryCompose(StatementCollection sta, bool branch = false)
-        {
-            return $"[[enumerate node: {Node.TryCompose(sta, branch)}]]";
+            return $"[[enumerate node: {Node.TryComposeRaw(sta)}]]";
         }
     }
 
@@ -107,7 +116,7 @@ namespace OpenAS2.Compilation
             }
         }
 
-        public string GetRawString() { return Value.String; }
+        public string GetRawString() { return Value != null ? Value.String : string.Empty; }
         
     }
 
@@ -160,24 +169,33 @@ namespace OpenAS2.Compilation
         // TODO use sta
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var vals = new string[Expressions.Count];
+            StringBuilder sb = new();
+            TryCompose(sta, sb);
+            return sb.ToString();
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
             for (int i = 0; i < Expressions.Count; ++i)
             {
                 var node = Expressions[i];
                 if (node is SNLiteralUndefined)
                 {
-                    vals[i] = $"__args__[{i}]";
+                    sb.Append($"__args__[{i}]");
                 }
                 else
                 {
-                    vals[i] = node.TryCompose(sta);
-                    if (node is SNArray)
-                    {
-                        vals[i] = $"[{vals[i]}]";
-                    }
+                    var flag = node is SNArray;
+                    if (flag)
+                        sb.Append('[');
+                    node.TryCompose(sta, sb);
+                    if (flag)
+                        sb.Append(']');
                 }
+                if (i != Expressions.Count - 1)
+                    sb.Append(", ");
             }
-            return string.Join(", ", vals);
+            return true;
         }
     }
 
@@ -215,7 +233,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"{_c.TryCompose(sta, LowestPrecendence)} ? {_t.TryCompose(sta, LowestPrecendence)} : {_f.TryCompose(sta, LowestPrecendence)}"; 
+            return $"{_c.TryComposeWithPrecendence(sta, LowestPrecendence)} ? {_t.TryComposeWithPrecendence(sta, LowestPrecendence)} : {_f.TryComposeWithPrecendence(sta, LowestPrecendence)}"; 
         }
     }
 
@@ -233,8 +251,8 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = _e1.TryCompose(sta, LowestPrecendence);
-            var s2 = _e2.TryCompose(sta, LowestPrecendence);
+            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s2 = _e2.TryComposeWithPrecendence(sta, LowestPrecendence);
             return string.Format(_pattern, s1, s2);
         }
     }
@@ -252,7 +270,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = _e1.TryCompose(sta, LowestPrecendence);
+            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
             return string.Format(_pattern, s1);
         }
     }
@@ -268,7 +286,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s = _e1.TryCompose(sta, LowestPrecendence);
+            var s = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
             if (s.StartsWith('/'))
                 s = $"getTarget({s})";
             return s;
@@ -283,8 +301,8 @@ namespace OpenAS2.Compilation
         public override string TryComposeRaw(StatementCollection sta)
         {
             var flag = _e2 is SNLiteral e2l && e2l.IsStringLiteral;
-            var s1 = _e1.TryCompose(sta, LowestPrecendence);
-            var s2 = flag ? ((SNLiteral) _e2).GetRawString() : _e2.TryCompose(sta, LowestPrecendence);
+            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s2 = flag ? ((SNLiteral) _e2).GetRawString() : _e2.TryComposeWithPrecendence(sta, LowestPrecendence);
             var flag2 = string.IsNullOrEmpty(s1) || s1 == "undefined";
             if (flag2) {
                 return flag ? s2 : $"this[{s2}]";
@@ -371,62 +389,23 @@ namespace OpenAS2.Compilation
 
     }
 
-
-    public class NodeStatementBody : SNStatement
-    {
-        public StatementCollection Body;
-        public static readonly string NoIndentMark = "/*@([{@%@)]}@*/";
-        public NodeStatementBody(InstructionBase inst, StatementCollection body) : base(inst)
-        {
-            Body = body;
-        }
-
-        public override bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
-        {
-            ret = _v;
-            return true;
-        }
-        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
-        {
-            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
-            var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
-            sb.Append(head.ToStringWithIndent(indent));
-            sb.Append("{\n".ToStringWithIndent(indent));
-            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-            sb.Append("}\n".ToStringWithIndent(indent));
-        }
-        public override void TryCompose(StatementCollection sta, bool compileBranches = false)
-        {
-            StringBuilder sb = new();
-            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
-            var head = $"function({string.Join(", ", args.ToArray())})\n";
-            // sb.Append(NoIndentMark);
-            sb.Append(head);
-            // sb.Append(NoIndentMark);
-            sb.Append("{\n");
-            Body.Compile(sb, 1, 1, true, false);
-            // sb.Append(NoIndentMark);
-            sb.Append("}");
-            Code = sb.ToString();
-        }
-    }
-
-
     public abstract class SNStatement : SyntaxNode
     {
         public SNStatement() : base() { }
-        public override string TryCompose(StatementCollection sta, bool compileBranches = false) { return base.TryCompose(sta, compileBranches); }
     }
 
     public class SNToStatement : SNStatement
     {
         public SNExpression Exp { get; }
         public SNToStatement(SNExpression exp) { Exp = exp; }
-        public override string TryCompose(StatementCollection sta, bool compileBranches = false) { return Exp.TryCompose(sta); }
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            return Exp.TryCompose(sta, sb);
+        }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            throw new NotImplementedException();
+            return Exp.TryComposeRaw(sta);
         }
     }
 
@@ -458,7 +437,15 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"{_e1.TryCompose(sta)} = {_e2.TryCompose(sta)}";
+            return $"{_e1.TryComposeRaw(sta)} = {_e2.TryComposeRaw(sta)}";
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            _e1.TryCompose(sta, sb);
+            sb.Append(" = ");
+            _e2.TryCompose(sta, sb);
+            return true;
         }
     }
 
@@ -475,7 +462,14 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return Keyword + " " + Node.TryCompose(sta);
+            return Keyword + " " + Node.TryComposeWithPrecendence(sta);
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            sb.Append(Keyword + " ");
+            Node.TryCompose(sta, sb);
+            return true;
         }
 
     }
@@ -491,7 +485,12 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            throw new InvalidOperationException();
         }
 
     }
@@ -501,43 +500,76 @@ namespace OpenAS2.Compilation
     {
 
         public NodeControl() : base() { }
+        public override string TryComposeRaw(StatementCollection sta)
+        {
+            StringBuilder sb = new();
+            TryCompose(sta, sb);
+            return sb.ToString();
+        }
 
-        public override void TryCompose(StatementCollection sta, bool compileBranches = false) { base.TryCompose(sta, compileBranches); }
-
-        public abstract void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true);
     }
 
     public class NodeDefineFunction : NodeControl
     {
         public StatementCollection Body;
         public RawInstruction Instruction { get; }
+        private readonly (string, List<string>) _info;
         public NodeDefineFunction(RawInstruction inst, StatementCollection body) : base()
         {
             Body = body;
             Instruction = inst;
+            _info = InstructionUtils.GetNameAndArguments(Instruction);
         }
-
-        public override void TryCompose(StatementCollection sta, bool compileBranches = false) { throw new NotImplementedException(); }
-
-        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
+            var (name, args) = _info;
             var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
-            sb.Append(head.ToStringWithIndent(indent));
-            sb.Append("{\n".ToStringWithIndent(indent));
-            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-            sb.Append("}\n".ToStringWithIndent(indent));
+            sb.Append(head);
+            sta.CallSubCollection(Body, sb);
+            return false;
         }
+
+
     }
 
-    public class NodeCase: NodeControl
+    public class SNFunctionBody : SNExpression
+    {
+        public StatementCollection Body;
+        public RawInstruction Instruction { get; }
+        private readonly (string, List<string>) _info;
+        public SNFunctionBody(RawInstruction inst, StatementCollection body) : base()
+        {
+            Body = body;
+            Instruction = inst;
+            _info = InstructionUtils.GetNameAndArguments(Instruction);
+        }
+        public override string TryComposeRaw(StatementCollection sta)
+        {
+            StringBuilder sb = new();
+            TryCompose(sta, sb);
+            return sb.ToString();
+        }
+
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
+        {
+            var (_, args) = _info;
+            var head = $"function({string.Join(", ", args.ToArray())})\n";
+            sb.Append(head);
+            sta.CallSubCollection(Body, sb);
+            return false;
+        }
+
+    }
+
+    public class SNControlCase: NodeControl
     {
 
         public SNExpression? Condition;
         public StatementCollection Unbranch;
         public StatementCollection Branch;
 
-        public NodeCase(
+        public SNControlCase(
             SNExpression? condition,
             StatementCollection unbranch, 
             StatementCollection branch
@@ -548,7 +580,7 @@ namespace OpenAS2.Compilation
             Branch = branch;
         }
 
-        public static bool IsElseIfBranch(StatementCollection sta, out NodeCase? c)
+        public static bool IsElseIfBranch(StatementCollection sta, out SNControlCase? c)
         {
             var ret = false;
             c = null;
@@ -556,9 +588,9 @@ namespace OpenAS2.Compilation
                 return ret;
             else if (sta.Nodes.Count() == 1)
             {
-                ret = sta.Nodes.ElementAt(0) is NodeCase;
+                ret = sta.Nodes.ElementAt(0) is SNControlCase;
                 if (ret)
-                    c = (NodeCase) sta.Nodes.ElementAt(0);
+                    c = (SNControlCase) sta.Nodes.ElementAt(0);
             }
             else
             {
@@ -566,9 +598,9 @@ namespace OpenAS2.Compilation
                 var noncases = 0;
                 foreach (var n in sta.Nodes)
                 {
-                    if (n is NodeCase)
+                    if (n is SNControlCase)
                     {
-                        c = (NodeCase) n;
+                        c = (SNControlCase) n;
                         ++cases;
                     }
                     else
@@ -589,27 +621,17 @@ namespace OpenAS2.Compilation
             return ret;
         }
 
-        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb) { return TryCompose(sta, sb, false); }
+        public bool TryCompose(StatementCollection sta, StringBuilder sb, bool elseIfBranch = false)
         {
-            TryCompile2(sta, sb, indent, dIndent, compileSubCollections, false);
-        }
-
-        public void TryCompile2(StatementCollection sta, StringBuilder sb, int indent, int dIndent, bool compileSubCollections, bool elseIfBranch)
-        {
-            var tmp = "[[null condition]]";
-            if (Condition != null)
-            {
-                Condition.TryCompose(sta, true); // TODO turn the condition to real condition
-                tmp = Condition.Code!;
-            }
+            var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
 
             var b1 = Unbranch;
             var b2 = Branch;
             var ei1 = IsElseIfBranch(b1, out var nc1); 
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
-            if (Instruction.Type == InstructionType.BranchIfTrue)
-                tmp = InstructionUtils.ReverseCondition(tmp);
+            // do not need to reverse since it is already done in node pool
 
             if (ei1 ^ ei2)
             {
@@ -623,40 +645,34 @@ namespace OpenAS2.Compilation
                     nc1 = nc3;
                     tmp = InstructionUtils.ReverseCondition(tmp);
                 }
-                var ifBranch = elseIfBranch ? $"if ({tmp})\n" : $"if ({tmp})\n".ToStringWithIndent(indent);
+                var ifBranch = elseIfBranch ? $"if ({tmp})\n" : $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent);
                 sb.Append(ifBranch);
-                sb.Append("{\n".ToStringWithIndent(indent));
-                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-                sb.Append("}\n".ToStringWithIndent(indent));
-                sb.Append("else ".ToStringWithIndent(indent));
-                nc2!.TryCompile2(sta, sb, indent, dIndent, compileSubCollections, true);
+                sta.CallSubCollection(b1, sb);
+                nc2!.TryCompose(sta, sb, true);
             }
             else
             {
-                var ifBranch2 = elseIfBranch ? $"if ({tmp})\n" : $"if ({tmp})\n".ToStringWithIndent(indent);
+                var ifBranch2 = elseIfBranch ? $"if ({tmp})\n" : $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent);
                 sb.Append(ifBranch2);
-                sb.Append("{\n".ToStringWithIndent(indent));
-                b1.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-                sb.Append("}\n".ToStringWithIndent(indent));
+                sta.CallSubCollection(b1, sb);
                 if (!b2.IsEmpty())
                 {
-                    sb.Append("else\n".ToStringWithIndent(indent));
-                    sb.Append("{\n".ToStringWithIndent(indent));
-                    b2.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-                    sb.Append("}\n".ToStringWithIndent(indent));
+                    sb.Append("else\n".ToStringWithIndent(sta._currentIndent));
+                    sta.CallSubCollection(b1, sb);
                 }
             }
+            return false;
         }
     }
 
-    public class NodeLoop : NodeControl
+    public class SNControlLoop : NodeControl
     {
 
         public SNExpression? Condition;
         public StatementCollection Maintain;
         public StatementCollection Branch;
 
-        public NodeLoop(
+        public SNControlLoop(
             SNExpression? condition,
             StatementCollection maintain,
             StatementCollection branch
@@ -666,36 +682,14 @@ namespace OpenAS2.Compilation
             Maintain = maintain;
             Branch = branch;
         }
-
-        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        // TODO uncertain, need to check
+        public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            var tmp = "[[null condition]]";
-            if (Condition != null)
-            {
-                Condition.TryCompose(sta, true); // TODO turn the condition to real condition
-                tmp = Condition.Code!;
-            }
-            var ttmp = Instruction.Type;
-            if (ttmp == InstructionType.BranchIfTrue)
-            {
-                if (tmp.StartsWith("!"))
-                {
-                    tmp = tmp.Substring(1);
-                    if (tmp.StartsWith('(') && tmp.EndsWith(')'))
-                        tmp = tmp.Substring(1, tmp.Length - 2);
-                }
-                else
-                {
-                    tmp = $"!({tmp})";
-                }
-            }
-            sb.Append("{ // loop maintain condition\n".ToStringWithIndent(indent));
-            Maintain.Compile(sb, indent + dIndent, dIndent, compileSubCollections, true, sta);
-            sb.Append("}\n".ToStringWithIndent(indent));
-            sb.Append($"while ({tmp})\n".ToStringWithIndent(indent));
-            sb.Append("{\n".ToStringWithIndent(indent));
-            Branch.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
-            sb.Append("}\n".ToStringWithIndent(indent));
+            var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
+            sta.CallSubCollection(Maintain, sb, prefix: " // loop maintain condition");
+            sb.Append($"while ({tmp})\n".ToStringWithIndent(sta._currentIndent));
+            sta.CallSubCollection(Branch, sb);
+            return false;
         }
     }
 
