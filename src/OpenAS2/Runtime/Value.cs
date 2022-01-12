@@ -9,8 +9,8 @@ namespace OpenAS2.Runtime
 {
     public enum ValueType
     {
+        Undefined,
         Null, 
-        Undefined, 
 
         Boolean,
         Integer,

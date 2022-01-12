@@ -5,155 +5,12 @@ using OpenAS2.Runtime.Library;
 using OpenAS2.Compilation.Syntax;
 
 namespace OpenAS2.Runtime
-{
-    // ECMA-262 #8.3.1
-    public class PropertyDescriptor
-    {
-
-        public bool Enumerable { get; set; }
-        public bool Configurable { get; set; }
-        public virtual bool Writable { get; set; }
-
-        public readonly bool HasEnumerable = true;
-        public readonly bool HasConfigurable = true;
-
-        public static NamedDataProperty D(Value val, bool w, bool e, bool c)
-        {
-            return new NamedDataProperty(val, w, e, c);
-        }
-        public static NamedAccessoryProperty A(ESCallable.Func? g, ESCallable.Func? s, bool e, bool c)
-        {
-            return new NamedAccessoryProperty(g, s, e, c);
-        }
-        public static NamedAccessoryProperty A(ESFunction? g, ESFunction? s, bool e, bool c)
-        {
-            return new NamedAccessoryProperty(g, s, e, c);
-        }
-
-        public static PropertyDescriptor Copy(PropertyDescriptor p)
-        {
-            if (p is NamedDataProperty dd)
-            {
-                return new NamedDataProperty(dd.Value, dd.Writable, dd.Enumerable, dd.Configurable);
-            }
-            else
-            {
-                var da = (NamedAccessoryProperty) p;
-                return new NamedAccessoryProperty(da.Get, da.Set, da.Enumerable, da.Configurable);
-            }
-        }
-        public virtual string? ToString(ExecutionContext actx)
-        {
-            return base.ToString();
-        }
-
-        // static methods
-
-        public static bool IIsAccessorDescriptor(PropertyDescriptor desc) { return desc is NamedAccessoryProperty; }
-        public static bool IIsDataDescriptor(PropertyDescriptor desc) { return desc is NamedDataProperty; }
-        public static bool IIsGenericDescriptor(PropertyDescriptor desc) { return !(desc is NamedDataProperty) && !(desc is NamedAccessoryProperty); }
-
-        public static ESObject IFormPropertyDescriptor(VirtualMachine vm, PropertyDescriptor desc)
-        {
-            var ret = new ESObject(vm);
-            if (desc is NamedDataProperty dd)
-            {
-                ret.IDefineOwnProperty("value", D(dd.Value, true, true, true), false);
-                ret.IDefineOwnProperty("writable", D(Value.FromBoolean(dd.Writable), true, true, true), false);
-            }
-            else
-            {
-                var da = (NamedAccessoryProperty) desc;
-                throw new NotImplementedException();
-            }
-            ret.IDefineOwnProperty("enumerable", D(Value.FromBoolean(desc.Enumerable), true, true, true), false);
-            ret.IDefineOwnProperty("configurable", D(Value.FromBoolean(desc.Configurable), true, true, true), false);
-            return ret;
-        }
-        public static PropertyDescriptor IToPropertyDescriptor(ESObject obj)
-        {
-            throw new NotImplementedException();
-        }
-        
-    }
-    public class NamedDataProperty: PropertyDescriptor
-    {
-        public Value Value { get; set; }
-        public NamedDataProperty(Value? val, bool w = false, bool e = false, bool c = false)
-        {
-            Value = val ?? Value.Undefined();
-            Writable = w;
-            Enumerable = e;
-            Configurable = c;
-        }
-
-        public override string ToString(ExecutionContext actx)
-        {
-            return Value.ToStringWithType(actx);
-        }
-    }
-    public class NamedAccessoryProperty: PropertyDescriptor
-    {
-        public static readonly Func<ESObject, Value> DefaultPropertyGet = x => Value.Undefined();
-        public ESCallable.Func Get { get; set; }
-
-        private ESCallable.Func? _set;
-        private bool _writable;
-        public ESCallable.Func? Set
-        {
-            get { return _writable ? _set : null; }
-            set { _set = value; }
-        }
-        public override bool Writable
-        {
-            get { return _writable && _set != null; }
-            set { _writable = value; }
-        }
-
-        private ESFunction? _getter;
-        private ESFunction? _setter;
-
-        public NamedAccessoryProperty(ESCallable.Func? g = null, ESCallable.Func? s = null, bool e = false, bool c = false)
-        {
-            Get = g ?? FunctionUtils.ReturnUndefined;
-            Set = s;
-            Enumerable = e;
-            Configurable = c;
-            Writable = true;
-        }
-
-        public NamedAccessoryProperty(ESFunction? g = null, ESFunction? s = null, bool e = false, bool c = false)
-        {
-            var gc = g != null ? g.ICall : null;
-            var sc = s != null ? s.ICall : null;
-            Get = gc ?? FunctionUtils.ReturnUndefined;
-            Set = sc;
-            Enumerable = e;
-            Configurable = c;
-            Writable = true;
-            _getter = g;
-            _setter = s;
-        }
-
-        public (ESFunction?, ESFunction?) ToFunctions(VirtualMachine? vm = null)
-        {
-            var r1 = _getter ?? ((Get != null && vm != null) ? _getter = new NativeFunction(vm, Get) : null);
-            var r2 = _setter ?? ((Set != null && vm != null) ? _setter = new NativeFunction(vm, Set) : null);
-            return (r1, r2);
-        }
-
-        public override string ToString(ExecutionContext actx)
-        {
-            return $"NAP(Get: {Get}, Set: {Set})";
-        }
-    }
-
-
+{ 
     public class ESObject
     {
         // global definitions
 
-        public VirtualMachine? VM { get; set; }
+        public VirtualMachine? VM { get; set; } // not really useful 
 
         // most general
 
@@ -249,13 +106,38 @@ namespace OpenAS2.Runtime
                 return ESCallable.Return(args.First().ToObject(ec.Avm));
         }
 
+        // utility functions
 
+        /// <summary>
+        /// in case of NDP, if it is undefined return false
+        /// in case of NAP do not care if it is or not
+        /// </summary>
+        /// <param name="name">the name to search</param>
+        /// <param name="own">if it is an own property</param>
+        /// <returns></returns>
+        public PropertyDescriptor? UGetPropDesc(string name, out bool own, bool onlySearchOwn = false)
+        {
+            var ret = _properties.TryGetValue(name, out var prop) && !prop.IsUndefNDP();
+            prop = ret ? prop : null;
+            var obj = this;
+            own = ret;
+            while (!ret && !onlySearchOwn)
+            {
+                obj = obj.IPrototype;
+                if (obj == null)
+                    break;
+                ret = obj._properties.TryGetValue(name, out prop) && !prop.IsUndefNDP();
+                prop = ret ? prop : null;
+            }
+            return prop;
+        }
 
         // internal functions 
 
         public void ASSetFlags(string name, int set, int clear)
         {
-            if (!IHasOwnProperty(name, out var prop)) return;
+            var prop = UGetPropDesc(name, out var own);
+            if (prop == null || !own) return;
             var swp = (set & 4) > 0;
             var sdp = (set & 2) > 0;
             var shid = (set & 1) > 0;
@@ -270,62 +152,44 @@ namespace OpenAS2.Runtime
             if (chid) prop!.Enumerable = true;
         }
 
-        public bool IHasOwnProperty(string name, ExecutionContext? ec = null) { return IHasOwnProperty(name, out var _, ec); }
-        public virtual bool IHasOwnProperty(string name, out PropertyDescriptor? prop, ExecutionContext? ec = null)
+        public ESCallable.Result IHasProperty(ExecutionContext ec, string name)
         {
-            var ret = _properties.TryGetValue(name, out prop);
-            ec = ec ?? (VM != null ? VM.GlobalContext : null);
-            if (ret)
-            {
-                if (prop is NamedDataProperty pd && Value.IsUndefined(pd.Value))
-                    ret = false;
-                else
-                {
-                    var pa = (NamedAccessoryProperty) prop!;
-                    var par = pa.Get(ec, this, null);
-                    ret = ret && par.Type != ResultType.Throw;
-                    if (par.Type == ResultType.Throw)
-                        if (ec != null)
-                            ec.ThrowError((ESError) par.Value.ToObject());
-                        else
-                            throw new WrappedESError((ESError) par.Value.ToObject());
-                    else if (Value.IsUndefined(par.Value))
-                        ret = false;
-                }
-            }
-            if (!ret)
-                prop = null;
-            return ret;
-        }
-
-        public bool IHasProperty(string name, ExecutionContext? ec = null) { return IHasProperty(name, out var _, ec); }
-        public virtual bool IHasProperty(string name, out PropertyDescriptor? prop, ExecutionContext? ec = null)
-        {
-            var thisVar = this;
-            while (thisVar != null)
-            {
-                if (thisVar.IHasOwnProperty(name, out prop, ec))
-                {
-                    return true;
-                }
-                thisVar = thisVar.IPrototype;
-            }
-            prop = null;
-            return false;
-        }
-
-        public virtual Value IGet(string name, ExecutionContext? ec = null)
-        {
-            ec = ec ?? (VM != null ? VM.GlobalContext : null);
-            if (IHasProperty(name, out var prop))
-            {
-                if (prop is NamedDataProperty pd)
-                    return pd.Value;
-                else
-                    return ((NamedAccessoryProperty) prop!).Get(ec, this, null).Value;
-            }
+            var prop = UGetPropDesc(name, out var own);
+            if (prop == null)
+                return ESCallable.Return(Value.FromBoolean(false));
+            if (prop is NamedDataProperty)
+                return ESCallable.Return(Value.FromBoolean(true));
             else
-                return Value.Undefined();
+            {
+                var pa = (NamedAccessoryProperty) prop!;
+                var fres = pa.Get(ec, this, null);
+                fres.SetRecallCode(x =>
+                    ESCallable.Return(Value.FromBoolean( !(x.Type != ResultType.Return || x.Value.IsUndefined()) ))
+                    );
+                return fres;
+            }
+        }
+
+        public ESCallable.Result IGet(ExecutionContext ec, string name)
+        {
+            var prop = UGetPropDesc(name, out var own);
+            if (prop == null)
+                return ESCallable.Return(Value.Undefined());
+            if (prop is NamedDataProperty pd)
+                return ESCallable.Return(pd.Value);
+            else
+            {
+                var pa = (NamedAccessoryProperty) prop!;
+                var fres = pa.Get(ec, this, null);
+                return fres;
+            }
+        }
+
+
+
+        public virtual Value IGet(string name)
+        {
+            return IGet(null, name).Value;
         }
 
         public virtual bool ICanPut(string name, out PropertyDescriptor? prop, ExecutionContext? ec = null)
@@ -333,9 +197,9 @@ namespace OpenAS2.Runtime
             // unnecessary
             // if (IHasOwnProperty(name, out var prop))
             //    return prop!.Writable;
-            prop = null;
-            if (IPrototype != null && IHasProperty(name, out prop, ec))
-                return prop!.Writable;
+            prop = UGetPropDesc(name, out var _);
+            if (IPrototype != null && prop != null)
+                return prop.Writable;
             else
                 return IExtensible;
         }
