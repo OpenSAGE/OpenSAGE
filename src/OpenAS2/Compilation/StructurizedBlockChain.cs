@@ -16,6 +16,7 @@ namespace OpenAS2.Compilation
         public StructurizedBlockChain? Next;
         public CodeType Type = CodeType.Sequential;
         public List<StructurizedBlockChain> AdditionalData = new();
+        public Dictionary<LogicalFunctionContext, StructurizedBlockChain> ChainRecord = new();
         public bool Empty { get; set; }
 
         public override string ToString()
@@ -49,8 +50,7 @@ namespace OpenAS2.Compilation
             {
                 foreach (var (p, i) in b.Items)
                     if (i is LogicalFunctionContext fc)
-                        throw new NotImplementedException();
-                        // fc.Chain = Parse(fc.Instructions.BaseBlock);
+                        ret.ChainRecord[fc] = Parse(fc.Instructions.BaseBlock);
                 b = b.NextBlockDefault;
             }
 
@@ -144,11 +144,11 @@ namespace OpenAS2.Compilation
                     // split blocks
                     // TODO theoretically outerBlock should be the same as endBlock + 1
 
-                    var sb2 = endBlock.NextBlockDefault != null ?
+                    var sb2 = (endBlock != null && endBlock.NextBlockDefault != null) ?
                         new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Loop, AdditionalData = structures };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Loop, AdditionalData = structures, ChainRecord = this.ChainRecord };
 
                     if (startBlock.PreviousBlock == null)
                         currentChain!.Empty = true;
@@ -163,7 +163,7 @@ namespace OpenAS2.Compilation
                     b = endBlock;
 
                     // update b
-                    b = b.NextBlockDefault;
+                    b = b!.NextBlockDefault;
                 }
                 // b is the start of a case structure
                 else if (b.HasConditionalBranch)
@@ -206,7 +206,7 @@ namespace OpenAS2.Compilation
                         new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Case, AdditionalData = structures };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Case, AdditionalData = structures, ChainRecord = this.ChainRecord };
 
                     if (startBlock.PreviousBlock == null)
                         currentChain!.Empty = true;

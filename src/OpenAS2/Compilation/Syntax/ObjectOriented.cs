@@ -19,21 +19,29 @@ namespace OpenAS2.Compilation.Syntax
     public static class ObjectOriented
     {
 
-        static readonly OPR1 TypeOf = (v) => OprUtils.TypeOf(v);
-        static readonly OPR2 CastOp = (objv, cstv) =>
+        static void ExecUnaryOprOnStack(this NodePool np, OPR1 opr)
         {
-            var obj = objv.ToObject();
-            var cst = cstv.ToFunction();
-            ESObject val = obj.InstanceOf(cst) ? obj : null;
-            return Value.FromObject(val);
-        };
+            np.PushNode(opr(np.PopExpression()));
+        }
+
+        static void ExecBinaryOprOnStack(this NodePool np, OPR2 opr)
+        {
+            var a = np.PopExpression();
+            var b = np.PopExpression();
+            np.PushNode(opr(a, b));
+        }
+
+        static readonly OPR1 TypeOf = (v) => OprUtils.TypeOf(v);
+        static readonly OPR2 CastOp = (objv, cstv) => OprUtils.Cast(objv, cstv);
+        static readonly OPR2 InstanceOf = (a, b) => OprUtils.InstanceOf(b, a);
+
         static void DoExtends(NodePool np) // this should work
         {
             var sup = np.PopExpression();
             var cls = np.PopExpression();
             throw new NotImplementedException();
         }
-        static readonly OPR2 InstanceOf = (a, b) => OprUtils.InstanceOf(b, a);
+        
 
         // all sorts of null check...
         public static void DoNewMethod(NodePool np)
@@ -41,48 +49,49 @@ namespace OpenAS2.Compilation.Syntax
             var nameVal = np.PopExpression();
             var obj = np.PopExpression();
             var args = np.PopArray();
-
-            Value vfunc = (nameVal.Type != ValueType.Undefined && name.Length != 0) ? obj.ToObject().IGet(name) : obj;
-            ESFunction func = vfunc.IsCallable() ? vfunc.ToFunction() : null;
-
-            np.ConstructObjectAndPush(func, args);
+            var ret = OprUtils.New(new SNMemberAccess(SNNominator.Check(nameVal), obj), args);
+            np.PushNode(new SNMarkNomination(ret));
+            np.PushNode(ret);
         }
         public static void DoNewObject(NodePool np)
         {
             var name = np.PopExpression();
             var args = np.PopArray();
-            np.PushNode(OprUtils.New(name, args));
+            var ret = OprUtils.New(name, args);
+            np.PushNode(new SNMarkNomination(ret));
+            np.PushNode(ret);
         }
         public static void DoInitObject(NodePool np)
         {
             var args = np.PopArray(readPair: true);
-            np.PushNode(OprUtils.New(new SNNominator("Object"), args));
+            var ret = OprUtils.New(new SNNominator("Object"), args);
+            np.PushNode(new SNMarkNomination(ret));
+            np.PushNode(ret);
         }
         public static void DoInitArray(NodePool np)
         {
-            np.PushNode(np.PopArray());
+            var ret = np.PopArray();
+            np.PushNode(new SNMarkNomination(ret));
+            np.PushNode(ret);
         }
 
         public static void DoDefineLocal(NodePool np)
         {
             var value = np.PopExpression();
-            var varName = np.PopExpression().ToString();
-            np.SetValueOnLocal(varName, value);
+            var varName = np.PopExpression();
+            np.PushNode(new SNValAssign(varName, value, true));
         }
         public static void DoDefineLocal2(NodePool np)
         {
-            var varName = np.PopExpression().ToString();
-            if (np.HasValueOnLocal(varName))
-                return;
-            else
-                np.SetValueOnLocal(varName, Value.Undefined());
+            var varName = np.PopExpression();
+            np.PushNode(new SNValAssign(varName, new SNLiteralUndefined(), true));
         }
         public static void DoDelete2(NodePool np)
         {
-            np.PushNode(new SNControl("delete", np.PopExpression()));
+            np.PushNode(new SNKeyWord("delete", SNNominator.Check(np.PopExpression())));
         }
 
-        public static readonly OPR2 GetMember = (member, vobj) => new SNMemberAccess(vobj, member);
+        public static readonly OPR2 GetMember = (member, vobj) => new SNMemberAccess(new SNCheckTarget(SNNominator.Check(vobj)), member);
 
         public static void DoSetMember(NodePool np)
         {
@@ -93,107 +102,68 @@ namespace OpenAS2.Compilation.Syntax
             //pop the object
             var obj = np.PopExpression();
 
-            np.PushNode(new SNValAssign(new SNMemberAccess(obj, memberName), valueVal));
+            np.PushNode(new SNValAssign(new SNMemberAccess(SNNominator.Check(obj), memberName), valueVal));
         }
         public static void DoDelete(NodePool np)
         {
             var property = np.PopExpression();
             var target = np.PopExpression();// TODO wtf? np.GetTarget(np.PopExpression().ToString());
-            np.PushNode(new SNControl("delete", new SNMemberAccess(target, property)));
+            np.PushNode(new SNKeyWord("delete", new SNMemberAccess(new SNCheckTarget(SNNominator.Check(target)), property)));
         }
 
         public static void DoCallFunction(NodePool np)
         {
-            var funcName = np.PopExpression().ToString();
-            var args = FunctionUtils.GetArgumentsFromStack(np);
-            var ret = FunctionUtils.TryExecuteFunction(funcName, args, np);
-            np.PushRecallCode(ret);
+            var funcName = SNNominator.Check(np.PopExpression());
+            var args = np.PopArray();
+            np.PushNode(OprUtils.FunctionCall(funcName, args));
 
         }
         public static void DoCallMethod(NodePool np)
         {
-            var funcNameVal = np.PopExpression();
-            var funcName = funcNameVal.ToString();
-            ESCallable.Result ret;
-            // If funcname is defined we need get the function from an object
-            if (!funcNameVal.IsUndefined() && funcName.Length > 0)
-            {
-                var obj = np.PopExpression().ToObject();
-                var args = FunctionUtils.GetArgumentsFromStack(np);
-                ret = FunctionUtils.TryExecuteFunction(funcName, args, np, obj);
-            }
-            // Else the function is on the stack
-            else
-            {
-                var funcVal = np.PopExpression();
-                var args = FunctionUtils.GetArgumentsFromStack(np);
-                ret = FunctionUtils.TryExecuteFunction(funcVal, args, np);
-            }
-            np.PushRecallCode(ret);
+            var funcName = np.PopExpression();
+            var funcBody = np.PopExpression();
+            var args = np.PopArray();
+            np.PushNode(OprUtils.FunctionCall(new SNMemberAccess(SNNominator.Check(funcName), funcBody), args));
         }
         public static void DoGetNamedMember(NodePool np, int cid)
         {
-            var member = np.ResolveConstant(cid).ToString();
-
-            //pop the object
-            var objectVal = np.PopExpression();
-            var obj = objectVal.ToObject();
-
-            if (obj != null)
-                np.Push(obj.IGet(member));
-            else
-                np.Push(Value.Undefined());
+            np.PushNodeConstant(cid, member => new SNMemberAccess(SNNominator.Check(np.PopExpression()), member));
         }
         public static void DoCallNamedFunc(NodePool np, int cid)
         {
-            var funcName = np.ResolveConstant(cid).ToString();
-            var args = FunctionUtils.GetArgumentsFromStack(np);
-
-            var ret = FunctionUtils.TryExecuteFunction(funcName, args, np);
-            np.PushRecallCode(ret);
+            np.PushNodeConstant(cid, fname => OprUtils.FunctionCall(SNNominator.Check(fname), np.PopArray()));
         }
         public static void DoCallNamedMethod(NodePool np, int cid, bool pop = false)
         {
-            var funcName = np.ResolveConstant(cid).ToString();
-            var obj = np.PopExpression().ToObject();
-            var args = FunctionUtils.GetArgumentsFromStack(np);
+            np.PushNodeConstant(cid, fname => {
+                var obj = SNNominator.Check(np.PopExpression());
+                var args = np.PopArray();
+                var f = new SNMemberAccess(obj, fname);
+                var ret = OprUtils.FunctionCall(f, args);
 
-            var ret0 = FunctionUtils.TryExecuteFunction(funcName, args, np, obj);
-            np.PushRecallCode(ret0);
-
-            if (!pop)
-            {
-                throw new NotImplementedException("need check");
-                var ret = FunctionUtils.TryExecuteFunction(funcName, args, np, obj);
-                ret.SetRecallCode((ret2) =>
+                if (pop)
                 {
-                    var result = ret2.Value;
                     var varName = np.PopExpression();
-                    np.SetValueOnLocal(varName.ToString(), result);
-                    return null; // push nothing back
-                });
-                np.PushRecallCode(ret);
-            }
+                    np.PushNode(new SNValAssign(SNNominator.Check(varName), ret));
+                    return null;
+                }
+                return ret;
+            });
+            
         }
 
         public static void DoGetStringVar(NodePool np, RawInstruction inst)
         {
-            var memberName = inst.Parameters[0].String;
-            // check if this a special object, like _root, _parent etc.
-            // this is automatically done by the built-in variables in the global object.
-            var result = np.GetValueOnChain(memberName);
-            if (result == null)
-                throw new InvalidOperationException();
-            np.Push(result);
+            np.PushNode(new SNNominator(inst.Parameters[0].String));
         }
         public static void DoGetStringMember(NodePool np, RawInstruction inst)
         {
             // pop member name???
-            var memberName = inst.Parameters[0].String;
+            var memberName = new SNNominator(inst.Parameters[0].String);
             //pop the object
             var objectVal = np.PopExpression();
-            var valueVal = objectVal.ToObject().IGet(memberName);
-            np.Push(valueVal);
+            var valueVal = new SNMemberAccess(memberName, objectVal);
+            np.PushNode(valueVal);
         }
 
         public static bool Parse(NodePool np, RawInstruction inst)
@@ -208,7 +178,7 @@ namespace OpenAS2.Compilation.Syntax
                     DoSetMember(np);
                     break;
                 case InstructionType.EA_ZeroVar:
-                    np.This.IPut(np.PopExpression().ToString(), Value.FromInteger(0));
+                    np.PushNode(new SNValAssign(new SNMemberAccess(new SNNominator("this"), np.PopExpression()), new SNLiteral(RawValue.FromInteger(0))));
                     break;
                 case InstructionType.Delete:
                     DoDelete(np);
@@ -253,12 +223,12 @@ namespace OpenAS2.Compilation.Syntax
                     DoGetStringMember(np, inst);
                     break;
                 case InstructionType.EA_SetStringVar:
-                    np.This.IPut(np.PopExpression().ToString(), Value.FromRaw(inst.Parameters[0]));
+                    np.PushNode(new SNValAssign(np.PopExpression(), new SNLiteral(inst.Parameters[0])));
                     break;
                 case InstructionType.EA_SetStringMember:
-                    var memberVal = np.PopExpression().ToString();
-                    var objectVal = np.PopExpression().ToObject();
-                    objectVal.IPut(memberVal, Value.FromRaw(inst.Parameters[0]));
+                    var memberVal = np.PopExpression();
+                    var objectVal = np.PopExpression();
+                    np.PushNode(new SNValAssign(memberVal, new SNLiteral(inst.Parameters[0])));
                     break;
 
                 case InstructionType.TypeOf:
@@ -303,25 +273,27 @@ namespace OpenAS2.Compilation.Syntax
 
 
                 case InstructionType.Enumerate:
-                    return false; // TODO
                 case InstructionType.Enumerate2:
-                    DoEnumerate2(np);
-                    break;
+                    var obj = np.PopExpression();
+                    // a null object and the enumerated objects are pushed
+                    // but due to the mechanism of this class, only the latter
+                    // is needed
+                    var n = new SNEnumerate(obj);
+                    np.PushNode(n);
+                    return false;
 
                 case InstructionType.EA_PushThis:
                     return false;
                 case InstructionType.EA_PushGlobal:
                     return false;
                 case InstructionType.EA_PushThisVar:
-                    np.Push(Value.FromObject(np.This));
+                    np.PushNode(new SNNominator("this"));
                     break;
                 case InstructionType.EA_PushGlobalVar:
-                    np.Push(Value.FromObject(np.Global));
+                    np.PushNode(new SNNominator("_global"));
                     break;
                 case InstructionType.EA_PushValueOfVar:
-                    var cid = np.ResolveConstant(inst.Parameters[0].Integer);
-                    var cstr = cid.ToString();
-                    np.Push(np.HasParameter(cstr) ? np.GetParameter(cstr) : np.GetValueOnChain(cstr));
+                    np.PushNodeConstant(inst.Parameters[0].Integer, x => SNNominator.Check(x));
                     break;
 
                 default:

@@ -26,168 +26,7 @@ namespace OpenAS2.Compilation
 
         public virtual string TryCompose(StatementCollection sta, bool compileBranches = false)
         {
-            // get all values
-            var valCode = new string[Expressions.Count];
-            var val = new Value?[Expressions.Count]; // should never be constant or register type
-            for (int i = 0; i < Expressions.Count; ++i)
-            {
-                // get value
-                var ncur = Expressions[i];
-                if (ncur == null)
-                {
-                    valCode[i] = $"__args__[{i}]";
-                    val[i] = null;
-                    continue;
-                }
-                else if (ncur.TryGetValue(InstructionUtils.ParseValueWrapped(sta), out var nval))
-                {
-                    valCode[i] = sta.GetExpression(nval!);
-                    val[i] = nval;
-                    // if (string.IsNullOrEmpty(valCode[i]))
-                    // {
-                    //     ncur.TryCompile(sta);
-                    //     valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code; // do not care empty string
-                    // }
-                }
-                else
-                {
-                    ncur.TryCompose(sta);
-                    valCode[i] = ncur.Code == null ? $"__args__[{i}]" : ncur.Code;
-                    val[i] = null;
-                    // fix precendence
-                    // only needed for compiled codes
-                    if (ncur.Instruction != null && Instruction.LowestPrecendence > ncur.Instruction.LowestPrecendence)
-                        valCode[i] = $"({valCode[i]})";
-                }
-            }
-
-            // fix string values
-            // case 1: all strings are needed to fix
-            if (Instruction.Type == InstructionType.Add2 ||
-                Instruction.Type == InstructionType.GetURL ||
-                Instruction.Type == InstructionType.GetURL2 ||
-                Instruction.Type == InstructionType.StringConcat ||
-                Instruction.Type == InstructionType.StringEquals)
-            {
-                for (int i = 0; i < Expressions.Count; ++i)
-                {
-                    if (val[i] != null && val[i]!.Type == ValueType.String)
-                        valCode[i] = valCode[i].ToCodingForm();
-                }
-            }
-            // case 2: only the first one
-            else if (Instruction.Type == InstructionType.DefineLocal ||
-                     // Instruction.Type == InstructionType.Var ||
-                     Instruction.Type == InstructionType.ToInteger ||
-                     Instruction.Type == InstructionType.ToString ||
-                     Instruction.Type == InstructionType.SetMember ||
-                     Instruction.Type == InstructionType.SetVariable ||
-                     Instruction.Type == InstructionType.SetProperty ||
-                     Instruction.Type == InstructionType.EA_PushString ||
-                     // Instruction.Type == InstructionType.EA_SetStringMember ||
-                     // Instruction.Type == InstructionType.EA_SetStringVar ||
-                     Instruction.Type == InstructionType.EA_PushConstantByte ||
-                     Instruction.Type == InstructionType.EA_PushConstantWord ||
-                     Instruction.Type == InstructionType.Trace)
-            {
-                if (val[0] != null && val[0]!.Type == ValueType.String)
-                    valCode[0] = valCode[0].ToCodingForm();
-            }
-            // case 3 special handling
-
-            // start compile
-            string ret = string.Empty;
-            string tmp = string.Empty;
-            switch (Instruction.Type)
-            {
-                // case 1: branches (break(1); continue(2); non-standatd codes(3))
-                case InstructionType.BranchAlways:
-                case InstructionType.BranchIfTrue:
-                case InstructionType.EA_BranchIfFalse:
-                    if (compileBranches)
-                    {
-                        var itmp = Instruction;
-                        var ttmp = itmp.Type;
-                        var lbl = $"[[{itmp.Parameters[0]}]]";
-                        while (itmp is LogicalTaggedInstruction itag)
-                        {
-                            lbl = string.IsNullOrEmpty(itag.Label) && itag.TagType == TagType.GotoLabel ? lbl : itag.Label;
-                            itmp = itag.Inner;
-                        }
-                        if (itmp.Type == InstructionType.BranchAlways)
-                            if (itmp.Parameters[0].ToInteger() > 0)
-                                ret = $"break; // __jmp__({lbl!.ToCodingForm()})@";
-                            else
-                                ret = $"continue; // __jmp__({lbl!.ToCodingForm()})@";
-                        else
-                        {
-                            tmp = valCode[0];
-                            (tmp, ttmp) = InstructionUtils.SimplifyCondition(tmp, ttmp);
-                            ret = $"__{(ttmp == InstructionType.BranchIfTrue ? "jz" : "jnz")}__({lbl!.ToCodingForm()}, {tmp})";
-                        }
-
-                    }
-                    break;
-                // case 2: value assignment statements
-                case InstructionType.SetRegister:
-                    var nrReg = Instruction.Parameters[0].ToInteger();
-                    if (val[0] == null || !sta.NodeNames2.ContainsKey(val[0]!))
-                    {
-                        var regSet = sta.HasRegisterName(nrReg, out var nReg, out var co);
-                        var c = (val[0] != null ? 2 : 1) + (co ? 2 : 0);
-                        if (!regSet || co)
-                        {
-                            nReg = sta.NameRegister(nrReg, InstructionUtils.JustifyName(valCode[0]));
-                            if (val[0] != null)
-                                sta.NameVariable(val[0]!, nReg, true);
-                            ret = $"var {nReg} = {valCode[0]}; // [[register #{nrReg}]], case {c}@";
-                        }
-                        else
-                        {
-                            ret = $"{nReg} = {valCode[0]}; // [[register #{nrReg}]], case {c + 4}@";
-                        }
-                    }
-                    else
-                    {
-                        sta.NameRegister(nrReg, sta.NodeNames2[val[0]!]);
-                        ret = $"// [[register #{nrReg}]] <- {sta.NodeNames2[val[0]!]}@"; // do nothing
-                    }
-                    break;
-                // NodeNames should be updated
-                case InstructionType.SetMember: // val[1] is integer: [] else: .
-                    if (val[1] == null || val[1]!.Type == ValueType.Integer)
-                        ret = $"{valCode[2]}[{valCode[1]}] = {valCode[0]}";
-                    else
-                        ret = Instruction.ToString(valCode);
-                    break;
-
-                //case InstructionType.SetVariable:
-
-                //  break;
-                // case 3: omitted cases
-                case InstructionType.Pop:
-                    ret = $"// __pop__({valCode[0]})@";
-                    break;
-                case InstructionType.End:
-                    ret = "// __end__()@";
-                    break;
-                case InstructionType.PushDuplicate:
-                    ret = valCode[0];
-                    break;
-
-                // case 0: unhandled cases | handling is not needed
-                default:
-                    try
-                    {
-                        ret = Instruction.ToString(valCode);
-                    }
-                    catch
-                    {
-                        ret = Instruction.ToString2(valCode);
-                    }
-                    break;
-            }
-            Code = ret;
+            return TryComposeRaw(sta);
         }
         
     }
@@ -201,66 +40,6 @@ namespace OpenAS2.Compilation
         private static Dictionary<InstructionType, int> NIE = new();
 
         public SNExpression() : base() { }
-
-        public virtual bool TryGetValue(Func<Value?, Value?>? parse, out Value? ret)
-        {
-            Value = ret = null;
-            var vals = new Value[Expressions.Count];
-            for (int i = 0; i < Expressions.Count; ++i)
-            {
-                var node = Expressions[i];
-                if (node == null)
-                    return false;
-                if (node.TryGetValue(parse, out var val))
-                {
-                    if (val!.IsSpecialType())
-                    {
-                        if (parse == null)
-                            return false;
-                        else
-                        {
-                            val = parse(val);
-                            if (val == null || val!.IsSpecialType())
-                                return false;
-                        }
-                    }
-                    vals[i] = val;
-                }
-                else
-                    return false;
-            }
-            
-            try
-            {
-                if (Instruction is InstructionEvaluable inst && inst.PushStack)
-                {
-                    // NIE optimization
-                    if (NIE.TryGetValue(Instruction.Type, out var c) && c > 4)
-                        return false;
-                    ret = inst.ExecuteWithArgs2(vals);
-                    if (ret!.Type == ValueType.Constant || ret.Type == ValueType.Register)
-                    {
-                        if (parse == null)
-                            return false;
-                        else
-                            ret = parse(ret);
-                    }
-                    Value = ret;
-                }
-                else
-                {
-                    //TODO
-                    return false;
-                }
-
-            }
-            catch (NotImplementedException)
-            {
-                NIE[Instruction.Type] = NIE.TryGetValue(Instruction.Type, out var c) ? c + 1 : 1;
-                return false;
-            }
-            return ret != null;
-        }
 
         public override abstract string TryComposeRaw(StatementCollection sta);
 
@@ -356,6 +135,17 @@ namespace OpenAS2.Compilation
             return Name;
         }
 
+        public static SNExpression Check(SNExpression sn) { return Check(sn, out var _); }
+
+        public static SNExpression Check(SNExpression sn, out bool flag)
+        {
+            flag = sn is SNLiteral snl && snl.IsStringLiteral;
+            if (flag)
+                return new SNNominator(((SNLiteral) sn).GetRawString());
+            else
+                return sn;
+        }
+
     }
 
     public class SNArray : SNExpression
@@ -434,7 +224,7 @@ namespace OpenAS2.Compilation
         protected readonly SNExpression _e1, _e2;
         protected readonly string _pattern;
 
-        public SNBinary(int p, Order o, string pat, SNExpression? e1, SNExpression? e2) : base(p, o)
+        public SNBinary(int p, Order o, string pat, SNExpression? e1, SNExpression? e2, bool checkPrecendence = true) : base(checkPrecendence ? p : 24, o) // seems okay
         {
             _e1 = e1 ?? new SNLiteralUndefined();
             _e2 = e2 ?? new SNLiteralUndefined();
@@ -506,14 +296,19 @@ namespace OpenAS2.Compilation
 
     public static class OprUtils
     {
+        // defined
+        public static SNOperator Cast(SNExpression? e1, SNExpression? e2) { return new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} as {1}", e1, e2, false); }
+        public static SNOperator KeyAssign(SNExpression? e1, SNExpression? e2) { return new SNBinary(24, SNOperator.Order.NotAcceptable, "{0}: {1}", e1, e2, false); }
+
+
         // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
 
         public static SNOperator Grouping(SNExpression e) { return new SNUnary(19, SNOperator.Order.NotAcceptable, "( {0} )", e); }
         // public static SNOperator MemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} . {1}", e1, e2); }
         // public static SNOperator ComputedMemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} [ {1} ]", e1, e2); }
-        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0} ( {1} )", e1, e2); }
-        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2); }
-        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2)); }
+        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0} ( {1} )", e1, e2, false); }
+        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2, false); }
+        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2, false)); }
         public static SNOperator Optionalchaining(SNExpression e) { return new SNUnary(18, SNOperator.Order.LeftToRight, "?.", e); }
         public static SNOperator NewWithoutArgs(SNExpression e) { return new SNUnary(17, SNOperator.Order.RightToLeft, "new {0}", e); }
         public static SNOperator PostfixIncrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0} ++", e); }
@@ -577,11 +372,11 @@ namespace OpenAS2.Compilation
     }
 
 
-    public class NodeFunctionBody : SNExpression
+    public class NodeStatementBody : SNStatement
     {
         public StatementCollection Body;
         public static readonly string NoIndentMark = "/*@([{@%@)]}@*/";
-        public NodeFunctionBody(InstructionBase inst, StatementCollection body) : base(inst)
+        public NodeStatementBody(InstructionBase inst, StatementCollection body) : base(inst)
         {
             Body = body;
         }
@@ -591,7 +386,15 @@ namespace OpenAS2.Compilation
             ret = _v;
             return true;
         }
-
+        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
+        {
+            var (name, args) = InstructionUtils.GetNameAndArguments(Instruction);
+            var head = $"function {name}({string.Join(", ", args.ToArray())})\n";
+            sb.Append(head.ToStringWithIndent(indent));
+            sb.Append("{\n".ToStringWithIndent(indent));
+            Body.Compile(sb, indent + dIndent, dIndent, compileSubCollections, false, sta);
+            sb.Append("}\n".ToStringWithIndent(indent));
+        }
         public override void TryCompose(StatementCollection sta, bool compileBranches = false)
         {
             StringBuilder sb = new();
@@ -644,10 +447,13 @@ namespace OpenAS2.Compilation
     public class SNValAssign : SNStatement
     {
         private SNExpression _e1, _e2;
-        public SNValAssign(SNExpression? e1, SNExpression? e2)
+        private bool _varCheck;
+        public SNValAssign(SNExpression? e1, SNExpression? e2, bool varCheck = false)
         {
             _e1 = e1 ?? new SNLiteralUndefined();
+            _e1 = SNNominator.Check(_e1);
             _e2 = e2 ?? new SNLiteralUndefined();
+            _varCheck = varCheck; // TODO
         }
 
         public override string TryComposeRaw(StatementCollection sta)
@@ -656,12 +462,12 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class SNControl : SNExpression
+    public class SNKeyWord : SNStatement
     {
         public string Keyword { get; set; }
         public SNExpression Node { get; set; }
 
-        public SNControl(string keyWord, SNExpression exp) : base()
+        public SNKeyWord(string keyWord, SNExpression exp) : base()
         {
             Keyword = keyWord;
             Node = exp;
@@ -674,54 +480,41 @@ namespace OpenAS2.Compilation
 
     }
 
+    public class SNMarkNomination : SNStatement
+    {
+        public SNExpression Node { get; set; }
+
+        public SNMarkNomination(SNExpression exp) : base()
+        {
+            Node = exp;
+        }
+
+        public override string TryComposeRaw(StatementCollection sta)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
 
     public abstract class NodeControl : SNStatement
     {
-        public NodeControl(InstructionBase inst) : base(inst) { }
+
+        public NodeControl() : base() { }
+
         public override void TryCompose(StatementCollection sta, bool compileBranches = false) { base.TryCompose(sta, compileBranches); }
 
         public abstract void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true);
     }
 
-    public class NodeIncludeFunction : NodeControl
-    { 
-        public readonly SyntaxNode n;
-        public NodeIncludeFunction(SyntaxNode body) : base(body.Instruction)
-        {
-            n = body;
-        }
-        public override void TryCompose(StatementCollection sta, bool compileBranches = false) { n.TryCompose(sta, compileBranches); Code = n.Code; } 
-
-        // using brute force ways to do so
-        public override void TryCompile2(StatementCollection sta, StringBuilder sb, int indent = 0, int dIndent = 4, bool compileSubCollections = true)
-        {
-            TryCompose(sta, true);
-            var lines = Code!.Split("\n");
-            for (var i = 0; i < lines.Count(); ++i)
-            {
-                var l = lines[i];
-                if (string.IsNullOrWhiteSpace(l))
-                    continue;
-                var tmpindent = 0;
-                while (l.ElementAt(tmpindent) == ' ')
-                    ++tmpindent;
-                if (i == lines.Count() - 1)
-                    if (l.EndsWith("@"))
-                        l = l.Substring(0, l.Length - 1);
-                    else if (!l.EndsWith(";"))
-                        l = l + ";";
-                sb.Append(l.Substring(tmpindent).ToStringWithIndent(indent + tmpindent * dIndent));
-                sb.Append("\n");
-            }
-        }
-    }
-
     public class NodeDefineFunction : NodeControl
     {
         public StatementCollection Body;
-        public NodeDefineFunction(InstructionBase inst, StatementCollection body) : base(inst)
+        public RawInstruction Instruction { get; }
+        public NodeDefineFunction(RawInstruction inst, StatementCollection body) : base()
         {
             Body = body;
+            Instruction = inst;
         }
 
         public override void TryCompose(StatementCollection sta, bool compileBranches = false) { throw new NotImplementedException(); }
@@ -745,11 +538,10 @@ namespace OpenAS2.Compilation
         public StatementCollection Branch;
 
         public NodeCase(
-            InstructionBase inst,
             SNExpression? condition,
             StatementCollection unbranch, 
             StatementCollection branch
-            ) : base(inst)
+            ) : base()
         {
             Condition = condition;
             Unbranch = unbranch;
@@ -865,11 +657,10 @@ namespace OpenAS2.Compilation
         public StatementCollection Branch;
 
         public NodeLoop(
-            InstructionBase inst,
             SNExpression? condition,
             StatementCollection maintain,
             StatementCollection branch
-            ) : base(inst)
+            ) : base()
         {
             Condition = condition;
             Maintain = maintain;

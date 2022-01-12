@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using OpenAS2.Runtime;
 using OpenAS2.Base;
+using OpenAS2.Compilation.Syntax;
 
 namespace OpenAS2.Compilation
 {
@@ -208,6 +209,9 @@ namespace OpenAS2.Compilation
 
         // should not be modified
         public Dictionary<int, string> RegNames { get; }
+        public Dictionary<int, SNExpression?> RegValues { get; }
+
+        private readonly List<string> _labels;
 
         public override string ToString()
         {
@@ -219,12 +223,18 @@ namespace OpenAS2.Compilation
         public NodePool(IList<ConstantEntry> globalPool, IDictionary<int, string>? regNames = null)
         {
             GlobalPool = globalPool;
+            _labels = new();
             NodeList = new();
             Constants = new List<Value>();
+            
             if (regNames != null)
                 RegNames = new(regNames);
             else
                 RegNames = new();
+
+            RegValues = new();
+            foreach (var (i, n) in RegNames)
+                RegValues[i] = new SNNominator(n);
         }
 
         // subpool of function
@@ -232,6 +242,7 @@ namespace OpenAS2.Compilation
         {
             GlobalPool = parent.GlobalPool;
             NodeList = new();
+            _labels = new();
             if (parent != null)
             {
                 Constants = parent.Constants;
@@ -242,25 +253,32 @@ namespace OpenAS2.Compilation
                 Constants = consts == null ? new List<Value>().AsReadOnly() : consts;
                 RegNames = new();
             }
+            RegValues = new();
+            foreach (var (i, n) in RegNames)
+                RegValues[i] = new SNNominator(n);
         }
 
         // subpool of control
         public NodePool(NodePool parent, IList<Value>? consts = null)
         {
             GlobalPool = parent.GlobalPool;
+            _labels = new();
             if (parent != null)
             {
                 NodeList = new(parent.NodeList.Where(x => x is SNExpression));
                 ParentNodeDivision = NodeList.Count;
                 Constants = parent.Constants;
                 RegNames = new();
+                RegValues = new(parent.RegValues);
             }
             else
             {
                 NodeList = new();
                 Constants = consts == null ? new List<Value>().AsReadOnly() : consts;
                 RegNames = new();
+                RegValues = new();
             }
+            
         }
 
         public SNExpression PopExpression(bool deleteIfPossible = true)
@@ -285,9 +303,14 @@ namespace OpenAS2.Compilation
                 }
                 ret = node;
             }
-            return ret ?? new SNLiteralUndefined();
+            if (ret != null)
+            {
+                _labels.AddRange(ret.Labels);
+                return ret;
+            }
+            return new SNLiteralUndefined();
         }
-        public SNArray PopArray(bool readPair = false, bool ensureCount = true)
+        public SNArray PopArray(bool readPair = false, bool ensureCount = true) // TODO remove ensurecount?
         {
             
             List<SNExpression?> expressions = new();
@@ -295,17 +318,24 @@ namespace OpenAS2.Compilation
             var count = 0;
             if (nexp is SNLiteral s && s.Value is RawValue v)
                 count = v.Integer == 0 ? (int) v.Double : v.Integer;
-            if (readPair)
-                count *= 2;
             for (int i = 0; i < count; ++i)
             {
-                var exp = PopExpression();
-                if (exp != null || (exp == null && ensureCount))
+                if (readPair)
+                {
+                    var exp1 = PopExpression();
+                    var exp2 = PopExpression();
+                    expressions.Add(OprUtils.KeyAssign(exp1, exp2));
+                }
+                else
+                {
+                    var exp = PopExpression();
                     expressions.Add(exp);
+                }
             }
             SNArray ans = new(expressions);
             return ans;
         }
+
         public IEnumerable<SNStatement> PopStatements()
         {
             return NodeList.Skip(ParentNodeDivision).Where(x => x is SNStatement && !_special.ContainsKey(x)).Cast<SNStatement>();
@@ -315,54 +345,66 @@ namespace OpenAS2.Compilation
             return NodeList.Skip(ParentNodeDivision).Where(x => !_special.ContainsKey(x));
         }
 
+        public static IEnumerable<SNStatement> GatherNodes(NodePool np1, NodePool np2)
+        {
+            var ans = new List<SNStatement>();
+            throw new NotImplementedException();
+            return ans;
+        }
+
         public void PushNode(SyntaxNode n)
         {
+            n.Labels.AddRange(_labels);
+            _labels.Clear();
             NodeList.Add(n);
         }
 
-        public void PushNodeConstant(int id)
+        public void PushNodeConstant(int id, Func<SNExpression, SNExpression?>? f = null)
         {
-            PushNode(new SNLiteral(RawValue.FromString(Constants[id].ToString())));
+            SNExpression n = new SNLiteral(RawValue.FromString(Constants[id].ToString()));
+            if (f != null)
+            {
+                var fn = f(n);
+                if (fn != null)
+                    PushNode(fn);
+            }
+            else
+                PushNode(n);
         }
 
         public void PushNodeRegister(int id)
         {
-            throw new NotImplementedException();
+            PushNode(RegValues.TryGetValue(id, out var r) ? r! : new SNLiteralUndefined());
         }
 
-        public void PushInstruction(RawInstruction inst)
+        public void PushInstruction(RawInstruction inst, StructurizedBlockChain chain)
         {
+            if (inst is LogicalTaggedInstruction ltag)
+                _labels.AddRange(ltag.GetLabels());
             if (inst is LogicalFunctionContext fc)
             {
                 var subpool = new NodePool(fc, this);
-                subpool.PushChain(fc.Chain!);
+                if (chain.ChainRecord.TryGetValue(fc, out var cfc))
+                    subpool.PushChain(cfc);
+                else
+                    throw new InvalidOperationException();
                 StatementCollection sc = new(subpool);
-                n = fc.IsStatement ? new NodeDefineFunction(fc, sc) : new NodeFunctionBody(fc, sc);
+                var n = new NodeDefineFunction(fc, sc);
             }
-            else if (inst.Type == InstructionType.Enumerate || inst.Type == InstructionType.Enumerate2)
-            {
-                var obj = PopExpression();
-                // a null object and the enumerated objects are pushed
-                // but due to the mechanism of this class, only the latter
-                // is needed
-                var n = new SNEnumerate(obj);
-                PushNode(n);
-            }
+            
             else
             {
-                n = inst.IsStatement ? new SNStatement(inst) : new SNExpression(inst);
-                n.GetExpressions(this);
-                // find if there are any functions, if there are functions, wrap n
-                if (n.Expressions.Any(x => x is NodeFunctionBody))
-                    n = new NodeIncludeFunction(n);
+                var flag =
+                    Control.Parse(this, inst) ||
+                    General.Parse(this, inst) ||
+                    ObjectOriented.Parse(this, inst);
+                if (!flag)
+                    throw new NotImplementedException();
             }
             // maintain labels
-            foreach (var ne in n.Expressions)
-                if (ne != null)
-                    n.Labels.AddRange(ne.Labels);
-            if (inst is LogicalTaggedInstruction ltag)
-                n.Labels.AddRange(ltag.GetLabels());
+
         }
+
 
         public void PushChainRaw(StructurizedBlockChain chain, bool ignoreBranch)
         {
@@ -377,7 +419,7 @@ namespace OpenAS2.Compilation
                     // yielding Code = "" while receiving no input
                     throw new NotImplementedException();
                 foreach (var (pos, inst) in currentBlock.Items)
-                    PushInstruction(inst);
+                    PushInstruction(inst, chain);
                 // a temporary solution to the BranchAlways codes.
                 if (currentBlock.HasConstantBranch &&
                     currentBlock.BranchCondition!.Parameters[0].Integer >= 0 &&
@@ -409,8 +451,8 @@ namespace OpenAS2.Compilation
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[1]);
                 sub2.PushChain(chain.AdditionalData[2]);
-                NodeCase n = new(branch!, bexp as SNExpression, new(sub1), new(sub2));
-                NodeList.Add(n);
+                NodeCase n = new(bexp as SNExpression, new(sub1), new(sub2));
+                PushNode(n);
                 // add expressions inside the loop
                 // TODO more judgements
                 foreach (var ns2 in sub2.PopNodes())
@@ -418,7 +460,7 @@ namespace OpenAS2.Compilation
                     if (ns2 is SNExpression)
                     {
                         _special[ns2] = 1;
-                        NodeList.Add(ns2);
+                        PushNode(ns2);
                     }
                 }
             }
@@ -430,7 +472,6 @@ namespace OpenAS2.Compilation
                 if (bexp != null)
                 {
                     NodeList.RemoveAt(NodeList.Count - 1);
-                    bexp = bexp.Expressions[0];
                 }
                 // create node expression
                 // this one needs more than condition!!!
@@ -438,15 +479,15 @@ namespace OpenAS2.Compilation
                 NodePool sub2 = new(this);
                 sub1.PushChain(chain.AdditionalData[0]);
                 sub2.PushChain(chain.AdditionalData[1]);
-                NodeLoop n = new(branch!, bexp as SNExpression, new(sub1), new(sub2));
-                NodeList.Add(n);
+                NodeLoop n = new(bexp as SNExpression, new(sub1), new(sub2));
+                PushNode(n);
                 // add expressions inside the loop?
                 foreach (var ns2 in sub2.PopNodes())
                 {
                     if (ns2 is SNExpression)
                     {
                         _special[ns2] = 1;
-                        NodeList.Add(ns2);
+                        PushNode(ns2);
                     }
                 }
             }
@@ -472,7 +513,7 @@ namespace OpenAS2.Compilation
 
         internal void SetRegister(int reg, SNExpression val)
         {
-            throw new NotImplementedException();
+            RegValues[reg] = val;
         }
     }
 

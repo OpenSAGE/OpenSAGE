@@ -78,17 +78,17 @@ namespace OpenAS2.Compilation
             return v;
         }
         */
-        public static (string, List<string>) GetNameAndArguments(InstructionBase function)
+        public static (string, List<string>) GetNameAndArguments(RawInstruction function)
         {
-            string name = function.Parameters[0].ToString();
+            string name = function.Parameters[0].String;
             List<string> args = new();
-            int nrArgs = function.Parameters[1].ToInteger();
+            int nrArgs = function.Parameters[1].Integer;
             for (int i = 0; i < nrArgs; ++i)
             {
                 if (function.Type == InstructionType.DefineFunction2)
-                    args.Add(function.Parameters[4 + i * 2 + 1].ToString());
+                    args.Add(function.Parameters[4 + i * 2 + 1].String);
                 else
-                    args.Add(function.Parameters[2 + i].ToString());
+                    args.Add(function.Parameters[2 + i].String);
             }
             return (name, args);
         }
@@ -238,8 +238,7 @@ namespace OpenAS2.Compilation
             // TODO constpool & constsource
 
             // try form const pool
-            var cp = g != null ? CreateConstantPool(g.ConstPool.Parameters, constSource) : new List<Value>();
-            var p = NodePool.ConvertToAST(c, cp, g.RegNames);
+            var p = NodePool.ConvertToAST(c, constSource, g.RegNames);
 
             // var c = BlockChainifyUtils.Parse(g.BaseBlock);
             // var p = new NodePool(g.ConstPool, g.RegNames);

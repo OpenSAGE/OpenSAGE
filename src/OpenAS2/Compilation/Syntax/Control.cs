@@ -20,10 +20,10 @@ namespace OpenAS2.Compilation.Syntax
                     return true;
 
                 case InstructionType.Return:
-                    np.PushNode(new SNControl("return", np.PopExpression()));
+                    np.PushNode(new SNKeyWord("return", np.PopExpression()));
                     break;
                 case InstructionType.Throw:
-                    np.PushNode(new SNControl("throw", np.PopExpression()));
+                    np.PushNode(new SNKeyWord("throw", np.PopExpression()));
                     break;
                 case InstructionType.ConstantPool:
                     np.Constants = InstructionUtils.CreateConstantPool(inst.Parameters, np.GlobalPool);
@@ -31,10 +31,10 @@ namespace OpenAS2.Compilation.Syntax
 
                 case InstructionType.BranchAlways:
                     return true;
-                case InstructionType.BranchIfTrue:
+                case InstructionType.EA_BranchIfFalse:
                     np.PushNode(np.PopExpression());
                     break;
-                case InstructionType.EA_BranchIfFalse:
+                case InstructionType.BranchIfTrue:
                     np.PushNode(OprUtils.LogicalNot(np.PopExpression()));
                     break;
 
@@ -153,13 +153,13 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.GetProperty:
                     var gpv0 = np.PopExpression();
                     var gpv1 = np.PopExpression();
-                    np.PushNode(new SNMemberAccess(gpv1, gpv0));
+                    np.PushNode(new SNMemberAccess(SNNominator.Check(gpv1), gpv0));
                     break;
                 case InstructionType.SetProperty:
                     var spv0 = np.PopExpression();
                     var spv1 = np.PopExpression();
                     var spv2 = np.PopExpression();
-                    np.PushNode(new SNValAssign(new SNMemberAccess(spv2, spv1), spv0));
+                    np.PushNode(new SNValAssign(new SNMemberAccess(SNNominator.Check(spv2), spv1), spv0));
                     break;
 
 
