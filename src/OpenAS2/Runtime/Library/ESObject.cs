@@ -40,6 +40,8 @@ namespace OpenAS2.Runtime
 
         protected readonly List<ESObject> _interfaces;
 
+        public virtual string ITypeOfResult => "object";
+
 
         // constructor
 
@@ -81,7 +83,7 @@ namespace OpenAS2.Runtime
                 if (arg.Type == ValueType.Object)
                 {
                     var aobj = arg.ToObject();
-                    if (aobj is StageObject sobj)
+                    if (aobj is HostObject sobj)
                     {
                         throw new NotImplementedException();
                     }
@@ -89,7 +91,7 @@ namespace OpenAS2.Runtime
                         return ESCallable.Return(arg);
                 }
                 else if (arg.Type == ValueType.String || arg.Type == ValueType.Boolean || arg.IsNumber())
-                    return ESCallable.Return(arg.ToObject(ec.Avm));
+                    return arg.ToObject(ec);
                 else
                     return ESCallable.Return(Value.FromObject(new ESObject(ec.Avm)));
             }
@@ -103,21 +105,21 @@ namespace OpenAS2.Runtime
             if (args.Count == 0 && (args.First().IsNull() || args.First().IsUndefined()))
                 return ESCallable.Return(Value.FromObject(new ESObject(ec.Avm)));
             else
-                return ESCallable.Return(args.First().ToObject(ec.Avm));
+                return args.First().ToObject(ec);
         }
 
         // utility functions
+        // internal functions 
 
         /// <summary>
-        /// in case of NDP, if it is undefined return false
-        /// in case of NAP do not care if it is or not
+        /// returns null as undefined, otherwise return the property
         /// </summary>
         /// <param name="name">the name to search</param>
         /// <param name="own">if it is an own property</param>
         /// <returns></returns>
-        public PropertyDescriptor? UGetPropDesc(string name, out bool own, bool onlySearchOwn = false)
+        public PropertyDescriptor? IGetProperty(string name, out bool own, bool onlySearchOwn = false)
         {
-            var ret = _properties.TryGetValue(name, out var prop) && !prop.IsUndefNDP();
+            var ret = _properties.TryGetValue(name, out var prop); // && !prop.IsUndefNDP();
             prop = ret ? prop : null;
             var obj = this;
             own = ret;
@@ -126,17 +128,15 @@ namespace OpenAS2.Runtime
                 obj = obj.IPrototype;
                 if (obj == null)
                     break;
-                ret = obj._properties.TryGetValue(name, out prop) && !prop.IsUndefNDP();
+                ret = obj._properties.TryGetValue(name, out prop); // && !prop.IsUndefNDP();
                 prop = ret ? prop : null;
             }
             return prop;
         }
 
-        // internal functions 
-
         public void ASSetFlags(string name, int set, int clear)
         {
-            var prop = UGetPropDesc(name, out var own);
+            var prop = IGetProperty(name, out var own);
             if (prop == null || !own) return;
             var swp = (set & 4) > 0;
             var sdp = (set & 2) > 0;
@@ -152,27 +152,9 @@ namespace OpenAS2.Runtime
             if (chid) prop!.Enumerable = true;
         }
 
-        public ESCallable.Result IHasProperty(ExecutionContext ec, string name)
-        {
-            var prop = UGetPropDesc(name, out var own);
-            if (prop == null)
-                return ESCallable.Return(Value.FromBoolean(false));
-            if (prop is NamedDataProperty)
-                return ESCallable.Return(Value.FromBoolean(true));
-            else
-            {
-                var pa = (NamedAccessoryProperty) prop!;
-                var fres = pa.Get(ec, this, null);
-                fres.SetRecallCode(x =>
-                    ESCallable.Return(Value.FromBoolean( !(x.Type != ResultType.Return || x.Value.IsUndefined()) ))
-                    );
-                return fres;
-            }
-        }
-
         public ESCallable.Result IGet(ExecutionContext ec, string name)
         {
-            var prop = UGetPropDesc(name, out var own);
+            var prop = IGetProperty(name, out var own);
             if (prop == null)
                 return ESCallable.Return(Value.Undefined());
             if (prop is NamedDataProperty pd)
@@ -185,67 +167,110 @@ namespace OpenAS2.Runtime
             }
         }
 
+        public bool ICanPut(string name) { return ICanPut(name, out var _, out var _); }
+        public virtual bool ICanPut(string name, out PropertyDescriptor? prop, out bool own)
+        {
+            prop = IGetProperty(name, out own);
+            if (prop is NamedAccessoryProperty pa)
+                return pa.Set != null;
+            else if (prop != null)
+            {
+                var pd = (NamedDataProperty) prop!;
+                if (own)
+                    return pd.Writable;
+                else
+                    return pd.Writable && IExtensible;
+            }
+            return IExtensible;
+        }
 
+        public virtual ESCallable.Result IPut(ExecutionContext ec, string name, Value val, bool doThrow = false)
+        {
+            if (ICanPut(name, out var prop, out var own))
+            {
+                if (own && prop is NamedDataProperty pd)
+                {
+                    pd.Value = val;
+                    // does it need to call DOP?
+                }
+                else if (prop is NamedAccessoryProperty pa)
+                {
+                    var sres = pa.Set!(ec, this, new Value[] { val });
+                    return sres;
+                }
+                else // create a new property
+                    return IDefineOwnProperty(ec, name, PropertyDescriptor.D(val, true, true, true), doThrow);
+            }
+            else if (doThrow)
+            {
+                var err = ec.ConstrutError("TypeError");
+                return ESCallable.Throw(err);
+            }
+            return new ESCallable.Result();
+        }
+
+        public bool IHasProperty(string name)
+        {
+            var prop = IGetProperty(name, out var _);
+            return prop == null;
+        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ec"></param>
+        /// <param name="hint">1: string 2: number</param>
+        /// <returns></returns>
+        public virtual ESCallable.Result IDefaultValue(ExecutionContext ec, int hint = 1)
+        {
+            if (hint != 1 && hint != 2)
+                return IDefaultValue(ec, 1);
+            var f1 = hint == 1 ? "toString" : "valueOf";
+            var f2 = hint == 1 ? "valueOf" : "toString";
+            var ts = TryCall(ec, f1, null);
+            ts.AddRecallCode(ESCallable.Result.RCBoolCheck(x => Value.IsPrimitive(x)));
+            ts.AddRecallCode(res =>
+            {
+                if (res.IsNormalOrReturn())
+                {
+                    var prim = Value.IsPrimitive(res.Value);
+                    if (prim)
+                        return res;
+                    else
+                    {
+                        var vo = TryCall(ec, f2, null);
+                        vo.AddRecallCode(res =>
+                        {
+                            if (res.IsNormalOrReturn())
+                                if (Value.IsPrimitive(res.Value))
+                                    return res;
+                                else
+                                    return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                            else
+                                return res;
+                        });
+                        return vo;
+                    }
+                }
+                else
+                    return res;
+            });
+            return ts;
+        }
 
         public virtual Value IGet(string name)
         {
             return IGet(null, name).Value;
         }
 
-        public virtual bool ICanPut(string name, out PropertyDescriptor? prop, ExecutionContext? ec = null)
-        {
-            // unnecessary
-            // if (IHasOwnProperty(name, out var prop))
-            //    return prop!.Writable;
-            prop = UGetPropDesc(name, out var _);
-            if (IPrototype != null && prop != null)
-                return prop.Writable;
-            else
-                return IExtensible;
-        }
 
-        public virtual void IPut(string name, Value val, ExecutionContext? ec = null, bool doThrow = false)
-        {
-            ec = ec ?? (VM != null ? VM.GlobalContext : null);
-            ESError? e = null;
-            if (ICanPut(name, out var prop))
-            {
-                if (prop != null)
-                {
-                    if (prop is NamedAccessoryProperty pa)
-                    {
-                        var sres = pa.Set!(ec, this, new Value[] { val });
-                        if (sres.Type == ResultType.Throw)
-                            e = (ESError) sres.Value.ToObject();
-                    }
-                        
-                    else
-                    {
-                        var pd = (NamedDataProperty) prop;
-                        if (IHasOwnProperty(name, out var prop2)) // assume equivalent to containskey?
-                            if (prop != prop2)
-                                throw new InvalidOperationException("This should not happen");
-                            else
-                                pd.Value = val;
-                    }
-                }
-                else // create a new property
-                    IDefineOwnProperty(name, PropertyDescriptor.D(val, true, true, true), doThrow);
-            }
-            else if (doThrow) 
-            {
-                if (ec == null)
-                    throw new WrappedESError(e);
-                else
-                    throw new NotImplementedException(); // don't know how or what to do...
-            }
-        }
 
-        public virtual bool IDefineOwnProperty(string name, PropertyDescriptor desc, bool doThrow = false)
+        public virtual ESCallable.Result IDefineOwnProperty(ExecutionContext? ec, string name, PropertyDescriptor desc, bool doThrow = false)
         {
             var ans = true;
-            var fcurrent = IHasOwnProperty(name, out var pcurrent);
-            if (!fcurrent)
+            var pcurrent = IGetProperty(name, out var own, true);
+            if (pcurrent == null)
                 if (!IExtensible)
                     ans = false;
                 else
@@ -269,83 +294,48 @@ namespace OpenAS2.Runtime
                     }
                     else
                     {
-                        throw new NotImplementedException(); // what the hell........implement aster met
+                        throw new NotImplementedException(); // what the hell........implement after met
                     }
                 }
             }
-            if (!ans && doThrow)
+            if (!ans && doThrow && ec != null)
             {
-                // TODO reject
+                var err = ec.ConstrutError("TypeError");
+                return ESCallable.Throw(err);
             }
-            return ans;
+            return ESCallable.Return(Value.FromBoolean(ans));
         }
 
-        public virtual bool IDelete(string name, bool doThrow = false)
+        public virtual ESCallable.Result IDeleteValue(ExecutionContext ec, string name, bool doThrow = false)
         {
-            if (IHasOwnProperty(name, out var prop))
+            var prop = IGetProperty(name, out var _, true);
+            var ans = true;
+            if (prop != null)
             {
-                // not necessary?
-                // if (prop is NamedDataProperty && ((NamedDataProperty) prop).Value.Type == ValueType.Undefined)
-                //     return true;
-                if (prop!.Configurable)
-                {
+                if (prop.Configurable)
                     _properties.Remove(name);
-                    return true;
-                }
                 else
                 {
-                    if (doThrow)
-                    {
-                        // TODO reject
-                    }
-                    return false;
+                    ans = false;
                 }
                     
             }
-            return true;
+            if (!ans && doThrow)
+            {
+                var err = ec.ConstrutError("TypeError");
+                return ESCallable.Throw(err);
+            }
+            return ESCallable.Return(Value.FromBoolean(ans));
         }
 
-        public virtual Value IDefaultValue(int hint = 0, ExecutionContext? actx = null)
-        {
-            if (hint == 1)
-            {
-                var ts = TryCall("toString", actx, null);
-                if (Value.IsPrimitive(ts))
-                    return ts;
-                var vo = TryCall("valueOf", actx, null);
-                if (Value.IsPrimitive(vo))
-                    return vo;
-                // todo throw exception inside vm?
-                throw new NotImplementedException("TypeError Exception");
-            }
-            else if (hint == 2)
-            {
-                var vo = TryCall("valueOf", actx, null);
-                if (Value.IsPrimitive(vo))
-                    return vo;
-                var ts = TryCall("toString", actx, null);
-                if (Value.IsPrimitive(ts))
-                    return ts;
-                // todo throw exception inside vm?
-                throw new NotImplementedException("TypeError Exception");
-            }
-            else
-            {
-                // TODO date object
-                return IDefaultValue(2, actx);
-            }
-        }
+        
 
         // utils
-        public Value TryCall(string fname, ExecutionContext? ec, IList<Value>? args)
+        public ESCallable.Result TryCall(ExecutionContext ec, string fname, IList<Value>? args)
         {
-            // TODO what if ec is null?
             var f = IGet(fname);
             if (!f.IsCallable())
-            {
-                // TODO throw
-                throw new NotImplementedException("TypeError");
-            }
+                return ESCallable.Throw(ec.ConstrutError("TypeError"));
             else
                 return f.ToFunction().ICall(ec, this, args);
         }
@@ -381,7 +371,7 @@ namespace OpenAS2.Runtime
             ["valueOf"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                 (actx, tv, args) =>
                 {
-                    if (tv is StageObject)
+                    if (tv is HostObject)
                         throw new NotImplementedException();
                     else
                         return Value.FromObject(tv);

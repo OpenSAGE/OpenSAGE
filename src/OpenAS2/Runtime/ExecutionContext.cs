@@ -52,7 +52,7 @@ namespace OpenAS2.Runtime
         public string DisplayName { get; set; } // only used for display purpose
 
         private Stack<Value> _stack;
-        private Stack<ESCallable.Result> _recall;
+        private Queue<ESCallable.Result> _recall;
         private Value[] _registers { get; set; }
 
         public ExecutionContext(
@@ -95,10 +95,10 @@ namespace OpenAS2.Runtime
 
         public bool IsOutermost() { return Outer == null || Outer == this; }
 
-        public void PushRecallCode(ESCallable.Result code) { _recall.Push(code); }
-        public ESCallable.Result PopRecallCode() { return _recall.Pop(); }
-        public ESCallable.Result FirstRecallCode() { return _recall.Peek(); }
-        public bool HasRecallCode() { return _recall.Count != 0; }
+        public void EnqueueResultCallback(ESCallable.Result code) { _recall.Enqueue(code); }
+        public ESCallable.Result DequeueResultCallback() { return _recall.Dequeue(); }
+        public ESCallable.Result FirstResultCallback() { return _recall.Peek(); }
+        public bool HasResultCallback() { return _recall.Count != 0; }
 
         public override string ToString()
         {
@@ -110,7 +110,7 @@ namespace OpenAS2.Runtime
         public void ReformConstantPool(IList<RawValue> Parameters)
         {
             Constants = GlobalConstantPool == null ?
-                new() :
+                new List<Value>().AsReadOnly() :
                 InstructionUtils.CreateConstantPool(Parameters, GlobalConstantPool);
         }
         public Value ResolveConstant(int id)
@@ -362,7 +362,7 @@ namespace OpenAS2.Runtime
         /// <returns></returns>
         public Value GetValueOnChain(string name)
         {
-            var ans = Value.Undefined();
+            Value? ans = null;
             var env = this;
             while (env != null)
             {
@@ -375,7 +375,7 @@ namespace OpenAS2.Runtime
             }
             if (ans == null || ans.Type == ValueType.Undefined)
                 Logger.Warn($"[WARN] Undefined property: {name}");
-            return ans;
+            return ans ?? Value.Undefined();
         }
 
         public void SetValueOnLocal(string name, Value val)
@@ -386,7 +386,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                Global.IPut(name, val);
+                Global.IPut(this, name, val);
             }
         }
 
@@ -413,7 +413,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                Global.IDelete(name);
+                Global.IDeleteValue(this, name);
             }
         }
 
@@ -490,7 +490,7 @@ namespace OpenAS2.Runtime
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                _registers[reg] = Value.FromObject(((StageObject) This).GetParent());
+                _registers[reg] = Value.FromObject(((HostObject) This).GetParent());
                 _registers[reg].DisplayString = "Preload Parent";
                 ++reg;
             }
@@ -549,24 +549,40 @@ namespace OpenAS2.Runtime
         {
             // TODO if an execution context is created, use it; otherwise omit it
             var thisVar = cst.IConstruct(this, cst, args);
-            PushRecallCode(thisVar);
+            EnqueueResultCallback(thisVar);
         }
 
         // executions
 
-        public Value ThrowError(string name = "Error", string? message = "")
+        public Value ConstrutError(string name = "Error", string message = "")
         {
-            var err = Avm.ThrowError(name, message, this);
+            var err = Avm.ConstructError(name, message, this);
             Result = ResultType.Throw;
             ReturnValue = err;
             return err;
         }
 
-        public void ThrowError(ESError e)
+        public void TryClearCallback()
         {
-            Avm.ThrowError(e, this);
-            Result = ResultType.Throw;
-            ReturnValue = Value.FromObject(e);
+            while (HasResultCallback())
+            {
+                var rec = DequeueResultCallback();
+                var res = rec.ExecuteRecallCode();
+                if (res == null) // nothing to push to stack
+                    continue;
+                else if (res.Type == ResultType.Executing) // new ECs are pushed, continue executing without cleaning
+                    break;
+                else if (res.Type == ResultType.Throw) // errors are thrown
+                {
+                    // TODO implement try-catch
+                    Avm.ThrowError((ESError) res.Value.ToObject()!, res.Context);
+                }
+                else if (res.Type == ResultType.Return)
+                    Push(res.Value);
+                else
+                    // throw new InvalidOperationException();
+                    Logger.Warn("A callable result with type Normal is popped.");
+            }
         }
 
         public RawInstruction? ExecuteOnceLocal(bool breakpoint = true)

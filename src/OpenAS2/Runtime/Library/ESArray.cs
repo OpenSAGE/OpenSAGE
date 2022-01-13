@@ -3,24 +3,24 @@ using System;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ASArray : ESObject
+    class ESArray : ESObject
     {
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
             ["constructor"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
-                     ((ASArray) tv).IPrototype = actx.Avm.Prototypes["Array"];
-                     ((ASArray) tv)._values = new List<Value>(args);
+                     ((ESArray) tv).IPrototype = actx.Avm.Prototypes["Array"];
+                     ((ESArray) tv)._values = new List<Value>(args);
                      return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
             ["length"] = (avm) => PropertyDescriptor.A(
-                (tv) => Value.FromInteger(((ASArray) tv).GetLength()),
+                (tv) => Value.FromInteger(((ESArray) tv).GetLength()),
                 (tv, val) =>
                 {
                     var len = val.ToInteger();
-                    ((ASArray) tv).ChangeLength(len);
+                    ((ESArray) tv).ChangeLength(len);
                 }
                 , false, false), 
             // methods
@@ -51,8 +51,8 @@ namespace OpenAS2.Runtime.Library
             }
         }
 
-        public ASArray(VirtualMachine vm) : this(null, vm) { }
-        public ASArray(IEnumerable<Value> args, VirtualMachine vm): base(vm, "Array")
+        public ESArray(VirtualMachine vm) : this(null, vm) { }
+        public ESArray(IEnumerable<Value> args, VirtualMachine vm): base(vm, "Array")
         {
             if (args == null) _values = new List<Value>();
             else _values = new List<Value>(args);

@@ -137,7 +137,7 @@ namespace OpenAS2.Runtime.Execution
             throw new NotImplementedException("need to check");
             var property = context.Pop().ToString();
             var target = context.Pop();// TODO wtf? context.GetTarget(context.Pop().ToString());
-            target.ToObject().IDelete(property);
+            target.ToObject().IDeleteValue(property);
         }
 
         public static void DoCallFunction(ExecutionContext context)
@@ -145,7 +145,7 @@ namespace OpenAS2.Runtime.Execution
             var funcName = context.Pop().ToString();
             var args = FunctionUtils.GetArgumentsFromStack(context);
             var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
-            context.PushRecallCode(ret);
+            context.EnqueueResultCallback(ret);
 
         }
         public static void DoCallMethod(ExecutionContext context)
@@ -167,7 +167,7 @@ namespace OpenAS2.Runtime.Execution
                 var args = FunctionUtils.GetArgumentsFromStack(context);
                 ret = FunctionUtils.TryExecuteFunction(funcVal, args, context);
             }
-            context.PushRecallCode(ret);
+            context.EnqueueResultCallback(ret);
         }
         public static void DoGetNamedMember(ExecutionContext context, int cid)
         {
@@ -188,7 +188,7 @@ namespace OpenAS2.Runtime.Execution
             var args = FunctionUtils.GetArgumentsFromStack(context);
 
             var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
-            context.PushRecallCode(ret);
+            context.EnqueueResultCallback(ret);
         }
         public static void DoCallNamedMethod(ExecutionContext context, int cid, bool pop = false)
         {
@@ -197,20 +197,20 @@ namespace OpenAS2.Runtime.Execution
             var args = FunctionUtils.GetArgumentsFromStack(context);
 
             var ret0 = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
-            context.PushRecallCode(ret0);
+            context.EnqueueResultCallback(ret0);
 
             if (!pop)
             {
                 throw new NotImplementedException("need check");
                 var ret = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
-                ret.SetRecallCode((ret2) =>
+                ret.AddRecallCode((ret2) =>
                 {
                     var result = ret2.Value;
                     var varName = context.Pop();
                     context.SetValueOnLocal(varName.ToString(), result);
                     return null; // push nothing back
                 });
-                context.PushRecallCode(ret);
+                context.EnqueueResultCallback(ret);
             }
         }
 

@@ -27,9 +27,9 @@ namespace OpenAS2.Runtime
 
         private readonly string _string;
         private readonly bool _boolean;
-        private readonly int _number;
+        private readonly int _number; // 0 means +0
         private readonly double _decimal;
-        private readonly ESObject? _object;
+        private readonly ESObject? _object; // guarenteed to not ne null if type == object
 
         public readonly bool IsThrow = false;
 
@@ -65,10 +65,10 @@ namespace OpenAS2.Runtime
         public bool IsUndefined() { return Type == ValueType.Undefined; }
         public bool IsNull() { return Type == ValueType.Null; }
         public bool IsNumber() { return Type == ValueType.Float || Type == ValueType.Integer; }
-        public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ASString); }
+        public bool IsString() { return Type == ValueType.String || (Type == ValueType.Object && _object is ESString); }
 
         public static bool IsCallable(Value v) { return v != null && (v._object as ESFunction) != null; }
-        public static bool IsPrimitive(Value v) { return IsNull(v) || v.Type != ValueType.Object; }
+        public static bool IsPrimitive(Value v) { return v.Type != ValueType.Object; }
 
         public bool IsCallable() { return IsCallable(this); }
         public bool IsPrimitive() { return IsPrimitive(this); }
@@ -83,7 +83,7 @@ namespace OpenAS2.Runtime
 
         // from
 
-        public static Value FromFunction(ESFunction func)
+        public static Value FromFunction(ESFunction? func)
         {
             if (func == null)
                 return Null();
@@ -101,7 +101,7 @@ namespace OpenAS2.Runtime
 
         public static Value FromArray(IEnumerable<Value> array, VirtualMachine vm)
         {
-            return new Value(ValueType.Object, o: new ASArray(array, vm));
+            return new Value(ValueType.Object, o: new ESArray(array, vm));
         }
 
         public static Value FromBoolean(bool cond)
@@ -119,7 +119,6 @@ namespace OpenAS2.Runtime
             return new Value(ValueType.Integer, n: num);
         }
 
-        // TODO is it okay?
         public static Value FromUInteger(uint num)
         {
             if (num > 0x0FFFFFFF)
@@ -186,7 +185,7 @@ namespace OpenAS2.Runtime
                 case ValueType.Object:
                     if (IsNull())
                         return +0;
-                    else if (_object is ASString s)
+                    else if (_object is ESString s)
                         return double.TryParse(s.ToString(), out var f2) ? f2 : double.NaN;
                     else
                         return double.NaN;
@@ -215,7 +214,7 @@ namespace OpenAS2.Runtime
                 case ValueType.Object:
                     if (IsNull())
                         return 0;
-                    else if (_object is ASString s)
+                    else if (_object is ESString s)
                         return int.TryParse(s.ToString(), out var f2) ? f2 : 0;
                     else
                         return 0;
@@ -224,103 +223,19 @@ namespace OpenAS2.Runtime
             }
         }
 
-
-        // conversion with AS
-        // TODO \up
-
-
-        public Value ToNumber(ExecutionContext? actx = null)
+        public ESObject ToObject()
         {
-           
-
-            if (IsNumber())
-                return this;
-            else if (Type == ValueType.Boolean)
-                return _boolean ? FromInteger(1) : FromInteger(0);
-            else if (IsUndefined())
-                return FromFloat(double.NaN);
-            else if (IsNull())
-                return FromInteger(0);
-            else if (IsString())
-                return
-                    int.TryParse(_string, out var i) ? FromInteger(i) :
-                    double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
-            else
-            {
-                var r = _object!.IDefaultValue(2, actx);
-                if (r.Type == ValueType.Object && !IsNull(r)) return FromFloat(double.NaN);
-                else return r.ToNumber(actx);
-            }
-        }
-
-        public Value ToPrimitive(ExecutionContext? context = null, int preferredType = 0)
-        {
-            if (IsPrimitive())
-                return this;
-            else
-                return _object!.IDefaultValue(preferredType, context);
-        }
-
-
-
-
-        public T? ToObject<T>() where T : ESObject
-        {
-            if (IsUndefined())
-            {
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-            else if (IsNull())
-                return null;
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
-            
-            return (T?) _object;
+            return _object!;
         }
 
-        public ESObject? ToObject()
+        public T ToObject<T>() where T : ESObject
         {
-            if (Type == ValueType.Undefined)
-            {
-                // TODO throw typeerror
-                Logger.Error("Cannot create object from undefined!");
-                return null;
-            }
-
-            if (Type == ValueType.String)
-            {
-                return new ASString(this, null);
-            }
-
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
-
-            return _object;
+            return (T) _object!;
         }
-
-        public Value ToObject(VirtualMachine vm)
-        {
-            if (_object != null)
-                return FromObject(_object);
-            else if (Type == ValueType.Boolean)
-                throw new NotImplementedException();
-            else if (Type == ValueType.String)
-                throw new NotImplementedException();
-            else if (IsNumber())
-                throw new NotImplementedException();
-            else
-                throw new NotImplementedException("TypeError");
-        }
-
-        // numbers
-
-        public uint ToUInteger()
-        {
-            return (uint) ToInteger();
-        }
-
-        // ToReal() migrated to ToFloat()
 
         public bool ToBoolean()
         {
@@ -341,7 +256,7 @@ namespace OpenAS2.Runtime
                     var = false;
                     break;
                 case ValueType.Float:
-                    var = (_decimal != 0);
+                    var = (_decimal != 0) && (!double.IsNaN(_decimal));
                     break;
                 case ValueType.Integer:
                     var = (_number != 0);
@@ -352,16 +267,78 @@ namespace OpenAS2.Runtime
             return var;
         }
 
+        // conversion with AS
+
+        public ESCallable.Result ToPrimitive(ExecutionContext context, int preferredType = 1)
+        {
+            // TODO prefetted type check
+            if (IsPrimitive())
+                return ESCallable.Return(this);
+            else
+                return _object!.IDefaultValue(context, preferredType);
+        }
+
+        public ESCallable.Result ToNumber(ExecutionContext ec)
+        {
+
+            Value ret = this;
+            if (IsNumber())
+                ret = this;
+            else if (Type == ValueType.Boolean)
+                ret = _boolean ? FromInteger(1) : FromInteger(0);
+            else if (IsUndefined())
+                ret = FromFloat(double.NaN);
+            else if (IsNull())
+                ret = FromInteger(0);
+            else if (IsString())
+                ret =
+                    int.TryParse(_string, out var i) ? FromInteger(i) :
+                    double.TryParse(_string, out var f) ? FromFloat(f) : FromFloat(double.NaN);
+            else // object
+            {
+                var r = _object!.IDefaultValue(ec, 2);
+                r.AddRecallCode(x => x.Value.ToNumber(ec));
+                return r;
+            }
+            return ESCallable.Return(ret);
+        }
+
+        // tointeger & toint32 & touint32 & touint16: do it manually unless necessary
+
+        public ESCallable.Result ToString(ExecutionContext ec)
+        {
+            if (Type != ValueType.Object)
+                return ESCallable.Return(FromString(ToString()));
+            var r = _object!.IDefaultValue(ec, 1);
+            r.AddRecallCode(x => x.Value.ToString(ec));
+            return r;
+        }
+
+
+        public ESCallable.Result ToObject(ExecutionContext ec)
+        {
+            // TODO std
+            if (IsNull() || IsUndefined())
+                return ESCallable.Throw(ec.ConstrutError("TypeError"));
+            else if (Type == ValueType.Object)
+                return ESCallable.Return(this);
+            else if (Type == ValueType.Boolean)
+                throw new NotImplementedException();
+            else if (Type == ValueType.String)
+                throw new NotImplementedException();
+            else if (IsNumber())
+                throw new NotImplementedException();
+            else
+                throw new InvalidOperationException();
+        }
+
+        // numbers
+
         public ESFunction ToFunction()
         {
-            if (Type == ValueType.Undefined)
-            {
+            if (!IsCallable())
                 throw new InvalidOperationException();
-            }
-            if (Type != ValueType.Object || _object is not ESFunction)
-                throw new InvalidOperationException();
-
-            return (ESFunction) _object;
+            return (ESFunction) _object!;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -372,7 +349,7 @@ namespace OpenAS2.Runtime
                 case ValueType.String:
                     return _string;
                 case ValueType.Boolean:
-                    return _boolean.ToString();
+                    return _boolean ? "true" : "false";
                 case ValueType.Integer:
                     return _number.ToString();
                 case ValueType.Float:
@@ -382,9 +359,9 @@ namespace OpenAS2.Runtime
                 case ValueType.Null:
                     return "null";
                 case ValueType.Object:
-                    return _object == null ? "null" : _object.ToString();
+                    return $"[object {_object!.IClass}]";
                 default:
-                    throw new NotImplementedException(Type.ToString());
+                    throw new InvalidOperationException(Type.ToString());
             }
         }
 
@@ -400,16 +377,11 @@ namespace OpenAS2.Runtime
                 case ValueType.Float:
                     return "number";
                 case ValueType.Object:
-                    if (_object is MovieClip)
-                        return "movieclip";
-                    else if (_object is ESFunction)
-                        return "function";
-                    else
-                        return "object";
+                    return _object!.ITypeOfResult;
                 case ValueType.Undefined:
                     return "undefined";
                 case ValueType.Null:
-                    return "null";
+                    return "object";
                 default:
                     throw new InvalidOperationException(Type.ToString());
             }
@@ -419,44 +391,21 @@ namespace OpenAS2.Runtime
 
         public virtual string ToStringWithType(ExecutionContext ctx)
         {
-            var ttype = "?";
-            try { ttype = this.Type.ToString().Substring(0, 3); }
-            catch (InvalidOperationException e) { }
+            var ttype = Type.ToString().Substring(0, 3);
             string tstr = DisplayString;
-            if (tstr == null || tstr == "")
+            if (string.IsNullOrWhiteSpace(tstr))
             {
                 tstr = ToString();
             }
             return $"({ttype}){tstr}";
-            }
+        }
 
-        // Follow ECMA specification 9.3: https://www.ecma-international.org/ecma-262/5.1/#sec-9.3\
         public TEnum ToEnum<TEnum>() where TEnum : struct
         {
             if (Type != ValueType.Integer)
                 throw new InvalidOperationException();
 
             return EnumUtility.CastValueAsEnum<int, TEnum>(_number);
-        }
-
-        // TODO not comprehensive; ActionContext needed
-        public Value ToPrimirive(int hint = 0, ExecutionContext? actx = null)
-        {
-            switch (Type)
-            {
-                case ValueType.Undefined:
-                case ValueType.Null:
-                case ValueType.Boolean:
-                case ValueType.Integer:
-                case ValueType.Float:
-                case ValueType.String:
-                    return this;
-                case ValueType.Object:
-                    return _object!.IDefaultValue(hint, actx);
-                default:
-                    throw new NotImplementedException();
-            }
-            
         }
 
         // equality comparison
@@ -504,7 +453,7 @@ namespace OpenAS2.Runtime
         // The Abstract Equality Comparison Follows Section 11.9.3, ECMAScript Specification 3
         // https://262.ecma-international.org/5.1/#sec-11.9.3
         // https://www-archive.mozilla.org/js/language/E262-3.pdf
-        public static bool AbstractEquals(Value x, Value y, ExecutionContext actx = null)
+        public static bool AbstractEquals(Value x, Value y, ExecutionContext? ec = null)
         {
             if ((IsNull(x) && IsNull(y)) ||
                 (IsNull(x) && IsUndefined(y)) ||
@@ -514,7 +463,7 @@ namespace OpenAS2.Runtime
                 return false; // TODO check
             else if (x.Type == y.Type)
             {
-                return StrictEquals(x, y, actx);
+                return StrictEquals(x, y, ec);
             }
             else if (IsNumber(x) && IsNumber(y))
                 return NumberEquals(x, y);
@@ -529,9 +478,9 @@ namespace OpenAS2.Runtime
                 else if (y.Type == ValueType.Boolean)
                     return AbstractEquals(FromFloat(y.ToFloat()), x);
                 else if ((IsNumber(x) || IsString(x)) && (y.Type == ValueType.Object && !IsNull(y)))
-                    return AbstractEquals(x, y.ToPrimirive(2, actx));
+                    return AbstractEquals(x, y.ToPrimirive(2, ec));
                 else if ((IsNumber(y) || IsString(y)) && (x.Type == ValueType.Object && !IsNull(x)))
-                    return AbstractEquals(y, x.ToPrimirive(2, actx));
+                    return AbstractEquals(y, x.ToPrimirive(2, ec));
                 else
                     return false;
             }

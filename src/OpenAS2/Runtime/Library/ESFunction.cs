@@ -29,7 +29,7 @@ namespace OpenAS2.Runtime
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.IPut(name, funcVal);
+                context.EnqueueResultCallback(context.This.IPut(context, name, funcVal));
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -58,7 +58,7 @@ namespace OpenAS2.Runtime
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
-                context.This.IPut(name, funcVal);
+                context.EnqueueResultCallback(context.This.IPut(context, name, funcVal));
             //anonymous function/lambda function
             else
                 context.Push(funcVal);
@@ -104,7 +104,7 @@ namespace OpenAS2.Runtime
         public static ESCallable.Result ReturnUndefined(ExecutionContext ec, ESObject tv, IList<Value>? args) { return ESCallable.Return(Value.Undefined()); }
 
         public static ESCallable.Result ThrowTypeError(ExecutionContext ec, ESObject tv, IList<Value>? args) {
-            Value ret = ec.ThrowError("TypeError", (args.Count > 0 ? args[0].ToString() : null) ?? string.Empty);
+            Value ret = ec.ConstrutError("TypeError", (args.Count > 0 ? args[0].ToString() : null) ?? string.Empty);
             return ESCallable.Throw(ret);
         }
     }
@@ -112,7 +112,8 @@ namespace OpenAS2.Runtime
 
     public class ESFunction: ESObject
     {
-        
+
+        public override string ITypeOfResult => "function";
 
         // library
 
@@ -155,7 +156,7 @@ namespace OpenAS2.Runtime
             ICall = call; // 6
             IConstruct = construct ?? IConstructDefault; // 7
             IFormalParameters = formalParameters == null ? new List<string>() : new List<string>(formalParameters); // 10~11
-            IDefineOwnProperty("length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
+            IDefineOwnProperty(null, "length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
 
         }
 
@@ -177,7 +178,7 @@ namespace OpenAS2.Runtime
 
             // formal parameters
             IFormalParameters = formalParameters == null ? new List<string>() : new List<string>(formalParameters); // 10~11
-            IDefineOwnProperty("length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
+            IDefineOwnProperty(null, "length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
 
             var proto = new ESObject(vm); // TODO real new object; 16
             ConnectPrototype(proto); // 17~18
@@ -190,8 +191,8 @@ namespace OpenAS2.Runtime
 
         public void ConnectPrototype(ESObject proto, bool lockdown = false)
         {
-            proto.IDefineOwnProperty("constructor", PropertyDescriptor.D(Value.FromObject(this), true, false, true), false); // 17
-            IDefineOwnProperty("prototype", PropertyDescriptor.D(Value.FromObject(proto), true && !lockdown, false, false), false); // 18
+            proto.IDefineOwnProperty(null, "constructor", PropertyDescriptor.D(Value.FromObject(this), true, false, true), false); // 17
+            IDefineOwnProperty(null, "prototype", PropertyDescriptor.D(Value.FromObject(proto), true && !lockdown, false, false), false); // 18
         }
 
         public void InitStrict()
@@ -290,7 +291,7 @@ namespace OpenAS2.Runtime
         public void Apply(ExecutionContext context, ESObject thisVar, IList<Value> args)
         {
             var thisVar_ = args.Count > 0 ? args[0] : Value.Undefined();
-            var args_ = args.Count > 1 ? ((ASArray)args[1].ToObject()).GetValues() : new Value[0];
+            var args_ = args.Count > 1 ? ((ESArray)args[1].ToObject()).GetValues() : new Value[0];
             ICall(context, thisVar_.ToObject(), args_);
         }
 
@@ -310,8 +311,8 @@ namespace OpenAS2.Runtime
 
         public NativeFunction(VirtualMachine vm) : this(vm, FunctionUtils.ReturnUndefined) { }
 
-        public NativeFunction(VirtualMachine vm, ESCallable.Func f, ExecutionContext? scope = null, IList<string>? formalParams = null) :
-            base(vm, f, IConstructDefault, definedScope: scope, formalParameters: formalParams)
+        public NativeFunction(VirtualMachine vm, ESCallable.Func? f, ExecutionContext? scope = null, IList<string>? formalParams = null) :
+            base(vm, f ?? FunctionUtils.ReturnUndefined, IConstructDefault, definedScope: scope, formalParameters: formalParams)
         {
 
         }
@@ -398,7 +399,7 @@ namespace OpenAS2.Runtime
 
                 // then load variables
                 // overwrite parameters if register is coincidently the same
-                var a = Value.FromObject(new ASArray(args, vm));
+                var a = Value.FromObject(new ESArray(args, vm));
                 context.Preload(Flags, a);
             }
 

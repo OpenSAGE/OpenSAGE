@@ -34,20 +34,20 @@ namespace OpenAS2.Runtime.Library
 
         }
 
-        public ESError(VirtualMachine vm, string? message, string? name = null) : base(vm, "Error")
+        public ESError(ExecutionContext ec, string? message, string? name = null) : base(ec.Avm, "Error")
         {
-            IPut("message", Value.FromString(message ?? string.Empty));
+            IPut(ec, "message", Value.FromString(message ?? string.Empty));
             if (name != null)
-                IPut("name", Value.FromString(name)); 
+                IPut(ec, "name", Value.FromString(name)); 
         }
 
 
         public static ESCallable.Result IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value> args, string? name)
         {
             if (args.Count > 0 && !args.First().IsUndefined())
-                return ESCallable.Return(Value.FromObject(new ESError(ec.Avm, args.First().ToString(), name)));
+                return ESCallable.Return(Value.FromObject(new ESError(ec, args.First().ToString(), name)));
             else
-                return ESCallable.Return(Value.FromObject(new ESError(ec.Avm, null, name)));
+                return ESCallable.Return(Value.FromObject(new ESError(ec, null, name)));
         }
 
         public static ESCallable.Func IConstructAndCall(string? name) { return (a, b, c) => IConstructAndCall(a, b, c, name); }

@@ -3,25 +3,25 @@ using System;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ASString : ESObject
+    class ESString : ESObject
     {
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
             ["constructor"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
                  (actx, tv, args) => {
-                     ((ASString) tv).IPrototype = actx.Avm.Prototypes["String"];
-                     ((ASString) tv)._value = args[0].ToString();
+                     ((ESString) tv).IPrototype = actx.Avm.Prototypes["String"];
+                     ((ESString) tv)._value = args[0].ToString();
                      return Value.FromObject(tv);
                  }
                  , avm)), true, false, false),
             ["length"] = (avm) => PropertyDescriptor.A(
-                (tv) => Value.FromInteger(((ASString) tv).GetLength()),
+                (tv) => Value.FromInteger(((ESString) tv).GetLength()),
                 null
                 , false, false),
             // methods
             ["substr"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => ((ASString) tv).substr(args)
+                 (vm, tv, args) => ((ESString) tv).substr(args)
                  , avm)), true, false, false),
             // TODO
         };
@@ -33,8 +33,8 @@ namespace OpenAS2.Runtime.Library
 
         private string _value;
 
-        public ASString(VirtualMachine vm) : this(null, vm) { }
-        public ASString(Value value, VirtualMachine vm) : base(vm, "String")
+        public ESString(VirtualMachine vm) : this(null, vm) { }
+        public ESString(Value value, VirtualMachine vm) : base(vm, "String")
         {
             if (value == null) _value = "null";
             else _value = value.ToString();

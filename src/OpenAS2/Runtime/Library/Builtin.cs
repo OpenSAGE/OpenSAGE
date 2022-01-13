@@ -23,9 +23,9 @@ namespace OpenAS2.Runtime.Library
             {
                 ["Object"] = typeof(ESObject),
                 ["Function"] = typeof(ESFunction),
-                ["Array"] = typeof(ASArray),
+                ["Array"] = typeof(ESArray),
                 ["Color"] = typeof(ASColor),
-                ["String"] = typeof(ASString),
+                ["String"] = typeof(ESString),
                 ["MovieClip"] = typeof(MovieClip),
                 ["TextField"] = typeof(TextField),
             };
@@ -52,8 +52,8 @@ namespace OpenAS2.Runtime.Library
                 // properties
                 ["_root"] = (avm) => PropertyDescriptor.A(
                      (tv) => {
-                         if (tv is not StageObject) return Value.Undefined();
-                         return Value.FromObject(((StageObject) tv).Item.Context.Root.ScriptObject);
+                         if (tv is not HostObject) return Value.Undefined();
+                         return Value.FromObject(((HostObject) tv).Item.Context.Root.ScriptObject);
                      },
                      null, false, false),
                 ["_global"] = (avm) => PropertyDescriptor.A(
@@ -91,23 +91,23 @@ namespace OpenAS2.Runtime.Library
             var name = args[0].ToString();
 
             vm.ClearInterval(name);
-            ctx.IDelete(name);
+            ctx.IDeleteValue(name);
 
             return null;
         }
 
         public static void ASSetPropFlags(ESObject obj, Value properties, int setFlags, int clearFlags)
         {
-            if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ASString))
+            if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ESString))
             {
                 var _prop = properties.ToString();
                 var _props = _prop.Split(", ");
                 foreach (var p in _props)
                     obj.ASSetFlags(p, setFlags, clearFlags);
             }
-            else if (properties.Type == ValueType.Object && properties.ToObject() is ASArray)
+            else if (properties.Type == ValueType.Object && properties.ToObject() is ESArray)
             {
-                var _arr = properties.ToObject<ASArray>();
+                var _arr = properties.ToObject<ESArray>();
                 var l = _arr.GetLength();
                 for (int i = 0; i < l; ++i)
                     obj.ASSetFlags(_arr.GetValue(l).ToString(), setFlags, clearFlags);

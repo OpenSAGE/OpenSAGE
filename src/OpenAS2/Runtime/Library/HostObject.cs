@@ -5,37 +5,37 @@ using System.IO;
 
 namespace OpenAS2.Runtime.Library
 {
-    public class StageObject: ESObject
+    public class HostObject: ESObject
     {
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
             // properties
             ["_parent"] = (avm) => PropertyDescriptor.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        ((StageObject) tv).AnotherGetParent(),
+                (tv) => ((HostObject) tv).Item == null ? Value.Undefined() :
+                        ((HostObject) tv).AnotherGetParent(),
                 (tv, val) => { throw new NotImplementedException(); }, 
                 false, false),
             ["_x"] = (avm) => PropertyDescriptor.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.X),
+                (tv) => ((HostObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((HostObject) tv).Item.Transform.GeometryTranslation.X),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_y"] = (avm) => PropertyDescriptor.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.Y),
+                (tv) => ((HostObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((HostObject) tv).Item.Transform.GeometryTranslation.Y),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_name"] = (avm) => PropertyDescriptor.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromString(((StageObject) tv).Item.Name),
+                (tv) => ((HostObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromString(((HostObject) tv).Item.Name),
                 (tv, val) => { throw new NotImplementedException(); },
                 false, false),
             ["_alpha"] = (avm) => PropertyDescriptor.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.ColorTransform.A * 100),
+                (tv) => ((HostObject) tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((HostObject) tv).Item.Transform.ColorTransform.A * 100),
                 (tv, val) =>
                 {
-                    var ctx = (StageObject) tv;
+                    var ctx = (HostObject) tv;
                     if (ctx is null)
                         return;
                     var transform = ctx.Item.Transform;
@@ -57,7 +57,7 @@ namespace OpenAS2.Runtime.Library
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public StageObject(DisplayItem item, VirtualMachine vm = null, string prototype_indicator = "Object") : base(vm == null ? (item == null ? null : item.Context.Avm) : vm, prototype_indicator)
+        public HostObject(DisplayItem item, VirtualMachine vm = null, string prototype_indicator = "Object") : base(vm == null ? (item == null ? null : item.Context.Avm) : vm, prototype_indicator)
         {
             Item = item;
         }
@@ -72,7 +72,7 @@ namespace OpenAS2.Runtime.Library
         /// </summary>
         /// <param name="value">value name</param>
         /// <returns></returns>
-        public Value ResolveValue(string value, StageObject ctx)
+        public Value ResolveValue(string value, HostObject ctx)
         {
             var path = value.Split('.');
             var obj = ctx.GetParent();
@@ -84,7 +84,7 @@ namespace OpenAS2.Runtime.Library
 
                 if (obj.IHasProperty(fragment))
                 {
-                    obj = (StageObject) obj.IGet(fragment).ToObject();
+                    obj = (HostObject) obj.IGet(fragment).ToObject();
                 }
                 else
                 {
@@ -95,9 +95,9 @@ namespace OpenAS2.Runtime.Library
             return obj.IGet(member);
         }
 
-        public StageObject GetParent()
+        public HostObject GetParent()
         {
-            StageObject result = null;
+            HostObject result = null;
 
             if (Item.Parent != null)
             {
@@ -181,15 +181,15 @@ namespace OpenAS2.Runtime.Library
 
     }
 
-    public class TextField: StageObject
+    public class TextField: HostObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(StageObject.PropertiesDefined)
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(HostObject.PropertiesDefined)
         {
             ["textColor"] = (avm) => PropertyDescriptor.A(
-                (tv) => Value.FromString(((Text) ((StageObject)tv).Item.Character).Color.ToHex()),
+                (tv) => Value.FromString(((Text) ((HostObject)tv).Item.Character).Color.ToHex()),
                 (tv, val) =>
                 {
-                    var ctx = (StageObject) tv;
+                    var ctx = (HostObject) tv;
                     var hexStr = val.ToString();
                     var hexColor = Convert.ToInt32(hexStr, 16);
 
@@ -204,7 +204,7 @@ namespace OpenAS2.Runtime.Library
                 true, false),
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(StageObject.StaticPropertiesDefined)
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(HostObject.StaticPropertiesDefined)
         {
             
         };
@@ -213,13 +213,13 @@ namespace OpenAS2.Runtime.Library
         public TextField(RenderItem item, VirtualMachine vm = null) : base(item, vm, "TextField") { }
     }
 
-    public class MovieClip : StageObject
+    public class MovieClip : HostObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(StageObject.PropertiesDefined)
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(HostObject.PropertiesDefined)
         {
             // properties
             ["_currentframe"] = (avm) => PropertyDescriptor.A(
-                (tv) => Value.FromInteger(((SpriteItem) ((StageObject) tv).Item).CurrentFrame),
+                (tv) => Value.FromInteger(((SpriteItem) ((HostObject) tv).Item).CurrentFrame),
                 (tv, val) =>
                 {
                     throw new NotImplementedException();
@@ -259,7 +259,7 @@ namespace OpenAS2.Runtime.Library
                  , avm)), true, false, false),
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(StageObject.StaticPropertiesDefined)
+        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>(HostObject.StaticPropertiesDefined)
         {
             
         };

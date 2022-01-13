@@ -19,26 +19,65 @@ namespace OpenAS2.Runtime.Library
 
         public class Result
         {
-            public static ExecutionContext NativeContext = new(null, null, null, null, null, null, null, 0, "<Native>" );
+            public static ExecutionContext NativeContext = new(null, null, null, null, null, null, null, 0, "<Native>");
+
+            public delegate Result? RecallCode(Result res);
 
             private readonly ResultType _type;
             private readonly ExecutionContext? _context;
-            public Func<Result, Result?>? Recall { get; private set; }
+            private List<RecallCode> _recalls = new();
             private readonly Value? _value;
 
             public ResultType Type { get { return _context == null ? _type : _context.Result; } }
             public Value Value { get { return (_context == null ? _value : (_context.ReturnValue)) ?? Value.Undefined(); } }
             public ExecutionContext Context => _context ?? NativeContext;
 
-            public Result(ExecutionContext ec, Func<Result, Result?>? recall = null) { _context = ec; Recall = recall; _type = ResultType.Executing; } // special type to definedfunction
+            public Result(ExecutionContext ec, RecallCode? recall = null) {
+                _context = ec;
+                _recalls = new();
+                if (recall != null) AddRecallCode(recall);
+                _type = ResultType.Executing;
+            } // special type to definedfunction
             public Result() { _type = ResultType.Normal; } // normal, empty, empty
 
             public Result(ResultType t, Value? v) { _type = t; _value = v; }
 
-            public void SetRecallCode(Func<Result, Result?>? rc) { Recall = rc; }
-            public Result? ExecuteRecallCode() // if push nothing back, create a function to return null or a Result with Value == null; elsewhere something will be pushed
+            public void AddRecallCode(RecallCode rc) { _recalls.Add(rc); }
+
+            /// <summary>
+            /// if push nothing back, create a function to return null or a Result with Value == null; elsewhere something will be pushed;
+            /// if executing, the context must be on the stack, continue running it
+            /// </summary>
+            /// <returns></returns>
+            public Result? ExecuteRecallCode() 
             {
-                return Recall == null ? this : Recall(this);
+                Result? res = this;
+                while (_recalls.Count > 0)
+                {
+                    var rc = _recalls[0];
+                    res = rc(res!);
+                    _recalls.RemoveAt(0);
+                    if (res == null || res.Type == ResultType.Executing)
+                        break;
+                }
+                return res;
+            }
+
+            // judgement
+
+            public bool IsNormalOrReturn() { return Type == ResultType.Normal || Type == ResultType.Return; }
+
+            // some recall codes
+
+            public static RecallCode RCBoolCheck(Func<Value, bool> f)
+            {
+                return res =>
+                {
+                    if (res.IsNormalOrReturn())
+                        return Return(Value.FromBoolean(f(res.Value)));
+                    else
+                        return res;
+                };
             }
         }
 
@@ -103,21 +142,22 @@ namespace OpenAS2.Runtime.Library
         public static bool IIsDataDescriptor(PropertyDescriptor desc) { return desc is NamedDataProperty; }
         public static bool IIsGenericDescriptor(PropertyDescriptor desc) { return !(desc is NamedDataProperty) && !(desc is NamedAccessoryProperty); }
 
-        public static ESObject IFormPropertyDescriptor(VirtualMachine vm, PropertyDescriptor desc)
+        public static ESObject IFormPropertyDescriptor(ExecutionContext ec, PropertyDescriptor desc)
         {
-            var ret = new ESObject(vm);
+            var ret = new ESObject(ec.Avm);
             if (desc is NamedDataProperty dd)
             {
-                ret.IDefineOwnProperty("value", D(dd.Value, true, true, true), false);
-                ret.IDefineOwnProperty("writable", D(Value.FromBoolean(dd.Writable), true, true, true), false);
+                ret.IDefineOwnProperty(ec, "value", D(dd.Value, true, true, true), false);
+                ret.IDefineOwnProperty(ec, "writable", D(Value.FromBoolean(dd.Writable), true, true, true), false);
             }
             else
             {
                 var da = (NamedAccessoryProperty) desc;
-                throw new NotImplementedException();
+                ret.IDefineOwnProperty(ec, "get", D(Value.FromFunction(new NativeFunction(ec.Avm, da.Get)), true, true, true), false);
+                ret.IDefineOwnProperty(ec, "set", D(Value.FromFunction(new NativeFunction(ec.Avm, da.Set)), true, true, true), false);
             }
-            ret.IDefineOwnProperty("enumerable", D(Value.FromBoolean(desc.Enumerable), true, true, true), false);
-            ret.IDefineOwnProperty("configurable", D(Value.FromBoolean(desc.Configurable), true, true, true), false);
+            ret.IDefineOwnProperty(ec, "enumerable", D(Value.FromBoolean(desc.Enumerable), true, true, true), false);
+            ret.IDefineOwnProperty(ec, "configurable", D(Value.FromBoolean(desc.Configurable), true, true, true), false);
             return ret;
         }
         public static PropertyDescriptor IToPropertyDescriptor(ESObject obj)

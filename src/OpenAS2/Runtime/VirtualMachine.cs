@@ -31,7 +31,7 @@ namespace OpenAS2.Runtime
         public Dictionary<string, ESFunction> Constructors { get; private set; }
         // public Dictionary<ESObject, Type> PrototypesInverse { get; private set; }
 
-        public ESObject GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
+        public ESObject? GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
 
         // TODO check!
         public void RegisterClass(string className, Type classType)
@@ -89,18 +89,18 @@ namespace OpenAS2.Runtime
             // PrototypesInverse = new Dictionary<ESObject, Type>() { [objProto] = typeof(ESObject), [funcProto] = typeof(DefinedFunction), [errProto] = typeof(ESError) };
 
             foreach (var p in ESObject.PropertiesDefined)
-                objProto.IDefineOwnProperty(p.Key, p.Value(this));
+                objProto.IDefineOwnProperty(null, p.Key, p.Value(this));
             foreach (var p in ESFunction.PropertiesDefined)
-                funcProto.IDefineOwnProperty(p.Key, p.Value(this));
+                funcProto.IDefineOwnProperty(null, p.Key, p.Value(this));
             foreach (var p in ESError.PropertiesDefined)
-                errProto.IDefineOwnProperty(p.Key, p.Value(this));
+                errProto.IDefineOwnProperty(null, p.Key, p.Value(this));
 
             foreach (var p in ESObject.StaticPropertiesDefined)
-                ObjCst.IDefineOwnProperty(p.Key, p.Value(this));
+                ObjCst.IDefineOwnProperty(null, p.Key, p.Value(this));
             foreach (var p in ESFunction.StaticPropertiesDefined)
-                FuncCst.IDefineOwnProperty(p.Key, p.Value(this));
+                FuncCst.IDefineOwnProperty(null, p.Key, p.Value(this));
             foreach (var p in ESError.StaticPropertiesDefined)
-                ErrCst.IDefineOwnProperty(p.Key, p.Value(this));
+                ErrCst.IDefineOwnProperty(null, p.Key, p.Value(this));
 
             foreach (var ne in ESError.NativeErrorList)
             {
@@ -110,9 +110,9 @@ namespace OpenAS2.Runtime
                 Prototypes[ne] = nerrProto;
                 Constructors[ne] = nerrCst;
                 foreach (var p in ESError.PropertiesDefined)
-                    nerrProto.IDefineOwnProperty(p.Key, p.Value(this));
+                    nerrProto.IDefineOwnProperty(null, p.Key, p.Value(this));
                 foreach (var p in ESError.StaticPropertiesDefined)
-                    nerrCst.IDefineOwnProperty(p.Key, p.Value(this));
+                    nerrCst.IDefineOwnProperty(null, p.Key, p.Value(this));
                 // PrototypesInverse[nerrProto] = typeof(ESError);
             }
 
@@ -134,15 +134,15 @@ namespace OpenAS2.Runtime
             // expose builtin stuffs
             // classes
             foreach (var c in Prototypes)
-                GlobalObject.IPut(c.Key, Value.FromFunction(c.Value.constructor));
+                GlobalObject.IPut(GlobalContext, c.Key, Value.FromFunction(c.Value.constructor));
             // variables
             foreach (var c in Builtin.BuiltinVariables)
-                GlobalObject.IDefineOwnProperty(c.Key, c.Value(this));
+                GlobalObject.IDefineOwnProperty(GlobalContext, c.Key, c.Value(this));
             // functions
             foreach (var c in Builtin.BuiltinFunctions)
             {
                 var f = Value.FromFunction(new NativeFunction(this, c.Value));
-                GlobalObject.IDefineOwnProperty(c.Key, PropertyDescriptor.D(f, false, false, false));
+                GlobalObject.IDefineOwnProperty(GlobalContext, c.Key, PropertyDescriptor.D(f, false, false, false));
             }
         }
 
@@ -202,7 +202,7 @@ namespace OpenAS2.Runtime
 
         // error handling?
 
-        public Value ThrowError(string name = "Error", string? message = "", ExecutionContext? ec = null)
+        public Value ConstructError(string name = "Error", string message = "", ExecutionContext? ec = null)
         {
             ec = ec ?? CurrentContext();
             var fl = Constructors.TryGetValue(name, out var cst1);
@@ -210,8 +210,6 @@ namespace OpenAS2.Runtime
             message = fl ? message : $"({name}){message}";
             var err = cst.IConstruct(ec, cst, new Value[] { Value.FromString(message) });
             // TODO
-            ESError ret = (ESError) err.Value.ToObject();
-            ThrowError(ret, ec);
             return err.Value;
         }
 
@@ -298,23 +296,6 @@ namespace OpenAS2.Runtime
             return context;
         }
 
-        protected void ClearRecall()
-        {
-            var context = CurrentContext();
-            while (context.HasRecallCode())
-            {
-                var rec = context.PopRecallCode();
-                var res = rec.ExecuteRecallCode();
-                if (res != null && res.Type != ResultType.Normal)
-                    if (res.Type == ResultType.Return)
-                        context.Push(res.Value);
-                    else if (res.Type == ResultType.Throw)
-                        ThrowError((ESError) res.Value.ToObject(), res.Context);
-                    else
-                        throw new InvalidOperationException();
-            }
-        }
-
         /// <summary>
         /// Execute once in the current ActionContext.
         /// </summary>
@@ -336,44 +317,41 @@ namespace OpenAS2.Runtime
             // 3 situations can lead to Halt == true :
             // End(); Return(); stream.IsFinished().
             
-            while (CurrentContext().Halted)
+            while (CurrentContext().Halted || CurrentContext().HasResultCallback())
             {
-                // while (context.HasRecallCode())
-                //     context.PopRecallCode().Invoke(context);
+                CurrentContext().TryClearCallback();
                 if (!IsCurrentContextGlobal())
-                {
                     PopContext();
-                }
-                ClearRecall();
+                CurrentContext().TryClearCallback();
             }
 
             // In most cases, special operations requiring being executed after function return.
 
-            ClearRecall();
+            CurrentContext().TryClearCallback();
 
             return ans;
         }
 
-        public RawInstruction ExecuteUntilHalt()
+        public RawInstruction? ExecuteUntilHalt()
         {
             var context = CurrentContext();
-            RawInstruction ans = null;
+            RawInstruction? ans = null;
             while (!IsCurrentContextGlobal() && !context.Halted && _paused == false)
                 ans = ExecuteOnce();
             return ans;
         }
 
-        public RawInstruction ExecuteUntilGlobal()
+        public RawInstruction? ExecuteUntilGlobal()
         {
-            RawInstruction ans = null;
+            RawInstruction? ans = null;
             while (!IsCurrentContextGlobal() && _paused == false)
                 ans = ExecuteUntilHalt();
             return ans;
         }
 
-        public RawInstruction ExecuteUntilEmpty()
+        public RawInstruction? ExecuteUntilEmpty()
         {
-            RawInstruction ans = null;
+            RawInstruction? ans = null;
             while ((HasContextInQueue() || (!IsCurrentContextGlobal())) && _paused == false)
             {
                 if (IsCurrentContextGlobal())

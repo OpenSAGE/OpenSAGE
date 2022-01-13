@@ -133,7 +133,7 @@ namespace OpenAS2.Runtime
             else
             {
                 //DO STUFF
-                var targetObject = context.This.IGet(target).ToObject<StageObject>();
+                var targetObject = context.This.IGet(target).ToObject<HostObject>();
 
                 if (!(targetObject.Item is SpriteItem))
                 {
@@ -161,7 +161,7 @@ namespace OpenAS2.Runtime
             {
                 if (part == "..")
                 {
-                    obj = ((StageObject) obj).GetParent();
+                    obj = ((HostObject) obj).GetParent();
                 }
                 else
                 {
