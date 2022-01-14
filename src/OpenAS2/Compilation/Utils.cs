@@ -214,7 +214,7 @@ namespace OpenAS2.Compilation
 
         public static InstructionGraph? Graphify(
             RawInstructionStorage? ci, 
-            List<ConstantEntry>? constSource = null,
+            IList<ConstantEntry>? constSource = null,
             Dictionary<int, string>? regNames = null
             )
         {

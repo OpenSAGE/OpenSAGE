@@ -15,6 +15,11 @@ namespace OpenAS2.Base
         public ConstantType Type { get; internal set; }
         public object Value { get; internal set; }
 
+        public override string ToString()
+        {
+            return $"{Type}:{Value}";
+        }
+
         public string Serialize()
         {
             string ans = string.Empty;

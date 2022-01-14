@@ -28,6 +28,11 @@ namespace OpenAS2.Base
             return JsonSerializer.Serialize(s);
         }
 
+        public override string ToString()
+        {
+            return $"{Type}|{string.Join(", ", Parameters.Select(x => x.ToString()))}";
+        }
+
         public static RawInstruction Deserialize(string str)
         {
             var s = JsonSerializer.Deserialize<List<string>>(str);
