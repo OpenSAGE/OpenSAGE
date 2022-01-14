@@ -329,7 +329,7 @@ namespace OpenAS2.Runtime
             }
             else
             {
-                return Global.IGet(name);
+                return Global.IGet(null, name).Value;
             }
         }
 

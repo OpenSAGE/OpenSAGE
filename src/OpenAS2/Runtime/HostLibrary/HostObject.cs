@@ -228,32 +228,32 @@ namespace OpenAS2.Runtime.Library
 
             // methods
             ["gotoAndPlay"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).GotoAndPlay(actx, args);
+                 (ec, tv, args) => {
+                     ((MovieClip) tv).GotoAndPlay(ec, args);
                      return null;
                  }
                  , avm)), true, false, false),
             ["gotoAndStop"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
+                 (ec, tv, args) => {
                      ((MovieClip) tv).GotoAndStop(args);
                      return null;
                  }
                  , avm)), true, false, false),
             ["stop"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
+                 (ec, tv, args) => {
                      ((MovieClip) tv).Stop();
                      return null;
                  }
                  , avm)), true, false, false),
             ["loadMovie"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).LoadMovie(actx, args);
+                 (ec, tv, args) => {
+                     ((MovieClip) tv).LoadMovie(ec, args);
                      return null;
                  }
                  , avm)), true, false, false),
             ["attachMovie"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     var m = ((MovieClip) tv).AttachMovie(actx, args);
+                 (ec, tv, args) => {
+                     var m = ((MovieClip) tv).AttachMovie(ec, args);
                      return Value.FromObject(m);
                  }
                  , avm)), true, false, false),
@@ -267,11 +267,11 @@ namespace OpenAS2.Runtime.Library
         public MovieClip(VirtualMachine vm) : this(null, vm) { }
         public MovieClip(SpriteItem item, VirtualMachine vm = null) : base(item, vm, "MovieClip") { }
 
-        public void GotoAndPlay(ExecutionContext actx, Value[] args)
+        public void GotoAndPlay(ExecutionContext ec, Value[] args)
         {
             if (Item is SpriteItem si)
             {
-                var dest = args.First().ResolveRegister(actx);
+                var dest = args.First().ResolveRegister(ec);
 
                 if (dest.Type == ValueType.String)
                 {

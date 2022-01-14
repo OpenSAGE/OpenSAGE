@@ -17,10 +17,10 @@ namespace OpenAS2.Runtime.Library
     }
     public class ESError : ESObject
     {
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
-            ["name"] = _ => PropertyDescriptor.D(Value.FromString("Error"), true, false, true),
-            ["message"] = _ => PropertyDescriptor.D(Value.FromString(""), true, false, true),
+            ["name"] = () => PropertyDescriptor.D(Value.FromString("Error"), true, false, true),
+            ["message"] = () => PropertyDescriptor.D(Value.FromString(""), true, false, true),
             // message defined in .ctor
         };
 
@@ -29,7 +29,7 @@ namespace OpenAS2.Runtime.Library
 
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
 
         };

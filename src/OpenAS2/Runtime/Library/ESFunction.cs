@@ -117,7 +117,7 @@ namespace OpenAS2.Runtime
 
         // library
 
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
 
         };
@@ -129,7 +129,7 @@ namespace OpenAS2.Runtime
             ["bind"] = Bind,
         };
 
-        public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
             // length is defined in construction
             // prototype is also defined in vm construction
@@ -173,7 +173,8 @@ namespace OpenAS2.Runtime
             ESCallable.Func? construct = null,
             ExecutionContext? definedScope = null,
             IEnumerable<string>? formalParameters = null,
-            bool strict = false): base(vm, "Function", true)// 1~4
+            ESObject? proto = null, 
+            bool strict = false): base(vm, "Function", extensible: true)// 1~4
         {
             // 5
 
@@ -186,7 +187,7 @@ namespace OpenAS2.Runtime
             IFormalParameters = formalParameters == null ? new List<string>() : new List<string>(formalParameters); // 10~11
             IDefineOwnProperty(null, "length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
 
-            var proto = new ESObject(vm); // TODO real new object; 16
+            proto = proto ?? new ESObject(vm); // TODO real new object; 16
             ConnectPrototype(proto); // 17~18
 
             Strict = strict; // 19a
@@ -225,7 +226,7 @@ namespace OpenAS2.Runtime
         }
 
         // both [[Call]] and [[Construct]]
-        public static ESCallable.Result IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value> args)
+        public static ESCallable.Result IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value>? args)
         {
             var argCount = args.Count;
             var body = argCount == 0 ? null : args.Last();
@@ -237,7 +238,7 @@ namespace OpenAS2.Runtime
             var strict = false;
             // TODO strict mode code
             return ESCallable.Return(Value.FromFunction(
-                new ESFunction(ec.Avm, parsedBody, IConstructDefault, null, formalArgs, strict)
+                new ESFunction(ec.Avm, parsedBody, IConstructDefault, null, formalArgs, null, strict)
                 ));
         }
 
@@ -308,7 +309,7 @@ namespace OpenAS2.Runtime
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
             var target = (ESFunction) thisVar;
             var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
-            var fakeArgs = args!.Count > 1 ? ((ESArray)args[1].ToObject()).GetValues() : new Value[0];
+            var fakeArgs = args!.Count > 1 ? ((ESArray) args[1].ToObject()).GetValues() : new Value[0];
             return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
         }
 

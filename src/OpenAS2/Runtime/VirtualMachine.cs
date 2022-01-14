@@ -34,22 +34,30 @@ namespace OpenAS2.Runtime
         public ESObject? GetPrototype(string name) { return Prototypes.TryGetValue(name, out var value) ? value : null; }
 
         // TODO check!
+
+
         public void RegisterClass(string className, Type classType)
         {
-            var cst_param = new VirtualMachine[] { this };
-            var newProto = (ESObject) Activator.CreateInstance(classType, cst_param)!;
-            var props = (Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>) classType.GetField("PropertiesDefined").GetValue(null)!;
-            var stats = (Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>) classType.GetField("StaticPropertiesDefined").GetValue(null)!;
-            foreach (var p in props)
-                newProto.IDefineOwnProperty(p.Key, p.Value(this));
-            if (!newProto.IHasOwnProperty("constructor"))
-                newProto.constructor = new NativeFunction((ec, tv, args) => Value.Undefined(), this); // TODO not sure if it is correct
-            var cst = newProto.constructor; 
-            cst.prototype = newProto;
-            foreach (var p in stats)
-                cst.IDefineOwnProperty(p.Key, p.Value(this));
+            var c1 = (ESCallable.Func) classType.GetField("ICallDefault")!.GetValue(null)!;
+            var c2 = (ESCallable.Func) classType.GetField("IConstructDefault")!.GetValue(null)!;
+            var fp = (IList<string>) classType.GetField("FormalParametersDefault")!.GetValue(null)!;
+
+            var props = (Dictionary<string, Func<PropertyDescriptor>>) classType.GetField("PropertiesDefined")!.GetValue(null)!;
+            var statProps = (Dictionary<string, Func<PropertyDescriptor>>) classType.GetField("StaticPropertiesDefined")!.GetValue(null)!;
+            var funcs = (Dictionary<string, ESCallable.Func>) classType.GetField("MethodsDefined")!.GetValue(null)!;
+            var statFuncs = (Dictionary<string, ESCallable.Func>) classType.GetField("StaticMethodsDefined")!.GetValue(null)!;
+
+            var ctorParams = new VirtualMachine[] { this };
+            var newProto = (ESObject) Activator.CreateInstance(classType, ctorParams)!;
+            var newCtor = new ESFunction(this, c1, c2, GlobalContext, fp, newProto);
+
+            newProto.DefineAllProperties(GlobalContext, props);
+            newProto.DefineAllMethods(GlobalContext, this, funcs);
+            newCtor.DefineAllProperties(GlobalContext, statProps);
+            newCtor.DefineAllMethods(GlobalContext, this, statFuncs);
+
             Prototypes[className] = newProto;
-            Constructors[className] = newProto.constructor;
+            Constructors[className] = newCtor;
             // PrototypesInverse[newProto] = classType;
         }
 
@@ -88,19 +96,20 @@ namespace OpenAS2.Runtime
             // TODO seriously? this seems useless
             // PrototypesInverse = new Dictionary<ESObject, Type>() { [objProto] = typeof(ESObject), [funcProto] = typeof(DefinedFunction), [errProto] = typeof(ESError) };
 
-            foreach (var p in ESObject.PropertiesDefined)
-                objProto.IDefineOwnProperty(null, p.Key, p.Value(this));
-            foreach (var p in ESFunction.PropertiesDefined)
-                funcProto.IDefineOwnProperty(null, p.Key, p.Value(this));
-            foreach (var p in ESError.PropertiesDefined)
-                errProto.IDefineOwnProperty(null, p.Key, p.Value(this));
+            objProto.DefineAllProperties(null, ESObject.PropertiesDefined);
+            objProto.DefineAllMethods(null, this, ESObject.MethodsDefined);
+            ObjCst.DefineAllProperties(null, ESObject.StaticPropertiesDefined);
+            ObjCst.DefineAllMethods(null, this, ESObject.StaticMethodsDefined);
 
-            foreach (var p in ESObject.StaticPropertiesDefined)
-                ObjCst.IDefineOwnProperty(null, p.Key, p.Value(this));
-            foreach (var p in ESFunction.StaticPropertiesDefined)
-                FuncCst.IDefineOwnProperty(null, p.Key, p.Value(this));
-            foreach (var p in ESError.StaticPropertiesDefined)
-                ErrCst.IDefineOwnProperty(null, p.Key, p.Value(this));
+            funcProto.DefineAllProperties(null, ESFunction.PropertiesDefined);
+            funcProto.DefineAllMethods(null, this, ESFunction.MethodsDefined);
+            FuncCst.DefineAllProperties(null, ESFunction.StaticPropertiesDefined);
+            FuncCst.DefineAllMethods(null, this, ESFunction.StaticMethodsDefined);
+
+            errProto.DefineAllProperties(null, ESError.PropertiesDefined);
+            errProto.DefineAllMethods(null, this, ESError.MethodsDefined);
+            ErrCst.DefineAllProperties(null, ESError.StaticPropertiesDefined);
+            ErrCst.DefineAllMethods(null, this, ESError.StaticMethodsDefined);
 
             foreach (var ne in ESError.NativeErrorList)
             {
@@ -110,11 +119,10 @@ namespace OpenAS2.Runtime
                 nerrCst.ConnectPrototype(nerrProto, true);
                 Prototypes[ne] = nerrProto;
                 Constructors[ne] = nerrCst;
-                foreach (var p in ESError.PropertiesDefined)
-                    nerrProto.IDefineOwnProperty(null, p.Key, p.Value(this));
-                foreach (var p in ESError.StaticPropertiesDefined)
-                    nerrCst.IDefineOwnProperty(null, p.Key, p.Value(this));
-                // PrototypesInverse[nerrProto] = typeof(ESError);
+                nerrProto.DefineAllProperties(null, ESError.PropertiesDefined);
+                nerrProto.DefineAllMethods(null, this, ESError.MethodsDefined);
+                nerrCst.DefineAllProperties(null, ESError.StaticPropertiesDefined);
+                nerrCst.DefineAllMethods(null, this, ESError.StaticMethodsDefined);
             }
 
 
@@ -128,23 +136,18 @@ namespace OpenAS2.Runtime
 
             // initialize global vars and methods
             GlobalObject = new ESObject(this); // TODO replace it to Stage
-            GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, null, null, null, 4) { DisplayName = "Global Execution Context", };
+            GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, null, null, null) { DisplayName = "Global Execution Context", };
             ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
 
             // expose builtin stuffs
             // classes
-            foreach (var c in Prototypes)
-                GlobalObject.IPut(GlobalContext, c.Key, Value.FromFunction(c.Value.constructor));
+            foreach (var c in Constructors)
+                GlobalObject.IPut(GlobalContext, c.Key, Value.FromFunction(c.Value));
             // variables
-            foreach (var c in Builtin.BuiltinVariables)
-                GlobalObject.IDefineOwnProperty(GlobalContext, c.Key, c.Value(this));
+            GlobalObject.DefineAllProperties(GlobalContext, Builtin.BuiltinVariables);
             // functions
-            foreach (var c in Builtin.BuiltinFunctions)
-            {
-                var f = Value.FromFunction(new NativeFunction(this, c.Value));
-                GlobalObject.IDefineOwnProperty(GlobalContext, c.Key, PropertyDescriptor.D(f, false, false, false));
-            }
+            GlobalObject.DefineAllMethods(GlobalContext, this, Builtin.BuiltinFunctions);
         }
 
         // interval & debug operations
@@ -207,7 +210,7 @@ namespace OpenAS2.Runtime
         {
             ec = ec ?? CurrentContext();
             var fl = Constructors.TryGetValue(name, out var cst1);
-            var cst = fl ? cst1 : ErrCst;
+            var cst = fl ? cst1! : ErrCst;
             message = fl ? message : $"({name}){message}";
             var err = cst.IConstruct(ec, cst, new Value[] { Value.FromString(message) });
             // TODO

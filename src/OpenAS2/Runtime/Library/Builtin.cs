@@ -12,8 +12,8 @@ namespace OpenAS2.Runtime.Library
     public static class Builtin
     {
         public static readonly Dictionary<string, Type> BuiltinClasses;
-        public static readonly Dictionary<string, Func<ExecutionContext, ESObject, Value[], Value>> BuiltinFunctions;
-        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> BuiltinVariables;
+        public static readonly Dictionary<string, ESCallable.Func> BuiltinFunctions;
+        public static Dictionary<string, Func<PropertyDescriptor>> BuiltinVariables;
         public static DateTime InitTimeStamp { get; } = DateTime.Now;
 
         static Builtin()
@@ -24,79 +24,75 @@ namespace OpenAS2.Runtime.Library
                 ["Object"] = typeof(ESObject),
                 ["Function"] = typeof(ESFunction),
                 ["Array"] = typeof(ESArray),
-                ["Color"] = typeof(ASColor),
+                // ["Color"] = typeof(ASColor),
                 ["String"] = typeof(ESString),
-                ["MovieClip"] = typeof(MovieClip),
-                ["TextField"] = typeof(TextField),
+                // ["MovieClip"] = typeof(MovieClip),
+                // ["TextField"] = typeof(TextField),
             };
 
             // list of builtin functions
-            BuiltinFunctions = new Dictionary<string, Func<ExecutionContext, ESObject, Value[], Value>>()
+            BuiltinFunctions = new Dictionary<string, ESCallable.Func>()
             {
                 // Global constructors / functions
-                ["Boolean"] = (actx, ctx, args) => Value.FromBoolean(args[0].ToBoolean()),
-                ["Number"] = (actx, ctx, args) => args[0].ToNumber(),
-                ["getTimer"] = (actx, ctx, args) => GetTimer(),
+                ["getTimer"] = GetTimer,
                 ["clearInterval"] = ClearInterval,
                 ["setInterval"] = SetInterval,
-                ["ASSetPropFlags"] = (actx, ctx, args) => { ASSetPropFlags(
+                ["ASSetPropFlags"] = (ec, ctx, args) =>
+                {
+                    if (!ESObject.HasArgs(args))
+                        return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                    return ASSetPropFlags(
                     args[0].ToObject(),
                     args[1],
-                    args.Length > 2 ? args[2].ToInteger() : 0,
-                    args.Length > 3 ? args[3].ToInteger() : 0); return null; },
+                    args.Count > 2 ? args[2].ToInteger() : 0,
+                    args.Count > 3 ? args[3].ToInteger() : 0);
+                },
             };
 
             // list of builtin variables
-            BuiltinVariables = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+            BuiltinVariables = new Dictionary<string, Func<PropertyDescriptor>>()
             {
-                // properties
-                ["_root"] = (avm) => PropertyDescriptor.A(
-                     (tv) => {
-                         if (tv is not HostObject) return Value.Undefined();
-                         return Value.FromObject(((HostObject) tv).Item.Context.Root.ScriptObject);
-                     },
-                     null, false, false),
-                ["_global"] = (avm) => PropertyDescriptor.A(
-                     (tv) => Value.FromObject(avm.GlobalObject),
-                     null, false, false),
-                ["extern"] = (avm) => PropertyDescriptor.A(
-                     (tv) => Value.FromObject(avm.ExternObject),
-                     null, false, false),
-
+                ["undefined"] = () => PropertyDescriptor.D(Value.Undefined(), false, false, false),
+                ["NaN"] = () => PropertyDescriptor.D(Value.FromFloat(double.NaN), false, false, false),
+                ["Infinity"] = () => PropertyDescriptor.D(Value.FromFloat(double.PositiveInfinity), false, false, false),
             };
         }
 
         
-        public static Value GetTimer()
+        public static ESCallable.Result GetTimer(ExecutionContext context, ESObject ctx, IList<Value>? args)
         {
             var result_ = DateTime.Now - InitTimeStamp;
             var result = Value.FromFloat(result_.TotalMilliseconds);
-            return result;
+            return ESCallable.Return(result);
         }
 
-        public static Value SetInterval(ExecutionContext context, ESObject ctx, Value[] args)
+        public static ESCallable.Result SetInterval(ExecutionContext context, ESObject ctx, IList<Value>? args)
         {
+            if (!ESObject.HasArgs(args))
+                return ESCallable.Throw(context.ConstrutError("TypeError"));
             var vm = context.Avm;
             var name = context.Pop().ToString();
 
-            vm.CreateInterval(name, args[1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
-            ctx.IPut(name, Value.FromString(name));
+            vm.CreateInterval(name, args![1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
+            var intv = ctx.IPut(context, name, Value.FromString(name));
 
-            return null;
+            return intv;
         }
 
-        public static Value ClearInterval(ExecutionContext context, ESObject ctx, Value[] args)
+        public static ESCallable.Result ClearInterval(ExecutionContext context, ESObject ctx, IList<Value>? args)
         {
+            if (!ESObject.HasArgs(args))
+                return ESCallable.Throw(context.ConstrutError("TypeError"));
             var vm = context.Avm;
-            var name = args[0].ToString();
+            var name = args![0].ToString();
 
             vm.ClearInterval(name);
-            ctx.IDeleteValue(name);
+            var intv = ctx.IDeleteValue(context, name);
 
-            return null;
+            return intv;
         }
 
-        public static void ASSetPropFlags(ESObject obj, Value properties, int setFlags, int clearFlags)
+        public static ESCallable.Result ASSetPropFlags(ESObject obj, Value properties, int setFlags, int clearFlags)
         {
             if (properties.Type == ValueType.String || (properties.Type == ValueType.Object && properties.ToObject() is ESString))
             {
@@ -117,6 +113,7 @@ namespace OpenAS2.Runtime.Library
                     obj.ASSetFlags(p, setFlags, clearFlags);
             else
                 throw new InvalidOperationException($"Invalid argument: properties {properties}");
+            return new ESCallable.Result();
         }
 
     }

@@ -58,14 +58,18 @@ namespace OpenAS2.Runtime
         }
 
         // a more convenient constructor
-        public ESObject(VirtualMachine vm, string? classIndicator, bool extensible = true) : this(classIndicator, extensible, null, null) // 3, 5, 6
+        public ESObject(VirtualMachine vm, string? classIndicator, string? protoIndicator = null, bool extensible = true) : this(classIndicator, extensible, null, null) // 3, 5, 6
         {
             VM = vm;
+            classIndicator = classIndicator ?? "Object";
+            protoIndicator = protoIndicator ?? "Object";
             // 4
-            if (vm != null && vm.Prototypes.TryGetValue(classIndicator ?? "Object", out var proto)) 
+            if (vm != null && vm.Prototypes.TryGetValue(classIndicator, out var proto)) 
                 IPrototype = proto;
-            else if (vm != null && vm.Prototypes.TryGetValue("Object", out var protoObj))
-                IPrototype = protoObj;
+            else if (vm != null && vm.Prototypes.TryGetValue(protoIndicator, out proto))
+                IPrototype = proto;
+            else if (vm != null && vm.Prototypes.TryGetValue("Object", out proto))
+                IPrototype = proto;
 
             // 7, 8
         }
@@ -75,11 +79,11 @@ namespace OpenAS2.Runtime
         public ESObject(VirtualMachine vm) : this(vm, null) { }
 
         // [[Construct]]
-        public static ESCallable.Result IConstructObj(ExecutionContext ec, ESObject tv, IList<Value> args)
+        public static ESCallable.Result IConstructObj(ExecutionContext ec, ESObject tv, IList<Value>? args)
         {
-            if (args.Count > 0)
+            if (HasArgs(args))
             {
-                var arg = args.First();
+                var arg = args!.First();
                 if (arg.Type == ValueType.Object)
                 {
                     var aobj = arg.ToObject();
@@ -100,12 +104,12 @@ namespace OpenAS2.Runtime
         }
 
         // [[Call]]
-        public static ESCallable.Result ICallObj(ExecutionContext ec, ESObject tv, IList<Value> args)
+        public static ESCallable.Result ICallObj(ExecutionContext ec, ESObject tv, IList<Value>? args)
         {
-            if (args.Count == 0 && (args.First().IsNull() || args.First().IsUndefined()))
+            if (!HasArgs(args) && (args!.First().IsNull() || args!.First().IsUndefined()))
                 return ESCallable.Return(Value.FromObject(new ESObject(ec.Avm)));
             else
-                return args.First().ToObject(ec);
+                return args!.First().ToObject(ec);
         }
 
         // utility functions
@@ -343,14 +347,27 @@ namespace OpenAS2.Runtime
             return PropertyDescriptor.D(Value.FromFunction(new NativeFunction(vm, f)), w, e, c);
         }
 
+        public void DefineAllProperties(ExecutionContext? ec, Dictionary<string, Func<PropertyDescriptor>> props, bool doThrow = false)
+        {
+            foreach (var (k, v) in props)
+                IDefineOwnProperty(ec, k, v(), doThrow);
+        }
+
+        public void DefineAllMethods(ExecutionContext? ec, VirtualMachine vm, Dictionary<string, ESCallable.Func>props)
+        {
+            foreach (var (k, v) in props)
+                IDefineOwnProperty(ec, k, PropertyDescriptor.D(Value.FromFunction(new NativeFunction(vm, v)), true, false, true));
+        }
+
+
         // library declaration
         // under and only under prototype
         // otherwise it should be the task of [[Construct]]
-        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>() // __proto__
+        public static Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>() // __proto__
         {
             // this one actually should not be defined in property list
             // still, I write this function for convenience
-            ["__proto__"] = (avm) => PropertyDescriptor.A(
+            ["__proto__"] = () => PropertyDescriptor.A(
                  (ec, tv, args) => ESCallable.Return(tv.IPrototype == null ? Value.Null() : Value.FromObject(tv.IPrototype)),
                  (ec, tv, args) =>
                  {
@@ -429,7 +446,7 @@ namespace OpenAS2.Runtime
 
         };
 
-        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
+        public static Dictionary<string, Func<PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
         };
 
