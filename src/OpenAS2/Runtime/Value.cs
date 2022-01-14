@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenAS2.Base;
-using OpenSage.FileFormats;
 using OpenAS2.Runtime.Library;
 
 namespace OpenAS2.Runtime
@@ -407,12 +406,14 @@ namespace OpenAS2.Runtime
             return $"({ttype}){tstr}";
         }
 
-        public TEnum ToEnum<TEnum>() where TEnum : struct
+        public TEnum ToEnum<TEnum>(bool doThrow = false) where TEnum : struct
         {
             if (Type != ValueType.Integer)
                 throw new InvalidOperationException();
-
-            return EnumUtility.CastValueAsEnum<int, TEnum>(_number);
+            var ret = (TEnum) Enum.ToObject(typeof(TEnum), _number);
+            if (Enum.IsDefined(typeof(TEnum), ret) && doThrow)
+                throw new InvalidCastException();
+            return ret;
         }
 
         // equality comparison

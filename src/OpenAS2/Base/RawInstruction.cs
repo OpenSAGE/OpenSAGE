@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using OpenSage.FileFormats;
 using System.Text.Json;
 
 namespace OpenAS2.Base

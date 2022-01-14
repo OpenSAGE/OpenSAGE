@@ -4,6 +4,7 @@ using System.Linq;
 using OpenAS2.Compilation.Syntax;
 using OpenAS2.Runtime.Library;
 using OpenAS2.Base;
+using OpenAS2.Runtime.Dom;
 
 namespace OpenAS2.Runtime
 {
@@ -13,10 +14,10 @@ namespace OpenAS2.Runtime
     public sealed class VirtualMachine
     {
 
-        private TimeInterval _lastTick;
+        private DateTime _lastTick;
         private DateTime _pauseTick;
         private bool _paused;
-        private Dictionary<string, ValueTuple<TimeInterval, int, ESFunction, ESObject, Value[]>> _intervals;
+        private Dictionary<string, ValueTuple<DateTime, int, ESFunction, IList<Value>>> _intervals;
 
         public DomHandler Dom { get; private set; }
 
@@ -65,11 +66,11 @@ namespace OpenAS2.Runtime
         public ESFunction FuncCst { get; private set; }
         public ESFunction ErrCst { get; private set; }
 
-        public VirtualMachine(DomHandler? dom = null)
+        public VirtualMachine(DomHandler dom)
         {
             Dom = dom; // TODO
 
-            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, ESFunction, ESObject, Value[]>>();
+            _intervals = new();
             _paused = false;
 
             _callStack = new();
@@ -135,9 +136,8 @@ namespace OpenAS2.Runtime
             }
 
             // initialize global vars and methods
-            GlobalObject = new ESObject(this); // TODO replace it to Stage
+            (GlobalObject, ExternObject) = Dom.CreateGlobalAndExternObject(this);
             GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, null, null, null) { DisplayName = "Global Execution Context", };
-            ExternObject = new ExternObject(this);
             PushContext(GlobalContext);
 
             // expose builtin stuffs
@@ -152,25 +152,24 @@ namespace OpenAS2.Runtime
 
         // interval & debug operations
 
-        public void CreateInterval(string name, int duration, ESFunction func, ESObject context, Value[] args)
+        public void CreateInterval(string name, int duration, ESFunction func, IList<Value> args)
         {
             _intervals[name] = (_lastTick,
                                 duration, // milliseconds
                                 func,
-                                context,
                                 args
                                 );
         }
 
-        public void UpdateIntervals(TimeInterval current)
+        public void UpdateIntervals(DateTime current)
         {
             foreach (var interval_kv in _intervals)
             {
                 var interval = interval_kv.Value;
 
-                if (current.TotalTime.TotalMilliseconds > (interval.Item1.TotalTime.TotalMilliseconds + interval.Item2))
+                if ((current - interval.Item1).TotalMilliseconds > interval.Item2)
                 {
-                    interval.Item3.ICall(interval.Item4, interval.Item3, interval.Item5); // TODO wtf?
+                    interval.Item3.ICall(GlobalContext, interval.Item3, interval.Item4); // TODO wtf?
                     interval.Item1 = current;
                 }
             }
@@ -183,24 +182,24 @@ namespace OpenAS2.Runtime
             _intervals.Remove(name);
         }
 
-        public void Pause()
+        public void Pause(DateTime? pauseTick)
         {
             if (!_paused)
             {
                 _paused = true;
-                _pauseTick = DateTime.Now;
+                _pauseTick = pauseTick ?? DateTime.Now;
             }
         }
 
         public bool Paused() { return _paused; }
 
-        public void Resume()
+        public void Resume(DateTime? nowTick)
         {
             if (_paused)
             {
                 _paused = false;
-                var span = DateTime.Now.Subtract(_pauseTick);
-                _lastTick = new TimeInterval(_lastTick.TotalTime.Add(span), _lastTick.DeltaTime);
+                var span = (nowTick ?? DateTime.Now) - _pauseTick;
+                _lastTick = _lastTick + span;
             }
         }
 

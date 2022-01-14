@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenAS2.Runtime.Library;
 using OpenAS2.Compilation.Syntax;
+using OpenAS2.Runtime.Dom;
 
 namespace OpenAS2.Runtime
 { 
@@ -379,7 +380,7 @@ namespace OpenAS2.Runtime
                  false, false),
         };
 
-        public static bool HasArgs(IList<Value>? args) { return args != null && args.Count != 0; }
+        public static bool HasArgs(IList<Value>? args, uint leastCount = 0) { return args != null && args.Count >= leastCount; }
 
         public static Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
         { 

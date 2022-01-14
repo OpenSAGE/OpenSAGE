@@ -4,7 +4,8 @@ using System.Linq;
 using OpenAS2.Base;
 using OpenAS2.Compilation;
 using OpenAS2.Runtime.Library;
-using OpenAS2.Compilation.Syntax;
+using OpenAS2.Runtime.Execution;
+using OpenAS2.Runtime.Dom;
 
 namespace OpenAS2.Runtime
 {
@@ -410,19 +411,6 @@ namespace OpenAS2.Runtime
             }
         }
 
-        /// <summary>
-        /// Get the current target path
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public Value GetTarget(string target)
-        {
-            // if it is a relative path
-            if (target.Length == 0 || target.First() != '/')
-                return Value.FromObject(This);
-            return Dom != null ? Dom.GetTarget(target) : Value.Undefined();
-        }
-
 
         /// <summary>
         /// Preload specified variables
@@ -469,7 +457,7 @@ namespace OpenAS2.Runtime
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                _registers[reg] = Value.FromObject(((HostObject) This).GetParent());
+                _registers[reg] = Value.FromObject(((HostObject) This).GetParent(this));
                 _registers[reg].DisplayString = "Preload Parent";
                 ++reg;
             }
@@ -604,8 +592,52 @@ namespace OpenAS2.Runtime
                         handled = false;
                         break;
 
+                    // dom related
+                    case InstructionType.NextFrame:
+                    case InstructionType.PrevFrame:
+                    case InstructionType.Play:
+                    case InstructionType.Stop:
+
+                    case InstructionType.ToggleQuality:
+
+                    case InstructionType.StopSounds:
+
+                    case InstructionType.SetTarget:
+                    case InstructionType.SetTarget2:
+                    case InstructionType.TargetPath:
+
+                    case InstructionType.CloneSprite:
+                    case InstructionType.RemoveSprite:
+
+                    case InstructionType.StartDragMovie:
+                    case InstructionType.StopDragMovie:
+
+                    case InstructionType.GotoLabel:
+                    case InstructionType.GotoFrame:
+                    case InstructionType.GotoFrame2:
+                    case InstructionType.CallFrame:
+                    case InstructionType.WaitFormFrame:
+                    case InstructionType.WaitForFrameExpr:
+
+                    case InstructionType.GetURL:
+                    case InstructionType.GetURL2:
+
+                    case InstructionType.GetTime:
+
+                    case InstructionType.Trace:
+                    case InstructionType.TraceStart:
+
+                    case InstructionType.GetProperty:
+                    case InstructionType.SetProperty:
+
+                    case InstructionType.GetVariable:
+                    case InstructionType.SetVariable:
+                        // TODO
+                        handled = Dom != null ? Dom.TryHandle(this, inst) : false;
+                        break;
+
                     default:
-                        handled = false;
+                        handled = General.Execute(this, inst) && ObjectOriented.Execute(this, inst);
 
                         break;
 
@@ -613,7 +645,7 @@ namespace OpenAS2.Runtime
                 if (!handled)
                     throw new NotImplementedException();
 
-                if (doNotToNext && !Halted)
+                if (!doNotToNext && !Halted)
                     Stream.ToNextInstruction();
                 return inst;
             }

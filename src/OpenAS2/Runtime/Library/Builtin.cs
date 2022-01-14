@@ -66,15 +66,15 @@ namespace OpenAS2.Runtime.Library
             return ESCallable.Return(result);
         }
 
-        public static ESCallable.Result SetInterval(ExecutionContext context, ESObject ctx, IList<Value>? args)
+        public static ESCallable.Result SetInterval(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
-            if (!ESObject.HasArgs(args))
+            if (!ESObject.HasArgs(args, 2))
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
             var vm = context.Avm;
-            var name = context.Pop().ToString();
+            var name = context.Pop().ToString(); // WTF again?
 
-            vm.CreateInterval(name, args![1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
-            var intv = ctx.IPut(context, name, Value.FromString(name));
+            vm.CreateInterval(name, args![1].ToInteger(), args[0].ToFunction(), new List<Value>().AsReadOnly());
+            var intv = thisVar.IPut(context, name, Value.FromString(name));
 
             return intv;
         }
