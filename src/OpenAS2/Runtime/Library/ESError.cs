@@ -19,12 +19,24 @@ namespace OpenAS2.Runtime.Library
     {
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
-            // properties
+            ["name"] = _ => PropertyDescriptor.D(Value.FromString("Error"), true, false, true),
+            ["message"] = _ => PropertyDescriptor.D(Value.FromString(""), true, false, true),
+            // message defined in .ctor
+        };
+
+        public static new Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+
         };
 
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
-            // ["prototype"] = (avm) => Property.D(Value.FromObject(avm.GetPrototype("Function")), true, false, false),
+
+        };
+
+        public static new Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+
         };
 
         public static string[] NativeErrorList = new string[] { "EvalError", "RangeError", "ReferenceError", "SyntaxError", "URIError", "TypeError" };
@@ -36,9 +48,10 @@ namespace OpenAS2.Runtime.Library
 
         public ESError(ExecutionContext ec, string? message, string? name = null) : base(ec.Avm, "Error")
         {
-            IPut(ec, "message", Value.FromString(message ?? string.Empty));
             if (name != null)
-                IPut(ec, "name", Value.FromString(name)); 
+                IPut(ec, "name", Value.FromString(name));
+            if (message != null)
+                IPut(ec, "message", Value.FromString(message));
         }
 
 
@@ -51,5 +64,11 @@ namespace OpenAS2.Runtime.Library
         }
 
         public static ESCallable.Func IConstructAndCall(string? name) { return (a, b, c) => IConstructAndCall(a, b, c, name); }
+
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

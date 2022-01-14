@@ -152,7 +152,7 @@ namespace OpenAS2.Runtime
             if (chid) prop!.Enumerable = true;
         }
 
-        public ESCallable.Result IGet(ExecutionContext ec, string name)
+        public virtual ESCallable.Result IGet(ExecutionContext ec, string name)
         {
             var prop = IGetProperty(name, out var own);
             if (prop == null)
@@ -209,7 +209,7 @@ namespace OpenAS2.Runtime
             return new ESCallable.Result();
         }
 
-        public bool IHasProperty(string name)
+        public virtual bool IHasProperty(string name)
         {
             var prop = IGetProperty(name, out var _);
             return prop == null;
@@ -229,7 +229,6 @@ namespace OpenAS2.Runtime
             var f1 = hint == 1 ? "toString" : "valueOf";
             var f2 = hint == 1 ? "valueOf" : "toString";
             var ts = TryCall(ec, f1, null);
-            ts.AddRecallCode(ESCallable.Result.RCBoolCheck(x => Value.IsPrimitive(x)));
             ts.AddRecallCode(res =>
             {
                 if (res.IsNormalOrReturn())
@@ -258,12 +257,6 @@ namespace OpenAS2.Runtime
             });
             return ts;
         }
-
-        public virtual Value IGet(string name)
-        {
-            return IGet(null, name).Value;
-        }
-
 
 
         public virtual ESCallable.Result IDefineOwnProperty(ExecutionContext? ec, string name, PropertyDescriptor desc, bool doThrow = false)
@@ -333,11 +326,16 @@ namespace OpenAS2.Runtime
         // utils
         public ESCallable.Result TryCall(ExecutionContext ec, string fname, IList<Value>? args)
         {
-            var f = IGet(fname);
-            if (!f.IsCallable())
-                return ESCallable.Throw(ec.ConstrutError("TypeError"));
-            else
-                return f.ToFunction().ICall(ec, this, args);
+            var call = IGet(ec, fname);
+            call.AddRecallCode(res =>
+            {
+                var f = res.Value;
+                if (!f.IsCallable())
+                    return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                else
+                    return f.ToFunction().ICall(ec, this, args);
+            });
+            return call;
         }
 
         public static PropertyDescriptor AddFunction(ESCallable.Func f, VirtualMachine vm, bool w = true, bool e = false, bool c = true)
@@ -353,120 +351,122 @@ namespace OpenAS2.Runtime
             // this one actually should not be defined in property list
             // still, I write this function for convenience
             ["__proto__"] = (avm) => PropertyDescriptor.A(
-                 (tv) => tv.IPrototype == null ? Value.Null() : Value.FromObject(tv.IPrototype),
-                 (tv, val) => tv.IPrototype = val.ToObject(),
+                 (ec, tv, args) => ESCallable.Return(tv.IPrototype == null ? Value.Null() : Value.FromObject(tv.IPrototype)),
+                 (ec, tv, args) =>
+                 {
+                     var flag = args != null && args.Count > 0;
+                     if (flag)
+                         tv.IPrototype = args![0].ToObject();
+                     return new ESCallable.Result();
+                 },
                  false, false),
+        };
+
+        public static bool HasArgs(IList<Value>? args) { return args != null && args.Count != 0; }
+
+        public static Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
+        { 
 
             // methods
-            ["toString"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) =>
+            ["toString"] = (ec, tv, args) =>
                 {
                     var ans = tv == null ? "[object Undefined]" : tv.ToString();
-                    return Value.FromString(ans);
-                }
-                , avm)), true, false, true),
-            ["toLocaleString"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) => tv.TryCall("toString", actx, args)
-                , avm)), true, false, true),
-            ["valueOf"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) =>
+                    return ESCallable.Return(Value.FromString(ans));
+                },
+            ["toLocaleString"] = 
+                (ec, tv, args) => tv.TryCall(ec, "toString", args),
+            ["valueOf"] = 
+                (ec, tv, args) =>
                 {
                     if (tv is HostObject)
                         throw new NotImplementedException();
                     else
-                        return Value.FromObject(tv);
-                }
-                , avm)), true, false, true),
+                        return ESCallable.Return(Value.FromObject(tv));
+                },
 
-            ["hasOwnProperty"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) => {
-                    if (args == null || args.Count == 0)
-                        return Value.FromBoolean(false);
-                    var ans = tv.IHasOwnProperty(args[0].ToString());
-                    return Value.FromBoolean(ans);
-                }
-                , avm)), true, false, true),
-            ["isPrototypeOf"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) => {
-                    if (args == null || args.Count == 0 || args[0].Type != ValueType.Object)
-                        return Value.FromBoolean(false);
-                    var theClass = args[0].ToObject()!;
-                    var ans = tv.IsPrototypeOf(theClass);
-                    return Value.FromBoolean(ans);
-                }
-                , avm)), true, false, true),
+            ["hasOwnProperty"] = 
+                (ec, tv, args) => {
+                    var ans = false;
+                    if (HasArgs(args))
+                       ans = tv.IGetProperty(args![0].ToString(), out var _, onlySearchOwn: true) != null;
+                    return ESCallable.Return(Value.FromBoolean(ans));
+                },
+            ["isPrototypeOf"] = 
+                (ec, tv, args) => {
+                    var ans = false;
+                    if (HasArgs(args) && args![0].Type == ValueType.Object)
+                        tv.IsPrototypeOf(args[0].ToObject());
+                    return ESCallable.Return(Value.FromBoolean(ans));
+                },
+            ["propertyIsEnumerable"] = 
+                 (ec, tv, args) => {
+                     var ans = false;
+                     if (HasArgs(args))
+                         ans = tv.IsPropertyEnumerable(args![0].ToString());
+                     return ESCallable.Return(Value.FromBoolean(ans));
+                 },
+            ["isPropertyEnumerable"] = 
+                (ec, tv, args) => tv.TryCall(ec, "propertyIsEnumerable", args),
 
-            ["propertyIsEnumerable"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     if (args == null || args.Count == 0)
-                         return Value.FromBoolean(false);
-                     var name = args[0].ToString();
-                     var ans = tv.IsPropertyEnumerable(name);
-                     return Value.FromBoolean(ans);
-                 }
-                 , avm)), true, false, true),
-            ["isPropertyEnumerable"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) => tv.TryCall("propertyIsEnumerable", actx, args)
-                , avm)), true, false, true),
-
-            ["addProperty"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) =>
+            ["addProperty"] = 
+                 (ec, tv, args) =>
                  {
-                     string name = args.Count > 0 ? args[0].ToString() : null;
-                     ESFunction getter = args.Count > 1 ? args[1].ToFunction() : null;
-                     ESFunction setter = args.Count > 2 ? args[2].ToFunction() : null;
-                     tv.ForceAddAccessoryProperty(actx, name, getter, setter);
-                     return null;
-                 }
-                 , avm)), true, false, true),
+                     var ans = false;
+                     if (HasArgs(args))
+                     {
+                         var name = args![0].ToString();
+                         var getter = args.Count > 1 ? args[1] : null;
+                         var setter = args.Count > 2 ? args[2] : null;
+                         ans = !string.IsNullOrWhiteSpace(name) && getter != null && (setter == null || setter.IsCallable());
+                         if (ans)
+                             tv.ForceAddAccessoryProperty(ec, name, getter!.ToFunction(), setter != null ? setter.ToFunction() : null);
+                     }
+                     return ESCallable.Return(Value.FromBoolean(ans));
+                 },
 
             
 
 
         };
 
-        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>() // constructor
+        public static Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
-            ["getPrototypeOf"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) =>
-                    (args != null && args.Count > 0 && args[0].Type == ValueType.Object) ?
-                    Value.FromObject(args[0].ToObject()!.IPrototype) :
-                    throw new NotImplementedException()
-                , avm)), true, false, true),
-            ["getOwnPropertyDescriptor"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                (actx, tv, args) =>
-                {
-                    var ans = tv == null ? "[object Undefined]" : tv.ToString();
-                    return Value.FromString(ans);
-                }
-                , avm)), true, false, true),
         };
 
-
-
-        // just for convenience
-
-        public ESObject __proto__
+        public static Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
         {
-            get { return IGet("__proto__").ToObject(); }
-            set { IPut("__proto__", Value.FromObject(value)); }
-        }
-        public ESObject prototype
-        {
-            get { return IGet("prototype").ToObject(); }
-            set { IPut("prototype", Value.FromObject(value)); }
-        }
-        public ESFunction constructor
-        {
-            get { return IGet("constructor").ToFunction(); }
-            set { IPut("constructor", Value.FromFunction(value)); }
-        }
+            ["getPrototypeOf"] =
+                (ec, tv, args) =>
+                {
+                    if (args != null && args.Count > 0 && args[0].Type == ValueType.Object)
+                        return ESCallable.Return(Value.FromObject(args[0].ToObject()!.IPrototype));
+                    return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                }, 
+            ["getOwnPropertyDescriptor"] = 
+                (ec, tv, args) =>
+                {
+                    if (args != null && args.Count > 0 && args[0].Type == ValueType.Object)
+                    {
+                        var obj = args[0].ToObject();
+                        if (args.Count > 1)
+                        {
+                            var name = args[1].ToString();
+                            var prop = obj.IGetProperty(name, out var _, onlySearchOwn: true);
+                            var ans = prop == null ? Value.Undefined() : Value.FromObject(PropertyDescriptor.IFormPropertyDescriptor(ec, prop!));
+                            return ESCallable.Return(ans);
+                        }
+                        return ESCallable.Return(Value.Undefined());
+                    }
+                    return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                },
 
+
+        };
 
 
         // standard library
 
-        public static bool EqualsES(ESObject x, ESObject y, ExecutionContext? actx = null)
+        public static bool EqualsES(ESObject x, ESObject y, ExecutionContext? ec = null)
         {
             return object.Equals(x, y); // TODO
         }
@@ -476,7 +476,7 @@ namespace OpenAS2.Runtime
             var thisVar = this;
             while (thisVar != null)
             {
-                if (thisVar.IHasOwnProperty(name))
+                if (thisVar.IGetProperty(name, out var _, onlySearchOwn: true) != null)
                 {
                     return thisVar._properties[name].Enumerable;
                 }
@@ -504,21 +504,29 @@ namespace OpenAS2.Runtime
             return ans;
         }
 
-        public bool IsFunction() { return this is ESFunction; }
-        public bool IsConstructor() { return IsFunction() && prototype.IsPrototype(); }
-        public bool IsPrototype() { return constructor != null && constructor.IsFunction(); }
-
-        public bool InstanceOf(ESObject cst) // TODO Not complete
+        public ESCallable.Result InstanceOf(ExecutionContext ec, ESObject cst) // TODO Not complete
         {
-            if (!cst.IsFunction()) return false; // not even a constructor
-            var tproto = __proto__;
-            var cproto = cst.prototype;
-            while (tproto != null)
+            if (cst is ESFunction esf)
             {
-                if (cproto == tproto) return true;
-                tproto = tproto.__proto__;
+                var tproto = IPrototype;
+                var cproto2 = esf.IGet(ec, "prototype");
+                cproto2.AddRecallCode(res =>
+                {
+                    var ret = false;
+                    if (res.Value.Type == ValueType.Object)
+                    {
+                        var cproto = res.Value.ToObject();
+                        while (tproto != null)
+                        {
+                            if (cproto == tproto) ret = true;
+                            tproto = tproto.IPrototype;
+                        }
+                    }
+                    return ESCallable.Return(Value.FromBoolean(ret));
+                });
+                return cproto2;
             }
-            return false;
+            return ESCallable.Throw(ec.ConstrutError("TypeError"));
         }
 
         // conversion & debug
@@ -535,19 +543,19 @@ namespace OpenAS2.Runtime
         /// <returns></returns>
 
 
-        public string ToStringDisp(ExecutionContext actx)
+        public string ToStringDisp(ExecutionContext ec)
         {
             string ans = "{\n";
             foreach (string s in _properties.Keys)
             {
                 _properties.TryGetValue(s, out var v);
-                ans = ans + s + ": " + v.ToString(actx) + ", \n";
+                ans = ans + s + ": " + v.ToString(ec) + ", \n";
             }
             ans = ans + "}";
             return ans;
         }
 
-        public (string[], string[]) ToListDisp(ExecutionContext actx)
+        public (string[], string[]) ToListDisp(ExecutionContext ec)
         {
             var ans1 = new string[_properties.Keys.Count];
             var ans2 = GetAllProperties().ToArray();
@@ -555,7 +563,7 @@ namespace OpenAS2.Runtime
             {
                 var k = ans2[i];
                 _properties.TryGetValue(k, out var v);
-                ans1[i] = $"{k}: {v.ToString(actx)}";
+                ans1[i] = $"{k}: {v.ToString(ec)}";
                 ans2[i] = k;
             }
             return (ans1, ans2);

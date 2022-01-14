@@ -20,31 +20,36 @@ namespace OpenAS2.Runtime.Execution
     {
 
         static readonly OPR1 TypeOf = (v) => Value.FromString(v.GetStringType());
-        static readonly OPR2 CastOp = (objv, cstv) =>
+        static void DoCastOp (ExecutionContext context)
         {
-            var obj = objv.ToObject();
-            var cst = cstv.ToFunction();
-            ESObject val = obj.InstanceOf(cst) ? obj : null;
-            return Value.FromObject(val);
-        };
+            var obj = context.Pop().ToObject();
+            var cst = context.Pop().ToFunction();
+            var ins = obj.InstanceOf(context, cst);
+            ins.AddRecallCode(ret => ESCallable.Return(Value.FromObject(ret.Value.ToBoolean() ? obj : null)));
+            context.EnqueueResultCallback(ins);
+        }
         static void DoExtends(ExecutionContext context) // this should work
         {
             var sup = context.Pop().ToFunction();
             var cls = context.Pop().ToFunction();
-            var obj = new ESObject(context.Avm);
-            obj.__proto__ = sup.prototype;
-            obj.constructor = sup;
-            cls.prototype = obj;
+            var sproto = sup.IGet(context, "prototype");
+            sproto.AddRecallCode(res =>
+            {
+                var v = res.Value.Type == ValueType.Object ? res.Value.ToObject() : null;
+                var obj = new ESObject(null, true, v, null);
+                cls.ConnectPrototype(obj);
+                return null;
+            });
+            
         }
-        static readonly OPR2 InstanceOf = (a, b) =>
+        static void DoInstanceOf(ExecutionContext context)
         {
-            var constr = a.ToFunction();
-            var obj = b.ToObject();
-            var val = obj.InstanceOf(constr);
-            return Value.FromBoolean(val);
-        };
+            var constr = context.Pop().ToFunction();
+            var obj = context.Pop().ToObject();
+            var val = obj.InstanceOf(context, constr);
+            context.EnqueueResultCallback(val);
+        }
 
-        // all sorts of null check...
         public static void DoNewMethod(ExecutionContext context)
         {
             var nameVal = context.Pop();
@@ -52,16 +57,37 @@ namespace OpenAS2.Runtime.Execution
             var obj = context.Pop();
             var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            Value vfunc = (nameVal.Type != ValueType.Undefined && name.Length != 0) ? obj.ToObject().IGet(name) : obj;
-            ESFunction func = vfunc.IsCallable() ? vfunc.ToFunction() : null;
-
-            context.ConstructObjectAndPush(func, args);
+            if (nameVal.Type != ValueType.Undefined && name.Length != 0)
+            {
+                var res = obj.ToObject().IGet(context, name);
+                res.AddRecallCode(res =>
+                {
+                    if (res.Value.IsCallable())
+                        return res.Value.ToFunction().IConstruct(context, res.Value.ToFunction(), args);
+                    else
+                        return ESCallable.Throw(context.ConstrutError("TypeError"));
+                });
+                context.EnqueueResultCallback(res);
+            }
+            else
+            {
+                if (!obj.IsCallable())
+                    context.EnqueueResultCallback(ESCallable.Throw(context.ConstrutError("TypeError")));
+                else
+                    context.EnqueueResultCallback(obj.ToFunction().IConstruct(context, obj.ToFunction(), args));
+            }
         }
         public static void DoNewObject(ExecutionContext context)
         {
             var name = context.Pop().ToString();
             var args = FunctionUtils.GetArgumentsFromStack(context);
-            context.ConstructObjectAndPush(name, args);
+            var func = context.GetValueOnChain(name);
+            if (func.IsCallable())
+            {
+                context.EnqueueResultCallback(func.ToFunction().IConstruct(context, func.ToFunction(), args));
+            }
+            else
+                context.EnqueueResultCallback(ESCallable.Throw(context.ConstrutError("TypeError")));
         }
         public static void DoInitObject(ExecutionContext context)
         {
@@ -71,7 +97,7 @@ namespace OpenAS2.Runtime.Execution
             {
                 var vi = context.Pop();
                 var ni = context.Pop().ToString();
-                obj.IPut(ni, vi);
+                obj.IPut(context, ni, vi);
             }
 
             context.Push(Value.FromObject(obj));
@@ -113,12 +139,13 @@ namespace OpenAS2.Runtime.Execution
             }
         }
 
-        public static readonly OPR2 GetMember = (member, vobj) =>
+        public static void DoGetMember(ExecutionContext context)
         {
-            var obj = vobj.ToObject();
+            var smem = context.Pop().ToString();
+            var obj = context.Pop().ToObject();
             // arrays stay the same
-            return obj.IGet(member.ToString());
-        };
+            context.EnqueueResultCallback(obj.IGet(context, smem));
+        }
         public static void DoSetMember(ExecutionContext context)
         {
             //pop the value
@@ -130,14 +157,13 @@ namespace OpenAS2.Runtime.Execution
             if (obj is null)
                 throw new InvalidOperationException();
             else
-                obj.IPut(memberName, valueVal);
+                obj.IPut(context, memberName, valueVal);
         }
         public static void DoDelete(ExecutionContext context)
         {
-            throw new NotImplementedException("need to check");
             var property = context.Pop().ToString();
             var target = context.Pop();// TODO wtf? context.GetTarget(context.Pop().ToString());
-            target.ToObject().IDeleteValue(property);
+            target.ToObject().IDeleteValue(context, property);
         }
 
         public static void DoCallFunction(ExecutionContext context)
@@ -178,7 +204,7 @@ namespace OpenAS2.Runtime.Execution
             var obj = objectVal.ToObject();
 
             if (obj != null)
-                context.Push(obj.IGet(member));
+                context.EnqueueResultCallback(obj.IGet(context, member));
             else
                 context.Push(Value.Undefined());
         }
@@ -230,8 +256,7 @@ namespace OpenAS2.Runtime.Execution
             var memberName = inst.Parameters[0].String;
             //pop the object
             var objectVal = context.Pop();
-            var valueVal = objectVal.ToObject().IGet(memberName);
-            context.Push(valueVal);
+            context.EnqueueResultCallback(objectVal.ToObject().IGet(context, memberName));
         }
 
         public static bool Execute(ExecutionContext context, RawInstruction inst)
@@ -240,13 +265,13 @@ namespace OpenAS2.Runtime.Execution
             {
 
                 case InstructionType.GetMember:
-                    context.ExecBinaryOprOnStack(GetMember);
+                    DoGetMember(context);
                     break;
                 case InstructionType.SetMember:
                     DoSetMember(context);
                     break;
                 case InstructionType.EA_ZeroVar:
-                    context.This.IPut(context.Pop().ToString(), Value.FromInteger(0));
+                    context.This.IPut(context, context.Pop().ToString(), Value.FromInteger(0));
                     break;
                 case InstructionType.Delete:
                     DoDelete(context);
@@ -291,19 +316,19 @@ namespace OpenAS2.Runtime.Execution
                     DoGetStringMember(context, inst);
                     break;
                 case InstructionType.EA_SetStringVar:
-                    context.This.IPut(context.Pop().ToString(), Value.FromRaw(inst.Parameters[0]));
+                    context.This.IPut(context, context.Pop().ToString(), Value.FromRaw(inst.Parameters[0]));
                     break;
                 case InstructionType.EA_SetStringMember:
                     var memberVal = context.Pop().ToString();
                     var objectVal = context.Pop().ToObject();
-                    objectVal.IPut(memberVal, Value.FromRaw(inst.Parameters[0]));
+                    objectVal.IPut(context, memberVal, Value.FromRaw(inst.Parameters[0]));
                     break;
 
                 case InstructionType.TypeOf:
                     context.ExecUnaryOprOnStack(TypeOf);
                     break;
                 case InstructionType.CastOp:
-                    context.ExecBinaryOprOnStack(CastOp);
+                    DoCastOp(context);
                     break;
                 case InstructionType.ImplementsOp:
                     return false; // TODO
@@ -311,7 +336,7 @@ namespace OpenAS2.Runtime.Execution
                     DoExtends(context);
                     break;
                 case InstructionType.InstanceOf:
-                    context.ExecBinaryOprOnStack(InstanceOf);
+                    DoInstanceOf(context);
                     break;
 
 

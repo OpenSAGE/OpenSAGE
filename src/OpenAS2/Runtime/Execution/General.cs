@@ -21,9 +21,6 @@ namespace OpenAS2.Runtime.Execution
                 case InstructionType.Equals:
                     res = Value.FromBoolean(Value.NaiveEquals(a, b));
                     break;
-                case InstructionType.Equals2:
-                    res = Value.FromBoolean(Value.AbstractEquals(a, b, context));
-                    break;
                 case InstructionType.StringEquals:
                     res = Value.FromBoolean(b.ToString() == a.ToString());
                     break;
@@ -156,9 +153,7 @@ namespace OpenAS2.Runtime.Execution
                 case InstructionType.ToInteger:
                     res = Value.FromInteger(a.ToInteger());
                     break;
-                case InstructionType.ToNumber:
-                    res = a.ToNumber(context);
-                    break;
+
                 case InstructionType.ToString:
                     res = Value.FromString(a.ToString());
                     break;
@@ -243,8 +238,16 @@ namespace OpenAS2.Runtime.Execution
         {
             switch (inst.Type)
             {
-                case InstructionType.Equals:
+                // needs execution context
+
                 case InstructionType.Equals2:
+                    context.EnqueueResultCallback(Value.AbstractEqualsWrapped(context, context.Pop(), context.Pop()));
+                    return true;
+                case InstructionType.ToNumber:
+                    context.EnqueueResultCallback(context.Pop().ToNumber(context));
+                    return true;
+
+                case InstructionType.Equals:
                 case InstructionType.StringEquals:
                 case InstructionType.StrictEquals:
 
@@ -292,7 +295,6 @@ namespace OpenAS2.Runtime.Execution
 
 
                 case InstructionType.ToInteger:
-                case InstructionType.ToNumber:
                 case InstructionType.ToString:
 
                 case InstructionType.Random:

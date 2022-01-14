@@ -10,25 +10,6 @@ namespace OpenAS2.Runtime
 {
     public sealed class ExecutionContext
     { 
-        public sealed class WrappedValue: Value
-        {
-            public ExecutionContext TheContext { get; }
-            public WrappedValue(ExecutionContext ec) : base(ValueType.Undefined)
-            {
-                TheContext = ec;
-            }
-
-            public Value Resolve()
-            {
-                return TheContext.ReturnValue ?? throw new InvalidOperationException();
-            }
-
-            public override string ToStringWithType(ExecutionContext ec)
-            {
-                return $"(Wrapped){TheContext}";
-            }
-        }
-
 
         public ESObject This { get; private set; }
         public ESObject Global { get; private set; }
@@ -140,8 +121,6 @@ namespace OpenAS2.Runtime
             }
             else if (RegisterStored(id))
             {
-                if (_registers[id] is WrappedValue wv)
-                    _registers[id] = wv.Resolve();
                 return _registers[id];
             }
             return Value.Undefined();
@@ -233,7 +212,7 @@ namespace OpenAS2.Runtime
         public Value Peek()
         {
             var ret = _stack.Peek();
-            return ret is WrappedValue rw ? rw.Resolve() : ret;
+            return ret;
         }
 
         public Value Pop()
@@ -244,7 +223,7 @@ namespace OpenAS2.Runtime
                 return Value.Undefined();
             }
             var ret = _stack.Pop();
-            return ret is WrappedValue rw ? rw.Resolve() : ret;
+            return ret;
         }
 
         public Value[] Pop(uint count)
@@ -473,7 +452,7 @@ namespace OpenAS2.Runtime
             {
                 try
                 {
-                    _registers[reg] = Value.FromObject(This.__proto__.__proto__.constructor);
+                    _registers[reg] = Value.FromObject(This.IPrototype!.IPrototype);
                 }
                 catch
                 {
@@ -510,7 +489,7 @@ namespace OpenAS2.Runtime
             {
                 try
                 {
-                    _locals["super"] = Value.FromObject(This.__proto__.__proto__.constructor);
+                    _locals["super"] = Value.FromObject(This.IPrototype!.IPrototype);
                 }
                 catch
                 {
@@ -527,29 +506,6 @@ namespace OpenAS2.Runtime
             {
                 _locals["this"] = Value.FromObject(This);
             }
-        }
-
-        /// <summary>
-        /// Call an object constructor. Either builtin or defined earlier
-        /// </summary>
-        /// <param name="constructor"></param>
-        /// <returns></returns>
-        public void ConstructObjectAndPush(string name, IList<Value> args) // TODO need reconstruction
-        {
-            var func = GetValueOnChain(name);
-            if (!func.IsCallable())
-                throw new InvalidOperationException("Not a function");
-            else
-            {
-                ConstructObjectAndPush(func.ToFunction(), args);
-            }
-        }
-
-        public void ConstructObjectAndPush(ESFunction cst, IList<Value> args)
-        {
-            // TODO if an execution context is created, use it; otherwise omit it
-            var thisVar = cst.IConstruct(this, cst, args);
-            EnqueueResultCallback(thisVar);
         }
 
         // executions

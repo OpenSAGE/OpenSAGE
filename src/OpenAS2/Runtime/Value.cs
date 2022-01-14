@@ -92,8 +92,8 @@ namespace OpenAS2.Runtime
 
         public static Value FromObject(ESObject? obj)
         {
-            if (obj != null && obj.IsFunction())
-                return FromFunction((ESFunction) obj);
+            if (obj != null && obj is ESFunction esf)
+                return FromFunction(esf);
             else if (obj == null)
                 return Null();
             return new Value(ValueType.Object, o: obj);
@@ -227,6 +227,13 @@ namespace OpenAS2.Runtime
         {
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
+            return _object!;
+        }
+
+        public ESObject ToObjectSafe()
+        {
+            if (Type != ValueType.Object)
+                return null; // TODO
             return _object!;
         }
 
@@ -478,16 +485,30 @@ namespace OpenAS2.Runtime
                 else if (y.Type == ValueType.Boolean)
                     return AbstractEquals(FromFloat(y.ToFloat()), x);
                 else if ((IsNumber(x) || IsString(x)) && (y.Type == ValueType.Object && !IsNull(y)))
-                    return AbstractEquals(x, y.ToPrimirive(2, ec));
+                    throw new InvalidOperationException();
                 else if ((IsNumber(y) || IsString(y)) && (x.Type == ValueType.Object && !IsNull(x)))
-                    return AbstractEquals(y, x.ToPrimirive(2, ec));
+                    throw new InvalidOperationException();
                 else
                     return false;
             }
         }
 
+        public static ESCallable.Result AbstractEqualsWrapped(ExecutionContext ec, Value x, Value y)
+        {
+            if ((IsNumber(x) || IsString(x)) && (y.Type == ValueType.Object))
+                return AbstractEqualsWrapped(ec, x, y);
+            else if ((IsNumber(y) || IsString(y)) && (x.Type == ValueType.Object))
+            {
+                var prim = x.ToPrimitive(ec, 2);
+                prim.AddRecallCode(rc => ESCallable.Return(FromBoolean(AbstractEquals(rc.Value, y))));
+                return prim;
+            }
+            else
+                return ESCallable.Return(FromBoolean(AbstractEquals(x, y)));
+        }
+
         //TODO: Implement Strict Equality Comparison Algorithm
-        public static bool StrictEquals(Value x, Value y, ExecutionContext actx = null)
+        public static bool StrictEquals(Value x, Value y, ExecutionContext ec = null)
         {
             if (x.Type != y.Type)
                 return false;
@@ -504,12 +525,12 @@ namespace OpenAS2.Runtime
             else if (IsNumber(x))
                 return NumberEquals(x, y);
             else
-                return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, actx); 
+                return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, ec); 
         }
 
         // TODO
         // 11.8.5
-        public static Value AbstractLess(Value x, Value y, ExecutionContext? actx = null)
+        public static Value AbstractLess(Value x, Value y, ExecutionContext? ec = null)
         {
             var arg3 = x.ToFloat();
             var arg4 = y.ToFloat();

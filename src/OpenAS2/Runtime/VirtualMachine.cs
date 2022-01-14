@@ -43,7 +43,7 @@ namespace OpenAS2.Runtime
             foreach (var p in props)
                 newProto.IDefineOwnProperty(p.Key, p.Value(this));
             if (!newProto.IHasOwnProperty("constructor"))
-                newProto.constructor = new NativeFunction((actx, tv, args) => Value.Undefined(), this); // TODO not sure if it is correct
+                newProto.constructor = new NativeFunction((ec, tv, args) => Value.Undefined(), this); // TODO not sure if it is correct
             var cst = newProto.constructor; 
             cst.prototype = newProto;
             foreach (var p in stats)
@@ -105,7 +105,8 @@ namespace OpenAS2.Runtime
             foreach (var ne in ESError.NativeErrorList)
             {
                 var nerrCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall(ne), ESError.IConstructAndCall(ne), new string[1] { "message" });
-                var nerrProto = new ESError("Error", true, objProto, null);
+                var nerrProto = new ESError("Error", true, errProto, null);
+                nerrProto.IDefineOwnProperty(null, "name", PropertyDescriptor.D(Value.FromString(ne), true, false, true));
                 nerrCst.ConnectPrototype(nerrProto, true);
                 Prototypes[ne] = nerrProto;
                 Constructors[ne] = nerrCst;

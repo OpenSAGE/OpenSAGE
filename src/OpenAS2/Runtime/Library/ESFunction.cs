@@ -104,7 +104,7 @@ namespace OpenAS2.Runtime
         public static ESCallable.Result ReturnUndefined(ExecutionContext ec, ESObject tv, IList<Value>? args) { return ESCallable.Return(Value.Undefined()); }
 
         public static ESCallable.Result ThrowTypeError(ExecutionContext ec, ESObject tv, IList<Value>? args) {
-            Value ret = ec.ConstrutError("TypeError", (args.Count > 0 ? args[0].ToString() : null) ?? string.Empty);
+            Value ret = ec.ConstrutError("TypeError", (ESObject.HasArgs(args) ? args![0].ToString() : null) ?? string.Empty);
             return ESCallable.Throw(ret);
         }
     }
@@ -119,20 +119,25 @@ namespace OpenAS2.Runtime
 
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
-            // properties
 
-            // methods
-            ["apply"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (ec, tv, args) => { ((ESFunction) tv).Apply(ec, tv, args); return null; }
-                 , avm)), true, false, false),
-            ["call"] = (avm) => PropertyDescriptor.D(Value.FromFunction(new NativeFunction(
-                 (ec, tv, args) => { return ((ESFunction) tv).ICallNoThis(ec, tv, args); }
-                 , avm)), true, false, false),
+        };
+
+        public static new Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+            ["apply"] = Apply,
+            ["call"] = Call,
+            ["bind"] = Bind,
         };
 
         public static new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<VirtualMachine, PropertyDescriptor>>()
         {
-            
+            // length is defined in construction
+            // prototype is also defined in vm construction
+        };
+
+        public static new Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+
         };
 
         // definitions
@@ -144,7 +149,8 @@ namespace OpenAS2.Runtime
 
         public bool Strict { get; protected set; }
 
-        public bool Bind { get; protected set; }
+        public bool IsBoundFunction { get; protected set; }
+        private ESFunction? _bindTarget = null;
 
         // base
         public ESFunction(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces,
@@ -183,8 +189,9 @@ namespace OpenAS2.Runtime
             var proto = new ESObject(vm); // TODO real new object; 16
             ConnectPrototype(proto); // 17~18
 
+            Strict = strict; // 19a
             if (strict)
-                InitStrict(); // 19
+                InitStrict(vm); // 19
 
             // 20
         }
@@ -195,24 +202,25 @@ namespace OpenAS2.Runtime
             IDefineOwnProperty(null, "prototype", PropertyDescriptor.D(Value.FromObject(proto), true && !lockdown, false, false), false); // 18
         }
 
-        public void InitStrict()
+        public void InitStrict(VirtualMachine vm)
         {
-            Strict = true;
-            throw new NotImplementedException("thrower"); // 19a
-                                                          // IDefineOwnProperty("caller", PropertyDescriptor.A(thrower, thrower, false, false), false); // 19b
-                                                          // IDefineOwnProperty("arguments", PropertyDescriptor.A(thrower, thrower, false, false), false); // 19c
+            ESCallable.Func thrower = FunctionUtils.ThrowTypeError;
+            IDefineOwnProperty(vm.GlobalContext, "caller", PropertyDescriptor.A(thrower, thrower, false, false), false); // 19b
+            IDefineOwnProperty(vm.GlobalContext, "arguments", PropertyDescriptor.A(thrower, thrower, false, false), false); // 19c
         }
 
         // internal
 
-        public override Value IGet(string name)
+        public override ESCallable.Result IGet(ExecutionContext ec, string name)
         {
-            var v = base.IGet(name);
-            if (!Bind && name == "caller" && v.Type == ValueType.Object && v.ToObject() is ESFunction vf && vf.Strict)
+            var v = base.IGet(ec, name);
+            v.AddRecallCode(x =>
             {
-                // TODO throw type error
-                return Value.Undefined();
-            }
+                var v = x.Value;
+                if (!IsBoundFunction && name == "caller" && v.Type == ValueType.Object && v.ToObject() is ESFunction vf && vf.Strict)
+                    return ESCallable.Return(Value.Undefined());
+                return x;
+            });
             return v;
         }
 
@@ -233,82 +241,112 @@ namespace OpenAS2.Runtime
                 ));
         }
 
-        public static ESCallable.Result IConstructDefault(ExecutionContext ec, ESObject tv, IList<Value> args)
+        public static ESCallable.Result IConstructDefault(ExecutionContext ec, ESObject tv, IList<Value>? args)
         {
+            if (!(tv is ESFunction))
+                return ESCallable.Throw(ec.ConstrutError("TypeError"));
             var tvf = (ESFunction) tv;
-            var protov = tvf.IGet("prototype");
-            ESObject objProto;
-            if (protov.Type == ValueType.Object)
+            var protov = tvf.IGet(ec, "prototype");
+            protov.AddRecallCode(res =>
             {
-                var proto = protov.ToFunction();
-                objProto = proto;
-            }
-            else
-                ec.Avm.Prototypes.TryGetValue("Object", out objProto!);
-            var obj = new ESObject("Object", true, objProto, null);
-            var result = ((ESFunction) tv).ICall(ec, obj, args);
-            return new ESCallable.Result(ec, _ =>
-            {
-                if (result.Type != ResultType.Executing)
+                ESObject objProto;
+                if (res.Value.Type == ValueType.Object)
+                    objProto = res.Value.ToObject();
+                else
+                    ec.Avm.Prototypes.TryGetValue("Object", out objProto!);
+
+                var obj = new ESObject("Object", true, objProto, null);
+                var result = tvf.ICall(ec, obj, args);
+                return new ESCallable.Result(ec, _ =>
                 {
                     var rv = result.Value;
                     if (rv!.Type == ValueType.Object) // if null, also check the machine
                         return ESCallable.Return(rv);
                     return ESCallable.Return(Value.FromObject(obj));
-                }
-                else
-                    throw new InvalidOperationException("should not happen, check the machine");
+                });
             });
-            /*
-            if (result.Type == ValueType.Object)
-                return result;
-            return Value.FromObject(obj);
-            */
+            return protov;
         }
 
-        public bool IHasInstance(Value v)
+        public ESCallable.Result IHasInstance(ExecutionContext ec, Value v)
         {
+            if (IsBoundFunction)
+                return _bindTarget!.IHasInstance(ec, v);
             var obj = v.ToObject();
             if (obj != null || v.Type != ValueType.Object)
             {
-                var prot = IGet("prototype");
-                if (prot.Type != ValueType.Object)
+                var prot2 = IGet(ec, "prototype");
+                prot2.AddRecallCode(res =>
                 {
-                    // TODO throw typeerror
-                }
-                var pobj = prot.ToObject();
-                while (obj != null)
-                {
-                    obj = obj.IPrototype;
-                    if (obj == pobj)
-                        return true;
-                }
+                    var prot = res.Value;
+                    if (prot.Type != ValueType.Object)
+                    {
+                        return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                    }
+                    var ret = false;
+                    var pobj = prot.ToObject();
+                    while (obj != null)
+                    {
+                        obj = obj.IPrototype;
+                        if (obj == pobj)
+                        {
+                            ret = true;
+                            break;
+                        }
+                    }
+                    return ESCallable.Return(Value.FromBoolean(ret));
+                });
+                return prot2;
             }
-            return false;
+            return ESCallable.Throw(ec.ConstrutError("TypeError"));
         }
         
 
-        public void Apply(ExecutionContext context, ESObject thisVar, IList<Value> args)
+        public static ESCallable.Result Apply(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
-            var thisVar_ = args.Count > 0 ? args[0] : Value.Undefined();
-            var args_ = args.Count > 1 ? ((ESArray)args[1].ToObject()).GetValues() : new Value[0];
-            ICall(context, thisVar_.ToObject(), args_);
+            if (!(thisVar is ESFunction))
+                return ESCallable.Throw(context.ConstrutError("TypeError"));
+            var target = (ESFunction) thisVar;
+            var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
+            var fakeArgs = args!.Count > 1 ? ((ESArray)args[1].ToObject()).GetValues() : new Value[0];
+            return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
         }
 
-        public ESCallable.Result ICallNoThis(ExecutionContext context, ESObject thisVar, IList<Value> args)
+        public static ESCallable.Result Call(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
-            // TODO WTF???
-            var fakeThis = Value.Undefined();
-            var args_ = new List<Value>(args.Skip(1));
-            return ICall(context, fakeThis.ToObject(), args_);
+            if (!(thisVar is ESFunction))
+                return ESCallable.Throw(context.ConstrutError("TypeError"));
+            var target = (ESFunction) thisVar;
+            var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
+            var fakeArgs = new List<Value>(args != null ? args.Skip(1) : new Value[0]).AsReadOnly();
+            return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
+        }
+
+        public static ESCallable.Result Bind(ExecutionContext context, ESObject thisVar, IList<Value>? args)
+        {
+            if (!(thisVar is ESFunction))
+                return ESCallable.Throw(context.ConstrutError("TypeError"));
+            var target = (ESFunction) thisVar;
+            var fakeThis = (HasArgs(args) ? args![0] : Value.Undefined()).ToObjectSafe();
+            var fakeArgs = new List<Value>(args != null ? args.Skip(1) : new Value[0]).AsReadOnly();
+            ESCallable.Func fakeICall = (ec, _, args) => target.ICall(ec, fakeThis, args == null ? fakeArgs : fakeArgs.Union(args).ToList().AsReadOnly());
+            ESCallable.Func fakeIConstruct = (ec, _, args) =>
+            {
+                if (target.IConstruct == null)
+                    return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                return target.IConstruct(ec, fakeThis, args == null ? fakeArgs : fakeArgs.Union(args).ToList().AsReadOnly());
+            };
+            ESFunction f = new ESFunction(context.Avm, fakeICall, construct: fakeIConstruct, definedScope: context, formalParameters: target.IFormalParameters.Skip(fakeArgs.Count));
+            f.IsBoundFunction = true;
+            f._bindTarget = target;
+            f.InitStrict(context.Avm);
+            return ESCallable.Return(Value.FromFunction(f));
         }
 
     }
 
     public class NativeFunction: ESFunction
     {
-        public ESCallable.Func F { get; private set; }
-
         public NativeFunction(VirtualMachine vm) : this(vm, FunctionUtils.ReturnUndefined) { }
 
         public NativeFunction(VirtualMachine vm, ESCallable.Func? f, ExecutionContext? scope = null, IList<string>? formalParams = null) :
@@ -349,11 +387,11 @@ namespace OpenAS2.Runtime
         public bool IsNewVersion { get; set; }
 
         public override ESCallable.Func ICall => ICallDefault;
-        public static ESCallable.Result ICallDefault(ExecutionContext context, ESObject thisVar, IList<Value> args)
+        public static ESCallable.Result ICallDefault(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
             var vm = context.Avm;
             var thisFunc = (DefinedFunction) thisVar;
-            var thisEC = thisFunc.GetContext(vm, args, thisVar);
+            var thisEC = thisFunc.GetContext(vm, args ?? new Value[0], thisVar);
             vm.PushContext(thisEC);
             return new(thisEC);
         }
