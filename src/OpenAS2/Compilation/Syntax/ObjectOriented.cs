@@ -57,7 +57,7 @@ namespace OpenAS2.Compilation.Syntax
         {
             var name = np.PopExpression();
             var args = np.PopArray();
-            var ret = OprUtils.New(name, args);
+            var ret = OprUtils.New(SNNominator.Check(name), args);
             np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }

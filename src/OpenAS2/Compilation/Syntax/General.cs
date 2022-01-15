@@ -23,10 +23,10 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.Equals2:
                 case InstructionType.StringEquals:
                     // TODO string equals may differ from other 2
-                    res = OprUtils.Equality(a, b);
+                    res = OprUtils.Equality(b, a);
                     break;
                 case InstructionType.StrictEquals:
-                    res = OprUtils.StrictEquality(a, b);
+                    res = OprUtils.StrictEquality(b, a);
                     break;
 
 

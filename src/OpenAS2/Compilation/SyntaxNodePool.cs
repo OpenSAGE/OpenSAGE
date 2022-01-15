@@ -155,9 +155,9 @@ namespace OpenAS2.Compilation
         public void CallSubCollection(StatementCollection sub, StringBuilder? sb = null, string? prefix = null, string? suffix = null)
         {
             sb = sb ?? _currentBuilder!;
-            sb.Append(("{" + prefix ?? string.Empty + '\n').ToStringWithIndent(_currentIndent));
+            sb.Append(("{" + (prefix ?? string.Empty) + '\n').ToStringWithIndent(_currentIndent));
             sub.Compile(sb, _currentIndent + _dIndent, _dIndent, true, this);
-            sb.Append(("}" + suffix ?? string.Empty + '\n').ToStringWithIndent(_currentIndent));
+            sb.Append(("}" + (suffix ?? string.Empty)).ToStringWithIndent(_currentIndent));
         }
 
     }
@@ -371,7 +371,7 @@ namespace OpenAS2.Compilation
                     throw new InvalidOperationException();
                 StatementCollection sc = new(subpool);
                 var (name, _) = InstructionUtils.GetNameAndArguments(fc);
-                SyntaxNode n = string.IsNullOrWhiteSpace(name) ? new SNFunctionBody(fc, sc) : new NodeDefineFunction(fc, sc);
+                SyntaxNode n = string.IsNullOrWhiteSpace(name) ? new SNFunctionBody(fc, sc) : new SNDefineFunction(fc, sc);
                 PushNode(n);
             }
 

@@ -239,39 +239,39 @@ namespace OpenAS2.Compilation
 
     public class SNBinary : SNOperator
     {
-        protected readonly SNExpression _e1, _e2;
-        protected readonly string _pattern;
+        public readonly SNExpression E1, E2;
+        public readonly string Pattern;
 
         public SNBinary(int p, Order o, string pat, SNExpression? e1, SNExpression? e2, bool checkPrecendence = true) : base(checkPrecendence ? p : 24, o) // seems okay
         {
-            _e1 = e1 ?? new SNLiteralUndefined();
-            _e2 = e2 ?? new SNLiteralUndefined();
-            _pattern = pat;
+            E1 = e1 ?? new SNLiteralUndefined();
+            E2 = e2 ?? new SNLiteralUndefined();
+            Pattern = pat;
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
-            var s2 = _e2.TryComposeWithPrecendence(sta, LowestPrecendence);
-            return string.Format(_pattern, s1, s2);
+            var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s2 = E2.TryComposeWithPrecendence(sta, LowestPrecendence);
+            return string.Format(Pattern, s1, s2);
         }
     }
 
     public class SNUnary : SNOperator
     {
-        private SNExpression _e1;
-        private string _pattern;
+        public SNExpression E { get; protected set; }
+        public string Pattern { get; protected set; }
 
         public SNUnary(int p, Order o, string pat, SNExpression? e1) : base(p, o)
         {
-            _e1 = e1 ?? new SNLiteralUndefined();
-            _pattern = pat;
+            E = e1 ?? new SNLiteralUndefined();
+            Pattern = pat;
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
-            return string.Format(_pattern, s1);
+            var s1 = E.TryComposeWithPrecendence(sta, LowestPrecendence);
+            return string.Format(Pattern, s1);
         }
     }
 
@@ -296,18 +296,18 @@ namespace OpenAS2.Compilation
     public class SNMemberAccess : SNBinary
     {
         protected readonly string _pattern2 = "{0}.{1}";
-        public SNMemberAccess(SNExpression? e1, SNExpression? e2) : base(18, Order.LeftToRight, "{0}[{1}]", e1, e2) { }
+        public SNMemberAccess(SNExpression? e1, SNExpression? e2) : base(18, Order.LeftToRight, "{0}[{1}]", e1, e2, false) { }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var flag = _e2 is SNLiteral e2l && e2l.IsStringLiteral;
-            var s1 = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
-            var s2 = flag ? ((SNLiteral) _e2).GetRawString() : _e2.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var flag = E2 is SNLiteral e2l && e2l.IsStringLiteral;
+            var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s2 = flag ? ((SNLiteral) E2).GetRawString() : E2.TryComposeWithPrecendence(sta, LowestPrecendence);
             var flag2 = string.IsNullOrEmpty(s1) || s1 == "undefined";
             if (flag2) {
                 return flag ? s2 : $"this[{s2}]";
             }
-            var p = flag ? _pattern2 : _pattern;
+            var p = flag ? _pattern2 : Pattern;
             return string.Format(p, s1, s2);
         }
     }
@@ -324,19 +324,23 @@ namespace OpenAS2.Compilation
         public static SNOperator Grouping(SNExpression e) { return new SNUnary(19, SNOperator.Order.NotAcceptable, "( {0} )", e); }
         // public static SNOperator MemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} . {1}", e1, e2); }
         // public static SNOperator ComputedMemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} [ {1} ]", e1, e2); }
-        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0} ( {1} )", e1, e2, false); }
-        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2, false); }
-        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ( {1} )", e1, e2, false)); }
+        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0}( {1} )", e1, e2, false); }
+        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0}({1})", e1, e2, false); }
+        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ({1})", e1, e2, false)); }
         public static SNOperator Optionalchaining(SNExpression e) { return new SNUnary(18, SNOperator.Order.LeftToRight, "?.", e); }
         public static SNOperator NewWithoutArgs(SNExpression e) { return new SNUnary(17, SNOperator.Order.RightToLeft, "new {0}", e); }
-        public static SNOperator PostfixIncrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0} ++", e); }
-        public static SNOperator PostfixDecrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0} --", e); }
-        public static SNOperator LogicalNot(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "! {0}", e); }
-        public static SNOperator BitwiseNot(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "~ {0}", e); }
-        public static SNOperator UnaryPlus(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "+ {0}", e); }
-        public static SNOperator UnaryNegation(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "- {0}", e); }
-        public static SNOperator PrefixIncrement(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "++ {0}", e); }
-        public static SNOperator PrefixDecrement(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "-- {0}", e); }
+        public static SNOperator PostfixIncrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0}++", e); }
+        public static SNOperator PostfixDecrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0}--", e); }
+        public static SNExpression LogicalNot(SNExpression e) {
+            if (e is SNUnary su && su.Pattern == "!{0}")
+                return su.E;
+            return new SNUnary(15, SNOperator.Order.RightToLeft, "!{0}", e);
+        }
+        public static SNOperator BitwiseNot(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "~{0}", e); }
+        public static SNOperator UnaryPlus(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "+{0}", e); }
+        public static SNOperator UnaryNegation(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "-{0}", e); }
+        public static SNOperator PrefixIncrement(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "++{0}", e); }
+        public static SNOperator PrefixDecrement(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "--{0}", e); }
         public static SNOperator TypeOf(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "typeof {0}", e); }
         public static SNOperator Void(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "void {0}", e); }
         public static SNOperator Delete(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "delete {0}", e); }
@@ -497,10 +501,10 @@ namespace OpenAS2.Compilation
     }
 
 
-    public abstract class NodeControl : SNStatement
+    public abstract class SNControl : SNStatement
     {
 
-        public NodeControl() : base() { }
+        public SNControl() : base() { }
         public override string TryComposeRaw(StatementCollection sta)
         {
             StringBuilder sb = new();
@@ -510,12 +514,12 @@ namespace OpenAS2.Compilation
 
     }
 
-    public class NodeDefineFunction : NodeControl
+    public class SNDefineFunction : SNControl
     {
         public StatementCollection Body;
         public RawInstruction Instruction { get; }
         private readonly (string, List<string>) _info;
-        public NodeDefineFunction(RawInstruction inst, StatementCollection body) : base()
+        public SNDefineFunction(RawInstruction inst, StatementCollection body) : base()
         {
             Body = body;
             Instruction = inst;
@@ -563,7 +567,7 @@ namespace OpenAS2.Compilation
 
     }
 
-    public class SNControlCase: NodeControl
+    public class SNControlCase: SNControl
     {
 
         public SNExpression? Condition;
@@ -633,7 +637,7 @@ namespace OpenAS2.Compilation
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
             // do not need to reverse since it is already done in node pool
-
+            var ifBranch = !elseIfBranch ? $"if ({tmp})\n" : ("\n" + $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent));
             if (ei1 ^ ei2)
             {
                 if (ei1)
@@ -646,19 +650,17 @@ namespace OpenAS2.Compilation
                     nc1 = nc3;
                     tmp = InstructionUtils.ReverseCondition(tmp);
                 }
-                var ifBranch = elseIfBranch ? $"if ({tmp})\n" : $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent);
                 sb.Append(ifBranch);
                 sta.CallSubCollection(b1, sb);
                 nc2!.TryCompose(sta, sb, true);
             }
             else
             {
-                var ifBranch2 = elseIfBranch ? $"if ({tmp})\n" : $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent);
-                sb.Append(ifBranch2);
+                sb.Append(ifBranch);
                 sta.CallSubCollection(b1, sb);
                 if (!b2.IsEmpty())
                 {
-                    sb.Append("else\n".ToStringWithIndent(sta._currentIndent));
+                    sb.Append("\n" + "else\n".ToStringWithIndent(sta._currentIndent));
                     sta.CallSubCollection(b1, sb);
                 }
             }
@@ -666,7 +668,7 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class SNControlLoop : NodeControl
+    public class SNControlLoop : SNControl
     {
 
         public SNExpression? Condition;
