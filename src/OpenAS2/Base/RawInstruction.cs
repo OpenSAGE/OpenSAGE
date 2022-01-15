@@ -30,6 +30,12 @@ namespace OpenAS2.Base
 
         public override string ToString()
         {
+            if (Type == InstructionType.ConstantPool) {
+                if (Parameters.Count < 6)
+                    return $"{Type}|{string.Join(", ", Parameters.Skip(1).Select(x => $"#{x.Integer}"))}";
+                else
+                    return $"{Type}|{Parameters[0]} Parameters: {string.Join(", ", Parameters.Skip(1).Take(3).Select(x => $"#{x.Integer}"))}...#{Parameters.Last().Integer}";
+            }
             return $"{Type}|{string.Join(", ", Parameters.Select(x => x.ToString()))}";
         }
 

@@ -52,7 +52,7 @@ namespace OpenAS2.Compilation
 
         public virtual string TryComposeWithPrecendence(StatementCollection sta, int targetPrec = 24)
         {
-            var s = TryComposeWithPrecendence(sta);
+            var s = TryComposeRaw(sta);
             if (targetPrec > LowestPrecendence)
             {
                 s = $"({s})";
@@ -490,7 +490,8 @@ namespace OpenAS2.Compilation
 
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            throw new InvalidOperationException();
+            // throw new InvalidOperationException();
+            return true;
         }
 
     }

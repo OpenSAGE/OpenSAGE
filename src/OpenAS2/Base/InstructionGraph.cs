@@ -178,10 +178,6 @@ namespace OpenAS2.Base
         private InstructionBlock(int h) { Hierarchy = h; Items = new(); Labels = new(); }
         public static InstructionBlock H(int h) { return new(h); }
 
-        public override string ToString()
-        {
-            return $"IB({Items.Count} Instructions, Hierarchy={Hierarchy})";
-        }
 
         public void CopyFrom(InstructionBlock b, bool copyNext)
         {
@@ -190,6 +186,41 @@ namespace OpenAS2.Base
             BranchCondition = b.BranchCondition;
             NextBlockDefault = copyNext ? b.NextBlockDefault : null;
             NextBlockCondition = b.NextBlockCondition;
+        }
+
+        public override string ToString()
+        {
+            return $"Block #{Hierarchy}, #INST={Items.Count}";
+        }
+
+        public string ToString2()
+        {
+            StringBuilder sb = new();
+            var space = "  ";
+            var space2 = "    ";
+            // sb.Append(space2);
+            sb.Append($"Block #{Hierarchy}, {Items.Count} Instructions:\n");
+            foreach (var (k, inst) in Items)
+            {
+                if (inst.Type == InstructionType.ConstantPool)
+                {
+                    sb.Append(inst.ToString());
+                    continue;
+                }
+                // sb.Append(space2);
+                sb.Append(space);
+                sb.Append(inst.Type);
+                sb.Append(": ");
+                foreach (var p in inst.Parameters)
+                {
+                    // sb.Append(space2);
+                    // sb.Append(space2);
+                    sb.Append(p);
+                    sb.Append('|');
+                }
+                sb.Append('\n');
+            }
+            return sb.ToString();
         }
 
     }
@@ -365,6 +396,51 @@ namespace OpenAS2.Base
 
         }
 
+
+        public static string FormEdge(int h1, int h2, string? label = null)
+        {
+            label = string.IsNullOrWhiteSpace(label) ? "" : $"label=\"{label.Replace("\n", "\\n")}\"";
+            return $"B{h1} -> B{h2} [style=solid, color=\"black\"" + label + "];\n";
+        }
+        public string ToDotForm()
+        {
+            StringBuilder sb = new();
+            var space4 = "    ";
+            sb.Append("digraph G { \n");
+            for (var b = BaseBlock; b != null; b = b.NextBlockDefault)
+            {
+                sb.Append(space4);
+                sb.Append($"B{b.Hierarchy} [shape=box, style=solid, label=\"");
+                sb.Append(b.ToString2().Replace("\n", "\\n").Replace("\"", "\\\""));
+                sb.Append("\"];\n");
+            }
+            for (var b = BaseBlock; b != null; b = b.NextBlockDefault)
+            { 
+                if (!b.HasBranch && b.NextBlockDefault != null)
+                {
+                    sb.Append(space4);
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockDefault.Hierarchy));
+                }
+                else if (b.HasConstantBranch)
+                {
+                    sb.Append(space4);
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockCondition!.Hierarchy));
+                }
+                else if (b.HasConditionalBranch)
+                {
+                    var c1 = b.BranchCondition!.Type == InstructionType.BranchIfTrue ? "false" : "true";
+                    var c2 = b.BranchCondition!.Type == InstructionType.BranchIfTrue ? "true" : "false";
+                    sb.Append(space4);
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockDefault!.Hierarchy, c1));
+                    sb.Append(space4);
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockCondition!.Hierarchy, c2));
+                }
+                    
+            }
+            sb.Append("}\n");
+            return sb.ToString();
+        }
+
         /// <summary>
         /// replace all blocks with no meaningful operations inside it
         /// strip all labels and tags
@@ -414,16 +490,19 @@ namespace OpenAS2.Base
             for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
             {
                 var bm = map[b];
-                if (newBlocks.TryGetValue(bm, out var nbm))
+                if (newBlocks.TryGetValue(bm, out var nb))
                 {
-                    prev = nbm;
-                    nbm.Labels.AddRange(b.Labels);
-                    continue;
+                    // do nothing
+                    // continue;
                 }
-                var nb = new InstructionBlock(prev);
-                nb.BranchCondition = bm.BranchCondition;
+                else
+                {
+                    nb = new InstructionBlock(prev);
+                    nb.BranchCondition = bm.BranchCondition;
+                }
                 nb.Labels.AddRange(b.Labels);
-                foreach (var (pos, inst) in bm.Items)
+                var damnparsing = 0;
+                foreach (var (pos, inst) in b.Items)
                 {
                     if (inst is LogicalTaggedInstruction lti)
                         if (lti is LogicalFunctionContext lfc)
@@ -433,6 +512,8 @@ namespace OpenAS2.Base
                                 nb.Items.Add(pos, lfc); // TODO strip
                         else if (!(inst.Type == InstructionType.End || inst.Type == InstructionType.Padding))
                             nb.Items.Add(pos, stripTags ? lti.MostInner : lti);
+                        else
+                            ++damnparsing;
                     else
                         nb.Items.Add(pos, inst);
                 }

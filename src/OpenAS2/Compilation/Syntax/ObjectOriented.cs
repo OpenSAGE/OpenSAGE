@@ -39,7 +39,7 @@ namespace OpenAS2.Compilation.Syntax
         {
             var sup = np.PopExpression();
             var cls = np.PopExpression();
-            throw new NotImplementedException();
+            np.PushNode(new SNToStatement(new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} extends {1}", cls, sup, false)));
         }
         
 

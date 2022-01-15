@@ -21,8 +21,13 @@ namespace OpenAS2.Tests
                 return null;
 
             var g_ = new InstructionGraph(ci, 0, null, regNames);
+            Console.WriteLine(g_.ToDotForm());
+
+            Console.WriteLine("Gan Si Huang Xu Dong");
 
             var g = InstructionGraph.OptimizeGraph(g_);
+            var gd = g.ToDotForm();
+            System.IO.File.WriteAllText("E:/1.dot", gd);
 
 
             Console.WriteLine("Gan Si Huang Xu Dong");
@@ -53,6 +58,7 @@ namespace OpenAS2.Tests
             string codeFilePath = "", constFilePath = "";
 
             codeFilePath = "main_mouse_C0_F0_I1_Action";
+            codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
             constFilePath = "main_mouse_Constants";
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));

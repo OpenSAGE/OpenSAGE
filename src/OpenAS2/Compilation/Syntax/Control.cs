@@ -21,22 +21,22 @@ namespace OpenAS2.Compilation.Syntax
 
                 case InstructionType.Return:
                     np.PushNode(new SNKeyWord("return", np.PopExpression()));
-                    break;
+                    return true;
                 case InstructionType.Throw:
                     np.PushNode(new SNKeyWord("throw", np.PopExpression()));
-                    break;
+                    return true;
                 case InstructionType.ConstantPool:
                     np.Constants = InstructionUtils.CreateConstantPool(inst.Parameters, np.GlobalPool);
-                    break;
+                    return true;
 
                 case InstructionType.BranchAlways:
                     return true;
                 case InstructionType.EA_BranchIfFalse:
                     np.PushNode(np.PopExpression());
-                    break;
+                    return true;
                 case InstructionType.BranchIfTrue:
                     np.PushNode(OprUtils.LogicalNot(np.PopExpression()));
-                    break;
+                    return true;
 
 
                 case InstructionType.DefineFunction:
@@ -57,7 +57,7 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.ToggleQuality:
                 case InstructionType.StopSounds:
                     np.PushNode(new SNForConvenience(inst.Type.ToString() + "()"));
-                    break;
+                    return true;
 
 
                 case InstructionType.SetTarget:
@@ -86,14 +86,14 @@ namespace OpenAS2.Compilation.Syntax
                         new SNArray(new SNExpression[] {
                             new SNLiteral(inst.Parameters[0]),
                         }))));
-                    break;
+                    return true;
                 case InstructionType.GotoFrame:
                     np.PushNode(new SNToStatement(OprUtils.FunctionCall(
                         new SNNominator("gotoFrame"),
                         new SNArray(new SNExpression[] {
                             new SNLiteral(inst.Parameters[0]),
                         }))));
-                    break;
+                    return true;
                 case InstructionType.GotoFrame2:
                     np.PushNode(new SNToStatement(OprUtils.FunctionCall(
                         new SNNominator("gotoFrame"),
@@ -101,7 +101,7 @@ namespace OpenAS2.Compilation.Syntax
                             np.PopExpression(),
                             new SNLiteral(inst.Parameters[0]),
                         }))));
-                    break;
+                    return true;
                 case InstructionType.CallFrame:
                     break;
                 case InstructionType.WaitFormFrame:
@@ -118,7 +118,7 @@ namespace OpenAS2.Compilation.Syntax
                             new SNLiteral(inst.Parameters[0]),
                             new SNLiteral(inst.Parameters[1])
                         }))));
-                    break;
+                    return true;
                 case InstructionType.GetURL2:
                     var lv0 = np.PopExpression();
                     var lv1 = np.PopExpression();
@@ -128,14 +128,14 @@ namespace OpenAS2.Compilation.Syntax
                             lv1,
                             lv0
                         })));
-                    break;
+                    return true;
 
 
                 case InstructionType.GetTime:
                     np.PushNode(OprUtils.FunctionCall(
                         new SNNominator("getTimer"),
                         new SNArray(new SNExpression[] { })));
-                    break;
+                    return true;
 
 
                 case InstructionType.Trace:
@@ -145,7 +145,7 @@ namespace OpenAS2.Compilation.Syntax
                         new SNArray(new SNExpression[] {
                             tracev0
                         }))));
-                    break;
+                    return true;
                 case InstructionType.TraceStart:
                     break;
 
@@ -154,23 +154,23 @@ namespace OpenAS2.Compilation.Syntax
                     var gpv0 = np.PopExpression();
                     var gpv1 = np.PopExpression();
                     np.PushNode(new SNMemberAccess(SNNominator.Check(gpv1), gpv0));
-                    break;
+                    return true;
                 case InstructionType.SetProperty:
                     var spv0 = np.PopExpression();
                     var spv1 = np.PopExpression();
                     var spv2 = np.PopExpression();
                     np.PushNode(new SNValAssign(new SNMemberAccess(SNNominator.Check(spv2), spv1), spv0));
-                    break;
+                    return true;
 
 
                 case InstructionType.GetVariable:
                     np.PushNode(new SNMemberAccess(new SNNominator("this"), np.PopExpression()));
-                    break;
+                    return true;
                 case InstructionType.SetVariable:
                     var svv0 = np.PopExpression();
                     var svv1 = np.PopExpression();
                     np.PushNode(new SNValAssign(new SNMemberAccess(new SNNominator("this"), svv1), svv0));
-                    break;
+                    return true;
             }
             return false;
         }
