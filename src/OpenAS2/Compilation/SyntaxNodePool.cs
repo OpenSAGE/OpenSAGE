@@ -25,7 +25,7 @@ namespace OpenAS2.Compilation
 
         public StatementCollection(SyntaxNodePool pool)
         {
-            Nodes = pool.PopNodes();
+            Nodes = pool.PopStatements(); // TODO check
             RegNames = new Dictionary<int, string>(pool.RegNames);
             Registers = new();
             NodeNames = new();
@@ -265,6 +265,7 @@ namespace OpenAS2.Compilation
         {
             var ind = NodeList.FindLastIndex(n => n is SNExpression);
             SNExpression? ret = null;
+            var ableToDelete = false;
             if (ind == -1)
                 ret = null;
             else
@@ -272,11 +273,13 @@ namespace OpenAS2.Compilation
                 var node = (SNExpression) NodeList[ind];
 
                 // some special nodes shouldn't be deleted like Enumerate
-                var ableToDelete = !node.doNotDeleteAfterPopped;
+                ableToDelete = !node.doNotDeleteAfterPopped;
 
                 if (ableToDelete && deleteIfPossible)
                 {
                     NodeList.RemoveAt(ind);
+                    _labels.AddRange(node.Labels);
+                    node.Labels.Clear();
                     if (ind < ParentNodeDivision)
                     {
                         ParentNodeDivision = ind;
@@ -287,7 +290,6 @@ namespace OpenAS2.Compilation
             }
             if (ret != null)
             {
-                _labels.AddRange(ret.Labels);
                 return ret;
             }
             return new SNLiteralUndefined();
@@ -320,7 +322,11 @@ namespace OpenAS2.Compilation
 
         public IEnumerable<SNStatement> PopStatements()
         {
-            return NodeList.Skip(ParentNodeDivision).Where(x => x is SNStatement && !_special.ContainsKey(x)).Cast<SNStatement>();
+            return NodeList.Skip(ParentNodeDivision)
+                .Where(x => x is SNStatement || x is SNFunctionCall)
+                .Select(x => x is SNStatement ? x : new SNToStatement((SNExpression) x))
+                .Where(x => !_special.ContainsKey(x))
+                .Cast<SNStatement>();
         }
         public IEnumerable<SyntaxNode> PopNodes()
         {
@@ -341,7 +347,7 @@ namespace OpenAS2.Compilation
             NodeList.Add(n);
         }
 
-        public void PushNodeConstant(int id, Func<SNExpression, SNExpression?>? f = null)
+        public void PushNodeConstant(int id, Func<SNExpression, SyntaxNode?>? f = null)
         {
             SNExpression n = new SNLiteral(RawValue.FromString(Constants[id].ToString()));
             if (f != null)
@@ -375,6 +381,8 @@ namespace OpenAS2.Compilation
 
         public void SetRegister(int reg, SNExpression val)
         {
+            _labels.AddRange(val.Labels);
+            val.Labels.Clear();
             if (RegValues.TryGetValue(reg, out var rv))
             {
                 PushNode(new SNValAssign(rv, val)); // TODO check reference

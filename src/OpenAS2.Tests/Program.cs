@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using OpenAS2.Base;
 using OpenAS2.Compilation;
 using OpenAS2.Runtime;
@@ -21,24 +22,18 @@ namespace OpenAS2.Tests
                 return null;
 
             var g_ = new InstructionGraph(ci, 0, null, regNames);
-            Console.WriteLine(g_.ToDotForm());
+            // Console.WriteLine(g_.ToDotForm());
 
             Console.WriteLine("Gan Si Huang Xu Dong");
 
             var g = InstructionGraph.OptimizeGraph(g_);
             g = g_;
             var gd = g.ToDotForm();
+
             System.IO.File.WriteAllText("E:/1.dot", gd);
 
-            int i = 0;
-            RawInstruction? cstp = null;
-            foreach (var (pos, inst) in ci)
-            {
-                if (inst.Type == InstructionType.ConstantPool)
-                    cstp = inst;
-                Console.WriteLine($"#{i}/${pos}: {inst.ToString(constSource, cstp)}");
-                ++i;
-            }
+            var dinst = StringParsingUtils.DumpInstructionStorage(ci, constSource);
+            System.IO.File.WriteAllText("E:/1.txt", dinst);
 
 
             Console.WriteLine("Gan Si Huang Xu Dong");
@@ -55,8 +50,9 @@ namespace OpenAS2.Tests
             // p.PushBlock(c);
 
             var sc = new StatementCollection(p);
-            var code = sc.Compile();
-            Console.Write(code.ToString());
+            var code = sc.Compile().ToString();
+            System.IO.File.WriteAllText("E:/1.js", code);
+            Console.Write(code);
 
             return g;
         }
@@ -69,7 +65,7 @@ namespace OpenAS2.Tests
             string codeFilePath = "", constFilePath = "";
 
             codeFilePath = "main_mouse_C0_F0_I1_Action";
-            codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
+            // codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
             constFilePath = "main_mouse_Constants";
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));

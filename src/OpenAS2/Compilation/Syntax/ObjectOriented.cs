@@ -90,7 +90,6 @@ namespace OpenAS2.Compilation.Syntax
         {
             np.PushNode(new SNKeyWord("delete", SNNominator.Check(np.PopExpression())));
         }
-
         public static readonly OPR2 GetMember = (member, vobj) => new SNMemberAccess(new SNCheckTarget(SNNominator.Check(vobj)), member);
 
         public static void DoSetMember(SyntaxNodePool np)
@@ -118,12 +117,14 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(OprUtils.FunctionCall(funcName, args));
 
         }
-        public static void DoCallMethod(SyntaxNodePool np)
+        public static void DoCallMethod(SyntaxNodePool np, bool pop = false)
         {
             var funcName = np.PopExpression();
-            var funcBody = np.PopExpression();
+            var flag = funcName is SNLiteralUndefined;
+            var funcObj = np.PopExpression();
             var args = np.PopArray();
-            np.PushNode(OprUtils.FunctionCall(new SNMemberAccess(SNNominator.Check(funcName), funcBody), args));
+            var fbody = flag ? funcObj : new SNMemberAccess(SNNominator.Check(funcObj), funcName);
+            np.PushNode(pop ? OprUtils.FunctionCall2(fbody, args) : OprUtils.FunctionCall(fbody, args));
         }
         public static void DoGetNamedMember(SyntaxNodePool np, int cid)
         {
@@ -139,7 +140,7 @@ namespace OpenAS2.Compilation.Syntax
                 var obj = SNNominator.Check(np.PopExpression());
                 var args = np.PopArray();
                 var f = new SNMemberAccess(obj, fname);
-                var ret = OprUtils.FunctionCall(f, args);
+                SyntaxNode ret = pop ? OprUtils.FunctionCall2(f, args) : OprUtils.FunctionCall(f, args);
                 /*
                 if (pop)
                 {
@@ -192,11 +193,14 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.EA_CallFunc:
                     return false;
 
-                case InstructionType.CallMethod:
+                
                 // Since the execution (in original implementation)
                 // is precisely the same as CallMethod, omit it
                 // TODO Don't know if the word pop means discard the return value
                 case InstructionType.EA_CallMethodPop:
+                    DoCallMethod(np, true);
+                    break;
+                case InstructionType.CallMethod:
                 case InstructionType.EA_CallMethod:
                     DoCallMethod(np);
                     break;

@@ -279,7 +279,7 @@ namespace OpenAS2.Compilation
     {
         private SNExpression _e1;
 
-        public SNCheckTarget(SNExpression e) : base(18, Order.LeftToRight)
+        public SNCheckTarget(SNExpression e) : base(24, Order.LeftToRight)
         {
             _e1 = e;
         }
@@ -312,6 +312,14 @@ namespace OpenAS2.Compilation
         }
     }
 
+    public class SNFunctionCall : SNBinary
+    {
+        public SNFunctionCall(SNExpression? e1, SNExpression? e2, bool isNew = false) : base(18, Order.LeftToRight, (isNew ? "new " : "") + "{0}({1})", e1, e2, false)
+        {
+
+        }
+    }
+
     public static class OprUtils
     {
         // defined
@@ -321,12 +329,12 @@ namespace OpenAS2.Compilation
 
         // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
 
-        public static SNOperator Grouping(SNExpression e) { return new SNUnary(19, SNOperator.Order.NotAcceptable, "( {0} )", e); }
+        // public static SNOperator Grouping(SNExpression e) { return new SNUnary(19, SNOperator.Order.NotAcceptable, "( {0} )", e); }
         // public static SNOperator MemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} . {1}", e1, e2); }
         // public static SNOperator ComputedMemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} [ {1} ]", e1, e2); }
-        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0}({1})", e1, e2, false); }
-        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0}({1})", e1, e2, false); }
-        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ({1})", e1, e2, false)); }
+        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNFunctionCall(e1, e2, true); }
+        public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNFunctionCall(e1, e2); }
+        public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNFunctionCall(e1, e2)); }
         public static SNOperator Optionalchaining(SNExpression e) { return new SNUnary(18, SNOperator.Order.LeftToRight, "?.", e); }
         public static SNOperator NewWithoutArgs(SNExpression e) { return new SNUnary(17, SNOperator.Order.RightToLeft, "new {0}", e); }
         public static SNOperator PostfixIncrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0}++", e); }
@@ -702,8 +710,9 @@ namespace OpenAS2.Compilation
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
             var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
-            sta.CallSubCollection(Maintain, sb, prefix: " // loop maintain condition");
-            sb.Append($"while ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
+            sb.Append("// loop maintain condition\n");
+            sta.CallSubCollection(Maintain, sb);
+            sb.Append("\n" + $"while ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
             sta.CallSubCollection(Branch, sb);
             return false;
         }

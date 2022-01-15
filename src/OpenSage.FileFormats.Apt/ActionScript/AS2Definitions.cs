@@ -176,11 +176,11 @@ namespace OpenSage.FileFormats.Apt.ActionScript
     public enum RawParamType
     {
         UI8,
-
         UI16,
         UI24,
         UI32,
 
+        I8,
         I16,
         I32,
 
@@ -351,7 +351,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                     break;
 
                 case InstructionType.EA_PushByte:
-                    paramSequence.Add(RawParamType.UI8);
+                    paramSequence.Add(RawParamType.I8);
                     break;
                 case InstructionType.EA_PushRegister:
                     paramSequence.Add(RawParamType.UI8);
@@ -369,7 +369,7 @@ namespace OpenSage.FileFormats.Apt.ActionScript
                     break;
 
                 case InstructionType.EA_PushShort:
-                    paramSequence.Add(RawParamType.UI16);
+                    paramSequence.Add(RawParamType.I16);
                     break;
                 case InstructionType.EA_PushConstantWord:
                     paramSequence.Add(RawParamType.UI16);

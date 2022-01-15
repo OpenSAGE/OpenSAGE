@@ -170,6 +170,10 @@ namespace OpenSage.FileFormats.Apt
                         ++cur_index;
                         break;
 
+                    case RawParamType.I8:
+                        parameters.Add(RawValue.FromInteger(reader.ReadSByte()));
+                        ++cur_index;
+                        break;
                     case RawParamType.I16:
                         parameters.Add(RawValue.FromInteger(reader.ReadInt16()));
                         ++cur_index;

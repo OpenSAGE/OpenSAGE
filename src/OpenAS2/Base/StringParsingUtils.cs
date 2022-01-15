@@ -47,5 +47,20 @@ namespace OpenAS2.Base
             return ans;
         }
 
+        public static string DumpInstructionStorage(RawInstructionStorage insts, RawConstantStorage? consts = null)
+        {
+            RawInstruction? cstp = null;
+            int i = 0;
+            StringBuilder sb = new();
+            foreach (var (pos, inst) in insts)
+            {
+                if (inst.Type == InstructionType.ConstantPool)
+                    cstp = inst;
+                sb.AppendLine($"#{i}/${pos}: {inst.ToString(consts, cstp)}");
+                ++i;
+            }
+            return sb.ToString();
+        }
+
     }
 }

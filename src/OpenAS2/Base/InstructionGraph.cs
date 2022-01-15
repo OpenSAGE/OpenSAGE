@@ -397,20 +397,20 @@ namespace OpenAS2.Base
         }
 
 
-        public static string FormEdge(int h1, int h2, string? label = null)
+        public static string FormEdge(int h1, int h2, string? label = null, string prefix = "B")
         {
             label = string.IsNullOrWhiteSpace(label) ? "" : $"label=\"{label.Replace("\n", "\\n")}\"";
-            return $"B{h1} -> B{h2} [style=solid, color=\"black\"" + label + "];\n";
+            return $"{prefix}{h1} -> {prefix}{h2} [style=solid, color=\"black\"" + label + "];\n";
         }
-        public string ToDotForm()
+        public string ToDotForm(string title = "digraph G", string indent = "", string prefix = "B")
         {
             StringBuilder sb = new();
-            var space4 = "    ";
-            sb.Append("digraph G { \n");
+            var space4 = indent + "    ";
+            sb.Append($"{indent}{title} {{ \n");
             for (var b = BaseBlock; b != null; b = b.NextBlockDefault)
             {
                 sb.Append(space4);
-                sb.Append($"B{b.Hierarchy} [shape=box, style=solid, label=\"");
+                sb.Append($"{prefix}{b.Hierarchy} [shape=box, style=solid, label=\"");
                 sb.Append(b.ToString2().Replace("\n", "\\n").Replace("\"", "\\\""));
                 sb.Append("\"];\n");
             }
@@ -431,13 +431,13 @@ namespace OpenAS2.Base
                     var c1 = b.BranchCondition!.Type == InstructionType.BranchIfTrue ? "false" : "true";
                     var c2 = b.BranchCondition!.Type == InstructionType.BranchIfTrue ? "true" : "false";
                     sb.Append(space4);
-                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockDefault!.Hierarchy, c1));
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockDefault!.Hierarchy, c1, prefix));
                     sb.Append(space4);
-                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockCondition!.Hierarchy, c2));
+                    sb.Append(FormEdge(b.Hierarchy, b.NextBlockCondition!.Hierarchy, c2, prefix));
                 }
                     
             }
-            sb.Append("}\n");
+            sb.Append($"{indent}}}\n");
             return sb.ToString();
         }
 
