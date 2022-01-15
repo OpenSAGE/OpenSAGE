@@ -348,6 +348,8 @@ public static class EffectCompiler
         return identifierName.Name.ValueText switch
         {
             "BACK" => FaceCullMode.Back,
+            "FRONT" => FaceCullMode.Front,
+            "NONE" => FaceCullMode.None,
             _ => throw new InvalidOperationException()
         };
     }

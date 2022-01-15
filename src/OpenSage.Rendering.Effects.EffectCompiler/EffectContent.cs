@@ -48,7 +48,7 @@ internal sealed class EffectPassContent
 
     public EffectPassContent()
     {
-        BlendStateDescription = new(RgbaFloat.White)
+        BlendStateDescription = new()
         {
             AttachmentStates = new BlendAttachmentDescription[8]
         };
