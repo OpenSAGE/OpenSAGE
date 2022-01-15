@@ -19,13 +19,13 @@ void main()
 {
     vec3 worldPosition = in_Position;
 
-    gl_Position = _GlobalConstantsVS.ViewProjection * vec4(worldPosition, 1);
+    gl_Position = _GlobalConstants.ViewProjection * vec4(worldPosition, 1);
     out_WorldPosition = worldPosition;
 
     out_CloudUV = GetCloudUV(
         out_WorldPosition,
         _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstantsShared.TimeInSeconds);
+        _GlobalConstants.TimeInSeconds);
 
     out_ViewSpaceDepth = gl_Position.z;
 }

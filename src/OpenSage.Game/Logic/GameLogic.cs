@@ -99,6 +99,19 @@ namespace OpenSage.Logic
             _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
         }
 
+        private void DestroyAllObjectsNow()
+        {
+            foreach (var gameObject in _objects)
+            {
+                if (gameObject != null)
+                {
+                    DestroyObject(gameObject);
+                }
+            }
+
+            DeleteDestroyed();
+        }
+
         public void DestroyObject(GameObject gameObject)
         {
             _destroyList.Add(gameObject);
@@ -126,6 +139,13 @@ namespace OpenSage.Logic
             }
 
             _destroyList.Clear();
+        }
+
+        public void Reset()
+        {
+            DestroyAllObjectsNow();
+
+            NextObjectId = 1;
         }
 
         public void Persist(StatePersister reader)

@@ -1346,6 +1346,13 @@ namespace OpenSage.Logic.Object
             Unknown4 = 4,
             Unknown8 = 8,
         }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            GameContext.GameClient.DestroyDrawable(Drawable);
+
+            base.Dispose(disposeManagedResources);
+        }
     }
 
     internal sealed class ObjectVeterancyHelper : IPersistableObject

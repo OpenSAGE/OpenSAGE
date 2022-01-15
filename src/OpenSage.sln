@@ -52,7 +52,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigTool", "O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game.CodeGen", "OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj", "{EBD0B02E-A685-4D8C-91C1-45419A95CAD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.Sav2Json", "OpenSage.Tools.Sav2Json\OpenSage.Tools.Sav2Json.csproj", "{5D829E83-DB6D-4C5B-9692-7F69C518CB16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.Sav2Json", "OpenSage.Tools.Sav2Json\OpenSage.Tools.Sav2Json.csproj", "{5D829E83-DB6D-4C5B-9692-7F69C518CB16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Rendering", "OpenSage.Rendering\OpenSage.Rendering.csproj", "{493357DD-0659-4C7F-8E98-0252E9BA4901}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Rendering.Effects.EffectCompiler", "OpenSage.Rendering.Effects.EffectCompiler\OpenSage.Rendering.Effects.EffectCompiler.csproj", "{25BC7BE9-EBE2-42AD-B3CF-081A7B321B25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Rendering.Effects.EffectCompiler.Tests", "OpenSage.Rendering.Effects.EffectCompiler.Tests\OpenSage.Rendering.Effects.EffectCompiler.Tests.csproj", "{BCF31442-972A-446F-A10E-2DBAED1CF5DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +150,18 @@ Global
 		{5D829E83-DB6D-4C5B-9692-7F69C518CB16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D829E83-DB6D-4C5B-9692-7F69C518CB16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D829E83-DB6D-4C5B-9692-7F69C518CB16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25BC7BE9-EBE2-42AD-B3CF-081A7B321B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25BC7BE9-EBE2-42AD-B3CF-081A7B321B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25BC7BE9-EBE2-42AD-B3CF-081A7B321B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25BC7BE9-EBE2-42AD-B3CF-081A7B321B25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCF31442-972A-446F-A10E-2DBAED1CF5DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCF31442-972A-446F-A10E-2DBAED1CF5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCF31442-972A-446F-A10E-2DBAED1CF5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCF31442-972A-446F-A10E-2DBAED1CF5DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

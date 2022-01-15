@@ -317,6 +317,9 @@ namespace OpenSage
                 Quadtree,
                 this);
 
+            Game.GameLogic.Reset();
+            Game.GameClient.Reset();
+
             GameObjects = AddDisposable(new GameObjectCollection(GameContext));
 
             GameContext.GameObjects = GameObjects;

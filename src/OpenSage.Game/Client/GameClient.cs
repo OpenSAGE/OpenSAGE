@@ -13,7 +13,7 @@ namespace OpenSage.Client
 
         private uint _currentFrame;
 
-        internal uint NextDrawableId;
+        internal uint NextDrawableId = 1;
 
         public GameClient(Game game)
         {
@@ -47,6 +47,37 @@ namespace OpenSage.Client
                 _drawables.Add(null);
             }
             _drawables[(int)drawableId] = drawable;
+        }
+
+        public void DestroyDrawable(Drawable drawable)
+        {
+            drawable.Dispose();
+
+            RemoveToDispose(drawable);
+
+            _drawables[(int)drawable.ID] = null;
+        }
+
+        private void DestroyAllDrawablesNow()
+        {
+            foreach (var drawable in _drawables)
+            {
+                if (drawable != null)
+                {
+                    drawable.Dispose();
+
+                    RemoveToDispose(drawable);
+                }
+            }
+
+            _drawables.Clear();
+        }
+
+        public void Reset()
+        {
+            DestroyAllDrawablesNow();
+
+            NextDrawableId = 1;
         }
 
         public void Persist(StatePersister reader)

@@ -42,9 +42,9 @@ void main()
         out_WorldNormal,
         out_CloudUV,
         _RenderItemConstantsVS.World,
-        _GlobalConstantsVS.ViewProjection,
+        _GlobalConstants.ViewProjection,
         _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstantsShared.TimeInSeconds);
+        _GlobalConstants.TimeInSeconds);
         
     DO_CLIPPING(out_WorldPosition)
 

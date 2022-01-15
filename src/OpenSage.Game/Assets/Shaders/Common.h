@@ -2,47 +2,30 @@
 
 #define COMMON_H
 
-struct GlobalConstantsSharedType
+struct GlobalConstantsType
 {
     vec3 CameraPosition;
     float TimeInSeconds;
-};
 
-struct GlobalConstantsVSType
-{
     mat4 ViewProjection;
     vec4 ClippingPlane1;
     vec4 ClippingPlane2;
     bool HasClippingPlane1;
     bool HasClippingPlane2;
-    vec2 _Padding;
-};
 
-struct GlobalConstantsPSType
-{
     vec2 ViewportSize;
 };
 
 #define MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform GlobalConstantsShared \
+    layout(set = resourceSet, binding = 0) uniform GlobalConstants \
     { \
-        GlobalConstantsSharedType _GlobalConstantsShared; \
-    }; \
-    \
-    layout(set = resourceSet, binding = 1) uniform GlobalConstantsVS \
-    { \
-        GlobalConstantsVSType _GlobalConstantsVS; \
+        GlobalConstantsType _GlobalConstants; \
     };
 
 #define MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform GlobalConstantsShared \
+    layout(set = resourceSet, binding = 0) uniform GlobalConstants \
     { \
-        GlobalConstantsSharedType _GlobalConstantsShared; \
-    }; \
-    \
-    layout(set = resourceSet, binding = 2) uniform GlobalConstantsPS \
-    { \
-        GlobalConstantsPSType _GlobalConstantsPS; \
+        GlobalConstantsType _GlobalConstants; \
     };
 
 bool FailsAlphaTest(float alpha)
@@ -76,7 +59,7 @@ float CalculateClippingPlane(vec3 position, bool hasClippingPlane, vec4 plane)
 }
 
 #define DO_CLIPPING(position) \
-    gl_ClipDistance[0] = CalculateClippingPlane(position, _GlobalConstantsVS.HasClippingPlane1, _GlobalConstantsVS.ClippingPlane1); \
-    gl_ClipDistance[1] = CalculateClippingPlane(position, _GlobalConstantsVS.HasClippingPlane2, _GlobalConstantsVS.ClippingPlane2);
+    gl_ClipDistance[0] = CalculateClippingPlane(position, _GlobalConstants.HasClippingPlane1, _GlobalConstants.ClippingPlane1); \
+    gl_ClipDistance[1] = CalculateClippingPlane(position, _GlobalConstants.HasClippingPlane2, _GlobalConstants.ClippingPlane2);
 
 #endif

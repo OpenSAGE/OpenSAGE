@@ -28,7 +28,7 @@ void main()
 {
     vec2 uv =
         (in_UV0 * _MaterialConstants.TexCoordTransform_0.xy) +
-        (_GlobalConstantsShared.TimeInSeconds * _MaterialConstants.TexCoordTransform_0.zw);
+        (_GlobalConstants.TimeInSeconds * _MaterialConstants.TexCoordTransform_0.zw);
 
     vec4 color = vec4(_MaterialConstants.ColorEmissive.xyz, 1);
 

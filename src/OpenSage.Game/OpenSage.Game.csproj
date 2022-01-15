@@ -35,12 +35,12 @@
     <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+    <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Network\Protocol\lobby.proto" />
   </ItemGroup>
-
 
   <ItemGroup>
     <EmbeddedResource Include="Content\Fonts\*.ttf" />
@@ -52,6 +52,9 @@
 
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
     <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
+
+    <EffectFiles Include="Assets\Effects\*.fx" />
+    <UpToDateCheckInput Include="@(EffectFiles)" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -75,6 +78,20 @@
       <EmbeddedResource Include="@(CompiledShaderFiles)">
         <LogicalName>OpenSage.Assets.Shaders.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CompileEffects" BeforeTargets="BeforeBuild" Inputs="@(EffectFiles)" Outputs="@(EffectFiles->'$(IntermediateOutputPath)Assets\Effects\%(FileName).fxo')">
+    <MakeDir Directories="$(IntermediateOutputPath)Assets\Effects" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\OpenSage.Rendering.Effects.EffectCompiler\bin\$(Configuration)\net6.0\OpenSage.Rendering.Effects.EffectCompiler.exe&quot; %(EffectFiles.Identity) &quot;$(IntermediateOutputPath)Assets\Effects\%(EffectFiles.FileName).fxo&quot;" />
+  </Target>
+
+  <Target Name="CopyEffects" AfterTargets="CompileEffects">
+    <ItemGroup>
+      <CompiledEffectFiles Include="$(IntermediateOutputPath)Assets\Effects\*.*" />
+      <Content Include="@(CompiledEffectFiles)" CopyToOutputDirectory="PreserveNewest">
+        <Link>Assets\Effects\%(Filename)%(Extension)</Link>
+      </Content>
     </ItemGroup>
   </Target>
 </Project>

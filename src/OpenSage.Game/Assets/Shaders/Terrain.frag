@@ -279,7 +279,7 @@ void main()
         vec3(1, 1, 1),
         vec3(0, 0, 0),
         0,
-        _GlobalConstantsShared.CameraPosition,
+        _GlobalConstants.CameraPosition,
         false,
         shadowVisibility,
         diffuseColor,

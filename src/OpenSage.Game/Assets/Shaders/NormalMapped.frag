@@ -62,7 +62,7 @@ void main()
         _MaterialConstants.DiffuseColor.xyz,
         _MaterialConstants.SpecularColor.xyz,
         _MaterialConstants.SpecularExponent,
-        _GlobalConstantsShared.CameraPosition,
+        _GlobalConstants.CameraPosition,
         false, // TODO: true
         vec3(1, 1, 1),
         diffuseColor,
