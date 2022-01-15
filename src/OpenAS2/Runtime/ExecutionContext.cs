@@ -93,7 +93,7 @@ namespace OpenAS2.Runtime
         {
             Constants = GlobalConstantPool == null ?
                 new List<Value>().AsReadOnly() :
-                InstructionUtils.CreateConstantPool(Parameters, GlobalConstantPool);
+                CompilationUtils.CreateConstantPool(Parameters, GlobalConstantPool);
         }
         public Value ResolveConstant(int id)
         {

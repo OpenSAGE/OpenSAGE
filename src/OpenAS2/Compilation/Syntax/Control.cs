@@ -26,7 +26,7 @@ namespace OpenAS2.Compilation.Syntax
                     np.PushNode(new SNKeyWord("throw", np.PopExpression()));
                     return true;
                 case InstructionType.ConstantPool:
-                    np.Constants = InstructionUtils.CreateConstantPool(inst.Parameters, np.GlobalPool);
+                    np.Constants = CompilationUtils.CreateConstantPool(inst.Parameters, np.GlobalPool);
                     return true;
 
                 case InstructionType.BranchAlways:

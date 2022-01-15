@@ -8,12 +8,13 @@ using OpenAS2.Runtime;
 using OpenAS2.Compilation.Syntax;
 using Value = OpenAS2.Runtime.Value;
 using ValueType = OpenAS2.Runtime.ValueType;
+using System.Text.Json;
 
 namespace OpenAS2.Compilation
 {
     using RawInstructionStorage = SortedList<int, RawInstruction>;
 
-    public static class InstructionUtils
+    public static class CompilationUtils
     {
         public static IList<Value> CreateConstantPool(IList<RawValue> parameters, IList<ConstantEntry> globalPool)
         {
@@ -43,41 +44,7 @@ namespace OpenAS2.Compilation
 
             return pool.AsReadOnly();
         }
-        /*
-        public static Func<Value?, Value?> ParseValueWrapped(StatementCollection s)
-        {
-            return x => ParseValue(x, s.Constants.ElementAt, x => { var a = s.HasRegisterValue(x, out var b); return (a, b); });
-        }
-
-        public static Value? ParseValue(Value? v, Func<int, Value?> consts, Func<int, (bool, Value?)>? regs)
-        {
-            if (v == null)
-                return v;
-            while (v != null && (v.Type == ValueType.Constant || v.Type == ValueType.Register))
-            {
-                if (v.Type == ValueType.Constant)
-                {
-                    v = consts(v.ToInteger());
-                    if (!Value.IsNull(v) && v.Type == ValueType.Constant)
-                        throw new InvalidOperationException();
-                }
-                else
-                {
-                    if (regs != null)
-                    {
-                        var (hasval, val) = regs(v.ToInteger());
-                        if (hasval)
-                            v = val;
-                        else
-                            break;
-                    }
-                    else
-                        break;
-                }
-            }
-            return v;
-        }
-        */
+        
         public static (string, List<string>) GetNameAndArguments(RawInstruction function)
         {
             string name = function.Parameters[0].String;
@@ -109,43 +76,6 @@ namespace OpenAS2.Compilation
         public static string FormLabels(IEnumerable<string> l)
         {
             return string.Join(", ", l.ToArray());
-        }
-
-        public static string ReverseCondition(string s)
-        {
-            if (s == "True")
-                return "False";
-            else if (s == "False")
-                return "True";
-            else if (s == "true")
-                return "false";
-            else if (s == "false")
-                return "true";
-            if (s.StartsWith("!"))
-            {
-                s = s.Substring(1);
-                if (s.StartsWith('(') && s.EndsWith(')'))
-                    s = s.Substring(1, s.Length - 2);
-            }
-            else
-            {
-                s = $"!({s})";
-            }
-            return s;
-        }
-
-        public static (string, InstructionType) SimplifyCondition(string s, InstructionType c)
-        {
-            if (c != InstructionType.BranchIfTrue && c != InstructionType.EA_BranchIfFalse)
-                throw new InvalidOperationException();
-            while (s.StartsWith("!"))
-            {
-                s = s.Substring(1);
-                c = c == InstructionType.BranchIfTrue ? InstructionType.EA_BranchIfFalse : InstructionType.BranchIfTrue;
-                if (s.StartsWith('(') && s.EndsWith(')'))
-                    s = s.Substring(1, s.Length - 2);
-            }
-            return (s, c);
         }
 
         public static string GetIncrementedName(string s, bool startFromZero = false)
@@ -206,7 +136,7 @@ namespace OpenAS2.Compilation
 
         public static string ToCodingForm(this string str)
         {
-            return $"\"{str.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\"", "\\\"")}\"";
+            return JsonSerializer.Serialize(str);
         }
 
 

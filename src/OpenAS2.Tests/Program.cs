@@ -26,8 +26,19 @@ namespace OpenAS2.Tests
             Console.WriteLine("Gan Si Huang Xu Dong");
 
             var g = InstructionGraph.OptimizeGraph(g_);
+            g = g_;
             var gd = g.ToDotForm();
             System.IO.File.WriteAllText("E:/1.dot", gd);
+
+            int i = 0;
+            RawInstruction? cstp = null;
+            foreach (var (pos, inst) in ci)
+            {
+                if (inst.Type == InstructionType.ConstantPool)
+                    cstp = inst;
+                Console.WriteLine($"#{i}/${pos}: {inst.ToString(constSource, cstp)}");
+                ++i;
+            }
 
 
             Console.WriteLine("Gan Si Huang Xu Dong");

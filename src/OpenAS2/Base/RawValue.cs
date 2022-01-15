@@ -18,9 +18,34 @@ namespace OpenAS2.Base
         public int Integer { get; internal set; }
         public double Double { get; internal set; }
 
-        public override string ToString()
+        public override string ToString() { return ToString(null, null); }
+        public string ToString(IList<ConstantEntry>? cp = null, RawInstruction? cas = null)
         {
-            return Serialize();
+            string ans = "";
+            switch (Type)
+            {
+                case RawValueType.String:
+                    ans = JsonSerializer.Serialize(String);
+                    break;
+                case RawValueType.Boolean:
+                    ans = Boolean ? "true" : "false";
+                    break;
+                case RawValueType.Integer:
+                    ans = Integer.ToString();
+                    break;
+                case RawValueType.Constant:
+                    ans = (cp != null && cas != null) ? cp[cas.Parameters[Integer + 1].Integer].Value.ToString()! : ("C" + Integer.ToString());
+                    break;
+                case RawValueType.Register:
+                    ans = "R" + Integer.ToString();
+                    break;
+                case RawValueType.Float:
+                    ans = Double.ToString() + "D";
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return ans;
         }
 
         public string Serialize()

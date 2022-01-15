@@ -536,7 +536,7 @@ namespace OpenAS2.Compilation
         {
             Body = body;
             Instruction = inst;
-            _info = InstructionUtils.GetNameAndArguments(Instruction);
+            _info = CompilationUtils.GetNameAndArguments(Instruction);
         }
         
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
@@ -560,7 +560,7 @@ namespace OpenAS2.Compilation
         {
             Body = body;
             Instruction = inst;
-            _info = InstructionUtils.GetNameAndArguments(Instruction);
+            _info = CompilationUtils.GetNameAndArguments(Instruction);
         }
         public override string TryComposeRaw(StatementCollection sta)
         {
@@ -583,7 +583,7 @@ namespace OpenAS2.Compilation
     public class SNControlCase: SNControl
     {
 
-        public SNExpression? Condition;
+        public SNExpression Condition;
         public StatementCollection Unbranch;
         public StatementCollection Branch;
 
@@ -593,7 +593,7 @@ namespace OpenAS2.Compilation
             StatementCollection branch
             ) : base()
         {
-            Condition = condition;
+            Condition = condition ?? new SNNominator("[[null condition]]");
             Unbranch = unbranch;
             Branch = branch;
         }
@@ -642,7 +642,8 @@ namespace OpenAS2.Compilation
         public override bool TryCompose(StatementCollection sta, StringBuilder sb) { return TryCompose(sta, sb, false); }
         public bool TryCompose(StatementCollection sta, StringBuilder sb, bool elseIfBranch = false)
         {
-            var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
+            var pattern = !elseIfBranch ? "if ({0})\n" : ("\n" + "else if ({0})\n".ToStringWithIndent(sta.CurrentIndent));
+            var tmp = Condition;
 
             var b1 = Unbranch;
             var b2 = Branch;
@@ -650,7 +651,6 @@ namespace OpenAS2.Compilation
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
             // do not need to reverse since it is already done in node pool
-            var ifBranch = !elseIfBranch ? $"if ({tmp})\n" : ("\n" + $"else if ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
             if (ei1 ^ ei2)
             {
                 if (ei1)
@@ -661,15 +661,15 @@ namespace OpenAS2.Compilation
                     var nc3 = nc2;
                     nc2 = nc1;
                     nc1 = nc3;
-                    tmp = InstructionUtils.ReverseCondition(tmp);
+                    tmp = OprUtils.LogicalNot(tmp);
                 }
-                sb.Append(ifBranch);
+                sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
                 sta.CallSubCollection(b1, sb);
                 nc2!.TryCompose(sta, sb, true);
             }
             else
             {
-                sb.Append(ifBranch);
+                sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
                 sta.CallSubCollection(b1, sb);
                 if (!b2.IsEmpty())
                 {

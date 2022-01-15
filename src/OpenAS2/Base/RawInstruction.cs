@@ -28,7 +28,8 @@ namespace OpenAS2.Base
             return JsonSerializer.Serialize(s);
         }
 
-        public override string ToString()
+        public override string ToString() { return ToString(null, null); }
+        public string ToString(IList<ConstantEntry>? cp = null, RawInstruction? cas = null)
         {
             if (Type == InstructionType.ConstantPool) {
                 if (Parameters.Count < 6)
@@ -36,7 +37,7 @@ namespace OpenAS2.Base
                 else
                     return $"{Type}|{Parameters[0]} Parameters: {string.Join(", ", Parameters.Skip(1).Take(3).Select(x => $"#{x.Integer}"))}...#{Parameters.Last().Integer}";
             }
-            return $"{Type}|{string.Join(", ", Parameters.Select(x => x.ToString()))}";
+            return $"{Type}|{string.Join(", ", Parameters.Select(x => x.ToString(cp, cas)))}";
         }
 
         public static RawInstruction Deserialize(string str)

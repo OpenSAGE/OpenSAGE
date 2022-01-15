@@ -73,7 +73,7 @@ namespace OpenAS2.Compilation
             if (string.IsNullOrWhiteSpace(hint))
                 hint = $"reg{id}";
             while ((!forceOverwrite) && NodeNames.ContainsKey(hint))
-                hint = InstructionUtils.GetIncrementedName(hint);
+                hint = CompilationUtils.GetIncrementedName(hint);
             RegNames[id] = hint;
             if (!NodeNames.ContainsKey(hint))
                 NodeNames[hint] = null;
@@ -83,7 +83,7 @@ namespace OpenAS2.Compilation
         public string NameVariable(Value val, string name, bool forceOverwrite = false)
         {
             while ((!forceOverwrite) && NodeNames.ContainsKey(name))
-                name = InstructionUtils.GetIncrementedName(name);
+                name = CompilationUtils.GetIncrementedName(name);
             NodeNames[name] = val;
             NodeNames2[val] = name;
             return name;
@@ -110,7 +110,7 @@ namespace OpenAS2.Compilation
                     sb.Append(';');
 
 
-                var labels = InstructionUtils.FormLabels(node.Labels);
+                var labels = CompilationUtils.FormLabels(node.Labels);
                 if (!string.IsNullOrWhiteSpace(labels))
                 {
                     sb.Append(" // ");
@@ -180,6 +180,7 @@ namespace OpenAS2.Compilation
         public List<SyntaxNode> NodeList { get; }
         private Dictionary<SyntaxNode, int> _special = new();
         public int ParentNodeDivision { get; private set; }
+        public int ParentExprssionsPopped { get; private set; }
 
         // should not be modified
         public IList<Value> Constants { get; set; }
@@ -245,6 +246,7 @@ namespace OpenAS2.Compilation
             {
                 NodeList = new(parent.NodeList.Where(x => x is SNExpression));
                 ParentNodeDivision = NodeList.Count;
+                ParentExprssionsPopped = 0;
                 Constants = parent.Constants;
                 RegNames = new();
                 RegValues = new(parent.RegValues);
@@ -276,8 +278,10 @@ namespace OpenAS2.Compilation
                 {
                     NodeList.RemoveAt(ind);
                     if (ind < ParentNodeDivision)
+                    {
                         ParentNodeDivision = ind;
-                    // --ParentNodeDivision;
+                        ++ParentExprssionsPopped;
+                    }
                 }
                 ret = node;
             }
@@ -350,6 +354,60 @@ namespace OpenAS2.Compilation
                 PushNode(n);
         }
 
+        public SNExpression NominateRegister(int reg, SNExpression? hintVal = null)
+        {
+            var nameHint = $"reg{reg}";
+            try
+            {
+                nameHint = hintVal!.TryComposeRaw(null!);
+            }
+            catch (Exception e)
+            {
+
+            }
+            nameHint = CompilationUtils.JustifyName(nameHint);
+            while (RegNames.ContainsValue(nameHint))
+                nameHint = CompilationUtils.GetIncrementedName(nameHint);
+            var newNameNode = new SNNominator(nameHint);
+            RegNames[reg] = nameHint;
+            return newNameNode;
+        }
+
+        public void SetRegister(int reg, SNExpression val)
+        {
+            if (RegValues.TryGetValue(reg, out var rv))
+            {
+                PushNode(new SNValAssign(rv, val)); // TODO check reference
+            }
+            else if (val is SNNominator sv)
+            {
+                RegValues[reg] = val;
+                RegNames[reg] = sv.Name;
+            }
+            else
+            {
+                var newNameNode = NominateRegister(reg, val);
+                RegValues[reg] = newNameNode;
+                PushNode(new SNValAssign(newNameNode, val, true));
+            }
+        }
+
+        public void PushNodeRegister(int id)
+        {
+            if (RegValues.TryGetValue(id, out var r))
+            {
+                PushNode(r!);
+            }
+            else
+            {
+                var newNameNode = NominateRegister(id);
+                RegValues[id] = newNameNode;
+                PushNode(new SNValAssign(newNameNode, new SNLiteralUndefined(), true));
+                PushNode(newNameNode);
+            }
+        }
+
+        // chain-based
         public void PushInstruction(RawInstruction inst, StructurizedBlockChain chain)
         {
             if (inst is LogicalTaggedInstruction ltag)
@@ -363,7 +421,7 @@ namespace OpenAS2.Compilation
                 else
                     throw new InvalidOperationException();
                 StatementCollection sc = new(subpool);
-                var (name, _) = InstructionUtils.GetNameAndArguments(fc);
+                var (name, _) = CompilationUtils.GetNameAndArguments(fc);
                 SyntaxNode n = string.IsNullOrWhiteSpace(name) ? new SNFunctionBody(fc, sc) : new SNDefineFunction(fc, sc);
                 PushNode(n);
             }
@@ -380,7 +438,6 @@ namespace OpenAS2.Compilation
             // maintain labels
 
         }
-
 
         public void PushChainRaw(StructurizedBlockChain chain, bool ignoreBranch)
         {
@@ -429,15 +486,36 @@ namespace OpenAS2.Compilation
                 sub2.PushChain(chain.AdditionalData[2]);
                 SNControlCase n = new(bexp as SNExpression, new(sub1), new(sub2));
                 PushNode(n);
-                // add expressions inside the loop
-                // TODO more judgements
-                foreach (var ns2 in sub2.PopNodes())
+                var mostpep = Math.Max(sub1.ParentExprssionsPopped, sub2.ParentExprssionsPopped);
+                var np1 = sub1.PopNodes().Where(x => x is SNExpression).Cast<SNExpression>();
+                var np2 = sub2.PopNodes().Where(x => x is SNExpression).Cast<SNExpression>();
+                var d1 = mostpep - sub1.ParentExprssionsPopped;
+                var d2 = mostpep - sub2.ParentExprssionsPopped;
+                if (d1 != 0)
                 {
-                    if (ns2 is SNExpression)
-                    {
-                        _special[ns2] = 1;
+                    np1 = sub1.PopNodes().Where(x => x is SNExpression).Cast<SNExpression>().TakeLast(d1).Concat(np1);
+                }
+                if (d2 != 0)
+                {
+                    np2 = sub2.PopNodes().Where(x => x is SNExpression).Cast<SNExpression>().TakeLast(d1).Concat(np2);
+                }
+                var pns = PopNodes().Where(x => x is SNExpression).TakeLast(mostpep).Cast<SNExpression>().ToList();
+                for (var _ = 0; _ < pns.Count(); ++_)
+                    PopExpression();
+                var maxnpc = Math.Max(np1.Count(), np2.Count());
+                np1 = pns.Concat(np1).TakeLast(maxnpc);
+                np2 = pns.Concat(np2).TakeLast(maxnpc);
+                var d12 = np1.Count() - np2.Count();
+                if (d12 > 0)
+                    np2 = Enumerable.Repeat<SNExpression>(new SNLiteralUndefined(), d12).Concat(np2);
+                else if (d12 < 0)
+                    np1 = Enumerable.Repeat<SNExpression>(new SNLiteralUndefined(), -d12).Concat(np1);
+                foreach (var (c1, c2) in np1.Zip(np2, (x, y) => (x, y)))
+                {
+                    var ns2 = new SNTernary(bexp as SNExpression, c1, c2);
+                        // _special[ns2] = 1;
                         PushNode(ns2);
-                    }
+                    
                 }
             }
             else if (chain.Type == CodeType.Loop)
@@ -487,58 +565,7 @@ namespace OpenAS2.Compilation
             return pool;
         }
 
-        public SNExpression NominateRegister(int reg, SNExpression? hintVal = null)
-        {
-            var nameHint = $"reg{reg}";
-            try
-            {
-                nameHint = hintVal!.TryComposeRaw(null!);
-            }
-            catch (Exception e)
-            {
-
-            }
-            nameHint = InstructionUtils.JustifyName(nameHint);
-            while (RegNames.ContainsValue(nameHint))
-                nameHint = InstructionUtils.GetIncrementedName(nameHint);
-            var newNameNode = new SNNominator(nameHint);
-            RegNames[reg] = nameHint;
-            return newNameNode;
-        }
-
-        public void SetRegister(int reg, SNExpression val)
-        {
-            if (RegValues.TryGetValue(reg, out var rv))
-            {
-                PushNode(new SNValAssign(rv, val)); // TODO check reference
-            }
-            else if (val is SNNominator sv)
-            {
-                RegValues[reg] = val;
-                RegNames[reg] = sv.Name;
-            }
-            else
-            {
-                var newNameNode = NominateRegister(reg, val);
-                RegValues[reg] = newNameNode;
-                PushNode(new SNValAssign(newNameNode, val, true));
-            }
-        }
-
-        public void PushNodeRegister(int id)
-        {
-            if (RegValues.TryGetValue(id, out var r))
-            {
-                PushNode(r!);
-            }
-            else
-            {
-                var newNameNode = NominateRegister(id);
-                RegValues[id] = newNameNode;
-                PushNode(new SNValAssign(newNameNode, new SNLiteralUndefined(), true));
-                PushNode(newNameNode);
-            }
-        }
+        // graph-based
     }
 
 }
