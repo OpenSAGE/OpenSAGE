@@ -8,19 +8,22 @@ namespace OpenSage.Logic
 {
     public sealed class PlayerManager : IPersistableObject
     {
+        private readonly Game _game;
+
         public IReadOnlyList<Player> Players => _players;
         private Player[] _players;
 
         public Player LocalPlayer { get; private set; }
 
-        internal PlayerManager()
+        internal PlayerManager(Game game)
         {
+            _game = game;
             _players = Array.Empty<Player>();
         }
 
-        internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game, GameType gameType)
+        internal void OnNewGame(Data.Map.Player[] mapPlayers, GameType gameType)
         {
-            _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToArray();
+            _players = CreatePlayers(mapPlayers, gameType).ToArray();
 
             LocalPlayer = null;
 
@@ -44,7 +47,7 @@ namespace OpenSage.Logic
 
         // This needs to operate on the entire player list, because players have references to each other
         // (allies and enemies).
-        private static IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, AssetStore assetStore, GameType gameType)
+        private IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, GameType gameType)
         {
             var players = new Dictionary<string, Player>();
             var allies = new Dictionary<string, string[]>();
@@ -53,7 +56,7 @@ namespace OpenSage.Logic
             var id = 0u;
             foreach (var mapPlayer in mapPlayers)
             {
-                var player = Player.FromMapData(id++, mapPlayer, assetStore, gameType != GameType.SinglePlayer);
+                var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');

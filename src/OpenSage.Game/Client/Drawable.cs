@@ -53,8 +53,20 @@ namespace OpenSage.Client
 
         private readonly List<ClientUpdateModule> _clientUpdateModules;
 
-        // TODO: Make this a property.
-        public uint DrawableID;
+        private uint _id;
+
+        public uint ID
+        {
+            get => _id;
+            internal set
+            {
+                var oldDrawableId = _id;
+
+                _id = value;
+
+                _gameContext.GameClient.OnDrawableIdChanged(this, oldDrawableId);
+            }
+        }
 
         public uint GameObjectID => GameObject?.ID ?? 0u;
 
@@ -305,7 +317,12 @@ namespace OpenSage.Client
         {
             reader.PersistVersion(5);
 
-            reader.PersistUInt32(ref DrawableID);
+            var id = ID;
+            reader.PersistUInt32(ref id);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                ID = id;
+            }
 
             var modelConditionFlags = ModelConditionFlags.Clone();
             reader.PersistBitArray(ref modelConditionFlags);

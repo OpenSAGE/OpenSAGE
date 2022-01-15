@@ -17,7 +17,7 @@ namespace OpenSage.Logic
 
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly AssetStore _assetStore;
+        private readonly Game _game;
 
         private readonly SupplyManager _supplyManager;
 
@@ -124,8 +124,10 @@ namespace OpenSage.Logic
 
         public int Team { get; init; }
 
-        public Player(uint id, PlayerTemplate template, in ColorRgb color, AssetStore assetStore)
+        public Player(uint id, PlayerTemplate template, in ColorRgb color, Game game)
         {
+            _game = game;
+
             Id = id;
             Template = template;
             Color = color;
@@ -145,9 +147,7 @@ namespace OpenSage.Logic
 
             _teamTemplates = new List<TeamTemplate>();
 
-            _assetStore = assetStore;
-
-            Rank = new Rank(this, assetStore.Ranks);
+            Rank = new Rank(this, game.AssetStore.Ranks);
 
             if (template?.InitialUpgrades != null)
             {
@@ -278,7 +278,7 @@ namespace OpenSage.Logic
             return _sciences.Contains(science);
         }
 
-        public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
+        public bool CanProduceObject(ObjectDefinition objectToProduce)
         {
             if (objectToProduce.Prerequisites == null)
             {
@@ -288,7 +288,7 @@ namespace OpenSage.Logic
             // TODO: Make this more efficient.
             bool HasPrerequisite(ObjectDefinition prerequisite)
             {
-                foreach (var gameObject in allGameObjects.Items)
+                foreach (var gameObject in _game.GameLogic.Objects)
                 {
                     if (gameObject.Owner == this && gameObject.Definition == prerequisite)
                     {
@@ -473,7 +473,7 @@ namespace OpenSage.Logic
 
                     if (persister.Mode == StatePersistMode.Read)
                     {
-                        item = persister.Game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                        item = persister.Game.TeamFactory.FindTeamTemplateById(teamTemplateId);
                     }
                 });
 
@@ -526,7 +526,7 @@ namespace OpenSage.Logic
             reader.PersistUInt32(ref defaultTeamId);
             if (reader.Mode == StatePersistMode.Read)
             {
-                DefaultTeam = reader.Game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
+                DefaultTeam = reader.Game.TeamFactory.FindTeamById(defaultTeamId);
                 if (DefaultTeam.Template.Owner != this)
                 {
                     throw new InvalidStateException();
@@ -584,7 +584,7 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(14);
         }
 
-        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore, bool isSkirmish)
+        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
@@ -605,7 +605,7 @@ namespace OpenSage.Logic
             }
 
             // We need the template for default values
-            var template = assetStore.PlayerTemplates.GetByName(side);
+            var template = game.AssetStore.PlayerTemplates.GetByName(side);
 
             var name = mapPlayer.Properties["playerName"].Value as string;
             var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;
@@ -630,7 +630,7 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            var result = new Player(index, template, color, assetStore)
+            var result = new Player(index, template, color, game)
             {
                 Side = side,
                 Name = name,
@@ -646,7 +646,7 @@ namespace OpenSage.Logic
 
             if (template != null)
             {
-                result.BankAccount.Money = (uint) (template.StartMoney + assetStore.GameData.Current.DefaultStartingCash);
+                result.BankAccount.Money = (uint) (template.StartMoney + game.AssetStore.GameData.Current.DefaultStartingCash);
             }
 
             return result;

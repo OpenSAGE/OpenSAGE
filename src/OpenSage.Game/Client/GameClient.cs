@@ -1,24 +1,52 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Client
 {
-    internal sealed class GameClient : IPersistableObject
+    internal sealed class GameClient : DisposableBase, IPersistableObject
     {
-        private readonly GameLogic _gameLogic;
+        private readonly Game _game;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
         private readonly List<Drawable> _drawables = new();
-        private readonly Dictionary<uint, Drawable> _drawablesById = new();
         private readonly List<string> _briefingTexts = new();
 
         private uint _currentFrame;
 
         internal uint NextDrawableId;
 
-        public GameClient(Scene3D scene3D, GameLogic gameLogic)
+        public GameClient(Game game)
         {
-            _gameLogic = gameLogic;
-            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(scene3D.AssetLoadContext.AssetStore.ObjectDefinitions);
+            _game = game;
+            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
+        }
+
+        public Drawable CreateDrawable(ObjectDefinition objectDefinition, GameObject gameObject)
+        {
+            var drawable = AddDisposable(new Drawable(objectDefinition, _game.Scene3D.GameContext, gameObject));
+
+            drawable.ID = NextDrawableId++;
+
+            return drawable;
+        }
+
+        internal void OnDrawableIdChanged(Drawable drawable, uint oldDrawableId)
+        {
+            if (oldDrawableId != 0)
+            {
+                SetDrawable(oldDrawableId, null);
+            }
+
+            SetDrawable(drawable.ID, drawable);
+        }
+
+        private void SetDrawable(uint drawableId, Drawable drawable)
+        {
+            while (_drawables.Count <= drawableId)
+            {
+                _drawables.Add(null);
+            }
+            _drawables[(int)drawableId] = drawable;
         }
 
         public void Persist(StatePersister reader)
@@ -51,13 +79,10 @@ namespace OpenSage.Client
                     reader.PersistUInt32(ref objectID);
 
                     var drawable = objectID != 0u
-                        ? _gameLogic.GetObjectById(objectID).Drawable
-                        : new Drawable(objectDefinition, reader.Game.Scene3D.GameContext, null);
+                        ? _game.GameLogic.GetObjectById(objectID).Drawable
+                        : CreateDrawable(objectDefinition, null);
 
                     reader.PersistObject(drawable);
-
-                    _drawables.Add(drawable);
-                    _drawablesById[drawable.DrawableID] = drawable;
 
                     reader.EndSegment();
 
@@ -68,6 +93,11 @@ namespace OpenSage.Client
             {
                 foreach (var drawable in _drawables)
                 {
+                    if (drawable == null)
+                    {
+                        continue;
+                    }
+
                     reader.BeginObject();
 
                     var objectDefinitionId = _objectDefinitionLookupTable.GetId(drawable.Definition);

@@ -280,7 +280,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            _producedUnit = _gameObject.GameContext.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
             _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
 

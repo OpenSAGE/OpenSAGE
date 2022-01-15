@@ -8,8 +8,6 @@ namespace OpenSage.Data.Sav
         private string _mapPath1;
         private string _mapPath2;
         private GameType _gameType;
-        private uint _nextObjectId;
-        private uint _nextDrawableId;
 
         public void Persist(StatePersister reader)
         {
@@ -57,8 +55,8 @@ namespace OpenSage.Data.Sav
 
             reader.EndSegment();
 
-            reader.PersistUInt32(ref _nextObjectId);
-            reader.PersistUInt32(ref _nextDrawableId);
+            reader.PersistUInt32(ref reader.Game.GameLogic.NextObjectId);
+            reader.PersistUInt32(ref reader.Game.GameClient.NextDrawableId);
 
             if (reader.SageGame >= SageGame.Bfme)
             {
@@ -85,7 +83,7 @@ namespace OpenSage.Data.Sav
                     game.StartSinglePlayerGame(_mapPath1);
                 }
 
-                game.Scene3D.PartitionCellManager.OnNewGame();
+                game.PartitionCellManager.OnNewGame();
             }
             else
             {

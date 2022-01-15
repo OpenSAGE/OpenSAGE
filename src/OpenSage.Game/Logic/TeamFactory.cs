@@ -5,14 +5,18 @@ namespace OpenSage.Logic
 {
     public sealed class TeamFactory : IPersistableObject
     {
+        private readonly Game _game;
+
         private readonly List<TeamTemplate> _teamTemplates;
         private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
         private readonly Dictionary<string, TeamTemplate> _teamTemplatesByName;
 
         private uint _lastTeamId;
 
-        public TeamFactory()
+        public TeamFactory(Game game)
         {
+            _game = game;
+
             _teamTemplates = new List<TeamTemplate>();
             _teamTemplatesById = new Dictionary<uint, TeamTemplate>();
             _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
@@ -20,7 +24,7 @@ namespace OpenSage.Logic
             _lastTeamId = 0;
         }
 
-        public void Initialize(Data.Map.Team[] mapTeams, PlayerManager players)
+        public void Initialize(Data.Map.Team[] mapTeams)
         {
             _teamTemplates.Clear();
             _teamTemplatesById.Clear();
@@ -31,7 +35,7 @@ namespace OpenSage.Logic
                 var name = mapTeam.Properties["teamName"].Value as string;
 
                 var ownerName = mapTeam.Properties["teamOwner"].Value as string;
-                var owner = players.GetPlayerByName(ownerName);
+                var owner = _game.PlayerManager.GetPlayerByName(ownerName);
 
                 var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
 

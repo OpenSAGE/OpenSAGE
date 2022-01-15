@@ -59,7 +59,10 @@ namespace OpenSage.Tests.Data.W3d
 
                 foreach (var renderableObject in w3dFile.RenderableObjects)
                 {
-                    var mesh = (W3dMesh) renderableObject;
+                    if (!(renderableObject is W3dMesh mesh))
+                    {
+                        continue;
+                    }
 
                     Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Items.Length);
 

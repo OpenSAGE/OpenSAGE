@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameContext _gameContext;
 
-        private GameLogic GameLogic => _gameContext.Scene3D.GameLogic;
+        private GameLogic GameLogic => _gameContext.GameLogic;
 
         public IEnumerable<GameObject> Items => GameLogic.Objects;
 

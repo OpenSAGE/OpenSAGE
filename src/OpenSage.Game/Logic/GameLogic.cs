@@ -8,7 +8,7 @@ namespace OpenSage.Logic
 {
     internal sealed class GameLogic : DisposableBase, IPersistableObject
     {
-        private readonly GameContext _gameContext;
+        private readonly Game _game;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
 
         private readonly List<GameObject> _objects = new();
@@ -41,10 +41,10 @@ namespace OpenSage.Logic
             }
         }
 
-        public GameLogic(GameContext gameContext)
+        public GameLogic(Game game)
         {
-            _gameContext = gameContext;
-            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(gameContext.AssetLoadContext.AssetStore.ObjectDefinitions);
+            _game = game;
+            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
         }
 
         public GameObject CreateObject(ObjectDefinition objectDefinition, Player player)
@@ -55,25 +55,33 @@ namespace OpenSage.Logic
                 return null;
             }
 
-            var gameObject = AddDisposable(new GameObject(objectDefinition, _gameContext, player));
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _game.Scene3D.GameContext, player));
 
             gameObject.ID = NextObjectId++;
 
-            _gameContext.Quadtree?.Insert(gameObject);
-            _gameContext.Radar?.AddGameObject(gameObject);
-
-            AddObject(gameObject);
+            _game.Scene3D.Quadtree?.Insert(gameObject);
+            _game.Scene3D.Radar?.AddGameObject(gameObject);
 
             return gameObject;
         }
 
-        private void AddObject(GameObject gameObject)
+        internal void OnObjectIdChanged(GameObject gameObject, uint oldObjectId)
         {
-            while (_objects.Count <= gameObject.ID)
+            if (oldObjectId != 0)
+            {
+                SetObject(oldObjectId, null);
+            }
+
+            SetObject(gameObject.ID, gameObject);
+        }
+
+        private void SetObject(uint objectId, GameObject gameObject)
+        {
+            while (_objects.Count <= objectId)
             {
                 _objects.Add(null);
             }
-            _objects[(int)gameObject.ID] = gameObject;
+            _objects[(int)objectId] = gameObject;
         }
 
         public GameObject GetObjectById(uint id)
@@ -100,8 +108,8 @@ namespace OpenSage.Logic
         {
             foreach (var gameObject in _destroyList)
             {
-                _gameContext.Quadtree.Remove(gameObject);
-                _gameContext.Radar.RemoveGameObject(gameObject);
+                _game.Scene3D.Quadtree.Remove(gameObject);
+                _game.Scene3D.Radar.RemoveGameObject(gameObject);
 
                 gameObject.Drawable.Destroy();
 
@@ -111,6 +119,8 @@ namespace OpenSage.Logic
                 }
 
                 gameObject.Dispose();
+
+                RemoveToDispose(gameObject);
 
                 _objects[(int)gameObject.ID] = null;
             }
@@ -147,8 +157,6 @@ namespace OpenSage.Logic
                     reader.BeginSegment(objectDefinition.Name);
 
                     reader.PersistObject(gameObject, "Object");
-
-                    AddObject(gameObject);
 
                     NextObjectId = Math.Max(NextObjectId, gameObject.ID + 1);
 
@@ -202,7 +210,7 @@ namespace OpenSage.Logic
             }
 
             reader.PersistArrayWithUInt32Length(
-                _gameContext.Scene3D.MapFile.PolygonTriggers.Triggers,
+                _game.Scene3D.MapFile.PolygonTriggers.Triggers,
                 static (StatePersister persister, ref PolygonTrigger item) =>
                 {
                     persister.BeginObject();

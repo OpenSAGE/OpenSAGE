@@ -43,11 +43,11 @@ namespace OpenSage.Logic
             reader.PersistVersion(1);
             reader.EndObject();
 
-            uint objectId = _gameObject?.ID ?? 0u;
+            var objectId = _gameObject?.ID ?? 0u;
             reader.PersistObjectID(ref objectId);
             if (reader.Mode == StatePersistMode.Read)
             {
-                _gameObject = reader.Game.Scene3D.GameLogic.GetObjectById(objectId);
+                _gameObject = reader.Game.GameLogic.GetObjectById(objectId);
             }
 
             reader.PersistEnum(ref _geometryType);
