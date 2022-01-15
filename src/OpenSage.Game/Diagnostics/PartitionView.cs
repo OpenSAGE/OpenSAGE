@@ -14,7 +14,7 @@ namespace OpenSage.Diagnostics
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            Context.Game.Scene3D?.PartitionCellManager.DrawDiagnostic();
+            Context.Game.PartitionCellManager.DrawDiagnostic();
         }
     }
 }

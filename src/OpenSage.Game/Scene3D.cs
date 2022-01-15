@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Audio;
-using OpenSage.Client;
 using OpenSage.Content.Loaders;
 using OpenSage.Content.Util;
 using OpenSage.Data.Map;
@@ -81,14 +80,12 @@ namespace OpenSage
 
         public WaterSettings Waters { get; } = new WaterSettings();
 
-        public readonly PlayerManager PlayerManager;
-
-        public IReadOnlyList<Player> Players => PlayerManager.Players;
-        public Player LocalPlayer => PlayerManager.LocalPlayer;
+        public IReadOnlyList<Player> Players => Game.PlayerManager.Players;
+        public Player LocalPlayer => Game.PlayerManager.LocalPlayer;
         public readonly Navigation.Navigation Navigation;
 
-        internal readonly AudioSystem Audio;
-        internal readonly AssetLoadContext AssetLoadContext;
+        internal AudioSystem Audio => Game.Audio;
+        internal AssetLoadContext AssetLoadContext => Game.AssetStore.LoadContext;
 
         public readonly Random Random;
 
@@ -98,15 +95,7 @@ namespace OpenSage
 
         public readonly Game Game;
 
-        internal readonly TeamFactory TeamFactory;
-
         public GameObject BuildPreviewObject;
-
-        public readonly PartitionCellManager PartitionCellManager;
-
-        internal readonly GameLogic GameLogic;
-
-        internal readonly GameClient GameClient;
 
         internal Scene3D(
             Game game,
@@ -119,23 +108,15 @@ namespace OpenSage
             GameType gameType)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
-            var contentManager = game.ContentManager;
+            game.Scene3D = this;
 
-            PlayerManager.OnNewGame(mapPlayers, game, gameType);
+            game.PlayerManager.OnNewGame(mapPlayers, gameType);
 
-            TeamFactory = new TeamFactory();
-            TeamFactory.Initialize(mapTeams, PlayerManager);
-
-            Audio = game.Audio;
-            AssetLoadContext = game.AssetStore.LoadContext;
+            game.TeamFactory.Initialize(mapTeams);
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
-
-            GameLogic = AddDisposable(new GameLogic(GameContext));
-
-            GameClient = new GameClient(this, GameLogic);
 
             LoadObjects(
                 game.AssetStore.LoadContext,
@@ -164,7 +145,7 @@ namespace OpenSage
                     Terrain.HeightMap.Height / 2)
             };
 
-            contentManager.GraphicsDevice.WaitForIdle();
+            game.ContentManager.GraphicsDevice.WaitForIdle();
         }
 
         private void LoadObjects(
@@ -273,8 +254,6 @@ namespace OpenSage
             bool isDiagnosticScene = false)
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
-            TeamFactory = new TeamFactory();
-
             WaterAreas = AddDisposable(new WaterAreaCollection());
             Lighting = lighting;
 
@@ -289,10 +268,6 @@ namespace OpenSage
         private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
             Game = game;
-
-            PlayerManager = new PlayerManager();
-
-            PartitionCellManager = new PartitionCellManager(game);
 
             Camera = new Camera(getViewport);
 
@@ -356,11 +331,11 @@ namespace OpenSage
         }
 
         // TODO: Move this over to a player collection?
-        public int GetPlayerIndex(Player player) => PlayerManager.GetPlayerIndex(player);
+        public int GetPlayerIndex(Player player) => Game.PlayerManager.GetPlayerIndex(player);
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            PlayerManager.LogicTick();
+            Game.PlayerManager.LogicTick();
 
             foreach (var gameObject in GameObjects.Items)
             {

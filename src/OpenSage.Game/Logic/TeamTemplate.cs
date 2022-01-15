@@ -57,7 +57,7 @@ namespace OpenSage.Logic
             // This will be the same as the existing Owner, unless control of this team has been transferred.
             var ownerPlayerId = Owner.Id;
             reader.PersistUInt32(ref ownerPlayerId);
-            Owner = reader.Game.Scene3D.PlayerManager.GetPlayerByIndex(ownerPlayerId);
+            Owner = reader.Game.PlayerManager.GetPlayerByIndex(ownerPlayerId);
 
             reader.PersistAsciiString(ref _attackPriorityName);
             reader.PersistBoolean(ref _unknown1);

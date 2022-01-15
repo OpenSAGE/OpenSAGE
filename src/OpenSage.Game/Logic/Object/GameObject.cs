@@ -39,7 +39,7 @@ namespace OpenSage.Logic.Object
                 {
                     name = name.Split('/')[1];
                 }
-                teamTemplate = gameContext.Scene3D.TeamFactory.FindTeamTemplateByName(name);
+                teamTemplate = gameContext.Game.TeamFactory.FindTeamTemplateByName(name);
             }
 
             var gameObjectDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
@@ -122,7 +122,14 @@ namespace OpenSage.Logic.Object
         public uint ID
         {
             get => _id;
-            internal set => _id = value;
+            internal set
+            {
+                var oldObjectId = _id;
+
+                _id = value;
+
+                _gameContext.GameLogic.OnObjectIdChanged(this, oldObjectId);
+            }
         }
 
         public Percentage ProductionModifier { get; set; } = new Percentage(1);
@@ -276,7 +283,7 @@ namespace OpenSage.Logic.Object
                 }
 
                 _name = value ?? throw new ArgumentNullException(nameof(value));
-                Parent.AddNameLookup(this);
+                _gameContext.GameLogic.AddNameLookup(this);
             }
         }
 
@@ -325,8 +332,6 @@ namespace OpenSage.Logic.Object
 
         public bool IsPlacementInvalid { get; set; }
 
-        public GameObjectCollection Parent { get; private set; }
-
         public AIUpdate AIUpdate { get; }
         public ProductionUpdate ProductionUpdate { get; }
 
@@ -370,8 +375,7 @@ namespace OpenSage.Logic.Object
 
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
-            Owner = owner ?? gameContext.Scene3D.PlayerManager.GetCivilianPlayer();
-            Parent = gameContext.GameObjects;
+            Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
 
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
 
@@ -383,7 +387,7 @@ namespace OpenSage.Logic.Object
             ModelTransform = Transform.CreateIdentity();
             _transform.Scale = Definition.Scale;
 
-            Drawable = new Drawable(objectDefinition, gameContext, this);
+            Drawable = gameContext.GameClient.CreateDrawable(objectDefinition, this);
 
             var behaviors = new List<BehaviorModule>();
 
@@ -468,6 +472,7 @@ namespace OpenSage.Logic.Object
             if (Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
             {
                 var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
+                // TODO: Only create a Drawable, as suggested by DRAWABLE_ONLY.
                 _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner));
             }
 
@@ -654,7 +659,7 @@ namespace OpenSage.Logic.Object
 
         public bool CanRecruitHero(ObjectDefinition definition)
         {
-            foreach (var obj in Parent.Items)
+            foreach (var obj in _gameContext.GameLogic.Objects)
             {
                 if (obj.Definition.Name == definition.Name
                     && obj.Owner == Owner)
@@ -936,7 +941,7 @@ namespace OpenSage.Logic.Object
         {
             return objectDefinition != null
                 && HasEnoughMoney(objectDefinition.BuildCost)
-                && Owner.CanProduceObject(Parent, objectDefinition)
+                && Owner.CanProduceObject(objectDefinition)
                 && CanProduceObject(objectDefinition);
         }
 
@@ -1071,7 +1076,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(7);
 
-            reader.PersistObjectID(ref _id, "ObjectId");
+            var id = ID;
+            reader.PersistObjectID(ref id, "ObjectId");
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                ID = id;
+            }
 
             var transform = reader.Mode == StatePersistMode.Write
                 ? Matrix4x3.FromMatrix4x4(_transform.Matrix)
@@ -1084,11 +1094,18 @@ namespace OpenSage.Logic.Object
 
             var teamId = Team?.Id ?? 0u;
             reader.PersistUInt32(ref teamId);
-            Team = GameContext.Scene3D.TeamFactory.FindTeamById(teamId);
+            Team = GameContext.Game.TeamFactory.FindTeamById(teamId);
 
             reader.PersistObjectID(ref _createdByObjectID);
             reader.PersistUInt32(ref _builtByObjectID);
-            reader.PersistUInt32(ref Drawable.DrawableID);
+
+            var drawableId = Drawable.ID;
+            reader.PersistUInt32(ref drawableId);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                Drawable.ID = drawableId;
+            }
+
             reader.PersistAsciiString(ref _name);
             reader.PersistUInt32(ref _unknown1);
             reader.PersistByte(ref _unknown2);

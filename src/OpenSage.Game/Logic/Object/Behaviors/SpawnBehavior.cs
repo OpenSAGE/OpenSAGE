@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
 
-            var spawnedObject = _gameObject.Parent.Add(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
+            var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
             var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();

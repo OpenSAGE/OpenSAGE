@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using OpenSage.Audio;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
@@ -385,6 +386,16 @@ namespace OpenSage
 
         public Texture LauncherImage { get; }
 
+        internal readonly GameLogic GameLogic;
+
+        internal readonly GameClient GameClient;
+
+        public readonly PlayerManager PlayerManager;
+
+        internal readonly TeamFactory TeamFactory;
+
+        public readonly PartitionCellManager PartitionCellManager;
+
         public Game(GameInstallation installation)
             : this(installation, null, new Configuration(), null)
         {
@@ -544,6 +555,16 @@ namespace OpenSage
 
                 IsRunning = true;
                 IsLogicRunning = true;
+
+                GameLogic = AddDisposable(new GameLogic(this));
+
+                GameClient = AddDisposable(new GameClient(this));
+
+                PlayerManager = new PlayerManager(this);
+
+                TeamFactory = new TeamFactory(this);
+
+                PartitionCellManager = new PartitionCellManager(this);
             }
         }
 
@@ -571,7 +592,7 @@ namespace OpenSage
             if (useShellMap)
             {
                 var shellMapName = AssetStore.GameData.Current.ShellMapName;
-                Scene3D = LoadMap(shellMapName, null, GameType.SinglePlayer);
+                LoadMap(shellMapName, null, GameType.SinglePlayer);
                 Scripting.Active = true;
             }
 
@@ -582,7 +603,7 @@ namespace OpenSage
             }
         }
 
-        private Scene3D LoadMap(
+        private void LoadMap(
             string mapPath,
             PlayerSetting[] playerSettings,
             GameType gameType)
@@ -599,7 +620,7 @@ namespace OpenSage
                 out var mapTeams,
                 out var mapScriptLists);
 
-            return new Scene3D(
+            new Scene3D(
                 this,
                 mapFile,
                 entry.FilePath,
@@ -648,7 +669,7 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D = LoadMap(mapFileName, playerSettings, gameType);
+            LoadMap(mapFileName, playerSettings, gameType);
 
             if (Scene3D == null)
             {

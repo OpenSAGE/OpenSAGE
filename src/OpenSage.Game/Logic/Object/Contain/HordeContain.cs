@@ -64,7 +64,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var position in rank)
                 {
-                    var createdObject = _gameObject.Parent.Add(position.Definition, _gameObject.Owner);
+                    var createdObject = _gameObject.GameContext.GameLogic.CreateObject(position.Definition, _gameObject.Owner);
                     createdObject.ParentHorde = _gameObject;
                     position.Object = createdObject;
                     _payload.Add(createdObject);
