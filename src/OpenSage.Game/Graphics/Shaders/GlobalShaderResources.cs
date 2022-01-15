@@ -24,9 +24,7 @@ namespace OpenSage.Graphics.Shaders
         {
             GlobalConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("GlobalConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
+                    new ResourceLayoutElementDescription("GlobalConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment))));
 
             GlobalLightingConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
@@ -63,29 +61,17 @@ namespace OpenSage.Graphics.Shaders
             ShadowSampler.Name = "Shadow Sampler";
         }
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        public struct GlobalConstantsShared
+        public struct GlobalConstants
         {
             public Vector3 CameraPosition;
             public float TimeInSeconds;
-        }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct GlobalConstantsVS
-        {
             public Matrix4x4 ViewProjection;
             public Vector4 ClippingPlane1;
             public Vector4 ClippingPlane2;
             public Bool32 HasClippingPlane1;
             public Bool32 HasClippingPlane2;
-#pragma warning disable IDE1006, CS0169
-            private readonly Vector2 _padding;
-#pragma warning restore IDE1006, CS0169
-        }
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        public struct GlobalConstantsPS
-        {
             public Vector2 ViewportSize;
         }
 

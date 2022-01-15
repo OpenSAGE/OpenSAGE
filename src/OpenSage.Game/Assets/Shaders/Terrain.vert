@@ -23,11 +23,11 @@ layout(location = 5) out vec4 out_ClippingPlane;
 void main()
 {
     DO_CLIPPING(in_Position)
-    out_ClippingPlane = _GlobalConstantsVS.ClippingPlane1;
+    out_ClippingPlane = _GlobalConstants.ClippingPlane1;
 
     out_WorldPosition = in_Position;
 
-    gl_Position = _GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);
+    gl_Position = _GlobalConstants.ViewProjection * vec4(out_WorldPosition, 1);
 
     out_WorldNormal = in_Normal;
 
@@ -36,7 +36,7 @@ void main()
     out_CloudUV = GetCloudUV(
         out_WorldPosition,
         _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstantsShared.TimeInSeconds);
+        _GlobalConstants.TimeInSeconds);
 
     out_ViewSpaceDepth = gl_Position.z;
 }

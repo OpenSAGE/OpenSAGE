@@ -46,7 +46,7 @@ void main()
         gl_Position,
         worldPosition,
         _RenderItemConstantsVS.World,
-        _GlobalConstantsVS.ViewProjection);
+        _GlobalConstants.ViewProjection);
 
     DO_CLIPPING(worldPosition)
 }

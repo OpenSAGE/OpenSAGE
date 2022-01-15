@@ -118,7 +118,7 @@ vec4 SampleTexture(
 {
     const float twoPi = 2 * 3.1415926535f;
 
-    float t = _GlobalConstantsShared.TimeInSeconds;
+    float t = _GlobalConstants.TimeInSeconds;
 
     switch (textureMapping.MappingType)
     {
@@ -179,7 +179,7 @@ vec4 SampleTexture(
 
         case TEXTURE_MAPPING_SCREEN:
         {
-            uv = (screenPosition / _GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
+            uv = (screenPosition / _GlobalConstants.ViewportSize) * textureMapping.UVScale;
             break;
         }
 
@@ -258,7 +258,7 @@ void main()
         materialDiffuseColor,
         _MaterialConstants.Material.Specular,
         _MaterialConstants.Material.Shininess,
-        _GlobalConstantsShared.CameraPosition,
+        _GlobalConstants.CameraPosition,
         true,
         shadowVisibility,
         diffuseColor,
@@ -267,7 +267,7 @@ void main()
     vec4 diffuseTextureColor;
     if (_MaterialConstants.Shading.TexturingEnabled)
     {
-        vec3 v = CalculateViewVector(_GlobalConstantsShared.CameraPosition, in_WorldPosition);
+        vec3 v = CalculateViewVector(_GlobalConstants.CameraPosition, in_WorldPosition);
 
         diffuseTextureColor = SampleTexture(
             in_WorldNormal, in_UV0, gl_FragCoord.xy,

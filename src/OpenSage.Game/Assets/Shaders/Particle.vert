@@ -37,7 +37,7 @@ vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPo
     }
     else
     {
-        toEye = normalize(_GlobalConstantsShared.CameraPosition - particlePosWS);
+        toEye = normalize(_GlobalConstants.CameraPosition - particlePosWS);
     }
 
     vec3 up = vec3(cos(angle), 0, sin(angle));
@@ -46,7 +46,7 @@ vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPo
 
     particlePosWS += (right * size * quadPosition.x) + (up * size * quadPosition.y);
 
-    return _GlobalConstantsVS.ViewProjection * vec4(particlePosWS, 1);
+    return _GlobalConstants.ViewProjection * vec4(particlePosWS, 1);
 }
 
 void main()

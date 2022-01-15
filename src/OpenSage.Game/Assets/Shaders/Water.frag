@@ -56,12 +56,12 @@ float getLinearDepthMap(float nearPlaneDistance, float farPlaneDistance, float d
 void main()
 {
     vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
-    vec3 viewVector = CalculateViewVector(_GlobalConstantsShared.CameraPosition, in_WorldPosition);
+    vec3 viewVector = CalculateViewVector(_GlobalConstants.CameraPosition, in_WorldPosition);
         
     //this assumes that the normal vector points upwards
     float fresnelFactor = dot(viewVector, vec3(0.0f, 0.0f, 1.0f));
 
-    vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstantsPS.ViewportSize.x, gl_FragCoord.y / _GlobalConstantsPS.ViewportSize.y);
+    vec2 normalDeviceCoord = vec2(gl_FragCoord.x / _GlobalConstants.ViewportSize.x, gl_FragCoord.y / _GlobalConstants.ViewportSize.y);
     vec2 distortion = (texture(sampler2D(WaterTexture, WaterSampler), waterUV - UVOffset).xy * 2.0f - 1.0f) * distortionPower;
     vec2 reflectionMapUV = vec2(clamp(normalDeviceCoord.x, 0.001f, 0.999f), clamp(normalDeviceCoord.y, 0.001f, 0.999)); // Add minus to y coord if not using stencil clipping
     vec2 refractionMapUV = vec2(clamp(normalDeviceCoord.x, 0.001f, 0.999f), clamp(normalDeviceCoord.y, 0.001f, 0.999));
@@ -100,7 +100,7 @@ void main()
         DiffuseColor.xyz,
         vec3(0, 0, 0),
         0,
-        _GlobalConstantsShared.CameraPosition,
+        _GlobalConstants.CameraPosition,
         false,
         shadowVisibility,
         diffuseColor,

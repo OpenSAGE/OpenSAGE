@@ -8,9 +8,7 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class GlobalShaderResourceData : DisposableBase
     {
-        private readonly ConstantBuffer<GlobalShaderResources.GlobalConstantsShared> _globalConstantBufferShared;
-        private readonly ConstantBuffer<GlobalShaderResources.GlobalConstantsVS> _globalConstantBufferVS;
-        private readonly ConstantBuffer<GlobalShaderResources.GlobalConstantsPS> _globalConstantBufferPS;
+        private readonly ConstantBuffer<GlobalShaderResources.GlobalConstants> _globalConstantBuffer;
 
         private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsVS> _globalLightingBufferVS;
         private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsPS> _globalLightingTerrainBufferPS;
@@ -26,16 +24,12 @@ namespace OpenSage.Graphics.Shaders
             GraphicsDevice graphicsDevice,
             GlobalShaderResources globalShaderResources)
         {
-            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstantsShared>(graphicsDevice, "GlobalConstantsShared"));
-            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVS"));
-            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstantsPS>(graphicsDevice, "GlobalConstantsPS"));
+            _globalConstantBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstants>(graphicsDevice, "GlobalConstants"));
 
             GlobalConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     globalShaderResources.GlobalConstantsResourceLayout,
-                    _globalConstantBufferShared.Buffer,
-                    _globalConstantBufferVS.Buffer,
-                    _globalConstantBufferPS.Buffer)));
+                    _globalConstantBuffer.Buffer)));
 
             _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (terrain)"));
             SetGlobalLightingBufferVS(graphicsDevice);
@@ -76,36 +70,27 @@ namespace OpenSage.Graphics.Shaders
 
         public void UpdateGlobalConstantBuffers(
             CommandList commandList,
+            RenderContext context,
             in Matrix4x4 viewProjection,
             in Vector4? clippingPlane1,
             in Vector4? clippingPlane2)
         {
-            _globalConstantBufferVS.Value.ViewProjection = viewProjection;
-
-            _globalConstantBufferVS.Value.ClippingPlane1 = clippingPlane1 ?? Vector4.Zero;
-            _globalConstantBufferVS.Value.ClippingPlane2 = clippingPlane2 ?? Vector4.Zero;
-
-            _globalConstantBufferVS.Value.HasClippingPlane1 = clippingPlane1 != null;
-            _globalConstantBufferVS.Value.HasClippingPlane2 = clippingPlane2 != null;
-
-            _globalConstantBufferVS.Update(commandList);
-        }
-
-        public void UpdateStandardPassConstantBuffers(
-            CommandList commandList,
-            RenderContext context)
-        {
             var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
-            _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalTime.TotalSeconds;
-            _globalConstantBufferShared.Update(commandList);
+            _globalConstantBuffer.Value.CameraPosition = cameraPosition;
 
-            var viewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
-            if (viewportSize != _globalConstantBufferPS.Value.ViewportSize)
-            {
-                _globalConstantBufferPS.Value.ViewportSize = viewportSize;
-                _globalConstantBufferPS.Update(commandList);
-            }
+            _globalConstantBuffer.Value.TimeInSeconds = (float)context.GameTime.TotalTime.TotalSeconds;
+
+            _globalConstantBuffer.Value.ViewProjection = viewProjection;
+
+            _globalConstantBuffer.Value.ClippingPlane1 = clippingPlane1 ?? Vector4.Zero;
+            _globalConstantBuffer.Value.ClippingPlane2 = clippingPlane2 ?? Vector4.Zero;
+
+            _globalConstantBuffer.Value.HasClippingPlane1 = clippingPlane1 != null;
+            _globalConstantBuffer.Value.HasClippingPlane2 = clippingPlane2 != null;
+
+            _globalConstantBuffer.Value.ViewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
+
+            _globalConstantBuffer.Update(commandList);
 
             if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
             {
