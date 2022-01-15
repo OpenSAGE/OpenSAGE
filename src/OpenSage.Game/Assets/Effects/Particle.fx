@@ -55,7 +55,7 @@ struct VertexInput
 
 struct VertexOutput
 {
-    float4 Position  : POSITION;
+    float4 Position  : SV_Position;
 
     float2 TexCoords : TEXCOORD0;
     float3 Color     : TEXCOORD1;
