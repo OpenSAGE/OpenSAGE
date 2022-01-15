@@ -56,7 +56,7 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.Stop:
                 case InstructionType.ToggleQuality:
                 case InstructionType.StopSounds:
-                    np.PushNode(new SNForConvenience(inst.Type.ToString() + "()"));
+                    np.PushNode(new SNPlainCode(inst.Type.ToString() + "()"));
                     return true;
 
 

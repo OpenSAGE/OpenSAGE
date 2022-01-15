@@ -140,13 +140,13 @@ namespace OpenAS2.Compilation.Syntax
                 var args = np.PopArray();
                 var f = new SNMemberAccess(obj, fname);
                 var ret = OprUtils.FunctionCall(f, args);
-
+                /*
                 if (pop)
                 {
                     var varName = np.PopExpression();
                     np.PushNode(new SNValAssign(SNNominator.Check(varName), ret));
                     return null;
-                }
+                }*/
                 return ret;
             });
             
@@ -228,7 +228,7 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.EA_SetStringMember:
                     var memberVal = np.PopExpression();
                     var objectVal = np.PopExpression();
-                    np.PushNode(new SNValAssign(memberVal, new SNLiteral(inst.Parameters[0])));
+                    np.PushNode(new SNValAssign(new SNMemberAccess(objectVal, memberVal), new SNLiteral(inst.Parameters[0])));
                     break;
 
                 case InstructionType.TypeOf:

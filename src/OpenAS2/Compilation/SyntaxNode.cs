@@ -324,7 +324,7 @@ namespace OpenAS2.Compilation
         public static SNOperator Grouping(SNExpression e) { return new SNUnary(19, SNOperator.Order.NotAcceptable, "( {0} )", e); }
         // public static SNOperator MemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} . {1}", e1, e2); }
         // public static SNOperator ComputedMemberAccess(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0} [ {1} ]", e1, e2); }
-        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0}( {1} )", e1, e2, false); }
+        public static SNOperator New(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.NotAcceptable, "new {0}({1})", e1, e2, false); }
         public static SNOperator FunctionCall(SNExpression? e1, SNExpression? e2) { return new SNBinary(18, SNOperator.Order.LeftToRight, "{0}({1})", e1, e2, false); }
         public static SNStatement FunctionCall2(SNExpression? e1, SNExpression? e2) { return new SNToStatement(new SNBinary(18, SNOperator.Order.LeftToRight, "{0} ({1})", e1, e2, false)); }
         public static SNOperator Optionalchaining(SNExpression e) { return new SNUnary(18, SNOperator.Order.LeftToRight, "?.", e); }
@@ -334,6 +334,17 @@ namespace OpenAS2.Compilation
         public static SNExpression LogicalNot(SNExpression e) {
             if (e is SNUnary su && su.Pattern == "!{0}")
                 return su.E;
+            else if (e is SNBinary sb)
+            {
+                if (sb.Pattern == "{0} == {1}")
+                    return Inequality(sb.E1, sb.E2);
+                else if (sb.Pattern == "{0} != {1}")
+                    return Equality(sb.E1, sb.E2);
+                else if (sb.Pattern == "{0} === {1}")
+                    return StrictInequality(sb.E1, sb.E2);
+                else if (sb.Pattern == "{0} !== {1}")
+                    return StrictEquality(sb.E1, sb.E2);
+            }
             return new SNUnary(15, SNOperator.Order.RightToLeft, "!{0}", e);
         }
         public static SNOperator BitwiseNot(SNExpression e) { return new SNUnary(15, SNOperator.Order.RightToLeft, "~{0}", e); }
@@ -413,10 +424,10 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class SNForConvenience : SNStatement
+    public class SNPlainCode : SNStatement
     {
         public string String { get; set; }
-        public SNForConvenience(string str)
+        public SNPlainCode(string str)
         {
             String = str;
         }
@@ -429,26 +440,28 @@ namespace OpenAS2.Compilation
 
     public class SNValAssign : SNStatement
     {
-        private SNExpression _e1, _e2;
-        private bool _varCheck;
-        public SNValAssign(SNExpression? e1, SNExpression? e2, bool varCheck = false)
+        public readonly SNExpression E1, E2;
+        public bool NewVar;
+        public SNValAssign(SNExpression? e1, SNExpression? e2, bool newVar = false)
         {
-            _e1 = e1 ?? new SNLiteralUndefined();
-            _e1 = SNNominator.Check(_e1);
-            _e2 = e2 ?? new SNLiteralUndefined();
-            _varCheck = varCheck; // TODO
+            E1 = e1 ?? new SNLiteralUndefined();
+            E1 = SNNominator.Check(E1);
+            E2 = e2 ?? new SNLiteralUndefined();
+            NewVar = newVar; // TODO
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"{_e1.TryComposeRaw(sta)} = {_e2.TryComposeRaw(sta)}";
+            return $"{(NewVar ? "var " : "")}{E1.TryComposeRaw(sta)} = {E2.TryComposeRaw(sta)}";
         }
 
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            _e1.TryCompose(sta, sb);
+            if (NewVar)
+                sb.Append("var ");
+            E1.TryCompose(sta, sb);
             sb.Append(" = ");
-            _e2.TryCompose(sta, sb);
+            E2.TryCompose(sta, sb);
             return true;
         }
     }
@@ -637,7 +650,7 @@ namespace OpenAS2.Compilation
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
             // do not need to reverse since it is already done in node pool
-            var ifBranch = !elseIfBranch ? $"if ({tmp})\n" : ("\n" + $"else if ({tmp})\n".ToStringWithIndent(sta._currentIndent));
+            var ifBranch = !elseIfBranch ? $"if ({tmp})\n" : ("\n" + $"else if ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
             if (ei1 ^ ei2)
             {
                 if (ei1)
@@ -660,8 +673,8 @@ namespace OpenAS2.Compilation
                 sta.CallSubCollection(b1, sb);
                 if (!b2.IsEmpty())
                 {
-                    sb.Append("\n" + "else\n".ToStringWithIndent(sta._currentIndent));
-                    sta.CallSubCollection(b1, sb);
+                    sb.Append("\n" + "else\n".ToStringWithIndent(sta.CurrentIndent));
+                    sta.CallSubCollection(b2, sb);
                 }
             }
             return false;
@@ -690,7 +703,7 @@ namespace OpenAS2.Compilation
         {
             var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
             sta.CallSubCollection(Maintain, sb, prefix: " // loop maintain condition");
-            sb.Append($"while ({tmp})\n".ToStringWithIndent(sta._currentIndent));
+            sb.Append($"while ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
             sta.CallSubCollection(Branch, sb);
             return false;
         }

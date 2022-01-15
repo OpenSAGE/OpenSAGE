@@ -13,21 +13,19 @@ namespace OpenAS2.Compilation
     public class StatementCollection
     {
         public IEnumerable<SyntaxNode> Nodes { get; private set; }
-        public IEnumerable<Value> Constants { get; }
         public Dictionary<int, string> RegNames { get; }
         public Dictionary<int, Value> Registers { get; }
         public Dictionary<string, Value?> NodeNames { get; }
         public Dictionary<Value, string> NodeNames2 { get; }
 
-        public StatementCollection? _parent { get; private set; }
-        public StringBuilder? _currentBuilder { get; private set; }
-        public int _currentIndent { get; private set; }
-        public int _dIndent { get; private set; }
+        public StatementCollection? Parent { get; private set; }
+        public StringBuilder? CurrentBuilder { get; private set; }
+        public int CurrentIndent { get; private set; }
+        public int DeltaIndent { get; private set; }
 
         public StatementCollection(SyntaxNodePool pool)
         {
             Nodes = pool.PopNodes();
-            Constants = pool.Constants;
             RegNames = new Dictionary<int, string>(pool.RegNames);
             Registers = new();
             NodeNames = new();
@@ -35,10 +33,10 @@ namespace OpenAS2.Compilation
             foreach (var (reg, rname) in RegNames)
                 NodeNames[rname] = null; // don't care overwriting
 
-            _parent = null;
-            _currentBuilder = null;
-            _currentIndent = 0;
-            _dIndent = 4;
+            Parent = null;
+            CurrentBuilder = null;
+            CurrentIndent = 0;
+            DeltaIndent = 4;
 
         }
 
@@ -48,8 +46,8 @@ namespace OpenAS2.Compilation
         {
             var ans = NodeNames2.TryGetValue(val, out name);
             canOverwrite = ans;
-            if (!ans && _parent != null)
-                ans = _parent.HasValueName(val, out name, out var _);
+            if (!ans && Parent != null)
+                ans = Parent.HasValueName(val, out name, out var _);
             return ans;
         }
 
@@ -57,16 +55,16 @@ namespace OpenAS2.Compilation
         {
             var ans = RegNames.TryGetValue(id, out name);
             canOverwrite = ans;
-            if (!ans && _parent != null)
-                ans = _parent.HasRegisterName(id, out name, out var _);
+            if (!ans && Parent != null)
+                ans = Parent.HasRegisterName(id, out name, out var _);
             return ans;
         }
 
         public bool HasRegisterValue(int id, out Value? val)
         {
             var ans = Registers.TryGetValue(id, out val);
-            if (!ans && _parent != null)
-                ans = _parent.HasRegisterValue(id, out val);
+            if (!ans && Parent != null)
+                ans = Parent.HasRegisterValue(id, out val);
             return ans;
         }
 
@@ -100,9 +98,9 @@ namespace OpenAS2.Compilation
 
         private void CompileInner(bool compileSubcollections)
         {
-            var sb = _currentBuilder!;
-            var curIndent = _currentIndent;
-            var dIndent = _dIndent;
+            var sb = CurrentBuilder!;
+            var curIndent = CurrentIndent;
+            var dIndent = DeltaIndent;
             var indentStr = "".ToStringWithIndent(curIndent);
             foreach (var node in Nodes)
             {
@@ -132,32 +130,32 @@ namespace OpenAS2.Compilation
             StatementCollection? parent = null)
         {
             sb = sb == null ? new() : sb;
-            var osb = _currentBuilder;
-            var oci = _currentIndent;
-            var odi = _dIndent;
-            var opr = _parent;
+            var osb = CurrentBuilder;
+            var oci = CurrentIndent;
+            var odi = DeltaIndent;
+            var opr = Parent;
 
-            _currentBuilder = sb;
-            _currentIndent = startIndent;
-            _dIndent = dIndent;
-            _parent = parent;
+            CurrentBuilder = sb;
+            CurrentIndent = startIndent;
+            DeltaIndent = dIndent;
+            Parent = parent;
 
             CompileInner(compileSubCollections);
 
-            _currentBuilder = osb;
-            _currentIndent = oci;
-            _dIndent = odi;
-            _parent = opr;
+            CurrentBuilder = osb;
+            CurrentIndent = oci;
+            DeltaIndent = odi;
+            Parent = opr;
 
             return sb;
         }
 
         public void CallSubCollection(StatementCollection sub, StringBuilder? sb = null, string? prefix = null, string? suffix = null)
         {
-            sb = sb ?? _currentBuilder!;
-            sb.Append(("{" + (prefix ?? string.Empty) + '\n').ToStringWithIndent(_currentIndent));
-            sub.Compile(sb, _currentIndent + _dIndent, _dIndent, true, this);
-            sb.Append(("}" + (suffix ?? string.Empty)).ToStringWithIndent(_currentIndent));
+            sb = sb ?? CurrentBuilder!;
+            sb.Append(("{" + (prefix ?? string.Empty) + '\n').ToStringWithIndent(CurrentIndent));
+            sub.Compile(sb, CurrentIndent + DeltaIndent, DeltaIndent, true, this);
+            sb.Append(("}" + (suffix ?? string.Empty)).ToStringWithIndent(CurrentIndent));
         }
 
     }
@@ -352,11 +350,6 @@ namespace OpenAS2.Compilation
                 PushNode(n);
         }
 
-        public void PushNodeRegister(int id)
-        {
-            PushNode(RegValues.TryGetValue(id, out var r) ? r! : new SNLiteralUndefined());
-        }
-
         public void PushInstruction(RawInstruction inst, StructurizedBlockChain chain)
         {
             if (inst is LogicalTaggedInstruction ltag)
@@ -422,7 +415,7 @@ namespace OpenAS2.Compilation
             if (chain.Type == CodeType.Case)
             {
                 PushChain(chain.AdditionalData[0]);
-                var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
+                // var branch = chain.AdditionalData[0].EndBlock.BranchCondition;
                 var bexp = NodeList.Last();
                 if (bexp != null)
                 {
@@ -494,9 +487,57 @@ namespace OpenAS2.Compilation
             return pool;
         }
 
-        internal void SetRegister(int reg, SNExpression val)
+        public SNExpression NominateRegister(int reg, SNExpression? hintVal = null)
         {
-            RegValues[reg] = val;
+            var nameHint = $"reg{reg}";
+            try
+            {
+                nameHint = hintVal!.TryComposeRaw(null!);
+            }
+            catch (Exception e)
+            {
+
+            }
+            nameHint = InstructionUtils.JustifyName(nameHint);
+            while (RegNames.ContainsValue(nameHint))
+                nameHint = InstructionUtils.GetIncrementedName(nameHint);
+            var newNameNode = new SNNominator(nameHint);
+            RegNames[reg] = nameHint;
+            return newNameNode;
+        }
+
+        public void SetRegister(int reg, SNExpression val)
+        {
+            if (RegValues.TryGetValue(reg, out var rv))
+            {
+                PushNode(new SNValAssign(rv, val)); // TODO check reference
+            }
+            else if (val is SNNominator sv)
+            {
+                RegValues[reg] = val;
+                RegNames[reg] = sv.Name;
+            }
+            else
+            {
+                var newNameNode = NominateRegister(reg, val);
+                RegValues[reg] = newNameNode;
+                PushNode(new SNValAssign(newNameNode, val, true));
+            }
+        }
+
+        public void PushNodeRegister(int id)
+        {
+            if (RegValues.TryGetValue(id, out var r))
+            {
+                PushNode(r!);
+            }
+            else
+            {
+                var newNameNode = NominateRegister(id);
+                RegValues[id] = newNameNode;
+                PushNode(new SNValAssign(newNameNode, new SNLiteralUndefined(), true));
+                PushNode(newNameNode);
+            }
         }
     }
 
