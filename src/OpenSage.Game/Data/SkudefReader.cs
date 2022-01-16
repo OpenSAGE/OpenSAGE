@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.IO;
 
 namespace OpenSage.Data
 {
@@ -86,7 +87,7 @@ namespace OpenSage.Data
                 var spaceIndex = line.IndexOf(' ');
                 var command = line.Substring(0, spaceIndex);
                 var parameter = line.Substring(spaceIndex + 1);
-                var fullPath = Path.Combine(skudefDirectory, parameter);
+                var fullPath = FileSystem.NormalizeFilePath(Path.Combine(skudefDirectory, parameter));
 
                 switch (command)
                 {
