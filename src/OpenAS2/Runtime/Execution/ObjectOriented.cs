@@ -82,12 +82,17 @@ namespace OpenAS2.Runtime.Execution
             var name = context.Pop().ToString();
             var args = FunctionUtils.GetArgumentsFromStack(context);
             var func = context.GetValueOnChain(name);
-            if (func.IsCallable())
+            func.AddRecallCode(res =>
             {
-                context.EnqueueResultCallback(func.ToFunction().IConstruct(context, func.ToFunction(), args));
-            }
-            else
-                context.EnqueueResultCallback(ESCallable.Throw(context.ConstrutError("TypeError")));
+                if (res.Value.IsCallable())
+                {
+                    var resf = res.Value.ToFunction();
+                    return resf.IConstruct(context, resf, args);
+                }
+                else
+                    return ESCallable.Throw(context.ConstrutError("TypeError"));
+
+            });
         }
         public static void DoInitObject(ExecutionContext context)
         {
@@ -117,7 +122,7 @@ namespace OpenAS2.Runtime.Execution
         public static void DoDefineLocal2(ExecutionContext context)
         {
             var varName = context.Pop().ToString();
-            if (context.HasValueOnLocal(varName))
+            if (context.ReferredScope.HasPropertyOnLocal(varName, out var _))
                 return;
             else
                 context.SetValueOnLocal(varName, Value.Undefined());
@@ -246,9 +251,7 @@ namespace OpenAS2.Runtime.Execution
             // check if this a special object, like _root, _parent etc.
             // this is automatically done by the built-in variables in the global object.
             var result = context.GetValueOnChain(memberName);
-            if (result == null)
-                throw new InvalidOperationException();
-            context.Push(result);
+            context.EnqueueResultCallback(result);
         }
         public static void DoGetStringMember(ExecutionContext context, RawInstruction inst)
         {
@@ -384,7 +387,7 @@ namespace OpenAS2.Runtime.Execution
                 case InstructionType.EA_PushValueOfVar:
                     var cid = context.ResolveConstant(inst.Parameters[0].Integer);
                     var cstr = cid.ToString();
-                    context.Push(context.HasParameter(cstr) ? context.GetParameter(cstr) : context.GetValueOnChain(cstr));
+                    context.EnqueueResultCallback(context.GetValueOnChain(cstr));
                     break;
 
                 default:

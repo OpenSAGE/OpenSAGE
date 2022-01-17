@@ -25,6 +25,7 @@ namespace OpenAS2.Runtime
         private Queue<ExecutionContext> _execQueue;
 
         public ESObject GlobalObject { get; }
+        public Scope GlobalScope { get; }
         public ExecutionContext GlobalContext { get; }
         public ESObject ExternObject { get; }
         
@@ -50,7 +51,7 @@ namespace OpenAS2.Runtime
 
             var ctorParams = new VirtualMachine[] { this };
             var newProto = (ESObject) Activator.CreateInstance(classType, ctorParams)!;
-            var newCtor = new ESFunction(this, c1, c2, GlobalContext, fp, newProto);
+            var newCtor = new ESFunction(this, c1, c2, GlobalScope, fp, newProto);
 
             newProto.DefineAllProperties(GlobalContext, props);
             newProto.DefineAllMethods(GlobalContext, this, funcs);
@@ -81,9 +82,9 @@ namespace OpenAS2.Runtime
             var objProto = new ESObject("Object", true, null, null);
             var funcProto = new ESFunction("Function", true, objProto, null, FunctionUtils.ReturnUndefined, FunctionUtils.ReturnUndefined, null);
             var errProto = new ESError("Error", true, objProto, null);
-            ObjCst = new ESFunction("Function", true, funcProto, null, ESObject.ICallObj, ESObject.IConstructObj, new string[1] { "arg1" });
-            FuncCst = new ESFunction("Function", true, funcProto, null, ESFunction.IConstructAndCall, ESFunction.IConstructAndCall, new string[1] { "code" });
-            ErrCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall(null), ESError.IConstructAndCall(null), new string[1] { "message" });
+            ObjCst = new ESFunction("Function", true, funcProto, null, ESObject.ICallObj, ESObject.IConstructObj, null, new string[1] { "arg1" });
+            FuncCst = new ESFunction("Function", true, funcProto, null, ESFunction.IConstructAndCall, ESFunction.IConstructAndCall, null, new string[1] { "code" });
+            ErrCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall(null), ESError.IConstructAndCall(null), null, new string[1] { "message" });
 
             ObjCst.ConnectPrototype(objProto, true);
             FuncCst.ConnectPrototype(funcProto, true);
@@ -114,7 +115,7 @@ namespace OpenAS2.Runtime
 
             foreach (var ne in ESError.NativeErrorList)
             {
-                var nerrCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall(ne), ESError.IConstructAndCall(ne), new string[1] { "message" });
+                var nerrCst = new ESFunction("Function", true, funcProto, null, ESError.IConstructAndCall(ne), ESError.IConstructAndCall(ne), null, new string[1] { "message" });
                 var nerrProto = new ESError("Error", true, errProto, null);
                 nerrProto.IDefineOwnProperty(null, "name", PropertyDescriptor.D(Value.FromString(ne), true, false, true));
                 nerrCst.ConnectPrototype(nerrProto, true);
@@ -137,7 +138,8 @@ namespace OpenAS2.Runtime
 
             // initialize global vars and methods
             (GlobalObject, ExternObject) = Dom.CreateGlobalAndExternObject(this);
-            GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, null, null, null) { DisplayName = "Global Execution Context", };
+            GlobalScope = new ObjectScope(this, GlobalObject, null, "[Global Scope]");
+            GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, GlobalScope, null, null) { DisplayName = "[Global Context]", };
             PushContext(GlobalContext);
 
             // expose builtin stuffs
@@ -233,7 +235,7 @@ namespace OpenAS2.Runtime
                 return _callStack.Pop();
         }
         public ExecutionContext CurrentContext() { return _callStack.Peek(); }
-        public bool IsCurrentContextGlobal() { return _callStack.Count == 1 || CurrentContext().IsOutermost(); }
+        public bool IsCurrentContextGlobal() { return _callStack.Count == 1; }
 
         public string DumpContextStack()
         {
@@ -281,7 +283,7 @@ namespace OpenAS2.Runtime
 
         // context, execution & debug
         public ExecutionContext CreateContext(
-            ExecutionContext outerContext,
+            Scope? outerScope, 
             ESObject thisVar,
             int numRegisters,
             IList<Value> consts,
@@ -289,11 +291,12 @@ namespace OpenAS2.Runtime
             IList<ConstantEntry>? globalConstants = null, 
             string? name = null)
         {
-            if (thisVar is null) thisVar = GlobalObject;
-            var context = new ExecutionContext(this, GlobalObject, thisVar, outerContext,
+            outerScope = outerScope ?? GlobalScope;
+            var s = new RecordScope(this, outerScope, name);
+            var context = new ExecutionContext(this, GlobalObject, thisVar, s,
                 stream,
-                overrideGlobalConstPool: globalConstants,
-                overrideConstPool: consts,
+                globalConstPool: globalConstants,
+                constPool: consts,
                 displayName: name,
                 numRegisters: numRegisters);
             return context;

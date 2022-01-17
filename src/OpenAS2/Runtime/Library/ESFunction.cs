@@ -24,7 +24,7 @@ namespace OpenAS2.Runtime
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new DefinedFunction(context.Avm, context, paramList, context.Constants, code, false);
+            var func = new DefinedFunction(context.Avm, context.ReferredScope, paramList, context.Constants, code, false);
 
             var funcVal = Value.FromFunction(func);
 
@@ -52,7 +52,7 @@ namespace OpenAS2.Runtime
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new DefinedFunction(context.Avm, context, paramList, context.Constants, code, true, nRegisters, flags);
+            var func = new DefinedFunction(context.Avm, context.ReferredScope, paramList, context.Constants, code, true, nRegisters, flags);
             
 
             var funcVal = Value.FromFunction(func);
@@ -80,7 +80,9 @@ namespace OpenAS2.Runtime
 
         public static ESCallable.Result TryExecuteFunction(string funcName, IList<Value> args, ExecutionContext context, ESObject? thisVar = null)
         {
-            return TryExecuteFunction(context.GetValueOnChain(funcName), args, context, thisVar);
+            var f = context.GetValueOnChain(funcName);
+            f.AddRecallCode(res => TryExecuteFunction(res.Value, args, context, thisVar));
+            return f;
         }
         public static ESCallable.Result TryExecuteFunction(Value funcVal, IList<Value> args, ExecutionContext context, ESObject? thisVar = null)
         {
@@ -144,7 +146,7 @@ namespace OpenAS2.Runtime
 
         public virtual ESCallable.Func ICall { get; protected set; }
         public virtual ESCallable.Func IConstruct { get; protected set; }
-        public ExecutionContext IScope { get; protected set; }
+        public Scope IScope { get; protected set; }
         public IList<string> IFormalParameters { get; protected set; }
 
         public bool Strict { get; protected set; }
@@ -155,12 +157,15 @@ namespace OpenAS2.Runtime
         // base
         public ESFunction(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces,
             ESCallable.Func call,
-            ESCallable.Func? construct = null,
+            ESCallable.Func? construct,
+            Scope definedScope, 
             IEnumerable<string>? formalParameters = null) :
             base(classIndicator, extensible, prototype, interfaces)
         {
             ICall = call; // 6
             IConstruct = construct ?? IConstructDefault; // 7
+            // !8
+            IScope = definedScope; // 9
             IFormalParameters = formalParameters == null ? new List<string>() : new List<string>(formalParameters); // 10~11
             IDefineOwnProperty(null, "length", PropertyDescriptor.D(Value.FromInteger(IFormalParameters.Count), false, false, false), false); // 15
 
@@ -171,7 +176,7 @@ namespace OpenAS2.Runtime
             VirtualMachine vm,
             ESCallable.Func call,
             ESCallable.Func? construct = null,
-            ExecutionContext? definedScope = null,
+            Scope? definedScope = null,
             IEnumerable<string>? formalParameters = null,
             ESObject? proto = null, 
             bool strict = false): base(vm, "Function", extensible: true)// 1~4
@@ -181,7 +186,7 @@ namespace OpenAS2.Runtime
             ICall = call;// 6
             IConstruct = construct ?? IConstructDefault;// 7
             // 8 is not necessary
-            IScope = definedScope ?? vm.GlobalContext; // TODO scope; 9
+            IScope = definedScope ?? vm.GlobalScope; // 9
 
             // formal parameters
             IFormalParameters = formalParameters == null ? new List<string>() : new List<string>(formalParameters); // 10~11
@@ -228,6 +233,8 @@ namespace OpenAS2.Runtime
         // both [[Call]] and [[Construct]]
         public static ESCallable.Result IConstructAndCall(ExecutionContext ec, ESObject tv, IList<Value>? args)
         {
+            throw new NotImplementedException("compiler is not usable yet");
+            /*
             var argCount = args.Count;
             var body = argCount == 0 ? null : args.Last();
             var formalArgs = argCount == 0 ? Enumerable.Empty<string>() : from v in args.SkipLast(1) select v.ToString();
@@ -237,9 +244,11 @@ namespace OpenAS2.Runtime
             ESCallable.Func parsedBody = null; 
             var strict = false;
             // TODO strict mode code
+            
             return ESCallable.Return(Value.FromFunction(
                 new ESFunction(ec.Avm, parsedBody, IConstructDefault, null, formalArgs, null, strict)
                 ));
+            */
         }
 
         public static ESCallable.Result IConstructDefault(ExecutionContext ec, ESObject tv, IList<Value>? args)
@@ -337,7 +346,7 @@ namespace OpenAS2.Runtime
                     return ESCallable.Throw(ec.ConstrutError("TypeError"));
                 return target.IConstruct(ec, fakeThis, args == null ? fakeArgs : fakeArgs.Union(args).ToList().AsReadOnly());
             };
-            ESFunction f = new ESFunction(context.Avm, fakeICall, construct: fakeIConstruct, definedScope: context, formalParameters: target.IFormalParameters.Skip(fakeArgs.Count));
+            ESFunction f = new NativeFunction(context.Avm, fakeICall, construct: fakeIConstruct, scope: context.ReferredScope, formalParams: target.IFormalParameters.Skip(fakeArgs.Count));
             f.IsBoundFunction = true;
             f._bindTarget = target;
             f.InitStrict(context.Avm);
@@ -350,8 +359,12 @@ namespace OpenAS2.Runtime
     {
         public NativeFunction(VirtualMachine vm) : this(vm, FunctionUtils.ReturnUndefined) { }
 
-        public NativeFunction(VirtualMachine vm, ESCallable.Func? f, ExecutionContext? scope = null, IList<string>? formalParams = null) :
-            base(vm, f ?? FunctionUtils.ReturnUndefined, IConstructDefault, definedScope: scope, formalParameters: formalParams)
+        public NativeFunction(VirtualMachine vm,
+            ESCallable.Func? f,
+            ESCallable.Func? construct = null,
+            Scope? scope = null,
+            IEnumerable<string>? formalParams = null) :
+            base(vm, f ?? FunctionUtils.ReturnUndefined, construct ?? IConstructDefault, definedScope: scope, formalParameters: formalParams)
         {
 
         }
@@ -362,7 +375,7 @@ namespace OpenAS2.Runtime
     {
         public DefinedFunction(
             VirtualMachine vm,
-            ExecutionContext scope,
+            Scope scope,
             IEnumerable<Value> paramList,
             IList<Value> consts, 
             RawInstructionStorage code,
@@ -406,11 +419,13 @@ namespace OpenAS2.Runtime
             
             if (!IsNewVersion) // parameters in the old version are just stored as local variables
             {
+                var s = context.ReferredScope;
                 for (var i = 0; i < Parameters.Count; ++i)
                 {
                     var name = Parameters[i].ToString();
                     bool provided = i < args.Count;
-                    context.Params[name] = provided ? args[i] : Value.Undefined();
+                    var p = provided ? args[i] : Value.Undefined();
+                    s.PutPropertyOnLocal(name, PropertyDescriptor.D(p, true, false, true));
                 }
             }
             else // parameters can be stored in both registers and local variables
@@ -432,7 +447,8 @@ namespace OpenAS2.Runtime
                     }
                     else
                     {
-                        context.Params[name] = provided ? args[argIndex] : Value.Undefined();
+                        var p = provided ? args[argIndex] : Value.Undefined();
+                        context.ReferredScope.PutPropertyOnLocal(name, PropertyDescriptor.D(p, true, false, true));
                     }
                 }
 

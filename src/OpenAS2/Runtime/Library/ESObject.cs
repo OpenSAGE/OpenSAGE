@@ -139,6 +139,16 @@ namespace OpenAS2.Runtime
             return prop;
         }
 
+        public bool DeleteOwnProperty(string name, bool forceDelete = false)
+        {
+            if (_properties.TryGetValue(name, out var prop) && (prop.Configurable || forceDelete))
+            {
+                _properties.Remove(name);
+                return true;
+            }
+            return false;
+        }
+
         public void ASSetFlags(string name, int set, int clear)
         {
             var prop = IGetProperty(name, out var own);

@@ -53,6 +53,14 @@ namespace OpenAS2.Tests
             return g;
         }
 
+        public static void TestVM(
+            RawInstructionStorage ci,
+            IList<ConstantEntry> constSource
+            )
+        {
+
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Test");
@@ -69,7 +77,8 @@ namespace OpenAS2.Tests
 
             Console.WriteLine("/Test");
 
-            Graphify(code, cstf);
+            // Graphify(code, cstf);
+            TestVM(code, cstf);
         }
     }
 }

@@ -14,15 +14,13 @@ namespace OpenAS2.Runtime
 
         public ESObject This { get; private set; }
         public ESObject Global { get; private set; }
-        public ExecutionContext? Outer { get; private set; }
+        public Scope ReferredScope { get; private set; }
 
         public DomHandler? Dom => Avm == null ? null : Avm.Dom;
         public VirtualMachine Avm { get; private set; }
 
         public InstructionStream Stream { get; set; }
         public int RegisterCount { get; private set; }
-        public Dictionary<string, Value> Params { get; private set; }
-        private Dictionary<string, Value> _locals;
 
         public ResultType Result { get; private set; }
         public bool Halted => Result == ResultType.Executing;
@@ -41,10 +39,10 @@ namespace OpenAS2.Runtime
             VirtualMachine avm,
             ESObject globalVar,
             ESObject thisVar,
-            ExecutionContext? outerContext,
-            InstructionStream stream,
-            IList<ConstantEntry>? overrideGlobalConstPool = null,
-            IList<Value>? overrideConstPool = null, 
+            Scope scope,
+            InstructionStream? stream,
+            IList<ConstantEntry>? globalConstPool = null,
+            IList<Value>? constPool = null, 
             int numRegisters = 4,
             string? displayName = null
             )
@@ -53,20 +51,17 @@ namespace OpenAS2.Runtime
             Avm = avm;
             Global = globalVar;
             This = thisVar;
-            if (outerContext == this) outerContext = null;
-            Outer = outerContext; // null if the most outside
-            Stream = stream;
+            ReferredScope = scope;
+            Stream = stream ?? new(new(), true);
             RegisterCount = numRegisters;
 
-            GlobalConstantPool = overrideGlobalConstPool ?? (outerContext == null ? null : outerContext.GlobalConstantPool);
-            Constants = overrideConstPool ?? (outerContext == null ? new List<Value>().AsReadOnly() : outerContext.Constants);
+            GlobalConstantPool = globalConstPool;
+            Constants = constPool ?? new List<Value>().AsReadOnly();
 
             // initializations
             _stack = new();
             _recall = new();
             _registers = new Value[RegisterCount];
-            Params = new();
-            _locals = new();
             Result = ResultType.Executing;
 
             DisplayName = string.IsNullOrWhiteSpace(displayName) ? "[Unnamed]" : displayName;
@@ -74,8 +69,6 @@ namespace OpenAS2.Runtime
         }
 
         // basics
-
-        public bool IsOutermost() { return Outer == null || Outer == this; }
 
         public void EnqueueResultCallback(ESCallable.Result code) { _recall.Enqueue(code); }
         public ESCallable.Result DequeueResultCallback() { return _recall.Dequeue(); }
@@ -261,154 +254,24 @@ namespace OpenAS2.Runtime
         // local value operations
 
         /// <summary>
-        /// Check if a specific string is a parameter in the current params
-        /// </summary>
-        /// <param name="name">parameter name</param>
-        /// <returns></returns>
-        public bool HasParameter(string name)
-        {
-            return Params.ContainsKey(name);
-        }
-
-        /// <summary>
-        /// Returns the value of a parameter. Must be used with CheckParameter
-        /// </summary>
-        /// <param name="name">parameter name</param>
-        /// <returns></returns>
-        public Value GetParameter(string name)
-        {
-            return Params[name];
-        }
-
-        // values
-
-        /// <summary>
-        /// Check if a specific string is a local value to this context
-        /// </summary>
-        /// <param name="name">variable name</param>
-        /// <returns></returns>
-        public bool HasValueOnLocal(string name)
-        {
-            if (!IsOutermost())
-            {
-                return _locals.ContainsKey(name);
-            }
-            else
-            {
-                return Global.IHasProperty(name);
-            }
-            
-        }
-
-        public bool HasValueOnChain(string name)
-        {
-            var ans = false;
-            var env = this;
-            while (env != null)
-            {
-                if (env.HasValueOnLocal(name))
-                {
-                    ans = true;
-                    break;
-                }
-                env = env.Outer;
-            }
-
-            return ans;
-        }
-
-        /// <summary>
-        /// Returns the value of a local variable. Must be used with CheckLocal
-        /// </summary>
-        /// <param name="name">local name</param>
-        /// <returns></returns>
-        public Value GetValueOnLocal(string name)
-        {
-            if (!IsOutermost())
-            {
-                return HasValueOnLocal(name) ? _locals[name] : Value.Undefined();
-            }
-            else
-            {
-                return Global.IGet(null, name).Value;
-            }
-        }
-
-        /// <summary>
         /// Checks for special handled/global objects. After that checks for child objects of the
         /// current object
         /// </summary>
         /// <param name="name">the object name</param>
         /// <returns></returns>
-        public Value GetValueOnChain(string name)
+        public ESCallable.Result GetValueOnChain(string name)
         {
-            Value? ans = null;
-            var env = this;
-            while (env != null)
-            {
-                if (env.HasValueOnLocal(name))
-                {
-                    ans = env.GetValueOnLocal(name);
-                    break;
-                }
-                env = env.Outer;
-            }
-            if (ans == null || ans.Type == ValueType.Undefined)
-                Logger.Warn($"[WARN] Undefined property: {name}");
-            return ans ?? Value.Undefined();
+            return ReferredScope.GetValueOnChain(this, name);
         }
 
-        public void SetValueOnLocal(string name, Value val)
+        public ESCallable.Result SetValueOnLocal(string name, Value val)
         {
-            if (!IsOutermost())
-            {
-                _locals[name] = val;
-            }
-            else
-            {
-                Global.IPut(this, name, val);
-            }
+            return ReferredScope.SetValueOnLocal(this, name, val);
         }
 
-        public void SetValueOnChain(string name, Value val)
+        public bool DeleteValueOnChain(string name)
         {
-            var env = this;
-            while (env != null)
-            {
-                if (env.HasValueOnLocal(name))
-                {
-                    env.SetValueOnLocal(name, val);
-                    return;
-                }
-                env = env.Outer;
-            }
-            SetValueOnLocal(name, val);
-        }
-
-        public void DeleteValueOnLocal(string name)
-        {
-            if (!IsOutermost())
-            {
-                if (HasValueOnLocal(name)) _locals.Remove(name);
-            }
-            else
-            {
-                Global.IDeleteValue(this, name);
-            }
-        }
-
-        public void DeleteValueOnChain(string name)
-        {
-            var env = this;
-            while (env != null)
-            {
-                if (env.HasValueOnLocal(name))
-                {
-                    env.DeleteValueOnLocal(name);
-                    return;
-                }
-                env = env.Outer;
-            }
+            return ReferredScope.DeletePropertyOnChain(name);
         }
 
 
@@ -477,22 +340,22 @@ namespace OpenAS2.Runtime
             {
                 try
                 {
-                    _locals["super"] = Value.FromObject(This.IPrototype!.IPrototype);
+                    ReferredScope.SetValueOnLocal(this, "super", Value.FromObject(This.IPrototype!.IPrototype));
                 }
                 catch
                 {
-                    _locals["super"] = Value.FromObject(null);
+                    ReferredScope.SetValueOnLocal(this, "super", Value.Null());
                 }
             }
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))
             {
-                _locals["arguments"] = args;
+                ReferredScope.SetValueOnLocal(this, "arguments", args);
             }
 
             if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))
             {
-                _locals["this"] = Value.FromObject(This);
+                ReferredScope.SetValueOnLocal(this, "this", Value.FromObject(This));
             }
         }
 
