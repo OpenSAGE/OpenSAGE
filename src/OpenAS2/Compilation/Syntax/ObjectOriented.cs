@@ -84,7 +84,7 @@ namespace OpenAS2.Compilation.Syntax
         public static void DoDefineLocal2(SyntaxNodePool np)
         {
             var varName = np.PopExpression();
-            np.PushNode(new SNValAssign(varName, new SNLiteralUndefined(), true));
+            np.PushNode(new SNValAssign(varName, OprUtils.LogicalOr(varName, new SNLiteralUndefined()), true));
         }
         public static void DoDelete2(SyntaxNodePool np)
         {
