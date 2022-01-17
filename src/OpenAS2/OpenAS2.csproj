@@ -8,8 +8,4 @@
     <StartupObject />
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Runtime\Dom\Default\" />
-  </ItemGroup>
-
 </Project>

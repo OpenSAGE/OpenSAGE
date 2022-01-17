@@ -529,6 +529,32 @@ namespace OpenAS2.Runtime
                 return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, ec); 
         }
 
+        public static bool SameValue(Value x, Value y)
+        {
+            if (ReferenceEquals(x, y))
+                return true;
+            if (x.Type != y.Type)
+                return false;
+            if (x.IsNull() || x.IsUndefined())
+                return true;
+            if (x.IsNumber())
+            {
+                var xf = x.ToFloat();
+                var yf = y.ToFloat();
+                if (Double.IsNaN(xf) && Double.IsNaN(yf))
+                    return true;
+                else if (Math.Sign(xf) != Math.Sign(yf))
+                    return false;
+                else
+                    return xf == yf;
+            }
+            if (x.Type == ValueType.Boolean)
+                return x.ToBoolean() == y.ToBoolean();
+            if (x.Type == ValueType.String)
+                return x.ToString() == y.ToString();
+            return ReferenceEquals(x._object, y._object);
+        }
+
         // TODO
         // 11.8.5
         public static Value AbstractLess(Value x, Value y, ExecutionContext? ec = null)

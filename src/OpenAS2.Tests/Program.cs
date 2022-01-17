@@ -4,6 +4,7 @@ using System.Text;
 using OpenAS2.Base;
 using OpenAS2.Compilation;
 using OpenAS2.Runtime;
+using OpenAS2.Runtime.Dom.Default;
 
 namespace OpenAS2.Tests
 {
@@ -58,7 +59,10 @@ namespace OpenAS2.Tests
             IList<ConstantEntry> constSource
             )
         {
+            var dom = new SimpleDomHandler();
+            var vm = new VirtualMachine(dom);
 
+            Console.WriteLine("Test2");
         }
 
         static void Main(string[] args)
@@ -70,6 +74,8 @@ namespace OpenAS2.Tests
 
             codeFilePath = "main_mouse_C0_F0_I1_Action";
             // codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
+            codeFilePath = "main_mouse_C0_F0_I41___Packages.main_mouse_settings_Init";
+            // codeFilePath = "main_mouse_C0_F0_I40___Packages.ICafe2_FWSettings_Init";
             constFilePath = "main_mouse_Constants";
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));
@@ -77,7 +83,7 @@ namespace OpenAS2.Tests
 
             Console.WriteLine("/Test");
 
-            Graphify(code, cstf);
+            // Graphify(code, cstf);
             TestVM(code, cstf);
         }
     }

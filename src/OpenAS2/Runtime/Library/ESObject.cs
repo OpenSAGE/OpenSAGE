@@ -302,7 +302,28 @@ namespace OpenAS2.Runtime
                     }
                     else
                     {
-                        throw new NotImplementedException(); // what the hell........implement after met
+                        if (desc is NamedDataProperty dd && current is NamedDataProperty cd)
+                        {
+                            if (!cd.Configurable)
+                                if (!cd.Writable)
+                                    if (desc.Writable)
+                                        ans = false;
+                                    else
+                                        ans = Value.SameValue(dd.Value, cd.Value);
+                                else
+                                    _properties[name] = dd; // TODO not sure
+                            else
+                                _properties[name] = dd;
+                        }
+                        else if (desc is NamedAccessoryProperty da && current is NamedAccessoryProperty ca)
+                        {
+                            if (!ca.Configurable && (da.Get != ca.Get || da.Set != ca.Set))
+                                ans = false;
+                            else
+                                _properties[name] = da;
+                        }
+                        else
+                            throw new InvalidOperationException(); // what the hell........
                     }
                 }
             }

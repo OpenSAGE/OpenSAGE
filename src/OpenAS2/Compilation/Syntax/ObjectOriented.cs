@@ -41,7 +41,13 @@ namespace OpenAS2.Compilation.Syntax
             var cls = np.PopExpression();
             np.PushNode(new SNToStatement(new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} extends {1}", cls, sup)));
         }
-        
+
+        static void DoImplements(SyntaxNodePool np) // this should work
+        {
+            var cst = np.PopExpression();
+            var cls = np.PopArray();
+            np.PushNode(new SNToStatement(new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} implements {1}", cst, cls)));
+        }
 
         // all sorts of null check...
         public static void DoNewMethod(SyntaxNodePool np)
@@ -269,7 +275,8 @@ namespace OpenAS2.Compilation.Syntax
                     np.ExecBinaryOprOnStack(CastOp);
                     break;
                 case InstructionType.ImplementsOp:
-                    return false; // TODO
+                    DoImplements(np);
+                    break;
                 case InstructionType.Extends:
                     DoExtends(np);
                     break;

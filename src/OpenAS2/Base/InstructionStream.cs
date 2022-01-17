@@ -20,9 +20,12 @@ namespace OpenAS2.Base
         public InstructionStream(RawInstructionStorage instructions, bool createEnd = false)
         {
             _instructions = new(instructions);
-            if (createEnd && _instructions.Last().Value.Type != InstructionType.End)
+            if (createEnd && (_instructions.Count == 0 || _instructions.Last().Value.Type != InstructionType.End))
                 _instructions.Add(
-                    _instructions.Last().Key + Definition.GetParamLength(_instructions.Last().Value.Type),
+                    (_instructions.Count == 0 ?
+                        0 :
+                        _instructions.Last().Key + Definition.GetParamLength(_instructions.Last().Value.Type))
+                    ,
                     RawInstruction.CreateEnd()
                 );
             Index = 0;
@@ -97,7 +100,7 @@ namespace OpenAS2.Base
             if (skip)
                 Index += instructions.Count;
 
-            if (createEnd && instructions.Last().Value.Type != InstructionType.End)
+            if (createEnd && (instructions.Count == 0 || instructions.Last().Value.Type != InstructionType.End))
                 instructions.Add(GetPositionByIndex(Index), RawInstruction.CreateEnd());
 
             return instructions;
