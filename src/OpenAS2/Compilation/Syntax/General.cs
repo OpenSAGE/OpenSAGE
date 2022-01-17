@@ -170,9 +170,10 @@ namespace OpenAS2.Compilation.Syntax
             switch (inst.Type)
             {
                 case InstructionType.SetRegister:
-                    var val = np.PopExpression(deleteIfPossible: false);
+                    var val = np.PopExpression(deleteIfPossible: true);
                     var reg = inst.Parameters[0].Integer;
-                    np.SetRegister(reg, val);
+                    var pushBack = np.SetRegister(reg, val);
+                    np.PushNode(pushBack);
                     break;
                 case InstructionType.StackSwap:
                     return false;
@@ -180,7 +181,20 @@ namespace OpenAS2.Compilation.Syntax
                     np.PopExpression();
                     break;
                 case InstructionType.PushDuplicate:
-                    np.PushNode(np.PopExpression(deleteIfPossible: false));
+                    var pdnode = np.PopExpression(deleteIfPossible: true, doNotModifyLabels: true);
+                    if (pdnode.MutableWhenEvaluated)
+                    {
+                        var pdnom = np.NominateRegister(-1, pdnode);
+                        var pdasgn = new SNValAssign(pdnom, pdnode);
+                        np.PushNode(pdasgn);
+                        np.PushNode(pdnom);
+                        np.PushNode(pdnom);
+                    }
+                    else
+                    {
+                        np.PushNode(pdnode);
+                        np.PushNode(pdnode);
+                    }
                     break;
                 case InstructionType.PushData:
                     foreach (var constant in inst.Parameters.Skip(1))

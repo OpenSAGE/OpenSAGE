@@ -14,6 +14,7 @@ namespace OpenAS2.Compilation
     {
         public IEnumerable<SyntaxNode> Nodes { get; private set; }
         public Dictionary<int, string> RegNames { get; }
+
         public Dictionary<int, Value> Registers { get; }
         public Dictionary<string, Value?> NodeNames { get; }
         public Dictionary<Value, string> NodeNames2 { get; }
@@ -188,6 +189,9 @@ namespace OpenAS2.Compilation
 
         // should not be modified
         public Dictionary<int, string> RegNames { get; }
+
+        private int _nextNegativeIndex = -1;
+
         public Dictionary<int, SNExpression?> RegValues { get; }
 
         private readonly List<string> _labels;
@@ -261,7 +265,7 @@ namespace OpenAS2.Compilation
 
         }
 
-        public SNExpression PopExpression(bool deleteIfPossible = true)
+        public SNExpression PopExpression(bool deleteIfPossible = true, bool doNotModifyLabels = false)
         {
             var ind = NodeList.FindLastIndex(n => n is SNExpression);
             SNExpression? ret = null;
@@ -273,13 +277,16 @@ namespace OpenAS2.Compilation
                 var node = (SNExpression) NodeList[ind];
 
                 // some special nodes shouldn't be deleted like Enumerate
-                ableToDelete = !node.doNotDeleteAfterPopped;
+                ableToDelete = !node.DoNotDeleteAfterPopped;
 
                 if (ableToDelete && deleteIfPossible)
                 {
+                    if (!doNotModifyLabels)
+                    {
+                        _labels.AddRange(node.Labels);
+                        node.Labels.Clear();
+                    }
                     NodeList.RemoveAt(ind);
-                    _labels.AddRange(node.Labels);
-                    node.Labels.Clear();
                     if (ind < ParentNodeDivision)
                     {
                         ParentNodeDivision = ind;
@@ -340,10 +347,13 @@ namespace OpenAS2.Compilation
             return ans;
         }
 
-        public void PushNode(SyntaxNode n)
+        public void PushNode(SyntaxNode n, bool doNotModifyLabels = false)
         {
-            n.Labels.AddRange(_labels);
-            _labels.Clear();
+            if (!doNotModifyLabels)
+            {
+                n.Labels.AddRange(_labels);
+                _labels.Clear();
+            }
             NodeList.Add(n);
         }
 
@@ -360,9 +370,11 @@ namespace OpenAS2.Compilation
                 PushNode(n);
         }
 
-        public SNExpression NominateRegister(int reg, SNExpression? hintVal = null)
+        public SNNominator NominateRegister(int reg, SNExpression? hintVal = null)
         {
-            var nameHint = $"reg{reg}";
+            var nameHint = reg < 0 ? "someVar" : $"reg{reg}";
+            if (reg < 0)
+                reg = _nextNegativeIndex--;
             try
             {
                 nameHint = hintVal!.TryComposeRaw(null!);
@@ -379,24 +391,27 @@ namespace OpenAS2.Compilation
             return newNameNode;
         }
 
-        public void SetRegister(int reg, SNExpression val)
+        public SNExpression SetRegister(int reg, SNExpression val)
         {
             _labels.AddRange(val.Labels);
             val.Labels.Clear();
             if (RegValues.TryGetValue(reg, out var rv))
             {
                 PushNode(new SNValAssign(rv, val)); // TODO check reference
+                return rv!;
             }
             else if (val is SNNominator sv)
             {
                 RegValues[reg] = val;
                 RegNames[reg] = sv.Name;
+                return sv;
             }
             else
             {
                 var newNameNode = NominateRegister(reg, val);
                 RegValues[reg] = newNameNode;
                 PushNode(new SNValAssign(newNameNode, val, true));
+                return newNameNode;
             }
         }
 
@@ -520,7 +535,7 @@ namespace OpenAS2.Compilation
                     np1 = Enumerable.Repeat<SNExpression>(new SNLiteralUndefined(), -d12).Concat(np1);
                 foreach (var (c1, c2) in np1.Zip(np2, (x, y) => (x, y)))
                 {
-                    var ns2 = new SNTernary(bexp as SNExpression, c1, c2);
+                    var ns2 = SNTernary.Check(bexp as SNExpression, c1, c2);
                         // _special[ns2] = 1;
                         PushNode(ns2);
                     

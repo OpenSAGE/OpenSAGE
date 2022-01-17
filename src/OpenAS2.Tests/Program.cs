@@ -26,8 +26,7 @@ namespace OpenAS2.Tests
 
             Console.WriteLine("Gan Si Huang Xu Dong");
 
-            var g = InstructionGraph.OptimizeGraph(g_);
-            g = g_;
+            var g = g_; // InstructionGraph.OptimizeGraph(g_);
             var gd = g.ToDotForm();
 
             System.IO.File.WriteAllText("E:/1.dot", gd);
@@ -45,9 +44,6 @@ namespace OpenAS2.Tests
             // try form const pool
             var p = SyntaxNodePool.ConvertToAST(c, constSource, g.RegNames);
 
-            // var c = BlockChainifyUtils.Parse(g.BaseBlock);
-            // var p = new NodePool(g.ConstPool, g.RegNames);
-            // p.PushBlock(c);
 
             var sc = new StatementCollection(p);
             var code = sc.Compile().ToString();

@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using OpenAS2.Base;
-using OpenAS2.Runtime;
-using OpenAS2.Compilation.Syntax;
 using Value = OpenAS2.Runtime.Value;
-using ValueType = OpenAS2.Runtime.ValueType;
 
 namespace OpenAS2.Compilation
 {
@@ -35,14 +31,25 @@ namespace OpenAS2.Compilation
             sb.Append(TryComposeRaw(sta));
             return true;
         }
-        
+
     }
 
 
     public abstract class SNExpression : SyntaxNode
     {
-        public virtual int LowestPrecendence => 24;
-        public virtual bool doNotDeleteAfterPopped => false;
+        public const int MaxPrecendence = 24;
+        public const int MinPrecendence = -1;
+        public virtual int LowestPrecendenceAllowed => MaxPrecendence;
+        public enum Order
+        {
+            NotAcceptable = 0,
+            LeftToRight = 1,
+            RightToLeft = 2
+        }
+        public virtual Order CalcOrder => Order.NotAcceptable;
+
+        public virtual bool MutableWhenEvaluated => true;
+        public virtual bool DoNotDeleteAfterPopped => false;
 
         private static Dictionary<InstructionType, int> NIE = new();
 
@@ -50,10 +57,10 @@ namespace OpenAS2.Compilation
 
         public override abstract string TryComposeRaw(StatementCollection sta);
 
-        public virtual string TryComposeWithPrecendence(StatementCollection sta, int targetPrec = 24)
+        public virtual string TryComposeWithPrecendence(StatementCollection sta, int targetLPA = MaxPrecendence, bool orderIssue = false)
         {
             var s = TryComposeRaw(sta);
-            if (targetPrec > LowestPrecendence)
+            if (targetLPA > LowestPrecendenceAllowed || (orderIssue && targetLPA == LowestPrecendenceAllowed))
             {
                 s = $"({s})";
             }
@@ -62,7 +69,7 @@ namespace OpenAS2.Compilation
 
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
-            var s = TryComposeWithPrecendence(sta, 24);
+            var s = TryComposeWithPrecendence(sta, MinPrecendence);
             sb.Append(s);
             return true;
         }
@@ -72,7 +79,8 @@ namespace OpenAS2.Compilation
 
     public class SNEnumerate : SNExpression
     {
-        public override bool doNotDeleteAfterPopped => true;
+        public override bool DoNotDeleteAfterPopped => true;
+        public override bool MutableWhenEvaluated => Node.MutableWhenEvaluated;
         public SNExpression Node { get; protected set; }
         public SNEnumerate(SNExpression node) : base()
         {
@@ -89,6 +97,7 @@ namespace OpenAS2.Compilation
     {
         public RawValue? Value { get; protected set; }
         public bool IsStringLiteral => Value != null && Value.Type == RawValueType.String;
+        public override bool MutableWhenEvaluated => false;
 
         public SNLiteral(RawValue? v) : base()
         {
@@ -117,12 +126,13 @@ namespace OpenAS2.Compilation
         }
 
         public string GetRawString() { return Value != null ? Value.String : string.Empty; }
-        
+
     }
 
-    public class SNLiteralUndefined: SNLiteral
+    public class SNLiteralUndefined : SNLiteral
     {
-        public SNLiteralUndefined(): base(null) { }
+        public SNLiteralUndefined() : base(null) { }
+        public override bool MutableWhenEvaluated => false;
 
         public override string TryComposeRaw(StatementCollection sta)
         {
@@ -130,11 +140,11 @@ namespace OpenAS2.Compilation
         }
     }
 
-    public class SNNominator: SNExpression
+    public class SNNominator : SNExpression
     {
         public string Name { get; set; }
-
-        public SNNominator(string name): base()
+        public override bool MutableWhenEvaluated => false;
+        public SNNominator(string name) : base()
         {
             Name = name;
         }
@@ -160,10 +170,19 @@ namespace OpenAS2.Compilation
     public class SNArray : SNExpression
     {
         public readonly IList<SNExpression> Expressions;
+        public override bool MutableWhenEvaluated => _mwe;
+        private bool _mwe;
 
         public SNArray(IList<SNExpression?> exprs) : base()
         {
             Expressions = exprs.Select(x => x ?? new SNLiteralUndefined()).ToList().AsReadOnly();
+            _mwe = false;
+            foreach (var exp in Expressions)
+                if (exp.MutableWhenEvaluated)
+                {
+                    _mwe = true;
+                    break;
+                }
         }
 
         // TODO use sta
@@ -201,20 +220,22 @@ namespace OpenAS2.Compilation
 
     public abstract class SNOperator : SNExpression
     {
-        public enum Order
-        {
-            NotAcceptable = 0,
-            LeftToRight = 1,
-            RightToLeft = 2
-        }
-        protected readonly int _precendence;
-        public readonly Order CalcOrder;
-        public override int LowestPrecendence => _precendence;
+        public override bool MutableWhenEvaluated => _mwe;
+        protected bool _mwe;
 
-        public SNOperator(int precendence, Order order)
+        protected bool _forceIgnorePrecendence = false;
+
+        public override int LowestPrecendenceAllowed => _precendence;
+        protected readonly int _precendence;
+
+        public override Order CalcOrder => _order;
+        protected readonly Order _order;
+
+        public SNOperator(int precendence, Order order, bool mwe)
         {
             _precendence = precendence;
-            CalcOrder = order;
+            _order = order;
+            _mwe = mwe;
         }
 
         // definitions
@@ -224,16 +245,37 @@ namespace OpenAS2.Compilation
     public class SNTernary : SNOperator
     {
         private SNExpression _c, _t, _f;
-        public SNTernary(SNExpression? c, SNExpression? t, SNExpression? f) : base(4, Order.RightToLeft)
+        public SNTernary(SNExpression? c, SNExpression? t, SNExpression? f) :
+            base(4, Order.RightToLeft, false)
         {
             _c = c ?? new SNLiteralUndefined();
             _t = t ?? new SNLiteralUndefined();
             _f = f ?? new SNLiteralUndefined();
+            _mwe = c!.MutableWhenEvaluated || t!.MutableWhenEvaluated || f!.MutableWhenEvaluated;
+        }
+
+        public static SNOperator Check(SNExpression? c, SNExpression? t, SNExpression? f)
+        {
+            if (c is SNBinary cb)
+            {
+                if (c.Equals(f))
+                {
+                    return OprUtils.LogicalOr(c, t);
+                }
+                else if (f != null && c.Equals(OprUtils.LogicalNot(f)))
+                {
+                    return OprUtils.LogicalAnd(c, OprUtils.LogicalNot(f));
+                }
+                else
+                    return new SNTernary(c, t, f);
+            }
+            else
+                return new SNTernary(c, t, f);
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"{_c.TryComposeWithPrecendence(sta, LowestPrecendence)} ? {_t.TryComposeWithPrecendence(sta, LowestPrecendence)} : {_f.TryComposeWithPrecendence(sta, LowestPrecendence)}"; 
+            return $"{_c.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed)} ? {_t.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)} : {_f.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)}"; 
         }
     }
 
@@ -242,18 +284,48 @@ namespace OpenAS2.Compilation
         public readonly SNExpression E1, E2;
         public readonly string Pattern;
 
-        public SNBinary(int p, Order o, string pat, SNExpression? e1, SNExpression? e2, bool checkPrecendence = true) : base(checkPrecendence ? p : 24, o) // seems okay
+        public SNBinary(int p, Order o, string pat, SNExpression? e1, SNExpression? e2) : base(p, o,
+            false) // seems okay
         {
             E1 = e1 ?? new SNLiteralUndefined();
             E2 = e2 ?? new SNLiteralUndefined();
             Pattern = pat;
+            _mwe = e1!.MutableWhenEvaluated || e2!.MutableWhenEvaluated;
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendence);
-            var s2 = E2.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var k = Pattern == "{0} === {1}";
+            if (k)
+            {
+                var a = 1;
+            }
+            bool o1 = false, o2 = false;
+            if (CalcOrder == Order.RightToLeft)
+            {
+                o1 = true;
+            }
+            else if (CalcOrder == Order.LeftToRight)
+            {
+                o2 = true;
+            }
+            var s1 = E1.TryComposeWithPrecendence(sta, _forceIgnorePrecendence ? MinPrecendence : LowestPrecendenceAllowed, o1);
+            var s2 = E2.TryComposeWithPrecendence(sta, _forceIgnorePrecendence ? MinPrecendence : LowestPrecendenceAllowed, o2);
             return string.Format(Pattern, s1, s2);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is SNBinary o)
+            {
+                return Pattern.Equals(o.Pattern) && E1.Equals(o.E1) && E2.Equals(o.E2);
+            }
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Pattern.GetHashCode() ^ E1.GetHashCode() ^ E2.GetHashCode();
         }
     }
 
@@ -262,7 +334,8 @@ namespace OpenAS2.Compilation
         public SNExpression E { get; protected set; }
         public string Pattern { get; protected set; }
 
-        public SNUnary(int p, Order o, string pat, SNExpression? e1) : base(p, o)
+
+        public SNUnary(int p, Order o, string pat, SNExpression? e1) : base(p, o, e1 != null ? e1.MutableWhenEvaluated : false)
         {
             E = e1 ?? new SNLiteralUndefined();
             Pattern = pat;
@@ -270,7 +343,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s1 = E.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s1 = E.TryComposeWithPrecendence(sta, _forceIgnorePrecendence ? MinPrecendence : LowestPrecendenceAllowed);
             return string.Format(Pattern, s1);
         }
     }
@@ -279,14 +352,14 @@ namespace OpenAS2.Compilation
     {
         private SNExpression _e1;
 
-        public SNCheckTarget(SNExpression e) : base(24, Order.LeftToRight)
+        public SNCheckTarget(SNExpression e) : base(18, Order.LeftToRight, false)
         {
             _e1 = e;
         }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            var s = _e1.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s = _e1.TryComposeWithPrecendence(sta, MinPrecendence);
             if (s.StartsWith('/'))
                 s = $"getTarget({s})";
             return s;
@@ -296,14 +369,16 @@ namespace OpenAS2.Compilation
     public class SNMemberAccess : SNBinary
     {
         protected readonly string _pattern2 = "{0}.{1}";
-        public SNMemberAccess(SNExpression? e1, SNExpression? e2) : base(18, Order.LeftToRight, "{0}[{1}]", e1, e2, false) { }
+        public SNMemberAccess(SNExpression? e1, SNExpression? e2) : base(18, Order.LeftToRight, "{0}[{1}]", e1, e2) { }
 
         public override string TryComposeRaw(StatementCollection sta)
         {
             var flag = E2 is SNLiteral e2l && e2l.IsStringLiteral;
-            var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendence);
-            var s2 = flag ? ((SNLiteral) E2).GetRawString() : E2.TryComposeWithPrecendence(sta, LowestPrecendence);
+            var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed);
             var flag2 = string.IsNullOrEmpty(s1) || s1 == "undefined";
+            var s2 = flag ?
+                ((SNLiteral) E2).GetRawString() :
+                E2.TryComposeWithPrecendence(sta, MinPrecendence);
             if (flag2) {
                 return flag ? s2 : $"this[{s2}]";
             }
@@ -314,17 +389,19 @@ namespace OpenAS2.Compilation
 
     public class SNFunctionCall : SNBinary
     {
-        public SNFunctionCall(SNExpression? e1, SNExpression? e2, bool isNew = false) : base(18, Order.LeftToRight, (isNew ? "new " : "") + "{0}({1})", e1, e2, false)
+        public override bool MutableWhenEvaluated => true;
+        public SNFunctionCall(SNExpression? e1, SNExpression? e2, bool isNew = false) : base(18, Order.LeftToRight, (isNew ? "new " : "") + "{0}({1})", e1, e2)
         {
-
+            _mwe = true;
+            _forceIgnorePrecendence = true;
         }
     }
 
     public static class OprUtils
     {
         // defined
-        public static SNOperator Cast(SNExpression? e1, SNExpression? e2) { return new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} as {1}", e1, e2, false); }
-        public static SNOperator KeyAssign(SNExpression? e1, SNExpression? e2) { return new SNBinary(24, SNOperator.Order.NotAcceptable, "{0}: {1}", e1, e2, false); }
+        public static SNOperator Cast(SNExpression? e1, SNExpression? e2) { return new SNBinary(SNExpression.MaxPrecendence, SNOperator.Order.NotAcceptable, "{0} as {1}", e1, e2); }
+        public static SNOperator KeyAssign(SNExpression? e1, SNExpression? e2) { return new SNBinary(SNExpression.MaxPrecendence, SNOperator.Order.NotAcceptable, "{0}: {1}", e1, e2); }
 
 
         // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
@@ -383,10 +460,10 @@ namespace OpenAS2.Compilation
         public static SNOperator Inequality(SNExpression? e1, SNExpression? e2) { return new SNBinary(9, SNOperator.Order.LeftToRight, "{0} != {1}", e1, e2); }
         public static SNOperator StrictEquality(SNExpression? e1, SNExpression? e2) { return new SNBinary(9, SNOperator.Order.LeftToRight, "{0} === {1}", e1, e2); }
         public static SNOperator StrictInequality(SNExpression? e1, SNExpression? e2) { return new SNBinary(9, SNOperator.Order.LeftToRight, "{0} !== {1}", e1, e2); }
-        public static SNOperator BitwiseAnd(SNExpression? e1, SNExpression? e2) { return new SNBinary(8, SNOperator.Order.LeftToRight, "{0} & {1}", e1, e2); }
-        public static SNOperator BitwiseXor(SNExpression? e1, SNExpression? e2) { return new SNBinary(7, SNOperator.Order.LeftToRight, "{0} ^ {1}", e1, e2); }
+        public static SNOperator BitwiseAnd(SNExpression? e1, SNExpression? e2) { return new SNBinary(6/*8*/, SNOperator.Order.LeftToRight, "{0} & {1}", e1, e2); }
+        public static SNOperator BitwiseXor(SNExpression? e1, SNExpression? e2) { return new SNBinary(6/*7*/, SNOperator.Order.LeftToRight, "{0} ^ {1}", e1, e2); }
         public static SNOperator BitwiseOr(SNExpression? e1, SNExpression? e2) { return new SNBinary(6, SNOperator.Order.LeftToRight, "{0} | {1}", e1, e2); }
-        public static SNOperator LogicalAnd(SNExpression? e1, SNExpression? e2) { return new SNBinary(5, SNOperator.Order.LeftToRight, "{0} && {1}", e1, e2); }
+        public static SNOperator LogicalAnd(SNExpression? e1, SNExpression? e2) { return new SNBinary(4/*actually should be 5, but for readability*/, SNOperator.Order.LeftToRight, "{0} && {1}", e1, e2); }
         public static SNOperator LogicalOr(SNExpression? e1, SNExpression? e2) { return new SNBinary(4, SNOperator.Order.LeftToRight, "{0} || {1}", e1, e2); }
         public static SNOperator Nullishcoalescingoperator(SNExpression? e1, SNExpression? e2) { return new SNBinary(4, SNOperator.Order.LeftToRight, "{0} ?? {1}", e1, e2); }
         // public static SNOperator Conditional (SNExpression? e1, SNExpression? e2) { return new SNBinary(3, SNOperator.Order.RightToLeft, "{0} ? {1} : {2}", e1, e2); }
@@ -604,6 +681,12 @@ namespace OpenAS2.Compilation
             Condition = condition ?? new SNNominator("[[null condition]]");
             Unbranch = unbranch;
             Branch = branch;
+            if (Unbranch.IsEmpty() && !Branch.IsEmpty())
+            {
+                Unbranch = branch;
+                Branch = unbranch;
+                Condition = OprUtils.LogicalNot(Condition);
+            }
         }
 
         public static bool IsElseIfBranch(StatementCollection sta, out SNControlCase? c)
@@ -671,14 +754,24 @@ namespace OpenAS2.Compilation
                     nc1 = nc3;
                     tmp = OprUtils.LogicalNot(tmp);
                 }
-                sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
-                sta.CallSubCollection(b1, sb);
-                nc2!.TryCompose(sta, sb, true);
+                var flag = false;
+                if (!b1.IsEmpty())
+                {
+                    flag = true;
+                    sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
+                    sta.CallSubCollection(b1, sb);
+                }
+                // sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
+                // sta.CallSubCollection(b1, sb);
+                nc2!.TryCompose(sta, sb, flag);
             }
             else
             {
-                sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
-                sta.CallSubCollection(b1, sb);
+                if (!b1.IsEmpty() || !b2.IsEmpty())
+                {
+                    sb.Append(string.Format(pattern, tmp.TryComposeRaw(sta)));
+                    sta.CallSubCollection(b1, sb);
+                }
                 if (!b2.IsEmpty())
                 {
                     sb.Append("\n" + "else\n".ToStringWithIndent(sta.CurrentIndent));
@@ -710,8 +803,11 @@ namespace OpenAS2.Compilation
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
             var tmp = Condition != null ? Condition.TryComposeRaw(sta) : "[[null condition]]";
-            sb.Append("// loop maintain condition\n");
-            sta.CallSubCollection(Maintain, sb);
+            if (!Maintain.IsEmpty())
+            {
+                sb.Append("// loop maintain condition\n");
+                sta.CallSubCollection(Maintain, sb);
+            }
             sb.Append("\n" + $"while ({tmp})\n".ToStringWithIndent(sta.CurrentIndent));
             sta.CallSubCollection(Branch, sb);
             return false;

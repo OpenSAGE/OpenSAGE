@@ -153,23 +153,23 @@ namespace OpenAS2.Compilation.Syntax
                 case InstructionType.GetProperty:
                     var gpv0 = np.PopExpression();
                     var gpv1 = np.PopExpression();
-                    np.PushNode(new SNMemberAccess(SNNominator.Check(gpv1), gpv0));
+                    np.PushNode(new SNMemberAccess(new SNCheckTarget(SNNominator.Check(gpv1)), gpv0));
                     return true;
                 case InstructionType.SetProperty:
                     var spv0 = np.PopExpression();
                     var spv1 = np.PopExpression();
                     var spv2 = np.PopExpression();
-                    np.PushNode(new SNValAssign(new SNMemberAccess(SNNominator.Check(spv2), spv1), spv0));
+                    np.PushNode(new SNValAssign(new SNMemberAccess(new SNCheckTarget(SNNominator.Check(spv2)), spv1), spv0));
                     return true;
 
 
                 case InstructionType.GetVariable:
-                    np.PushNode(new SNMemberAccess(new SNNominator("this"), np.PopExpression()));
+                    np.PushNode(new SNCheckTarget(SNNominator.Check(np.PopExpression())));
                     return true;
                 case InstructionType.SetVariable:
-                    var svv0 = np.PopExpression();
+                    var svv0 = new SNCheckTarget(SNNominator.Check(np.PopExpression()));
                     var svv1 = np.PopExpression();
-                    np.PushNode(new SNValAssign(new SNMemberAccess(new SNNominator("this"), svv1), svv0));
+                    np.PushNode(new SNValAssign(svv1, svv0));
                     return true;
             }
             return false;

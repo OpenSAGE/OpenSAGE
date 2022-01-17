@@ -39,7 +39,7 @@ namespace OpenAS2.Compilation.Syntax
         {
             var sup = np.PopExpression();
             var cls = np.PopExpression();
-            np.PushNode(new SNToStatement(new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} extends {1}", cls, sup, false)));
+            np.PushNode(new SNToStatement(new SNBinary(24, SNOperator.Order.NotAcceptable, "{0} extends {1}", cls, sup)));
         }
         
 
@@ -50,7 +50,7 @@ namespace OpenAS2.Compilation.Syntax
             var obj = np.PopExpression();
             var args = np.PopArray();
             var ret = OprUtils.New(new SNMemberAccess(SNNominator.Check(nameVal), obj), args);
-            np.PushNode(new SNMarkNomination(ret));
+            // np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
         public static void DoNewObject(SyntaxNodePool np)
@@ -58,20 +58,20 @@ namespace OpenAS2.Compilation.Syntax
             var name = np.PopExpression();
             var args = np.PopArray();
             var ret = OprUtils.New(SNNominator.Check(name), args);
-            np.PushNode(new SNMarkNomination(ret));
+            // np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
         public static void DoInitObject(SyntaxNodePool np)
         {
             var args = np.PopArray(readPair: true);
             var ret = OprUtils.New(new SNNominator("Object"), args);
-            np.PushNode(new SNMarkNomination(ret));
+            // np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
         public static void DoInitArray(SyntaxNodePool np)
         {
             var ret = np.PopArray();
-            np.PushNode(new SNMarkNomination(ret));
+            // np.PushNode(new SNMarkNomination(ret));
             np.PushNode(ret);
         }
 
@@ -110,49 +110,68 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(new SNKeyWord("delete", new SNMemberAccess(new SNCheckTarget(SNNominator.Check(target)), property)));
         }
 
-        public static void DoCallFunction(SyntaxNodePool np)
+        
+
+        public static void DealWithEACall(SyntaxNodePool np, SNExpression exp, int state)
+        {
+            if (state == 1) // EA_****
+            {
+                var varName = np.PopExpression();
+                np.PushNode(new SNValAssign(SNNominator.Check(varName), exp));
+            }
+            else if (state == 2) // EA_****Pop
+            {
+                np.PushNode(new SNToStatement(exp));
+            }
+            else
+            {
+                np.PushNode(exp);
+            }
+        }
+
+        public static void DoCallFunction(SyntaxNodePool np, int state)
         {
             var funcName = SNNominator.Check(np.PopExpression());
             var args = np.PopArray();
-            np.PushNode(OprUtils.FunctionCall(funcName, args));
-
+            var fc = OprUtils.FunctionCall(funcName, args);
+            DealWithEACall(np, fc, state);
         }
-        public static void DoCallMethod(SyntaxNodePool np, bool pop = false)
+
+        public static void DoCallMethod(SyntaxNodePool np, int state)
         {
             var funcName = np.PopExpression();
             var flag = funcName is SNLiteralUndefined;
             var funcObj = np.PopExpression();
             var args = np.PopArray();
             var fbody = flag ? funcObj : new SNMemberAccess(SNNominator.Check(funcObj), funcName);
-            np.PushNode(pop ? OprUtils.FunctionCall2(fbody, args) : OprUtils.FunctionCall(fbody, args));
+            DealWithEACall(np, OprUtils.FunctionCall(fbody, args), state);
         }
-        public static void DoGetNamedMember(SyntaxNodePool np, int cid)
+        public static void DoCallNamedFunc(SyntaxNodePool np, int cid, int state)
         {
-            np.PushNodeConstant(cid, member => new SNMemberAccess(SNNominator.Check(np.PopExpression()), member));
+            np.PushNodeConstant(cid, fname =>
+            {
+                var fc = OprUtils.FunctionCall(SNNominator.Check(fname), np.PopArray());
+                DealWithEACall(np, fc, state);
+                return null;
+            });
         }
-        public static void DoCallNamedFunc(SyntaxNodePool np, int cid)
-        {
-            np.PushNodeConstant(cid, fname => OprUtils.FunctionCall(SNNominator.Check(fname), np.PopArray()));
-        }
-        public static void DoCallNamedMethod(SyntaxNodePool np, int cid, bool pop = false)
+        public static void DoCallNamedMethod(SyntaxNodePool np, int cid, int state)
         {
             np.PushNodeConstant(cid, fname => {
                 var obj = SNNominator.Check(np.PopExpression());
                 var args = np.PopArray();
                 var f = new SNMemberAccess(obj, fname);
-                SyntaxNode ret = pop ? OprUtils.FunctionCall2(f, args) : OprUtils.FunctionCall(f, args);
-                /*
-                if (pop)
-                {
-                    var varName = np.PopExpression();
-                    np.PushNode(new SNValAssign(SNNominator.Check(varName), ret));
-                    return null;
-                }*/
-                return ret;
+                SNExpression fc = OprUtils.FunctionCall(f, args);
+                DealWithEACall(np, fc, state);
+                return null;
             });
             
         }
 
+        public static void DoGetNamedMember(SyntaxNodePool np, int cid)
+        {
+            np.PushNodeConstant(cid, member => new SNMemberAccess(SNNominator.Check(np.PopExpression()), member));
+        }
         public static void DoGetStringVar(SyntaxNodePool np, RawInstruction inst)
         {
             np.PushNode(new SNNominator(inst.Parameters[0].String));
@@ -187,36 +206,44 @@ namespace OpenAS2.Compilation.Syntax
 
 
                 case InstructionType.CallFunction:
+                    DoCallFunction(np, 0);
+                    break;
                 case InstructionType.EA_CallFuncPop:
-                    DoCallFunction(np);
+                    DoCallFunction(np, 2);
                     break;
                 case InstructionType.EA_CallFunc:
-                    return false;
+                    DoCallFunction(np, 1);
+                    break;
 
-                
+
                 // Since the execution (in original implementation)
                 // is precisely the same as CallMethod, omit it
                 // TODO Don't know if the word pop means discard the return value
                 case InstructionType.EA_CallMethodPop:
-                    DoCallMethod(np, true);
+                    DoCallMethod(np, 2);
                     break;
                 case InstructionType.CallMethod:
+                    DoCallMethod(np, 0);
+                    break;
                 case InstructionType.EA_CallMethod:
-                    DoCallMethod(np);
+                    DoCallMethod(np, 1);
                     break;
 
                 case InstructionType.EA_GetNamedMember:
                     DoGetNamedMember(np, inst.Parameters[0].Integer);
                     break;
+
                 case InstructionType.EA_CallNamedFuncPop:
+                    DoCallNamedFunc(np, inst.Parameters[0].Integer, 2);
+                    break;
                 case InstructionType.EA_CallNamedFunc:
-                    DoCallNamedFunc(np, inst.Parameters[0].Integer);
+                    DoCallNamedFunc(np, inst.Parameters[0].Integer, 1);
                     break;
                 case InstructionType.EA_CallNamedMethodPop:
-                    DoCallNamedMethod(np, inst.Parameters[0].Integer, pop: true);
+                    DoCallNamedMethod(np, inst.Parameters[0].Integer, 2);
                     break;
                 case InstructionType.EA_CallNamedMethod:
-                    DoGetNamedMember(np, inst.Parameters[0].Integer); // TODO need check
+                    DoCallNamedMethod(np, inst.Parameters[0].Integer, 1); // TODO need check
                     break;
 
 

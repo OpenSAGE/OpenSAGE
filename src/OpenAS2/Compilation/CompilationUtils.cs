@@ -142,40 +142,25 @@ namespace OpenAS2.Compilation
 
 
 
-        public static InstructionGraph? Graphify(
-            RawInstructionStorage? ci, 
+        public static string Decompile(
+            RawInstructionStorage? ci,
             IList<ConstantEntry>? constSource = null,
             Dictionary<int, string>? regNames = null
             )
         {
             if (ci == null)
-                return null;
+                return "// null instruction storage";
 
-            var g = new InstructionGraph(ci, 0, null, regNames);
-
-            if (constSource == null) return g;
-
-            g = InstructionGraph.OptimizeGraph(g);
-
-            // wtf
-            
-            Console.WriteLine("\nGan Si Huang Xu Dong");
+            var g_ = new InstructionGraph(ci, 0, null, regNames);
+            var g = g_; // InstructionGraph.OptimizeGraph(g_);
 
             var c = StructurizedBlockChain.Parse(g.BaseBlock);
-            // TODO constpool & constsource
 
-            // try form const pool
             var p = SyntaxNodePool.ConvertToAST(c, constSource, g.RegNames);
 
-            // var c = BlockChainifyUtils.Parse(g.BaseBlock);
-            // var p = new NodePool(g.ConstPool, g.RegNames);
-            // p.PushBlock(c);
-
             var sc = new StatementCollection(p);
-            var code = sc.Compile();
-            Console.Write(code.ToString());
-
-            return g;
+            var code = sc.Compile().ToString();
+            return code;
         }
     }
 
