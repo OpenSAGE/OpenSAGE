@@ -40,7 +40,7 @@ namespace OpenAS2.Runtime.Execution
                 cls.ConnectPrototype(obj);
                 return null;
             });
-            
+            context.EnqueueResultCallback(sproto);
         }
         static void DoInstanceOf(ExecutionContext context)
         {
@@ -93,6 +93,7 @@ namespace OpenAS2.Runtime.Execution
                     return ESCallable.Throw(context.ConstrutError("TypeError"));
 
             });
+            context.EnqueueResultCallback(func);
         }
         public static void DoInitObject(ExecutionContext context)
         {
@@ -102,7 +103,7 @@ namespace OpenAS2.Runtime.Execution
             {
                 var vi = context.Pop();
                 var ni = context.Pop().ToString();
-                obj.IPut(context, ni, vi);
+                context.EnqueueResultCallback(obj.IPut(context, ni, vi).AddRecallCode(PushNothing));
             }
 
             context.Push(Value.FromObject(obj));
@@ -117,7 +118,7 @@ namespace OpenAS2.Runtime.Execution
         {
             var value = context.Pop();
             var varName = context.Pop().ToString();
-            context.SetValueOnLocal(varName, value);
+            context.EnqueueResultCallback(context.SetValueOnLocal(varName, value).AddRecallCode(PushNothing));
         }
         public static void DoDefineLocal2(ExecutionContext context)
         {
@@ -125,7 +126,7 @@ namespace OpenAS2.Runtime.Execution
             if (context.ReferredScope.HasPropertyOnLocal(varName, out var _))
                 return;
             else
-                context.SetValueOnLocal(varName, Value.Undefined());
+                context.EnqueueResultCallback(context.SetValueOnLocal(varName, Value.Undefined()).AddRecallCode(PushNothing));
         }
         public static void DoDelete2(ExecutionContext context)
         {
@@ -136,7 +137,7 @@ namespace OpenAS2.Runtime.Execution
         public static void DoEnumerate2(ExecutionContext context)
         {
             var obj = context.Pop().ToObject();
-            context.Push(Value.FromObject(null));
+            context.Push(Value.Null());
             // Not sure if this is correct
             foreach (var slot in obj.GetAllProperties())
             {
@@ -162,24 +163,49 @@ namespace OpenAS2.Runtime.Execution
             if (obj is null)
                 throw new InvalidOperationException();
             else
-                obj.IPut(context, memberName, valueVal);
+                context.EnqueueResultCallback(obj.IPut(context, memberName, valueVal).AddRecallCode(PushNothing));
         }
         public static void DoDelete(ExecutionContext context)
         {
             var property = context.Pop().ToString();
             var target = context.Pop();// TODO wtf? context.GetTarget(context.Pop().ToString());
-            target.ToObject().IDeleteValue(context, property);
+            var res = target.ToObject().IDeleteValue(context, property);
+            res.AddRecallCode(PushNothing);
+            context.EnqueueResultCallback(res);
         }
 
-        public static void DoCallFunction(ExecutionContext context)
+        // EA weird things
+
+        public static readonly ESCallable.Result.RecallCode PushNothing = res => null;
+        public static readonly Func<ExecutionContext, ESCallable.Result.RecallCode> SetLocalVariable = (ec) => res =>
+        {
+            var vs = ec.Pop().ToString(ec);
+            var rv = res.Value;
+            vs.AddRecallCode(res2 =>
+            {
+                var ret = ec.SetValueOnLocal(res2.Value.ToString(), rv);
+                ret.AddRecallCode(PushNothing);
+                return ret;
+            });
+            return vs;
+        };
+        
+
+        public static void DoCallFunction(ExecutionContext context, int opr)
         {
             var funcName = context.Pop().ToString();
             var args = FunctionUtils.GetArgumentsFromStack(context);
             var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
+            if (opr == 2)
+                ret.AddRecallCode(PushNothing);
+            else if (opr == 1)
+                ret.AddRecallCode(SetLocalVariable(context));
             context.EnqueueResultCallback(ret);
 
         }
-        public static void DoCallMethod(ExecutionContext context)
+
+
+        public static void DoCallMethod(ExecutionContext context, int opr)
         {
             var funcNameVal = context.Pop();
             var funcName = funcNameVal.ToString();
@@ -198,6 +224,10 @@ namespace OpenAS2.Runtime.Execution
                 var args = FunctionUtils.GetArgumentsFromStack(context);
                 ret = FunctionUtils.TryExecuteFunction(funcVal, args, context);
             }
+            if (opr == 2)
+                ret.AddRecallCode(PushNothing);
+            else if (opr == 1)
+                ret.AddRecallCode(SetLocalVariable(context));
             context.EnqueueResultCallback(ret);
         }
         public static void DoGetNamedMember(ExecutionContext context, int cid)
@@ -213,36 +243,30 @@ namespace OpenAS2.Runtime.Execution
             else
                 context.Push(Value.Undefined());
         }
-        public static void DoCallNamedFunc(ExecutionContext context, int cid)
+        public static void DoCallNamedFunc(ExecutionContext context, int cid, int opr)
         {
             var funcName = context.ResolveConstant(cid).ToString();
             var args = FunctionUtils.GetArgumentsFromStack(context);
 
             var ret = FunctionUtils.TryExecuteFunction(funcName, args, context);
+            if (opr == 2)
+                ret.AddRecallCode(PushNothing);
+            else if (opr == 1)
+                ret.AddRecallCode(SetLocalVariable(context));
             context.EnqueueResultCallback(ret);
         }
-        public static void DoCallNamedMethod(ExecutionContext context, int cid, bool pop = false)
+        public static void DoCallNamedMethod(ExecutionContext context, int cid, int opr)
         {
             var funcName = context.ResolveConstant(cid).ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionUtils.GetArgumentsFromStack(context);
 
-            var ret0 = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
-            context.EnqueueResultCallback(ret0);
-
-            if (!pop)
-            {
-                throw new NotImplementedException("need check");
-                var ret = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
-                ret.AddRecallCode((ret2) =>
-                {
-                    var result = ret2.Value;
-                    var varName = context.Pop();
-                    context.SetValueOnLocal(varName.ToString(), result);
-                    return null; // push nothing back
-                });
-                context.EnqueueResultCallback(ret);
-            }
+            var ret = FunctionUtils.TryExecuteFunction(funcName, args, context, obj);
+            if (opr == 2)
+                ret.AddRecallCode(PushNothing);
+            else if (opr == 1)
+                ret.AddRecallCode(SetLocalVariable(context));
+            context.EnqueueResultCallback(ret);
         }
 
         public static void DoGetStringVar(ExecutionContext context, RawInstruction inst)
@@ -281,34 +305,44 @@ namespace OpenAS2.Runtime.Execution
                     break;
 
 
-                case InstructionType.CallFunction:
-                case InstructionType.EA_CallFuncPop:
-                    DoCallFunction(context);
-                    break;
-                case InstructionType.EA_CallFunc:
-                    return false;
-
-                case InstructionType.CallMethod:
-                // Since the execution (in original implementation)
-                // is precisely the same as CallMethod, omit it
-                // TODO Don't know if the word pop means discard the return value
-                case InstructionType.EA_CallMethodPop:
-                case InstructionType.EA_CallMethod:
-                    DoCallMethod(context);
-                    break;
-
                 case InstructionType.EA_GetNamedMember:
                     DoGetNamedMember(context, inst.Parameters[0].Integer);
                     break;
+
+
+
+                case InstructionType.CallFunction:
+                    DoCallFunction(context, 0);
+                    break;
+                case InstructionType.EA_CallFuncPop:
+                    DoCallFunction(context, 2);
+                    break;
+                case InstructionType.EA_CallFunc:
+                    DoCallFunction(context, 1);
+                    break;
+
+                case InstructionType.CallMethod:
+                    DoCallMethod(context, 0);
+                    break;
+                case InstructionType.EA_CallMethodPop:
+                    DoCallMethod(context, 2);
+                    break;
+                case InstructionType.EA_CallMethod:
+                    DoCallMethod(context, 1);
+                    break;
+
                 case InstructionType.EA_CallNamedFuncPop:
+                    DoCallNamedFunc(context, inst.Parameters[0].Integer, 1);
+                    break;
                 case InstructionType.EA_CallNamedFunc:
-                    DoCallNamedFunc(context, inst.Parameters[0].Integer);
+                    DoCallNamedFunc(context, inst.Parameters[0].Integer, 1);
+
                     break;
                 case InstructionType.EA_CallNamedMethodPop:
-                    DoCallNamedMethod(context, inst.Parameters[0].Integer, pop: true);
+                    DoCallNamedMethod(context, inst.Parameters[0].Integer, 2);
                     break;
                 case InstructionType.EA_CallNamedMethod:
-                    DoGetNamedMember(context, inst.Parameters[0].Integer); // TODO need check
+                    DoCallNamedMethod(context, inst.Parameters[0].Integer, 1); // TODO need check
                     break;
 
 
@@ -319,12 +353,14 @@ namespace OpenAS2.Runtime.Execution
                     DoGetStringMember(context, inst);
                     break;
                 case InstructionType.EA_SetStringVar:
-                    context.This.IPut(context, context.Pop().ToString(), Value.FromRaw(inst.Parameters[0]));
+                    var ssvret = context.SetValueOnLocal(context.Pop().ToString(), Value.FromRaw(inst.Parameters[0]));
+                    context.EnqueueResultCallback(ssvret.AddRecallCode(PushNothing));
                     break;
                 case InstructionType.EA_SetStringMember:
                     var memberVal = context.Pop().ToString();
                     var objectVal = context.Pop().ToObject();
-                    objectVal.IPut(context, memberVal, Value.FromRaw(inst.Parameters[0]));
+                    var ssmret = objectVal.IPut(context, memberVal, Value.FromRaw(inst.Parameters[0]));
+                    context.EnqueueResultCallback(ssmret.AddRecallCode(PushNothing));
                     break;
 
                 case InstructionType.TypeOf:
@@ -375,9 +411,11 @@ namespace OpenAS2.Runtime.Execution
                     break;
 
                 case InstructionType.EA_PushThis:
-                    return false;
+                    context.Push(Value.FromString("this"));
+                    break;
                 case InstructionType.EA_PushGlobal:
-                    return false;
+                    context.Push(Value.FromString("_global"));
+                    break;
                 case InstructionType.EA_PushThisVar:
                     context.Push(Value.FromObject(context.This));
                     break;

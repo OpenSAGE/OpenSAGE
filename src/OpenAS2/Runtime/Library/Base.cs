@@ -21,6 +21,11 @@ namespace OpenAS2.Runtime.Library
         {
             public static ExecutionContext NativeContext = new(null, null, null, null, null, null, null, 0, "<Native>");
 
+            /// <summary>
+            /// the code is guarenteed to be called either res.Type == Normal or Return.
+            /// </summary>
+            /// <param name="res"></param>
+            /// <returns></returns>
             public delegate Result? RecallCode(Result res);
 
             private readonly ResultType _type;
@@ -42,7 +47,7 @@ namespace OpenAS2.Runtime.Library
 
             public Result(ResultType t, Value? v) { _type = t; _value = v; }
 
-            public void AddRecallCode(RecallCode rc) { _recalls.Add(rc); }
+            public Result AddRecallCode(RecallCode rc) { _recalls.Add(rc); return this; }
 
             /// <summary>
             /// if push nothing back, create a function to return null or a Result with Value == null; elsewhere something will be pushed;
@@ -52,13 +57,25 @@ namespace OpenAS2.Runtime.Library
             public Result? ExecuteRecallCode() 
             {
                 Result? res = this;
-                while (_recalls.Count > 0)
+                LinkedList<RecallCode> ltmp = new(res._recalls);
+                while (ltmp.Count > 0)
                 {
-                    var rc = _recalls[0];
+                    var rc = ltmp.First();
+                    ltmp.RemoveFirst();
                     res = rc(res!);
-                    _recalls.RemoveAt(0);
-                    if (res == null || res.Type == ResultType.Executing)
+                    if (res == null) // push nothing to stack
                         break;
+                    else if (res.Type == ResultType.Throw) // exception is thrown, return it
+                        break;
+                    else if (res.Type == ResultType.Executing) // requires further execution
+                    {
+                        res._recalls.AddRange(ltmp);
+                        break;
+                    }
+                    else if (res._recalls.Count > 0) // more recall codes
+                        foreach (var f in Enumerable.Reverse(res._recalls))
+                            ltmp.AddFirst(f);
+                    // else do nothing but continuing execution
                 }
                 return res;
             }

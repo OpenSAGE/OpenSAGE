@@ -32,7 +32,7 @@ namespace OpenAS2.Runtime
         public string DisplayName { get; set; } // only used for display purpose
 
         private Stack<Value> _stack;
-        private Queue<ESCallable.Result> _recall;
+        private LinkedList<ESCallable.Result> _callbacks;
         private Value[] _registers { get; set; }
 
         public ExecutionContext(
@@ -60,7 +60,7 @@ namespace OpenAS2.Runtime
 
             // initializations
             _stack = new();
-            _recall = new();
+            _callbacks = new();
             _registers = new Value[RegisterCount];
             Result = ResultType.Executing;
 
@@ -70,10 +70,10 @@ namespace OpenAS2.Runtime
 
         // basics
 
-        public void EnqueueResultCallback(ESCallable.Result code) { _recall.Enqueue(code); }
-        public ESCallable.Result DequeueResultCallback() { return _recall.Dequeue(); }
-        public ESCallable.Result FirstResultCallback() { return _recall.Peek(); }
-        public bool HasResultCallback() { return _recall.Count != 0; }
+        public void EnqueueResultCallback(ESCallable.Result code) { _callbacks.AddLast(code); }
+        public ESCallable.Result DequeueResultCallback() { var f = _callbacks.First(); _callbacks.RemoveFirst();  return f; }
+        public ESCallable.Result FirstResultCallback() { return _callbacks.First(); }
+        public bool HasResultCallback() { return _callbacks.Count != 0; }
 
         public override string ToString()
         {
@@ -377,12 +377,15 @@ namespace OpenAS2.Runtime
                 var res = rec.ExecuteRecallCode();
                 if (res == null) // nothing to push to stack
                     continue;
-                else if (res.Type == ResultType.Executing) // new ECs are pushed, continue executing without cleaning
+                else if (res.Type == ResultType.Executing)
+                { // new ECs are pushed, continue executing without cleaning
+                    _callbacks.AddFirst(res);
                     break;
+                }
                 else if (res.Type == ResultType.Throw) // errors are thrown
                 {
                     // TODO implement try-catch
-                    Avm.ThrowError((ESError) res.Value.ToObject()!, res.Context);
+                    Avm.ThrowError((ESError) res.Value.ToObject()!, res.Context, this);
                 }
                 else if (res.Type == ResultType.Return)
                     Push(res.Value);

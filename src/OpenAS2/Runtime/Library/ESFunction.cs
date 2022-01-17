@@ -318,7 +318,7 @@ namespace OpenAS2.Runtime
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
             var target = (ESFunction) thisVar;
             var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
-            var fakeArgs = args!.Count > 1 ? ((ESArray) args[1].ToObject()).GetValues() : new Value[0];
+            var fakeArgs = args!.Count > 1 ? ((ESArray) args[1].ToObject()).GetValues() : new List<Value>().AsReadOnly();
             return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
         }
 

@@ -77,7 +77,7 @@ namespace OpenAS2.Tests
 
             Console.WriteLine("/Test");
 
-            // Graphify(code, cstf);
+            Graphify(code, cstf);
             TestVM(code, cstf);
         }
     }

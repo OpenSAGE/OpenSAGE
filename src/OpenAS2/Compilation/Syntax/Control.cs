@@ -164,10 +164,10 @@ namespace OpenAS2.Compilation.Syntax
 
 
                 case InstructionType.GetVariable:
-                    np.PushNode(new SNCheckTarget(SNNominator.Check(np.PopExpression())));
+                    np.PushNode(new SNCheckTarget(SNNominator.Check2(np.PopExpression())));
                     return true;
-                case InstructionType.SetVariable:
-                    var svv0 = new SNCheckTarget(SNNominator.Check(np.PopExpression()));
+                case InstructionType.SetVariable: // TODO
+                    var svv0 = new SNCheckTarget(SNNominator.Check2(np.PopExpression()));
                     var svv1 = np.PopExpression();
                     np.PushNode(new SNValAssign(svv1, svv0));
                     return true;

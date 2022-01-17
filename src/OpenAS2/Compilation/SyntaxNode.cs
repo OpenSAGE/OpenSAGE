@@ -165,6 +165,16 @@ namespace OpenAS2.Compilation
                 return sn;
         }
 
+        public static SNExpression Check2(SNExpression sn)
+        {
+            if (sn is SNLiteral snl && snl.IsStringLiteral)
+                return new SNNominator(snl.GetRawString());
+            else if (sn is SNNominator snn)
+                return new SNFunctionCall(new SNNominator("eval"), sn);
+            else
+                return sn;
+        }
+
     }
 
     public class SNArray : SNExpression
@@ -361,7 +371,7 @@ namespace OpenAS2.Compilation
         {
             var s = _e1.TryComposeWithPrecendence(sta, MinPrecendence);
             if (s.StartsWith('/'))
-                s = $"getTarget({s})";
+                s = $"eval({s.ToCodingForm()})";
             return s;
         }
     }

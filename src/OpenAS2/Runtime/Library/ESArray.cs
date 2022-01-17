@@ -107,11 +107,9 @@ namespace OpenAS2.Runtime.Library
             else _values = new List<Value>(args);
         }
 
-        public Value[] GetValues()
+        public IList<Value> GetValues()
         {
-            Value[] ans = new Value[_values.Count];
-            _values.CopyTo(0, ans, 0, _values.Count);
-            return ans;
+            return new List<Value>(_values).AsReadOnly();
         }
 
         public Value GetValue(int index) { return _values[index]; }

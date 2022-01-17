@@ -218,7 +218,7 @@ namespace OpenAS2.Runtime
             return err.Value;
         }
 
-        public void ThrowError(ESError err, ExecutionContext? ec = null)
+        public void ThrowError(ESError err, ExecutionContext? ec, ExecutionContext ecOuter)
         {
             throw new WrappedESError(err);
         }
