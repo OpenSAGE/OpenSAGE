@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,7 +54,7 @@ namespace OpenSage.Data
         public static void Read(string rootDirectory, Action<string> addBigArchive)
         {
 
-            var skudefFiles = Directory.GetFiles(rootDirectory).Where(filename => filename.EndsWith("skudef", StringComparison.OrdinalIgnoreCase)).ToList();
+            var skudefFiles = Directory.GetFiles(rootDirectory, "*.skudef", new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive });
 
             var skudefFile = skudefFiles
                 .OrderBy(SkudefVersion.Parse)
