@@ -5,6 +5,7 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using Veldrid;

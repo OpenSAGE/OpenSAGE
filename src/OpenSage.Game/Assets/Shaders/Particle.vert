@@ -5,15 +5,15 @@
 
 MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
 
-layout(set = 1, binding = 0) uniform RenderItemConstants
-{
-    mat4 _World;
-};
-
-layout(set = 1, binding = 1) uniform ParticleConstants
+layout(set = 1, binding = 0) uniform ParticleConstants
 {
     vec3 _Padding;
     bool _IsGroundAligned;
+};
+
+layout(set = 2, binding = 0) uniform RenderItemConstants
+{
+    mat4 _World;
 };
 
 layout(location = 0) in vec3 in_Position;

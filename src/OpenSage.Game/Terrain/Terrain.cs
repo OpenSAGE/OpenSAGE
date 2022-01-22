@@ -14,6 +14,7 @@ using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.IO;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
