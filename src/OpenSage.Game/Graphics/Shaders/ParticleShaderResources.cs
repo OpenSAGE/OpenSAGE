@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Rendering.Effects;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -25,15 +25,34 @@ namespace OpenSage.Graphics.Shaders
                 new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, null),
                 ParticleVertex.VertexDescriptor)
         {
-            var effect = AddDisposable(new Effect("Assets/Effects/Particle.fxo", graphicsDevice));
+            _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("RenderItemConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("ParticleConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
-            var alphaBlendTechnique = effect.GetTechniqueByName("ParticleAlphaBlend");
-            var additiveBlendTechnique = effect.GetTechniqueByName("ParticleAdditiveBlend");
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                _particleResourceLayout
+            };
 
-            _particleResourceLayout = alphaBlendTechnique.ResourceLayouts[1];
+            Pipeline CreatePipeline(in BlendStateDescription blendStateDescription)
+            {
+                return graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                    new GraphicsPipelineDescription(
+                        blendStateDescription,
+                        DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                        RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                        PrimitiveTopology.TriangleList,
+                        ShaderSet.Description,
+                        resourceLayouts,
+                        RenderPipeline.GameOutputDescription));
+            }
 
-            _alphaPipeline = alphaBlendTechnique.GetPipeline(RenderPipeline.GameOutputDescription);
-            _additivePipeline = additiveBlendTechnique.GetPipeline(RenderPipeline.GameOutputDescription);
+            _alphaPipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAlphaBlend));
+            _additivePipeline = AddDisposable(CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha));
         }
 
         public Pipeline GetCachedPipeline(ParticleSystemShader shader)

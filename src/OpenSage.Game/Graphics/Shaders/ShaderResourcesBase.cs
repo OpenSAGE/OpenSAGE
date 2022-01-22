@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using OpenSage.Rendering;
+using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -21,7 +22,7 @@ namespace OpenSage.Graphics.Shaders
             GraphicsDevice = graphicsDevice;
 
             ShaderSet = AddDisposable(new ShaderSet(
-                graphicsDevice,
+                graphicsDevice.ResourceFactory,
                 shaderName,
                 globalResourceSetIndices,
                 vertexDescriptors));

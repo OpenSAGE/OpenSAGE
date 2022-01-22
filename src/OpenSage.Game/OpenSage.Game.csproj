@@ -52,9 +52,6 @@
 
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
     <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
-
-    <EffectFiles Include="Assets\Effects\*.fx" />
-    <UpToDateCheckInput Include="@(EffectFiles)" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -72,25 +69,11 @@
     <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -V %(ShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv&quot;" />
   </Target>
 
-  <Target Name="EmbedShaders" AfterTargets="CompileShaders">
+  <Target Name="CopyShaders" AfterTargets="CompileShaders">
     <ItemGroup>
       <CompiledShaderFiles Include="$(IntermediateOutputPath)Assets\Shaders\*.*" />
-      <EmbeddedResource Include="@(CompiledShaderFiles)">
-        <LogicalName>OpenSage.Assets.Shaders.%(FileName)%(Extension)</LogicalName>
-      </EmbeddedResource>
-    </ItemGroup>
-  </Target>
-
-  <Target Name="CompileEffects" BeforeTargets="BeforeBuild" Inputs="@(EffectFiles)" Outputs="@(EffectFiles->'$(IntermediateOutputPath)Assets\Effects\%(FileName).fxo')">
-    <MakeDir Directories="$(IntermediateOutputPath)Assets\Effects" />
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\OpenSage.Rendering.Effects.EffectCompiler\bin\$(Configuration)\net6.0\OpenSage.Rendering.Effects.EffectCompiler.exe&quot; %(EffectFiles.Identity) &quot;$(IntermediateOutputPath)Assets\Effects\%(EffectFiles.FileName).fxo&quot;" />
-  </Target>
-
-  <Target Name="CopyEffects" AfterTargets="CompileEffects">
-    <ItemGroup>
-      <CompiledEffectFiles Include="$(IntermediateOutputPath)Assets\Effects\*.*" />
-      <Content Include="@(CompiledEffectFiles)" CopyToOutputDirectory="PreserveNewest">
-        <Link>Assets\Effects\%(Filename)%(Extension)</Link>
+      <Content Include="@(CompiledShaderFiles)" CopyToOutputDirectory="PreserveNewest">
+        <Link>Assets\Shaders\%(Filename)%(Extension)</Link>
       </Content>
     </ItemGroup>
   </Target>

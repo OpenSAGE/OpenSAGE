@@ -27,11 +27,9 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
+        private readonly ParticleMaterial _particleMaterial;
         private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<ParticleShaderResources.ParticleConstantsVS> _particleConstantsBufferVS;
-        private readonly ResourceSet _particleResourceSet;
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
+        private readonly ResourceSet _renderItemConstantsResourceSet;
 
         private readonly BeforeRenderDelegate _beforeRender;
         private bool _worldMatrixChanged;
@@ -125,22 +123,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _graphicsDevice = loadContext.GraphicsDevice;
 
+            _particleMaterial = loadContext.MaterialDefinitionStore.GetParticleMaterialDefinition().GetMaterial(Template);
+
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
 
-            _particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleShaderResources.ParticleConstantsVS>(_graphicsDevice));
-            _particleConstantsBufferVS.Value.IsGroundAligned = template.IsGroundAligned;
-            _particleConstantsBufferVS.Update(loadContext.GraphicsDevice);
+            _renderItemConstantsResourceSet = AddDisposable(
+                _graphicsDevice.ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        _particleMaterial.Definition.ShaderSet.ResourceLayouts[2],
+                        _renderItemConstantsBufferVS.Buffer)));
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
-
-            _particleResourceSet = AddDisposable(loadContext.ShaderResources.Particle.CreateParticleResoureSet(
-                _renderItemConstantsBufferVS.Buffer,
-                _particleConstantsBufferVS.Buffer,
-                Template.ParticleTexture.Value));
-
-            _shaderSet = loadContext.ShaderResources.Particle.ShaderSet;
-            _pipeline = loadContext.ShaderResources.Particle.GetCachedPipeline(Template.Shader);
 
             _initialDelay = Template.InitialDelay.GetRandomInt();
 
@@ -196,14 +190,17 @@ namespace OpenSage.Graphics.ParticleSystems
                     UpdateVertexBuffer(cl);
                 }
 
+                cl.SetVertexBuffer(0, _vertexBuffer);
+
+                _particleMaterial.Apply(cl, null); // TODO: Shouldn't be null.
+
                 if (_worldMatrixChanged)
                 {
                     _renderItemConstantsBufferVS.Update(cl);
+                    _worldMatrixChanged = false;
+
+                    cl.SetGraphicsResourceSet(2, _renderItemConstantsResourceSet);
                 }
-
-                cl.SetGraphicsResourceSet(1, _particleResourceSet);
-
-                cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
 
@@ -548,8 +545,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
-                _shaderSet,
-                _pipeline,
+                _particleMaterial.Definition.ShaderSet,
+                _particleMaterial.Pipeline,
                 AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,
                 0,

@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering

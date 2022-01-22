@@ -8,6 +8,7 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 

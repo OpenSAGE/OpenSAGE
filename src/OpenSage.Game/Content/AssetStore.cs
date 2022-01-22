@@ -22,6 +22,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Pathfinding;
+using OpenSage.Rendering;
 using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
 using Veldrid;
@@ -181,6 +182,7 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
+            MaterialDefinitionStore materialDefinitionStore,
             OnDemandAssetLoadStrategy loadStrategy)
         {
             LoadContext = new AssetLoadContext(
@@ -189,6 +191,7 @@ namespace OpenSage.Content
                 graphicsDevice,
                 standardGraphicsResources,
                 shaderResources,
+                materialDefinitionStore,
                 this);
 
             _scopedSingleAssetStorage = new List<IScopedSingleAssetStorage>();

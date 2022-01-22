@@ -2,6 +2,11 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
   </ItemGroup>
   
 </Project>

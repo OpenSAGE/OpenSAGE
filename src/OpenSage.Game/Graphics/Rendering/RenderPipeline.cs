@@ -7,6 +7,7 @@ using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering

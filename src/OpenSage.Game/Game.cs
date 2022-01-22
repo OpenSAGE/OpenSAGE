@@ -16,6 +16,7 @@ using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -27,6 +28,7 @@ using OpenSage.IO;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
+using OpenSage.Rendering;
 using OpenSage.Scripting;
 using OpenSage.Utilities;
 using Veldrid;
@@ -473,7 +475,8 @@ namespace OpenSage
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
                 var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources));
-                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
+                var materialDefinitionStore = AddDisposable(new MaterialDefinitionStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, materialDefinitionStore);
 
                 AssetStore = new AssetStore(
                     SageGame,
@@ -482,6 +485,7 @@ namespace OpenSage
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
+                    GraphicsLoadContext.MaterialDefinitionStore,
                     Definition.CreateAssetLoadStrategy());
 
                 // TODO

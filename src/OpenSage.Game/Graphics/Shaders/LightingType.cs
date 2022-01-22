@@ -1,9 +1,9 @@
 ﻿namespace OpenSage.Graphics.Shaders
 {
-    public enum LightingType
-    {
-        None,
-        Terrain,
-        Object
-    }
+    //public enum LightingType
+    //{
+    //    None,
+    //    Terrain,
+    //    Object
+    //}
 }

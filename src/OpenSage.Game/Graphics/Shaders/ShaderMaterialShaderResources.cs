@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders

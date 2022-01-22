@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
