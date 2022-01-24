@@ -92,7 +92,7 @@ namespace OpenSage.Graphics
                 BufferUsage.IndexBuffer));
 
             var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
-            _meshConstantsResourceSet = loadContext.ShaderResources.Mesh.GetCachedMeshResourceSet(
+            MeshConstantsBuffer = loadContext.ShaderResources.Mesh.GetCachedMeshConstantsBuffer(
                 Skinned,
                 hasHouseColor);
 

@@ -115,7 +115,7 @@ namespace OpenSage.Graphics
                 BufferUsage.IndexBuffer));
 
             var hasHouseColor = false; // TODO
-            _meshConstantsResourceSet = loadContext.ShaderResources.Mesh.GetCachedMeshResourceSet(
+            MeshConstantsBuffer = loadContext.ShaderResources.Mesh.GetCachedMeshConstantsBuffer(
                 Skinned,
                 hasHouseColor);
 

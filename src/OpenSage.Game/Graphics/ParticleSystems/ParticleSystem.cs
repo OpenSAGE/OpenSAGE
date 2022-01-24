@@ -82,7 +82,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public ParticleSystemState State { get; private set; }
 
         public int CurrentParticleCount { get; private set; }
-
+        
         internal ParticleSystem(
             FXParticleSystemTemplate template,
             AssetLoadContext loadContext,
@@ -130,7 +130,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _renderItemConstantsResourceSet = AddDisposable(
                 _graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
-                        _particleMaterial.Definition.ShaderSet.ResourceLayouts[2],
+                        _particleMaterial.Definition.ShaderSet.ResourceLayouts[3],
                         _renderItemConstantsBufferVS.Buffer)));
 
             _velocityType = Template.EmissionVelocity;
@@ -170,7 +170,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             State = ParticleSystemState.Inactive;
 
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
             {
                 // Only update once we know this particle system is visible on screen.
                 // We need to run enough updates to catch up for any time
@@ -198,9 +198,9 @@ namespace OpenSage.Graphics.ParticleSystems
                 {
                     _renderItemConstantsBufferVS.Update(cl);
                     _worldMatrixChanged = false;
-
-                    cl.SetGraphicsResourceSet(2, _renderItemConstantsResourceSet);
                 }
+
+                cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
             };
         }
 

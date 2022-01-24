@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
@@ -14,7 +12,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly List<ParticleSystem> _particleSystems;
 
-        private uint _unknown1;
+        private uint _previousParticleSystemId;
 
         public ParticleSystemManager(AssetLoadContext assetLoadContext)
         {
@@ -101,7 +99,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _previousParticleSystemId);
 
             var count = (uint)_particleSystems.Count;
             reader.PersistUInt32(ref count);

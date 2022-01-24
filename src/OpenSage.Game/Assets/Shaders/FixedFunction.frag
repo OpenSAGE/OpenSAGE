@@ -2,12 +2,8 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-#include "Shadows.h"
+#include "ForwardPass.h"
 #include "Mesh.h"
-
-MAKE_MESH_RESOURCES_PS()
 
 #define TEXTURE_MAPPING_UV                 0
 #define TEXTURE_MAPPING_ENVIRONMENT        1
@@ -86,7 +82,7 @@ struct ShadingConfiguration
     vec2 _Padding;
 };
 
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 0) uniform MaterialConstants
 {
     vec3 _Padding;
 
@@ -96,8 +92,9 @@ layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
     ShadingConfiguration Shading;
 } _MaterialConstants;
 
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 1) uniform texture2D Texture0;
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 2) uniform texture2D Texture1;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 1) uniform texture2D Texture0;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 2) uniform texture2D Texture1;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 3) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -228,16 +225,13 @@ vec4 SampleTexture(
 
 void main()
 {
-    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
+    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Object.Lights[0].Direction));
     vec3 shadowVisibility = ShadowVisibility(
-        Global_ShadowMap,
-        Global_ShadowSampler,
         in_WorldPosition, 
         in_ViewSpaceDepth, 
         nDotL, 
         in_WorldNormal, 
-        ivec2(gl_FragCoord.xy), 
-        _ShadowConstantsPS);
+        ivec2(gl_FragCoord.xy));
 
     vec3 materialAmbientColor = _MaterialConstants.Material.Ambient;
     vec3 materialDiffuseColor = _MaterialConstants.Material.Diffuse;
@@ -251,14 +245,13 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        _GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS.Object,
         in_WorldPosition,
         in_WorldNormal,
         materialAmbientColor,
         materialDiffuseColor,
         _MaterialConstants.Material.Specular,
         _MaterialConstants.Material.Shininess,
-        _GlobalConstants.CameraPosition,
         true,
         shadowVisibility,
         diffuseColor,
@@ -267,7 +260,7 @@ void main()
     vec4 diffuseTextureColor;
     if (_MaterialConstants.Shading.TexturingEnabled)
     {
-        vec3 v = CalculateViewVector(_GlobalConstants.CameraPosition, in_WorldPosition);
+        vec3 v = CalculateViewVector(in_WorldPosition);
 
         diffuseTextureColor = SampleTexture(
             in_WorldNormal, in_UV0, gl_FragCoord.xy,
@@ -370,10 +363,7 @@ void main()
         objectColor += specularColor;
     }
 
-    vec3 cloudColor = GetCloudColor(
-        Global_CloudTexture,
-        Sampler,
-        in_CloudUV);
+    vec3 cloudColor = GetCloudColor(in_CloudUV);
 
     out_Color = vec4(
         objectColor * cloudColor * _RenderItemConstantsPS.TintColor,

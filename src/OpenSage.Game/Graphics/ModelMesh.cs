@@ -30,9 +30,7 @@ namespace OpenSage.Graphics
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
-        private readonly ResourceSet _meshConstantsResourceSet;
-
-        private ResourceSet _samplerResourceSet;
+        internal readonly ConstantBuffer<MeshShaderResources.MeshConstants> MeshConstantsBuffer;
 
         internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
         internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
@@ -50,7 +48,6 @@ namespace OpenSage.Graphics
 
         private void PostInitialize(AssetLoadContext loadContext)
         {
-            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
             _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
 
             BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
@@ -60,11 +57,9 @@ namespace OpenSage.Graphics
             {
                 var meshPart = MeshParts[i];
 
-                BeforeRenderDelegates[i] = (cl, context) =>
+                BeforeRenderDelegates[i] = (CommandList cl, Rendering.RenderContext context, in RenderItem renderItem) =>
                 {
-                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
+                    cl.SetGraphicsResourceSet(2, meshPart.MaterialResourceSet);
 
                     cl.SetVertexBuffer(0, _vertexBuffer);
 
@@ -74,10 +69,8 @@ namespace OpenSage.Graphics
                     }
                 };
 
-                BeforeRenderDelegatesDepth[i] = (cl, context) =>
+                BeforeRenderDelegatesDepth[i] = (CommandList cl, Rendering.RenderContext context, in RenderItem renderItem) =>
                 {
-                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-
                     cl.SetVertexBuffer(0, _vertexBuffer);
 
                     if (meshPart.TexCoordVertexBuffer != null)
@@ -192,7 +185,7 @@ namespace OpenSage.Graphics
                     : renderList.Opaque;
 
                 renderQueue.RenderItems.Add(new RenderItem(
-                    Name,
+                    FullName,
                     _shaderSet,
                     forceBlendEnabled ? meshPart.PipelineBlend : meshPart.Pipeline,
                     meshBoundingBox,

@@ -29,8 +29,7 @@ namespace OpenSage.Terrain
             Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet,
-            ResourceSet radiusCursorDecalsResourceSet)
+            ResourceSet materialResourceSet)
         {
             Bounds = patchBounds;
 
@@ -52,10 +51,9 @@ namespace OpenSage.Terrain
             BoundingBox = boundingBox;
             Triangles = triangles;
 
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(4, materialResourceSet);
-                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
+                cl.SetGraphicsResourceSet(2, materialResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }

@@ -19,37 +19,40 @@ struct Light
 
 #define NUM_LIGHTS 3
 
-struct GlobalLightingConstantsPSType
+struct LightingConfiguration
 {
     Light[NUM_LIGHTS] Lights;
 };
 
-#define MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform GlobalLightingConstantsVS \
-    { \
-        GlobalLightingConstantsVSType _GlobalLightingConstantsVS; \
-    };
-
-#define MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(resourceSet) \
-    layout(set = resourceSet, binding = 1) uniform GlobalLightingConstantsPS \
-    { \
-        GlobalLightingConstantsPSType _GlobalLightingConstantsPS; \
-    };
-
-vec3 CalculateViewVector(vec3 cameraPosition, vec3 worldPosition)
+struct GlobalLightingConstantsPSType
 {
-    return normalize(cameraPosition - worldPosition);
+    LightingConfiguration Terrain;
+    LightingConfiguration Object;
+};
+
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 0) uniform GlobalLightingConstantsVS
+{
+    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
+};
+
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 1) uniform GlobalLightingConstantsPS
+{
+    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
+};
+
+vec3 CalculateViewVector(vec3 worldPosition)
+{
+    return normalize(_GlobalConstants.CameraPosition - worldPosition);
 }
 
 void DoLighting(
-    GlobalLightingConstantsPSType lightingConstantsPS,
+    LightingConfiguration lightingConfiguration,
     vec3 worldPosition,
     vec3 worldNormal,
     vec3 materialAmbient,
     vec3 materialDiffuse,
     vec3 materialSpecular,
     float materialShininess,
-    vec3 cameraPosition,
     bool specularEnabled,
     vec3 shadowVisibility,
     out vec3 diffuseColor,
@@ -60,7 +63,7 @@ void DoLighting(
 
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
-        Light light = lightingConstantsPS.Lights[i];
+        Light light = lightingConfiguration.Lights[i];
 
         vec3 ambient = light.Ambient * materialAmbient;
 
@@ -70,7 +73,7 @@ void DoLighting(
 
         if (specularEnabled)
         {
-            vec3 v = CalculateViewVector(cameraPosition, worldPosition);
+            vec3 v = CalculateViewVector(worldPosition);
             vec3 h = normalize(v - light.Direction);
             specularColor +=
                 saturate(dot(worldNormal, h)) *

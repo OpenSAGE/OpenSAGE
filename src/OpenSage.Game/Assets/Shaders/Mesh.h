@@ -2,8 +2,6 @@
 
 #define MESH_H
 
-#include "Cloud.h"
-
 #define MESH_VERTEX_INPUTS \
     layout(location = 0) in vec3 in_Position0; \
     layout(location = 1) in vec3 in_Position1; \
@@ -38,48 +36,25 @@ struct RenderItemConstantsPSType
     float _Padding;
 };
 
-#define MAKE_MESH_CONSTANTS_RESOURCES(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform MeshConstants \
-    { \
-        MeshConstantsType _MeshConstants; \
-    }; \
+layout(set = RENDER_ITEM_CONSTANTS_RESOURCE_SET, binding = 0) uniform MeshConstants
+{
+    MeshConstantsType _MeshConstants;
+};
 
-#define MAKE_MESH_RESOURCES_VS() \
-    MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0) \
-    \
-    MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(1) \
-    \
-    MAKE_MESH_CONSTANTS_RESOURCES(4) \
-    \
-    layout(set = 7, binding = 0) uniform RenderItemConstantsVS \
-    { \
-        RenderItemConstantsVSType _RenderItemConstantsVS; \
-    }; \
-    \
-    layout(set = 8, binding = 0) readonly buffer SkinningBuffer \
-    { \
-        mat4 _SkinningBuffer[]; \
-    };
+layout(set = RENDER_ITEM_CONSTANTS_RESOURCE_SET, binding = 1) uniform RenderItemConstantsVS
+{
+    RenderItemConstantsVSType _RenderItemConstantsVS;
+};
 
-#define MAKE_MESH_RESOURCES_PS() \
-    MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0) \
-    \
-    MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1) \
-    \
-    MAKE_GLOBAL_CLOUD_RESOURCES_PS(2) \
-    \
-    MAKE_GLOBAL_SHADOW_RESOURCES_PS(3) \
-    \
-    MAKE_MESH_CONSTANTS_RESOURCES(4) \
-    \
-    layout(set = 6, binding = 0) uniform sampler Sampler; \
-    \
-    layout(set = 7, binding = 1) uniform RenderItemConstantsPS \
-    { \
-        RenderItemConstantsPSType _RenderItemConstantsPS; \
-    };
+layout(set = RENDER_ITEM_CONSTANTS_RESOURCE_SET, binding = 2) readonly buffer SkinningBuffer
+{
+    mat4 _SkinningBuffer[];
+};
 
-#define MESH_MATERIAL_RESOURCE_SET 5
+layout(set = RENDER_ITEM_CONSTANTS_RESOURCE_SET, binding = 3) uniform RenderItemConstantsPS
+{
+    RenderItemConstantsPSType _RenderItemConstantsPS;
+};
 
 void GetSkinnedVertexData(
     vec3 inputPosition0,
@@ -104,15 +79,16 @@ void VSSkinnedInstancedPositionOnly(
     vec3 inputPosition,
     out vec4 position,
     out vec3 worldPosition,
-    mat4 world,
-    mat4 viewProjection)
+    mat4 world)
 {
     vec4 worldPositionHomogeneous = world * vec4(inputPosition, 1);
 
-    position = viewProjection * worldPositionHomogeneous;
+    position = _GlobalConstants.ViewProjection * worldPositionHomogeneous;
 
     worldPosition = worldPositionHomogeneous.xyz;
 }
+
+#if FORWARD_PASS
 
 void VSSkinnedInstanced(
     vec3 inputPosition,
@@ -121,24 +97,19 @@ void VSSkinnedInstanced(
     out vec3 worldPosition,
     out vec3 worldNormal,
     out vec2 cloudUV,
-    mat4 world,
-    mat4 viewProjection,
-    mat4 cloudShadowMatrix,
-    float timeInSeconds)
+    mat4 world)
 {
     VSSkinnedInstancedPositionOnly(
         inputPosition,
         position,
         worldPosition,
-        world,
-        viewProjection);
+        world);
 
     worldNormal = TransformNormal(inputNormal, world);
 
-    cloudUV = GetCloudUV(
-        worldPosition,
-        cloudShadowMatrix,
-        timeInSeconds);
+    cloudUV = GetCloudUV(worldPosition);
 }
+
+#endif
 
 #endif

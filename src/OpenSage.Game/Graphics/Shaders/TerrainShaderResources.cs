@@ -20,7 +20,6 @@ namespace OpenSage.Graphics.Shaders
             : base(
                 graphicsDevice,
                 "Terrain",
-                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
                 TerrainVertex.VertexDescriptor)
         {
             _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -37,9 +36,7 @@ namespace OpenSage.Graphics.Shaders
             var resourceLayouts = new[]
             {
                 globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
+                globalShaderResources.ForwardPassResourceLayout,
                 _materialResourceLayout,
                 radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
             };

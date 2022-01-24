@@ -23,7 +23,6 @@ namespace OpenSage.Graphics.Shaders
             : base(
                  graphicsDevice,
                  "Sprite",
-                 new GlobalResourceSetIndices(null, LightingType.None, null, null, null, null),
                  SpriteVertex.VertexDescriptor)
         {
             _pipelines = new Dictionary<PipelineKey, Pipeline>();

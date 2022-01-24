@@ -2,19 +2,9 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-#include "Shadows.h"
+#include "ForwardPass.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
-
-MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1)
-
-MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
-
-MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
-
-layout(set = 4, binding = 0) uniform WaterConstantsPS
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 0) uniform WaterConstantsPS
 {
     vec2 UVOffset;
     float FarPlaneDistance;
@@ -26,14 +16,15 @@ layout(set = 4, binding = 0) uniform WaterConstantsPS
     vec4 DiffuseColor;
     vec4 TransparentDiffuseColor;
 };
-layout(set = 4, binding = 1) uniform texture2D WaterTexture;
-layout(set = 4, binding = 2) uniform texture2D BumpTexture;
-layout(set = 4, binding = 3) uniform sampler WaterSampler;
-layout(set = 4, binding = 4) uniform texture2D ReflectionMap;
-layout(set = 4, binding = 5) uniform sampler ReflectionMapSampler;
-layout(set = 4, binding = 6) uniform texture2D RefractionMap;
-layout(set = 4, binding = 7) uniform sampler RefractionMapSampler;
-layout(set = 4, binding = 8) uniform texture2D RefractionDepthMap;
+
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 1) uniform texture2D WaterTexture;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 2) uniform texture2D BumpTexture;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 3) uniform sampler WaterSampler;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 4) uniform texture2D ReflectionMap;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 5) uniform sampler ReflectionMapSampler;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 6) uniform texture2D RefractionMap;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 7) uniform sampler RefractionMapSampler;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 8) uniform texture2D RefractionDepthMap;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec2 in_CloudUV;
@@ -56,7 +47,7 @@ float getLinearDepthMap(float nearPlaneDistance, float farPlaneDistance, float d
 void main()
 {
     vec2 waterUV = vec2(in_WorldPosition.x / 320, in_WorldPosition.y / 320);
-    vec3 viewVector = CalculateViewVector(_GlobalConstants.CameraPosition, in_WorldPosition);
+    vec3 viewVector = CalculateViewVector(in_WorldPosition);
         
     //this assumes that the normal vector points upwards
     float fresnelFactor = dot(viewVector, vec3(0.0f, 0.0f, 1.0f));
@@ -75,32 +66,28 @@ void main()
     float linearPlaneDepth = getLinearDepthMap(NearPlaneDistance, FarPlaneDistance, gl_FragCoord.z);
     float linearWaterDepth = linearRefractionDepth -  linearPlaneDepth;
     
-    vec3 cloudColor = GetCloudColor(Global_CloudTexture, WaterSampler, in_CloudUV + distortion);
+    vec3 cloudColor = GetCloudColor(in_CloudUV + distortion);
     vec3 worldNormal = texture(sampler2D(BumpTexture, WaterSampler), waterUV + distortion).xyz;
 
-    float nDotL = saturate(dot(worldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
+    float nDotL = saturate(dot(worldNormal, -_GlobalLightingConstantsPS.Terrain.Lights[0].Direction));
     vec3 shadowVisibility = ShadowVisibility(
-        Global_ShadowMap,
-        Global_ShadowSampler,
         in_WorldPosition, 
         in_ViewSpaceDepth, 
         nDotL, 
         worldNormal, 
-        ivec2(gl_FragCoord.xy), 
-        _ShadowConstantsPS);
+        ivec2(gl_FragCoord.xy));
 
     vec3 diffuseColor;
     vec3 specularColor;
 
     DoLighting(
-        _GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS.Terrain,
         in_WorldPosition,
         worldNormal,
         vec3(1, 1, 1),
         DiffuseColor.xyz,
         vec3(0, 0, 0),
         0,
-        _GlobalConstants.CameraPosition,
         false,
         shadowVisibility,
         diffuseColor,

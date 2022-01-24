@@ -4,20 +4,6 @@
 #include "Common.h"
 #include "Mesh.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
-
-MAKE_MESH_CONSTANTS_RESOURCES(1)
-
-layout(set = 2, binding = 0) uniform RenderItemConstantsVS
-{
-    RenderItemConstantsVSType _RenderItemConstantsVS;
-};
-
-layout(set = 3, binding = 0) readonly buffer SkinningBuffer
-{
-    mat4 _SkinningBuffer[];
-};
-
 MESH_VERTEX_INPUTS
 
 void main()
@@ -45,8 +31,7 @@ void main()
         modifiedPosition,
         gl_Position,
         worldPosition,
-        _RenderItemConstantsVS.World,
-        _GlobalConstants.ViewProjection);
+        _RenderItemConstantsVS.World);
 
     DO_CLIPPING(worldPosition)
 }

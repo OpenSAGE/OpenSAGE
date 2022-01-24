@@ -37,8 +37,7 @@ namespace OpenSage.Terrain.Roads
         internal Road(
             AssetLoadContext loadContext,
             HeightMap heightMap,
-            RoadNetwork network,
-            ResourceSet radiusCursorDecalsResourceSet)
+            RoadNetwork network)
         {
             _debugName = network.Template.Name;
 
@@ -69,10 +68,9 @@ namespace OpenSage.Terrain.Roads
             // TODO: Cache these resource sets in some sort of scoped data context.
             _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(network.Template.Texture.Value));
 
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(4, _resourceSet);
-                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
+                cl.SetGraphicsResourceSet(2, _resourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
 

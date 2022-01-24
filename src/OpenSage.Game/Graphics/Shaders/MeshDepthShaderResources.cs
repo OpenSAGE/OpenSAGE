@@ -1,4 +1,5 @@
-﻿using OpenSage.Graphics.Rendering.Shadows;
+﻿using System;
+using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Rendering;
 using Veldrid;
 
@@ -15,19 +16,23 @@ namespace OpenSage.Graphics.Shaders
             : base(
                 graphicsDevice,
                 "MeshDepth",
-                new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, 2u),
                 MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             var depthRasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
             depthRasterizerState.DepthClipEnabled = false;
             depthRasterizerState.ScissorTestEnabled = false;
 
+            var emptyResourceLayout = AddDisposable(
+                graphicsDevice.ResourceFactory.CreateResourceLayout(
+                    new ResourceLayoutDescription(
+                        Array.Empty<ResourceLayoutElementDescription>())));
+
             var resourceLayouts = new[]
             {
                 globalShaderResources.GlobalConstantsResourceLayout,
-                meshShaderResources.MeshConstantsResourceLayout,
+                emptyResourceLayout,
+                emptyResourceLayout,
                 meshShaderResources.RenderItemConstantsResourceLayout,
-                meshShaderResources.SkinningResourceLayout
             };
 
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(

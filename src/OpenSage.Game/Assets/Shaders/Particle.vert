@@ -2,16 +2,15 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
+#include "ForwardPass.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
-
-layout(set = 1, binding = 0) uniform ParticleConstants
+layout(set = 2, binding = 0) uniform ParticleConstants
 {
     vec3 _Padding;
     bool _IsGroundAligned;
 };
 
-layout(set = 2, binding = 0) uniform RenderItemConstants
+layout(set = 3, binding = 0) uniform RenderItemConstants
 {
     mat4 _World;
 };

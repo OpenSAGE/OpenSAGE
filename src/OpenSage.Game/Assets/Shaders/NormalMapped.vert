@@ -2,10 +2,8 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
+#include "ForwardPass.h"
 #include "Mesh.h"
-
-MAKE_MESH_RESOURCES_VS()
 
 MESH_VERTEX_INPUTS
 
@@ -43,10 +41,7 @@ void main()
         out_WorldPosition,
         out_WorldNormal,
         out_CloudUV,
-        _RenderItemConstantsVS.World,
-        _GlobalConstants.ViewProjection,
-        _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstants.TimeInSeconds);
+        _RenderItemConstantsVS.World);
         
     DO_CLIPPING(out_WorldPosition)
 

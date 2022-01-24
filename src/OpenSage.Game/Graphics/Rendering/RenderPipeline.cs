@@ -7,7 +7,6 @@ using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
-using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
@@ -32,10 +31,6 @@ namespace OpenSage.Graphics.Rendering
         private readonly GraphicsLoadContext _loadContext;
         private readonly GlobalShaderResources _globalShaderResources;
         private readonly GlobalShaderResourceData _globalShaderResourceData;
-
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsPS> _renderItemConstantsBufferPS;
-        private readonly ResourceSet _renderItemConstantsResourceSet;
 
         private readonly DrawingContext2D _drawingContext;
 
@@ -64,16 +59,7 @@ namespace OpenSage.Graphics.Rendering
             _loadContext = game.GraphicsLoadContext;
 
             _globalShaderResources = game.GraphicsLoadContext.ShaderResources.Global;
-            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources));
-
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
-            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
-
-            _renderItemConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    game.GraphicsLoadContext.ShaderResources.Mesh.RenderItemConstantsResourceLayout,
-                    _renderItemConstantsBufferVS.Buffer,
-                    _renderItemConstantsBufferPS.Buffer)));
+            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources, game.GraphicsLoadContext.StandardGraphicsResources));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
@@ -83,7 +69,7 @@ namespace OpenSage.Graphics.Rendering
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
-            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
+            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice));
             _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
 
             _textureCopier = AddDisposable(new TextureCopier(
@@ -182,16 +168,16 @@ namespace OpenSage.Graphics.Rendering
             Scene3D scene,
             RenderContext context)
         {
-            ResourceSet cloudResourceSet;
+            Texture cloudTexture;
             if (scene.Lighting.TimeOfDay != TimeOfDay.Night
                 && scene.Lighting.EnableCloudShadows
                 && scene.Terrain != null)
             {
-                cloudResourceSet = scene.Terrain.CloudResourceSet;
+                cloudTexture = scene.Terrain.CloudTexture;
             }
             else
             {
-                cloudResourceSet = _globalShaderResources.DefaultCloudResourceSet;
+                cloudTexture = _loadContext.StandardGraphicsResources.SolidWhiteTexture;
             }
 
             // Shadow map passes.
@@ -222,6 +208,11 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.PushDebugGroup("Forward pass");
 
+            var forwardPassResourceSet = _globalShaderResourceData.GetForwardPassResourceSet(
+                cloudTexture,
+                _shadowMapRenderer.ShadowConstantsPSBuffer,
+                _shadowMapRenderer.ShadowMap);
+
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
             _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, scene.Camera.ViewProjection, null, null);
@@ -234,23 +225,23 @@ namespace OpenSage.Graphics.Rendering
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
             commandList.PushDebugGroup("Terrain");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Road");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Opaque");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
-            RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Water");
-            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, cloudResourceSet);
+            DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
@@ -260,7 +251,7 @@ namespace OpenSage.Graphics.Rendering
                 new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
         }
 
-        private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet cloudResourceSet)
+        private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
         {
             _waterMapRenderer.RenderWaterShaders(
                 scene,
@@ -293,8 +284,8 @@ namespace OpenSage.Graphics.Rendering
 
                         commandList.SetFullViewports();
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlaneTop, clippingPlaneBottom);
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlaneTop, clippingPlaneBottom);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlaneTop, clippingPlaneBottom);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, forwardPassResourceSet, clippingPlaneTop, clippingPlaneBottom);
                         commandList.PopDebugGroup();
                     }
 
@@ -312,7 +303,7 @@ namespace OpenSage.Graphics.Rendering
                         commandList.ClearColorTarget(0, ClearColor);
                         commandList.ClearDepthStencil(1);
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
                         // -----------------------------------------------------------------------
 
                         // Render inverted scene for water reflection shader
@@ -325,8 +316,8 @@ namespace OpenSage.Graphics.Rendering
 
                         commandList.SetFullViewports();
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, cloudResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
+                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
 
                         camera.SetMirrorX(pivot);
                         commandList.PopDebugGroup();
@@ -342,9 +333,6 @@ namespace OpenSage.Graphics.Rendering
                         commandList.InsertDebugMarker("Setting pipeline");
                         commandList.SetPipeline(renderItem.Pipeline);
                     }
-
-                    SetGlobalResources(commandList, renderItem.ShaderSet.GlobalResourceSetIndices, cloudResourceSet);
-                    commandList.SetGraphicsResourceSet(4, _waterMapRenderer.ResourceSetForRendering);
                 });
         }
 
@@ -353,7 +341,7 @@ namespace OpenSage.Graphics.Rendering
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
-            ResourceSet cloudResourceSet,
+            ResourceSet forwardPassResourceSet,
             in Plane? clippingPlane1 = null,
             in Plane? clippingPlane2 = null)
         {
@@ -365,7 +353,6 @@ namespace OpenSage.Graphics.Rendering
                 return 0;
             }
 
-            Matrix4x4? lastWorld = null;
             int? lastRenderItemIndex = null;
 
             foreach (var i in bucket.RenderItems.CulledItemIndices)
@@ -374,35 +361,26 @@ namespace OpenSage.Graphics.Rendering
 
                 commandList.PushDebugGroup($"Render item: {renderItem.DebugName}");
 
+                var passResourceSet = (bucket.RenderItemName == "Shadow")
+                    ? null
+                    : forwardPassResourceSet;
+
                 if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Pipeline != renderItem.Pipeline)
                 {
                     commandList.InsertDebugMarker("Setting pipeline");
                     commandList.SetPipeline(renderItem.Pipeline);
-                    SetGlobalResources(commandList, renderItem.ShaderSet.GlobalResourceSetIndices, cloudResourceSet);
-                }
-
-                if (renderItem.ShaderSet.GlobalResourceSetIndices.RenderItemConstants != null)
-                {
-                    if (lastWorld == null || lastWorld.Value != renderItem.World)
-                    {
-                        _renderItemConstantsBufferVS.Value.World = renderItem.World;
-                        _renderItemConstantsBufferVS.Update(commandList);
-
-                        lastWorld = renderItem.World;
-                    }
-
-                    if (renderItem.RenderItemConstantsPS != null)
-                    {
-                        _renderItemConstantsBufferPS.Value = renderItem.RenderItemConstantsPS.Value;
-                        _renderItemConstantsBufferPS.Update(commandList);
-                    }
+                    SetGlobalResources(commandList, passResourceSet);
                 }
 
                 if (bucket.RenderItemName == "Water")
                 {
-                    CalculateWaterShaderMap(context.Scene3D, context, commandList, renderItem, cloudResourceSet);
+                    CalculateWaterShaderMap(context.Scene3D, context, commandList, renderItem, forwardPassResourceSet);
+
+                    SetGlobalResources(commandList, passResourceSet);
+                    commandList.SetGraphicsResourceSet(2, _waterMapRenderer.ResourceSetForRendering);
                 }
-                renderItem.BeforeRenderCallback.Invoke(commandList, context);
+
+                renderItem.BeforeRenderCallback.Invoke(commandList, context, renderItem);
 
                 commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
                 commandList.DrawIndexed(
@@ -420,40 +398,13 @@ namespace OpenSage.Graphics.Rendering
             return bucket.RenderItems.CulledItemIndices.Count;
         }
 
-        private void SetGlobalResources(
-            CommandList commandList,
-            GlobalResourceSetIndices indices,
-            ResourceSet cloudResourceSet)
+        private void SetGlobalResources(CommandList commandList, ResourceSet passResourceSet)
         {
-            if (indices.GlobalConstants != null)
-            {
-                commandList.SetGraphicsResourceSet(indices.GlobalConstants.Value, _globalShaderResourceData.GlobalConstantsResourceSet);
-            }
+            commandList.SetGraphicsResourceSet(0, _globalShaderResourceData.GlobalConstantsResourceSet);
 
-            switch (indices.LightingType)
+            if (passResourceSet != null)
             {
-                case LightingType.Terrain:
-                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalShaderResourceData.GlobalLightingConstantsTerrainResourceSet);
-                    break;
-
-                case LightingType.Object:
-                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalShaderResourceData.GlobalLightingConstantsObjectResourceSet);
-                    break;
-            }
-
-            if (indices.CloudConstants != null)
-            {
-                commandList.SetGraphicsResourceSet(indices.CloudConstants.Value, cloudResourceSet);
-            }
-
-            if (indices.ShadowConstants != null)
-            {
-                commandList.SetGraphicsResourceSet(indices.ShadowConstants.Value, _shadowMapRenderer.ResourceSetForRendering);
-            }
-
-            if (indices.RenderItemConstants != null)
-            {
-                commandList.SetGraphicsResourceSet(indices.RenderItemConstants.Value, _renderItemConstantsResourceSet);
+                commandList.SetGraphicsResourceSet(1, passResourceSet);
             }
         }
     }

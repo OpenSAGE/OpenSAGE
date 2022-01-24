@@ -99,12 +99,11 @@ public abstract class MaterialDefinition : DisposableBase
     protected MaterialDefinition(
         MaterialDefinitionStore store,
         string shaderName,
-        GlobalResourceSetIndices globalResourceSetIndices,
         params VertexLayoutDescription[] vertexDescriptors)
     {
         Id = store.GetNextMaterialDefinitionId();
         GraphicsDevice = store.GraphicsDevice;
-        ShaderSet = AddDisposable(new ShaderSet(store.GraphicsDevice.ResourceFactory, shaderName, globalResourceSetIndices, vertexDescriptors));
+        ShaderSet = AddDisposable(new ShaderSet(store.GraphicsDevice.ResourceFactory, shaderName, vertexDescriptors));
     }
 
     internal byte GetNextMaterialId()

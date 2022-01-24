@@ -19,8 +19,7 @@ namespace OpenSage.Terrain.Roads
         internal RoadCollection(
             RoadTopology topology,
             AssetLoadContext loadContext,
-            HeightMap heightMap,
-            ResourceSet radiusCursorDecalsResourceSet)
+            HeightMap heightMap)
             : this()
         {
             // The map stores road segments with no connectivity:
@@ -48,8 +47,7 @@ namespace OpenSage.Terrain.Roads
                 _roads.Add(AddDisposable(new Road(
                         loadContext,
                         heightMap,
-                        network,
-                        radiusCursorDecalsResourceSet)));
+                        network)));
             }
         }
 

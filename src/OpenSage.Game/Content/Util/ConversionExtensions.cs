@@ -263,13 +263,13 @@ namespace OpenSage.Content.Util
         private static LightSettings ToLightSettings(this GlobalLightingConfiguration mapLightingConfiguration)
         {
             return new LightSettings(
-                new GlobalShaderResources.LightingConstantsPS
+                new GlobalShaderResources.LightingConfiguration
                 {
                     Light0 = ToLight(mapLightingConfiguration.TerrainSun),
                     Light1 = ToLight(mapLightingConfiguration.TerrainAccent1),
                     Light2 = ToLight(mapLightingConfiguration.TerrainAccent2),
                 },
-                new GlobalShaderResources.LightingConstantsPS
+                new GlobalShaderResources.LightingConfiguration
                 {
                     // RA3 and later only had one light defined per time of day.
                     Light0 = ToLight(mapLightingConfiguration.ObjectSun ?? mapLightingConfiguration.TerrainSun),
