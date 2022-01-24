@@ -10,18 +10,18 @@ namespace OpenSage.Content
         public GraphicsDevice GraphicsDevice { get; }
         public StandardGraphicsResources StandardGraphicsResources { get; }
         public ShaderResourceManager ShaderResources { get; }
-        public MaterialDefinitionStore MaterialDefinitionStore { get; }
+        public ShaderSetStore ShaderSetStore { get; }
 
         public GraphicsLoadContext(
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
-            MaterialDefinitionStore materialDefinitionStore)
+            ShaderSetStore shaderSetStore)
         {
             GraphicsDevice = graphicsDevice;
             StandardGraphicsResources = standardGraphicsResources;
             ShaderResources = shaderResources;
-            MaterialDefinitionStore = materialDefinitionStore;
+            ShaderSetStore = shaderSetStore;
         }
     }
 }

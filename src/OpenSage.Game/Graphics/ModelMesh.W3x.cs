@@ -100,7 +100,7 @@ namespace OpenSage.Graphics
 
             _boundingBox = w3xMesh.BoundingBox;
 
-            _shaderSet = shaderResources.ShaderSet;
+            _shaderSet = shaderResources;
 
             Skinned = w3xMesh.GeometryType == MeshGeometryType.Skin;
             Hidden = w3xMesh.Hidden;

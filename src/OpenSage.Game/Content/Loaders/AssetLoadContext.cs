@@ -13,7 +13,7 @@ namespace OpenSage.Content.Loaders
         public GraphicsDevice GraphicsDevice { get; }
         public StandardGraphicsResources StandardGraphicsResources { get; }
         public ShaderResourceManager ShaderResources { get; }
-        public MaterialDefinitionStore MaterialDefinitionStore { get; }
+        public ShaderSetStore ShaderSetStore { get; }
         public AssetStore AssetStore { get; }
 
         public AssetLoadContext(
@@ -22,7 +22,7 @@ namespace OpenSage.Content.Loaders
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
-            MaterialDefinitionStore materialDefinitionStore,
+            ShaderSetStore shaderSetStore,
             AssetStore assetStore)
         {
             FileSystem = fileSystem;
@@ -30,7 +30,7 @@ namespace OpenSage.Content.Loaders
             GraphicsDevice = graphicsDevice;
             StandardGraphicsResources = standardGraphicsResources;
             ShaderResources = shaderResources;
-            MaterialDefinitionStore = materialDefinitionStore;
+            ShaderSetStore = shaderSetStore;
             AssetStore = assetStore;
         }
     }

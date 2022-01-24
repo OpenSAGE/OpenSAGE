@@ -474,9 +474,9 @@ namespace OpenSage
                 _wndCallbackResolver = new WndCallbackResolver();
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
-                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources));
-                var materialDefinitionStore = AddDisposable(new MaterialDefinitionStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
-                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, materialDefinitionStore);
+                var shaderSetStore = AddDisposable(new ShaderSetStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
 
                 AssetStore = new AssetStore(
                     SageGame,
@@ -485,7 +485,7 @@ namespace OpenSage
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
-                    GraphicsLoadContext.MaterialDefinitionStore,
+                    shaderSetStore,
                     Definition.CreateAssetLoadStrategy());
 
                 // TODO

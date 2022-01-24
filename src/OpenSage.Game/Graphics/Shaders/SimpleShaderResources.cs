@@ -1,20 +1,13 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
     internal sealed class SimpleShaderResources : ShaderMaterialShaderResources
     {
-        public SimpleShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            MeshShaderResources meshShaderResources)
-            : base(
-                graphicsDevice,
-                globalShaderResources,
-                meshShaderResources,
-                "Simple",
-                CreateMaterialResourceBindings)
+        public SimpleShaderResources(ShaderSetStore store)
+            : base(store, "Simple", CreateMaterialResourceBindings)
         {
 
         }

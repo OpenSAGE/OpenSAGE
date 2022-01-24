@@ -49,97 +49,36 @@ public readonly struct RenderKey
     }
 }
 
-public sealed class RenderContext
+//public sealed class RenderContext
+//{
+//}
+
+public sealed class Material : DisposableBase
 {
-}
-
-public sealed class MaterialDefinitionStore : DisposableBase
-{
-    private readonly Dictionary<Type, MaterialDefinition> _definitions = new();
-
-    private byte _nextMaterialDefinitionId;
-
-    public readonly GraphicsDevice GraphicsDevice;
-    public readonly OutputDescription OutputDescription;
-
-    public MaterialDefinitionStore(GraphicsDevice graphicsDevice, OutputDescription outputDescription)
-    {
-        GraphicsDevice = graphicsDevice;
-        OutputDescription = outputDescription;
-    }
-
-    public T GetMaterialDefinition<T>(Func<T> createMaterialDefinition)
-        where T : MaterialDefinition
-    {
-        var key = typeof(T);
-
-        if (!_definitions.TryGetValue(key, out var result))
-        {
-            result = AddDisposable(createMaterialDefinition());
-            _definitions.Add(key, result);
-        }
-
-        return (T)result;
-    }
-
-    internal byte GetNextMaterialDefinitionId()
-    {
-        return checked(_nextMaterialDefinitionId++);
-    }
-}
-
-public abstract class MaterialDefinition : DisposableBase
-{
-    private byte _nextMaterialId;
-
     public readonly byte Id;
-    public readonly GraphicsDevice GraphicsDevice;
+
     public readonly ShaderSet ShaderSet;
 
-    protected MaterialDefinition(
-        MaterialDefinitionStore store,
-        string shaderName,
-        params VertexLayoutDescription[] vertexDescriptors)
+    public readonly MaterialPass ForwardPass;
+    public readonly MaterialPass ShadowPass;
+
+    public Material(
+        ShaderSet shaderSet,
+        MaterialPass forwardPass,
+        MaterialPass shadowPass)
     {
-        Id = store.GetNextMaterialDefinitionId();
-        GraphicsDevice = store.GraphicsDevice;
-        ShaderSet = AddDisposable(new ShaderSet(store.GraphicsDevice.ResourceFactory, shaderName, vertexDescriptors));
-    }
+        Id = shaderSet.GetNextMaterialId();
 
-    internal byte GetNextMaterialId()
-    {
-        return checked(_nextMaterialId++);
-    }
-}
+        ShaderSet = shaderSet;
 
-public abstract class Material : DisposableBase
-{
-    public readonly byte Id;
-
-    public readonly MaterialDefinition Definition;
-    public readonly GraphicsDevice GraphicsDevice;
-    public readonly Pipeline Pipeline;
-
-    protected Material(MaterialDefinition definition, Pipeline pipeline)
-    {
-        Id = definition.GetNextMaterialId();
-
-        Definition = definition;
-        GraphicsDevice = definition.GraphicsDevice;
-        Pipeline = pipeline;
+        ForwardPass = forwardPass;
+        ShadowPass = shadowPass;
     }
 
     public ulong RenderKey { get; } // TODO
-
-    public void Apply(CommandList commandList, RenderContext context)
-    {
-        commandList.SetPipeline(Pipeline);
-
-        ApplyCore(commandList, context);
-    }
-
-    protected abstract void ApplyCore(CommandList commandList, RenderContext context);
 }
+
+public sealed record MaterialPass(Pipeline Pipeline, ResourceSet MaterialResourceSet);
 
 public enum SurfaceType
 {

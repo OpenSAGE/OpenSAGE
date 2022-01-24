@@ -2,39 +2,20 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Mathematics;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class FixedFunctionShaderResources : ShaderResourcesBase
+    internal sealed class FixedFunctionShaderResources : ShaderSet
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
-        private readonly ResourceLayout _materialResourceLayout;
-        private readonly ResourceLayout[] _resourceLayouts;
 
         public FixedFunctionShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            MeshShaderResources meshShaderResources)
-            : base(
-                graphicsDevice,
-                "FixedFunction",
-                MeshShaderResources.MeshVertex.VertexDescriptors)
+            ShaderSetStore store)
+            : base(store, "FixedFunction", MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             _pipelines = new Dictionary<PipelineKey, Pipeline>();
-
-            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            _resourceLayouts = meshShaderResources.CreateResourceLayouts(
-                globalShaderResources,
-                _materialResourceLayout);
         }
 
         public Pipeline GetCachedPipeline(
@@ -81,9 +62,9 @@ namespace OpenSage.Graphics.Shaders
                         depthState,
                         rasterizerState,
                         PrimitiveTopology.TriangleList,
-                        ShaderSet.Description,
-                        _resourceLayouts,
-                        RenderPipeline.GameOutputDescription))));
+                        Description,
+                        ResourceLayouts,
+                        Store.OutputDescription))));
             }
 
             return result;
@@ -165,7 +146,7 @@ namespace OpenSage.Graphics.Shaders
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    _materialResourceLayout,
+                    MaterialResourceLayout,
                     materialConstantsBuffer,
                     texture0,
                     texture1,
