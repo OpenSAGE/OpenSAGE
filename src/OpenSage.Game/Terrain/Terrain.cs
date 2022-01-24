@@ -111,7 +111,7 @@ namespace OpenSage.Terrain
 
             CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
-            _shaderSet = loadContext.ShaderResources.Terrain.ShaderSet;
+            _shaderSet = loadContext.ShaderResources.Terrain;
             _pipeline = terrainPipeline;
 
             OnHeightMapChanged();

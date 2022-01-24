@@ -1,42 +1,38 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using Veldrid;
-using Veldrid.SPIRV;
+﻿using Veldrid;
 
 namespace OpenSage.Rendering;
 
-public sealed class ShaderSet : DisposableBase
+public abstract class ShaderSet : DisposableBase
 {
-    private const string EntryPoint = "main";
-
-    // TODO: Get this ID from elsewhere, not a static field.
-    private static byte NextId;
+    private byte _nextMaterialId;
 
     public readonly byte Id;
     public readonly ShaderSetDescription Description;
     public readonly ResourceLayout[] ResourceLayouts;
 
+    public GraphicsDevice GraphicsDevice => Store.GraphicsDevice;
+
+    protected readonly ShaderSetStore Store;
+
+    protected ResourceLayout MaterialResourceLayout => ResourceLayouts[2];
+
     public ShaderSet(
-        ResourceFactory factory,
+        ShaderSetStore store,
         string shaderName,
-        VertexLayoutDescription[] vertexDescriptors)
+        params VertexLayoutDescription[] vertexDescriptors)
     {
-        Id = NextId++;
+        Store = store;
 
-#if DEBUG
-        const bool debug = true;
-#else
-        const bool debug = false;
-#endif
+        Id = store.GetNextId();
 
-        var cacheFile = GetOrCreateCachedShaders(factory, shaderName, debug);
+        var factory = store.GraphicsDevice.ResourceFactory;
 
-        var vertexShader = AddDisposable(factory.CreateShader(new ShaderDescription(ShaderStages.Vertex, cacheFile.VsBytes, cacheFile.VsEntryPoint)));
+        var cacheFile = ShaderCrossCompiler.GetOrCreateCachedShaders(factory, shaderName);
+
+        var vertexShader = AddDisposable(factory.CreateShader(cacheFile.VertexShaderDescription));
         vertexShader.Name = $"{shaderName}.vert";
 
-        var fragmentShader = AddDisposable(factory.CreateShader(new ShaderDescription(ShaderStages.Fragment, cacheFile.FsBytes, cacheFile.FsEntryPoint)));
+        var fragmentShader = AddDisposable(factory.CreateShader(cacheFile.FragmentShaderDescription));
         fragmentShader.Name = $"{shaderName}.frag";
 
         Description = new ShaderSetDescription(
@@ -46,147 +42,14 @@ public sealed class ShaderSet : DisposableBase
         ResourceLayouts = new ResourceLayout[cacheFile.ResourceLayoutDescriptions.Length];
         for (var i = 0; i < cacheFile.ResourceLayoutDescriptions.Length; i++)
         {
-            ResourceLayouts[i] = AddDisposable(factory.CreateResourceLayout(ref cacheFile.ResourceLayoutDescriptions[i]));
+            ResourceLayouts[i] = AddDisposable(
+                factory.CreateResourceLayout(
+                    ref cacheFile.ResourceLayoutDescriptions[i]));
         }
     }
 
-    private static ShaderCacheFile GetOrCreateCachedShaders(
-        ResourceFactory factory,
-        string shaderName,
-        bool debug)
+    internal byte GetNextMaterialId()
     {
-        const string shaderCacheFolder = "ShaderCache";
-        var backendType = factory.BackendType;
-        var targetExtension = backendType.ToString().ToLowerInvariant();
-
-        if (!Directory.Exists(shaderCacheFolder))
-        {
-            Directory.CreateDirectory(shaderCacheFolder);
-        }
-
-        var vsSpvName = $"Assets/Shaders/{shaderName}.vert.spv";
-        var fsSpvName = $"Assets/Shaders/{shaderName}.frag.spv";
-
-        var vsSpvBytes = File.ReadAllBytes(vsSpvName);
-        var fsSpvBytes = File.ReadAllBytes(fsSpvName);
-
-        var spvHash = GetShaderHash(vsSpvBytes, fsSpvBytes);
-
-        // Look for cached shader file on disk match the input SPIR-V shaders.
-        var cacheFilePath = Path.Combine(shaderCacheFolder, $"OpenSage.Assets.Shaders.{shaderName}.{spvHash}.{targetExtension}");
-
-        if (ShaderCacheFile.TryLoad(cacheFilePath, out var shaderCacheFile))
-        {
-            // Cache is valid - use it.
-            return shaderCacheFile;
-        }
-
-        // Cache is invalid or doesn't exist - do cross-compilation.
-
-        // For Vulkan, we don't actually need to do cross-compilation. But we do need to get reflection data.
-        // So we cross-compile to HLSL, throw away the resulting HLSL, and use the reflection data.
-        var compilationTarget = backendType == GraphicsBackend.Vulkan
-            ? CrossCompileTarget.HLSL
-            : GetCompilationTarget(backendType);
-
-        var compilationResult = SpirvCompilation.CompileVertexFragment(
-            vsSpvBytes,
-            fsSpvBytes,
-            compilationTarget,
-            new CrossCompileOptions());
-
-        byte[] vsBytes, fsBytes;
-
-        switch (backendType)
-        {
-            case GraphicsBackend.Vulkan:
-                vsBytes = vsSpvBytes;
-                fsBytes = fsSpvBytes;
-                break;
-
-            case GraphicsBackend.Direct3D11:
-                vsBytes = CompileHlsl(compilationResult.VertexShader, "vs_5_0", debug);
-                fsBytes = CompileHlsl(compilationResult.FragmentShader, "ps_5_0", debug);
-                break;
-
-            case GraphicsBackend.OpenGL:
-            case GraphicsBackend.OpenGLES:
-                vsBytes = Encoding.ASCII.GetBytes(compilationResult.VertexShader);
-                fsBytes = Encoding.ASCII.GetBytes(compilationResult.FragmentShader);
-                break;
-
-            case GraphicsBackend.Metal:
-                // TODO: Compile to IR.
-                vsBytes = Encoding.UTF8.GetBytes(compilationResult.VertexShader);
-                fsBytes = Encoding.UTF8.GetBytes(compilationResult.FragmentShader);
-                break;
-
-            default:
-                throw new InvalidOperationException();
-        }
-
-        var entryPoint = factory.BackendType == GraphicsBackend.Metal
-            ? $"{EntryPoint}0"
-            : EntryPoint;
-
-        shaderCacheFile = new ShaderCacheFile(
-            entryPoint,
-            vsBytes,
-            entryPoint,
-            fsBytes,
-            compilationResult.Reflection.ResourceLayouts);
-
-        shaderCacheFile.Save(cacheFilePath);
-
-        return shaderCacheFile;
-    }
-
-    private static byte[] CompileHlsl(string hlsl, string profile, bool debug)
-    {
-        var flags = debug
-            ? SharpDX.D3DCompiler.ShaderFlags.Debug
-            : SharpDX.D3DCompiler.ShaderFlags.OptimizationLevel3;
-        var compilationResult = SharpDX.D3DCompiler.ShaderBytecode.Compile(
-            hlsl,
-            EntryPoint,
-            profile,
-            flags);
-
-        if (compilationResult.HasErrors)
-        {
-            throw new Exception(compilationResult.Message);
-        }
-
-        return compilationResult.Bytecode.Data;
-    }
-
-    private static string GetShaderHash(byte[] vsBytes, byte[] fsBytes)
-    {
-        using var sha256 = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-
-        sha256.AppendData(vsBytes);
-        sha256.AppendData(fsBytes);
-
-        var hash = sha256.GetCurrentHash();
-
-        var sb = new StringBuilder(hash.Length * 2);
-        foreach (var b in hash)
-        {
-            sb.Append(b.ToString("X2"));
-        }
-
-        return sb.ToString();
-    }
-
-    private static CrossCompileTarget GetCompilationTarget(GraphicsBackend backend)
-    {
-        return backend switch
-        {
-            GraphicsBackend.Direct3D11 => CrossCompileTarget.HLSL,
-            GraphicsBackend.OpenGL => CrossCompileTarget.GLSL,
-            GraphicsBackend.Metal => CrossCompileTarget.MSL,
-            GraphicsBackend.OpenGLES => CrossCompileTarget.ESSL,
-            _ => throw new SpirvCompilationException($"Invalid GraphicsBackend: {backend}"),
-        };
+        return checked(_nextMaterialId++);
     }
 }

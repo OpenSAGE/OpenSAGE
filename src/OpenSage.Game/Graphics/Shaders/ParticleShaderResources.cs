@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
@@ -9,80 +10,93 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class ParticleShaderResources : ShaderResourcesBase
+    internal sealed class ParticleShaderResources : ShaderSet
     {
         private readonly Pipeline _alphaPipeline;
         private readonly Pipeline _additivePipeline;
 
-        private readonly ResourceLayout _particleResourceLayout;
+        private readonly ConstantBuffer<ParticleConstantsVS> _particleConstantsBufferIsGroundAlignedFalse;
+        private readonly ConstantBuffer<ParticleConstantsVS> _particleConstantsBufferIsGroundAlignedTrue;
 
-        public ParticleShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources)
-            : base(
-                graphicsDevice,
-                "Particle",
-                ParticleVertex.VertexDescriptor)
+        private readonly Dictionary<ParticleMaterialKey, Material> _cachedMaterials = new();
+
+        public ParticleShaderResources(ShaderSetStore store)
+            : base(store, "Particle", ParticleVertex.VertexDescriptor)
         {
-            _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("RenderItemConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("ParticleConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                _particleResourceLayout
-            };
-
             Pipeline CreatePipeline(in BlendStateDescription blendStateDescription)
             {
-                return graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                    new GraphicsPipelineDescription(
-                        blendStateDescription,
-                        DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                        RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
-                        PrimitiveTopology.TriangleList,
-                        ShaderSet.Description,
-                        resourceLayouts,
-                        RenderPipeline.GameOutputDescription));
+                return AddDisposable(
+                    store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                        new GraphicsPipelineDescription(
+                            blendStateDescription,
+                            DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                            RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                            PrimitiveTopology.TriangleList,
+                            Description,
+                            ResourceLayouts,
+                            RenderPipeline.GameOutputDescription)));
             }
 
-            _alphaPipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAlphaBlend));
-            _additivePipeline = AddDisposable(CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha));
-        }
+            _alphaPipeline = CreatePipeline(BlendStateDescription.SingleAlphaBlend);
+            _additivePipeline = CreatePipeline(BlendStateDescriptionUtility.SingleAdditiveBlendNoAlpha);
 
-        public Pipeline GetCachedPipeline(ParticleSystemShader shader)
-        {
-            switch (shader)
+            ConstantBuffer<ParticleConstantsVS> CreateParticleConstantsBuffer(bool isGroundAligned)
             {
-                case ParticleSystemShader.Alpha:
-                case ParticleSystemShader.AlphaTest: // TODO: proper implementation for AlphaTest
-                    return _alphaPipeline;
-
-                case ParticleSystemShader.Additive:
-                    return _additivePipeline;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(shader));
+                var particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleConstantsVS>(store.GraphicsDevice));
+                particleConstantsBufferVS.Value.IsGroundAligned = isGroundAligned;
+                particleConstantsBufferVS.Update(store.GraphicsDevice);
+                return particleConstantsBufferVS;
             }
+
+            _particleConstantsBufferIsGroundAlignedFalse = CreateParticleConstantsBuffer(false);
+            _particleConstantsBufferIsGroundAlignedTrue = CreateParticleConstantsBuffer(true);
         }
 
-        public ResourceSet CreateParticleResoureSet(
-            DeviceBuffer renderItemConstantsBufferVS,
-            DeviceBuffer particleConstantsBufferVS,
-            Texture texture)
+        public Material GetMaterial(FXParticleSystemTemplate template)
         {
-            return GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    _particleResourceLayout,
-                    renderItemConstantsBufferVS,
-                    particleConstantsBufferVS,
-                    texture,
-                    GraphicsDevice.LinearSampler));
+            var key = new ParticleMaterialKey(
+                template.Shader,
+                template.IsGroundAligned,
+                template.ParticleTexture.Value.Texture);
+
+            if (!_cachedMaterials.TryGetValue(key, out var result))
+            {
+                var particleConstantsBuffer = template.IsGroundAligned
+                    ? _particleConstantsBufferIsGroundAlignedTrue
+                    : _particleConstantsBufferIsGroundAlignedFalse;
+
+                var materialResourceSet = AddDisposable(
+                    GraphicsDevice.ResourceFactory.CreateResourceSet(
+                        new ResourceSetDescription(
+                            ResourceLayouts[2],
+                            particleConstantsBuffer.Buffer,
+                            template.ParticleTexture.Value.Texture,
+                            GraphicsDevice.LinearSampler)));
+
+                var pipeline = template.Shader switch
+                {
+                    ParticleSystemShader.Alpha => _alphaPipeline,
+                    ParticleSystemShader.AlphaTest => _alphaPipeline, // TODO: Proper implementation
+                    ParticleSystemShader.Additive => _additivePipeline,
+                    _ => throw new ArgumentOutOfRangeException(nameof(template)),
+                };
+
+                result = AddDisposable(
+                    new Material(
+                        this,
+                        new MaterialPass(pipeline, materialResourceSet),
+                        null));
+
+                _cachedMaterials.Add(key, result);
+            }
+
+            return result;
         }
+
+        private readonly record struct ParticleMaterialKey(
+            ParticleSystemShader Shader,
+            bool IsGroundAligned,
+            Texture Texture);
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct ParticleVertex
@@ -101,8 +115,7 @@ namespace OpenSage.Graphics.Shaders
                 new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1));
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct ParticleConstantsVS
+        private struct ParticleConstantsVS
         {
             private readonly Vector3 _padding;
             public Bool32 IsGroundAligned;

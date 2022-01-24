@@ -8,6 +8,7 @@ using OpenSage.Content.Util;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -20,7 +21,7 @@ namespace OpenSage.Graphics
             SetNameAndInstanceId("W3DMesh", w3dMesh.Header.MeshName);
 
             W3dShaderMaterial w3dShaderMaterial;
-            ShaderResourcesBase shaderResources;
+            ShaderSet shaderResources;
             if (w3dMesh.MaterialPasses.Count == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialIds != null)
             {
                 if (w3dMesh.MaterialPasses[0].ShaderMaterialIds.Items.Length > 1)
@@ -77,7 +78,7 @@ namespace OpenSage.Graphics
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
 
-            _shaderSet = shaderResources.ShaderSet;
+            _shaderSet = shaderResources;
 
             Skinned = w3dMesh.IsSkinned;
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);

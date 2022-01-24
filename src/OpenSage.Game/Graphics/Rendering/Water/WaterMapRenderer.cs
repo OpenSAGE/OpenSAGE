@@ -54,7 +54,7 @@ namespace OpenSage.Graphics.Rendering.Water
             GraphicsDevice graphicsDevice,
             GlobalShaderResources globalShaderResources)
         {
-            _waterShaderResources = new WaterShaderResources(graphicsDevice, globalShaderResources);
+            _waterShaderResources = graphicsLoadContext.ShaderResources.Water;
 
             var _waterSets = assetStore.WaterSets;
             _waterTextureSet = new Dictionary<TimeOfDay, Texture>();

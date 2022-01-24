@@ -6,21 +6,16 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class WaterShaderResources : ShaderResourcesBase
+    internal sealed class WaterShaderResources : ShaderSet
     {
         public readonly ResourceLayout WaterResourceLayout;
 
         public readonly Pipeline Pipeline;
 
-        public WaterShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources)
-            : base(
-                graphicsDevice,
-                "Water",
-                WaterVertex.VertexDescriptor)
+        public WaterShaderResources(ShaderSetStore store)
+            : base(store, "Water", WaterVertex.VertexDescriptor)
         {
-            WaterResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            WaterResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("WaterConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
@@ -32,21 +27,14 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("RefractionMapSampler", ResourceKind.Sampler, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("RefractionDepthMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.ForwardPassResourceLayout,
-                WaterResourceLayout
-            };
-
-            Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+            Pipeline = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
                     BlendStateDescription.SingleAlphaBlend,
                     DepthStencilStateDescription.DepthOnlyLessEqualRead,
                     RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                     PrimitiveTopology.TriangleList,
-                    ShaderSet.Description,
-                    resourceLayouts,
+                    Description,
+                    ResourceLayouts,
                     RenderPipeline.GameOutputDescription)));
         }
 

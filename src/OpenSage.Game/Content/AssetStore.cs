@@ -182,7 +182,7 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
-            MaterialDefinitionStore materialDefinitionStore,
+            ShaderSetStore shaderSetStore,
             OnDemandAssetLoadStrategy loadStrategy)
         {
             LoadContext = new AssetLoadContext(
@@ -191,7 +191,7 @@ namespace OpenSage.Content
                 graphicsDevice,
                 standardGraphicsResources,
                 shaderResources,
-                materialDefinitionStore,
+                shaderSetStore,
                 this);
 
             _scopedSingleAssetStorage = new List<IScopedSingleAssetStorage>();

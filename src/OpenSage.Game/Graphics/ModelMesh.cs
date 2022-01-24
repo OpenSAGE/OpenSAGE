@@ -48,7 +48,7 @@ namespace OpenSage.Graphics
 
         private void PostInitialize(AssetLoadContext loadContext)
         {
-            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
+            _depthShaderSet = loadContext.ShaderResources.MeshDepth;
 
             BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
             BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];

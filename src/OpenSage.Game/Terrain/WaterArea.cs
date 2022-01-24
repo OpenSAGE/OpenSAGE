@@ -112,7 +112,7 @@ namespace OpenSage.Terrain
 
         private WaterArea(AssetLoadContext loadContext, string debugName)
         {
-            _shaderSet = loadContext.ShaderResources.Water.ShaderSet;
+            _shaderSet = loadContext.ShaderResources.Water;
             _pipeline = loadContext.ShaderResources.Water.Pipeline;
 
             _debugName = debugName;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -6,15 +7,8 @@ namespace OpenSage.Graphics.Shaders
     internal sealed class NormalMappedShaderResources : ShaderMaterialShaderResources
     {
         public NormalMappedShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            MeshShaderResources meshShaderResources)
-            : base(
-                graphicsDevice,
-                globalShaderResources,
-                meshShaderResources,
-                "NormalMapped",
-                CreateMaterialResourceBindings)
+            ShaderSetStore store)
+            : base(store, "NormalMapped", CreateMaterialResourceBindings)
         {
 
         }

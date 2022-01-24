@@ -1,51 +1,36 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class RoadShaderResources : ShaderResourcesBase
+    internal sealed class RoadShaderResources : ShaderSet
     {
-        private readonly ResourceLayout _materialResourceLayout;
-
         public readonly Pipeline Pipeline;
 
-        public RoadShaderResources(GraphicsDevice graphicsDevice, GlobalShaderResources globalShaderResources)
-            : base(
-                graphicsDevice,
-                "Road",
-                RoadVertex.VertexDescriptor)
+        public RoadShaderResources(ShaderSetStore store)
+            : base(store, "Road", RoadVertex.VertexDescriptor)
         {
-            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.ForwardPassResourceLayout,
-                _materialResourceLayout,
-            };
-
-            Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                new GraphicsPipelineDescription(
-                    BlendStateDescription.SingleAlphaBlend,
-                    DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                    RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
-                    PrimitiveTopology.TriangleList,
-                    ShaderSet.Description,
-                    resourceLayouts,
-                    RenderPipeline.GameOutputDescription)));
+            Pipeline = AddDisposable(
+                store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                    new GraphicsPipelineDescription(
+                        BlendStateDescription.SingleAlphaBlend,
+                        DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                        RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
+                        PrimitiveTopology.TriangleList,
+                        Description,
+                        ResourceLayouts,
+                        store.OutputDescription)));
         }
 
         public ResourceSet CreateMaterialResourceSet(Texture texture)
         {
+            // TODO: Cache these.
+
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    _materialResourceLayout,
+                    MaterialResourceLayout,
                     texture,
                     GraphicsDevice.Aniso4xSampler));
         }

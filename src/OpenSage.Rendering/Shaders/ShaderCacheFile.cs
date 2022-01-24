@@ -7,11 +7,8 @@ internal sealed class ShaderCacheFile
 {
     private const int Version = 1;
 
-    public readonly string VsEntryPoint;
-    public readonly byte[] VsBytes;
-
-    public readonly string FsEntryPoint;
-    public readonly byte[] FsBytes;
+    public readonly ShaderDescription VertexShaderDescription;
+    public readonly ShaderDescription FragmentShaderDescription;
 
     public readonly ResourceLayoutDescription[] ResourceLayoutDescriptions;
 
@@ -75,28 +72,20 @@ internal sealed class ShaderCacheFile
         }
 
         result = new ShaderCacheFile(
-            vsEntryPoint,
-            vsBytes,
-            fsEntryPoint,
-            fsBytes,
+            new ShaderDescription(ShaderStages.Vertex, vsBytes, vsEntryPoint),
+            new ShaderDescription(ShaderStages.Fragment, fsBytes, fsEntryPoint),
             resourceLayoutDescriptions);
 
         return true;
     }
 
     public ShaderCacheFile(
-        string vsEntryPoint,
-        byte[] vsBytes,
-        string fsEntryPoint,
-        byte[] fsBytes,
+        in ShaderDescription vertexShaderDescription,
+        in ShaderDescription fragmentShaderDescription,
         ResourceLayoutDescription[] resourceLayoutDescriptions)
     {
-        VsEntryPoint = vsEntryPoint;
-        VsBytes = vsBytes;
-
-        FsEntryPoint = fsEntryPoint;
-        FsBytes = fsBytes;
-
+        VertexShaderDescription = vertexShaderDescription;
+        FragmentShaderDescription = fragmentShaderDescription;
         ResourceLayoutDescriptions = resourceLayoutDescriptions;
     }
 
@@ -107,18 +96,18 @@ internal sealed class ShaderCacheFile
 
         binaryWriter.Write(Version);
 
-        binaryWriter.Write(VsEntryPoint);
+        binaryWriter.Write(VertexShaderDescription.EntryPoint);
 
-        binaryWriter.Write(VsBytes.Length);
-        foreach (var value in VsBytes)
+        binaryWriter.Write(VertexShaderDescription.ShaderBytes.Length);
+        foreach (var value in VertexShaderDescription.ShaderBytes)
         {
             binaryWriter.Write(value);
         }
 
-        binaryWriter.Write(FsEntryPoint);
+        binaryWriter.Write(FragmentShaderDescription.EntryPoint);
 
-        binaryWriter.Write(FsBytes.Length);
-        foreach (var value in FsBytes)
+        binaryWriter.Write(FragmentShaderDescription.ShaderBytes.Length);
+        foreach (var value in FragmentShaderDescription.ShaderBytes)
         {
             binaryWriter.Write(value);
         }

@@ -5,45 +5,33 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class MeshDepthShaderResources : ShaderResourcesBase
+    internal sealed class MeshDepthShaderResources : ShaderSet
     {
         public readonly Pipeline Pipeline;
 
         public MeshDepthShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            MeshShaderResources meshShaderResources)
-            : base(
-                graphicsDevice,
-                "MeshDepth",
-                MeshShaderResources.MeshVertex.VertexDescriptors)
+            ShaderSetStore store)
+            : base(store, "MeshDepth", MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             var depthRasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
             depthRasterizerState.DepthClipEnabled = false;
             depthRasterizerState.ScissorTestEnabled = false;
 
-            var emptyResourceLayout = AddDisposable(
-                graphicsDevice.ResourceFactory.CreateResourceLayout(
-                    new ResourceLayoutDescription(
-                        Array.Empty<ResourceLayoutElementDescription>())));
+            //var emptyResourceLayout = AddDisposable(
+            //    graphicsDevice.ResourceFactory.CreateResourceLayout(
+            //        new ResourceLayoutDescription(
+            //            Array.Empty<ResourceLayoutElementDescription>())));
 
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                emptyResourceLayout,
-                emptyResourceLayout,
-                meshShaderResources.RenderItemConstantsResourceLayout,
-            };
-
-            Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                new GraphicsPipelineDescription(
-                    BlendStateDescription.SingleDisabled,
-                    DepthStencilStateDescription.DepthOnlyLessEqual,
-                    depthRasterizerState,
-                    PrimitiveTopology.TriangleList,
-                    ShaderSet.Description,
-                    resourceLayouts,
-                    ShadowData.DepthPassDescription)));
+            Pipeline = AddDisposable(
+                GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                    new GraphicsPipelineDescription(
+                        BlendStateDescription.SingleDisabled,
+                        DepthStencilStateDescription.DepthOnlyLessEqual,
+                        depthRasterizerState,
+                        PrimitiveTopology.TriangleList,
+                        Description,
+                        ResourceLayouts,
+                        ShadowData.DepthPassDescription)));
         }
     }
 }

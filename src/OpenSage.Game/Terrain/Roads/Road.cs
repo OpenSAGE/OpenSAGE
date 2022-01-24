@@ -62,7 +62,7 @@ namespace OpenSage.Terrain.Roads
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
             
-            _shaderSet = loadContext.ShaderResources.Road.ShaderSet;
+            _shaderSet = loadContext.ShaderResources.Road;
             _pipeline = loadContext.ShaderResources.Road.Pipeline;
 
             // TODO: Cache these resource sets in some sort of scoped data context.

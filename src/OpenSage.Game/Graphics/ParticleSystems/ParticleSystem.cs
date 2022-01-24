@@ -7,6 +7,7 @@ using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -27,7 +28,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
-        private readonly ParticleMaterial _particleMaterial;
+        private readonly Material _particleMaterial;
         private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly ResourceSet _renderItemConstantsResourceSet;
 
@@ -123,14 +124,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _graphicsDevice = loadContext.GraphicsDevice;
 
-            _particleMaterial = loadContext.MaterialDefinitionStore.GetParticleMaterialDefinition().GetMaterial(Template);
+            _particleMaterial = loadContext.ShaderSetStore.GetParticleShaderSet().GetMaterial(Template);
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
 
             _renderItemConstantsResourceSet = AddDisposable(
                 _graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
-                        _particleMaterial.Definition.ShaderSet.ResourceLayouts[3],
+                        _particleMaterial.ShaderSet.ResourceLayouts[3],
                         _renderItemConstantsBufferVS.Buffer)));
 
             _velocityType = Template.EmissionVelocity;
@@ -192,7 +193,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 cl.SetVertexBuffer(0, _vertexBuffer);
 
-                _particleMaterial.Apply(cl, null); // TODO: Shouldn't be null.
+                cl.SetGraphicsResourceSet(2, _particleMaterial.ForwardPass.MaterialResourceSet);
 
                 if (_worldMatrixChanged)
                 {
@@ -545,8 +546,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
-                _particleMaterial.Definition.ShaderSet,
-                _particleMaterial.Pipeline,
+                _particleMaterial.ShaderSet,
+                _particleMaterial.ForwardPass.Pipeline,
                 AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,
                 0,
