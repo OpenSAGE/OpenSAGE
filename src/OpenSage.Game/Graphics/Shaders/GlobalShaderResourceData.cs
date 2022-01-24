@@ -8,22 +8,32 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class GlobalShaderResourceData : DisposableBase
     {
+        private readonly GraphicsDevice _graphicsDevice;
+        private readonly GlobalShaderResources _globalShaderResources;
+        private readonly StandardGraphicsResources _standardGraphicsResources;
+
         private readonly ConstantBuffer<GlobalShaderResources.GlobalConstants> _globalConstantBuffer;
 
         private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsVS> _globalLightingBufferVS;
-        private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsPS> _globalLightingTerrainBufferPS;
-        private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsPS> _globalLightingObjectBufferPS;
+        private readonly ConstantBuffer<GlobalShaderResources.LightingConstantsPS> _globalLightingBufferPS;
 
         public readonly ResourceSet GlobalConstantsResourceSet;
-        public readonly ResourceSet GlobalLightingConstantsTerrainResourceSet;
-        public readonly ResourceSet GlobalLightingConstantsObjectResourceSet;
+
+        private ResourceSet _forwardPassResourceSet;
+        private Texture _cachedCloudTexture;
+        private Texture _cachedShadowMap;
 
         private TimeOfDay? _cachedTimeOfDay;
 
         public GlobalShaderResourceData(
             GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources)
+            GlobalShaderResources globalShaderResources,
+            StandardGraphicsResources standardGraphicsResources)
         {
+            _graphicsDevice = graphicsDevice;
+            _globalShaderResources = globalShaderResources;
+            _standardGraphicsResources = standardGraphicsResources;
+
             _globalConstantBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstants>(graphicsDevice, "GlobalConstants"));
 
             GlobalConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
@@ -31,23 +41,41 @@ namespace OpenSage.Graphics.Shaders
                     globalShaderResources.GlobalConstantsResourceLayout,
                     _globalConstantBuffer.Buffer)));
 
-            _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (terrain)"));
+            _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS"));
             SetGlobalLightingBufferVS(graphicsDevice);
 
-            _globalLightingTerrainBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (terrain)"));
-            _globalLightingObjectBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (objects)"));
+            _globalLightingBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS"));
+        }
 
-            GlobalLightingConstantsTerrainResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    globalShaderResources.GlobalLightingConstantsResourceLayout,
-                    _globalLightingBufferVS.Buffer,
-                    _globalLightingTerrainBufferPS.Buffer)));
+        public ResourceSet GetForwardPassResourceSet(
+            Texture cloudTexture,
+            ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> shadowConstantsPSBuffer,
+            Texture shadowMap)
+        {
+            if (_cachedCloudTexture != cloudTexture || shadowMap != _cachedShadowMap)
+            {
+                RemoveAndDispose(ref _forwardPassResourceSet);
+                _cachedCloudTexture = cloudTexture;
+                _cachedShadowMap = shadowMap;
 
-            GlobalLightingConstantsObjectResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    globalShaderResources.GlobalLightingConstantsResourceLayout,
-                    _globalLightingBufferVS.Buffer,
-                    _globalLightingObjectBufferPS.Buffer)));
+                _forwardPassResourceSet = AddDisposable(
+                    _graphicsDevice.ResourceFactory.CreateResourceSet(
+                        new ResourceSetDescription(
+                            _globalShaderResources.ForwardPassResourceLayout,
+                            _globalLightingBufferVS.Buffer,
+                            _globalLightingBufferPS.Buffer,
+                            cloudTexture,
+                            _graphicsDevice.Aniso4xSampler,
+                            shadowConstantsPSBuffer.Buffer,
+                            shadowMap,
+                            _globalShaderResources.ShadowSampler,
+                            _globalShaderResources.RadiusCursorDecals.TextureArray,
+                            _standardGraphicsResources.Aniso4xClampSampler,
+                            _globalShaderResources.RadiusCursorDecals.DecalConstants,
+                            _globalShaderResources.RadiusCursorDecals.DecalsBuffer)));
+            }
+
+            return _forwardPassResourceSet;
         }
 
         private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
@@ -94,11 +122,8 @@ namespace OpenSage.Graphics.Shaders
 
             if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
             {
-                _globalLightingTerrainBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.TerrainLightsPS;
-                _globalLightingTerrainBufferPS.Update(commandList);
-
-                _globalLightingObjectBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.ObjectLightsPS;
-                _globalLightingObjectBufferPS.Update(commandList);
+                _globalLightingBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.LightsPS;
+                _globalLightingBufferPS.Update(commandList);
 
                 _cachedTimeOfDay = context.Scene3D.Lighting.TimeOfDay;
             }

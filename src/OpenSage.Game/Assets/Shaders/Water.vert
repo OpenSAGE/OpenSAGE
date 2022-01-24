@@ -2,12 +2,7 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-
-MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
-
-MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(1)
+#include "ForwardPass.h"
 
 layout(location = 0) in vec3 in_Position;
 
@@ -22,10 +17,7 @@ void main()
     gl_Position = _GlobalConstants.ViewProjection * vec4(worldPosition, 1);
     out_WorldPosition = worldPosition;
 
-    out_CloudUV = GetCloudUV(
-        out_WorldPosition,
-        _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstants.TimeInSeconds);
+    out_CloudUV = GetCloudUV(out_WorldPosition);
 
     out_ViewSpaceDepth = gl_Position.z;
 }

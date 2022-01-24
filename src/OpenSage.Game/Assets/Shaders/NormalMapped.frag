@@ -2,14 +2,10 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-#include "Shadows.h"
+#include "ForwardPass.h"
 #include "Mesh.h"
 
-MAKE_MESH_RESOURCES_PS()
-
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 0) uniform MaterialConstants
 {
     float BumpScale;
     float SpecularExponent;
@@ -22,8 +18,9 @@ layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
     vec4 SpecularColor;
 } _MaterialConstants;
 
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 1) uniform texture2D DiffuseTexture;
-layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 2) uniform texture2D NormalMap;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 1) uniform texture2D DiffuseTexture;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 2) uniform texture2D NormalMap;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 3) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -55,14 +52,13 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        _GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS.Object,
         in_WorldPosition,
         worldSpaceNormal,
         _MaterialConstants.AmbientColor.xyz,
         _MaterialConstants.DiffuseColor.xyz,
         _MaterialConstants.SpecularColor.xyz,
         _MaterialConstants.SpecularExponent,
-        _GlobalConstants.CameraPosition,
         false, // TODO: true
         vec3(1, 1, 1),
         diffuseColor,
@@ -82,7 +78,7 @@ void main()
 
     objectColor += specularColor;
 
-    vec3 cloudColor = GetCloudColor(Global_CloudTexture, Sampler, in_CloudUV);
+    vec3 cloudColor = GetCloudColor(in_CloudUV);
     objectColor *= cloudColor;
 
     out_Color = vec4(

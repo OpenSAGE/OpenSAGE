@@ -47,7 +47,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ShaderFiles Include="Assets\Shaders\*.vert;Assets\Shaders\*.frag" />
+    <VertexShaderFiles Include="Assets\Shaders\*.vert" />
+    <FragmentShaderFiles Include="Assets\Shaders\*.frag" />
+    
+    <ShaderFiles Include="@(VertexShaderFiles);@(FragmentShaderFiles)" />
     <UpToDateCheckInput Include="@(ShaderFiles)" />
 
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
@@ -66,7 +69,8 @@
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -V %(ShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv&quot;" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -DCOMPILING_FOR_VERTEX_SHADER -V %(VertexShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(VertexShaderFiles.FileName)%(VertexShaderFiles.Extension).spv&quot;" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -DCOMPILING_FOR_FRAGMENT_SHADER -V %(FragmentShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(FragmentShaderFiles.FileName)%(FragmentShaderFiles.Extension).spv&quot;" />
   </Target>
 
   <Target Name="CopyShaders" AfterTargets="CompileShaders">

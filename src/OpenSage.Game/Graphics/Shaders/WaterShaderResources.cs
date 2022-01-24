@@ -18,7 +18,6 @@ namespace OpenSage.Graphics.Shaders
             : base(
                 graphicsDevice,
                 "Water",
-                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
                 WaterVertex.VertexDescriptor)
         {
             WaterResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -36,9 +35,7 @@ namespace OpenSage.Graphics.Shaders
             var resourceLayouts = new[]
             {
                 globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
+                globalShaderResources.ForwardPassResourceLayout,
                 WaterResourceLayout
             };
 

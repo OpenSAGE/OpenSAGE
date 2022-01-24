@@ -2,6 +2,11 @@
 
 #define COMMON_H
 
+#define GLOBAL_CONSTANTS_RESOURCE_SET 0
+#define PASS_CONSTANTS_RESOURCE_SET 1
+#define MATERIAL_CONSTANTS_RESOURCE_SET 2
+#define RENDER_ITEM_CONSTANTS_RESOURCE_SET 3
+
 struct GlobalConstantsType
 {
     vec3 CameraPosition;
@@ -16,17 +21,10 @@ struct GlobalConstantsType
     vec2 ViewportSize;
 };
 
-#define MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform GlobalConstants \
-    { \
-        GlobalConstantsType _GlobalConstants; \
-    };
-
-#define MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform GlobalConstants \
-    { \
-        GlobalConstantsType _GlobalConstants; \
-    };
+layout(set = GLOBAL_CONSTANTS_RESOURCE_SET, binding = 0) uniform GlobalConstants
+{
+    GlobalConstantsType _GlobalConstants;
+};
 
 bool FailsAlphaTest(float alpha)
 {

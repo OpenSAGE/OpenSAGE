@@ -12,14 +12,10 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly Pipeline Pipeline;
 
-        public RoadShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            RadiusCursorDecalShaderResources radiusCursorDecalShaderResources)
+        public RoadShaderResources(GraphicsDevice graphicsDevice, GlobalShaderResources globalShaderResources)
             : base(
                 graphicsDevice,
                 "Road",
-                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
                 RoadVertex.VertexDescriptor)
         {
             _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -30,11 +26,8 @@ namespace OpenSage.Graphics.Shaders
             var resourceLayouts = new[]
             {
                 globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
+                globalShaderResources.ForwardPassResourceLayout,
                 _materialResourceLayout,
-                radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
             };
 
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(

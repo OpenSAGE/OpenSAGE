@@ -34,6 +34,11 @@ namespace OpenSage.Graphics.Shaders
                 1,
                 new ResourceLayoutElementDescription("Texture_0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 ResourceType.Texture2D);
+
+            yield return new ResourceBinding(
+                2,
+                new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                ResourceType.Sampler);
         }
     }
 }

@@ -15,7 +15,7 @@ internal sealed class ParticleMaterialDefinition : MaterialDefinition
     private readonly Dictionary<ParticleMaterialKey, ParticleMaterial> _cachedMaterials = new();
 
     public ParticleMaterialDefinition(MaterialDefinitionStore store)
-        : base(store, "Particle", new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, null), ParticleVertex.VertexDescriptor)
+        : base(store, "Particle", ParticleVertex.VertexDescriptor)
     {
         Pipeline CreatePipeline(in BlendStateDescription blendStateDescription)
         {
@@ -63,7 +63,6 @@ internal sealed class ParticleMaterialDefinition : MaterialDefinition
 
 internal sealed class ParticleMaterial : Material
 {
-    private readonly ConstantBuffer<ParticleConstantsVS> _particleConstantsBufferVS;
     private readonly ResourceSet _particleResourceSet;
 
     public ParticleMaterial(
@@ -72,21 +71,21 @@ internal sealed class ParticleMaterial : Material
         FXParticleSystemTemplate template)
         : base(definition, pipeline)
     {
-        _particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleConstantsVS>(GraphicsDevice));
-        _particleConstantsBufferVS.Value.IsGroundAligned = template.IsGroundAligned;
-        _particleConstantsBufferVS.Update(GraphicsDevice);
+        var particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleConstantsVS>(GraphicsDevice));
+        particleConstantsBufferVS.Value.IsGroundAligned = template.IsGroundAligned;
+        particleConstantsBufferVS.Update(GraphicsDevice);
 
         _particleResourceSet = AddDisposable(GraphicsDevice.ResourceFactory.CreateResourceSet(
             new ResourceSetDescription(
-                definition.ShaderSet.ResourceLayouts[1],
-                _particleConstantsBufferVS.Buffer,
+                definition.ShaderSet.ResourceLayouts[2],
+                particleConstantsBufferVS.Buffer,
                 template.ParticleTexture.Value.Texture,
                 GraphicsDevice.LinearSampler)));
     }
 
     protected override void ApplyCore(CommandList commandList, RenderContext context)
     {
-        commandList.SetGraphicsResourceSet(1, _particleResourceSet);
+        commandList.SetGraphicsResourceSet(2, _particleResourceSet);
     }
 }
 

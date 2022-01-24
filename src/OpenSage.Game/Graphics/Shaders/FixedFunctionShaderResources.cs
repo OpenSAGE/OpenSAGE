@@ -21,7 +21,6 @@ namespace OpenSage.Graphics.Shaders
             : base(
                 graphicsDevice,
                 "FixedFunction",
-                new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 7u),
                 MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             _pipelines = new Dictionary<PipelineKey, Pipeline>();
@@ -30,7 +29,8 @@ namespace OpenSage.Graphics.Shaders
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+                    new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
             _resourceLayouts = meshShaderResources.CreateResourceLayouts(
                 globalShaderResources,
@@ -168,7 +168,8 @@ namespace OpenSage.Graphics.Shaders
                     _materialResourceLayout,
                     materialConstantsBuffer,
                     texture0,
-                    texture1));
+                    texture1,
+                    GraphicsDevice.Aniso4xSampler));
         }
 
         public enum TextureMappingType

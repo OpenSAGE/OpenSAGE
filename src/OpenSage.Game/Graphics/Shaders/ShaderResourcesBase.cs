@@ -16,7 +16,6 @@ namespace OpenSage.Graphics.Shaders
         protected ShaderResourcesBase(
             GraphicsDevice graphicsDevice,
             string shaderName,
-            GlobalResourceSetIndices globalResourceSetIndices,
             params VertexLayoutDescription[] vertexDescriptors)
         {
             GraphicsDevice = graphicsDevice;
@@ -24,7 +23,6 @@ namespace OpenSage.Graphics.Shaders
             ShaderSet = AddDisposable(new ShaderSet(
                 graphicsDevice.ResourceFactory,
                 shaderName,
-                globalResourceSetIndices,
                 vertexDescriptors));
         }
     }

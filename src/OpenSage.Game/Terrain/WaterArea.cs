@@ -117,7 +117,7 @@ namespace OpenSage.Terrain
 
             _debugName = debugName;
 
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
             {
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };

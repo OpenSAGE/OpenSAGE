@@ -22,7 +22,6 @@ namespace OpenSage.Graphics.Shaders
             : base(
                 graphicsDevice,
                 "Particle",
-                new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, null),
                 ParticleVertex.VertexDescriptor)
         {
             _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(

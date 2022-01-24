@@ -8,6 +8,8 @@ namespace OpenSage.Graphics.Shaders
     {
         public static readonly ResourceType Texture2D = new ResourceType("texture2D", 0);
 
+        public static readonly ResourceType Sampler = new ResourceType("sampler", 0);
+
         public static readonly ResourceType Float = new ResourceType("float", 4);
         public static readonly ResourceType Int = new ResourceType("int", 4);
         public static readonly ResourceType UInt = new ResourceType("uint", 4);

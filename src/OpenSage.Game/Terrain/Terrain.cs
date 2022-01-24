@@ -32,6 +32,7 @@ namespace OpenSage.Terrain
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
 
+        private readonly AssetLoadContext _loadContext;
         private readonly GraphicsDevice _graphicsDevice;
 
         private readonly ConstantBuffer<TerrainShaderResources.TerrainMaterialConstants> _materialConstantsBuffer;
@@ -47,15 +48,13 @@ namespace OpenSage.Terrain
 
         public IReadOnlyList<TerrainPatch> Patches { get; private set; }
 
-        public ResourceSet CloudResourceSet { get; }
-
         private float _causticsIndex;
 
         private const uint NumOfCausticsAnimation = 32;
 
-        internal readonly RadiusCursorDecals RadiusCursorDecals;
+        internal readonly Texture CloudTexture;
 
-        internal readonly ResourceSet RadiusCursorDecalsResourceSet;
+        internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
@@ -63,6 +62,7 @@ namespace OpenSage.Terrain
 
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
+            _loadContext = loadContext;
             _graphicsDevice = loadContext.GraphicsDevice;
 
             _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
@@ -99,8 +99,6 @@ namespace OpenSage.Terrain
 
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
-            RadiusCursorDecals = AddDisposable(new RadiusCursorDecals(loadContext.AssetStore, loadContext.GraphicsDevice));
-
             var casuticsTextures = BuildCausticsTextureArray(loadContext.AssetStore);
             _materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 _materialConstantsBuffer.Buffer,
@@ -111,22 +109,7 @@ namespace OpenSage.Terrain
                 macroTexture,
                 casuticsTextures));
 
-            RadiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.RadiusCursor.CreateRadiusCursorDecalsResourceSet(
-                RadiusCursorDecals.TextureArray,
-                RadiusCursorDecals.DecalConstants,
-                RadiusCursorDecals.DecalsBuffer));
-
-            var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
-
-            var cloudResourceLayout = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
-
-            CloudResourceSet = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    cloudResourceLayout,
-                    cloudTexture.Texture)));
-            CloudResourceSet.Name = "Cloud resource set";
+            CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
             _shaderSet = loadContext.ShaderResources.Terrain.ShaderSet;
             _pipeline = terrainPipeline;
@@ -209,16 +192,14 @@ namespace OpenSage.Terrain
                 _graphicsDevice,
                 HeightMap,
                 _indexBufferCache,
-                _materialResourceSet,
-                RadiusCursorDecalsResourceSet);
+                _materialResourceSet);
         }
 
         private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet,
-            ResourceSet radiusCursorDecalsResourceSet)
+            ResourceSet materialResourceSet)
         {
             const int numTilesPerPatch = PatchSize - 1;
 
@@ -256,8 +237,7 @@ namespace OpenSage.Terrain
                         patchBounds,
                         graphicsDevice,
                         indexBufferCache,
-                        materialResourceSet,
-                        radiusCursorDecalsResourceSet)));
+                        materialResourceSet)));
                 }
             }
 
