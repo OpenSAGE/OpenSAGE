@@ -1,5 +1,4 @@
-﻿using System;
-using OpenSage.Graphics.Rendering.Shadows;
+﻿using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Rendering;
 using Veldrid;
 
@@ -7,7 +6,7 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class MeshDepthShaderResources : ShaderSet
     {
-        public readonly Pipeline Pipeline;
+        public readonly Material Material;
 
         public MeshDepthShaderResources(
             ShaderSetStore store)
@@ -17,12 +16,7 @@ namespace OpenSage.Graphics.Shaders
             depthRasterizerState.DepthClipEnabled = false;
             depthRasterizerState.ScissorTestEnabled = false;
 
-            //var emptyResourceLayout = AddDisposable(
-            //    graphicsDevice.ResourceFactory.CreateResourceLayout(
-            //        new ResourceLayoutDescription(
-            //            Array.Empty<ResourceLayoutElementDescription>())));
-
-            Pipeline = AddDisposable(
+            var pipeline = AddDisposable(
                 GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                     new GraphicsPipelineDescription(
                         BlendStateDescription.SingleDisabled,
@@ -32,6 +26,12 @@ namespace OpenSage.Graphics.Shaders
                         Description,
                         ResourceLayouts,
                         ShadowData.DepthPassDescription)));
+
+            Material = AddDisposable(
+                new Material(
+                    this,
+                    pipeline,
+                    null));
         }
     }
 }

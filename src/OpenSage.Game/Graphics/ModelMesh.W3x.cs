@@ -6,6 +6,7 @@ using OpenSage.Content.Loaders;
 using OpenSage.Data.StreamFS;
 using OpenSage.Data.W3x;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -27,7 +28,6 @@ namespace OpenSage.Graphics
             var effectName = w3xMesh.FXShader.ShaderName.Replace(".fx", string.Empty);
             //var shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName); // TODO: Uncomment this.
             var shaderResources = loadContext.ShaderResources.GetShaderMaterialResources("NormalMapped");
-            _depthPipeline = loadContext.ShaderResources.MeshDepth.Pipeline;
 
             // TODO: Extract state properties from shader material.
 
@@ -86,17 +86,19 @@ namespace OpenSage.Graphics
 
             //var materialResourceSet = materialResourceSetBuilder.CreateResourceSet();
 
-            var materialResourceSet = (ResourceSet) null;
+            //var materialResourceSet = (ResourceSet) null;
+
+            var material = (MaterialPass)null;
 
             MeshParts = new List<ModelMeshPart>();
             MeshParts.Add(new ModelMeshPart(
+                this,
                 null,
                 0,
                 (uint)(w3xMesh.Triangles.Length * 3),
                 false, // TODO
-                pipeline,
-                pipeline, // TODO
-                materialResourceSet));
+                material,
+                material)); // TODO
 
             _boundingBox = w3xMesh.BoundingBox;
 
@@ -106,7 +108,7 @@ namespace OpenSage.Graphics
             Hidden = w3xMesh.Hidden;
             CameraOriented = w3xMesh.GeometryType == MeshGeometryType.CameraOriented;
 
-            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
+            VertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 w3xMesh.VertexData.VertexData,
                 BufferUsage.VertexBuffer));
 

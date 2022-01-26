@@ -37,7 +37,7 @@ namespace OpenSage.Terrain
 
         private readonly ConstantBuffer<TerrainShaderResources.TerrainMaterialConstants> _materialConstantsBuffer;
 
-        private readonly ResourceSet _materialResourceSet;
+        private readonly Material _material;
         private readonly TerrainPatchIndexBufferCache _indexBufferCache;
 
         internal const int PatchSize = 17;
@@ -100,7 +100,8 @@ namespace OpenSage.Terrain
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
             var casuticsTextures = BuildCausticsTextureArray(loadContext.AssetStore);
-            _materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+
+            var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 _materialConstantsBuffer.Buffer,
                 tileDataTexture,
                 cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
@@ -108,6 +109,12 @@ namespace OpenSage.Terrain
                 textureArray,
                 macroTexture,
                 casuticsTextures));
+
+            _material = AddDisposable(
+                new Material(
+                    loadContext.ShaderResources.Terrain,
+                    loadContext.ShaderResources.Terrain.Pipeline,
+                    materialResourceSet));
 
             CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
@@ -191,15 +198,13 @@ namespace OpenSage.Terrain
             Patches = CreatePatches(
                 _graphicsDevice,
                 HeightMap,
-                _indexBufferCache,
-                _materialResourceSet);
+                _indexBufferCache);
         }
 
         private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
-            TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet)
+            TerrainPatchIndexBufferCache indexBufferCache)
         {
             const int numTilesPerPatch = PatchSize - 1;
 
@@ -237,7 +242,7 @@ namespace OpenSage.Terrain
                         patchBounds,
                         graphicsDevice,
                         indexBufferCache,
-                        materialResourceSet)));
+                        _material)));
                 }
             }
 

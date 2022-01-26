@@ -171,8 +171,7 @@ namespace OpenSage.Terrain
                     renderList,
                     camera,
                     _modelInstance,
-                    _modelInstance.BeforeRenderDelegates[index],
-                    _modelInstance.BeforeRenderDelegatesDepth[index],
+                    _modelInstance.MeshInstances[index],
                     meshMatrix.Item1.Bone,
                     meshMatrix.Item2,
                     true);

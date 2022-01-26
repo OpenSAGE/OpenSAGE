@@ -56,29 +56,26 @@ public readonly struct RenderKey
 public sealed class Material : DisposableBase
 {
     public readonly byte Id;
-
     public readonly ShaderSet ShaderSet;
-
-    public readonly MaterialPass ForwardPass;
-    public readonly MaterialPass ShadowPass;
+    public readonly Pipeline Pipeline;
+    public readonly ResourceSet MaterialResourceSet;
 
     public Material(
         ShaderSet shaderSet,
-        MaterialPass forwardPass,
-        MaterialPass shadowPass)
+        Pipeline pipeline,
+        ResourceSet materialResourceSet)
     {
         Id = shaderSet.GetNextMaterialId();
 
         ShaderSet = shaderSet;
-
-        ForwardPass = forwardPass;
-        ShadowPass = shadowPass;
+        Pipeline = pipeline;
+        MaterialResourceSet = materialResourceSet;
     }
 
     public ulong RenderKey { get; } // TODO
 }
 
-public sealed record MaterialPass(Pipeline Pipeline, ResourceSet MaterialResourceSet);
+public sealed record MaterialPass(Material ForwardPass, Material ShadowPass);
 
 public enum SurfaceType
 {

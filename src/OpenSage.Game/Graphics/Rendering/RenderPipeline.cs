@@ -331,7 +331,7 @@ namespace OpenSage.Graphics.Rendering
                         // Reset the render item pipeline
                         commandList.SetFramebuffer(_intermediateFramebuffer);
                         commandList.InsertDebugMarker("Setting pipeline");
-                        commandList.SetPipeline(renderItem.Pipeline);
+                        commandList.SetPipeline(renderItem.Material.Pipeline);
                     }
                 });
         }
@@ -365,10 +365,18 @@ namespace OpenSage.Graphics.Rendering
                     ? null
                     : forwardPassResourceSet;
 
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Pipeline != renderItem.Pipeline)
+                var newMaterial = true;
+                if (lastRenderItemIndex != null)
+                {
+                    var lastMaterial = bucket.RenderItems[lastRenderItemIndex.Value].Material;
+
+                    newMaterial = lastMaterial.Pipeline != renderItem.Material.Pipeline;
+                }
+
+                if (newMaterial)
                 {
                     commandList.InsertDebugMarker("Setting pipeline");
-                    commandList.SetPipeline(renderItem.Pipeline);
+                    commandList.SetPipeline(renderItem.Material.Pipeline);
                     SetGlobalResources(commandList, passResourceSet);
                 }
 
@@ -381,6 +389,11 @@ namespace OpenSage.Graphics.Rendering
                 }
 
                 renderItem.BeforeRenderCallback.Invoke(commandList, context, renderItem);
+
+                if (renderItem.Material.MaterialResourceSet != null)
+                {
+                    commandList.SetGraphicsResourceSet(2, renderItem.Material.MaterialResourceSet);
+                }
 
                 commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
                 commandList.DrawIndexed(

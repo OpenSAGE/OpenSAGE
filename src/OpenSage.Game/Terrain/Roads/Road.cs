@@ -26,7 +26,7 @@ namespace OpenSage.Terrain.Roads
 
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
-        private readonly ResourceSet _resourceSet;
+        private readonly Material _material;
 
         private readonly BeforeRenderDelegate _beforeRender;
 
@@ -65,12 +65,10 @@ namespace OpenSage.Terrain.Roads
             _shaderSet = loadContext.ShaderResources.Road;
             _pipeline = loadContext.ShaderResources.Road.Pipeline;
 
-            // TODO: Cache these resource sets in some sort of scoped data context.
-            _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(network.Template.Texture.Value));
+            _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
 
-            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
+            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(2, _resourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
 
@@ -94,7 +92,7 @@ namespace OpenSage.Terrain.Roads
             renderList.Road.RenderItems.Add(new RenderItem(
                 _debugName,
                 _shaderSet,
-                _pipeline,
+                _material,
                 _boundingBox,
                 Matrix4x4.Identity,
                 0,
