@@ -10,7 +10,6 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly string DebugName;
 
-        public readonly ShaderSet ShaderSet;
         public readonly Material Material;
         public readonly AxisAlignedBoundingBox BoundingBox;
         public readonly Matrix4x4 World;
@@ -23,7 +22,6 @@ namespace OpenSage.Graphics.Rendering
 
         public RenderItem(
             string debugName,
-            ShaderSet shaderSet,
             Material material,
             in AxisAlignedBoundingBox boundingBox,
             in Matrix4x4 world,
@@ -33,7 +31,6 @@ namespace OpenSage.Graphics.Rendering
             BeforeRenderDelegate beforeRenderCallback)
         {
             DebugName = debugName;
-            ShaderSet = shaderSet;
             Material = material;
             BoundingBox = boundingBox;
             World = world;
@@ -46,7 +43,7 @@ namespace OpenSage.Graphics.Rendering
             Key = 0;
 
             // Bit 24-31: ShaderSet
-            Key |= (shaderSet.Id << 24);
+            Key |= (material.ShaderSet.Id << 24);
 
             // Bit 16-23: Material
             Key |= (material.Id) << 16;

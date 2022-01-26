@@ -546,7 +546,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
-                _particleMaterial.ShaderSet,
                 _particleMaterial,
                 AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,

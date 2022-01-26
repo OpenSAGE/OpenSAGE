@@ -22,9 +22,6 @@ namespace OpenSage.Graphics
     /// </summary>
     public sealed partial class ModelMesh : ModelRenderObject
     {
-        private readonly ShaderSet _shaderSet;
-        private ShaderSet _depthShaderSet;
-
         internal readonly DeviceBuffer VertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
@@ -40,11 +37,6 @@ namespace OpenSage.Graphics
 
         public override bool Hidden { get; }
         public readonly bool CameraOriented;
-
-        private void PostInitialize(AssetLoadContext loadContext)
-        {
-            _depthShaderSet = loadContext.ShaderResources.MeshDepth;
-        }
 
         internal override void BuildRenderList(
             RenderList renderList,
@@ -130,7 +122,6 @@ namespace OpenSage.Graphics
                 {
                     renderList.Shadow.RenderItems.Add(new RenderItem(
                         Name,
-                        _depthShaderSet,
                         modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ShadowPass,
                         meshBoundingBox,
                         world,
@@ -148,7 +139,6 @@ namespace OpenSage.Graphics
 
                 renderQueue.RenderItems.Add(new RenderItem(
                     FullName,
-                    _shaderSet,
                     forceBlendEnabled
                         ? modelMeshInstance.MeshPartInstances[i].ModelMeshPart.MaterialBlend.ForwardPass
                         : modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ForwardPass,

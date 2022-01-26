@@ -29,9 +29,6 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain : DisposableBase
     {
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
-
         private readonly AssetLoadContext _loadContext;
         private readonly GraphicsDevice _graphicsDevice;
 
@@ -117,9 +114,6 @@ namespace OpenSage.Terrain
                     materialResourceSet));
 
             CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
-
-            _shaderSet = loadContext.ShaderResources.Terrain;
-            _pipeline = terrainPipeline;
 
             OnHeightMapChanged();
         }
@@ -556,10 +550,7 @@ namespace OpenSage.Terrain
         {
             foreach (var patch in Patches)
             {
-                patch.BuildRenderList(
-                    renderList,
-                    _shaderSet,
-                    _pipeline);
+                patch.BuildRenderList(renderList);
             }
         }
     }

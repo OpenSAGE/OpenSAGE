@@ -162,7 +162,6 @@ namespace OpenSage.Terrain
         {
             renderList.Water.RenderItems.Add(new RenderItem(
                 _debugName,
-                _shaderSet,
                 _material,
                 _boundingBox,
                 _world,
