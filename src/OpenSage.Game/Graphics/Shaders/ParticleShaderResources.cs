@@ -84,8 +84,8 @@ namespace OpenSage.Graphics.Shaders
                 result = AddDisposable(
                     new Material(
                         this,
-                        new MaterialPass(pipeline, materialResourceSet),
-                        null));
+                        pipeline,
+                        materialResourceSet));
 
                 _cachedMaterials.Add(key, result);
             }
@@ -117,7 +117,9 @@ namespace OpenSage.Graphics.Shaders
 
         private struct ParticleConstantsVS
         {
+#pragma warning disable IDE1006, CS0169
             private readonly Vector3 _padding;
+#pragma warning restore IDE1006, CS0169
             public Bool32 IsGroundAligned;
         }
     }

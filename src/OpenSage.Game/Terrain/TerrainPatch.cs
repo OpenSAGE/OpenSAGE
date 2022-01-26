@@ -15,6 +15,7 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
+        private readonly Material _material;
 
         private readonly BeforeRenderDelegate _beforeRender;
 
@@ -29,7 +30,7 @@ namespace OpenSage.Terrain
             Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet)
+            Material material)
         {
             Bounds = patchBounds;
 
@@ -51,9 +52,10 @@ namespace OpenSage.Terrain
             BoundingBox = boundingBox;
             Triangles = triangles;
 
+            _material = material;
+
             _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(2, materialResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
@@ -150,7 +152,7 @@ namespace OpenSage.Terrain
             renderList.Terrain.RenderItems.Add(new RenderItem(
                 $"Terrain-{Bounds}",
                 shaderSet,
-                pipeline,
+                _material,
                 BoundingBox,
                 Matrix4x4.Identity,
                 0,

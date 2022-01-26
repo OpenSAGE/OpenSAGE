@@ -15,17 +15,7 @@ namespace OpenSage.Graphics.Shaders
         public WaterShaderResources(ShaderSetStore store)
             : base(store, "Water", WaterVertex.VertexDescriptor)
         {
-            WaterResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("WaterConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("BumpTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("WaterSampler", ResourceKind.Sampler, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("ReflectionMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("ReflectionMapSampler", ResourceKind.Sampler, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RefractionMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RefractionMapSampler", ResourceKind.Sampler, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("RefractionDepthMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+            WaterResourceLayout = ResourceLayouts[2];
 
             Pipeline = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
@@ -38,7 +28,6 @@ namespace OpenSage.Graphics.Shaders
                     RenderPipeline.GameOutputDescription)));
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct WaterVertex
         {
             public Vector3 Position;

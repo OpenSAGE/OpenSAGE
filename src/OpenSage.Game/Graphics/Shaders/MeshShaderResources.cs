@@ -45,19 +45,6 @@ namespace OpenSage.Graphics.Shaders
 
         private readonly record struct MeshConstantsKey(bool IsSkinned, bool HasHouseColor);
 
-        public ResourceLayout[] CreateResourceLayouts(
-            GlobalShaderResources globalShaderResources,
-            ResourceLayout materialResourceLayout)
-        {
-            return new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.ForwardPassResourceLayout,
-                materialResourceLayout,
-                RenderItemConstantsResourceLayout,
-            };
-        }
-
         public ResourceSet CreateRenderItemConstantsResourceSet(
             ConstantBuffer<MeshConstants> meshConstantsBuffer,
             ConstantBuffer<RenderItemConstantsVS> renderItemConstantsVSBuffer,
@@ -73,7 +60,6 @@ namespace OpenSage.Graphics.Shaders
                     renderItemConstantsPSBuffer.Buffer));
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct MeshConstants
         {
 #pragma warning disable CS0169
@@ -83,13 +69,11 @@ namespace OpenSage.Graphics.Shaders
             public Bool32 HasHouseColor;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct RenderItemConstantsVS
         {
             public Matrix4x4 World;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct RenderItemConstantsPS : IEquatable<RenderItemConstantsPS>
         {
             public Vector3 HouseColor;

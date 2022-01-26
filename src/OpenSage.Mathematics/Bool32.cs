@@ -1,6 +1,8 @@
-﻿namespace OpenSage.Graphics.Mathematics
+﻿using System;
+
+namespace OpenSage.Graphics.Mathematics
 {
-    public readonly struct Bool32
+    public readonly struct Bool32 : IEquatable<Bool32>
     {
         private readonly int _value;
 
@@ -9,14 +11,23 @@
             _value = val ? 1 : 0;
         }
 
-        public static implicit operator bool(Bool32 d)
+        public override bool Equals(object obj)
         {
-            return d._value == 1;
+            return obj is Bool32 @bool && Equals(@bool);
         }
 
-        public static implicit operator Bool32(bool d)
+        public bool Equals(Bool32 other)
         {
-            return new Bool32(d);
+            return _value == other._value;
         }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
+        public static implicit operator bool(Bool32 d) => d._value == 1;
+
+        public static implicit operator Bool32(bool d) => new Bool32(d);
     }
 }

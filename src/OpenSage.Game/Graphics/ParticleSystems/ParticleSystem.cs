@@ -124,14 +124,16 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _graphicsDevice = loadContext.GraphicsDevice;
 
-            _particleMaterial = loadContext.ShaderSetStore.GetParticleShaderSet().GetMaterial(Template);
+            var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
+
+            _particleMaterial = particleShaderSet.GetMaterial(Template);
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
 
             _renderItemConstantsResourceSet = AddDisposable(
                 _graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
-                        _particleMaterial.ShaderSet.ResourceLayouts[3],
+                        particleShaderSet.ResourceLayouts[3],
                         _renderItemConstantsBufferVS.Buffer)));
 
             _velocityType = Template.EmissionVelocity;
@@ -192,8 +194,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
 
                 cl.SetVertexBuffer(0, _vertexBuffer);
-
-                cl.SetGraphicsResourceSet(2, _particleMaterial.ForwardPass.MaterialResourceSet);
 
                 if (_worldMatrixChanged)
                 {
@@ -547,7 +547,7 @@ namespace OpenSage.Graphics.ParticleSystems
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
                 _particleMaterial.ShaderSet,
-                _particleMaterial.ForwardPass.Pipeline,
+                _particleMaterial,
                 AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,
                 0,

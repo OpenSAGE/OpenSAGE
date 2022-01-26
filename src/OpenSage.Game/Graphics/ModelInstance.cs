@@ -14,6 +14,8 @@ namespace OpenSage.Graphics
     {
         private readonly GraphicsDevice _graphicsDevice;
 
+        internal readonly ModelMeshInstance[] MeshInstances;
+
         /// <summary>
         /// Bone transforms relative to root bone.
         /// </summary>
@@ -38,9 +40,6 @@ namespace OpenSage.Graphics
         /// </summary>
         internal readonly bool[] BoneFrameVisibilities;
 
-        internal readonly BeforeRenderDelegate[][] BeforeRenderDelegates;
-        internal readonly BeforeRenderDelegate[][] BeforeRenderDelegatesDepth;
-
         private readonly Matrix4x4[] _skinningBones;
 
         private readonly DeviceBuffer _skinningBuffer;
@@ -51,12 +50,14 @@ namespace OpenSage.Graphics
 
         public readonly List<AnimationInstance> AnimationInstances;
 
+        public readonly DeviceBuffer SkinningBuffer;
+
         // TODO: Use this.
         public ColorRgba HouseColor;
 
         public readonly bool[] UnknownBools;
 
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsPS> _renderItemConstantsBufferPS;
+        internal readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsPS> RenderItemConstantsBufferPS;
 
         internal ModelInstance(Model model, AssetLoadContext loadContext)
         {
@@ -82,10 +83,9 @@ namespace OpenSage.Graphics
                 BoneFrameVisibilities[i] = true;
             }
 
-            DeviceBuffer skinningBuffer;
             if (model.HasSkinnedMeshes)
             {
-                _skinningBuffer = skinningBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
+                _skinningBuffer = SkinningBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
                         (uint) (64 * model.BoneHierarchy.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
@@ -96,15 +96,14 @@ namespace OpenSage.Graphics
             }
             else
             {
-                skinningBuffer = loadContext.StandardGraphicsResources.GetNullStructuredBuffer(64);
+                SkinningBuffer = loadContext.StandardGraphicsResources.GetNullStructuredBuffer(64);
             }
 
             AnimationInstances = new List<AnimationInstance>();
 
-            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(_graphicsDevice, "RenderItemConstantsPS"));
+            RenderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(_graphicsDevice, "RenderItemConstantsPS"));
 
-            BeforeRenderDelegates = new BeforeRenderDelegate[model.SubObjects.Length][];
-            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[model.SubObjects.Length][];
+            MeshInstances = new ModelMeshInstance[model.SubObjects.Length];
 
             for (var i = 0; i < model.SubObjects.Length; i++)
             {
@@ -115,47 +114,11 @@ namespace OpenSage.Graphics
                     continue;
                 }
 
-                var renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice, "RenderItemConstantsVS"));
-
-                var renderItemConstantsResourceSet = AddDisposable(
-                    loadContext.ShaderResources.Mesh.CreateRenderItemConstantsResourceSet(
-                        mesh.MeshConstantsBuffer,
-                        renderItemConstantsBufferVS,
-                        skinningBuffer,
-                        _renderItemConstantsBufferPS));
-
-                BeforeRenderDelegates[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
-                BeforeRenderDelegatesDepth[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
-
-                for (var j = 0; j < mesh.MeshParts.Count; j++)
-                {
-                    var meshBeforeRender = mesh.BeforeRenderDelegates[j];
-                    var meshBeforeRenderDepth = mesh.BeforeRenderDelegatesDepth[j];
-
-                    BeforeRenderDelegates[i][j] = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
-                    {
-                        if (renderItemConstantsBufferVS.Value.World != renderItem.World)
-                        {
-                            renderItemConstantsBufferVS.Value.World = renderItem.World;
-                            renderItemConstantsBufferVS.Update(_graphicsDevice);
-                        }
-
-                        cl.SetGraphicsResourceSet(3, renderItemConstantsResourceSet);
-                        meshBeforeRender(cl, context, renderItem);
-                    };
-
-                    BeforeRenderDelegatesDepth[i][j] = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
-                    {
-                        if (renderItemConstantsBufferVS.Value.World != renderItem.World)
-                        {
-                            renderItemConstantsBufferVS.Value.World = renderItem.World;
-                            renderItemConstantsBufferVS.Update(_graphicsDevice);
-                        }
-
-                        cl.SetGraphicsResourceSet(3, renderItemConstantsResourceSet);
-                        meshBeforeRenderDepth(cl, context, renderItem);
-                    };
-                }
+                MeshInstances[i] = AddDisposable(
+                    new ModelMeshInstance(
+                        mesh,
+                        this,
+                        loadContext));
             }
 
             UnknownBools = new bool[model.SubObjects.Length];
@@ -239,10 +202,10 @@ namespace OpenSage.Graphics
             Dictionary<string, bool> shownSubObjects = null,
             Dictionary<string, bool> hiddenSubObjects = null)
         {
-            if (_renderItemConstantsBufferPS.Value != renderItemConstantsPS)
+            if (RenderItemConstantsBufferPS.Value != renderItemConstantsPS)
             {
-                _renderItemConstantsBufferPS.Value = renderItemConstantsPS;
-                _renderItemConstantsBufferPS.Update(_graphicsDevice);
+                RenderItemConstantsBufferPS.Value = renderItemConstantsPS;
+                RenderItemConstantsBufferPS.Update(_graphicsDevice);
             }
 
             for (var i = 0; i < Model.SubObjects.Length; i++)
@@ -260,8 +223,7 @@ namespace OpenSage.Graphics
                     renderList,
                     camera,
                     this,
-                    BeforeRenderDelegates[i],
-                    BeforeRenderDelegatesDepth[i],
+                    MeshInstances[i],
                     subObject.Bone,
                     _worldMatrix,
                     castsShadow,

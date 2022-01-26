@@ -40,8 +40,6 @@ namespace OpenSage.Graphics
                 shaderResources = loadContext.ShaderResources.FixedFunction;
             }
 
-            _depthPipeline = loadContext.ShaderResources.MeshDepth.Pipeline;
-
             MeshParts = new List<ModelMeshPart>();
             if (w3dShaderMaterial != null)
             {
@@ -84,7 +82,7 @@ namespace OpenSage.Graphics
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
             CameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
-            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
+            VertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 MemoryMarshal.AsBytes(new ReadOnlySpan<MeshShaderResources.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 BufferUsage.VertexBuffer));
 
@@ -224,68 +222,24 @@ namespace OpenSage.Graphics
                 }
             }
 
-            // TODO: Extract state properties from shader material.
-
             var blendEnabled = false;
-
-            var pipeline = shaderResources.Pipeline;
-
-            var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
-                context.GraphicsDevice,
-                shaderResources));
-
-            foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
-            {
-                switch (w3dShaderProperty.PropertyType)
-                {
-                    case W3dShaderMaterialPropertyType.Texture:
-                        var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue) ?? context.StandardGraphicsResources.PlaceholderTexture;
-                        materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Bool:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Float:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector2:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector3:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector4:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Int:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            var materialResourceSet = materialResourceSetBuilder.CreateResourceSet();
 
             var texCoordsVertexBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
                 texCoords,
                 BufferUsage.VertexBuffer));
 
+            var material = shaderResources.GetCachedMaterial(w3dShaderMaterial, context);
+
+            var materialPass = new MaterialPass(material, context.ShaderResources.MeshDepth.Material);
+
             return new ModelMeshPart(
+                this,
                 texCoordsVertexBuffer,
                 0,
                 (uint)w3dMesh.Triangles.Items.Length * 3,
                 blendEnabled,
-                pipeline,
-                pipeline, // TODO
-                materialResourceSet);
+                materialPass,
+                materialPass); // TODO
         }
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
@@ -561,46 +515,52 @@ namespace OpenSage.Graphics
             var destinationColorFactor = w3dShader.DestBlend.ToBlend(false);
             var destinationAlphaFactor = w3dShader.DestBlend.ToBlend(true);
 
-            var pipeline = context.ShaderResources.FixedFunction.GetCachedPipeline(
+            var materialConstants = new FixedFunctionShaderResources.MaterialConstantsType
+            {
+                Material = vertexMaterials[vertexMaterialID],
+                Shading = shadingConfigurations[shaderID],
+                NumTextureStages = (int)numTextureStages
+            };
+
+            var texture0 = CreateTexture(context, w3dMesh, textureIndex0) ?? context.StandardGraphicsResources.NullTexture;
+            var texture1 = CreateTexture(context, w3dMesh, textureIndex1) ?? context.StandardGraphicsResources.NullTexture;
+
+            var material = context.ShaderResources.FixedFunction.GetCachedMaterial(
                 cullMode,
                 depthWriteEnabled,
                 depthComparison,
                 blendEnabled,
                 sourceFactor,
                 destinationColorFactor,
-                destinationAlphaFactor);
+                destinationAlphaFactor,
+                materialConstants,
+                texture0,
+                texture1);
 
-            var pipelineBlend = context.ShaderResources.FixedFunction.GetCachedPipeline(
+            var materialBlend = context.ShaderResources.FixedFunction.GetCachedMaterial(
                 cullMode,
                 depthWriteEnabled,
                 depthComparison,
                 true,
                 BlendFactor.SourceAlpha,
                 BlendFactor.InverseSourceAlpha,
-                BlendFactor.InverseSourceAlpha);
+                BlendFactor.InverseSourceAlpha,
+                materialConstants,
+                texture0,
+                texture1);
 
-            var materialConstantsBuffer = AddDisposable(context.GraphicsDevice.CreateStaticBuffer(
-                new FixedFunctionShaderResources.MaterialConstantsType
-                {
-                    Material = vertexMaterials[vertexMaterialID],
-                    Shading = shadingConfigurations[shaderID],
-                    NumTextureStages = (int) numTextureStages
-                },
-                BufferUsage.UniformBuffer));
+            var materialPass = new MaterialPass(material, context.ShaderResources.MeshDepth.Material);
 
-            var materialResourceSet = AddDisposable(context.ShaderResources.FixedFunction.CreateMaterialResourceSet(
-                materialConstantsBuffer,
-                CreateTexture(context, w3dMesh, textureIndex0) ?? context.StandardGraphicsResources.NullTexture,
-                CreateTexture(context, w3dMesh, textureIndex1) ?? context.StandardGraphicsResources.NullTexture));
+            var materialPassBlend = new MaterialPass(materialBlend, context.ShaderResources.MeshDepth.Material);
 
             return new ModelMeshPart(
+                this,
                 texCoordsVertexBuffer,
                 startIndex,
                 indexCount,
                 blendEnabled,
-                pipeline,
-                pipelineBlend,
-                materialResourceSet);
+                materialPass,
+                materialPassBlend);
         }
     }
 }
