@@ -16,6 +16,8 @@ namespace OpenSage.Graphics
             Name = name;
             Bone = bone;
             RenderObject = renderObject;
+
+            RenderObject.SubObject = this;
         }
 
         internal ModelSubObject(string fullName, ModelBone bone, ModelRenderObject renderObject)

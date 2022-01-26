@@ -12,6 +12,8 @@ namespace OpenSage.Graphics
 
         public abstract bool Hidden { get; }
 
+        internal ModelSubObject SubObject;
+
         internal abstract void BuildRenderList(
             RenderList renderList,
             Camera camera,
