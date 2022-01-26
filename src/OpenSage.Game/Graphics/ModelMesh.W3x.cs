@@ -102,8 +102,6 @@ namespace OpenSage.Graphics
 
             _boundingBox = w3xMesh.BoundingBox;
 
-            _shaderSet = shaderResources;
-
             Skinned = w3xMesh.GeometryType == MeshGeometryType.Skin;
             Hidden = w3xMesh.Hidden;
             CameraOriented = w3xMesh.GeometryType == MeshGeometryType.CameraOriented;
@@ -120,8 +118,6 @@ namespace OpenSage.Graphics
             MeshConstantsBuffer = loadContext.ShaderResources.Mesh.GetCachedMeshConstantsBuffer(
                 Skinned,
                 hasHouseColor);
-
-            PostInitialize(loadContext);
         }
 
         private static ushort[] CreateIndices(W3xMesh w3xMesh)

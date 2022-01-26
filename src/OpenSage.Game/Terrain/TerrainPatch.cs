@@ -144,14 +144,10 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(
-            RenderList renderList,
-            ShaderSet shaderSet,
-            Pipeline pipeline)
+        internal void BuildRenderList(RenderList renderList)
         {
             renderList.Terrain.RenderItems.Add(new RenderItem(
                 $"Terrain-{Bounds}",
-                shaderSet,
                 _material,
                 BoundingBox,
                 Matrix4x4.Identity,

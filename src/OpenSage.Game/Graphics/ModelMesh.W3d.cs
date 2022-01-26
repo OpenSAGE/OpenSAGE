@@ -76,8 +76,6 @@ namespace OpenSage.Graphics
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
 
-            _shaderSet = shaderResources;
-
             Skinned = w3dMesh.IsSkinned;
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
             CameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
@@ -94,8 +92,6 @@ namespace OpenSage.Graphics
             MeshConstantsBuffer = loadContext.ShaderResources.Mesh.GetCachedMeshConstantsBuffer(
                 Skinned,
                 hasHouseColor);
-
-            PostInitialize(loadContext);
         }
 
         private static FixedFunctionShaderResources.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

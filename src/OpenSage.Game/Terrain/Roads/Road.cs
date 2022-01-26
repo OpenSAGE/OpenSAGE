@@ -24,8 +24,6 @@ namespace OpenSage.Terrain.Roads
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
         private readonly Material _material;
 
         private readonly BeforeRenderDelegate _beforeRender;
@@ -62,9 +60,6 @@ namespace OpenSage.Terrain.Roads
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
             
-            _shaderSet = loadContext.ShaderResources.Road;
-            _pipeline = loadContext.ShaderResources.Road.Pipeline;
-
             _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
 
             _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
@@ -91,7 +86,6 @@ namespace OpenSage.Terrain.Roads
         {
             renderList.Road.RenderItems.Add(new RenderItem(
                 _debugName,
-                _shaderSet,
                 _material,
                 _boundingBox,
                 Matrix4x4.Identity,
