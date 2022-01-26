@@ -8,10 +8,10 @@ namespace OpenSage.Graphics
 {
     internal sealed class ModelMeshPartInstance : DisposableBase
     {
-        public readonly ModelMeshPart ModelMeshPart;
-
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly ResourceSet _renderItemConstantsResourceSet;
+
+        public readonly ModelMeshPart ModelMeshPart;
+        public readonly ModelMeshInstance MeshInstance;
 
         public readonly BeforeRenderDelegate BeforeRenderCallback;
         public readonly BeforeRenderDelegate BeforeRenderCallbackDepth;
@@ -22,16 +22,12 @@ namespace OpenSage.Graphics
             AssetLoadContext loadContext)
         {
             ModelMeshPart = modelMeshPart;
-
-            _renderItemConstantsBufferVS = AddDisposable(
-                new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(
-                    loadContext.GraphicsDevice,
-                    "RenderItemConstantsVS"));
+            MeshInstance = modelMeshInstance;
 
             _renderItemConstantsResourceSet = AddDisposable(
                 loadContext.ShaderResources.Mesh.CreateRenderItemConstantsResourceSet(
                     modelMeshPart.ModelMesh.MeshConstantsBuffer,
-                    _renderItemConstantsBufferVS,
+                    modelMeshInstance.RenderItemConstantsBufferVS,
                     modelMeshInstance.ModelInstance.SkinningBuffer,
                     modelMeshInstance.ModelInstance.RenderItemConstantsBufferPS));
 
@@ -50,11 +46,7 @@ namespace OpenSage.Graphics
             CommandList cl,
             in RenderItem renderItem)
         {
-            if (_renderItemConstantsBufferVS.Value.World != renderItem.World)
-            {
-                _renderItemConstantsBufferVS.Value.World = renderItem.World;
-                _renderItemConstantsBufferVS.Update(cl);
-            }
+            MeshInstance.OnBeforeRender(cl, renderItem);
 
             cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
 
@@ -64,6 +56,8 @@ namespace OpenSage.Graphics
 
     internal sealed class ModelMeshInstance : DisposableBase
     {
+        internal readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> RenderItemConstantsBufferVS;
+
         public readonly ModelInstance ModelInstance;
 
         public readonly List<ModelMeshPartInstance> MeshPartInstances = new();
@@ -75,6 +69,11 @@ namespace OpenSage.Graphics
         {
             ModelInstance = modelInstance;
 
+            RenderItemConstantsBufferVS = AddDisposable(
+                new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(
+                    loadContext.GraphicsDevice,
+                    $"{modelMesh.SubObject.FullName}_RenderItemConstantsVS"));
+
             foreach (var modelMeshPart in modelMesh.MeshParts)
             {
                 MeshPartInstances.Add(
@@ -83,6 +82,17 @@ namespace OpenSage.Graphics
                             modelMeshPart,
                             this,
                             loadContext)));
+            }
+        }
+
+        internal void OnBeforeRender(
+            CommandList cl,
+            in RenderItem renderItem)
+        {
+            if (RenderItemConstantsBufferVS.Value.World != renderItem.World)
+            {
+                RenderItemConstantsBufferVS.Value.World = renderItem.World;
+                RenderItemConstantsBufferVS.Update(cl);
             }
         }
     }

@@ -87,6 +87,8 @@ namespace OpenSage.Graphics
                         BufferUsage.StructuredBufferReadOnly,
                         size,
                         true))));
+
+                result.Name = $"NullStructuredBuffer_Size{size}";
             }
             return result;
         }
