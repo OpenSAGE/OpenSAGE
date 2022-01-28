@@ -368,6 +368,8 @@ namespace OpenSage
             }
 
             Terrain?.Update(Waters, gameTime);
+
+            ParticleSystemManager?.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)

@@ -49,5 +49,23 @@ namespace OpenSage.Mathematics
         {
             return new Vector2(vector.X, vector.Y);
         }
+
+        public static Vector3 Transform(in Vector3 position, in Matrix4x3 matrix)
+        {
+            return new Vector3(
+                (position.X * matrix.M11) + (position.Y * matrix.M21) + (position.Z * matrix.M31) + matrix.M41,
+                (position.X * matrix.M12) + (position.Y * matrix.M22) + (position.Z * matrix.M32) + matrix.M42,
+                (position.X * matrix.M13) + (position.Y * matrix.M23) + (position.Z * matrix.M33) + matrix.M43
+            );
+        }
+
+        public static Vector3 TransformNormal(in Vector3 position, in Matrix4x3 matrix)
+        {
+            return new Vector3(
+                (position.X * matrix.M11) + (position.Y * matrix.M21) + (position.Z * matrix.M31),
+                (position.X * matrix.M12) + (position.Y * matrix.M22) + (position.Z * matrix.M32),
+                (position.X * matrix.M13) + (position.Y * matrix.M23) + (position.Z * matrix.M33)
+            );
+        }
     }
 }

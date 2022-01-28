@@ -10,11 +10,6 @@ layout(set = 2, binding = 0) uniform ParticleConstants
     bool _IsGroundAligned;
 };
 
-layout(set = 3, binding = 0) uniform RenderItemConstants
-{
-    mat4 _World;
-};
-
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in float in_Size;
 layout(location = 2) in vec3 in_Color;
@@ -27,7 +22,7 @@ layout(location = 2) out float out_Alpha;
 
 vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPosition)
 {
-    vec3 particlePosWS = (_World * vec4(particlePosition, 1)).xyz;
+    vec3 particlePosWS = particlePosition;
 
     vec3 toEye;
     if (_IsGroundAligned)

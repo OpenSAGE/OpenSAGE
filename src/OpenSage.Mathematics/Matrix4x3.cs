@@ -30,6 +30,8 @@ namespace OpenSage.Mathematics
         public readonly float M33;
         public readonly float M43;
 
+        public Vector3 Translation => new Vector3(M41, M42, M43);
+
         public Matrix4x3(
             float m11, float m12, float m13,
             float m21, float m22, float m23,
