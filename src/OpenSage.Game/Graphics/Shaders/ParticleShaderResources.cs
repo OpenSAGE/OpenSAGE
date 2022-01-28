@@ -98,7 +98,6 @@ namespace OpenSage.Graphics.Shaders
             bool IsGroundAligned,
             Texture Texture);
 
-        [StructLayout(LayoutKind.Sequential)]
         internal struct ParticleVertex
         {
             public Vector3 Position;

@@ -62,6 +62,14 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
+        public void Update(in TimeInterval gameTime)
+        {
+            foreach (var particleSystem in _particleSystems)
+            {
+                particleSystem.Update(gameTime);
+            }
+        }
+
         public void BuildRenderList(RenderList renderList)
         {
             // TODO: Sort by ParticleSystem.Priority.

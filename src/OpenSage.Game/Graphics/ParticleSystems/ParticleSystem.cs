@@ -29,11 +29,8 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
         private readonly Material _particleMaterial;
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ResourceSet _renderItemConstantsResourceSet;
 
         private readonly BeforeRenderDelegate _beforeRender;
-        private bool _worldMatrixChanged;
 
         private int _initialDelay;
 
@@ -49,12 +46,16 @@ namespace OpenSage.Graphics.ParticleSystems
         private int _nextBurst;
 
         private uint _systemId;
+
         private uint _attachedToDrawableId;
         private uint _attachedToObjectId;
-        private bool _isIdentityTransform;
-        private Matrix4x3 _transform;
-        private bool _isIdentityTransform2;
-        private Matrix4x3 _transform2;
+
+        private bool _localTransformIsIdentity = true;
+        private Matrix4x3 _localTransform = Matrix4x3.Identity;
+
+        private bool _worldTransformIsIdentity = true;
+        private Matrix4x3 _worldTransform = Matrix4x3.Identity;
+
         private uint _unknownInt1;
         private uint _unknownInt2;
         private uint _unknownInt3;
@@ -83,7 +84,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public ParticleSystemState State { get; private set; }
 
         public int CurrentParticleCount { get; private set; }
-        
+
         internal ParticleSystem(
             FXParticleSystemTemplate template,
             AssetLoadContext loadContext,
@@ -128,14 +129,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _particleMaterial = particleShaderSet.GetMaterial(Template);
 
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
-
-            _renderItemConstantsResourceSet = AddDisposable(
-                _graphicsDevice.ResourceFactory.CreateResourceSet(
-                    new ResourceSetDescription(
-                        particleShaderSet.ResourceLayouts[3],
-                        _renderItemConstantsBufferVS.Buffer)));
-
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
 
@@ -175,33 +168,9 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
             {
-                // Only update once we know this particle system is visible on screen.
-                // We need to run enough updates to catch up for any time
-                // the particle system has been offscreen.
-                var anyUpdates = false;
-                while (true)
-                {
-                    if (!Update(context.GameTime))
-                    {
-                        break;
-                    }
-                    anyUpdates = true;
-                }
-
-                if (anyUpdates)
-                {
-                    UpdateVertexBuffer(cl);
-                }
+                UpdateVertexBuffer(cl);
 
                 cl.SetVertexBuffer(0, _vertexBuffer);
-
-                if (_worldMatrixChanged)
-                {
-                    _renderItemConstantsBufferVS.Update(cl);
-                    _worldMatrixChanged = false;
-                }
-
-                cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
             };
         }
 
@@ -254,7 +223,7 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Template.BurstCount.High + (int) MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
-        private bool Update(in TimeInterval gameTime)
+        internal bool Update(in TimeInterval gameTime)
         {
             if (_particles == null)
             {
@@ -278,6 +247,11 @@ namespace OpenSage.Graphics.ParticleSystems
                 _initialDelay -= 1;
                 return false;
             }
+
+            ref readonly var worldMatrix = ref GetWorldMatrix();
+
+            // TODO: Use _localTransform too.
+            worldMatrix.ToMatrix4x3(out _worldTransform);
 
             if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
             {
@@ -355,10 +329,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 ref var newParticle = ref FindDeadParticleOrCreateNewOne();
 
+                var worldPosition = Vector3Utility.Transform(ray.Position, _worldTransform);
+
+                var worldVelocity = Vector3Utility.TransformNormal(velocity, _worldTransform);
+
                 InitializeParticle(
                     ref newParticle,
-                    ray.Position,
-                    velocity,
+                    worldPosition,
+                    worldVelocity,
                     _startSize);
 
                 // TODO: Is this definitely incremented per particle, not per burst?
@@ -535,20 +513,11 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            ref readonly var worldMatrix = ref GetWorldMatrix();
-
-            _worldMatrixChanged = false;
-            if (worldMatrix != _renderItemConstantsBufferVS.Value.World)
-            {
-                _renderItemConstantsBufferVS.Value.World = worldMatrix;
-                _worldMatrixChanged = true;
-            }
-
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
                 _particleMaterial,
-                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
-                worldMatrix,
+                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(_worldTransform.Translation, 10)), // TODO
+                Matrix4x4.Identity,
                 0,
                 _numIndices,
                 _indexBuffer,
@@ -576,10 +545,10 @@ namespace OpenSage.Graphics.ParticleSystems
             reader.PersistUInt32(ref _systemId);
             reader.PersistUInt32(ref _attachedToDrawableId);
             reader.PersistObjectID(ref _attachedToObjectId);
-            reader.PersistBoolean(ref _isIdentityTransform);
-            reader.PersistMatrix4x3(ref _transform, readVersion: false);
-            reader.PersistBoolean(ref _isIdentityTransform2);
-            reader.PersistMatrix4x3(ref _transform2, readVersion: false);
+            reader.PersistBoolean(ref _localTransformIsIdentity);
+            reader.PersistMatrix4x3(ref _localTransform, readVersion: false);
+            reader.PersistBoolean(ref _worldTransformIsIdentity);
+            reader.PersistMatrix4x3(ref _worldTransform, readVersion: false);
             reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistUInt32(ref _unknownInt3);
