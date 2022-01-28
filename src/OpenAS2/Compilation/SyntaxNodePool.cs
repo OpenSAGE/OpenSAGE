@@ -431,7 +431,7 @@ namespace OpenAS2.Compilation
         }
 
         // chain-based
-        public void PushInstruction(RawInstruction inst, StructurizedBlockChain chain)
+        public void PushInstruction(RawInstruction inst, StructurizedBlockChain chain, int instType = 0)
         {
             if (inst is LogicalTaggedInstruction ltag)
                 _labels.AddRange(ltag.GetLabels());
@@ -448,7 +448,13 @@ namespace OpenAS2.Compilation
                 SyntaxNode n = string.IsNullOrWhiteSpace(name) ? new SNFunctionBody(fc, sc) : new SNDefineFunction(fc, sc);
                 PushNode(n);
             }
-
+            else if (inst.Type == InstructionType.BranchAlways)
+            {
+                if (instType == 1) // continue
+                    PushNode(new SNPlainCode("continue"));
+                else if (instType == 2) // break
+                    PushNode(new SNPlainCode("break"));
+            }
             else
             {
                 var flag =
@@ -475,7 +481,12 @@ namespace OpenAS2.Compilation
                     // yielding Code = "" while receiving no input
                     throw new NotImplementedException();
                 foreach (var (pos, inst) in currentBlock.Items)
-                    PushInstruction(inst, chain);
+                    PushInstruction(inst, chain, instType:
+                        (
+                         chain.ContinueBlocks.Contains(currentBlock) ? 1 :
+                        (chain.BreakBlocks.Contains(currentBlock) ? 2 : 0)
+                        )
+                        );
                 // a temporary solution to the BranchAlways codes.
                 if (currentBlock.HasConstantBranch &&
                     currentBlock.BranchCondition!.Parameters[0].Integer >= 0 &&

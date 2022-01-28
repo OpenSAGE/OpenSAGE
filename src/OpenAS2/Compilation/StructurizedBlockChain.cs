@@ -16,7 +16,9 @@ namespace OpenAS2.Compilation
         public StructurizedBlockChain? Next;
         public CodeType Type = CodeType.Sequential;
         public List<StructurizedBlockChain> AdditionalData = new();
-        public Dictionary<LogicalFunctionContext, StructurizedBlockChain> ChainRecord = new();
+        public readonly Dictionary<LogicalFunctionContext, StructurizedBlockChain> ChainRecord;
+        public readonly List<InstructionBlock> ContinueBlocks;
+        public readonly List<InstructionBlock> BreakBlocks;
         public bool Empty { get; set; }
 
         public override string ToString()
@@ -26,7 +28,7 @@ namespace OpenAS2.Compilation
             return $"SBC(Type={Type}, {(Empty ? emp : string.Empty)}Range=[{StartBlock.Hierarchy}, {(EndBlock == null ? inf : EndBlock.Hierarchy)}])";
         }
 
-        public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null)
+        public StructurizedBlockChain(InstructionBlock start, InstructionBlock? end = null, StructurizedBlockChain? parent = null)
         {
             StartBlock = start;
             if (end == null)
@@ -38,6 +40,18 @@ namespace OpenAS2.Compilation
             else
                 EndBlock = end;
 
+            if (parent == null)
+            {
+                ChainRecord = new();
+                ContinueBlocks = new();
+                BreakBlocks = new();
+            }
+            else
+            {
+                ChainRecord = parent.ChainRecord;
+                ContinueBlocks = parent.ContinueBlocks;
+                BreakBlocks = parent.BreakBlocks;
+            }
         }
 
         public static StructurizedBlockChain Parse(InstructionBlock root)
@@ -94,7 +108,7 @@ namespace OpenAS2.Compilation
 
             // start parsing
 
-            var currentChain = new StructurizedBlockChain(StartBlock, EndBlock) { Next = Next, Type = CodeType.Sequential, ChainRecord = this.ChainRecord };
+            var currentChain = new StructurizedBlockChain(StartBlock, EndBlock, this) { Next = Next, Type = CodeType.Sequential };
             var subChainCache = currentChain;
             var parsed = false;
             b = StartBlock; // reuse b
@@ -117,10 +131,9 @@ namespace OpenAS2.Compilation
                         var branchBlock = i.NextBlockCondition!;
                         if (branchBlock == null)
                             throw new InvalidOperationException();
-
-                        if (branchBlock.Hierarchy < startBlock.Hierarchy)
+                        else if (branchBlock.Hierarchy < startBlock.Hierarchy)
                             throw new NotImplementedException();
-                        if (branchBlock.Hierarchy > endBlock.Hierarchy)
+                        else if (branchBlock.Hierarchy > endBlock.Hierarchy)
                         {
                             if (outerBlock != null && branchBlock.Hierarchy != outerBlock.Hierarchy)
                                 throw new InvalidOperationException();
@@ -129,15 +142,27 @@ namespace OpenAS2.Compilation
                                 outerBlock = branchBlock;
                                 endBlock = branchBlock.PreviousBlock; // TODO is this right?
                             }
+                            if (i.HasConstantBranch)
+                                BreakBlocks.Add(i);
                         }
+                        else if (branchBlock.Hierarchy == startBlock.Hierarchy)
+                        {
+                            ContinueBlocks.Add(i);
+                        }
+                        else
+                        {
+                            // Console.WriteLine($"{startBlock}; {endBlock}; {i}; {branchBlock};");
+
+                        }
+                            
                     }
 
                     // TODO outer block sanity check?
 
                     List<StructurizedBlockChain> structures = new();
 
-                    StructurizedBlockChain sc = new(startBlock, startBlock) { ChainRecord = this.ChainRecord };
-                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, endBlock) { ChainRecord = this.ChainRecord };
+                    StructurizedBlockChain sc = new(startBlock, startBlock, this);
+                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, endBlock, this);
                     structures.Add(sc);
                     structures.Add(st);
 
@@ -145,10 +170,10 @@ namespace OpenAS2.Compilation
                     // TODO theoretically outerBlock should be the same as endBlock + 1
 
                     var sb2 = (endBlock != null && endBlock.NextBlockDefault != null) ?
-                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next, ChainRecord = this.ChainRecord } :
+                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock, this) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Loop, AdditionalData = structures, ChainRecord = this.ChainRecord };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock, this) { Next = sb2, Type = CodeType.Loop, AdditionalData = structures };
 
                     if (startBlock.PreviousBlock == null)
                         currentChain!.Empty = true;
@@ -189,9 +214,9 @@ namespace OpenAS2.Compilation
 
                     List<StructurizedBlockChain> structures = new();
 
-                    StructurizedBlockChain sc = new(startBlock, startBlock) { ChainRecord = this.ChainRecord };
-                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, startBlock.NextBlockCondition!.PreviousBlock!) { ChainRecord = this.ChainRecord };
-                    StructurizedBlockChain sf = new(startBlock.NextBlockCondition!, endBlock) { ChainRecord = this.ChainRecord };
+                    StructurizedBlockChain sc = new(startBlock, startBlock, this);
+                    StructurizedBlockChain st = new(startBlock.NextBlockDefault!, startBlock.NextBlockCondition!.PreviousBlock!, this);
+                    StructurizedBlockChain sf = new(startBlock.NextBlockCondition!, endBlock, this);
                     structures.Add(sc);
                     structures.Add(st);
                     structures.Add(sf);
@@ -203,10 +228,10 @@ namespace OpenAS2.Compilation
                     // split
 
                     var sb2 = endBlock.NextBlockDefault != null ?
-                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock) { Next = currentChain.Next, ChainRecord = this.ChainRecord } :
+                        new StructurizedBlockChain(endBlock.NextBlockDefault, currentChain!.EndBlock, this) { Next = currentChain.Next } :
                         null;
 
-                    var sb = new StructurizedBlockChain(startBlock, endBlock) { Next = sb2, Type = CodeType.Case, AdditionalData = structures, ChainRecord = this.ChainRecord };
+                    var sb = new StructurizedBlockChain(startBlock, endBlock, this) { Next = sb2, Type = CodeType.Case, AdditionalData = structures };
 
                     if (startBlock.PreviousBlock == null)
                         currentChain!.Empty = true;

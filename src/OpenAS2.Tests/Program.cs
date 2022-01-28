@@ -68,12 +68,12 @@ namespace OpenAS2.Tests
         static void Main(string[] args)
         {
             Console.WriteLine("Test");
-
+            
             string basePath = "E:/aptcodes/";
             string codeFilePath = "", constFilePath = "";
 
             codeFilePath = "main_mouse_C0_F0_I1_Action";
-            // codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
+            codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
             codeFilePath = "main_mouse_C0_F0_I41___Packages.main_mouse_settings_Init";
             // codeFilePath = "main_mouse_C0_F0_I40___Packages.ICafe2_FWSettings_Init";
             constFilePath = "main_mouse_Constants";
@@ -83,8 +83,8 @@ namespace OpenAS2.Tests
 
             Console.WriteLine("/Test");
 
-            // Graphify(code, cstf);
-            TestVM(code, cstf);
+            Graphify(code, cstf);
+            // TestVM(code, cstf);
         }
     }
 }
