@@ -103,6 +103,14 @@ namespace OpenSage.Graphics
 
             RenderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(_graphicsDevice, "RenderItemConstantsPS"));
 
+            RenderItemConstantsBufferPS.Value = new MeshShaderResources.RenderItemConstantsPS
+            {
+                HouseColor = Vector3.One,
+                Opacity = 1.0f,
+                TintColor = Vector3.One
+            };
+            RenderItemConstantsBufferPS.Update(_graphicsDevice);
+
             MeshInstances = new ModelMeshInstance[model.SubObjects.Length];
 
             for (var i = 0; i < model.SubObjects.Length; i++)

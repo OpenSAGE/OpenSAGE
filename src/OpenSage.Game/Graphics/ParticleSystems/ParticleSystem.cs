@@ -23,8 +23,6 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly GetMatrixReferenceDelegate _getWorldMatrix;
         private readonly Matrix4x4 _worldMatrix;
 
-        private readonly GraphicsDevice _graphicsDevice;
-
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
@@ -122,8 +120,6 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 return;
             }
-
-            _graphicsDevice = loadContext.GraphicsDevice;
 
             var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
 
