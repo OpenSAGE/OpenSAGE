@@ -131,6 +131,8 @@ namespace OpenSage
         /// </summary>
         public bool InGame { get; private set; } = false;
 
+        public event EventHandler<GameUpdatingEventArgs> Updating;
+
         /// <summary>
         /// Fired when a <see cref="Render"/> completes, but before
         /// <see cref="Panel"/>'s <see cref="GamePanel.Framebuffer"/>
@@ -857,6 +859,8 @@ namespace OpenSage
 
             Audio.Update(Scene3D?.Camera);
             Cursors.Update(RenderTime);
+
+            Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
         }
 
         internal void LogicTick(ulong frame)
@@ -963,5 +967,15 @@ namespace OpenSage
         SinglePlayer = 0,
         MultiPlayer = 1,
         Skirmish = 2,
+    }
+
+    public sealed class GameUpdatingEventArgs : EventArgs
+    {
+        public TimeInterval GameTime { get; }
+
+        public GameUpdatingEventArgs(TimeInterval gameTime)
+        {
+            GameTime = gameTime;
+        }
     }
 }
