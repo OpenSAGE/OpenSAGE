@@ -10,7 +10,7 @@ using OpenAS2.Runtime.Dom;
 namespace OpenAS2.Runtime
 {
     public sealed class ExecutionContext
-    { 
+    {
 
         public ESObject This { get; private set; }
         public ESObject Global { get; private set; }
@@ -42,7 +42,7 @@ namespace OpenAS2.Runtime
             Scope scope,
             InstructionStream? stream,
             IList<ConstantEntry>? globalConstPool = null,
-            IList<Value>? constPool = null, 
+            IList<Value>? constPool = null,
             int numRegisters = 4,
             string? displayName = null
             )
@@ -71,7 +71,7 @@ namespace OpenAS2.Runtime
         // basics
 
         public void EnqueueResultCallback(ESCallable.Result code) { _callbacks.AddLast(code); }
-        public ESCallable.Result DequeueResultCallback() { var f = _callbacks.First(); _callbacks.RemoveFirst();  return f; }
+        public ESCallable.Result DequeueResultCallback() { var f = _callbacks.First(); _callbacks.RemoveFirst(); return f; }
         public ESCallable.Result FirstResultCallback() { return _callbacks.First(); }
         public bool HasResultCallback() { return _callbacks.Count != 0; }
 
@@ -108,7 +108,8 @@ namespace OpenAS2.Runtime
 
         public bool RegisterStored(int id) { return _registers[id] != null; }
 
-        public Value GetRegister(int id) {
+        public Value GetRegister(int id)
+        {
             if (id < 0 || id >= RegisterCount)
             {
                 throw new InvalidOperationException($"Register number {id} is not appropriate! it should be 0~{RegisterCount - 1}.");
@@ -148,7 +149,7 @@ namespace OpenAS2.Runtime
             var null_str = "unused";
             for (int i = 0; i < RegisterCount; ++i)
             {
-                ans[i] = $"[{i}]{(_registers[i] == null ? null_str :_registers[i].ToStringWithType(this))}";
+                ans[i] = $"[{i}]{(_registers[i] == null ? null_str : _registers[i].ToStringWithType(this))}";
             }
             return ans;
         }
@@ -320,7 +321,7 @@ namespace OpenAS2.Runtime
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                _registers[reg] = Value.FromObject(((HostObject) This).GetParent(this));
+                _registers[reg] = Value.FromObject(((HostObject)This).GetParent(this));
                 _registers[reg].DisplayString = "Preload Parent";
                 ++reg;
             }
@@ -385,7 +386,7 @@ namespace OpenAS2.Runtime
                 else if (res.Type == ResultType.Throw) // errors are thrown
                 {
                     // TODO implement try-catch
-                    Avm.ThrowError((ESError) res.Value.ToObject()!, res.Context, this);
+                    Avm.ThrowError((ESError)res.Value.ToObject()!, res.Context, this);
                 }
                 else if (res.Type == ResultType.Return)
                     Push(res.Value);

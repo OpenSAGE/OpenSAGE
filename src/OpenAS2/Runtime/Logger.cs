@@ -8,7 +8,7 @@ namespace OpenAS2.Runtime
 {
     public static class Logger
     {
-        public static void Warn (string info)
+        public static void Warn(string info)
         {
             Console.WriteLine(info);
         }

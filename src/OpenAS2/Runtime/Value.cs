@@ -9,7 +9,7 @@ namespace OpenAS2.Runtime
     public enum ValueType
     {
         Undefined,
-        Null, 
+        Null,
 
         Boolean,
         Integer,
@@ -121,9 +121,9 @@ namespace OpenAS2.Runtime
         public static Value FromUInteger(uint num)
         {
             if (num > 0x0FFFFFFF)
-                return new Value(ValueType.Float, d: (double) num);
+                return new Value(ValueType.Float, d: (double)num);
             else
-                return new Value(ValueType.Integer, n: (int) num);
+                return new Value(ValueType.Integer, n: (int)num);
         }
 
         public static Value FromFloat(double num)
@@ -202,7 +202,7 @@ namespace OpenAS2.Runtime
                 case ValueType.Integer:
                     return _number;
                 case ValueType.Float:
-                    return Math.Sign(_decimal) * (int) Math.Abs(_decimal);
+                    return Math.Sign(_decimal) * (int)Math.Abs(_decimal);
                 case ValueType.Undefined:
                 case ValueType.Null:
                     return 0;
@@ -240,7 +240,7 @@ namespace OpenAS2.Runtime
         {
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
-            return (T) _object!;
+            return (T)_object!;
         }
 
         public bool ToBoolean()
@@ -344,7 +344,7 @@ namespace OpenAS2.Runtime
         {
             if (!IsCallable())
                 throw new InvalidOperationException();
-            return (ESFunction) _object!;
+            return (ESFunction)_object!;
         }
 
         // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
@@ -410,7 +410,7 @@ namespace OpenAS2.Runtime
         {
             if (Type != ValueType.Integer)
                 throw new InvalidOperationException();
-            var ret = (TEnum) Enum.ToObject(typeof(TEnum), _number);
+            var ret = (TEnum)Enum.ToObject(typeof(TEnum), _number);
             if (Enum.IsDefined(typeof(TEnum), ret) && doThrow)
                 throw new InvalidCastException();
             return ret;
@@ -526,7 +526,7 @@ namespace OpenAS2.Runtime
             else if (IsNumber(x))
                 return NumberEquals(x, y);
             else
-                return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, ec); 
+                return ESObject.EqualsES(x.ToObject()!, y.ToObject()!, ec);
         }
 
         public static bool SameValue(Value x, Value y)

@@ -37,7 +37,8 @@ namespace OpenAS2.Runtime.Library
             public Value Value { get { return (_context == null ? _value : (_context.ReturnValue)) ?? Value.Undefined(); } }
             public ExecutionContext Context => _context ?? NativeContext;
 
-            public Result(ExecutionContext ec, RecallCode? recall = null) {
+            public Result(ExecutionContext ec, RecallCode? recall = null)
+            {
                 _context = ec;
                 _recalls = new();
                 if (recall != null) AddRecallCode(recall);
@@ -54,7 +55,7 @@ namespace OpenAS2.Runtime.Library
             /// if executing, the context must be on the stack, continue running it
             /// </summary>
             /// <returns></returns>
-            public Result? ExecuteRecallCode() 
+            public Result? ExecuteRecallCode()
             {
                 Result? res = this;
                 LinkedList<RecallCode> ltmp = new(res._recalls);
@@ -105,7 +106,7 @@ namespace OpenAS2.Runtime.Library
     }
 
 
-    
+
     // ECMA-262 v5.1 #8.3.1
     public class PropertyDescriptor
     {
@@ -138,7 +139,7 @@ namespace OpenAS2.Runtime.Library
             }
             else
             {
-                var da = (NamedAccessoryProperty) p;
+                var da = (NamedAccessoryProperty)p;
                 return new NamedAccessoryProperty(da.Get, da.Set, da.Enumerable, da.Configurable);
             }
         }
@@ -169,7 +170,7 @@ namespace OpenAS2.Runtime.Library
             }
             else
             {
-                var da = (NamedAccessoryProperty) desc;
+                var da = (NamedAccessoryProperty)desc;
                 ret.IDefineOwnProperty(ec, "get", D(Value.FromFunction(new NativeFunction(ec.Avm, da.Get)), true, true, true), false);
                 ret.IDefineOwnProperty(ec, "set", D(Value.FromFunction(new NativeFunction(ec.Avm, da.Set)), true, true, true), false);
             }

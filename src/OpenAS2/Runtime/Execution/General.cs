@@ -104,7 +104,7 @@ namespace OpenAS2.Runtime.Execution
                     res = Value.FromInteger((b.ToInteger()) >> (a.ToInteger() & 0b11111));
                     break;
                 case InstructionType.ShiftRight2:
-                    res = Value.FromInteger((int) (((uint) b.ToInteger()) >> (a.ToInteger() & 0b11111)));
+                    res = Value.FromInteger((int)(((uint)b.ToInteger()) >> (a.ToInteger() & 0b11111)));
                     break;
 
                 default:

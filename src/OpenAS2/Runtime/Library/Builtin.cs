@@ -58,7 +58,7 @@ namespace OpenAS2.Runtime.Library
             };
         }
 
-        
+
         public static ESCallable.Result GetTimer(ExecutionContext context, ESObject ctx, IList<Value>? args)
         {
             var result_ = DateTime.Now - InitTimeStamp;

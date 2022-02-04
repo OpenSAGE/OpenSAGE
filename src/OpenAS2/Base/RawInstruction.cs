@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace OpenAS2.Base
 {
 
+    [JsonObject()]
     public class RawInstruction
     {
         public virtual InstructionType Type { get; internal set; }
@@ -22,16 +23,17 @@ namespace OpenAS2.Base
 
         public string Serialize()
         {
-            List<string> s = new() { ((int) Type).ToString() };
+            List<string> s = new() { ((int)Type).ToString() };
             foreach (var val in Parameters)
                 s.Add(val.Serialize());
-            return JsonSerializer.Serialize(s);
+            return JsonConvert.SerializeObject(s);
         }
 
         public override string ToString() { return ToString(null, null); }
         public string ToString(IList<ConstantEntry>? cp = null, RawInstruction? cas = null)
         {
-            if (Type == InstructionType.ConstantPool) {
+            if (Type == InstructionType.ConstantPool)
+            {
                 if (Parameters.Count < 6)
                     return $"{Type}|{string.Join(", ", Parameters.Skip(1).Select(x => $"#{x.Integer}"))}";
                 else
@@ -42,8 +44,8 @@ namespace OpenAS2.Base
 
         public static RawInstruction Deserialize(string str)
         {
-            var s = JsonSerializer.Deserialize<List<string>>(str);
-            var p = (InstructionType) int.Parse(s[0]);
+            var s = JsonConvert.DeserializeObject<List<string>>(str);
+            var p = (InstructionType)int.Parse(s[0]);
             List<RawValue> pars = new();
             foreach (var val in s.Skip(1))
                 pars.Add(RawValue.Deserialize(val));
@@ -54,14 +56,20 @@ namespace OpenAS2.Base
 
         // judgements
 
+        [JsonIgnore]
         public bool IsEnd => Type == InstructionType.End;
 
+        [JsonIgnore]
         public bool IsBranch => Type == InstructionType.BranchIfTrue || Type == InstructionType.EA_BranchIfFalse || Type == InstructionType.BranchAlways;
+        [JsonIgnore]
         public bool IsBranchAlways => Type == InstructionType.BranchAlways;
+        [JsonIgnore]
         public bool IsConditionalBranch => Type == InstructionType.BranchIfTrue || Type == InstructionType.EA_BranchIfFalse;
 
+        [JsonIgnore]
         public bool IsEnumerate => Type == InstructionType.Enumerate || Type == InstructionType.Enumerate2;
 
+        [JsonIgnore]
         public bool IsDefineFunction => Type == InstructionType.DefineFunction || Type == InstructionType.DefineFunction2;
 
     }

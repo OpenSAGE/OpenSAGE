@@ -15,7 +15,7 @@ namespace OpenAS2.Base
         /// <summary>
         /// the index of the current instruction
         /// </summary>
-        public int Index { get; private set;  }
+        public int Index { get; private set; }
 
         public InstructionStream(RawInstructionStorage instructions, bool createEnd = false)
         {

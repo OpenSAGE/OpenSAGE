@@ -116,7 +116,7 @@ namespace OpenAS2.Compilation.Syntax
             np.PushNode(new SNKeyWord("delete", new SNMemberAccess(new SNCheckTarget(SNNominator.Check(target)), property)));
         }
 
-        
+
 
         public static void DealWithEACall(SyntaxNodePool np, SNExpression exp, int state)
         {
@@ -163,7 +163,8 @@ namespace OpenAS2.Compilation.Syntax
         }
         public static void DoCallNamedMethod(SyntaxNodePool np, int cid, int state)
         {
-            np.PushNodeConstant(cid, fname => {
+            np.PushNodeConstant(cid, fname =>
+            {
                 var obj = SNNominator.Check(np.PopExpression());
                 var args = np.PopArray();
                 var f = new SNMemberAccess(obj, fname);
@@ -171,7 +172,7 @@ namespace OpenAS2.Compilation.Syntax
                 DealWithEACall(np, fc, state);
                 return null;
             });
-            
+
         }
 
         public static void DoGetNamedMember(SyntaxNodePool np, int cid)

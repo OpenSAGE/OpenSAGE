@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace OpenAS2.Base
@@ -18,12 +18,12 @@ namespace OpenAS2.Base
             SortedList<int, string> dtemp = new();
             foreach (var (pos, inst) in insts)
                 dtemp[pos] = inst.Serialize();
-            return JsonSerializer.Serialize(dtemp);
+            return JsonConvert.SerializeObject(dtemp);
         }
 
         public static RawInstructionStorage ParseInstructionStorage(string sinsts)
         {
-            var dtemp = JsonSerializer.Deserialize<Dictionary<int, string>>(sinsts);
+            var dtemp = JsonConvert.DeserializeObject<Dictionary<int, string>>(sinsts);
             RawInstructionStorage res = new SortedList<int, RawInstruction>();
             foreach (var (pos, inst) in dtemp)
                 res[pos] = RawInstruction.Deserialize(inst);
@@ -35,13 +35,13 @@ namespace OpenAS2.Base
             List<string> ltemp = new();
             foreach (var c in consts)
                 ltemp.Add(c.Serialize());
-            return JsonSerializer.Serialize(ltemp);
+            return JsonConvert.SerializeObject(ltemp);
         }
 
         public static RawConstantStorage ParseConstantStorage(string sconsts)
         {
             RawConstantStorage ans = new List<ConstantEntry>();
-            var ltemp = JsonSerializer.Deserialize<List<string>>(sconsts);
+            var ltemp = JsonConvert.DeserializeObject<List<string>>(sconsts);
             foreach (var l in ltemp)
                 ans.Add(ConstantEntry.Deserialize(l));
             return ans;

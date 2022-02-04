@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using OpenAS2.Base;
-using OpenAS2.Runtime;
-using OpenAS2.Compilation.Syntax;
 using Value = OpenAS2.Runtime.Value;
-using ValueType = OpenAS2.Runtime.ValueType;
 using System.Text.Json;
 
 namespace OpenAS2.Compilation
@@ -28,14 +26,14 @@ namespace OpenAS2.Compilation
                 switch (entry.Type)
                 {
                     case ConstantType.String:
-                        result = Value.FromString((string) entry.Value);
+                        result = Value.FromString((string)entry.Value);
                         break;
-                        // to solve it, consider expanding wrapped value in EC to wider usages
-                        /*
-                    case ConstantType.Register:
-                        result = Value.FromRegister((uint) entry.Value);
-                        break;
-                        */
+                    // to solve it, consider expanding wrapped value in EC to wider usages
+                    /*
+                case ConstantType.Register:
+                    result = Value.FromRegister((uint) entry.Value);
+                    break;
+                    */
                     default:
                         throw new NotImplementedException();
                 }
@@ -44,7 +42,7 @@ namespace OpenAS2.Compilation
 
             return pool.AsReadOnly();
         }
-        
+
         public static (string, List<string>) GetNameAndArguments(RawInstruction function)
         {
             string name = function.Parameters[0].String;
@@ -133,13 +131,6 @@ namespace OpenAS2.Compilation
 
             return s;
         }
-
-        public static string ToCodingForm(this string str)
-        {
-            return JsonSerializer.Serialize(str);
-        }
-
-
 
 
         public static string Decompile(

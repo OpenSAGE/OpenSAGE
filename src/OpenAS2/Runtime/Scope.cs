@@ -93,7 +93,7 @@ namespace OpenAS2.Runtime
                     return pa.Get(ec, s!.ThisUsed, null);
                 else
                 {
-                    var pd = (NamedDataProperty) prop!;
+                    var pd = (NamedDataProperty)prop!;
                     return ESCallable.Return(pd.Value);
                 }
             }
@@ -116,7 +116,7 @@ namespace OpenAS2.Runtime
                         return ESCallable.Return(Value.FromBoolean(false));
                 else
                 {
-                    var pd = (NamedDataProperty) prop!;
+                    var pd = (NamedDataProperty)prop!;
                     if (pd.Writable)
                         pd.Value = val;
                     return ESCallable.Return(Value.FromBoolean(pd.Writable));
@@ -131,7 +131,7 @@ namespace OpenAS2.Runtime
         public ESObject TheObject { get; set; }
         public ObjectScope(
             VirtualMachine avm,
-            ESObject obj, 
+            ESObject obj,
             Scope? outerContext,
             string? displayName = null
             ) : base(avm, outerContext, displayName)

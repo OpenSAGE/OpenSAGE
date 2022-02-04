@@ -28,7 +28,7 @@ namespace OpenAS2.Runtime
         public Scope GlobalScope { get; }
         public ExecutionContext GlobalContext { get; }
         public ESObject ExternObject { get; }
-        
+
         public Dictionary<string, ESObject> Prototypes { get; private set; }
         public Dictionary<string, ESFunction> Constructors { get; private set; }
         // public Dictionary<ESObject, Type> PrototypesInverse { get; private set; }
@@ -40,17 +40,17 @@ namespace OpenAS2.Runtime
 
         public void RegisterClass(string className, Type classType)
         {
-            var c1 = (ESCallable.Func) classType.GetField("ICallDefault")!.GetValue(null)!;
-            var c2 = (ESCallable.Func) classType.GetField("IConstructDefault")!.GetValue(null)!;
-            var fp = (IList<string>) classType.GetField("FormalParametersDefault")!.GetValue(null)!;
+            var c1 = (ESCallable.Func)classType.GetField("ICallDefault")!.GetValue(null)!;
+            var c2 = (ESCallable.Func)classType.GetField("IConstructDefault")!.GetValue(null)!;
+            var fp = (IList<string>)classType.GetField("FormalParametersDefault")!.GetValue(null)!;
 
-            var props = (Dictionary<string, Func<PropertyDescriptor>>) classType.GetField("PropertiesDefined")!.GetValue(null)!;
-            var statProps = (Dictionary<string, Func<PropertyDescriptor>>) classType.GetField("StaticPropertiesDefined")!.GetValue(null)!;
-            var funcs = (Dictionary<string, ESCallable.Func>) classType.GetField("MethodsDefined")!.GetValue(null)!;
-            var statFuncs = (Dictionary<string, ESCallable.Func>) classType.GetField("StaticMethodsDefined")!.GetValue(null)!;
+            var props = (Dictionary<string, Func<PropertyDescriptor>>)classType.GetField("PropertiesDefined")!.GetValue(null)!;
+            var statProps = (Dictionary<string, Func<PropertyDescriptor>>)classType.GetField("StaticPropertiesDefined")!.GetValue(null)!;
+            var funcs = (Dictionary<string, ESCallable.Func>)classType.GetField("MethodsDefined")!.GetValue(null)!;
+            var statFuncs = (Dictionary<string, ESCallable.Func>)classType.GetField("StaticMethodsDefined")!.GetValue(null)!;
 
             var ctorParams = new VirtualMachine[] { this };
-            var newProto = (ESObject) Activator.CreateInstance(classType, ctorParams)!;
+            var newProto = (ESObject)Activator.CreateInstance(classType, ctorParams)!;
             var newCtor = new ESFunction(this, c1, c2, GlobalScope, fp, newProto);
 
             newProto.DefineAllProperties(GlobalContext, props);
@@ -178,7 +178,7 @@ namespace OpenAS2.Runtime
             _lastTick = current;
             ExecuteUntilEmpty();
         }
-         
+
         public void ClearInterval(string name)
         {
             _intervals.Remove(name);
@@ -283,12 +283,12 @@ namespace OpenAS2.Runtime
 
         // context, execution & debug
         public ExecutionContext CreateContext(
-            Scope? outerScope, 
+            Scope? outerScope,
             ESObject thisVar,
             int numRegisters,
             IList<Value> consts,
             InstructionStream stream,
-            IList<ConstantEntry>? globalConstants = null, 
+            IList<ConstantEntry>? globalConstants = null,
             string? name = null)
         {
             outerScope = outerScope ?? GlobalScope;
@@ -322,7 +322,7 @@ namespace OpenAS2.Runtime
 
             // 3 situations can lead to Halt == true :
             // End(); Return(); stream.IsFinished().
-            
+
             while (CurrentContext().Halted || CurrentContext().HasResultCallback())
             {
                 CurrentContext().TryClearCallback();

@@ -3,12 +3,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace OpenAS2.Base
 {
 
+    public class ValueConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(RawValue);
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            var str = (string)reader.Value!;
+            return RawValue.Deserialize(str);
+        }
+
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            RawValue val2 = (RawValue)value!;
+            writer.WriteValue(val2.Serialize());
+        }
+    }
+
+    [JsonConverter(typeof(ValueConverter))]
     public class RawValue
     {
         public RawValueType Type { get; internal set; }
@@ -25,7 +46,7 @@ namespace OpenAS2.Base
             switch (Type)
             {
                 case RawValueType.String:
-                    ans = JsonSerializer.Serialize(String);
+                    ans = String.ToCodingForm();
                     break;
                 case RawValueType.Boolean:
                     ans = Boolean ? "true" : "false";
@@ -51,9 +72,10 @@ namespace OpenAS2.Base
         public string Serialize()
         {
             string ans = string.Empty;
-            switch (Type) {
+            switch (Type)
+            {
                 case RawValueType.String:
-                    ans = JsonSerializer.Serialize(String);
+                    ans = JsonConvert.SerializeObject(String);
                     break;
                 case RawValueType.Boolean:
                     ans = Boolean ? "true" : "false";
@@ -69,7 +91,7 @@ namespace OpenAS2.Base
                 default:
                     throw new NotImplementedException();
             }
-            return $"({(int) Type};{ans})";
+            return $"({(int)Type};{ans})";
         }
 
         public static RawValue Deserialize(string str)
@@ -79,13 +101,13 @@ namespace OpenAS2.Base
             var c1 = str.IndexOf(';');
             if (!int.TryParse(str.Substring(1, c1 - 1), out var tint))
                 throw new InvalidDataException();
-            var t = (RawValueType) tint;
+            var t = (RawValueType)tint;
             var ans = new RawValue() { Type = t };
             var content = str.Substring(c1 + 1, str.Length - 2 - c1);
             switch (t)
             {
                 case RawValueType.String:
-                    ans.String = JsonSerializer.Deserialize<string>(content) ?? string.Empty;
+                    ans.String = JsonConvert.DeserializeObject<string>(content) ?? string.Empty;
                     break;
                 case RawValueType.Boolean:
                     ans.Boolean = content.StartsWith("true");
@@ -114,7 +136,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Register;
-            v.Integer = (int) num;
+            v.Integer = (int)num;
             return v;
         }
 
@@ -122,7 +144,7 @@ namespace OpenAS2.Base
         {
             var v = new RawValue();
             v.Type = RawValueType.Constant;
-            v.Integer = (int) id;
+            v.Integer = (int)id;
             return v;
         }
 
@@ -131,7 +153,7 @@ namespace OpenAS2.Base
             if (Type != RawValueType.Integer && Type != RawValueType.Constant && Type != RawValueType.Register)
                 throw new InvalidOperationException();
             else
-                return FromRegister((uint) Integer);
+                return FromRegister((uint)Integer);
         }
 
         public RawValue ToConstant()
@@ -139,7 +161,7 @@ namespace OpenAS2.Base
             if (Type != RawValueType.Integer && Type != RawValueType.Constant && Type != RawValueType.Register)
                 throw new InvalidOperationException();
             else
-                return FromConstant((uint) Integer);
+                return FromConstant((uint)Integer);
         }
 
         public static RawValue FromBoolean(bool cond)
@@ -173,12 +195,12 @@ namespace OpenAS2.Base
             if (num > 0x0FFFFFFF)
             {
                 v.Type = RawValueType.Float;
-                v.Double = (double) num;
+                v.Double = (double)num;
             }
             else
             {
                 v.Type = RawValueType.Integer;
-                v.Integer = (int) num;
+                v.Integer = (int)num;
             }
             return v;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using OpenAS2.Base;
 using OpenAS2.Compilation;
 using OpenAS2.Runtime;
@@ -86,7 +87,14 @@ namespace OpenAS2.Tests
             constFilePath = "fes_m_chapterSelect_Constants";
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));
+
+            var cj = JsonConvert.SerializeObject(code, Formatting.Indented);
+            Console.WriteLine(cj);
+            var cj2 = JsonConvert.DeserializeObject(cj);
+            Console.WriteLine(JsonConvert.SerializeObject(cj2, Formatting.Indented) == cj);
+
             var cstf = StringParsingUtils.ParseConstantStorage(System.IO.File.ReadAllText($"{basePath}/{constFilePath}.cst"));
+            Console.WriteLine(JsonConvert.SerializeObject(cstf));
 
             Console.WriteLine("/Test");
 

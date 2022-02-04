@@ -40,7 +40,7 @@ namespace OpenAS2.Runtime
             var name = Parameters[0].String;
             var nParams = Parameters[1].Integer;
             var nRegisters = Parameters[2].Integer;
-            FunctionPreloadFlags flags = (FunctionPreloadFlags) Parameters[3].Integer;
+            FunctionPreloadFlags flags = (FunctionPreloadFlags)Parameters[3].Integer;
             var size = Parameters[4 + nParams * 2].Integer;
 
             //create a list of parameters
@@ -53,7 +53,7 @@ namespace OpenAS2.Runtime
             var code = context.Stream.GetInstructions(size);
 
             var func = new DefinedFunction(context.Avm, context.ReferredScope, paramList, context.Constants, code, true, nRegisters, flags);
-            
+
 
             var funcVal = Value.FromFunction(func);
 
@@ -102,17 +102,18 @@ namespace OpenAS2.Runtime
         // conversions
 
         // special functions
-    
+
         public static ESCallable.Result ReturnUndefined(ExecutionContext ec, ESObject tv, IList<Value>? args) { return ESCallable.Return(Value.Undefined()); }
 
-        public static ESCallable.Result ThrowTypeError(ExecutionContext ec, ESObject tv, IList<Value>? args) {
+        public static ESCallable.Result ThrowTypeError(ExecutionContext ec, ESObject tv, IList<Value>? args)
+        {
             Value ret = ec.ConstrutError("TypeError", (ESObject.HasArgs(args) ? args![0].ToString() : null) ?? string.Empty);
             return ESCallable.Throw(ret);
         }
     }
 
 
-    public class ESFunction: ESObject
+    public class ESFunction : ESObject
     {
 
         public override string ITypeOfResult => "function";
@@ -158,7 +159,7 @@ namespace OpenAS2.Runtime
         public ESFunction(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces,
             ESCallable.Func call,
             ESCallable.Func? construct,
-            Scope definedScope, 
+            Scope definedScope,
             IEnumerable<string>? formalParameters = null) :
             base(classIndicator, extensible, prototype, interfaces)
         {
@@ -178,8 +179,8 @@ namespace OpenAS2.Runtime
             ESCallable.Func? construct = null,
             Scope? definedScope = null,
             IEnumerable<string>? formalParameters = null,
-            ESObject? proto = null, 
-            bool strict = false): base(vm, "Function", extensible: true)// 1~4
+            ESObject? proto = null,
+            bool strict = false) : base(vm, "Function", extensible: true)// 1~4
         {
             // 5
 
@@ -255,7 +256,7 @@ namespace OpenAS2.Runtime
         {
             if (!(tv is ESFunction))
                 return ESCallable.Throw(ec.ConstrutError("TypeError"));
-            var tvf = (ESFunction) tv;
+            var tvf = (ESFunction)tv;
             var protov = tvf.IGet(ec, "prototype");
             protov.AddRecallCode(res =>
             {
@@ -310,15 +311,15 @@ namespace OpenAS2.Runtime
             }
             return ESCallable.Throw(ec.ConstrutError("TypeError"));
         }
-        
+
 
         public static ESCallable.Result Apply(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
             if (!(thisVar is ESFunction))
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
-            var target = (ESFunction) thisVar;
+            var target = (ESFunction)thisVar;
             var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
-            var fakeArgs = args!.Count > 1 ? ((ESArray) args[1].ToObject()).GetValues() : new List<Value>().AsReadOnly();
+            var fakeArgs = args!.Count > 1 ? ((ESArray)args[1].ToObject()).GetValues() : new List<Value>().AsReadOnly();
             return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
         }
 
@@ -326,7 +327,7 @@ namespace OpenAS2.Runtime
         {
             if (!(thisVar is ESFunction))
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
-            var target = (ESFunction) thisVar;
+            var target = (ESFunction)thisVar;
             var fakeThis = HasArgs(args) ? args![0] : Value.Undefined();
             var fakeArgs = new List<Value>(args != null ? args.Skip(1) : new Value[0]).AsReadOnly();
             return target.ICall(context, fakeThis.ToObjectSafe(), fakeArgs);
@@ -336,7 +337,7 @@ namespace OpenAS2.Runtime
         {
             if (!(thisVar is ESFunction))
                 return ESCallable.Throw(context.ConstrutError("TypeError"));
-            var target = (ESFunction) thisVar;
+            var target = (ESFunction)thisVar;
             var fakeThis = (HasArgs(args) ? args![0] : Value.Undefined()).ToObjectSafe();
             var fakeArgs = new List<Value>(args != null ? args.Skip(1) : new Value[0]).AsReadOnly();
             ESCallable.Func fakeICall = (ec, _, args) => target.ICall(ec, fakeThis, args == null ? fakeArgs : fakeArgs.Union(args).ToList().AsReadOnly());
@@ -355,7 +356,7 @@ namespace OpenAS2.Runtime
 
     }
 
-    public class NativeFunction: ESFunction
+    public class NativeFunction : ESFunction
     {
         public NativeFunction(VirtualMachine vm) : this(vm, FunctionUtils.ReturnUndefined) { }
 
@@ -371,18 +372,18 @@ namespace OpenAS2.Runtime
 
     }
 
-    public class DefinedFunction: ESFunction
+    public class DefinedFunction : ESFunction
     {
         public DefinedFunction(
             VirtualMachine vm,
             Scope scope,
             IEnumerable<Value> paramList,
-            IList<Value> consts, 
+            IList<Value> consts,
             RawInstructionStorage code,
             bool isNewVersion = false,
             int nrReg = 4,
             FunctionPreloadFlags? flags = null
-            ):
+            ) :
             base(vm, ICallDefault, IConstructDefault, scope)
         {
             Parameters = new List<Value>(paramList).AsReadOnly();
@@ -404,7 +405,7 @@ namespace OpenAS2.Runtime
         public static ESCallable.Result ICallDefault(ExecutionContext context, ESObject thisVar, IList<Value>? args)
         {
             var vm = context.Avm;
-            var thisFunc = (DefinedFunction) thisVar;
+            var thisFunc = (DefinedFunction)thisVar;
             var thisEC = thisFunc.GetContext(vm, args ?? new Value[0], thisVar);
             vm.PushContext(thisEC);
             return new(thisEC);
@@ -416,7 +417,7 @@ namespace OpenAS2.Runtime
 
             if (args == null)
                 args = new Value[0];
-            
+
             if (!IsNewVersion) // parameters in the old version are just stored as local variables
             {
                 var s = context.ReferredScope;
@@ -463,5 +464,5 @@ namespace OpenAS2.Runtime
 
     }
 
-   
+
 }

@@ -154,7 +154,7 @@ namespace OpenAS2.Compilation
                             // Console.WriteLine($"{startBlock}; {endBlock}; {i}; {branchBlock};");
 
                         }
-                            
+
                     }
 
                     // TODO outer block sanity check?

@@ -117,7 +117,7 @@ namespace OpenAS2.Compilation
                     sb.Append(" // ");
                     sb.Append(labels);
                 }
-                
+
                 sb.Append("\n");
 
             }
@@ -274,7 +274,7 @@ namespace OpenAS2.Compilation
                 ret = null;
             else
             {
-                var node = (SNExpression) NodeList[ind];
+                var node = (SNExpression)NodeList[ind];
 
                 // some special nodes shouldn't be deleted like Enumerate
                 ableToDelete = !node.DoNotDeleteAfterPopped;
@@ -308,7 +308,7 @@ namespace OpenAS2.Compilation
             var nexp = PopExpression();
             var count = 0;
             if (nexp is SNLiteral s && s.Value is RawValue v)
-                count = v.Integer == 0 ? (int) v.Double : v.Integer;
+                count = v.Integer == 0 ? (int)v.Double : v.Integer;
             for (int i = 0; i < count; ++i)
             {
                 if (readPair)
@@ -331,7 +331,7 @@ namespace OpenAS2.Compilation
         {
             return NodeList.Skip(ParentNodeDivision)
                 .Where(x => x is SNStatement || x is SNFunctionCall)
-                .Select(x => x is SNStatement ? x : new SNToStatement((SNExpression) x))
+                .Select(x => x is SNStatement ? x : new SNToStatement((SNExpression)x))
                 .Where(x => !_special.ContainsKey(x))
                 .Cast<SNStatement>();
         }
@@ -547,9 +547,9 @@ namespace OpenAS2.Compilation
                 foreach (var (c1, c2) in np1.Zip(np2, (x, y) => (x, y)))
                 {
                     var ns2 = SNTernary.Check(bexp as SNExpression, c1, c2);
-                        // _special[ns2] = 1;
-                        PushNode(ns2);
-                    
+                    // _special[ns2] = 1;
+                    PushNode(ns2);
+
                 }
             }
             else if (chain.Type == CodeType.Loop)

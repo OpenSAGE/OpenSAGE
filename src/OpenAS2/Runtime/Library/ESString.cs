@@ -8,14 +8,14 @@ namespace OpenAS2.Runtime.Library
         public static new readonly Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
             ["length"] = () => PropertyDescriptor.A(
-               (ec, tv, args) => ESCallable.Return(Value.FromInteger(((ESString) tv).GetLength())),
+               (ec, tv, args) => ESCallable.Return(Value.FromInteger(((ESString)tv).GetLength())),
                null, false, false),
         };
 
         public static new readonly Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
         {
-            ["substr"] = 
-                 (vm, tv, args) => ((ESString) tv).substr(args)
+            ["substr"] =
+                 (vm, tv, args) => ((ESString)tv).substr(args)
                  ,
         };
 
@@ -27,7 +27,7 @@ namespace OpenAS2.Runtime.Library
 
         public static new readonly Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
         {
-            
+
         };
 
         public static readonly ESCallable.Func IConstructDefault = (ec, tv, args) =>

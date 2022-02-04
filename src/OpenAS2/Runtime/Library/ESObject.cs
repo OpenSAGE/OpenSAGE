@@ -6,7 +6,7 @@ using OpenAS2.Compilation.Syntax;
 using OpenAS2.Runtime.Dom;
 
 namespace OpenAS2.Runtime
-{ 
+{
     public class ESObject
     {
         // global definitions
@@ -65,7 +65,7 @@ namespace OpenAS2.Runtime
             classIndicator = classIndicator ?? "Object";
             protoIndicator = protoIndicator ?? "Object";
             // 4
-            if (vm != null && vm.Prototypes.TryGetValue(classIndicator, out var proto)) 
+            if (vm != null && vm.Prototypes.TryGetValue(classIndicator, out var proto))
                 IPrototype = proto;
             else if (vm != null && vm.Prototypes.TryGetValue(protoIndicator, out proto))
                 IPrototype = proto;
@@ -176,7 +176,7 @@ namespace OpenAS2.Runtime
                 return ESCallable.Return(pd.Value);
             else
             {
-                var pa = (NamedAccessoryProperty) prop!;
+                var pa = (NamedAccessoryProperty)prop!;
                 var fres = pa.Get(ec, this, null);
                 return fres;
             }
@@ -190,7 +190,7 @@ namespace OpenAS2.Runtime
                 return pa.Set != null;
             else if (prop != null)
             {
-                var pd = (NamedDataProperty) prop!;
+                var pd = (NamedDataProperty)prop!;
                 if (own)
                     return pd.Writable;
                 else
@@ -230,7 +230,7 @@ namespace OpenAS2.Runtime
             return prop == null;
         }
 
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -347,7 +347,7 @@ namespace OpenAS2.Runtime
                 {
                     ans = false;
                 }
-                    
+
             }
             if (!ans && doThrow)
             {
@@ -357,7 +357,7 @@ namespace OpenAS2.Runtime
             return ESCallable.Return(Value.FromBoolean(ans));
         }
 
-        
+
 
         // utils
         public ESCallable.Result TryCall(ExecutionContext ec, string fname, IList<Value>? args)
@@ -385,7 +385,7 @@ namespace OpenAS2.Runtime
                 IDefineOwnProperty(ec, k, v(), doThrow);
         }
 
-        public void DefineAllMethods(ExecutionContext? ec, VirtualMachine vm, Dictionary<string, ESCallable.Func>props)
+        public void DefineAllMethods(ExecutionContext? ec, VirtualMachine vm, Dictionary<string, ESCallable.Func> props)
         {
             foreach (var (k, v) in props)
                 IDefineOwnProperty(ec, k, PropertyDescriptor.D(Value.FromFunction(new NativeFunction(vm, v)), true, false, true));
@@ -414,7 +414,7 @@ namespace OpenAS2.Runtime
         public static bool HasArgs(IList<Value>? args, uint leastCount = 0) { return args != null && args.Count >= leastCount; }
 
         public static Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
-        { 
+        {
 
             // methods
             ["toString"] = (ec, tv, args) =>
@@ -422,9 +422,9 @@ namespace OpenAS2.Runtime
                     var ans = tv == null ? "[object Undefined]" : tv.ToString();
                     return ESCallable.Return(Value.FromString(ans));
                 },
-            ["toLocaleString"] = 
+            ["toLocaleString"] =
                 (ec, tv, args) => tv.TryCall(ec, "toString", args),
-            ["valueOf"] = 
+            ["valueOf"] =
                 (ec, tv, args) =>
                 {
                     if (tv is HostObject)
@@ -433,31 +433,34 @@ namespace OpenAS2.Runtime
                         return ESCallable.Return(Value.FromObject(tv));
                 },
 
-            ["hasOwnProperty"] = 
-                (ec, tv, args) => {
+            ["hasOwnProperty"] =
+                (ec, tv, args) =>
+                {
                     var ans = false;
                     if (HasArgs(args))
-                       ans = tv.IGetProperty(args![0].ToString(), out var _, onlySearchOwn: true) != null;
+                        ans = tv.IGetProperty(args![0].ToString(), out var _, onlySearchOwn: true) != null;
                     return ESCallable.Return(Value.FromBoolean(ans));
                 },
-            ["isPrototypeOf"] = 
-                (ec, tv, args) => {
+            ["isPrototypeOf"] =
+                (ec, tv, args) =>
+                {
                     var ans = false;
                     if (HasArgs(args) && args![0].Type == ValueType.Object)
                         tv.IsPrototypeOf(args[0].ToObject());
                     return ESCallable.Return(Value.FromBoolean(ans));
                 },
-            ["propertyIsEnumerable"] = 
-                 (ec, tv, args) => {
+            ["propertyIsEnumerable"] =
+                 (ec, tv, args) =>
+                 {
                      var ans = false;
                      if (HasArgs(args))
                          ans = tv.IsPropertyEnumerable(args![0].ToString());
                      return ESCallable.Return(Value.FromBoolean(ans));
                  },
-            ["isPropertyEnumerable"] = 
+            ["isPropertyEnumerable"] =
                 (ec, tv, args) => tv.TryCall(ec, "propertyIsEnumerable", args),
 
-            ["addProperty"] = 
+            ["addProperty"] =
                  (ec, tv, args) =>
                  {
                      var ans = false;
@@ -473,7 +476,7 @@ namespace OpenAS2.Runtime
                      return ESCallable.Return(Value.FromBoolean(ans));
                  },
 
-            
+
 
 
         };
@@ -490,8 +493,8 @@ namespace OpenAS2.Runtime
                     if (args != null && args.Count > 0 && args[0].Type == ValueType.Object)
                         return ESCallable.Return(Value.FromObject(args[0].ToObject()!.IPrototype));
                     return ESCallable.Throw(ec.ConstrutError("TypeError"));
-                }, 
-            ["getOwnPropertyDescriptor"] = 
+                },
+            ["getOwnPropertyDescriptor"] =
                 (ec, tv, args) =>
                 {
                     if (args != null && args.Count > 0 && args[0].Type == ValueType.Object)

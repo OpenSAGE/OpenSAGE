@@ -11,10 +11,10 @@ namespace OpenAS2.Base
 
     public enum TagType
     {
-        None, 
+        None,
         Label,
         GotoLabel,
-        DefineFunction, 
+        DefineFunction,
     }
 
     public enum CodeType
@@ -37,7 +37,7 @@ namespace OpenAS2.Base
         public override InstructionType Type => Inner.Type;
         public override IList<RawValue> Parameters => Inner.Parameters;
 
-        public LogicalTaggedInstruction(RawInstruction instruction, string tag = "", TagType type = TagType.None): base(instruction.Type, null, false)
+        public LogicalTaggedInstruction(RawInstruction instruction, string tag = "", TagType type = TagType.None) : base(instruction.Type, null, false)
         {
             Inner = instruction;
             Tag = tag;
@@ -73,11 +73,11 @@ namespace OpenAS2.Base
         {
             if (instruction.Type == InstructionType.DefineFunction2)
             {
-                var flags = (FunctionPreloadFlags) instruction.Parameters[3].Integer;
+                var flags = (FunctionPreloadFlags)instruction.Parameters[3].Integer;
                 regNames = Preload(flags, instruction.Parameters);
             }
-            Instructions = insts != null ? new (insts!, indexOffset, constPool, regNames) : new(new()) ;
-            
+            Instructions = insts != null ? new(insts!, indexOffset, constPool, regNames) : new(new());
+
         }
 
         public static LogicalFunctionContext OptimizeGraph(LogicalFunctionContext fc)
@@ -135,7 +135,7 @@ namespace OpenAS2.Base
             }
             return _registers;
         }
-        
+
     }
 
     public class InstructionBlock
@@ -289,7 +289,7 @@ namespace OpenAS2.Base
 
                     var codes = stream.GetInstructions(size, true, true);
                     instruction = new LogicalFunctionContext(instruction, codes, IndexOffset + index + 1, ConstPool, RegNames);
-                    ((LogicalFunctionContext) instruction).Instructions.ConstPool = ConstPool;
+                    ((LogicalFunctionContext)instruction).Instructions.ConstPool = ConstPool;
                 }
 
 
@@ -415,7 +415,7 @@ namespace OpenAS2.Base
                 sb.Append("\"];\n");
             }
             for (var b = BaseBlock; b != null; b = b.NextBlockDefault)
-            { 
+            {
                 if (!b.HasBranch && b.NextBlockDefault != null)
                 {
                     sb.Append(space4);
@@ -435,7 +435,7 @@ namespace OpenAS2.Base
                     sb.Append(space4);
                     sb.Append(FormEdge(b.Hierarchy, b.NextBlockCondition!.Hierarchy, c2, prefix));
                 }
-                    
+
             }
             sb.Append($"{indent}}}\n");
             return sb.ToString();
@@ -535,6 +535,6 @@ namespace OpenAS2.Base
 
     }
 
-    
+
 
 }

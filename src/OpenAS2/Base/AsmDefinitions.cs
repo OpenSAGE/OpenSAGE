@@ -316,7 +316,7 @@ namespace OpenAS2.Base
                 case RawParamType.Jump32:
                 case RawParamType.Float:
                     return 4;
-                
+
                 case RawParamType.Jump64:
                 case RawParamType.Double:
                     return 8;

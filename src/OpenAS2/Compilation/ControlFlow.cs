@@ -29,7 +29,7 @@ namespace OpenAS2.Compilation
                     e[n] = new() { n.NextBlockDefault! };
                 e[n] = e[n].Where(x => x != null).ToList();
             }
-                
+
 
             // D(n)
             Dictionary<InstructionBlock, HashSet<InstructionBlock>> d = new();

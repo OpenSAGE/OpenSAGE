@@ -20,7 +20,7 @@ namespace OpenAS2.Runtime.Execution
     {
 
         static readonly OPR1 TypeOf = (v) => Value.FromString(v.GetStringType());
-        static void DoCastOp (ExecutionContext context)
+        static void DoCastOp(ExecutionContext context)
         {
             var obj = context.Pop().ToObject();
             var cst = context.Pop().ToFunction();
@@ -189,7 +189,7 @@ namespace OpenAS2.Runtime.Execution
             });
             return vs;
         };
-        
+
 
         public static void DoCallFunction(ExecutionContext context, int opr)
         {

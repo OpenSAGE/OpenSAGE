@@ -15,7 +15,7 @@ namespace OpenAS2.Compilation.Syntax
             switch (inst.Type)
             {
                 case InstructionType.End:
-                    return true; 
+                    return true;
                 case InstructionType.Padding:
                     return true;
 

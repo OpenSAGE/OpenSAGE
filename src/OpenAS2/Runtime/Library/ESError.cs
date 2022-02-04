@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenAS2.Runtime.Library
 {
-    public class WrappedESError: Exception
+    public class WrappedESError : Exception
     {
         public ESError E { get; private set; }
 
@@ -41,7 +41,7 @@ namespace OpenAS2.Runtime.Library
 
         public static string[] NativeErrorList = new string[] { "EvalError", "RangeError", "ReferenceError", "SyntaxError", "URIError", "TypeError" };
 
-        public ESError(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces): base(classIndicator, extensible, prototype, interfaces)
+        public ESError(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces) : base(classIndicator, extensible, prototype, interfaces)
         {
 
         }

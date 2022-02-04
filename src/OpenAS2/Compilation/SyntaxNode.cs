@@ -160,7 +160,7 @@ namespace OpenAS2.Compilation
         {
             flag = sn is SNLiteral snl && snl.IsStringLiteral;
             if (flag)
-                return new SNNominator(((SNLiteral) sn).GetRawString());
+                return new SNNominator(((SNLiteral)sn).GetRawString());
             else
                 return sn;
         }
@@ -285,7 +285,7 @@ namespace OpenAS2.Compilation
 
         public override string TryComposeRaw(StatementCollection sta)
         {
-            return $"{_c.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed)} ? {_t.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)} : {_f.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)}"; 
+            return $"{_c.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed)} ? {_t.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)} : {_f.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed, true)}";
         }
     }
 
@@ -387,9 +387,10 @@ namespace OpenAS2.Compilation
             var s1 = E1.TryComposeWithPrecendence(sta, LowestPrecendenceAllowed);
             var flag2 = string.IsNullOrEmpty(s1) || s1 == "undefined";
             var s2 = flag ?
-                ((SNLiteral) E2).GetRawString() :
+                ((SNLiteral)E2).GetRawString() :
                 E2.TryComposeWithPrecendence(sta, MinPrecendence);
-            if (flag2) {
+            if (flag2)
+            {
                 return flag ? s2 : $"this[{s2}]";
             }
             var p = flag ? _pattern2 : Pattern;
@@ -426,7 +427,8 @@ namespace OpenAS2.Compilation
         public static SNOperator NewWithoutArgs(SNExpression e) { return new SNUnary(17, SNOperator.Order.RightToLeft, "new {0}", e); }
         public static SNOperator PostfixIncrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0}++", e); }
         public static SNOperator PostfixDecrement(SNExpression e) { return new SNUnary(16, SNOperator.Order.NotAcceptable, "{0}--", e); }
-        public static SNExpression LogicalNot(SNExpression e) {
+        public static SNExpression LogicalNot(SNExpression e)
+        {
             if (e is SNUnary su && su.Pattern == "!{0}")
                 return su.E;
             else if (e is SNBinary sb)
@@ -495,7 +497,7 @@ namespace OpenAS2.Compilation
         public static SNOperator ValAssignNullCoalese(SNExpression? e1, SNExpression? e2) { return new SNBinary(2, SNOperator.Order.RightToLeft, "{0} ??= {1}", e1, e2); }
         public static SNOperator Yield(SNExpression e) { return new SNUnary(2, SNOperator.Order.RightToLeft, "yield {0}", e); }
         public static SNOperator Yield2(SNExpression e) { return new SNUnary(2, SNOperator.Order.RightToLeft, "yield* {0}", e); }
-        public static SNOperator CommaSequence(SNExpression ? e1, SNExpression ? e2) { return new SNBinary(1, SNOperator.Order.LeftToRight, "{0} , {1}", e1, e2); }
+        public static SNOperator CommaSequence(SNExpression? e1, SNExpression? e2) { return new SNBinary(1, SNOperator.Order.LeftToRight, "{0} , {1}", e1, e2); }
 
     }
 
@@ -633,7 +635,7 @@ namespace OpenAS2.Compilation
             Instruction = inst;
             _info = CompilationUtils.GetNameAndArguments(Instruction);
         }
-        
+
         public override bool TryCompose(StatementCollection sta, StringBuilder sb)
         {
             var (name, args) = _info;
@@ -675,7 +677,7 @@ namespace OpenAS2.Compilation
 
     }
 
-    public class SNControlCase: SNControl
+    public class SNControlCase : SNControl
     {
 
         public SNExpression Condition;
@@ -684,7 +686,7 @@ namespace OpenAS2.Compilation
 
         public SNControlCase(
             SNExpression? condition,
-            StatementCollection unbranch, 
+            StatementCollection unbranch,
             StatementCollection branch
             ) : base()
         {
@@ -709,7 +711,7 @@ namespace OpenAS2.Compilation
             {
                 ret = sta.Nodes.ElementAt(0) is SNControlCase;
                 if (ret)
-                    c = (SNControlCase) sta.Nodes.ElementAt(0);
+                    c = (SNControlCase)sta.Nodes.ElementAt(0);
             }
             else
             {
@@ -719,7 +721,7 @@ namespace OpenAS2.Compilation
                 {
                     if (n is SNControlCase)
                     {
-                        c = (SNControlCase) n;
+                        c = (SNControlCase)n;
                         ++cases;
                     }
                     else
@@ -748,7 +750,7 @@ namespace OpenAS2.Compilation
 
             var b1 = Unbranch;
             var b2 = Branch;
-            var ei1 = IsElseIfBranch(b1, out var nc1); 
+            var ei1 = IsElseIfBranch(b1, out var nc1);
             var ei2 = IsElseIfBranch(b2, out var nc2); // these are ensured to compile
 
             // do not need to reverse since it is already done in node pool

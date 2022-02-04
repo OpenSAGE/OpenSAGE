@@ -9,7 +9,7 @@ namespace OpenAS2.Runtime.Library
         public static new readonly Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
             ["length"] = () => PropertyDescriptor.A(
-               (ec, tv, args) => ESCallable.Return(Value.FromInteger(((ESArray) tv).GetLength())),
+               (ec, tv, args) => ESCallable.Return(Value.FromInteger(((ESArray)tv).GetLength())),
                null, false, false),
         };
 
@@ -26,7 +26,7 @@ namespace OpenAS2.Runtime.Library
                         return res.Value.ToFunction().ICall(ec, tv, new Value[1] { Value.FromString(",") });
                 });
                 return ans;
-            }, 
+            },
             ["join"] = (ec, tv, args) =>
             {
                 if (!(tv is ESArray))
@@ -34,7 +34,7 @@ namespace OpenAS2.Runtime.Library
                 var spr = ",";
                 if (HasArgs(args) && !args![0].IsUndefined())
                     spr = args[0].ToString();
-                return ((ESArray) tv).Join(ec, spr);
+                return ((ESArray)tv).Join(ec, spr);
             },
         };
 
@@ -54,7 +54,7 @@ namespace OpenAS2.Runtime.Library
                 return ESCallable.Return(Value.FromBoolean(ret));
             }
         };
-        
+
         public static readonly ESCallable.Func IConstructDefault = (ec, tv, args) =>
         {
             if (HasArgs(args) && args![0].IsNumber())
@@ -96,12 +96,12 @@ namespace OpenAS2.Runtime.Library
             }
         }
 
-        public ESArray(VirtualMachine vm): base(vm, "Array")
+        public ESArray(VirtualMachine vm) : base(vm, "Array")
         {
             _values = new() { Value.Undefined() };
         }
 
-        public ESArray(IEnumerable<Value>? args, VirtualMachine vm): base(vm, "Array")
+        public ESArray(IEnumerable<Value>? args, VirtualMachine vm) : base(vm, "Array")
         {
             if (args == null) _values = new List<Value>();
             else _values = new List<Value>(args);
@@ -126,7 +126,7 @@ namespace OpenAS2.Runtime.Library
             else if (_values.Count == 0)
                 return _values[0].ToString(ec);
             StringBuilder sb = new();
-            
+
             for (int i = 0; i < _values.Count; ++i)
             {
                 var ret = _values[i].ToString(ec);
