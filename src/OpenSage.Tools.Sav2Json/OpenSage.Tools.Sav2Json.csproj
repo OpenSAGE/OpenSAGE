@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
+    <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj" />
   </ItemGroup>
 
