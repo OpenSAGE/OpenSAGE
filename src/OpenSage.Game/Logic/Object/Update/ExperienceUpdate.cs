@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.FX;
 
@@ -118,7 +119,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var upgrade in _currentLevel.Upgrades)
                 {
-                    _gameObject.RemoveUpgrade(upgrade.Value);
+                    upgrade.Value.RemoveUpgrade(_gameObject);
                 }
             }
 
@@ -137,7 +138,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var upgrade in _nextLevel.Upgrades)
                 {
-                    _gameObject.Upgrade(upgrade.Value);
+                    upgrade.Value.GrantUpgrade(_gameObject);
                 }
             }
 

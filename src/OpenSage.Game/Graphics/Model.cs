@@ -22,6 +22,7 @@ namespace OpenSage.Graphics
                 var subObject = subObjects[i];
                 modelSubObjects[i] = new ModelSubObject(
                     subObject.Name,
+                    subObject.Name,
                     hierarchy.Bones[subObject.BoneIndex],
                     subObject.RenderObject);
             }
@@ -31,6 +32,8 @@ namespace OpenSage.Graphics
 
         public readonly ModelBoneHierarchy BoneHierarchy;
         public readonly ModelSubObject[] SubObjects;
+
+        public readonly bool HasSkinnedMeshes;
 
         internal Model(
             string name,
@@ -56,6 +59,15 @@ namespace OpenSage.Graphics
         {
             BoneHierarchy = boneHierarchy;
             SubObjects = subObjects;
+
+            foreach (var subObject in subObjects)
+            {
+                if (subObject.RenderObject is ModelMesh modelMesh && modelMesh.Skinned)
+                {
+                    HasSkinnedMeshes = true;
+                    break;
+                }
+            }
         }
 
         internal ModelInstance CreateInstance(AssetLoadContext loadContext)

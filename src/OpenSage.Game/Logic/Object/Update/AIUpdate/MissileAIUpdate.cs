@@ -1,10 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
+using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,6 +13,21 @@ namespace OpenSage.Logic.Object
 
         private MissileState _state;
         private TimeSpan _nextStateChangeTime;
+
+        private Vector3 _unknownPosition;
+        private uint _stateMaybe;
+        private uint _unknownFrame1;
+        private uint _launcherObjectId;
+        private uint _unknownObjectId;
+        private bool _unknownBool1;
+        private uint _unknownFrame2;
+        private float _unknownFloat1;
+        private WeaponTemplate _weaponTemplate;
+        private FXParticleSystemTemplate _exhaustParticleSystemTemplate;
+        private bool _unknownBool2;
+        private Vector3 _currentPositionMaybe;
+        private int _unknownInt2;
+        private int _unknownInt3;
 
         internal FXList DetonationFX { get; set; }
 
@@ -74,65 +88,53 @@ namespace OpenSage.Logic.Object
             base.Update(context);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 4)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(4);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknownPosition = reader.ReadVector3();
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistUInt32(ref _stateMaybe);
+            reader.PersistFrame(ref _unknownFrame1);
 
-            var stateMaybe = reader.ReadUInt32();
-
-            var frameSomething = reader.ReadUInt32();
-
-            var unknownInt1 = reader.ReadInt32();
+            var unknownInt1 = int.MaxValue;
+            reader.PersistInt32(ref unknownInt1);
             if (unknownInt1 != int.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var launcherObjectId = reader.ReadUInt32();
+            reader.PersistObjectID(ref _launcherObjectId);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistSingle(ref _unknownFloat1);
 
-            var objectIdSomething = reader.ReadUInt32();
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1 != true)
-            {
-                throw new InvalidDataException();
-            }
-
-            var frameSomething2 = reader.ReadUInt32();
-
-            var unknownFloat1 = reader.ReadSingle();
-
-            var unknownFloat2 = reader.ReadSingle();
+            var unknownFloat2 = 99999.0f;
+            reader.PersistSingle(ref unknownFloat2);
             if (unknownFloat2 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var weaponTemplateName = reader.ReadBytePrefixedAsciiString();
-            var weaponTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
+            var weaponTemplateName = _weaponTemplate?.Name;
+            reader.PersistAsciiString(ref weaponTemplateName);
+            _weaponTemplate = reader.AssetStore.WeaponTemplates.GetByName(weaponTemplateName);
 
-            var exhaustParticleSystemTemplateName = reader.ReadBytePrefixedAsciiString();
-            var exhaustParticleSystemTemplate = GameObject.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
-
-            var unknownBool2 = reader.ReadBoolean();
-
-            var currentPositionMaybe = reader.ReadVector3();
-
-            var unknownInt3 = reader.ReadInt32();
-            if (unknownInt3 != 0)
+            var exhaustParticleSystemTemplateName = _exhaustParticleSystemTemplate?.Name;
+            reader.PersistAsciiString(ref exhaustParticleSystemTemplateName);
+            if (reader.Mode == StatePersistMode.Read)
             {
-                throw new InvalidDataException();
+                _exhaustParticleSystemTemplate = reader.AssetStore.FXParticleSystemTemplates.GetByName(exhaustParticleSystemTemplateName);
             }
 
-            var unknownInt4 = reader.ReadInt32(); // 1960
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistVector3(ref _currentPositionMaybe);
+            reader.PersistInt32(ref _unknownInt2); // 0, 0x20000
+            reader.PersistInt32(ref _unknownInt3); // 1960
         }
 
         private enum MissileState

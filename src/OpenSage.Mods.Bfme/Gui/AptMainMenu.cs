@@ -25,7 +25,7 @@ namespace OpenSage.Mods.Bfme.Gui
         // Close the game
         public static void ExitGame(string param, ExecutionContext context, AptWindow window, Game game)
         {
-            game.Window.Close();
+            game.Exit();
         }
 
         public static void StopGameMovie(string param, ExecutionContext context, AptWindow window, Game game)

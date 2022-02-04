@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -13,9 +10,29 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Client
 {
-    public sealed class Drawable : Entity
+    public sealed class Drawable : Entity, IPersistableObject
     {
-        private readonly ObjectDefinition _definition;
+        private readonly Dictionary<string, ModuleBase> _tagToModuleLookup = new();
+
+        private void AddDrawModule(string tag, DrawModule module)
+        {
+            module.Tag = tag;
+            _drawModules.Add(module);
+            _tagToModuleLookup.Add(tag, module);
+        }
+
+        private void AddClientUpdateModule(string tag, ClientUpdateModule module)
+        {
+            module.Tag = tag;
+            _clientUpdateModules.Add(module);
+            _tagToModuleLookup.Add(tag, module);
+        }
+
+        private ModuleBase GetModuleByTag(string tag)
+        {
+            return _tagToModuleLookup[tag];
+        }
+
         private readonly GameContext _gameContext;
 
         private readonly List<string> _hiddenDrawModules;
@@ -23,6 +40,7 @@ namespace OpenSage.Client
         private readonly Dictionary<string, bool> _shownSubObjects;
 
         public readonly GameObject GameObject;
+        public readonly ObjectDefinition Definition;
 
         public readonly IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates;
 
@@ -35,22 +53,67 @@ namespace OpenSage.Client
 
         private readonly List<ClientUpdateModule> _clientUpdateModules;
 
-        public uint DrawableID { get; private set; }
+        private uint _id;
+
+        public uint ID
+        {
+            get => _id;
+            internal set
+            {
+                var oldDrawableId = _id;
+
+                _id = value;
+
+                _gameContext.GameClient.OnDrawableIdChanged(this, oldDrawableId);
+            }
+        }
+
+        public uint GameObjectID => GameObject?.ID ?? 0u;
+
+        private Matrix4x3 _transformMatrix;
 
         private ColorFlashHelper _selectionFlashHelper;
         private ColorFlashHelper _scriptedFlashHelper;
 
         private ObjectDecalType _objectDecalType;
 
+        private float _unknownFloat2;
+        private float _unknownFloat3;
+        private float _unknownFloat4;
+        private float _unknownFloat6;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownInt6;
+
+        private bool _hasUnknownFloats;
+        private readonly float[] _unknownFloats = new float[19];
+
+        private uint _unknownInt7;
+
+        private uint _flashFrameCount;
+        private ColorRgba _flashColor;
+
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
+        private bool _someMatrixIsIdentity;
+        private Matrix4x3 _someMatrix;
+
+        private Animation _animation;
+
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
-            _definition = objectDefinition;
+            Definition = objectDefinition;
             _gameContext = gameContext;
             GameObject = gameObject;
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            var drawModules = new List<DrawModule>();
+            _drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
                 var drawModuleData = (DrawModuleData) drawDataContainer.Data;
@@ -58,13 +121,11 @@ namespace OpenSage.Client
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(drawDataContainer.Tag, drawModule);
-                    drawModules.Add(drawModule);
+                    AddDrawModule(drawDataContainer.Tag, drawModule);
                 }
             }
-            _drawModules = drawModules;
 
-            ModelConditionStates = drawModules
+            ModelConditionStates = _drawModules
                 .SelectMany(x => x.ModelConditionStates)
                 .Distinct()
                 .OrderBy(x => x.NumBitsSet)
@@ -82,8 +143,7 @@ namespace OpenSage.Client
                 if (clientUpdateModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
-                    _clientUpdateModules.Add(clientUpdateModule);
+                    AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
             }
         }
@@ -150,7 +210,7 @@ namespace OpenSage.Client
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime, in Matrix4x4 worldMatrix, in MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)
         {
             var castsShadow = false;
-            switch (_definition.Shadow)
+            switch (Definition.Shadow)
             {
                 case ObjectShadowType.ShadowVolume:
                 case ObjectShadowType.ShadowVolumeNew:
@@ -253,150 +313,201 @@ namespace OpenSage.Client
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(5);
+            reader.PersistVersion(5);
 
-            DrawableID = reader.ReadUInt32();
+            var id = ID;
+            reader.PersistUInt32(ref id);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                ID = id;
+            }
 
-            var modelConditionFlags = reader.ReadBitArray<ModelConditionFlag>();
-            CopyModelConditionFlags(modelConditionFlags);
+            var modelConditionFlags = ModelConditionFlags.Clone();
+            reader.PersistBitArray(ref modelConditionFlags);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                CopyModelConditionFlags(modelConditionFlags);
+            }
 
-            var transform = reader.ReadMatrix4x3();
+            reader.PersistMatrix4x3(ref _transformMatrix);
 
-            var hasSelectionFlashHelper = reader.ReadBoolean();
+            var hasSelectionFlashHelper = _selectionFlashHelper != null;
+            reader.PersistBoolean(ref hasSelectionFlashHelper);
             if (hasSelectionFlashHelper)
             {
                 _selectionFlashHelper ??= new ColorFlashHelper();
-                _selectionFlashHelper.Load(reader);
+                reader.PersistObject(_selectionFlashHelper);
             }
 
-            var hasScriptedFlashHelper = reader.ReadBoolean();
+            var hasScriptedFlashHelper = _scriptedFlashHelper != null;
+            reader.PersistBoolean(ref hasScriptedFlashHelper);
             if (hasScriptedFlashHelper)
             {
                 _scriptedFlashHelper ??= new ColorFlashHelper();
-                _scriptedFlashHelper.Load(reader);
+                reader.PersistObject(_scriptedFlashHelper);
             }
 
-            _objectDecalType = reader.ReadEnum<ObjectDecalType>();
+            reader.PersistEnum(ref _objectDecalType);
 
-            for (var i = 0; i < 6; i++)
+            var unknownFloat1 = 1.0f;
+            reader.PersistSingle(ref unknownFloat1);
+            if (unknownFloat1 != 1)
             {
-                var unknownFloat = reader.ReadSingle();
+                throw new InvalidStateException();
             }
 
-            var objectId = reader.ReadUInt32();
-            if (objectId != GameObject.ID)
+            reader.PersistSingle(ref _unknownFloat2); // 0, 1
+            reader.PersistSingle(ref _unknownFloat3); // 0, 1
+            reader.PersistSingle(ref _unknownFloat4); // 0, 1
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistSingle(ref _unknownFloat6); // 0, 1
+
+            var objectId = GameObjectID;
+            reader.PersistUInt32(ref objectId);
+            if (objectId != GameObjectID)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownInt1 = reader.ReadUInt32();
-            if (unknownInt1 != 0 && unknownInt1 != 1 && unknownInt1 != 2 && unknownInt1 != 3)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2); // 0, 1
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32(ref _unknownInt6);
 
-            for (var i = 0; i < 5; i++)
+            reader.PersistBoolean(ref _hasUnknownFloats);
+            if (_hasUnknownFloats)
             {
-                var unknownInt = reader.ReadUInt32();
-                if (unknownInt != 0)
+                reader.PersistArray(_unknownFloats, static (StatePersister persister, ref float item) =>
                 {
-                    throw new InvalidDataException();
-                }
+                    persister.PersistSingleValue(ref item);
+                });
             }
 
-            var unknownBool4 = reader.ReadBoolean();
-            if (unknownBool4)
+            PersistModules(reader);
+
+            reader.PersistUInt32(ref _unknownInt7);
+
+            reader.PersistUInt32(ref _flashFrameCount);
+            reader.PersistColorRgba(ref _flashColor);
+
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistBoolean(ref _someMatrixIsIdentity);
+
+            reader.PersistMatrix4x3(ref _someMatrix, false);
+
+            var unknownFloat10 = 1.0f;
+            reader.PersistSingle(ref unknownFloat10);
+            if (unknownFloat10 != 1)
             {
-                for (var j = 0; j < 19; j++)
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(4);
+
+            var unknownInt8 = 0u;
+            reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
+
+            var hasAnimation2D = _animation != null;
+            reader.PersistBoolean(ref hasAnimation2D);
+            if (hasAnimation2D)
+            {
+                var animation2DName = _animation?.Template.Name;
+                reader.PersistAsciiString(ref animation2DName);
+
+                reader.SkipUnknownBytes(4);
+
+                var animation2DName2 = animation2DName;
+                reader.PersistAsciiString(ref animation2DName2);
+                if (animation2DName2 != animation2DName)
                 {
-                    reader.ReadSingle();
+                    throw new InvalidStateException();
                 }
-            }
 
-            LoadModules(reader);
-
-            var unknownInt4 = reader.ReadUInt32();
-            if (unknownInt4 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt5 = reader.ReadUInt32();
-            if (unknownInt5 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt6 = reader.ReadUInt32();
-
-            var unknownBool5 = reader.ReadBoolean();
-
-            for (var i = 0; i < 5; i++)
-            {
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
+                if (reader.Mode == StatePersistMode.Read)
                 {
-                    throw new InvalidDataException();
+                    var animationTemplate = reader.AssetStore.Animations.GetByName(animation2DName);
+                    _animation = new Animation(animationTemplate);
                 }
+
+                reader.PersistObject(_animation);
             }
 
-            var unknownBool6 = reader.ReadBoolean();
-
-            var unknownMatrix = reader.ReadMatrix4x3(false);
-
-            var unknownFloat2 = reader.ReadSingle();
-            if (unknownFloat2 != 1)
+            var unknownBool3 = true;
+            reader.PersistBoolean(ref unknownBool3);
+            if (!unknownBool3)
             {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt2 = reader.ReadUInt32();
-            if (unknownInt2 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt3 = reader.ReadUInt32();
-            if (unknownInt3 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool2 = reader.ReadBoolean();
-            if (!unknownBool2)
-            {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
         }
 
-        private void LoadModules(SaveFileReader reader)
+        private void PersistModules(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.BeginObject("ModuleGroups");
 
-            var numModuleGroups = reader.ReadUInt16();
-            for (var i = 0; i < numModuleGroups; i++)
+            reader.PersistVersion(1);
+
+            ushort numModuleGroups = 2;
+            reader.PersistUInt16(ref numModuleGroups);
+
+            if (numModuleGroups != 2)
             {
-                var numModules = reader.ReadUInt16();
-                for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
-                {
-                    var moduleTag = reader.ReadAsciiString();
-
-                    reader.BeginSegment();
-
-                    var module = GetModuleByTag(moduleTag);
-                    module.Load(reader.Inner);
-
-                    reader.EndSegment();
-                }
+                throw new InvalidStateException();
             }
+
+            PersistModuleGroup(reader, "DrawModules", _drawModules);
+            PersistModuleGroup(reader, "ClientUpdateModules", _clientUpdateModules);
+
+            reader.EndObject();
+        }
+
+        private void PersistModuleGroup<T>(StatePersister reader, string groupName, List<T> modules)
+            where T : ModuleBase
+        {
+            reader.BeginObject(groupName);
+
+            var numModules = (ushort)modules.Count;
+            reader.PersistUInt16(ref numModules);
+
+            reader.BeginArray("Modules");
+            for (var moduleIndex = 0; moduleIndex < numModules; moduleIndex++)
+            {
+                reader.BeginObject();
+
+                ModuleBase module;
+                if (reader.Mode == StatePersistMode.Read)
+                {
+                    var moduleTag = "";
+                    reader.PersistAsciiString(ref moduleTag);
+                    module = GetModuleByTag(moduleTag);
+                }
+                else
+                {
+                    module = modules[moduleIndex];
+                    var moduleTag = module.Tag;
+                    reader.PersistAsciiString(ref moduleTag);
+                }
+
+                reader.BeginSegment($"{module.GetType().Name} module in game object {Definition.Name}");
+
+                reader.PersistObject(module);
+
+                reader.EndSegment();
+
+                reader.EndObject();
+            }
+            reader.EndArray();
+
+            reader.EndObject();
         }
     }
 
@@ -404,6 +515,7 @@ namespace OpenSage.Client
     {
         HordeInfantry = 1,
         HordeVehicle = 3,
+        Crate = 5,
         None = 6,
     }
 }

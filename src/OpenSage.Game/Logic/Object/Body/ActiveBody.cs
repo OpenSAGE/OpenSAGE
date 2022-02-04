@@ -1,16 +1,29 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
-using OpenSage.FX;
-using OpenSage.Mathematics;
 using FixedMath.NET;
+using OpenSage.Data.Ini;
+using OpenSage.FX;
+using OpenSage.Logic.Object.Damage;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public class ActiveBody : BodyModule
     {
         private readonly ActiveBodyModuleData _moduleData;
+        private readonly List<uint> _particleSystemIds = new();
+
+        private float _currentHealth1;
+        private float _currentHealth2;
+        private float _maxHealth;
+        private BodyDamageType _damageType;
+        private uint _unknownFrame1;
+        private DamageType _lastDamageType;
+        private DamageData _lastDamage;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+        private bool _unknownBool;
+        private bool _indestructible;
+        private BitArray<ArmorSetCondition> _armorSetConditions = new();
 
         protected readonly GameObject GameObject;
 
@@ -72,33 +85,49 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknownFloat = reader.ReadSingle();
-            if (unknownFloat != 1.0f)
+            reader.PersistSingle(ref _currentHealth1); // These two values
+            reader.PersistSingle(ref _currentHealth2); // are almost but not quite the same.
+            reader.PersistSingle(ref _maxHealth);
+
+            var maxHealth2 = _maxHealth;
+            reader.PersistSingle(ref maxHealth2);
+            if (_maxHealth != maxHealth2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var currentHealth1 = reader.ReadSingle(); // These two values
-            var currentHealth2 = reader.ReadSingle(); // are almost but not quite the same.
+            reader.PersistEnum(ref _damageType);
+            reader.PersistFrame(ref _unknownFrame1);
 
-            var maxHealth1 = reader.ReadSingle();
-            var maxHealth2 = reader.ReadSingle();
-            if (maxHealth1 != maxHealth2)
-            {
-                throw new InvalidDataException();
-            }
+            var lastDamageType = (uint)_lastDamageType;
+            reader.PersistUInt32(ref lastDamageType);
+            _lastDamageType = (DamageType)lastDamageType; // -1 if no last damage
 
-            var unknown = reader.ReadBytes(61);
+            reader.PersistObject(ref _lastDamage);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
+
+            reader.SkipUnknownBytes(2);
+
+            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistBoolean(ref _indestructible);
+
+            reader.PersistList(
+                _particleSystemIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
+
+            reader.PersistBitArray(ref _armorSetConditions);
         }
     }
 

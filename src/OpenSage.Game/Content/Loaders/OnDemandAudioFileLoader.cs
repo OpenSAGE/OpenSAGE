@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Audio;
-using OpenSage.Data;
+using OpenSage.IO;
 
 namespace OpenSage.Content.Loaders
 {

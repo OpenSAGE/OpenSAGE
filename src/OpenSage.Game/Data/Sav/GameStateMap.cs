@@ -3,44 +3,94 @@ using OpenSage.Network;
 
 namespace OpenSage.Data.Sav
 {
-    internal static class GameStateMap
+    internal sealed class GameStateMap : IPersistableObject
     {
-        internal static void Load(SaveFileReader reader, Game game)
+        private string _mapPath1;
+        private string _mapPath2;
+        private GameType _gameType;
+
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            var mapPath1 = reader.ReadAsciiString();
-            var mapPath2 = reader.ReadAsciiString();
-            var gameType = reader.ReadEnum<GameType>();
+            reader.PersistAsciiString(ref _mapPath1);
+            reader.PersistAsciiString(ref _mapPath2);
+            reader.PersistEnum(ref _gameType);
 
-            var mapSize = reader.BeginSegment();
+            var mapSize = reader.BeginSegment("EmbeddedMap");
+
+            if (reader.SageGame >= SageGame.Bfme)
+            {
+                var unknown4 = 0u;
+                reader.PersistUInt32(ref unknown4);
+
+                var unknown5 = 0u;
+                reader.PersistUInt32(ref unknown5);
+
+                mapSize -= 8;
+            }
+
+            var game = reader.Game;
 
             // TODO: Delete this temporary map when ending the game.
             var mapPathInSaveFolder = Path.Combine(
-                game.ContentManager.UserMapsFileSystem.RootDirectory,
-                mapPath1);
-            using (var mapOutputStream = File.OpenWrite(mapPathInSaveFolder))
+                game.ContentManager.UserDataFileSystem.RootDirectory,
+                _mapPath1);
+            var saveFolder = Path.GetDirectoryName(mapPathInSaveFolder);
+            if (!Directory.Exists(saveFolder))
             {
-                reader.ReadBytesIntoStream(mapOutputStream, (int)mapSize);
+                Directory.CreateDirectory(saveFolder);
+            }
+
+            var mapBytes = (reader.Mode == StatePersistMode.Read)
+                ? new byte[mapSize]
+                : File.ReadAllBytes(mapPathInSaveFolder);
+
+            reader.PersistSpan(mapBytes);
+
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                File.WriteAllBytes(mapPathInSaveFolder, mapBytes);
             }
 
             reader.EndSegment();
 
-            var unknown2 = reader.ReadUInt32(); // 586
-            var unknown3 = reader.ReadUInt32(); // 3220
+            reader.PersistUInt32(ref reader.Game.GameLogic.NextObjectId);
+            reader.PersistUInt32(ref reader.Game.GameClient.NextDrawableId);
 
-            if (gameType == GameType.Skirmish)
+            if (reader.SageGame >= SageGame.Bfme)
             {
-                game.SkirmishManager = new LocalSkirmishManager(game);
-                game.SkirmishManager.Settings.Load(reader);
+                var unknown6 = false;
+                reader.PersistBoolean(ref unknown6);
+            }
 
-                game.SkirmishManager.Settings.MapName = mapPath1;
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                if (_gameType == GameType.Skirmish)
+                {
+                    game.SkirmishManager = new LocalSkirmishManager(game);
 
-                game.SkirmishManager.StartGame();
+                    reader.PersistObject(game.SkirmishManager.Settings, "SkirmishGameSettings");
+
+                    game.SkirmishManager.Settings.MapName = _mapPath1;
+
+                    game.SkirmishManager.HandleStartButtonClickAsync().Wait();
+
+                    game.SkirmishManager.StartGame();
+                }
+                else
+                {
+                    game.StartSinglePlayerGame(_mapPath1);
+                }
+
+                game.PartitionCellManager.OnNewGame();
             }
             else
             {
-                game.StartSinglePlayerGame(mapPath1);
+                if (_gameType == GameType.Skirmish)
+                {
+                    reader.PersistObject(game.SkirmishManager.Settings, "SkirmishGameSettings");
+                }
             }
         }
     }

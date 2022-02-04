@@ -2,7 +2,6 @@
 
 #define SHADOWS_H
 
-
 #define NUM_CASCADES 4
 
 #define SHADOWS_NONE 0
@@ -25,18 +24,18 @@ struct ShadowConstantsPSType
     float _Padding;
 };
 
-#define MAKE_GLOBAL_SHADOW_RESOURCES_PS(resourceSet) \
-    layout(set = resourceSet, binding = 0) uniform ShadowConstantsPS \
-    { \
-        ShadowConstantsPSType _ShadowConstantsPS; \
-    }; \
-    \
-    layout(set = resourceSet, binding = 1) uniform texture2DArray Global_ShadowMap; \
-    layout(set = resourceSet, binding = 2) uniform samplerShadow Global_ShadowSampler;
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 4) uniform ShadowConstantsPS
+{
+    ShadowConstantsPSType _ShadowConstantsPS;
+};
+
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 5) uniform texture2DArray Global_ShadowMap;
+
+layout(set = PASS_CONSTANTS_RESOURCE_SET, binding = 6) uniform samplerShadow Global_ShadowSampler;
+
+#ifndef COMPILING_FOR_VERTEX_SHADER
 
 float SampleShadowMap(
-    texture2DArray shadowMap,
-    samplerShadow shadowSampler,
     vec2 baseUv, float u, float v, vec2 shadowMapSizeInv,
     int cascadeIdx, float depth)
 {
@@ -44,25 +43,22 @@ float SampleShadowMap(
     float z = depth;
 
     return textureGrad(
-        sampler2DArrayShadow(shadowMap, shadowSampler), 
+        sampler2DArrayShadow(Global_ShadowMap, Global_ShadowSampler),
         vec4(vec3(uv, cascadeIdx), z), 
         vec2(0, 0), 
         vec2(0, 0));
 }
 
 float SampleShadowMapOptimizedPCF(
-    texture2DArray shadowMap,
-    samplerShadow shadowSampler,
     vec3 shadowPos,
     vec3 shadowPosDX, vec3 shadowPosDY,
-    int cascadeIdx, 
-    ShadowConstantsPSType constants)
+    int cascadeIdx)
 {
-    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(shadowMap, shadowSampler), 0);
+    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(Global_ShadowMap, Global_ShadowSampler), 0);
 
     float lightDepth = shadowPos.z;
 
-    float bias = constants.Bias;
+    float bias = _ShadowConstantsPS.Bias;
 
     lightDepth -= bias;
 
@@ -83,7 +79,7 @@ float SampleShadowMapOptimizedPCF(
     float sum = 0;
 
     int filterSize;
-    switch (constants.ShadowsType)
+    switch (_ShadowConstantsPS.ShadowsType)
     {
     case SHADOWS_SOFT:
         filterSize = 5;
@@ -97,7 +93,7 @@ float SampleShadowMapOptimizedPCF(
     if (filterSize == 2)
     {
         return textureGrad(
-            sampler2DArrayShadow(shadowMap, shadowSampler),
+            sampler2DArrayShadow(Global_ShadowMap, Global_ShadowSampler),
             vec4(vec3(shadowPos.xy, cascadeIdx), lightDepth),
             vec2(0, 0),
             vec2(0, 0));
@@ -116,10 +112,10 @@ float SampleShadowMapOptimizedPCF(
         float v0 = (2 - t) / vw0 - 1;
         float v1 = t / vw1 + 1;
 
-        sum += uw0 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw0 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw0 * SampleShadowMap(baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw0 * SampleShadowMap(baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw1 * SampleShadowMap(baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw1 * SampleShadowMap(baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
 
         return sum * 1.0f / 16;
     }
@@ -141,17 +137,17 @@ float SampleShadowMapOptimizedPCF(
         float v1 = (3 + t) / vw1;
         float v2 = t / vw2 + 2;
 
-        sum += uw0 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw0 * SampleShadowMap(baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw0 * SampleShadowMap(baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw0 * SampleShadowMap(baseUv, u2, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
 
-        sum += uw0 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw1 * SampleShadowMap(baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw1 * SampleShadowMap(baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw1 * SampleShadowMap(baseUv, u2, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
 
-        sum += uw0 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw2 * SampleShadowMap(baseUv, u0, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw2 * SampleShadowMap(baseUv, u1, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw2 * SampleShadowMap(baseUv, u2, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
 
         return sum * 1.0f / 144;
     }
@@ -177,47 +173,44 @@ float SampleShadowMapOptimizedPCF(
         float v2 = -(7 * t + 5) / vw2 + 1;
         float v3 = -t / vw3 + 3;
 
-        sum += uw0 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw3 * vw0 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u3, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw0 * SampleShadowMap(baseUv, u0, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw0 * SampleShadowMap(baseUv, u1, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw0 * SampleShadowMap(baseUv, u2, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw3 * vw0 * SampleShadowMap(baseUv, u3, v0, shadowMapSizeInv, cascadeIdx, lightDepth);
 
-        sum += uw0 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw3 * vw1 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u3, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw1 * SampleShadowMap(baseUv, u0, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw1 * SampleShadowMap(baseUv, u1, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw1 * SampleShadowMap(baseUv, u2, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw3 * vw1 * SampleShadowMap(baseUv, u3, v1, shadowMapSizeInv, cascadeIdx, lightDepth);
 
-        sum += uw0 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw3 * vw2 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u3, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw2 * SampleShadowMap(baseUv, u0, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw2 * SampleShadowMap(baseUv, u1, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw2 * SampleShadowMap(baseUv, u2, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw3 * vw2 * SampleShadowMap(baseUv, u3, v2, shadowMapSizeInv, cascadeIdx, lightDepth);
 
-        sum += uw0 * vw3 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u0, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw1 * vw3 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u1, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw2 * vw3 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u2, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
-        sum += uw3 * vw3 * SampleShadowMap(shadowMap, shadowSampler, baseUv, u3, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw0 * vw3 * SampleShadowMap(baseUv, u0, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw1 * vw3 * SampleShadowMap(baseUv, u1, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw2 * vw3 * SampleShadowMap(baseUv, u2, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
+        sum += uw3 * vw3 * SampleShadowMap(baseUv, u3, v3, shadowMapSizeInv, cascadeIdx, lightDepth);
 
         return sum * 1.0f / 2704;
     }
 }
 
 vec3 SampleShadowCascade(
-    texture2DArray shadowMap,
-    samplerShadow shadowSampler,
     vec3 shadowPosition,
     vec3 shadowPosDX, vec3 shadowPosDY,
-    int cascadeIdx, ivec2 screenPos,
-    ShadowConstantsPSType constants)
+    int cascadeIdx, ivec2 screenPos)
 {
-    shadowPosition += constants.CascadeOffsets[cascadeIdx].xyz;
-    shadowPosition *= constants.CascadeScales[cascadeIdx].xyz;
+    shadowPosition += _ShadowConstantsPS.CascadeOffsets[cascadeIdx].xyz;
+    shadowPosition *= _ShadowConstantsPS.CascadeScales[cascadeIdx].xyz;
 
-    shadowPosDX *= constants.CascadeScales[cascadeIdx].xyz;
-    shadowPosDY *= constants.CascadeScales[cascadeIdx].xyz;
+    shadowPosDX *= _ShadowConstantsPS.CascadeScales[cascadeIdx].xyz;
+    shadowPosDY *= _ShadowConstantsPS.CascadeScales[cascadeIdx].xyz;
 
     vec3 cascadeColor = vec3(1.0f, 1.0f, 1.0f);
 
-    if (constants.VisualizeCascades)
+    if (_ShadowConstantsPS.VisualizeCascades)
     {
         const vec3 cascadeColors[NUM_CASCADES] =
         {
@@ -231,41 +224,32 @@ vec3 SampleShadowCascade(
     }
 
     float shadow = SampleShadowMapOptimizedPCF(
-        shadowMap,
-        shadowSampler,
         shadowPosition, 
         shadowPosDX, 
         shadowPosDY, 
-        cascadeIdx, 
-        constants);
+        cascadeIdx);
 
     return shadow * cascadeColor;
 }
 
 vec3 GetShadowPosOffset(
-    texture2DArray shadowMap,
-    samplerShadow shadowSampler,
     float nDotL, 
-    vec3 normal,
-    ShadowConstantsPSType constants)
+    vec3 normal)
 {
-    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(shadowMap, shadowSampler), 0);
+    vec3 shadowMapSize = textureSize(sampler2DArrayShadow(Global_ShadowMap, Global_ShadowSampler), 0);
 
     float texelSize = 2.0f / shadowMapSize.x;
     float nmlOffsetScale = saturate(1.0f - nDotL);
-    return texelSize * constants.OffsetScale * nmlOffsetScale * normal;
+    return texelSize * _ShadowConstantsPS.OffsetScale * nmlOffsetScale * normal;
 }
 
 vec3 ShadowVisibility(
-    texture2DArray shadowMap,
-    samplerShadow shadowSampler,
     vec3 positionWS, float depthVS, float nDotL,
-    vec3 normal, ivec2 screenPos,
-    ShadowConstantsPSType constants)
+    vec3 normal, ivec2 screenPos)
 {
     vec3 shadowVisibility = vec3(1, 1, 1);
 
-    if (constants.ShadowsType == SHADOWS_NONE)
+    if (_ShadowConstantsPS.ShadowsType == SHADOWS_NONE)
     {
         return shadowVisibility;
     }
@@ -273,60 +257,56 @@ vec3 ShadowVisibility(
     int cascadeIdx = 0;
 
     // Figure out which cascade to sample from.
-    for (int i = 0; i < constants.NumSplits - 1; i++)
+    for (int i = 0; i < _ShadowConstantsPS.NumSplits - 1; i++)
     {
-        if (depthVS > constants.CascadeSplits[i])
+        if (depthVS > _ShadowConstantsPS.CascadeSplits[i])
         {
             cascadeIdx = i + 1;
         }
     }
 
     // Apply offset
-    vec3 offset = GetShadowPosOffset(shadowMap, shadowSampler, nDotL, normal, constants) / abs(constants.CascadeScales[cascadeIdx].z);
+    vec3 offset = GetShadowPosOffset(nDotL, normal) / abs(_ShadowConstantsPS.CascadeScales[cascadeIdx].z);
 
     // Project into shadow space
     vec3 samplePos = positionWS + offset;
-    vec3 shadowPosition = (constants.ShadowMatrix * vec4(samplePos, 1.0f)).xyz;
+    vec3 shadowPosition = (_ShadowConstantsPS.ShadowMatrix * vec4(samplePos, 1.0f)).xyz;
     vec3 shadowPosDX = dFdxFine(shadowPosition);
     vec3 shadowPosDY = dFdyFine(shadowPosition);
 
     shadowVisibility = SampleShadowCascade(
-        shadowMap,
-        shadowSampler,
         shadowPosition,
         shadowPosDX, shadowPosDY, 
-        cascadeIdx, screenPos,
-        constants);
+        cascadeIdx, screenPos);
 
-    if (constants.FilterAcrossCascades)
+    if (_ShadowConstantsPS.FilterAcrossCascades)
     {
         // Sample the next cascade, and blend between the two results to
         // smooth the transition
         const float blendThreshold = 0.1f;
-        float nextSplit = constants.CascadeSplits[cascadeIdx];
-        float splitSize = cascadeIdx == 0 ? nextSplit : nextSplit - constants.CascadeSplits[cascadeIdx - 1];
+        float nextSplit = _ShadowConstantsPS.CascadeSplits[cascadeIdx];
+        float splitSize = cascadeIdx == 0 ? nextSplit : nextSplit - _ShadowConstantsPS.CascadeSplits[cascadeIdx - 1];
         float splitDist = (nextSplit - depthVS) / splitSize;
 
-        if (splitDist <= blendThreshold && cascadeIdx != constants.NumSplits - 1)
+        if (splitDist <= blendThreshold && cascadeIdx != _ShadowConstantsPS.NumSplits - 1)
         {
             vec3 nextSplitVisibility = SampleShadowCascade(
-                shadowMap,
-                shadowSampler,
                 shadowPosition,
                 shadowPosDX, shadowPosDY, 
-                cascadeIdx + 1, screenPos,
-                constants);
+                cascadeIdx + 1, screenPos);
             float lerpAmt = smoothstep(0.0f, blendThreshold, splitDist);
             shadowVisibility = mix(nextSplitVisibility, shadowVisibility, lerpAmt);
         }
     }
 
     // Fade out shadows.
-    float fade = smoothstep(constants.ShadowDistance * 0.9, constants.ShadowDistance, depthVS);
+    float fade = smoothstep(_ShadowConstantsPS.ShadowDistance * 0.9, _ShadowConstantsPS.ShadowDistance, depthVS);
     shadowVisibility += vec3(fade, fade, fade);
     shadowVisibility = saturate(shadowVisibility);
 
     return shadowVisibility;
 }
+
+#endif
 
 #endif

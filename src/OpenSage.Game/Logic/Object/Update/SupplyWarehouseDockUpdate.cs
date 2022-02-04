@@ -36,6 +36,17 @@ namespace OpenSage.Logic.Object
                 _gameObject.Die(DeathType.Normal, context.Time);
             }
         }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistInt32(ref _currentBoxes);
+        }
     }
 
     public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData

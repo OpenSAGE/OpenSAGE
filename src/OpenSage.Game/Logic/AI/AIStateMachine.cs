@@ -1,257 +1,156 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
+using System.Numerics;
+using OpenSage.Logic.AI.AIStates;
 
 namespace OpenSage.Logic.AI
 {
     internal sealed class AIStateMachine : StateMachineBase
     {
+        private readonly List<Vector3> _targetPositions = new();
+        private string _targetWaypointName;
+        private TargetTeam _targetTeam;
+
+        private uint _stateSomethingId;
+        private State _stateSomething;
+
         public AIStateMachine()
         {
-            AddState(0, new AIState0());
-            AddState(1, new AIState1());
-            AddState(3, new AIState3());
+            AddState(0, new IdleState());
+            AddState(1, new MoveTowardsState());
+            AddState(2, new FollowWaypointsState(true));
+            AddState(3, new FollowWaypointsState(false));
+            AddState(4, new FollowWaypointsExactState(true));
+            AddState(5, new FollowWaypointsExactState(false));
             AddState(6, new AIState6());
-            AddState(9, new AIState11());
-            AddState(11, new AIState11());
-            AddState(14, new AIState14());
+            AddState(7, new FollowPathState());
+            AddState(9, new AttackState());
+            AddState(10, new AttackState());
+            AddState(11, new AttackState());
+            AddState(13, new DeadState());
+            AddState(14, new DockState());
+            AddState(15, new EnterContainerState());
+            AddState(16, new GuardState());
+            AddState(17, new HuntState());
+            AddState(18, new WanderState());
+            AddState(19, new PanicState());
+            AddState(20, new AttackTeamState());
+            AddState(21, new GuardInTunnelNetworkState());
+            AddState(23, new AIState23());
+            AddState(28, new AttackAreaState());
+            AddState(30, new AttackMoveState());
+            AddState(32, new AIState32());
+            AddState(33, new FaceState(FaceTargetType.FaceNamed));
+            AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
+            AddState(37, new ExitContainerState());
+            AddState(40, new WanderInPlaceState());
         }
 
-        internal override void Load(SaveFileReader reader)
+        public override void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            base.Load(reader);
-        }
-    }
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
 
-    internal sealed class AIState0 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
+            reader.PersistListWithUInt32Count(
+                _targetPositions,
+                static (StatePersister persister, ref Vector3 item) =>
+                {
+                    persister.PersistVector3Value(ref item);
+                });
 
-            var unknownShort1 = reader.ReadUInt16();
-            var unknownShort2 = reader.ReadUInt16();
-        }
-    }
+            reader.PersistAsciiString(ref _targetWaypointName);
 
-    internal class AIState1 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var positionSomething = reader.ReadVector3();
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
-            var positionSomething2 = reader.ReadVector3();
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownInt3 = reader.ReadUInt32();
-            var unknownBool2 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState3 : AIState1
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var unknownInt0 = reader.ReadUInt32();
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownInt2 = reader.ReadUInt32();
-            var unknownInt3 = reader.ReadUInt32();
-            var waypointIdMaybe = reader.ReadUInt32();
-            var waypointId2Maybe = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState6 : AIState1
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var unknownInt1 = reader.ReadInt32();
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState11 : State
-    {
-        private readonly AIState11StateMachine _stateMachine;
-
-        public AIState11()
-        {
-            _stateMachine = new AIState11StateMachine();
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownBool2 = reader.ReadBoolean();
-            var positionSomething = reader.ReadVector3();
-
-            _stateMachine.Load(reader);
-        }
-    }
-
-    internal sealed class AIState11StateMachine : StateMachineBase
-    {
-        public AIState11StateMachine()
-        {
-            AddState(1, new AIState11StateMachineState1());
-            AddState(2, new AIState11StateMachineState2());
-            AddState(3, new AIState11StateMachineState3());
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-        }
-    }
-
-    internal sealed class AIState11StateMachineState1 : AIState1
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var positionSomething2 = reader.ReadVector3();
-            var frameSomething = reader.ReadUInt32();
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
-            var unknownBool3 = reader.ReadBoolean();
-            var unknownBool4 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState11StateMachineState2 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState11StateMachineState3 : State
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-        }
-    }
-
-    internal sealed class AIState14 : State
-    {
-        private readonly AIState14StateMachine _stateMachine;
-
-        public AIState14()
-        {
-            _stateMachine = new AIState14StateMachine();
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownBool1 = reader.ReadBoolean();
-
-            _stateMachine.Load(reader);
-
-            var unknownBool2 = reader.ReadBoolean();
-        }
-    }
-
-    internal sealed class AIState14StateMachine : StateMachineBase
-    {
-        public AIState14StateMachine()
-        {
-            AddState(0, new AIState14StateMachineState0());
-            AddState(3, new AIState14StateMachineState3());
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            var unknownInt1 = reader.ReadUInt32();
-        }
-    }
-
-    internal sealed class AIState14StateMachineState0 : AIState1
-    {
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(2);
-
-            base.Load(reader);
-        }
-    }
-
-    internal sealed class AIState14StateMachineState3 : AIState1
-    {
-    }
-
-    internal abstract class State
-    {
-        internal abstract void Load(SaveFileReader reader);
-    }
-
-    internal abstract class StateMachineBase
-    {
-        private readonly Dictionary<int, State> _states;
-        private State _currentState;
-
-        protected StateMachineBase()
-        {
-            _states = new Dictionary<int, State>();
-        }
-
-        public void AddState(int id, State state)
-        {
-            _states.Add(id, state);
-        }
-
-        internal virtual void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var frameSomething2 = reader.ReadUInt32();
-            var unknownInt4 = reader.ReadUInt32();
-
-            var currentStateID = reader.ReadUInt32();
-            _currentState = _states[(int)currentStateID];
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
+            var hasTargetTeam = _targetTeam != null;
+            reader.PersistBoolean(ref hasTargetTeam);
+            if (hasTargetTeam)
             {
-                throw new InvalidDataException();
+                _targetTeam ??= new TargetTeam();
+                reader.PersistObject(_targetTeam);
             }
 
-            _currentState.Load(reader);
+            reader.PersistUInt32(ref _stateSomethingId);
+            if (_stateSomethingId != 999999)
+            {
+                _stateSomething = GetState(_stateSomethingId);
+                reader.PersistObject(_stateSomething);
+            }
+        }
+    }
 
-            var unknownInt9 = reader.ReadUInt32();
-            var positionSomething3 = reader.ReadVector3();
-            var unknownBool4 = reader.ReadBoolean();
-            var unknownBool5 = reader.ReadBoolean();
+    internal sealed class AIState6 : MoveTowardsState
+    {
+        private int _unknownInt;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+
+        public override void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Persist(reader);
+
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+        }
+    }
+
+    internal sealed class AIState23 : MoveTowardsState
+    {
+
+    }
+
+    internal sealed class AIState32 : FollowWaypointsState
+    {
+        private readonly AIState32StateMachine _stateMachine;
+
+        public AIState32()
+            : base(false)
+        {
+            _stateMachine = new AIState32StateMachine();
+        }
+
+        public override void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Persist(reader);
+
+            reader.PersistObject(_stateMachine);
+        }
+    }
+
+    internal sealed class AIState32StateMachine : StateMachineBase
+    {
+        public AIState32StateMachine()
+        {
+            AddState(0, new IdleState());
+        }
+
+        public override void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Persist(reader);
+        }
+    }
+
+    internal sealed class TargetTeam : IPersistableObject
+    {
+        private readonly List<uint> _objectIds = new();
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistList(
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
+            {
+                persister.PersistObjectIDValue(ref item);
+            });
         }
     }
 }

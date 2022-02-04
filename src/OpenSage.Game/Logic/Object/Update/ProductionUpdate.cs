@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
-using OpenSage.FileFormats;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
@@ -18,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         private readonly GameObject _gameObject;
         private readonly ProductionUpdateModuleData _moduleData;
-        private readonly List<ProductionJob> _productionQueue = new List<ProductionJob>();
+        private readonly List<ProductionJob> _productionQueue = new();
 
         private DoorState _currentDoorState;
         private TimeSpan _currentStepEnd;
@@ -27,6 +25,10 @@ namespace OpenSage.Logic.Object
         private IProductionExit _productionExit;
 
         private int _doorIndex;
+
+        private uint _nextJobId;
+        private uint _unknownFrame1;
+        private ProductionUpdateSomething[] _unknownSomethings = new ProductionUpdateSomething[4];
 
         public GameObject ParentHorde;
 
@@ -101,18 +103,18 @@ namespace OpenSage.Logic.Object
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
 
-                            ProduceObject(front);
+                            ProduceObject(front.ObjectDefinition);
                         }
                         else
                         {
-                            ProduceObject(front);
+                            ProduceObject(front.ObjectDefinition);
                             MoveProducedObjectOut();
                             _productionQueue.RemoveAt(0);
                         }
                     }
                     else if (front.Type == ProductionJobType.Upgrade)
                     {
-                        GrantUpgrade(front);
+                        front.UpgradeDefinition.GrantUpgrade(_gameObject);
                         _productionQueue.RemoveAt(0);
                     }
                 }
@@ -205,31 +207,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void ProduceObject(ProductionJob job)
-        {
-            switch (job.Type)
-            {
-                case ProductionJobType.Unit:
-                    ProduceObject(job.ObjectDefinition);
-                    break;
-            }
-        }
-
-        private void GrantUpgrade(ProductionJob job)
-        {
-            switch (job.Type)
-            {
-                case ProductionJobType.Upgrade:
-                    GrantUpgrade(job.UpgradeDefinition);
-                    break;
-            }
-        }
-
-        private void GrantUpgrade(UpgradeTemplate upgradeDefinition)
-        {
-            _gameObject.Upgrade(upgradeDefinition);
-        }
-
         internal bool CanProduceObject(ObjectDefinition objectDefinition)
         {
             // only one hero of the same kind can be produced at a time
@@ -303,7 +280,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _producedUnit = _gameObject.Parent.Add(objectDefinition, _gameObject.Owner);
+            _producedUnit = _gameObject.GameContext.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
             _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
 
@@ -413,6 +390,8 @@ namespace OpenSage.Logic.Object
         {
             var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime / _gameObject.ProductionModifier);
             _productionQueue.Add(job);
+
+            // TODO: Set ModelConditionFlag.ActivelyConstructing.
         }
 
         internal void Spawn(ObjectDefinition objectDefinition)
@@ -467,17 +446,76 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("DoorState", ref _currentDoorState);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistList(_productionQueue, static (StatePersister persister, ref ProductionJob item) =>
             {
-                throw new InvalidDataException();
+                persister.BeginObject();
+
+                var productionJobType = item?.Type ?? default;
+                persister.PersistEnum(ref productionJobType, "JobType");
+
+                var templateName = item != null
+                    ? item.Type == ProductionJobType.Unit
+                        ? item.ObjectDefinition.Name
+                        : item.UpgradeDefinition.Name
+                    : null;
+                persister.PersistAsciiString(ref templateName);
+
+                if (persister.Mode == StatePersistMode.Read)
+                {
+                    item = productionJobType switch
+                    {
+                        ProductionJobType.Unit => new ProductionJob(persister.AssetStore.ObjectDefinitions.GetByName(templateName)),
+                        ProductionJobType.Upgrade => new ProductionJob(persister.AssetStore.Upgrades.GetByName(templateName)),
+                        _ => throw new InvalidStateException(),
+                    };
+                }
+
+                persister.PersistObject(item, "Job");
+
+                persister.EndObject();
+            });
+
+            reader.PersistUInt32(ref _nextJobId);
+
+            var productionJobCount2 = (uint)_productionQueue.Count;
+            reader.PersistUInt32(ref productionJobCount2);
+            if (productionJobCount2 != _productionQueue.Count)
+            {
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.PersistFrame(ref _unknownFrame1);
 
-            var unknown = reader.ReadBytes(89);
+            reader.PersistArray(
+                _unknownSomethings,
+                static (StatePersister persister, ref ProductionUpdateSomething item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
+
+            reader.BeginArray("UnknownArray");
+            for (var i = 0; i < 2; i++)
+            {
+                var unknown1 = true;
+                reader.PersistBooleanValue(ref unknown1);
+                if (!unknown1)
+                {
+                    throw new InvalidStateException();
+                }
+
+                reader.SkipUnknownBytes(4);
+            }
+            reader.EndArray();
+
+            reader.SkipUnknownBytes(1);
         }
     }
 
@@ -615,23 +653,53 @@ namespace OpenSage.Logic.Object
 
     public enum DisabledType
     {
+        [IniEnum("DEFAULT")]
         Default,
+
         UserParalyzed,
+
+        [IniEnum("DISABLED_EMP")]
         Emp,
 
         [IniEnum("DISABLED_HELD")]
         Held,
 
+        [IniEnum("DISABLED_PARALYZED")]
         Paralyzed,
+
+        [IniEnum("DISABLED_UNMANNED")]
         Unmanned,
 
         [IniEnum("DISABLED_UNDERPOWERED")]
         Underpowered,
 
+        [IniEnum("DISABLED_FREEFALL")]
         Freefall,
-        TemporarilyBusy,
+
+        [IniEnum("DISABLED_SCRIPT_DISABLED")]
         ScriptDisabled,
+
+        [IniEnum("DISABLED_SCRIPT_UNDERPOWERED")]
         ScriptUnderpowered,
+
+        TemporarilyBusy,
+
         Infiltrated,
+    }
+
+    internal struct ProductionUpdateSomething : IPersistableObject
+    {
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
+
+            reader.SkipUnknownBytes(4);
+        }
     }
 }

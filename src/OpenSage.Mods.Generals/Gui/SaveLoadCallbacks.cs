@@ -1,20 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data;
-using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Logic;
+using OpenSage.IO;
 using OpenSage.Mathematics;
-using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
 {
     [WndCallbacks]
     public static class SaveLoadCallbacks
     {
-        private static FileSystem GetSavesFileSystem(Game game) => new FileSystem(Path.Combine(game.UserDataFolder, "Save"));
+        private static FileSystem GetSavesFileSystem(Game game) => new DiskFileSystem(Path.Combine(game.UserDataFolder, "Save"));
 
         public static void SaveLoadMenuFullScreenInit(Window window, Game game)
         {
@@ -24,9 +21,9 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var newItems = new List<ListBoxDataItem>();
 
-                foreach (var file in fileSystem.Files)
+                foreach (var file in fileSystem.GetFilesInDirectory("", "*.sav"))
                 {
-                    var saveGameState = SaveFile.GetGameState(file);
+                    var saveGameState = SaveFile.GetGameState(file, game);
 
                     newItems.Add(new ListBoxDataItem(
                         file.FilePath,

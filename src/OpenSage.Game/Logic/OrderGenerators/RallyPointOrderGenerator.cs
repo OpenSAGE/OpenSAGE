@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
@@ -26,7 +27,13 @@ namespace OpenSage.Logic.OrderGenerators
         public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
-            var objectIds = scene.GameObjects.GetObjectIds(scene.LocalPlayer.SelectedUnits);
+
+            var objectIds = new List<uint>();
+            foreach (var gameObject in scene.LocalPlayer.SelectedUnits)
+            {
+                objectIds.Add(gameObject.ID);
+            }
+
             var order = Order.CreateSetRallyPointOrder(playerId, objectIds, _position);
 
             return OrderGeneratorResult.SuccessAndContinue(new[] { order });

@@ -57,8 +57,13 @@ namespace OpenSage.Tests.Data.W3d
                     (w3d, stream) => w3d.WriteTo(stream),
                     true);
 
-                foreach (var mesh in w3dFile.GetMeshes())
+                foreach (var renderableObject in w3dFile.RenderableObjects)
                 {
+                    if (!(renderableObject is W3dMesh mesh))
+                    {
+                        continue;
+                    }
+
                     Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Items.Length);
 
                     Assert.Equal((int) mesh.Header.NumTris, mesh.Triangles.Items.Length);
@@ -167,7 +172,7 @@ namespace OpenSage.Tests.Data.W3d
                     w3dFile = W3dFile.FromStream(entryStream, entry.FullName);
                 }
 
-                Assert.Equal(3, w3dFile.GetMeshes().Count);
+                Assert.Equal(3, w3dFile.RenderableObjects.Count);
             }
         }
     }

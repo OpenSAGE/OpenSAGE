@@ -22,6 +22,15 @@ namespace OpenSage.Diagnostics.AssetViews
                 game.AssetStore.LoadContext,
                 () => ref WorldIdentity));
 
+            void OnUpdating(object sender, GameUpdatingEventArgs e)
+            {
+                particleSystem.Update(e.GameTime);
+            }
+
+            game.Updating += OnUpdating;
+
+            AddDisposeAction(() => game.Updating -= OnUpdating);
+
             particleSystem.Activate();
 
             _renderedView = AddDisposable(new RenderedView(context));

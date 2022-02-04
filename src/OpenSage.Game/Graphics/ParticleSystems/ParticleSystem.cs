@@ -1,40 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
     [DebuggerDisplay("ParticleSystem {Template.Name}")]
-    public sealed class ParticleSystem : DisposableBase
+    public sealed class ParticleSystem : DisposableBase, IPersistableObject
     {
+        public const int KeyframeCount = 8;
+
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
 
         private readonly GetMatrixReferenceDelegate _getWorldMatrix;
         private readonly Matrix4x4 _worldMatrix;
 
-        private readonly GraphicsDevice _graphicsDevice;
-
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
-        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<ParticleShaderResources.ParticleConstantsVS> _particleConstantsBufferVS;
-        private readonly ResourceSet _particleResourceSet;
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
+        private readonly Material _particleMaterial;
 
         private readonly BeforeRenderDelegate _beforeRender;
-        private bool _worldMatrixChanged;
 
         private int _initialDelay;
 
@@ -42,14 +36,39 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private float _startSize;
 
-        private readonly List<ParticleColorKeyframe> _colorKeyframes;
+        internal readonly ParticleColorKeyframe[] ColorKeyframes = new ParticleColorKeyframe[KeyframeCount];
 
         private TimeSpan _nextUpdate;
 
         private int _timer;
         private int _nextBurst;
 
-        private readonly Particle[] _particles;
+        private uint _systemId;
+
+        private uint _attachedToDrawableId;
+        private uint _attachedToObjectId;
+
+        private bool _localTransformIsIdentity = true;
+        private Matrix4x3 _localTransform = Matrix4x3.Identity;
+
+        private bool _worldTransformIsIdentity = true;
+        private Matrix4x3 _worldTransform = Matrix4x3.Identity;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private bool _hasInfiniteLifetime;
+        private float _unknownFloat1;
+        private bool _unknownBool1;
+        private Vector3 _position;
+        private Vector3 _positionPrevious;
+        private bool _unknownBool2;
+        private uint _slaveSystemId;
+        private uint _masterSystemId;
+
+        private Particle[] _particles;
         private readonly List<int> _deadList;
 
         private readonly DeviceBuffer _vertexBuffer;
@@ -102,60 +121,27 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            _graphicsDevice = loadContext.GraphicsDevice;
+            var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
 
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(_graphicsDevice));
-
-            _particleConstantsBufferVS = AddDisposable(new ConstantBuffer<ParticleShaderResources.ParticleConstantsVS>(_graphicsDevice));
-            _particleConstantsBufferVS.Value.IsGroundAligned = template.IsGroundAligned;
-            _particleConstantsBufferVS.Update(loadContext.GraphicsDevice);
+            _particleMaterial = particleShaderSet.GetMaterial(Template);
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
-
-            _particleResourceSet = AddDisposable(loadContext.ShaderResources.Particle.CreateParticleResoureSet(
-                _renderItemConstantsBufferVS.Buffer,
-                _particleConstantsBufferVS.Buffer,
-                Template.ParticleTexture.Value));
-
-            _shaderSet = loadContext.ShaderResources.Particle.ShaderSet;
-            _pipeline = loadContext.ShaderResources.Particle.GetCachedPipeline(Template.Shader);
 
             _initialDelay = Template.InitialDelay.GetRandomInt();
 
             _startSizeRate = Template.StartSizeRate.GetRandomFloat();
             _startSize = 0;
 
-            _colorKeyframes = new List<ParticleColorKeyframe>();
-
-            var colors = Template.Colors;
-
-            if (colors.Color1 != null)
+            for (var i = 0; i < KeyframeCount; i++)
             {
-                _colorKeyframes.Add(new ParticleColorKeyframe(colors.Color1));
+                ColorKeyframes[i] = new ParticleColorKeyframe(Template.Colors.ColorKeyframes[i]);
             }
-
-            void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
-            {
-                if (keyframe != null && keyframe.Time > previous.Time)
-                {
-                    _colorKeyframes.Add(new ParticleColorKeyframe(keyframe));
-                }
-            }
-
-            addColorKeyframe(colors.Color2, colors.Color1);
-            addColorKeyframe(colors.Color3, colors.Color2);
-            addColorKeyframe(colors.Color4, colors.Color3);
-            addColorKeyframe(colors.Color5, colors.Color4);
-            addColorKeyframe(colors.Color6, colors.Color5);
-            addColorKeyframe(colors.Color7, colors.Color6);
-            addColorKeyframe(colors.Color8, colors.Color7);
 
             _particles = new Particle[maxParticles];
             for (var i = 0; i < _particles.Length; i++)
             {
-                _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
-                _particles[i].Dead = true;
+                _particles[i] = new Particle(this);
             }
 
             _deadList = new List<int>();
@@ -176,32 +162,9 @@ namespace OpenSage.Graphics.ParticleSystems
 
             State = ParticleSystemState.Inactive;
 
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
             {
-                // Only update once we know this particle system is visible on screen.
-                // We need to run enough updates to catch up for any time
-                // the particle system has been offscreen.
-                var anyUpdates = false;
-                while (true)
-                {
-                    if (!Update(context.GameTime))
-                    {
-                        break;
-                    }
-                    anyUpdates = true;
-                }
-
-                if (anyUpdates)
-                {
-                    UpdateVertexBuffer(cl);
-                }
-
-                if (_worldMatrixChanged)
-                {
-                    _renderItemConstantsBufferVS.Update(cl);
-                }
-
-                cl.SetGraphicsResourceSet(1, _particleResourceSet);
+                UpdateVertexBuffer(cl);
 
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
@@ -256,7 +219,7 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Template.BurstCount.High + (int) MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
-        private bool Update(in TimeInterval gameTime)
+        internal bool Update(in TimeInterval gameTime)
         {
             if (_particles == null)
             {
@@ -280,6 +243,11 @@ namespace OpenSage.Graphics.ParticleSystems
                 _initialDelay -= 1;
                 return false;
             }
+
+            ref readonly var worldMatrix = ref GetWorldMatrix();
+
+            // TODO: Use _localTransform too.
+            worldMatrix.ToMatrix4x3(out _worldTransform);
 
             if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
             {
@@ -357,10 +325,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 ref var newParticle = ref FindDeadParticleOrCreateNewOne();
 
+                var worldPosition = Vector3Utility.Transform(ray.Position, _worldTransform);
+
+                var worldVelocity = Vector3Utility.TransformNormal(velocity, _worldTransform);
+
                 InitializeParticle(
                     ref newParticle,
-                    ray.Position,
-                    velocity,
+                    worldPosition,
+                    worldVelocity,
                     _startSize);
 
                 // TODO: Is this definitely incremented per particle, not per burst?
@@ -395,36 +367,11 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
 
             var physics = (FXParticleDefaultPhysics) Template.Physics;
-
             particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
 
-            var alphaKeyframes = particle.AlphaKeyframes;
-            alphaKeyframes.Clear();
-
-            var alphas = Template.Alpha;
-
-            if (alphas != null)
+            for (var i = 0; i < KeyframeCount; i++)
             {
-                if (alphas.Alpha1 != null)
-                {
-                    alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
-                }
-
-                void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
-                {
-                    if (keyframe != null && previous != null && keyframe.Time > previous.Time)
-                    {
-                        alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
-                    }
-                }
-
-                addAlphaKeyframe(alphas.Alpha2, alphas.Alpha1);
-                addAlphaKeyframe(alphas.Alpha3, alphas.Alpha2);
-                addAlphaKeyframe(alphas.Alpha4, alphas.Alpha3);
-                addAlphaKeyframe(alphas.Alpha5, alphas.Alpha4);
-                addAlphaKeyframe(alphas.Alpha6, alphas.Alpha5);
-                addAlphaKeyframe(alphas.Alpha7, alphas.Alpha6);
-                addAlphaKeyframe(alphas.Alpha8, alphas.Alpha7);
+                particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
             }
         }
 
@@ -468,7 +415,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.AngleZ += particle.AngularRateZ;
             particle.AngularRateZ *= particle.AngularDamping;
 
-            FindKeyframes(particle.Timer, _colorKeyframes, out var nextC, out var prevC);
+            FindKeyframes(particle.Timer, ColorKeyframes, out var nextC, out var prevC);
 
             if (!prevC.Equals(nextC))
             {
@@ -484,7 +431,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Color.Y += colorVal;
             particle.Color.Z += colorVal;
 
-            if (particle.AlphaKeyframes.Count > 1)
+            if (particle.AlphaKeyframes.Length > 1)
             {
                 FindKeyframes(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
 
@@ -506,8 +453,9 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Timer += 1;
         }
 
-        private static void FindKeyframes<T>(int timer,
-            IReadOnlyList<T> keyFrames,
+        private static void FindKeyframes<T>(
+            int timer,
+            T[] keyFrames,
             out T next, out T prev)
             where T : struct, IParticleKeyframe
         {
@@ -561,21 +509,11 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            ref readonly var worldMatrix = ref GetWorldMatrix();
-
-            _worldMatrixChanged = false;
-            if (worldMatrix != _renderItemConstantsBufferVS.Value.World)
-            {
-                _renderItemConstantsBufferVS.Value.World = worldMatrix;
-                _worldMatrixChanged = true;
-            }
-
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 Template.Name,
-                _shaderSet,
-                _pipeline,
-                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
-                worldMatrix,
+                _particleMaterial,
+                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(_worldTransform.Translation, 10)), // TODO
+                Matrix4x4.Identity,
                 0,
                 _numIndices,
                 _indexBuffer,
@@ -594,206 +532,65 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            LoadTemplateData(reader);
+            reader.PersistObject(Template.LegacyTemplate, "TemplateData");
 
-            var unknown17 = reader.ReadUInt32();
-            reader.__Skip(9);
-            var transform = reader.ReadMatrix4x3Transposed();
-            var unknown19 = reader.ReadBoolean();
-            var transform2 = reader.ReadMatrix4x3Transposed();
-            var unknown20 = reader.ReadUInt32(); // Maybe _nextBurst
-            var unknown21 = reader.ReadUInt32();
-            var unknown22 = reader.ReadUInt32();
-            var unknown23 = reader.ReadUInt32();
-            var unknown24 = reader.ReadUInt32();
-            reader.__Skip(6);
-            for (var j = 0; j < 6; j++)
+            reader.PersistUInt32(ref _systemId);
+            reader.PersistUInt32(ref _attachedToDrawableId);
+            reader.PersistObjectID(ref _attachedToObjectId);
+            reader.PersistBoolean(ref _localTransformIsIdentity);
+            reader.PersistMatrix4x3(ref _localTransform, readVersion: false);
+            reader.PersistBoolean(ref _worldTransformIsIdentity);
+            reader.PersistMatrix4x3(ref _worldTransform, readVersion: false);
+            reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistBoolean(ref _hasInfiniteLifetime);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistBoolean(ref _unknownBool1);
+
+            reader.BeginArray("UnknownFloats");
+            for (var i = 0; i < 6; i++)
             {
-                var unknown25 = reader.ReadSingle(); // All 1
-            }
-            reader.__Skip(33);
-            var numParticles = reader.ReadUInt32();
-            for (var j = 0; j < numParticles; j++)
-            {
-                var unknown26 = reader.ReadBoolean();
-                var unknown27 = reader.ReadBoolean();
-                var unknown28 = reader.ReadVector3();
-                var particlePosition = reader.ReadVector3();
-                var anotherPosition = reader.ReadVector3();
-                var particleVelocityDamping = reader.ReadSingle();
-                var unknown29 = reader.ReadSingle(); // 0
-                var unknown30 = reader.ReadSingle(); // 0
-                var unknown31 = reader.ReadSingle(); // 3.78, maybe AngleZ
-                var unknown32 = reader.ReadSingle(); // 0
-                var unknown33 = reader.ReadSingle(); // 0
-                var unknown34 = reader.ReadSingle(); // 0
-                var unknown34_ = reader.ReadSingle();
-                var unknown35 = reader.ReadSingle(); // 17.8
-                var unknown36 = reader.ReadSingle(); // 0.04
-                var particleSizeRateDamping = reader.ReadSingle();
-                for (var k = 0; k < 8; k++)
+                var unknown25 = 1.0f;
+                reader.PersistSingleValue(ref unknown25);
+                if (unknown25 != 1.0f)
                 {
-                    var alphaKeyframeAlpha = reader.ReadSingle();
-                    var alphaKeyframeTime = reader.ReadUInt32();
-                    var alphaKeyframe = new ParticleAlphaKeyframe(
-                        alphaKeyframeTime,
-                        alphaKeyframeAlpha);
+                    throw new InvalidStateException();
                 }
-                for (var k = 0; k < 8; k++)
+            }
+            reader.EndArray();
+
+            reader.PersistVector3(ref _position);
+            reader.PersistVector3(ref _positionPrevious);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _slaveSystemId);
+            reader.PersistUInt32(ref _masterSystemId);
+
+            var numParticles = (uint)(_particles?.Length ?? 0);
+            reader.PersistUInt32(ref numParticles);
+
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                // TODO: Shouldn't do this.
+                _particles = new Particle[numParticles];
+            }
+
+            reader.BeginArray("Particles");
+            for (var i = 0; i < numParticles; i++)
+            {
+                if (reader.Mode == StatePersistMode.Read)
                 {
-                    var colorKeyframeColor = reader.ReadColorRgbF();
-                    var colorKeyframeTime = reader.ReadUInt32();
-                    var colorKeyframe = new ParticleColorKeyframe(
-                        colorKeyframeTime,
-                        colorKeyframeColor.ToVector3());
+                    _particles[i] = new Particle(this);
                 }
-                var unknown37 = reader.ReadSingle();
-                var unknown38 = reader.ReadBoolean();
-                var unknown39 = reader.ReadSingle();
-                reader.__Skip(28); // All 0
-                var unknown40 = reader.ReadUInt32(); // 49
-                var unknown41 = reader.ReadUInt32(); // 1176
-                var particleAlpha = reader.ReadSingle(); // 1.0
-                var unknown42 = reader.ReadUInt32(); // 0
-                var unknown43 = reader.ReadUInt32(); // 1
-                var unknown44 = reader.ReadVector3(); // (0.35, 0.35, 0.35)
-                reader.__Skip(12); // All 0
-                var unknown45 = reader.ReadUInt32(); // 1
-                reader.__Skip(8); // All 0
+                reader.PersistObjectValue(ref _particles[i]);
             }
-        }
-
-        internal void LoadTemplateData(SaveFileReader reader)
-        {
-            // What follows is almost an exact replica of ParticleSystemTemplate,
-            // with a few extra fields here and there.
-
-            reader.ReadVersion(1);
-
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
-            {
-                throw new InvalidDataException();
-            }
-
-            if (reader.ReadEnum<ParticleSystemShader>() != Template.Shader)
-            {
-                throw new InvalidDataException();
-            }
-
-            if (reader.ReadEnum<ParticleSystemType>() != Template.Type)
-            {
-                throw new InvalidDataException();
-            }
-
-            reader.ReadAsciiString(); // Texture
-
-            reader.ReadRandomVariable(); // AngleX
-            reader.ReadRandomVariable(); // AngleY
-            reader.ReadRandomVariable(); // AngleZ
-
-            reader.ReadRandomVariable(); // AngularRateX
-            reader.ReadRandomVariable(); // AngularRateY
-            reader.ReadRandomVariable(); // AngularRateZ
-
-            reader.ReadRandomVariable(); // AngularDamping
-            reader.ReadRandomVariable(); // VelocityDamping
-            reader.ReadRandomVariable(); // Lifetime
-
-            reader.ReadUInt32(); // SystemLifetime
-
-            reader.ReadRandomVariable(); // Size
-            reader.ReadRandomVariable(); // StartSizeRate
-            reader.ReadRandomVariable(); // SizeRate
-            reader.ReadRandomVariable(); // SizeRateDamping
-
-            for (var j = 0; j < 8; j++)
-            {
-                reader.ReadRandomAlphaKeyframe(); // AlphaKeyframes
-            }
-            for (var j = 0; j < 8; j++)
-            {
-                reader.ReadRgbColorKeyframe(); // ColorKeyframes
-            }
-
-            reader.ReadRandomVariable(); // ColorScale
-            reader.ReadRandomVariable(); // BurstDelay
-            reader.ReadRandomVariable(); // BurstCount
-            reader.ReadRandomVariable(); // InitialDelay
-
-            reader.ReadVector3(); // DriftVelocity
-
-            reader.ReadSingle(); // Gravity
-
-            reader.ReadAsciiString(); // SlaveSystemName
-
-            reader.__Skip(13);
-
-            var velocityType = reader.ReadEnum<ParticleVelocityType>();
-            var unknown10 = reader.ReadUInt32();
-            switch (velocityType)
-            {
-                case ParticleVelocityType.Ortho:
-                    var velocityOrthoX = reader.ReadRandomVariable();
-                    var velocityOrthoY = reader.ReadRandomVariable();
-                    var velocityOrthoZ = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Spherical:
-                    var velocitySpherical = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Hemispherical:
-                    var velocityHemispherical = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Cylindrical:
-                    var velocityCylindricalRadial = reader.ReadRandomVariable();
-                    var velocityCylindricalNormal = reader.ReadRandomVariable();
-                    break;
-                case ParticleVelocityType.Outward:
-                    var velocityOutward = reader.ReadRandomVariable();
-                    var velocityOutwardOther = reader.ReadRandomVariable();
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            var volumeType = reader.ReadEnum<ParticleVolumeType>();
-            switch (volumeType)
-            {
-                case ParticleVolumeType.Point:
-                    break;
-                case ParticleVolumeType.Line:
-                    var lineStartPoint = reader.ReadVector3();
-                    var lineEndPoint = reader.ReadVector3();
-                    break;
-                case ParticleVolumeType.Box:
-                    var halfSize = reader.ReadVector3();
-                    break;
-                case ParticleVolumeType.Sphere:
-                    var volumeSphereRadius = reader.ReadSingle(); // Interesting, value doesn't match ini file
-                    break;
-                case ParticleVolumeType.Cylinder:
-                    var volumeCylinderRadius = reader.ReadSingle();
-                    var volumeCylinderLength = reader.ReadSingle();
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            var unknown11 = reader.ReadUInt32();
-            var windMotion = reader.ReadEnum<ParticleSystemWindMotion>();
-            var unknown12 = reader.ReadSingle();
-            var unknown13 = reader.ReadSingle(); // Almost same as WindAngleChangeMin
-            var windAngleChangeMin = reader.ReadSingle();
-            var windAngleChangeMax = reader.ReadSingle();
-            var unknown14 = reader.ReadSingle();
-            var windPingPongStartAngleMin = reader.ReadSingle();
-            var windPingPongStartAngleMax = reader.ReadSingle();
-            var unknown15 = reader.ReadSingle();
-            var windPingPongEndAngleMin = reader.ReadSingle();
-            var windPingPongEndAngleMax = reader.ReadSingle();
-            var unknown16 = reader.ReadBoolean();
+            reader.EndArray();
         }
     }
 
@@ -805,10 +602,12 @@ namespace OpenSage.Graphics.ParticleSystems
         Dead
     }
 
-    internal readonly struct ParticleColorKeyframe : IParticleKeyframe
+    internal struct ParticleColorKeyframe : IParticleKeyframe, IPersistableObject
     {
-        public uint Time { get; }
-        public readonly Vector3 Color;
+        public uint Time;
+        public Vector3 Color;
+
+        uint IParticleKeyframe.Time => Time;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)
         {
@@ -820,6 +619,12 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             Time = time;
             Color = color;
+        }
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistVector3(ref Color);
+            persister.PersistUInt32(ref Time);
         }
     }
 

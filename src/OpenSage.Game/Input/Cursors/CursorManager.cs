@@ -9,17 +9,28 @@ namespace OpenSage.Input.Cursors
         private readonly Dictionary<string, Cursor> _cachedCursors;
         private Cursor _currentCursor;
 
-        private readonly GameWindow _window;
         private readonly AssetStore _assetStore;
         private readonly ContentManager _contentManager;
+        private readonly GameWindow _window;
 
-        public CursorManager(GameWindow window, AssetStore assetStore, ContentManager contentManager)
+        public bool IsCursorVisible
+        {
+            set
+            {
+                if (_window != null)
+                {
+                    _window.IsCursorVisible = value;
+                }
+            }
+        }
+
+        public CursorManager(AssetStore assetStore, ContentManager contentManager, GameWindow window)
         {
             _cachedCursors = new Dictionary<string, Cursor>();
 
-            _window = window;
             _assetStore = assetStore;
             _contentManager = contentManager;
+            _window = window;
         }
 
         public void SetCursor(string cursorName, in TimeInterval time)
@@ -55,7 +66,7 @@ namespace OpenSage.Input.Cursors
                 var cursorFilePath = Path.Combine(cursorDirectory, cursorFileName);
                 var cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window));
+                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window?.WindowScale ?? 1.0f));
             }
 
             if (_currentCursor == cursor)

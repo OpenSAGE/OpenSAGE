@@ -4,6 +4,15 @@ namespace OpenSage.Logic.Object
 {
     public enum ArmorSetCondition
     {
+        [IniEnum("VETERAN")]
+        Veteran,
+
+        [IniEnum("ELITE")]
+        Elite,
+
+        [IniEnum("HERO")]
+        Hero,
+
         [IniEnum("PLAYER_UPGRADE")]
         PlayerUpgrade,
 

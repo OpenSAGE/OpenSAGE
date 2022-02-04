@@ -1,75 +1,74 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class BuildListItem
+    public sealed class BuildListItem : IPersistableObject
     {
+        private string _buildingName;
+        private string _name;
+        private Vector3 _position;
+        private float _angle;
+        private bool _unknownBool1;
+        private uint _rebuilds;
+        private uint _startingHealth;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private bool _unknownBool4;
+        private bool _unknownBool5;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool6;
+        private bool _unknownBool7;
+        private int _unknownInt3;
+        private bool _unknownBool8;
+        private int _unknownInt4;
+
         public string BuildingName { get; private set; }
         public string Name { get; private set; }
-        public Vector3 Position { get; private set; }
-        public float Angle { get; private set; }
+        public Vector3 Position => _position;
+        public float Angle => _angle;
         public bool StructureAlreadyBuilt { get; private set; }
-        public uint Rebuilds { get; private set; }
+        public uint Rebuilds => _rebuilds;
         public string Script { get; private set; }
         public bool Unknown1 { get; private set; }
-        public uint StartingHealth { get; private set; }
+        public uint StartingHealth => _startingHealth;
         public bool Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            BuildingName = reader.ReadAsciiString();
-            Name = reader.ReadAsciiString();
-            Position = reader.ReadVector3();
+            reader.PersistAsciiString(ref _buildingName);
+            reader.PersistAsciiString(ref _name);
+            reader.PersistVector3(ref _position);
 
-            var unknown1 = reader.ReadUInt32();
-            if (unknown1 != 0u)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(8);
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0u)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistSingle(ref _angle);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _rebuilds);
 
-            Angle = reader.ReadSingle();
+            reader.SkipUnknownBytes(1);
 
-            var unknown3 = reader.ReadBoolean();
+            reader.PersistUInt32(ref _startingHealth);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool5);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool6);
 
-            Rebuilds = reader.ReadByte();
+            reader.SkipUnknownBytes(40);
 
-            var unknown5 = reader.ReadUInt32();
-            if (unknown5 != 0u)
-            {
-                throw new InvalidDataException();
-            }
-
-            StartingHealth = reader.ReadUInt32();
-
-            var unknown6 = reader.ReadBoolean();
-            var unknown7 = reader.ReadBoolean();
-            var unknown8 = reader.ReadBoolean();
-            var unknown9 = reader.ReadBoolean();
-            var unknown10 = reader.ReadUInt32();
-            var unknown11 = reader.ReadUInt32();
-            var unknown12 = reader.ReadBoolean();
-
-            for (var i = 0; i < 50; i++)
-            {
-                var unknown13 = reader.ReadByte();
-                if (unknown13 != 0)
-                {
-                    //throw new InvalidDataException();
-                }
-            }
+            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistInt32(ref _unknownInt4);
         }
 
         internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)
@@ -80,8 +79,8 @@ namespace OpenSage.Data.Map
 
                 Name = reader.ReadUInt16PrefixedAsciiString(),
 
-                Position = reader.ReadVector3(),
-                Angle = reader.ReadSingle(),
+                _position = reader.ReadVector3(),
+                _angle = reader.ReadSingle(),
 
                 StructureAlreadyBuilt = reader.ReadBooleanChecked()
             };
@@ -93,11 +92,11 @@ namespace OpenSage.Data.Map
                 result.Unknown1 = reader.ReadBooleanChecked();
             }
 
-            result.Rebuilds = reader.ReadUInt32();
+            result._rebuilds = reader.ReadUInt32();
 
             result.Script = reader.ReadUInt16PrefixedAsciiString();
 
-            result.StartingHealth = reader.ReadUInt32();
+            result._startingHealth = reader.ReadUInt32();
 
             // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
             result.Unknown2 = reader.ReadBooleanChecked();

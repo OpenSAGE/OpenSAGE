@@ -17,6 +17,11 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _gameContext;
         private ModelInstance _modelInstance;
 
+        private string _modelName;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool;
+
         internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameContext context)
         {
             _data = data;
@@ -72,6 +77,23 @@ namespace OpenSage.Logic.Object
         internal override void Update(in TimeInterval time)
         {
             _modelInstance.Update(time);
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistAsciiString(ref _modelName);
+
+            reader.SkipUnknownBytes(7);
+
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 

@@ -1,13 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -38,6 +36,11 @@ namespace OpenSage.Logic.Object
         protected AnimationState _activeAnimationState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
+
+        private readonly List<W3dModelDrawSomething>[] _unknownSomething;
+        private bool _hasUnknownThing;
+        private int _unknownInt;
+        private float _unknownFloat;
 
         protected ModelInstance ActiveModelInstance => _activeModelDrawConditionState.Model;
 
@@ -118,6 +121,12 @@ namespace OpenSage.Logic.Object
 
             _generalsTransitionStates = data.GeneralsTransitionStates;
             _bfmeTransitionStates = data.BfmeTransitionStates;
+
+            _unknownSomething = new List<W3dModelDrawSomething>[3];
+            for (var i = 0; i < _unknownSomething.Length; i++)
+            {
+                _unknownSomething[i] = new List<W3dModelDrawSomething>();
+            }
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish(ModelConditionState conditionState)
@@ -388,47 +397,45 @@ namespace OpenSage.Logic.Object
             ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            for (var i = 0; i < 2; i++)
-            {
-                var unknownCount = reader.ReadByte();
-                for (var j = 0; j < unknownCount; j++)
+            reader.PersistArray(
+                _unknownSomething,
+                static (StatePersister persister, ref List<W3dModelDrawSomething> item) =>
                 {
-                    var unknown1 = reader.ReadUInt32();
-                    if (unknown1 != 0)
+                    persister.PersistListWithByteCountValue(item, static (StatePersister persister, ref W3dModelDrawSomething item) =>
                     {
-                        throw new InvalidDataException();
-                    }
+                        persister.PersistObjectValue(ref item);
+                    });
+                });
 
-                    var unknown2 = reader.ReadUInt32();
-                    if (unknown2 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
+            reader.SkipUnknownBytes(1);
 
-                    var unknown3 = reader.ReadUInt32();
-                    if (unknown3 != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
-            }
-
-            var unknownBool1 = reader.ReadBooleanChecked();
-            var unknownBool2 = reader.ReadBooleanChecked();
-
-            if (unknownBool1 || unknownBool2)
+            reader.PersistBoolean(ref _hasUnknownThing);
+            if (_hasUnknownThing)
             {
-                throw new InvalidDataException();
+                reader.PersistInt32(ref _unknownInt);
+                reader.PersistSingle(ref _unknownFloat);
+            }
+        }
+
+        public struct W3dModelDrawSomething : IPersistableObject
+        {
+            public uint UnknownInt;
+            public float UnknownFloat1;
+            public float UnknownFloat2;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistUInt32(ref UnknownInt);
+                persister.PersistSingle(ref UnknownFloat1);
+                persister.PersistSingle(ref UnknownFloat2);
             }
         }
     }

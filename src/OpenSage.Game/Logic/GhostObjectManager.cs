@@ -1,26 +1,35 @@
-﻿using OpenSage.Data.Sav;
+﻿using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
-    public sealed class GhostObjectManager
+    public sealed class GhostObjectManager : IPersistableObject
     {
-        internal void Load(SaveFileReader reader, GameLogic gameLogic, Game game)
+        private readonly List<GhostObject> _ghostObjects = new();
+        private uint _unknown1;
+
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var unknown1 = reader.ReadUInt32();
+            reader.BeginObject("Base");
+            reader.PersistVersion(1);
+            reader.EndObject();
 
-            var ghostObjectCount = reader.ReadUInt16();
+            reader.PersistUInt32(ref _unknown1);
 
-            for (var i = 0; i < ghostObjectCount; i++)
-            {
-                var objectId = reader.ReadObjectID();
-                var gameObject = gameLogic.GetObjectById(objectId);
+            reader.PersistList(
+                _ghostObjects,
+                static (StatePersister persister, ref GhostObject item) =>
+                {
+                    persister.BeginObject();
 
-                var ghostObject = new GhostObject(); // TODO
-                ghostObject.Load(reader, gameLogic, game);
-            }
+                    item ??= new GhostObject();
+
+                    persister.PersistObjectID(ref item.OriginalObjectId);
+                    persister.PersistObject(item, "Value");
+
+                    persister.EndObject();
+                });
         }
     }
 }

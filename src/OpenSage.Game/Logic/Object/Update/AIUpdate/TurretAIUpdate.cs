@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -15,6 +13,14 @@ namespace OpenSage.Logic.Object
         private WeaponTarget _currentTarget;
         private TimeSpan _waitUntil;
         private TurretAIStates _turretAIstate;
+
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+        private uint _unknownFrame1;
+        private uint _unknownInt1;
+        private uint _unknownFrame2;
+        private readonly bool[] _unknownBools = new bool[7];
+        private uint _unknownFrame3;
 
         public enum TurretAIStates
         {
@@ -194,36 +200,33 @@ namespace OpenSage.Logic.Object
             //return false;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(2);
 
-            var unknownBool1 = reader.ReadBooleanChecked();
+            var unknownBool1 = true;
+            reader.PersistBoolean(ref unknownBool1);
             if (!unknownBool1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             // Angles maybe.
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
 
-            var frameSomething2 = reader.ReadUInt32();
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistUInt32(ref _unknownInt1); // 0, 1
+            reader.PersistFrame(ref _unknownFrame2);
 
-            var unknownInt4 = reader.ReadUInt32(); // 0, 1
+            reader.PersistArray(
+                _unknownBools,
+                static (StatePersister persister, ref bool item) =>
+                {
+                    persister.PersistBooleanValue(ref item);
+                });
 
-            var frameSomething3 = reader.ReadUInt32();
-
-            for (var i = 0; i < 7; i++)
-            {
-                var unknownBool2 = reader.ReadBooleanChecked();
-            }
-
-            var frameSomething = reader.ReadUInt32();
+            reader.PersistFrame(ref _unknownFrame3);
         }
     }
 

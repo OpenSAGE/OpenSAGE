@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using OpenSage.FileFormats;
+using OpenSage.IO;
 using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.Apt

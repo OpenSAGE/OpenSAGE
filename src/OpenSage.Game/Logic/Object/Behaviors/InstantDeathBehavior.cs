@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class InstantDeathBehavior : BehaviorModule
+    public sealed class InstantDeathBehavior : DieModule
     {
         private readonly GameObject _gameObject;
         private readonly InstantDeathBehaviorModuleData _moduleData;
@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            context.GameObject.Destroy();
+            _gameObject.GameContext.GameObjects.DestroyObject(_gameObject);
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
@@ -32,6 +32,15 @@ namespace OpenSage.Logic.Object
                 rotation,
                 translation,
                 context.GameContext));
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
         }
     }
 

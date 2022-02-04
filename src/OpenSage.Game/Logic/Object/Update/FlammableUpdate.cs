@@ -1,28 +1,47 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class FlammableUpdate : UpdateModule
     {
+        private readonly FlammableUpdateModuleData _moduleData;
+
+        private FlammableState _state;
+        private uint _aflameEndFrame;
+        private uint _nextDamageFrame;
+        private float _remainingDamageBeforeCatchingFire;
+        private uint _startedTakingFlameDamageFrame;
+
+        internal FlammableUpdate(FlammableUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _remainingDamageBeforeCatchingFire = moduleData.FlameDamageLimit;
+        }
+
         // TODO
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown1 = reader.ReadBytes(18);
+            reader.PersistEnum(ref _state);
+            reader.PersistFrame(ref _aflameEndFrame);
 
-            var unknown2 = reader.ReadUInt32();
+            reader.SkipUnknownBytes(4);
 
-            var unknown3 = reader.ReadUInt16();
+            reader.PersistFrame(ref _nextDamageFrame);
+            reader.PersistSingle(ref _remainingDamageBeforeCatchingFire);
+            reader.PersistFrame(ref _startedTakingFlameDamageFrame);
+        }
+
+        private enum FlammableState
+        {
+            Inactive = 0,
+            Aflame = 1,
         }
     }
 
@@ -38,7 +57,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<FlammableUpdateModuleData> FieldParseTable = new IniParseTable<FlammableUpdateModuleData>
         {
-            { "FlameDamageLimit", (parser, x) => x.FlameDamageLimit = parser.ParseInteger() },
+            { "FlameDamageLimit", (parser, x) => x.FlameDamageLimit = parser.ParseFloat() },
             { "FlameDamageExpiration", (parser, x) => x.FlameDamageExpiration = parser.ParseInteger() },
             { "AflameDuration", (parser, x) => x.AflameDuration = parser.ParseInteger() },
             { "AflameDamageAmount", (parser, x) => x.AflameDamageAmount = parser.ParseInteger() },
@@ -62,7 +81,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// How much flame damage to receive before catching fire.
         /// </summary>
-        public int FlameDamageLimit { get; private set; }
+        public float FlameDamageLimit { get; private set; } = 20.0f;
 
         /// <summary>
         /// Time within which <see cref="FlameDamageLimit"/> must be received in order to catch fire.
@@ -126,7 +145,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new FlammableUpdate();
+            return new FlammableUpdate(this);
         }
     }
 }

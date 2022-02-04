@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Diagnostics.Util;
+using OpenSage.IO;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 
@@ -30,7 +31,7 @@ namespace OpenSage.Data.Map
             // again. In order to do that we first load it in a temporary scope.
             assetStore.PushScope();
 
-            var mapCacheIniEntry = _contentManager.UserMapsFileSystem.GetFile(MapCacheIniPath);
+            var mapCacheIniEntry = _contentManager.UserDataFileSystem.GetFile(MapCacheIniPath);
             if (mapCacheIniEntry != null)
             {
                 _contentManager.LoadIniFile(mapCacheIniEntry);
@@ -41,9 +42,11 @@ namespace OpenSage.Data.Map
 
             foreach (var mapEntry in EnumerateMaps())
             {
+                var mapEntryFullPath = _contentManager.UserDataFileSystem.GetFullPath(mapEntry);
+
                 var buildMapCache = false;
-                var mapCache = assetStore.MapCaches.GetByName(mapEntry.FullFilePath);
-                var fileInfo = new FileInfo(mapEntry.FullFilePath);
+                var mapCache = assetStore.MapCaches.GetByName(mapEntryFullPath);
+                var fileInfo = new FileInfo(mapEntryFullPath);
 
                 if (mapCache == null)
                 {
@@ -56,7 +59,7 @@ namespace OpenSage.Data.Map
 
                     // TODO: Should we check the CRC here as well?
                     // If yes, which implementation should we use?
-                    if (fileInfo.LastWriteTime != timestamp &&
+                    if (fileInfo.LastWriteTime != timestamp ||
                         fileInfo.Length != mapCache.FileSize)
                     {
                         // existing map modified
@@ -69,14 +72,14 @@ namespace OpenSage.Data.Map
                     mapCache = BuildMapCache(mapEntry, fileInfo, assetStore);
                 }
 
-                mapCacheEntries.Add(mapEntry.FullFilePath, mapCache);
+                mapCacheEntries.Add(mapEntryFullPath, mapCache);
             }
 
             // Get rid of the old MapCaches, generate the file based on
             // the updated ones and load it again, this time for real.
             assetStore.PopScope();
 
-            var fullMapCacheIniPath = Path.Combine(_contentManager.UserMapsFileSystem.RootDirectory, MapCacheIniPath);
+            var fullMapCacheIniPath = Path.Combine(_contentManager.UserDataFileSystem.RootDirectory, MapCacheIniPath);
 
             // Create the full path, user directory should already exist from the content manager but
             // maps folder may not
@@ -88,25 +91,21 @@ namespace OpenSage.Data.Map
             GenerateMapCacheIniFile(fullMapCacheIniPath, mapCacheEntries);
 
             mapCacheIniEntry = new FileSystemEntry(
-                _contentManager.UserMapsFileSystem,
+                _contentManager.UserDataFileSystem,
                 MapCacheIniPath,
                 (uint) new FileInfo(fullMapCacheIniPath).Length,
                 () => File.OpenRead(fullMapCacheIniPath));
 
-            _contentManager.UserMapsFileSystem.Update(mapCacheIniEntry);
+            //_contentManager.UserDataFileSystem.Update(mapCacheIniEntry);
             _contentManager.LoadIniFile(mapCacheIniEntry);
         }
 
         private IEnumerable<FileSystemEntry> EnumerateMaps()
         {
-            var maps = from file in _contentManager.UserMapsFileSystem.Files
-                       where Path.GetExtension(file.FilePath) == ".map"
-                       let parts = file.FilePath.Split(Path.DirectorySeparatorChar)
-                       where parts.Length == 3
-                           && parts[0] == "maps"
-                           && parts[1] == Path.GetFileNameWithoutExtension(parts[2])
-                       select file;
-            return maps;
+            return _contentManager.UserDataFileSystem.GetFilesInDirectory(
+                "Maps",
+                "*.map",
+                SearchOption.AllDirectories);
         }
 
         private MapCache BuildMapCache(FileSystemEntry fileSystemEntry, FileInfo fileInfo, AssetStore assetStore)

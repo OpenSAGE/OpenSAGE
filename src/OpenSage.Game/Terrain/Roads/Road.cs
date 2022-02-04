@@ -8,6 +8,7 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -23,9 +24,7 @@ namespace OpenSage.Terrain.Roads
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
-        private readonly ResourceSet _resourceSet;
+        private readonly Material _material;
 
         private readonly BeforeRenderDelegate _beforeRender;
 
@@ -36,8 +35,7 @@ namespace OpenSage.Terrain.Roads
         internal Road(
             AssetLoadContext loadContext,
             HeightMap heightMap,
-            RoadNetwork network,
-            ResourceSet radiusCursorDecalsResourceSet)
+            RoadNetwork network)
         {
             _debugName = network.Template.Name;
 
@@ -62,16 +60,10 @@ namespace OpenSage.Terrain.Roads
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
             
-            _shaderSet = loadContext.ShaderResources.Road.ShaderSet;
-            _pipeline = loadContext.ShaderResources.Road.Pipeline;
+            _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
 
-            // TODO: Cache these resource sets in some sort of scoped data context.
-            _resourceSet = AddDisposable(loadContext.ShaderResources.Road.CreateMaterialResourceSet(network.Template.Texture.Value));
-
-            _beforeRender = (cl, context) =>
+            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(4, _resourceSet);
-                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
 
@@ -94,8 +86,7 @@ namespace OpenSage.Terrain.Roads
         {
             renderList.Road.RenderItems.Add(new RenderItem(
                 _debugName,
-                _shaderSet,
-                _pipeline,
+                _material,
                 _boundingBox,
                 Matrix4x4.Identity,
                 0,

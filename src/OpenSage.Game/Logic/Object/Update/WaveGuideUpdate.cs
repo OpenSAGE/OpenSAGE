@@ -2,6 +2,20 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class WaveGuideUpdate : UpdateModule
+    {
+        // TODO
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+
+            reader.SkipUnknownBytes(2330);
+        }
+    }
+
     /// <summary>
     /// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02, 
     /// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the 
@@ -46,5 +60,10 @@ namespace OpenSage.Logic.Object
         public string BridgeParticle { get; private set; }
         public float BridgeParticleAngleFudge { get; private set; }
         public string LoopingSound { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new WaveGuideUpdate();
+        }
     }
 }

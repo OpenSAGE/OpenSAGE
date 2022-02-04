@@ -6,13 +6,9 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MoneyCrateCollide : CrateCollide
     {
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
             base.Load(reader);
         }

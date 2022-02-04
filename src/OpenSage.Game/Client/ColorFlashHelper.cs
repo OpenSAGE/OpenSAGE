@@ -1,9 +1,8 @@
 ﻿using System.Numerics;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Client
 {
-    internal sealed class ColorFlashHelper
+    internal sealed class ColorFlashHelper : IPersistableObject
     {
         private Vector3 _increasingColorDelta;
         private Vector3 _decreasingColorDelta;
@@ -15,17 +14,17 @@ namespace OpenSage.Client
 
         // TODO: Actual implementation
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            _increasingColorDelta = reader.ReadVector3();
-            _decreasingColorDelta = reader.ReadVector3();
-            _targetColor = reader.ReadVector3();
-            _currentColor = reader.ReadVector3();
-            _holdFrames = reader.ReadUInt32();
-            _isActive = reader.ReadBoolean();
-            _state = reader.ReadEnumByte<ColorFlashState>();
+            reader.PersistVector3(ref _increasingColorDelta);
+            reader.PersistVector3(ref _decreasingColorDelta);
+            reader.PersistVector3(ref _targetColor);
+            reader.PersistVector3(ref _currentColor);
+            reader.PersistUInt32(ref _holdFrames);
+            reader.PersistBoolean(ref _isActive);
+            reader.PersistEnumByte(ref _state);
         }
 
         private enum ColorFlashState : byte

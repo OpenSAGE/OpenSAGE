@@ -300,7 +300,8 @@ namespace OpenSage.Terrain.Roads
             }
 
             // This shouldn't happen but sometimes does in broken maps (Heartland Shield for example).
-            if (toCornerDirection.LengthSquared() < 0.1f)
+            var toCornerLengthSquared = toCornerDirection.LengthSquared();
+            if (float.IsNaN(toCornerLengthSquared) || toCornerLengthSquared < 0.1f)
             {
                 toCornerDirection = DirectionNormalNoZ;
             }

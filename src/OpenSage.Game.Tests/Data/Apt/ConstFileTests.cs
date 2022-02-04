@@ -2,6 +2,7 @@
 using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Big;
+using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 

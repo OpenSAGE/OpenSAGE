@@ -1,7 +1,5 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using LiteNetLib.Utils;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Network
 {
@@ -15,8 +13,12 @@ namespace OpenSage.Network
         Human = 5,
     }
 
-    public class SkirmishSlot
+    public class SkirmishSlot : IPersistableObject
     {
+        private int _colorChosen;
+        private int _startPositionChosen;
+        private int _playerTemplateIndexChosen;
+
         public SkirmishSlot(int index)
         {
             Index = index;
@@ -171,29 +173,39 @@ namespace OpenSage.Network
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            State = reader.ReadEnum<SkirmishSlotState>();
-            PlayerName = reader.ReadUnicodeString();
+            reader.PersistEnum(ref _state);
+            reader.PersistUnicodeString(ref _playerName);
 
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 1u)
+            ushort unknown1 = 1;
+            reader.PersistUInt16(ref unknown1);
+            if (unknown1 != 1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            ColorIndex = (sbyte) reader.ReadInt32();
-            StartPosition = (byte) reader.ReadInt32();
+            int colorIndex = ColorIndex;
+            reader.PersistInt32(ref colorIndex);
+            ColorIndex = (sbyte)colorIndex;
+
+            int startPosition = StartPosition;
+            reader.PersistInt32(ref startPosition);
+            StartPosition = (byte)startPosition;
 
             // Bit ugly... this is really an index into player templates,
             // but FactionIndex only counts playable sides... and also is 1-based.
-            FactionIndex = (byte) (reader.ReadInt32() - 1);
+            int factionIndex = FactionIndex;
+            reader.PersistInt32(ref factionIndex);
+            FactionIndex = (byte)(factionIndex - 1);
 
-            Team = (sbyte) reader.ReadInt32();
+            int team = Team;
+            reader.PersistInt32(ref team);
+            Team = (sbyte)team;
 
-            var colorChosen = reader.ReadInt32();
-            var startPositionChosen = reader.ReadInt32();
-            var playerTemplateIndexChosen = reader.ReadInt32();
+            reader.PersistInt32(ref _colorChosen);
+            reader.PersistInt32(ref _startPositionChosen);
+            reader.PersistInt32(ref _playerTemplateIndexChosen);
         }
     }
 }

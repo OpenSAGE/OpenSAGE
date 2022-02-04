@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    internal sealed class ParticleSystemManager : DisposableBase
+    internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
     {
         private readonly AssetLoadContext _loadContext;
         private readonly int _maxParticleCount;
 
         private readonly List<ParticleSystem> _particleSystems;
+
+        private uint _previousParticleSystemId;
 
         public ParticleSystemManager(AssetLoadContext assetLoadContext)
         {
@@ -62,6 +62,14 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
+        public void Update(in TimeInterval gameTime)
+        {
+            foreach (var particleSystem in _particleSystems)
+            {
+                particleSystem.Update(gameTime);
+            }
+        }
+
         public void BuildRenderList(RenderList renderList)
         {
             // TODO: Sort by ParticleSystem.Priority.
@@ -95,27 +103,54 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var unknown = reader.ReadUInt32();
+            reader.PersistUInt32(ref _previousParticleSystemId);
 
-            var count = reader.ReadUInt32();
-            for (var i = 0; i < count; i++)
+            var count = (uint)_particleSystems.Count;
+            reader.PersistUInt32(ref count);
+
+            reader.BeginArray("ParticleSystems");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var templateName = reader.ReadAsciiString();
-                if (templateName != string.Empty)
+                for (var i = 0; i < count; i++)
                 {
-                    var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);
+                    reader.BeginObject();
 
-                    var particleSystem = Create(
-                        template,
-                        Matrix4x4.Identity); // TODO
+                    var templateName = "";
+                    reader.PersistAsciiString(ref templateName);
 
-                    particleSystem.Load(reader);
+                    if (templateName != string.Empty)
+                    {
+                        var template = _loadContext.AssetStore.FXParticleSystemTemplates.GetByName(templateName);
+
+                        var particleSystem = Create(
+                            template,
+                            Matrix4x4.Identity); // TODO
+
+                        reader.PersistObject(particleSystem);
+                    }
+
+                    reader.EndObject();
                 }
             }
+            else
+            {
+                foreach (var particleSystem in _particleSystems)
+                {
+                    reader.BeginObject();
+
+                    var templateName = particleSystem.Template.Name;
+                    reader.PersistAsciiString(ref templateName);
+
+                    reader.PersistObject(particleSystem);
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
         }
     }
 }

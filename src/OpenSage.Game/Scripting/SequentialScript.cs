@@ -1,40 +1,31 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Scripting
+﻿namespace OpenSage.Scripting
 {
-    internal sealed class SequentialScript
+    internal sealed class SequentialScript : IPersistableObject
     {
-        public uint Unknown1 { get; private set; }
-        public uint TeamID { get; private set; }
-        public string ScriptName { get; private set; }
-        public uint ScriptActionIndex { get; private set; }
-        public uint LoopsRemaining { get; private set; }
-        public int Unknown2 { get; private set; }
-        public byte Unknown3 { get; private set; }
+        public uint Unknown1;
+        public uint TeamID;
+        public string ScriptName;
+        public uint ScriptActionIndex;
+        public uint LoopsRemaining;
+        public int Unknown2 = -1;
 
-        public void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            Unknown1 = reader.ReadUInt32();
+            reader.PersistUInt32(ref Unknown1);
+            reader.PersistUInt32(ref TeamID);
+            reader.PersistAsciiString(ref ScriptName);
+            reader.PersistUInt32(ref ScriptActionIndex);
+            reader.PersistUInt32(ref LoopsRemaining);
 
-            TeamID = reader.ReadUInt32();
-            ScriptName = reader.ReadAsciiString();
-            ScriptActionIndex = reader.ReadUInt32();
-            LoopsRemaining = reader.ReadUInt32();
-
-            Unknown2 = reader.ReadInt32();
+            reader.PersistInt32(ref Unknown2);
             if (Unknown2 != -1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            Unknown3 = reader.ReadByte();
-            if (Unknown3 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 }

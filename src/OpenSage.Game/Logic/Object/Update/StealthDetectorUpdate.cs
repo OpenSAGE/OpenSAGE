@@ -4,7 +4,18 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StealthDetectorUpdate : UpdateModule
     {
-        // TODO
+        private bool _unknown;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistBoolean(ref _unknown);
+        }
     }
 
     /// <summary>

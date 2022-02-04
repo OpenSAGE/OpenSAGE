@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
+using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -12,18 +11,20 @@ using OpenSage.Utilities.Extensions;
 namespace OpenSage.Logic
 {
     [DebuggerDisplay("[Player: {Name}]")]
-    public class Player
+    public class Player : IPersistableObject
     {
+        public const int MaxPlayers = 16;
+
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly AssetStore _assetStore;
+        private readonly Game _game;
 
         private readonly SupplyManager _supplyManager;
 
         private readonly List<Upgrade> _upgrades;
-        private readonly StringSet _upgradesInProgress;
+        private readonly UpgradeSet _upgradesInProgress;
 
-        public readonly StringSet UpgradesCompleted;
+        public readonly UpgradeSet UpgradesCompleted;
 
         private readonly ScienceSet _sciences;
         private readonly ScienceSet _sciencesDisabled;
@@ -34,9 +35,23 @@ namespace OpenSage.Logic
 
         private readonly List<TeamTemplate> _teamTemplates;
 
+        private uint _unknown1;
+        private bool _unknown2;
+        private uint _unknown3;
+        private bool _hasInsufficientPower;
+        private readonly List<BuildListItem> _buildListItems = new();
+        private TunnelManager _tunnelManager;
+        private uint _unknown4;
+        private uint _unknown5;
+        private bool _unknown6;
+        private readonly bool[] _attackedByPlayerIds = new bool[MaxPlayers];
+        private readonly PlayerScoreManager _scoreManager = new();
+        private readonly List<ObjectIdSet> _controlGroups = new();
+        private readonly ObjectIdSet _destroyedObjects = new();
+
         public uint Id { get; }
         public PlayerTemplate Template { get; }
-        public string Name { get; internal set; }
+        public string Name;
         public string DisplayName { get; private set; }
 
         public string Side { get; private set; }
@@ -48,8 +63,8 @@ namespace OpenSage.Logic
         public readonly BankAccount BankAccount;
 
         public Rank Rank { get; set; }
-        public uint SkillPointsTotal { get; private set; }
-        public uint SkillPointsAvailable { get; set; }
+        public uint SkillPointsTotal;
+        public uint SkillPointsAvailable;
         public uint SciencePurchasePoints { get; set; }
         public bool CanBuildUnits;
         public bool CanBuildBuildings;
@@ -109,8 +124,10 @@ namespace OpenSage.Logic
 
         public int Team { get; init; }
 
-        public Player(uint id, PlayerTemplate template, in ColorRgb color, AssetStore assetStore)
+        public Player(uint id, PlayerTemplate template, in ColorRgb color, Game game)
         {
+            _game = game;
+
             Id = id;
             Template = template;
             Color = color;
@@ -121,18 +138,16 @@ namespace OpenSage.Logic
             _supplyManager = new SupplyManager();
 
             _upgrades = new List<Upgrade>();
-            _upgradesInProgress = new StringSet();
-            UpgradesCompleted = new StringSet();
+            _upgradesInProgress = new UpgradeSet();
+            UpgradesCompleted = new UpgradeSet();
 
-            _sciences = new ScienceSet(assetStore);
-            _sciencesDisabled = new ScienceSet(assetStore);
-            _sciencesHidden = new ScienceSet(assetStore);
+            _sciences = new ScienceSet();
+            _sciencesDisabled = new ScienceSet();
+            _sciencesHidden = new ScienceSet();
 
             _teamTemplates = new List<TeamTemplate>();
 
-            _assetStore = assetStore;
-
-            Rank = new Rank(this, assetStore.Ranks);
+            Rank = new Rank(this, game.AssetStore.Ranks);
 
             if (template?.InitialUpgrades != null)
             {
@@ -146,7 +161,7 @@ namespace OpenSage.Logic
             {
                 foreach (var science in template.IntrinsicSciences)
                 {
-                    _sciences.Add(science.Value.Name, science.Value);
+                    _sciences.Add(science.Value);
                 }
             }
 
@@ -215,12 +230,12 @@ namespace OpenSage.Logic
                 return false;
             }
 
-            if (_sciencesDisabled.ContainsKey(science.Name))
+            if (_sciencesDisabled.Contains(science))
             {
                 return false;
             }
 
-            if (_sciencesHidden.ContainsKey(science.Name))
+            if (_sciencesHidden.Contains(science))
             {
                 return false;
             }
@@ -232,7 +247,7 @@ namespace OpenSage.Logic
                     continue;
                 }
 
-                if (!_sciences.ContainsKey(requiredScience.Value.Name))
+                if (!_sciences.Contains(requiredScience.Value))
                 {
                     return false;
                 }
@@ -255,15 +270,15 @@ namespace OpenSage.Logic
             }
 
             SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
-            _sciences.Add(science.Name, science);
+            _sciences.Add(science);
         }
 
         public bool HasScience(Science science)
         {
-            return _sciences.ContainsKey(science.Name);
+            return _sciences.Contains(science);
         }
 
-        public bool CanProduceObject(GameObjectCollection allGameObjects, ObjectDefinition objectToProduce)
+        public bool CanProduceObject(ObjectDefinition objectToProduce)
         {
             if (objectToProduce.Prerequisites == null)
             {
@@ -273,7 +288,7 @@ namespace OpenSage.Logic
             // TODO: Make this more efficient.
             bool HasPrerequisite(ObjectDefinition prerequisite)
             {
-                foreach (var gameObject in allGameObjects.Items)
+                foreach (var gameObject in _game.GameLogic.Objects)
                 {
                     if (gameObject.Owner == this && gameObject.Definition == prerequisite)
                     {
@@ -332,12 +347,13 @@ namespace OpenSage.Logic
             switch (status)
             {
                 case UpgradeStatus.Queued:
-                    _upgradesInProgress.Add(template.Name);
+                    _upgradesInProgress.Add(template);
                     break;
 
                 case UpgradeStatus.Completed:
-                    _upgradesInProgress.Remove(template.Name);
-                    UpgradesCompleted.Add(template.Name);
+                    _upgradesInProgress.Remove(template);
+                    UpgradesCompleted.Add(template);
+                    // TODO: Iterate all game objects owned by this player and call their UpdateUpgradeableModules methods.
                     break;
             }
 
@@ -376,205 +392,220 @@ namespace OpenSage.Logic
             return false;
         }
 
-        internal void Load(SaveFileReader reader, Game game)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(8);
+            reader.PersistVersion(8);
 
-            BankAccount.Load(reader);
+            reader.PersistObject(BankAccount);
 
-            var upgradeQueueCount = reader.ReadUInt16();
+            var upgradeQueueCount = (ushort)_upgrades.Count;
+            reader.PersistUInt16(ref upgradeQueueCount);
 
-            if (reader.ReadBoolean())
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistObject(_sciencesDisabled);
+            reader.PersistObject(_sciencesHidden);
+
+            reader.BeginArray("Upgrades");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                throw new InvalidDataException();
-            }
-
-            _sciencesDisabled.Load(reader);
-            _sciencesHidden.Load(reader);
-
-            for (var i = 0; i < upgradeQueueCount; i++)
-            {
-                var upgradeName = reader.ReadAsciiString();
-                var upgradeTemplate = _assetStore.Upgrades.GetByName(upgradeName);
-
-                // Use UpgradeStatus.Invalid temporarily because we're going to load the
-                // actual queued / completed status below.
-                var upgrade = AddUpgrade(upgradeTemplate, UpgradeStatus.Invalid);
-
-                upgrade.Load(reader);
-            }
-
-            reader.__Skip(9);
-
-            var hasInsufficientPower = reader.ReadBoolean();
-
-            _upgradesInProgress.Load(reader);
-            UpgradesCompleted.Load(reader);
-
-            if (reader.ReadByte() != 2)
-            {
-                throw new InvalidDataException();
-            }
-
-            var playerId = reader.ReadUInt32();
-            if (playerId != Id)
-            {
-                throw new InvalidDataException();
-            }
-
-            var numTeamTemplates = reader.ReadUInt16();
-            for (var i = 0; i < numTeamTemplates; i++)
-            {
-                var teamTemplateId = reader.ReadUInt32();
-                var teamTemplate = game.Scene3D.TeamFactory.FindTeamTemplateById(teamTemplateId);
-                if (teamTemplate.Owner != this)
+                for (var i = 0; i < upgradeQueueCount; i++)
                 {
-                    throw new InvalidDataException();
+                    reader.BeginObject();
+
+                    var upgradeName = "";
+                    reader.PersistAsciiString(ref upgradeName);
+                    var upgradeTemplate = reader.AssetStore.Upgrades.GetByName(upgradeName);
+
+                    // Use UpgradeStatus.Invalid temporarily because we're going to load the
+                    // actual queued / completed status below.
+                    var upgrade = AddUpgrade(upgradeTemplate, UpgradeStatus.Invalid);
+
+                    reader.PersistObject(upgrade);
+
+                    reader.EndObject();
                 }
-                _teamTemplates.Add(teamTemplate);
             }
-
-            var buildListItemCount = reader.ReadUInt16();
-            var buildListItems = new BuildListItem[buildListItemCount];
-            for (var i = 0; i < buildListItemCount; i++)
+            else
             {
-                buildListItems[i] = new BuildListItem();
-                buildListItems[i].Load(reader);
+                foreach (var upgrade in _upgrades)
+                {
+                    reader.BeginObject();
+
+                    var upgradeName = upgrade.Template.Name;
+                    reader.PersistAsciiString(ref upgradeName);
+
+                    reader.PersistObject(upgrade);
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
+
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistBoolean(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistBoolean(ref _hasInsufficientPower);
+            reader.PersistObject(_upgradesInProgress);
+            reader.PersistObject(UpgradesCompleted);
+
+            {
+                reader.BeginObject("UnknownThing");
+
+                reader.PersistVersion(2);
+
+                var playerId = Id;
+                reader.PersistUInt32(ref playerId);
+                if (playerId != Id)
+                {
+                    throw new InvalidStateException();
+                }
+
+                reader.EndObject();
             }
 
-            var isAIPlayer = reader.ReadBoolean();
+            reader.PersistList(
+                _teamTemplates,
+                static (StatePersister persister, ref TeamTemplate item) =>
+                {
+                    var teamTemplateId = item?.ID ?? 0u;
+                    persister.PersistUInt32Value(ref teamTemplateId);
+
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.Game.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                    }
+                });
+
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                foreach (var teamTemplate in _teamTemplates)
+                {
+                    if (teamTemplate.Owner != this)
+                    {
+                        throw new InvalidStateException();
+                    }
+                }
+            }
+
+            reader.PersistList(
+                _buildListItems,
+                static (StatePersister persister, ref BuildListItem item) =>
+                {
+                    item ??= new BuildListItem();
+                    persister.PersistObjectValue(item);
+                });
+
+            var isAIPlayer = AIPlayer != null;
+            reader.PersistBoolean(ref isAIPlayer);
             if (isAIPlayer != (AIPlayer != null))
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
             if (isAIPlayer)
             {
-                AIPlayer.Load(reader);
+                reader.PersistObject(AIPlayer);
             }
 
-            var hasSupplyManager = reader.ReadBoolean();
+            var hasSupplyManager = _supplyManager != null;
+            reader.PersistBoolean(ref hasSupplyManager);
             if (hasSupplyManager)
             {
-                _supplyManager.Load(reader);
+                reader.PersistObject(_supplyManager);
             }
 
-            var somePlayerType = reader.ReadBoolean();
-            if (somePlayerType)
+            var hasTunnelManager = _tunnelManager != null;
+            reader.PersistBoolean(ref hasTunnelManager);
+            if (hasTunnelManager)
             {
-                reader.ReadVersion(1);
+                _tunnelManager ??= new TunnelManager();
+                reader.PersistObject(_tunnelManager);
+            }
 
-                var tunnels = new ObjectIdSet();
-                tunnels.Load(reader);
-
-                var containedCount = reader.ReadUInt32();
-                for (var i = 0; i < containedCount; i++)
+            var defaultTeamId = DefaultTeam?.Id ?? 0u;
+            reader.PersistUInt32(ref defaultTeamId);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                DefaultTeam = reader.Game.TeamFactory.FindTeamById(defaultTeamId);
+                if (DefaultTeam.Template.Owner != this)
                 {
-                    var containedObjectId = reader.ReadObjectID();
-                }
-
-                var tunnelCount = reader.ReadUInt32();
-                if (tunnelCount != tunnels.Count)
-                {
-                    throw new InvalidDataException();
+                    throw new InvalidStateException();
                 }
             }
 
-            var defaultTeamId = reader.ReadUInt32();
-            DefaultTeam = game.Scene3D.TeamFactory.FindTeamById(defaultTeamId);
-            if (DefaultTeam.Template.Owner != this)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistObject(_sciences);
 
-            _sciences.Load(reader);
-
-            var rankId = reader.ReadUInt32();
+            var rankId = (uint)Rank.CurrentRank;
+            reader.PersistUInt32(ref rankId);
             Rank.SetRank((int) rankId);
-            SkillPointsTotal = reader.ReadUInt32();
-            SkillPointsAvailable = reader.ReadUInt32();
 
-            var unknown4 = reader.ReadUInt32(); // 800
-            var unknown5 = reader.ReadUInt32(); // 0
+            reader.PersistUInt32(ref SkillPointsTotal);
+            reader.PersistUInt32(ref SkillPointsAvailable);
+            reader.PersistUInt32(ref _unknown4); // 800
+            reader.PersistUInt32(ref _unknown5); // 0
+            reader.PersistUnicodeString(ref Name);
+            reader.PersistObject(_playerToPlayerRelationships);
+            reader.PersistObject(_playerToTeamRelationships);
+            reader.PersistBoolean(ref CanBuildUnits);
+            reader.PersistBoolean(ref CanBuildBuildings);
+            reader.PersistBoolean(ref _unknown6);
+            reader.PersistSingle(ref GeneralsExperienceMultiplier);
+            reader.PersistBoolean(ref ShowOnScoreScreen);
 
-            Name = reader.ReadUnicodeString();
+            reader.PersistArray(
+                _attackedByPlayerIds,
+                static (StatePersister persister, ref bool item) =>
+                {
+                    persister.PersistBooleanValue(ref item);
+                });
 
-            _playerToPlayerRelationships.Load(reader);
-            _playerToTeamRelationships.Load(reader);
+            reader.SkipUnknownBytes(70);
 
-            CanBuildUnits = reader.ReadBoolean();
-            CanBuildBuildings = reader.ReadBoolean();
+            reader.PersistObject(_scoreManager);
 
-            var unknown6 = reader.ReadBoolean();
+            reader.SkipUnknownBytes(4);
 
-            GeneralsExperienceMultiplier = reader.ReadSingle();
-            ShowOnScoreScreen = reader.ReadBoolean();
+            reader.PersistList(
+                _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
+                {
+                    item ??= new ObjectIdSet();
+                    persister.PersistObjectValue(item);
+                });
 
-            reader.__Skip(87);
-
-            var suppliesCollected = reader.ReadUInt32();
-            var moneySpent = reader.ReadUInt32();
-
-            reader.__Skip(156);
-
-            var unknown8 = reader.ReadUInt32();
-
-            var buildingsCreated = new PlayerStatObjectCollection();
-            buildingsCreated.Load(reader);
-
-            var numPlayers = reader.ReadUInt16();
-            for (var i = 0; i < numPlayers; i++)
+            var unknown = true;
+            reader.PersistBoolean(ref unknown);
+            if (!unknown)
             {
-                var playerObjectsDestroyed = new PlayerStatObjectCollection();
-                playerObjectsDestroyed.Load(reader);
+                throw new InvalidStateException();
             }
 
-            var unitsCreated = new PlayerStatObjectCollection();
-            unitsCreated.Load(reader);
+            reader.PersistObject(_destroyedObjects);
 
-            var buildingsCaptured = new PlayerStatObjectCollection();
-            buildingsCaptured.Load(reader);
-
-            var unknown11 = reader.ReadUInt32();
-            if (unknown11 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var numControlGroups = reader.ReadUInt16();
-            for (var i = 0; i < numControlGroups; i++)
-            {
-                var controlGroup = new ObjectIdSet();
-                controlGroup.Load(reader);
-            }
-
-            if (!reader.ReadBoolean())
-            {
-                throw new InvalidDataException();
-            }
-
-            var destroyedObjects = new ObjectIdSet();
-            destroyedObjects.Load(reader);
-
-            reader.__Skip(14);
+            reader.SkipUnknownBytes(14);
         }
 
-        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, AssetStore assetStore, bool isSkirmish)
+        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;
 
-            if (side.StartsWith("FactionChina", System.StringComparison.InvariantCultureIgnoreCase))
+            if (side.StartsWith("FactionAmerica", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                // TODO: Probably not right.
+                side = "FactionAmerica";
+            }
+            else if (side.StartsWith("FactionChina", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 // TODO: Probably not right.
                 side = "FactionChina";
             }
-            if (side.StartsWith("FactionGLA", System.StringComparison.InvariantCultureIgnoreCase))
+            else if (side.StartsWith("FactionGLA", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 // TODO: Probably not right.
                 side = "FactionGLA";
             }
 
             // We need the template for default values
-            var template = assetStore.PlayerTemplates.GetByName(side);
+            var template = game.AssetStore.PlayerTemplates.GetByName(side);
 
             var name = mapPlayer.Properties["playerName"].Value as string;
             var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;
@@ -599,7 +630,7 @@ namespace OpenSage.Logic
                 color = new ColorRgb(0, 0, 0);
             }
 
-            var result = new Player(index, template, color, assetStore)
+            var result = new Player(index, template, color, game)
             {
                 Side = side,
                 Name = name,
@@ -609,11 +640,13 @@ namespace OpenSage.Logic
 
             result.AIPlayer = isHuman || template == null || side == "FactionObserver"
                 ? null
-                : (isSkirmish && side != "FactionCivilian" ? new SkirmishAIPlayer(result) : new AIPlayer(result));
+                : isSkirmish && side != "FactionCivilian"
+                    ? new SkirmishAIPlayer(result)
+                    : new AIPlayer(result);
 
             if (template != null)
             {
-                result.BankAccount.Money = (uint) (template.StartMoney + assetStore.GameData.Current.DefaultStartingCash);
+                result.BankAccount.Money = (uint) (template.StartMoney + game.AssetStore.GameData.Current.DefaultStartingCash);
             }
 
             return result;
@@ -630,161 +663,7 @@ namespace OpenSage.Logic
         }
     }
 
-    public class AIPlayer
-    {
-        private readonly Player _owner;
-
-        internal AIPlayer(Player owner)
-        {
-            _owner = owner;
-        }
-
-        internal virtual void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            var unknownCount = reader.ReadUInt16();
-            for (var i = 0; i < unknownCount; i++)
-            {
-                reader.ReadVersion(1);
-
-                var unknownInt3 = reader.ReadUInt16();
-                if (unknownInt3 != 1)
-                {
-                    throw new InvalidDataException();
-                }
-
-                reader.ReadBoolean();
-
-                var objectName = reader.ReadAsciiString();
-
-                var objectId = reader.ReadObjectID();
-
-                var unknownInt1 = reader.ReadUInt32(); // 0
-                var unknownInt2 = reader.ReadUInt32(); // 1
-
-                var unknownBool5 = reader.ReadBoolean();
-                var unknownBool6 = reader.ReadBoolean();
-                var unknownBool7 = reader.ReadBoolean();
-
-                var unknownInt2_1 = reader.ReadUInt32(); // 11
-
-                for (var j = 0; j < 11; j++)
-                {
-                    var unknownByte = reader.ReadByte();
-                    if (unknownByte != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
-            }
-
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var playerId = reader.ReadUInt32();
-            if (playerId != _owner.Id)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
-
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 2 && unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown3 = reader.ReadInt32();
-            if (unknown3 != 0 && unknown3 != -1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 50 && unknown4 != 51 && unknown4 != 8 && unknown4 != 35)
-            {
-                //throw new InvalidDataException();
-            }
-
-            var unknown5 = reader.ReadUInt32();
-            if (unknown5 != 0 && unknown5 != 50)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown6 = reader.ReadUInt32();
-            if (unknown6 != 10)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown7 = reader.ReadObjectID();
-
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0 && unknown8 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown9 = reader.ReadUInt32();
-            if (unknown9 != 1 && unknown9 != 0 && unknown9 != 2)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown10 = reader.ReadInt32();
-            if (unknown10 != -1 && unknown10 != 0 && unknown10 != 1)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownPosition = reader.ReadVector3();
-            var unknownBool8 = reader.ReadBoolean();
-            var unknownFloat = reader.ReadSingle();
-
-            for (var i = 0; i < 22; i++)
-            {
-                var unknownByte = reader.ReadByte();
-                if (unknownByte != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
-        }
-    }
-
-    public sealed class SkirmishAIPlayer : AIPlayer
-    {
-        internal SkirmishAIPlayer(Player owner)
-            : base(owner)
-        {
-
-        }
-
-        internal override void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            base.Load(reader);
-
-            for (var i = 0; i < 32; i++)
-            {
-                var unknownByte = reader.ReadByte();
-                if (unknownByte != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
-        }
-    }
-
-    public sealed class SupplyManager
+    public sealed class SupplyManager : IPersistableObject
     {
         private readonly ObjectIdSet _supplyWarehouses;
         private readonly ObjectIdSet _supplyCenters;
@@ -795,12 +674,12 @@ namespace OpenSage.Logic
             _supplyCenters = new ObjectIdSet();
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            _supplyWarehouses.Load(reader);
-            _supplyCenters.Load(reader);
+            reader.PersistObject(_supplyWarehouses);
+            reader.PersistObject(_supplyCenters);
         }
     }
 
@@ -811,122 +690,99 @@ namespace OpenSage.Logic
         Allies = 2,
     }
 
-    public sealed class PlayerRelationships
+    public sealed class PlayerRelationships : IPersistableObject
     {
-        private readonly Dictionary<uint, RelationshipType> _store;
+        private readonly Dictionary<uint, RelationshipType> _store = new();
 
-        public PlayerRelationships()
+        public void Persist(StatePersister reader)
         {
-            _store = new Dictionary<uint, RelationshipType>();
-        }
+            reader.PersistVersion(1);
 
-        internal void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
-
-            _store.Clear();
-
-            var count = reader.ReadUInt16();
-            for (var i = 0; i < count; i++)
+            reader.PersistDictionary(
+                _store,
+                static (StatePersister persister, ref uint key, ref RelationshipType value) =>
             {
-                var playerOrTeamId = reader.ReadUInt32();
-                var relationship = reader.ReadEnum<RelationshipType>();
-                _store[playerOrTeamId] = relationship;
-            }
+                persister.PersistUInt32(ref key, "PlayerOrTeamId");
+                persister.PersistEnum(ref value, "RelationshipType");
+            },
+            "Dictionary");
         }
     }
 
-    public sealed class ScienceSet : Dictionary<string, Science>
+    public sealed class ScienceSet : HashSet<Science>, IPersistableObject
     {
-        private readonly AssetStore _assetStore;
-
-        internal ScienceSet(AssetStore assetStore)
+        public void Persist(StatePersister persister)
         {
-            _assetStore = assetStore;
-        }
+            persister.PersistVersion(1);
 
-        internal void Load(SaveFileReader reader)
-        {
-            reader.ReadVersion(1);
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref Science item) =>
+                {
+                    var name = item?.Name ?? "";
+                    persister.PersistAsciiStringValue(ref name);
 
-            Clear();
-
-            var count = reader.ReadUInt16();
-            for (var i = 0; i < count; i++)
-            {
-                var name = reader.ReadAsciiString();
-
-                var science = _assetStore.Sciences.GetByName(name);
-
-                Add(name, science);
-            }
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.AssetStore.Sciences.GetByName(name);
+                    }
+                },
+                "Values");
         }
     }
 
-    // TODO: I don't know if these are always serialized the same way in .sav files.
-    // Maybe we shouldn't use a generic container like this.
-    public sealed class StringSet : HashSet<string>
+    public sealed class UpgradeSet : HashSet<UpgradeTemplate>, IPersistableObject
     {
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister persister)
         {
-            reader.ReadVersion(1);
+            persister.PersistVersion(1);
 
-            Clear();
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref UpgradeTemplate item) =>
+                {
+                    var name = item?.Name ?? "";
+                    persister.PersistAsciiStringValue(ref name);
 
-            var count = reader.ReadUInt16();
-            for (var i = 0; i < count; i++)
-            {
-                Add(reader.ReadAsciiString());
-            }
+                    if (persister.Mode == StatePersistMode.Read)
+                    {
+                        item = persister.AssetStore.Upgrades.GetByName(name);
+                    }
+                },
+                "Values");
         }
     }
 
-    // TODO: I don't know if these are always serialized the same way in .sav files.
-    // Maybe we shouldn't use a generic container like this.
-    public sealed class ObjectIdSet : HashSet<uint>
+    public sealed class ObjectIdSet : HashSet<uint>, IPersistableObject
     {
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister persister)
         {
-            reader.ReadVersion(1);
+            persister.PersistVersion(1);
 
-            Clear();
-
-            var count = reader.ReadUInt16();
-            for (var i = 0; i < count; i++)
-            {
-                Add(reader.ReadUInt32());
-            }
+            persister.PersistHashSet(
+                this,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                },
+                "Values");
         }
     }
 
-    internal sealed class PlayerStats
+    internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>, IPersistableObject
     {
-        public readonly PlayerStatObjectCollection UnitsDestroyed = new PlayerStatObjectCollection();
-
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            // After 0x10, 3rd entry is ObjectsDestroyed?
-            // After 0x10, 17th entry is ObjectsLost?
-            UnitsDestroyed.Load(reader);
-        }
-    }
+            reader.PersistVersion(1);
 
-    internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>
-    {
-        internal void Load(SaveFileReader reader)
-        {
-            Clear();
-
-            reader.ReadVersion(1);
-
-            var count = reader.ReadUInt16();
-            for (var i = 0; i < count; i++)
-            {
-                var objectType = reader.ReadAsciiString();
-                var total = reader.ReadUInt32();
-
-                Add(objectType, total);
-            }
+            reader.PersistDictionary(
+                this,
+                static (StatePersister persister, ref string key, ref uint value) =>
+                {
+                    persister.PersistAsciiString(ref key, "ObjectType");
+                    persister.PersistUInt32(ref value, "Total");
+                },
+                "Dictionary");
         }
     }
 
@@ -937,11 +793,11 @@ namespace OpenSage.Logic
         Completed = 2
     }
 
-    public sealed class BankAccount
+    public sealed class BankAccount : IPersistableObject
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public uint Money { get; internal set; }
+        public uint Money;
 
         public void Withdraw(uint amount)
         {
@@ -966,11 +822,118 @@ namespace OpenSage.Logic
             Money += amount;
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            Money = reader.ReadUInt32();
+            reader.PersistUInt32(ref Money);
+        }
+    }
+
+    public sealed class TunnelManager : IPersistableObject
+    {
+        private readonly ObjectIdSet _tunnelIds = new();
+        private readonly List<uint> _containedObjectIds = new();
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistObject(_tunnelIds);
+
+            reader.PersistListWithUInt32Count(
+                _containedObjectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
+
+            var tunnelCount = (uint)_tunnelIds.Count;
+            reader.PersistUInt32(ref tunnelCount);
+            if (tunnelCount != _tunnelIds.Count)
+            {
+                throw new InvalidStateException();
+            }
+        }
+    }
+
+    public sealed class PlayerScoreManager : IPersistableObject
+    {
+        private uint _suppliesCollected;
+        private uint _moneySpent;
+
+        private uint[] _numUnitsDestroyedPerPlayer;
+        private uint _numUnitsBuilt;
+        private uint _numUnitsLost;
+
+        private uint[] _numBuildingsDestroyedPerPlayer;
+        private uint _numBuildingsBuilt;
+        private uint _numBuildingsLost;
+
+        private uint _numObjectsCaptured;
+
+        private uint _playerId;
+
+        private readonly PlayerStatObjectCollection _objectsBuilt = new();
+        private readonly PlayerStatObjectCollection[] _objectsDestroyedPerPlayer;
+        private readonly PlayerStatObjectCollection _objectsLost = new();
+        private readonly PlayerStatObjectCollection _objectsCaptured = new();
+
+        internal PlayerScoreManager()
+        {
+            _numUnitsDestroyedPerPlayer = new uint[Player.MaxPlayers];
+
+            _numBuildingsDestroyedPerPlayer = new uint[Player.MaxPlayers];
+
+            _objectsDestroyedPerPlayer = new PlayerStatObjectCollection[Player.MaxPlayers];
+            for (var i = 0; i < _objectsDestroyedPerPlayer.Length; i++)
+            {
+                _objectsDestroyedPerPlayer[i] = new PlayerStatObjectCollection();
+            }
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistUInt32(ref _suppliesCollected);
+            reader.PersistUInt32(ref _moneySpent);
+
+            reader.PersistArray(
+                _numUnitsDestroyedPerPlayer,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
+
+            reader.PersistUInt32(ref _numUnitsBuilt);
+            reader.PersistUInt32(ref _numUnitsLost);
+
+            reader.PersistArray(
+                _numBuildingsDestroyedPerPlayer,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
+
+            reader.PersistUInt32(ref _numBuildingsBuilt);
+            reader.PersistUInt32(ref _numBuildingsLost);
+            reader.PersistUInt32(ref _numObjectsCaptured);
+
+            reader.SkipUnknownBytes(8);
+
+            reader.PersistUInt32(ref _playerId);
+            reader.PersistObject(_objectsBuilt);
+
+            reader.PersistArrayWithUInt16Length(
+                _objectsDestroyedPerPlayer,
+                static (StatePersister persister, ref PlayerStatObjectCollection item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
+
+            reader.PersistObject(_objectsLost);
+            reader.PersistObject(_objectsCaptured);
         }
     }
 }

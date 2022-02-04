@@ -1,16 +1,20 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
-    public sealed class Team
+    public sealed class Team : IPersistableObject
     {
+        private bool _enteredOrExitedPolygonTrigger;
+        private bool _isAlive;
         private uint _numDestroyedSomething;
+        private uint _unknown1;
+        private uint _waypointId;
+        private readonly bool[] _unknownBools = new bool[16];
 
         public readonly TeamTemplate Template;
-        public uint Id { get; internal set; }
-        public List<uint> ObjectIds = new List<uint>();
+        public readonly uint Id;
+        // TODO: Store actual objects here, not just IDs.
+        public readonly List<uint> ObjectIds = new List<uint>();
         public uint TargetObjectID;
 
         public readonly PlayerRelationships TeamToTeamRelationships = new PlayerRelationships();
@@ -22,87 +26,53 @@ namespace OpenSage.Logic
             Id = id;
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var id = reader.ReadUInt32();
+            var id = Id;
+            reader.PersistUInt32(ref id);
             if (id != Id)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var numObjects = reader.ReadUInt16();
-            for (var i = 0; i < numObjects; i++)
-            {
-                ObjectIds.Add(reader.ReadObjectID());
-            }
-
-            for (var i = 0; i < 2; i++)
-            {
-                var unknown1 = reader.ReadBoolean();
-                if (unknown1 != false)
+            reader.PersistList(
+                ObjectIds,
+                static (StatePersister persister, ref uint item) =>
                 {
-                    throw new InvalidDataException();
-                }
+                    persister.PersistObjectIDValue(ref item);
+                });
+
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistBoolean(ref _enteredOrExitedPolygonTrigger);
+            reader.PersistBoolean(ref _isAlive);
+
+            reader.SkipUnknownBytes(5);
+
+            reader.PersistUInt32(ref _numDestroyedSomething);
+
+            reader.PersistUInt32(ref _unknown1);
+            if (_unknown1 != 0 && _unknown1 != ObjectIds.Count)
+            {
+                throw new InvalidStateException();
             }
 
-            var unknown2 = reader.ReadBoolean();
-            if (unknown2 != true)
-            {
-                //throw new InvalidDataException();
-            }
+            reader.PersistUInt32(ref _waypointId);
 
-            for (var i = 0; i < 5; i++)
-            {
-                var unknown1 = reader.ReadBoolean();
-                if (unknown1 != false)
+            reader.PersistArrayWithUInt16Length(
+                _unknownBools,
+                static (StatePersister persister, ref bool item) =>
                 {
-                    throw new InvalidDataException();
-                }
-            }
+                    persister.PersistBooleanValue(ref item);
+                });
 
-            _numDestroyedSomething = reader.ReadUInt32();
+            reader.SkipUnknownBytes(2);
 
-            var unknown11 = reader.ReadUInt32();
-            if (unknown11 != 0 && unknown11 != ObjectIds.Count)
-            {
-                throw new InvalidDataException();
-            }
-
-            var waypointID = reader.ReadUInt32();
-
-            var unknown13 = reader.ReadUInt16();
-            if (unknown13 != 16)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < unknown13; i++)
-            {
-                var unknown19 = reader.ReadBoolean();
-                if (unknown19 != false)
-                {
-                    //throw new InvalidDataException();
-                }
-            }
-
-            var unknown14 = reader.ReadBoolean();
-            if (unknown14 != false)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown15 = reader.ReadBoolean();
-            if (unknown15 != false)
-            {
-                throw new InvalidDataException();
-            }
-
-            TargetObjectID = reader.ReadObjectID();
-
-            TeamToTeamRelationships.Load(reader);
-            TeamToPlayerRelationships.Load(reader);
+            reader.PersistObjectID(ref TargetObjectID);
+            reader.PersistObject(TeamToTeamRelationships);
+            reader.PersistObject(TeamToPlayerRelationships);
         }
     }
 }

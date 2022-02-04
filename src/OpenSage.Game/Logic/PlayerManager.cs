@@ -1,27 +1,31 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
-using OpenSage.Data.Sav;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
-    public sealed class PlayerManager
+    public sealed class PlayerManager : IPersistableObject
     {
+        private readonly Game _game;
+
         public IReadOnlyList<Player> Players => _players;
-        private List<Player> _players;
+        private Player[] _players;
 
         public Player LocalPlayer { get; private set; }
 
-        internal PlayerManager()
+        internal PlayerManager(Game game)
         {
-            _players = new List<Player>();
+            _game = game;
+            _players = Array.Empty<Player>();
         }
 
-        internal void OnNewGame(Data.Map.Player[] mapPlayers, Game game, GameType gameType)
+        internal void OnNewGame(Data.Map.Player[] mapPlayers, GameType gameType)
         {
-            _players = CreatePlayers(mapPlayers, game.AssetStore, gameType).ToList();
+            _players = CreatePlayers(mapPlayers, gameType).ToArray();
+
+            LocalPlayer = null;
 
             foreach (var player in _players)
             {
@@ -32,12 +36,18 @@ namespace OpenSage.Logic
                 }
             }
 
+            if (LocalPlayer == null && _players.Length > 2)
+            {
+                // TODO: Probably not the right way to do it.
+                LocalPlayer = _players[2];
+            }
+
             // TODO: Setup player relationships.
         }
 
         // This needs to operate on the entire player list, because players have references to each other
         // (allies and enemies).
-        private static IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, AssetStore assetStore, GameType gameType)
+        private IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, GameType gameType)
         {
             var players = new Dictionary<string, Player>();
             var allies = new Dictionary<string, string[]>();
@@ -46,7 +56,7 @@ namespace OpenSage.Logic
             var id = 0u;
             foreach (var mapPlayer in mapPlayers)
             {
-                var player = Player.FromMapData(id++, mapPlayer, assetStore, gameType != GameType.SinglePlayer);
+                var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
@@ -65,12 +75,17 @@ namespace OpenSage.Logic
 
         public Player GetPlayerByName(string name)
         {
-            return _players.Find(x => x.Name == name);
+            return Array.Find(_players, x => x.Name == name);
+        }
+
+        public Player GetPlayerByIndex(uint index)
+        {
+            return _players[(int)index];
         }
 
         public int GetPlayerIndex(Player player)
         {
-            return _players.IndexOf(player);
+            return Array.IndexOf(_players, player);
         }
 
         // TODO: Is this right?
@@ -84,20 +99,16 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader, Game game)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var numPlayers = reader.ReadUInt32();
-            if (numPlayers != _players.Count)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < numPlayers; i++)
-            {
-                _players[i].Load(reader, game);
-            }
+            reader.PersistArrayWithUInt32Length(
+                _players,
+                static (StatePersister persister, ref Player item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
     }
 }

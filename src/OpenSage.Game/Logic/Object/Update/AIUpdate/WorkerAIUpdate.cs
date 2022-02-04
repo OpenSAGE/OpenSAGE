@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public class WorkerAIUpdate : SupplyAIUpdate
     {
-        private WorkerAIUpdateModuleData _moduleData;
+        private readonly WorkerAIUpdateModuleData _moduleData;
+
+        private readonly DozerAndWorkerState _state = new();
+
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine2 = new();
+        private uint _unknownObjectId;
+        private int _unknown5;
+        private readonly WorkerAIUpdateStateMachine3 _stateMachine3 = new();
 
         internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -119,17 +125,153 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            _state.Persist(reader);
+
+            reader.PersistObject(_stateMachine2);
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistInt32(ref _unknown5);
+
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistObject(_stateMachine3);
+        }
+
+        private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
+        {
+            public WorkerAIUpdateStateMachine3()
             {
-                throw new InvalidDataException();
+                AddState(0, new WorkerUnknown0State());
+                AddState(1, new WorkerUnknown1State());
             }
 
-            base.Load(reader);
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
 
-            // TODO
+                reader.BeginObject("Base");
+                base.Persist(reader);
+                reader.EndObject();
+            }
+
+            private sealed class WorkerUnknown0State : State
+            {
+                public override void Persist(StatePersister reader)
+                {
+                    // No version?
+                }
+            }
+
+            private sealed class WorkerUnknown1State : State
+            {
+                public override void Persist(StatePersister reader)
+                {
+                    // No version?
+                }
+            }
+        }
+    }
+
+    internal sealed class WorkerAIUpdateStateMachine1 : StateMachineBase
+    {
+        public WorkerAIUpdateStateMachine1()
+        {
+            AddState(0, new WorkerUnknown0State());
+            AddState(1, new WorkerUnknown1State());
+        }
+
+        public override void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
+        }
+
+        private sealed class WorkerUnknown0State : State
+        {
+            private int _unknown1;
+            private int _unknown2;
+            private bool _unknown3;
+
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+
+                reader.PersistInt32(ref _unknown1);
+                reader.PersistInt32(ref _unknown2);
+                reader.PersistBoolean(ref _unknown3);
+            }
+        }
+
+        private sealed class WorkerUnknown1State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+
+                reader.SkipUnknownBytes(4);
+
+                var unknown2 = 1;
+                reader.PersistInt32(ref unknown2);
+                if (unknown2 != 1)
+                {
+                    throw new InvalidStateException();
+                }
+
+                reader.SkipUnknownBytes(1);
+            }
+        }
+    }
+
+    internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
+    {
+        public WorkerAIUpdateStateMachine2()
+        {
+            AddState(0, new WorkerUnknown0State());
+            AddState(1, new WorkerUnknown1State());
+            AddState(4, new WorkerUnknown4State());
+        }
+
+        public override void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Persist(reader);
+            reader.EndObject();
+        }
+
+        private sealed class WorkerUnknown0State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                
+            }
+        }
+
+        private sealed class WorkerUnknown1State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                
+            }
+        }
+
+        private sealed class WorkerUnknown4State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+            }
         }
     }
 

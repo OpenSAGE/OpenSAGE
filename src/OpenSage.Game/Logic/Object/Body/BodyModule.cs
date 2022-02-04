@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
-using FixedMath.NET;
 
 namespace OpenSage.Logic.Object
 {
@@ -20,15 +18,20 @@ namespace OpenSage.Logic.Object
 
         public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
+
+            var unknownFloat = 1.0f;
+            reader.PersistSingle(ref unknownFloat);
+            if (unknownFloat != 1.0f)
+            {
+                throw new InvalidStateException();
+            }
         }
 
         internal override void DrawInspector()

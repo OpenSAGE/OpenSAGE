@@ -228,8 +228,7 @@ namespace OpenSage.Logic
 
             if (closestObject != null)
             {
-                var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(closestObject);
-                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, objectId));
+                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, closestObject.ID));
             }
         }
 
@@ -256,15 +255,13 @@ namespace OpenSage.Logic
 
                 if (gameObject.RoughCollider.Intersects(boxFrustum))
                 {
-                    var objectId = Game.Scene3D.GameObjects.GetObjectId(gameObject);
-
                     if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == false)
                     {
-                        selectedObjects.Add(objectId);
+                        selectedObjects.Add(gameObject.ID);
                     }
                     else if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == true)
                     {
-                        structure ??= objectId;
+                        structure ??= gameObject.ID;
                     }
                 }
             }

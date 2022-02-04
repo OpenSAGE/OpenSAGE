@@ -2,20 +2,9 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-#include "Shadows.h"
-#include "RadiusCursorDecals.h"
+#include "ForwardPass.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
-
-MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1)
-
-MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
-
-MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
-
-layout(set = 4, binding = 0) uniform TerrainMaterialConstants
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 0) uniform TerrainMaterialConstants
 {
     vec2 MapBorderWidth;
     vec2 MapSize;
@@ -23,7 +12,7 @@ layout(set = 4, binding = 0) uniform TerrainMaterialConstants
     int CausticTextureIndex;
 } _TerrainMaterialConstants;
 
-layout(set = 4, binding = 1) uniform utexture2D TileData;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 1) uniform utexture2D TileData;
 
 struct CliffInfo
 {
@@ -33,7 +22,7 @@ struct CliffInfo
     vec2 TopLeftUV;
 };
 
-layout(std430, set = 4, binding = 2) readonly buffer CliffDetails
+layout(std430, set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 2) readonly buffer CliffDetails
 {
     CliffInfo _CliffDetails[];
 };
@@ -45,19 +34,15 @@ struct TextureInfo
     vec2 _Padding;
 };
 
-layout(std430, set = 4, binding = 3) readonly buffer TextureDetails
+layout(std430, set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 3) readonly buffer TextureDetails
 {
     TextureInfo _TextureDetails[];
 };
 
-layout(set = 4, binding = 4) uniform texture2DArray Textures;
-layout(set = 4, binding = 5) uniform texture2D MacroTexture;
-layout(set = 4, binding = 6) uniform texture2DArray CausticsTextures;
-layout(set = 4, binding = 7) uniform sampler Sampler;
-
-MAKE_RADIUS_CURSOR_DECAL_RESOURCES(5)
-
-#include "RadiusCursorDecalsFunctions.h"
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 4) uniform texture2DArray Textures;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 5) uniform texture2D MacroTexture;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 6) uniform texture2DArray CausticsTextures;
+layout(set = MATERIAL_CONSTANTS_RESOURCE_SET, binding = 7) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -257,29 +242,25 @@ vec3 DoCausticsRendering(vec3 textureColor, vec3 blendColor)
 
 void main()
 {
-    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
+    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Terrain.Lights[0].Direction));
     vec3 shadowVisibility = ShadowVisibility(
-        Global_ShadowMap,
-        Global_ShadowSampler,
         in_WorldPosition, 
         in_ViewSpaceDepth, 
         nDotL, 
         in_WorldNormal, 
-        ivec2(gl_FragCoord.xy), 
-        _ShadowConstantsPS);
+        ivec2(gl_FragCoord.xy));
 
     vec3 diffuseColor;
     vec3 specularColor;
 
     DoLighting(
-        _GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS.Terrain,
         in_WorldPosition,
         in_WorldNormal,
         vec3(1, 1, 1),
         vec3(1, 1, 1),
         vec3(0, 0, 0),
         0,
-        _GlobalConstantsShared.CameraPosition,
         false,
         shadowVisibility,
         diffuseColor,
@@ -287,7 +268,7 @@ void main()
 
     vec3 textureColor = SampleBlendedTextures(in_UV);
 
-    vec3 cloudColor = GetCloudColor(Global_CloudTexture, Sampler, in_CloudUV);
+    vec3 cloudColor = GetCloudColor(in_CloudUV);
 
     vec2 macroTextureUV = GetMacroTextureUV(in_WorldPosition);
     vec3 macroTextureColor = texture(sampler2D(MacroTexture, Sampler), macroTextureUV).xyz;

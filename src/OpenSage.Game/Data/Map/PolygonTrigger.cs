@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class PolygonTrigger
+    public sealed class PolygonTrigger : IPersistableObject
     {
         public string Name { get; private set; }
         public string LayerName { get; private set; }
@@ -35,7 +34,7 @@ namespace OpenSage.Data.Map
         public ColorRgb RiverColor { get; private set; }
         public float RiverAlpha { get; private set; }
 
-        public MapVector3i[] Points { get; private set; }
+        public Point3D[] Points { get; private set; }
 
         public Rectangle Bounds { get; private set; }
 
@@ -84,11 +83,11 @@ namespace OpenSage.Data.Map
             }
 
             var numPoints = reader.ReadUInt32();
-            result.Points = new MapVector3i[numPoints];
+            result.Points = new Point3D[numPoints];
 
             for (var i = 0; i < numPoints; i++)
             {
-                result.Points[i] = MapVector3i.Parse(reader);
+                result.Points[i] = reader.ReadPoint3D();
             }
 
             return result;
@@ -133,27 +132,55 @@ namespace OpenSage.Data.Map
 
             foreach (var point in Points)
             {
-                point.WriteTo(writer);
+                writer.Write(point);
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public bool IsPointInside(in Vector3 point)
         {
-            reader.ReadVersion(1);
+            var point2D = new Point2D((int)point.X, (int)point.Y);
 
-            var numPoints = reader.ReadUInt32();
-            if (numPoints != Points.Length)
+            // Coarse test so we can early-out.
+            if (!Bounds.Contains(point2D))
             {
-                throw new InvalidDataException();
+                return false;
             }
 
-            for (var i = 0; i < numPoints; i++)
+            // Algorithm from here - "PNPOLY - Point Inclusion in Polygon Test"
+            // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+            var inside = false;
+            int i, j;
+            for (i = 0, j = Points.Length - 1; i < Points.Length; j = i++)
             {
-                Points[i] = MapVector3i.Parse(reader.Inner);
+                ref readonly var lastPoint = ref Points[j];
+                ref readonly var thisPoint = ref Points[i];
+
+                if (((thisPoint.Y > point2D.Y) != (lastPoint.Y > point2D.Y)) &&
+                    (point2D.X < (lastPoint.X - thisPoint.X) * (point2D.Y - thisPoint.Y) / (lastPoint.Y - thisPoint.Y) + thisPoint.X))
+                {
+                    inside = !inside;
+                }
             }
 
-            var topLeft = reader.ReadPoint2D();
-            var bottomRight = reader.ReadPoint2D();
+            return inside;
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistArrayWithUInt32Length(
+                Points,
+                static (StatePersister persister, ref Point3D item) =>
+                {
+                    persister.PersistPoint3DValue(ref item);
+                });
+
+            var topLeft = Bounds.TopLeft;
+            reader.PersistPoint2D(ref topLeft);
+
+            var bottomRight = Bounds.BottomRight;
+            reader.PersistPoint2D(ref bottomRight);
 
             Bounds = Rectangle.FromCorners(topLeft, bottomRight);
 
@@ -170,15 +197,12 @@ namespace OpenSage.Data.Map
             // height = (bottomRight.Y - topLeft.Y) * 0.5
             //
             // As it is, this "radius" is significantly larger than it should be.
-            var _ = reader.ReadSingle();
+            var buggyRadius = 0.0f;
+            reader.PersistSingle(ref buggyRadius);
 
             Radius = MathF.Sqrt(Bounds.Width * Bounds.Width + Bounds.Height * Bounds.Height);
 
-            var unknown = reader.ReadBoolean();
-            if (unknown)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
         }
     }
 

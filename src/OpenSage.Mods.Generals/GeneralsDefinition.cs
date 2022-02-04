@@ -37,6 +37,8 @@ namespace OpenSage.Mods.Generals
 
         public uint ScriptingTicksPerSecond => 30;
 
+        public string GetLocalizedStringsPath(string language) => Path.Combine("Data", language, "generals");
+
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
             return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);

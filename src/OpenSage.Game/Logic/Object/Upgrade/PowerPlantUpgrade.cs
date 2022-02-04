@@ -1,32 +1,31 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     internal sealed class PowerPlantUpgrade : UpgradeModule
     {
-        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
+            _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
+
+            foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
             {
-                _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
+                powerPlantUpdate.ExtendRods();
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
         }
     }
 

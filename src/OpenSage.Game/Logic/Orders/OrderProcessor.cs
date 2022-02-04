@@ -135,7 +135,7 @@ namespace OpenSage.Logic.Orders
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
                             // TODO: is there any logic for ModelConditionFlag.Sold ?
-                            unit.Destroy();
+                            _game.Scene3D.GameObjects.DestroyObject(unit);
                             player.BankAccount.Deposit((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
@@ -170,14 +170,13 @@ namespace OpenSage.Logic.Orders
                     case OrderType.AttackObject:
                     case OrderType.ForceAttackObject:
                         {
-                            var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
+                            var objectId = order.Arguments[0].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, (uint)objectId));
                                 }
                             }
                         }

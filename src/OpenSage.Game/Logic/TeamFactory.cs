@@ -1,20 +1,22 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.Data.Sav;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
-    public sealed class TeamFactory
+    public sealed class TeamFactory : IPersistableObject
     {
+        private readonly Game _game;
+
         private readonly List<TeamTemplate> _teamTemplates;
         private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
         private readonly Dictionary<string, TeamTemplate> _teamTemplatesByName;
 
         private uint _lastTeamId;
 
-        public TeamFactory()
+        public TeamFactory(Game game)
         {
+            _game = game;
+
             _teamTemplates = new List<TeamTemplate>();
             _teamTemplatesById = new Dictionary<uint, TeamTemplate>();
             _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
@@ -22,7 +24,7 @@ namespace OpenSage.Logic
             _lastTeamId = 0;
         }
 
-        public void Initialize(Data.Map.Team[] mapTeams, IReadOnlyList<Player> players)
+        public void Initialize(Data.Map.Team[] mapTeams)
         {
             _teamTemplates.Clear();
             _teamTemplatesById.Clear();
@@ -33,7 +35,7 @@ namespace OpenSage.Logic
                 var name = mapTeam.Properties["teamName"].Value as string;
 
                 var ownerName = mapTeam.Properties["teamOwner"].Value as string;
-                var owner = players.FirstOrDefault(player => player.Name == ownerName);
+                var owner = _game.PlayerManager.GetPlayerByName(ownerName);
 
                 var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
 
@@ -73,6 +75,17 @@ namespace OpenSage.Logic
             return team;
         }
 
+        internal Team AddTeamWithId(TeamTemplate teamTemplate, uint id)
+        {
+            _lastTeamId = Math.Max(_lastTeamId, id);
+
+            var team = new Team(teamTemplate, id);
+
+            teamTemplate.AddTeam(team);
+
+            return team;
+        }
+
         public TeamTemplate FindTeamTemplateByName(string name)
         {
             if (_teamTemplatesByName.TryGetValue(name, out var result))
@@ -104,24 +117,51 @@ namespace OpenSage.Logic
             return null;
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            _lastTeamId = reader.ReadUInt32();
+            reader.PersistUInt32(ref _lastTeamId);
 
-            var count = reader.ReadUInt16();
-            if (count != _teamTemplatesById.Count)
+            var count = (ushort)_teamTemplates.Count;
+            reader.PersistUInt16(ref count, "TeamTemplatesCount");
+
+            if (count != _teamTemplates.Count)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            for (var i = 0; i < count; i++)
+            reader.BeginArray("TeamTemplates");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var id = reader.ReadUInt32();
-                var teamTemplate = _teamTemplatesById[id];
-                teamTemplate.Load(reader);
+                for (var i = 0; i < count; i++)
+                {
+                    reader.BeginObject();
+
+                    var id = 0u;
+                    reader.PersistUInt32(ref id);
+
+                    var teamTemplate = _teamTemplatesById[id];
+                    reader.PersistObject(teamTemplate);
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                foreach (var teamTemplate in _teamTemplates)
+                {
+                    reader.BeginObject();
+
+                    var id = teamTemplate.ID;
+                    reader.PersistUInt32(ref id);
+
+                    reader.PersistObject(teamTemplate);
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
         }
     }
 }

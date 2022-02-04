@@ -1,14 +1,15 @@
-﻿using System.IO;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class FireWeaponCollide : CollideModule
     {
         private readonly FireWeaponCollideModuleData _moduleData;
+
+        private bool _unknown1;
         private readonly Weapon _collideWeapon;
+        private bool _unknown2;
 
         internal FireWeaponCollide(GameObject gameObject, FireWeaponCollideModuleData moduleData)
         {
@@ -21,21 +22,17 @@ namespace OpenSage.Logic.Object
                 gameObject.GameContext);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown1 = reader.ReadBooleanChecked();
-
-            _collideWeapon.Load(new Data.Sav.SaveFileReader(reader));
-
-            var unknown2 = reader.ReadBooleanChecked();
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistObject(_collideWeapon);
+            reader.PersistBoolean(ref _unknown2);
         }
     }
 

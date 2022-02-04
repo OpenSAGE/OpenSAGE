@@ -29,8 +29,8 @@ namespace OpenSage.Diagnostics
 
             _maps = _context.Game.AssetStore.MapCaches
                 .Where(m => _context.Game.ContentManager.GetMapEntry(m.Name) != null)
-                .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
-                .OrderBy(m => m.mapName)
+                .Select(m => (mapCache: m, mapName: m.IsOfficial ? m.GetNameKey().Translate() : m.Name))
+                .OrderBy(m => m.mapCache.IsOfficial ? 0 : 1).ThenBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
             if (_maps.FirstOrDefault() is KeyValuePair<MapCache, string> kv)
             {
@@ -64,6 +64,7 @@ namespace OpenSage.Diagnostics
             AddView(new InspectorView(context));
             AddView(new PreviewView(context));
             AddView(new CameraView(context));
+            AddView(new PartitionView(context));
         }
 
         private void DrawTimingControls()
@@ -74,7 +75,7 @@ namespace OpenSage.Diagnostics
 
             var buttonSize = new Vector2(80.0f, 0);
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 250);
             ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
 
             if (ImGui.Button(playPauseText, buttonSize))
@@ -84,7 +85,7 @@ namespace OpenSage.Diagnostics
 
             ImGui.PopStyleColor();
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 160);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 160);
 
             if (!_context.Game.IsLogicRunning)
             {
@@ -104,8 +105,8 @@ namespace OpenSage.Diagnostics
         public void Draw(ref bool isGameViewFocused)
         {
             var viewport = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(viewport.GetWorkPos());
-            ImGui.SetNextWindowSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowPos(viewport.WorkPos);
+            ImGui.SetNextWindowSize(viewport.WorkSize);
             ImGui.SetNextWindowViewport(viewport.ID);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
@@ -217,10 +218,10 @@ namespace OpenSage.Diagnostics
                     {
                         _context.Game.GraphicsDevice.SyncToVerticalBlank = isVSyncEnabled;
                     }
-                    var isFullscreen = _context.Game.Window.Fullscreen;
+                    var isFullscreen = _context.Window.Fullscreen;
                     if (ImGui.MenuItem("Fullscreen", "Alt+Enter", ref isFullscreen, true))
                     {
-                        _context.Game.Window.Fullscreen = isFullscreen;
+                        _context.Window.Fullscreen = isFullscreen;
                     }
                     ImGui.EndMenu();
                 }
@@ -291,7 +292,7 @@ namespace OpenSage.Diagnostics
 
                 var fpsText = $"{ImGui.GetIO().Framerate:N2} FPS";
                 var fpsTextSize = ImGui.CalcTextSize(fpsText).X;
-                ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - fpsTextSize);
+                ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - fpsTextSize);
                 ImGui.Text(fpsText);
 
                 ImGui.EndMenuBar();
@@ -313,7 +314,7 @@ namespace OpenSage.Diagnostics
 
                 const int launcherImagePadding = 10;
                 ImGui.SetNextWindowPos(new Vector2(
-                    _context.Game.Window.ClientBounds.Width - launcherImageSize.Width - launcherImagePadding,
+                    _context.Window.ClientBounds.Width - launcherImageSize.Width - launcherImagePadding,
                     menuBarHeight + launcherImagePadding));
 
                 ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);

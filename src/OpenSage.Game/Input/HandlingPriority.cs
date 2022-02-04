@@ -9,6 +9,8 @@
         UIPriority,
         BoxSelectionPriority,
         MoveCameraPriority,
-        DebugPriority
+        DebugPriority,
+        Engine,
+        Window,
     }
 }

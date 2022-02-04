@@ -11,11 +11,13 @@ namespace OpenSage.FileFormats.W3d
 
         public List<W3dChunk> Chunks { get; } = new List<W3dChunk>();
 
-        public W3dHierarchyDef GetHierarchy() => Chunks.OfType<W3dHierarchyDef>().FirstOrDefault();
+        public List<W3dChunk> RenderableObjects { get; } = new();
 
-        public W3dHLod GetHLod() => Chunks.OfType<W3dHLod>().FirstOrDefault();
+        public Dictionary<string, W3dChunk> RenderableObjectsByName = new();
 
-        public IReadOnlyList<W3dMesh> GetMeshes() => Chunks.OfType<W3dMesh>().ToList();
+        public W3dHierarchyDef Hierarchy { get; private set; }
+
+        public W3dHLod HLod { get; private set; }
 
         public IReadOnlyList<W3dAnimation> GetAnimations() => Chunks.OfType<W3dAnimation>().ToList();
 
@@ -45,19 +47,31 @@ namespace OpenSage.FileFormats.W3d
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_MESH:
-                        result.Chunks.Add(W3dMesh.Parse(reader, context));
+                        var w3dMesh = W3dMesh.Parse(reader, context);
+                        result.Chunks.Add(w3dMesh);
+                        result.RenderableObjects.Add(w3dMesh);
+                        result.RenderableObjectsByName.Add(
+                            $"{w3dMesh.Header.ContainerName}.{w3dMesh.Header.MeshName}",
+                            w3dMesh);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_BOX:
-                        result.Chunks.Add(W3dBox.Parse(reader, context));
+                        var w3dBox = W3dBox.Parse(reader, context);
+                        result.Chunks.Add(w3dBox);
+                        result.RenderableObjects.Add(w3dBox);
+                        result.RenderableObjectsByName.Add(w3dBox.Name, w3dBox);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HIERARCHY:
-                        result.Chunks.Add(W3dHierarchyDef.Parse(reader, context));
+                        var w3dHierarchy = W3dHierarchyDef.Parse(reader, context);
+                        result.Chunks.Add(w3dHierarchy);
+                        result.Hierarchy = w3dHierarchy;
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD:
-                        result.Chunks.Add(W3dHLod.Parse(reader, context));
+                        var w3dHLod = W3dHLod.Parse(reader, context);
+                        result.Chunks.Add(w3dHLod);
+                        result.HLod = w3dHLod;
                         break;
 
                     case W3dChunkType.W3D_CHUNK_ANIMATION:

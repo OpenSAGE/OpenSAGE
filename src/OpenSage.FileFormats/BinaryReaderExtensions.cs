@@ -344,6 +344,14 @@ namespace OpenSage.FileFormats
                 reader.ReadInt32());
         }
 
+        public static Point3D ReadPoint3D(this BinaryReader reader)
+        {
+            return new Point3D(
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32());
+        }
+
         public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)
         {
             return new IndexedTriangle(
@@ -459,6 +467,21 @@ namespace OpenSage.FileFormats
             }
 
             return new ColorRgba(r, g, b, a);
+        }
+
+        public static ColorRgba ReadColorRgbaInt(this BinaryReader reader)
+        {
+            var r = reader.ReadUInt32();
+            var g = reader.ReadUInt32();
+            var b = reader.ReadUInt32();
+            var a = reader.ReadUInt32();
+
+            if (r > 255 || g > 255 || b > 255 || a > 255)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return new ColorRgba((byte)r, (byte)g, (byte)b, (byte)a);
         }
 
         public static RandomVariable ReadRandomVariable(this BinaryReader reader)

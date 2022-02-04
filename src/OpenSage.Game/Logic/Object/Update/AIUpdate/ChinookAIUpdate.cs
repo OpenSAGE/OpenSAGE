@@ -1,7 +1,5 @@
-﻿using System.IO;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -22,17 +20,22 @@ namespace OpenSage.Logic.Object
             return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            reader.SkipUnknownBytes(1);
+
+            var unknown2 = true;
+            reader.PersistBoolean(ref unknown2);
+            if (!unknown2)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(7);
         }
     }
 

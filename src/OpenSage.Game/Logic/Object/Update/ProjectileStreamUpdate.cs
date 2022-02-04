@@ -1,22 +1,32 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class ProjectileStreamUpdate : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private readonly uint[] _objectIds = new uint[20];
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownObjectId;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            // TODO
+            reader.PersistArray(
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
+
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistObjectID(ref _unknownObjectId);
         }
     }
 

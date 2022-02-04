@@ -1,30 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Content;
-using OpenSage.Data.Sav;
+using OpenSage.Data.Map;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
 {
-    internal sealed class GameLogic
+    internal sealed class GameLogic : DisposableBase, IPersistableObject
     {
-        private readonly Scene3D _scene3D;
+        private readonly Game _game;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
-        private readonly List<GameObject> _objects;
-        private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides;
+
+        private readonly List<GameObject> _objects = new();
+
+        private readonly Dictionary<string, GameObject> _nameLookup = new();
+
+        private readonly List<GameObject> _destroyList = new();
+
+        private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides = new();
+        private readonly List<string> _commandSetNamesPrefixedWithCommandButtonIndex = new();
 
         private uint _currentFrame;
 
         private uint _rankLevelLimit;
 
-        public GameLogic(Scene3D scene3D)
-        {
-            _scene3D = scene3D;
-            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(scene3D.AssetLoadContext.AssetStore.ObjectDefinitions);
-            _objects = new List<GameObject>();
+        internal uint NextObjectId = 1;
 
-            _techTreeOverrides = new Dictionary<string, ObjectBuildableType>();
+        // TODO: This allocates memory. Don't do this.
+        public IEnumerable<GameObject> Objects
+        {
+            get
+            {
+                foreach (var gameObject in _objects)
+                {
+                    if (gameObject != null)
+                    {
+                        yield return gameObject;
+                    }
+                }
+            }
+        }
+
+        public GameLogic(Game game)
+        {
+            _game = game;
+            _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
+        }
+
+        public GameObject CreateObject(ObjectDefinition objectDefinition, Player player)
+        {
+            if (objectDefinition == null)
+            {
+                // TODO: Is this ever valid?
+                return null;
+            }
+
+            var gameObject = AddDisposable(new GameObject(objectDefinition, _game.Scene3D.GameContext, player));
+
+            gameObject.ID = NextObjectId++;
+
+            _game.Scene3D.Quadtree?.Insert(gameObject);
+            _game.Scene3D.Radar?.AddGameObject(gameObject);
+
+            return gameObject;
+        }
+
+        internal void OnObjectIdChanged(GameObject gameObject, uint oldObjectId)
+        {
+            if (oldObjectId != 0)
+            {
+                SetObject(oldObjectId, null);
+            }
+
+            SetObject(gameObject.ID, gameObject);
+        }
+
+        private void SetObject(uint objectId, GameObject gameObject)
+        {
+            while (_objects.Count <= objectId)
+            {
+                _objects.Add(null);
+            }
+            _objects[(int)objectId] = gameObject;
         }
 
         public GameObject GetObjectById(uint id)
@@ -32,160 +89,351 @@ namespace OpenSage.Logic
             return _objects[(int)id];
         }
 
-        public void Load(SaveFileReader reader)
+        public bool TryGetObjectByName(string name, out GameObject gameObject)
         {
-            reader.ReadVersion(9);
+            return _nameLookup.TryGetValue(name, out gameObject);
+        }
 
-            _currentFrame = reader.ReadUInt32();
+        public void AddNameLookup(GameObject gameObject)
+        {
+            _nameLookup[gameObject.Name ?? throw new ArgumentException("Cannot add lookup for unnamed object.")] = gameObject;
+        }
 
-            _objectDefinitionLookupTable.Load(reader);
-
-            var gameObjectsCount = reader.ReadUInt32();
-
-            _objects.Clear();
-            _objects.Capacity = (int)gameObjectsCount;
-
-            for (var i = 0; i < gameObjectsCount; i++)
+        private void DestroyAllObjectsNow()
+        {
+            foreach (var gameObject in _objects)
             {
-                var objectDefinitionId = reader.ReadUInt16();
-                var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
-
-                var gameObject = _scene3D.GameObjects.Add(objectDefinition, _scene3D.LocalPlayer);
-
-                reader.BeginSegment();
-
-                gameObject.Load(reader);
-
-                while (_objects.Count <= gameObject.ID)
+                if (gameObject != null)
                 {
-                    _objects.Add(null);
+                    DestroyObject(gameObject);
                 }
-                _objects[(int)gameObject.ID] = gameObject;
-
-                reader.EndSegment();
             }
 
-            reader.ReadByte(); // 3
+            DeleteDestroyed();
+        }
 
-            var sideName = reader.ReadAsciiString();
-            var missionName = reader.ReadAsciiString();
+        public void DestroyObject(GameObject gameObject)
+        {
+            _destroyList.Add(gameObject);
+        }
 
-            reader.__Skip(12);
-
-            var numPolygonTriggers = reader.ReadUInt32();
-            if (numPolygonTriggers != _scene3D.MapFile.PolygonTriggers.Triggers.Length)
+        internal void DeleteDestroyed()
+        {
+            foreach (var gameObject in _destroyList)
             {
-                throw new InvalidDataException();
-            }
-            for (var i = 0; i < numPolygonTriggers; i++)
-            {
-                var id = reader.ReadUInt32();
-                var polygonTrigger = _scene3D.MapFile.PolygonTriggers.GetPolygonTriggerById(id);
-                polygonTrigger.Load(reader);
-            }
+                _game.Scene3D.Quadtree.Remove(gameObject);
+                _game.Scene3D.Radar.RemoveGameObject(gameObject);
 
-            _rankLevelLimit = reader.ReadUInt32();
+                gameObject.Drawable.Destroy();
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            while (true)
-            {
-                var objectDefinitionName = reader.ReadAsciiString();
-                if (objectDefinitionName == "")
+                if (gameObject.Name != null)
                 {
-                    break;
+                    _nameLookup.Remove(gameObject.Name);
                 }
 
-                var buildableStatus = reader.ReadEnum<ObjectBuildableType>();
+                gameObject.Dispose();
 
-                _techTreeOverrides.Add(
-                    objectDefinitionName,
-                    buildableStatus);
+                RemoveToDispose(gameObject);
+
+                _objects[(int)gameObject.ID] = null;
             }
 
-            if (!reader.ReadBoolean())
+            _destroyList.Clear();
+        }
+
+        public void Reset()
+        {
+            DestroyAllObjectsNow();
+
+            NextObjectId = 1;
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(9);
+
+            reader.PersistUInt32(ref _currentFrame);
+            reader.PersistObject(_objectDefinitionLookupTable, "ObjectDefinitions");
+
+            var objectsCount = (uint)_objects.Count;
+            reader.PersistUInt32(ref objectsCount);
+
+            reader.BeginArray("Objects");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                throw new InvalidDataException();
-            }
+                _objects.Clear();
+                _objects.Capacity = (int)objectsCount;
 
-            if (!reader.ReadBoolean())
+                for (var i = 0; i < objectsCount; i++)
+                {
+                    reader.BeginObject();
+
+                    ushort objectDefinitionId = 0;
+                    reader.PersistUInt16(ref objectDefinitionId);
+                    var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
+
+                    var gameObject = CreateObject(objectDefinition, null);
+
+                    reader.BeginSegment(objectDefinition.Name);
+
+                    reader.PersistObject(gameObject, "Object");
+
+                    NextObjectId = Math.Max(NextObjectId, gameObject.ID + 1);
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
+            }
+            else
             {
-                throw new InvalidDataException();
-            }
+                foreach (var gameObject in _objects)
+                {
+                    if (gameObject == null)
+                    {
+                        continue;
+                    }
 
-            if (!reader.ReadBoolean())
+                    reader.BeginObject();
+
+                    var objectDefinitionId = _objectDefinitionLookupTable.GetId(gameObject.Definition);
+                    reader.PersistUInt16(ref objectDefinitionId);
+
+                    reader.BeginSegment(gameObject.Definition.Name);
+
+                    reader.PersistObject(gameObject, "Object");
+
+                    reader.EndSegment();
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
+
+            // Don't know why this is duplicated here. It's also loaded by a top-level .sav chunk.
+            reader.PersistObject(reader.Game.CampaignManager, "CampaignManager");
+
+            var unknown1 = true;
+            reader.PersistBoolean(ref unknown1);
+            if (!unknown1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknown3 = reader.ReadUInt32();
+            reader.SkipUnknownBytes(2);
+
+            var unknown1_1 = true;
+            reader.PersistBoolean(ref unknown1_1);
+            if (!unknown1_1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistArrayWithUInt32Length(
+                _game.Scene3D.MapFile.PolygonTriggers.Triggers,
+                static (StatePersister persister, ref PolygonTrigger item) =>
+                {
+                    persister.BeginObject();
+
+                    var id = item.UniqueId;
+                    persister.PersistUInt32(ref id);
+
+                    if (id != item.UniqueId)
+                    {
+                        throw new InvalidStateException();
+                    }
+
+                    persister.PersistObject(item);
+
+                    persister.EndObject();
+                },
+                "PolygonTriggers");
+
+            reader.PersistUInt32(ref _rankLevelLimit);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.BeginArray("TechTreeOverrides");
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                while (true)
+                {
+                    reader.BeginObject();
+
+                    var objectDefinitionName = "";
+                    reader.PersistAsciiString(ref objectDefinitionName);
+
+                    if (objectDefinitionName == "")
+                    {
+                        reader.EndObject();
+                        break;
+                    }
+
+                    ObjectBuildableType buildableStatus = default;
+                    reader.PersistEnum(ref buildableStatus);
+
+                    _techTreeOverrides.Add(
+                        objectDefinitionName,
+                        buildableStatus);
+
+                    reader.EndObject();
+                }
+            }
+            else
+            {
+                foreach (var techTreeOverride in _techTreeOverrides)
+                {
+                    reader.BeginObject();
+
+                    var objectDefinitionName = techTreeOverride.Key;
+                    reader.PersistAsciiString(ref objectDefinitionName);
+
+                    var buildableStatus = techTreeOverride.Value;
+                    reader.PersistEnum(ref buildableStatus);
+
+                    reader.EndObject();
+                }
+
+                reader.BeginObject();
+
+                var endString = "";
+                reader.PersistAsciiString(ref endString, "ObjectDefinitionName");
+
+                reader.EndObject();
+            }
+            reader.EndArray();
+
+            var unknownBool1 = true;
+            reader.PersistBoolean(ref unknownBool1);
+            if (!unknownBool1)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool2 = true;
+            reader.PersistBoolean(ref unknownBool2);
+            if (!unknownBool2)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknownBool3 = true;
+            reader.PersistBoolean(ref unknownBool3);
+            if (!unknownBool3)
+            {
+                throw new InvalidStateException();
+            }
+
+            var unknown3 = uint.MaxValue;
+            reader.PersistUInt32(ref unknown3);
             if (unknown3 != uint.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             // Command button overrides
-            while (true)
+            reader.BeginArray("CommandButtonOverrides");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var commandSetNamePrefixedWithCommandButtonIndex = reader.ReadAsciiString();
-                if (commandSetNamePrefixedWithCommandButtonIndex == "")
+                while (true)
                 {
-                    break;
-                }
+                    var commandSetNamePrefixedWithCommandButtonIndex = "";
+                    reader.PersistAsciiStringValue(ref commandSetNamePrefixedWithCommandButtonIndex);
 
-                var unknownBool1 = reader.ReadBoolean();
-                if (unknownBool1)
-                {
-                    throw new InvalidDataException();
+                    if (commandSetNamePrefixedWithCommandButtonIndex == "")
+                    {
+                        break;
+                    }
+
+                    _commandSetNamesPrefixedWithCommandButtonIndex.Add(commandSetNamePrefixedWithCommandButtonIndex);
+
+                    reader.SkipUnknownBytes(1);
                 }
             }
-
-            var unknown4 = reader.ReadUInt32();
-            if (unknown4 != 0)
+            else
             {
-                throw new InvalidDataException();
+                foreach (var commandSetName in _commandSetNamesPrefixedWithCommandButtonIndex)
+                {
+                    var commandSetNameCopy = commandSetName;
+                    reader.PersistAsciiStringValue(ref commandSetNameCopy);
+
+                    reader.SkipUnknownBytes(1);
+                }
+
+                var endString = "";
+                reader.PersistAsciiStringValue(ref endString);
             }
+            reader.EndArray();
+
+            reader.SkipUnknownBytes(4);
         }
     }
 
-    internal sealed class ObjectDefinitionLookupTable
+    internal sealed class ObjectDefinitionLookupTable : IPersistableObject
     {
         private readonly ScopedAssetCollection<ObjectDefinition> _objectDefinitions;
-        private readonly Dictionary<ushort, string> _nameLookup;
+        private readonly List<ObjectDefinitionLookupEntry> _entries = new();
 
         public ObjectDefinitionLookupTable(ScopedAssetCollection<ObjectDefinition> objectDefinitions)
         {
             _objectDefinitions = objectDefinitions;
-            _nameLookup = new Dictionary<ushort, string>();
         }
 
         public ObjectDefinition GetById(ushort id)
         {
-            if (_nameLookup.TryGetValue(id, out var objectDefinitionName))
+            foreach (var entry in _entries)
             {
-                return _objectDefinitions.GetByName(objectDefinitionName);
+                if (entry.Id == id)
+                {
+                    return _objectDefinitions.GetByName(entry.Name);
+                }
             }
 
             throw new InvalidOperationException();
         }
 
-        public void Load(SaveFileReader reader)
+        public ushort GetId(ObjectDefinition objectDefinition)
         {
-            reader.ReadVersion(1);
-
-            _nameLookup.Clear();
-
-            var count = reader.ReadUInt32();
-            for (var i = 0; i < count; i++)
+            foreach (var entry in _entries)
             {
-                var name = reader.ReadAsciiString();
-                var id = reader.ReadUInt16();
+                if (entry.Name == objectDefinition.Name)
+                {
+                    return entry.Id;
+                }
+            }
 
-                _nameLookup.Add(id, name);
+            var newEntry = new ObjectDefinitionLookupEntry
+            {
+                Name = objectDefinition.Name,
+                Id = (ushort)_entries.Count
+            };
+
+            _entries.Add(newEntry);
+
+            return newEntry.Id;
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistListWithUInt32Count(
+                _entries,
+                static (StatePersister persister, ref ObjectDefinitionLookupEntry item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
+        }
+
+        private struct ObjectDefinitionLookupEntry : IPersistableObject
+        {
+            public string Name;
+            public ushort Id;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistAsciiString(ref Name);
+                persister.PersistUInt16(ref Id);
             }
         }
     }

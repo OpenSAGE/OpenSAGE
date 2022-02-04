@@ -2,12 +2,7 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Mesh.h"
-
-MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
-
-MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(1)
+#include "ForwardPass.h"
 
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
@@ -23,20 +18,17 @@ layout(location = 5) out vec4 out_ClippingPlane;
 void main()
 {
     DO_CLIPPING(in_Position)
-    out_ClippingPlane = _GlobalConstantsVS.ClippingPlane1;
+    out_ClippingPlane = _GlobalConstants.ClippingPlane1;
 
     out_WorldPosition = in_Position;
 
-    gl_Position = _GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);
+    gl_Position = _GlobalConstants.ViewProjection * vec4(out_WorldPosition, 1);
 
     out_WorldNormal = in_Normal;
 
     out_UV = in_UV;
 
-    out_CloudUV = GetCloudUV(
-        out_WorldPosition,
-        _GlobalLightingConstantsVS.CloudShadowMatrix,
-        _GlobalConstantsShared.TimeInSeconds);
+    out_CloudUV = GetCloudUV(out_WorldPosition);
 
     out_ViewSpaceDepth = gl_Position.z;
 }

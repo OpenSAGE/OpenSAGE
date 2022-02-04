@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Sav;
 using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class PlayerScriptsList : Asset
+    public sealed class PlayerScriptsList : Asset, IPersistableObject
     {
         public const string AssetName = "PlayerScriptsList";
 
@@ -46,24 +45,26 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var numSides = reader.ReadUInt32();
-            if (numSides != ScriptLists.Length)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < numSides; i++)
-            {
-                var hasScripts = reader.ReadBoolean();
-                if (hasScripts)
+            reader.PersistArrayWithUInt32Length(
+                ScriptLists,
+                static (StatePersister persister, ref ScriptList scriptList) =>
                 {
-                    ScriptLists[i].Load(reader);
-                }
-            }
+                    persister.BeginObject();
+
+                    var hasScripts = scriptList.Scripts.Length > 0;
+                    persister.PersistBoolean(ref hasScripts);
+
+                    if (hasScripts)
+                    {
+                        persister.PersistObject(scriptList);
+                    }
+
+                    persister.EndObject();
+                });
         }
     }
 }

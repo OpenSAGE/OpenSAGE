@@ -67,13 +67,7 @@ namespace OpenSage.Logic.Object
                     var angle = viewAngle + castleTemplate.Angle;
                     mapObject.Position = new Vector3(_gameObject.Translation.X, _gameObject.Translation.Y, 0.0f) + offset;
 
-                    var baseObject = GameObject.FromMapObject(
-                        mapObject,
-                        _context.AssetLoadContext.AssetStore,
-                        _context.GameObjects,
-                        _context.Terrain.HeightMap,
-                        false,
-                        angle);
+                    var baseObject = GameObject.FromMapObject(mapObject, _context, false, angle);
 
                     if (!instant)
                     {

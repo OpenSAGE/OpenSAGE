@@ -33,7 +33,7 @@ namespace OpenSage.Data.Ini
             { "AIData", (parser, assetStore) => AIData.Parse(parser, assetStore.AIData.Current) },
             { "AIDozerAssignment", (parser, assetStore) => assetStore.AIDozerAssignments.Add(AIDozerAssignment.Parse(parser)) },
             { "AmbientStream", (parser, assetStore) => assetStore.AmbientStreams.Add(AmbientStream.Parse(parser)) },
-            { "Animation", (parser, assetStore) => assetStore.Animations.Add(Animation.Parse(parser)) },
+            { "Animation", (parser, assetStore) => assetStore.Animations.Add(AnimationTemplate.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, assetStore) => AnimationSoundClientBehaviorGlobalSetting.Parse(parser, assetStore.AnimationSoundClientBehaviorGlobalSetting.Current) },
             { "AptButtonTooltipMap", (parser, assetStore) => AptButtonTooltipMap.Parse(parser, assetStore.AptButtonTooltipMap.Current) },
             { "Armor", (parser, assetStore) => assetStore.ArmorTemplates.Add(ArmorTemplate.Parse(parser)) },

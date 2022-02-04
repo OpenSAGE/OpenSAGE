@@ -1,23 +1,46 @@
-﻿using System.IO;
+﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class GarrisonContain : OpenContainModule
     {
-        internal override void Load(BinaryReader reader)
+        private uint _unknown1;
+        private readonly Vector3[] _positions = new Vector3[120];
+        private bool _unknown3;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistUInt32(ref _unknown1);
+
+            reader.SkipUnknownBytes(1);
+
+            ushort unknown2 = 40;
+            reader.PersistUInt16(ref unknown2);
+            if (unknown2 != 40)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.SkipUnknownBytes(804);
 
-            // TODO
+            reader.PersistArray(
+                _positions,
+                static (StatePersister persister, ref Vector3 item) =>
+                {
+                    persister.PersistVector3Value(ref item);
+                });
+
+            reader.PersistBoolean(ref _unknown3);
+
+            reader.SkipUnknownBytes(13);
         }
     }
 

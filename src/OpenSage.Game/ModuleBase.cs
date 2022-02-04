@@ -1,19 +1,17 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage
+﻿namespace OpenSage
 {
-    public abstract class ModuleBase : DisposableBase
+    public abstract class ModuleBase : DisposableBase, IPersistableObject
     {
         public string Tag { get; internal set; }
 
-        internal virtual void Load(BinaryReader reader)
+        void IPersistableObject.Persist(StatePersister persister)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            Load(persister);
+        }
+
+        internal virtual void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
         }
     }
 }

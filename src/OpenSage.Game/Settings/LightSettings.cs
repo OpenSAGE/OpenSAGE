@@ -4,15 +4,14 @@ namespace OpenSage.Settings
 {
     public sealed class LightSettings
     {
-        internal readonly GlobalShaderResources.LightingConstantsPS TerrainLightsPS;
-        internal readonly GlobalShaderResources.LightingConstantsPS ObjectLightsPS;
+        internal readonly GlobalShaderResources.LightingConstantsPS LightsPS;
 
         internal LightSettings(
-            in GlobalShaderResources.LightingConstantsPS terrainLightsPS,
-            in GlobalShaderResources.LightingConstantsPS objectLightsPS)
+            in GlobalShaderResources.LightingConfiguration terrainLightsPS,
+            in GlobalShaderResources.LightingConfiguration objectLightsPS)
         {
-            TerrainLightsPS = terrainLightsPS;
-            ObjectLightsPS = objectLightsPS;
+            LightsPS.Terrain = terrainLightsPS;
+            LightsPS.Object = objectLightsPS;
         }
     }
 }

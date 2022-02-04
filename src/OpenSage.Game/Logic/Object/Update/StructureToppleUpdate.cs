@@ -3,6 +3,33 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class StructureToppleUpdate : UpdateModule
+    {
+        private float _unknownFloat;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+
+            reader.SkipUnknownBytes(20);
+
+            reader.PersistSingle(ref _unknownFloat);
+
+            reader.SkipUnknownBytes(8);
+
+            var unknownInt1 = -1;
+            reader.PersistInt32(ref unknownInt1);
+            if (unknownInt1 != -1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(12);
+        }
+    }
+
     public sealed class StructureToppleUpdateModuleData : UpdateModuleData
     {
         internal static StructureToppleUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -45,6 +72,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int ForceToppleAngle { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new StructureToppleUpdate();
+        }
     }
 
     public struct StructureToppleAngleFX

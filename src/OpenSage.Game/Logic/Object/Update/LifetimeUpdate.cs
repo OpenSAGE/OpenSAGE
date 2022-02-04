@@ -11,6 +11,19 @@ namespace OpenSage.Logic.Object
         private TimeSpan _lifeTime;
         private bool _initial = true;
 
+        public TimeSpan Lifetime
+        {
+            get => _lifeTime;
+            set
+            {
+                _lifeTime = value;
+                _initial = false;
+            }
+        }
+
+        // TODO: This shouold replace _lifeTime above
+        private uint _frameToDie;
+
         public LifetimeUpdate(GameObject gameObject, LifetimeUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
@@ -25,7 +38,21 @@ namespace OpenSage.Logic.Object
                 _initial = false;
             }
 
-            if (context.Time.TotalTime > _lifeTime) _gameObject.Die(_moduleData.DeathType, context.Time);
+            if (context.Time.TotalTime > _lifeTime)
+            {
+                _gameObject.Die(_moduleData.DeathType, context.Time);
+            }
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistFrame(ref _frameToDie);
         }
     }
 

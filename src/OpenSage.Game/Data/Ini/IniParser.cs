@@ -11,6 +11,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
+using OpenSage.IO;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -97,7 +98,7 @@ namespace OpenSage.Data.Ini
                 source = "";
             }
 
-            return new TokenReader(source, entry.FullFilePath);
+            return new TokenReader(source, entry.FilePath);
         }
 
         public void GoToNextLine() => _tokenReader.GoToNextLine();
@@ -601,6 +602,11 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
+                if (string.Equals(token.Value.Text, "None", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    continue;
+                }
+
                 result.Add(_assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(token.Value.Text));
             }
 

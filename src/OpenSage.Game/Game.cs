@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using OpenSage.Audio;
+using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.FileFormats.Apt;
@@ -15,6 +16,7 @@ using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -22,15 +24,15 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Input.Cursors;
+using OpenSage.IO;
 using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Network;
+using OpenSage.Rendering;
 using OpenSage.Scripting;
 using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
-using Player = OpenSage.Logic.Player;
 
 namespace OpenSage
 {
@@ -51,13 +53,7 @@ namespace OpenSage
         private readonly double _scriptingUpdateInterval;
 
         private readonly FileSystem _fileSystem;
-        private readonly FileSystem _userDataFileSystem;
-        private readonly FileSystem _userAppDataFileSystem;
         private readonly WndCallbackResolver _wndCallbackResolver;
-
-        private readonly DeveloperModeView _developerModeView;
-
-        private readonly TextureCopier _textureCopier;
 
         internal readonly CursorManager Cursors;
 
@@ -106,6 +102,17 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
+        public GameState GameState { get; } = new GameState();
+        internal GameStateMap GameStateMap { get; } = new GameStateMap();
+
+        public CampaignManager CampaignManager { get; } = new CampaignManager();
+
+        public Terrain.TerrainLogic TerrainLogic { get; } = new Terrain.TerrainLogic();
+
+        public Terrain.TerrainVisual TerrainVisual { get; } = new Terrain.TerrainVisual();
+
+        public GhostObjectManager GhostObjectManager { get; } = new GhostObjectManager();
+
         /// <summary>
         /// The current logic frame. Increments depending on game speed; by default once per 200ms.
         /// </summary>
@@ -115,7 +122,7 @@ namespace OpenSage
         /// Is the game running?
         /// This is only false when the game is shutting down.
         /// </summary>
-        public bool IsRunning { get; }
+        public bool IsRunning { get; private set; }
 
         public Action Restart { get; set; }
 
@@ -123,6 +130,8 @@ namespace OpenSage
         /// Are we currently in a skirmish game?
         /// </summary>
         public bool InGame { get; private set; } = false;
+
+        public event EventHandler<GameUpdatingEventArgs> Updating;
 
         /// <summary>
         /// Fired when a <see cref="Render"/> completes, but before
@@ -141,7 +150,7 @@ namespace OpenSage
         {
             var replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
 
-            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", _userDataFileSystem?.RootDirectory);
+            var mapFilename = replayFile.Header.Metadata.MapFile.Replace("userdata", ContentManager.UserDataFileSystem?.RootDirectory);
             mapFilename = FileSystem.NormalizeFilePath(mapFilename);
             var mapName = mapFilename.Substring(mapFilename.LastIndexOf(Path.DirectorySeparatorChar));
 
@@ -340,8 +349,6 @@ namespace OpenSage
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), UserDataLeafName)
             : null;
 
-        public GameWindow Window { get; }
-
         public GamePanel Panel { get; }
 
         public Viewport Viewport { get; private set; }
@@ -381,21 +388,28 @@ namespace OpenSage
             }
         }
 
-        public bool DeveloperModeEnabled { get; set; }
-
         public Texture LauncherImage { get; }
 
-        public Game(
-            GameInstallation installation,
-            GraphicsBackend? preferredBackend) :
-            this(installation, preferredBackend, new Configuration())
+        internal readonly GameLogic GameLogic;
+
+        internal readonly GameClient GameClient;
+
+        public readonly PlayerManager PlayerManager;
+
+        internal readonly TeamFactory TeamFactory;
+
+        public readonly PartitionCellManager PartitionCellManager;
+
+        public Game(GameInstallation installation)
+            : this(installation, null, new Configuration(), null)
         {
         }
 
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            Configuration config)
+            Configuration config,
+            GameWindow window)
         {
             using (GameTrace.TraceDurationEvent("Game()"))
             {
@@ -410,13 +424,44 @@ namespace OpenSage
 
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
-                Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
-                                                        100, 100, 1024, 768, preferredBackend, Configuration.UseFullscreen));
-                GraphicsDevice = Window.GraphicsDevice;
+                GraphicsDevice = AddDisposable(GraphicsDeviceUtility.CreateGraphicsDevice(preferredBackend, window));
 
                 Panel = AddDisposable(new GamePanel(GraphicsDevice));
 
                 InputMessageBuffer = new InputMessageBuffer();
+
+                InputMessageBuffer.Handlers.Add(
+                    new CallbackMessageHandler(
+                        HandlingPriority.Engine,
+                        message =>
+                        {
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F9)
+                            {
+                                ToggleLogicRunning();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (!IsLogicRunning && message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F10)
+                            {
+                                Step();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Pause)
+                            {
+                                Restart?.Invoke();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Comma)
+                            {
+                                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
+                                return InputMessageResult.Handled;
+                            }
+
+                            return InputMessageResult.NotHandled;
+                        }));
 
                 Definition = installation.Game;
 
@@ -431,16 +476,18 @@ namespace OpenSage
                 _wndCallbackResolver = new WndCallbackResolver();
 
                 var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
-                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources));
-                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources);
+                var shaderSetStore = AddDisposable(new ShaderSetStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
 
                 AssetStore = new AssetStore(
                     SageGame,
                     _fileSystem,
-                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory),
+                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem),
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
+                    shaderSetStore,
                     Definition.CreateAssetLoadStrategy());
 
                 // TODO
@@ -458,21 +505,27 @@ namespace OpenSage
                 // the UserDataFolder before then.
                 if (UserDataFolder is not null && Directory.Exists(UserDataFolder))
                 {
-                    _userDataFileSystem = AddDisposable(new FileSystem(UserDataFolder));
-                    ContentManager.UserDataFileSystem = _userDataFileSystem;
+                    ContentManager.UserDataFileSystem = AddDisposable(new DiskFileSystem(UserDataFolder));
                 }
-                if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
+                if (SageGame >= SageGame.Bfme && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
                 {
-                    var pathMapping = new Dictionary<string, string> { ["Maps"] = "data/maps/internal" };
-                    _userAppDataFileSystem = AddDisposable(new FileSystem(UserAppDataFolder, null, pathMapping));
-                    ContentManager.UserAppDataFileSystem = _userAppDataFileSystem;
+                    ContentManager.UserDataFileSystem = AddDisposable(new DiskFileSystem(UserAppDataFolder));
                 }
-                if (ContentManager.UserMapsFileSystem is not null)
+                // TODO
+                //if (SageGame >= SageGame.Cnc3 && UserAppDataFolder is not null && Directory.Exists(UserAppDataFolder))
+                //{
+                //    var userDataFileSystem = ContentManager.UserDataFileSystem ?? AddDisposable(new DiskFileSystem(UserAppDataFolder));
+
+                //    ContentManager.UserDataFileSystem = AddDisposable(new CompositeFileSystem(
+                //        userDataFileSystem,
+                //        new VirtualFileSystem(
+                //            @"data\\maps\\internal",
+                //            new DiskFileSystem(UserAppDataFolder))));
+                //}
+                if (ContentManager.UserDataFileSystem is not null)
                 {
                     new UserMapCache(ContentManager).Initialize(AssetStore);
                 }
-
-                _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
 
                 GameSystems = new List<GameSystem>();
 
@@ -497,10 +550,8 @@ namespace OpenSage
 
                 GameSystems.ForEach(gs => gs.Initialize());
 
-                Cursors = AddDisposable(new CursorManager(Window, AssetStore, ContentManager));
+                Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager, window));
                 Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
-
-                _developerModeView = AddDisposable(new DeveloperModeView(this));
 
                 LauncherImage = LoadLauncherImage();
 
@@ -510,6 +561,16 @@ namespace OpenSage
 
                 IsRunning = true;
                 IsLogicRunning = true;
+
+                GameLogic = AddDisposable(new GameLogic(this));
+
+                GameClient = AddDisposable(new GameClient(this));
+
+                PlayerManager = new PlayerManager(this);
+
+                TeamFactory = new TeamFactory(this);
+
+                PartitionCellManager = new PartitionCellManager(this);
             }
         }
 
@@ -537,7 +598,7 @@ namespace OpenSage
             if (useShellMap)
             {
                 var shellMapName = AssetStore.GameData.Current.ShellMapName;
-                Scene3D = LoadMap(shellMapName, null, GameType.SinglePlayer);
+                LoadMap(shellMapName, null, GameType.SinglePlayer);
                 Scripting.Active = true;
             }
 
@@ -548,7 +609,7 @@ namespace OpenSage
             }
         }
 
-        private Scene3D LoadMap(
+        private void LoadMap(
             string mapPath,
             PlayerSetting[] playerSettings,
             GameType gameType)
@@ -565,7 +626,7 @@ namespace OpenSage
                 out var mapTeams,
                 out var mapScriptLists);
 
-            return new Scene3D(
+            new Scene3D(
                 this,
                 mapFile,
                 entry.FilePath,
@@ -614,7 +675,7 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
-            Scene3D = LoadMap(mapFileName, playerSettings, gameType);
+            LoadMap(mapFileName, playerSettings, gameType);
 
             if (Scene3D == null)
             {
@@ -792,9 +853,6 @@ namespace OpenSage
             // Update timers, input and UI state
             LocalLogicTick(messages);
 
-            // Check global hotkeys
-            CheckGlobalHotkeys();
-
             var totalGameTime = MapTime.TotalTime;
 
             // If the game is not paused and it's time to do a logic update, do so.
@@ -846,40 +904,8 @@ namespace OpenSage
 
             Audio.Update(Scene3D?.Camera);
             Cursors.Update(RenderTime);
-        }
 
-        private void CheckGlobalHotkeys()
-        {
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F9))
-            {
-                ToggleLogicRunning();
-            }
-
-            if (!IsLogicRunning && Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F10))
-            {
-                Step();
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.F11))
-            {
-                DeveloperModeEnabled = !DeveloperModeEnabled;
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Pause))
-            {
-                Restart?.Invoke();
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Comma))
-            {
-                var rtsCam = Scene3D.CameraController as RtsCameraController;
-                rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
-            }
-
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Veldrid.Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
-            {
-                Window.Fullscreen = !Window.Fullscreen;
-            }
+            Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
         }
 
         internal void LogicTick(ulong frame)
@@ -893,11 +919,13 @@ namespace OpenSage
 
             // TODO: What is the order?
             // TODO: Calculate time correctly.
-            var timeInterval = new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
+            var timeInterval = GetTimeInterval();
             Scene3D?.LogicTick(frame, timeInterval);
 
             CurrentFrame += 1;
         }
+
+        internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
 
         public void ToggleLogicRunning()
         {
@@ -911,7 +939,7 @@ namespace OpenSage
             _isStepping = true;
         }
 
-        internal void Render()
+        public void Render()
         {
             Graphics.Draw(RenderTime);
             RenderCompleted?.Invoke(this, EventArgs.Empty);
@@ -971,6 +999,12 @@ namespace OpenSage
 
         // TODO: Remove this.
         public MappedImage GetMappedImage(string name) => AssetStore.MappedImages.GetByName(name);
+
+        public void Exit()
+        {
+            // TODO: Ensure we've cleaned up all resources.
+            IsRunning = false;
+        }
     }
 
     internal enum GameType
@@ -978,5 +1012,15 @@ namespace OpenSage
         SinglePlayer = 0,
         MultiPlayer = 1,
         Skirmish = 2,
+    }
+
+    public sealed class GameUpdatingEventArgs : EventArgs
+    {
+        public TimeInterval GameTime { get; }
+
+        public GameUpdatingEventArgs(TimeInterval gameTime)
+        {
+            GameTime = gameTime;
+        }
     }
 }

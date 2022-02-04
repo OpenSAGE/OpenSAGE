@@ -1,23 +1,44 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class StealthUpdate : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+
+            var unknownBool1 = true;
+            reader.PersistBoolean(ref unknownBool1);
+            if (!unknownBool1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
 
-            // TODO
+            var unknownInt2 = -1;
+            reader.PersistInt32(ref unknownInt2);
+            if (unknownInt2 != -1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(8);
         }
     }
 

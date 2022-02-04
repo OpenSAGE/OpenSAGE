@@ -1,6 +1,6 @@
-﻿using OpenSage.Data;
-using OpenSage.FileFormats.W3d;
+﻿using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
+using OpenSage.IO;
 
 namespace OpenSage.Content.Loaders
 {
@@ -32,7 +32,7 @@ namespace OpenSage.Content.Loaders
             {
                 hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
             }
-            var w3dHierarchy = hierarchyFile.GetHierarchy();
+            var w3dHierarchy = hierarchyFile.Hierarchy;
             return w3dHierarchy != null
                 ? new ModelBoneHierarchy(w3dHierarchy)
                 : ModelBoneHierarchy.CreateDefault();

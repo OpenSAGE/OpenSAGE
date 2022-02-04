@@ -1,17 +1,29 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {
-    internal sealed class Weapon
+    internal sealed class Weapon : IPersistableObject
     {
         private readonly ModelConditionFlag _usingFlag;
 
         private readonly WeaponStateMachine _stateMachine;
 
         private int _currentRounds;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private uint _unknownFrame3;
+        private uint _unknownFrame4;
+        private uint _unknownObjectId;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownInt6;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
 
         public readonly int WeaponIndex;
 
@@ -117,23 +129,39 @@ namespace OpenSage.Logic.Object
             _stateMachine.Fire(time);
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(3);
+            reader.PersistVersion(3);
 
-            var templateName = reader.ReadAsciiString();
-
-            reader.__Skip(13 * 4);
-
-            var count = reader.ReadUInt16();
-
-            if (count > 0)
+            var templateName = Template.Name;
+            reader.PersistAsciiString(ref templateName);
+            if (templateName != Template.Name)
             {
-                throw new NotImplementedException();
+                throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadBoolean();
-            var unknown2 = reader.ReadBoolean();
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistFrame(ref _unknownFrame1);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistFrame(ref _unknownFrame3);
+            reader.PersistFrame(ref _unknownFrame4);
+            reader.PersistObjectID(ref _unknownObjectId);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistUInt32(ref _unknownInt6);
+
+            reader.SkipUnknownBytes(2);
+
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
 
         internal void DrawInspector()

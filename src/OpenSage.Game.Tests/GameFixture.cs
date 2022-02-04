@@ -1,28 +1,38 @@
 ﻿using System;
-using OpenSage.Data;
-using OpenSage.Mods.Generals;
+using System.Collections.Generic;
 using OpenSage.Tests.Data;
-using Veldrid;
 
 namespace OpenSage.Tests
 {
     public class GameFixture : IDisposable
     {
-        public readonly Game Game;
+        private readonly Dictionary<SageGame, Game> _games = new();
 
         public GameFixture()
         {
-            var rootFolder = InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGenerals);
-            var installation = new GameInstallation(new GeneralsDefinition(), rootFolder);
-
             Platform.Start();
+        }
 
-            Game = new Game(installation, GraphicsBackend.Direct3D11);
+        public Game GetGame(SageGame sageGame)
+        {
+            if (!_games.TryGetValue(sageGame, out var game))
+            {
+                var installation = InstalledFilesTestData.GetInstallation(sageGame);
+
+                game = new Game(installation);
+
+                _games.Add(sageGame, game);
+            }
+
+            return game;
         }
 
         public void Dispose()
         {
-            Game.Dispose();
+            foreach (var kvp in _games)
+            {
+                kvp.Value.Dispose();
+            }
 
             Platform.Stop();
         }

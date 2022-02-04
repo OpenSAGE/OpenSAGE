@@ -1,59 +1,53 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class RoadShaderResources : ShaderResourcesBase
+    internal sealed class RoadShaderResources : ShaderSet
     {
-        private readonly ResourceLayout _materialResourceLayout;
-
         public readonly Pipeline Pipeline;
 
-        public RoadShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            RadiusCursorDecalShaderResources radiusCursorDecalShaderResources)
-            : base(
-                graphicsDevice,
-                "Road",
-                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
-                RoadVertex.VertexDescriptor)
+        private readonly Dictionary<Texture, Material> _cachedMaterials = new();
+
+        public RoadShaderResources(ShaderSetStore store)
+            : base(store, "Road", RoadVertex.VertexDescriptor)
         {
-            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
-                _materialResourceLayout,
-                radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
-            };
-
-            Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                new GraphicsPipelineDescription(
-                    BlendStateDescription.SingleAlphaBlend,
-                    DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                    RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
-                    PrimitiveTopology.TriangleList,
-                    ShaderSet.Description,
-                    resourceLayouts,
-                    RenderPipeline.GameOutputDescription)));
+            Pipeline = AddDisposable(
+                store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                    new GraphicsPipelineDescription(
+                        BlendStateDescription.SingleAlphaBlend,
+                        DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                        RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
+                        PrimitiveTopology.TriangleList,
+                        Description,
+                        ResourceLayouts,
+                        store.OutputDescription)));
         }
 
-        public ResourceSet CreateMaterialResourceSet(Texture texture)
+        public Material GetMaterial(Texture texture)
         {
-            return GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    _materialResourceLayout,
-                    texture,
-                    GraphicsDevice.Aniso4xSampler));
+            if (!_cachedMaterials.TryGetValue(texture, out var result))
+            {
+                var materialResourceSet = AddDisposable(
+                    GraphicsDevice.ResourceFactory.CreateResourceSet(
+                        new ResourceSetDescription(
+                            MaterialResourceLayout,
+                            texture,
+                            GraphicsDevice.Aniso4xSampler)));
+
+                result = AddDisposable(
+                    new Material(
+                        this,
+                        Pipeline,
+                        materialResourceSet));
+
+                _cachedMaterials.Add(texture, result);
+            }
+
+            return result;
         }
 
         [StructLayout(LayoutKind.Sequential)]

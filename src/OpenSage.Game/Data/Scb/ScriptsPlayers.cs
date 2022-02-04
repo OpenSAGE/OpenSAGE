@@ -9,7 +9,6 @@ namespace OpenSage.Data.Scb
         public const string AssetName = "ScriptsPlayers";
 
         public bool HasPlayerProperties { get; private set; }
-        public ushort Unknown { get; private set; }
 
         public ScriptsPlayer[] Players { get; private set; }
 
@@ -25,16 +24,6 @@ namespace OpenSage.Data.Scb
 
                 var numPlayers = reader.ReadUInt32();
 
-                ushort unknown = 0;
-                if (version < 2)
-                {
-                    unknown = reader.ReadUInt16();
-                    if (unknown != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
-
                 var scriptPlayers = new ScriptsPlayer[numPlayers];
                 for (var i = 0; i < scriptPlayers.Length; i++)
                 {
@@ -44,7 +33,6 @@ namespace OpenSage.Data.Scb
                 return new ScriptsPlayers
                 {
                     HasPlayerProperties = hasPlayerProperties,
-                    Unknown = unknown,
                     Players = scriptPlayers
                 };
             });
@@ -59,12 +47,7 @@ namespace OpenSage.Data.Scb
                     writer.WriteBooleanUInt32(HasPlayerProperties);
                 }
 
-                writer.Write((uint) Players.Length + 1);
-
-                if (Version < 2)
-                {
-                    writer.Write(Unknown);
-                }
+                writer.Write((uint) Players.Length);
 
                 foreach (var player in Players)
                 {

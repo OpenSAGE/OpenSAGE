@@ -1,68 +1,76 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class AttackPriority
+    public sealed class AttackPriority : IPersistableObject
     {
         internal static AttackPriority Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x._name = name,
                 FieldParseTable);
         }
 
         private static readonly IniParseTable<AttackPriority> FieldParseTable = new IniParseTable<AttackPriority>
         {
-            { "Default", (parser, x) => x.Default = parser.ParseInteger() },
+            { "Default", (parser, x) => x._default = parser.ParseInteger() },
             { "Target", (parser, x) => x.Targets.Add(AttackPriorityTarget.Parse(parser)) }
         };
 
-        public string Name { get; private set; }
+        private string _name;
+        public string Name => _name;
 
-        public int Default { get; private set; }
+        private int _default;
+        public int Default => _default;
+
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            Name = reader.ReadAsciiString();
+            reader.PersistAsciiString(ref _name);
 
-            var unknown = reader.ReadUInt32(); // Probably default value?
-
-            var numTargets = reader.ReadUInt16();
-
-            for (var i = 0; i < numTargets; i++)
+            reader.PersistInt32(ref _default);
+            if (_default != 1)
             {
-                var target = new AttackPriorityTarget();
-                target.Load(reader);
-                Targets.Add(target);
+                throw new InvalidStateException();
             }
+
+            reader.PersistList(
+                Targets,
+                static (StatePersister persister, ref AttackPriorityTarget item) =>
+                {
+                    item ??= new AttackPriorityTarget();
+                    persister.PersistObjectValue(item);
+                });
         }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class AttackPriorityTarget
+    public sealed class AttackPriorityTarget : IPersistableObject
     {
         internal static AttackPriorityTarget Parse(IniParser parser)
         {
             return new AttackPriorityTarget
             {
-                Target = parser.ParseAssetReference(),
-                Value = parser.ParseUnsignedInteger()
+                _target = parser.ParseAssetReference(),
+                _value = parser.ParseUnsignedInteger()
             };
         }
 
-        public string Target { get; private set; }
-        public uint Value { get; private set; }
+        private string _target;
+        public string Target => _target;
 
-        internal void Load(SaveFileReader reader)
+        private uint _value;
+        public uint Value => _value;
+
+        public void Persist(StatePersister reader)
         {
-            Target = reader.ReadAsciiString();
-            Value = reader.ReadUInt32();
+            reader.PersistAsciiString(ref _target);
+            reader.PersistUInt32(ref _value);
         }
     }
 }

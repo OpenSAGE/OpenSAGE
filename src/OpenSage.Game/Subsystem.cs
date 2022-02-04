@@ -105,5 +105,10 @@
         /// Defines ranks of a player.
         /// </summary>
         Rank,
+
+        /// <summary>
+        /// Defines 2D animations.
+        /// </summary>
+        Animation2D,
     }
 }

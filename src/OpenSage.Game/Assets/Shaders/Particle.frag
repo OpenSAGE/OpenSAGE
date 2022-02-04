@@ -2,11 +2,10 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
+#include "ForwardPass.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
-
-layout(set = 1, binding = 2) uniform texture2D ParticleTexture;
-layout(set = 1, binding = 3) uniform sampler Sampler;
+layout(set = 2, binding = 1) uniform texture2D ParticleTexture;
+layout(set = 2, binding = 2) uniform sampler Sampler;
 
 layout(location = 0) in vec2 in_TexCoords;
 layout(location = 1) in vec3 in_Color;

@@ -1,6 +1,8 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.IO;
 
 namespace OpenSage.Data
 {
@@ -19,11 +21,22 @@ namespace OpenSage.Data
                 var body = Path.GetFileNameWithoutExtension(fileName);
                 body = body[(body.IndexOf('_') + 1)..];
                 var lastUnderscore = body.LastIndexOf('_');
-                var versions = body[(lastUnderscore + 1)..].Split('.');
+                string languageName;
+                string[] versions;
+                if (lastUnderscore != -1)
+                {
+                    languageName = body.Substring(0, lastUnderscore);
+                    versions = body[(lastUnderscore + 1)..].Split('.');
+                }
+                else
+                {
+                    languageName = body;
+                    versions = new[] { "0", "0" };
+                }
 
                 return new SkudefVersion
                 {
-                    LanguageName = body.Substring(0, lastUnderscore),
+                    LanguageName = languageName,
                     VersionMajor = int.Parse(versions[0]),
                     VersionMinor = int.Parse(versions[1]),
                 };
@@ -40,7 +53,9 @@ namespace OpenSage.Data
 
         public static void Read(string rootDirectory, Action<string> addBigArchive)
         {
-            var skudefFiles = Directory.GetFiles(rootDirectory, "*.skudef");
+
+            var skudefFiles = Directory.GetFiles(rootDirectory, "*.skudef", new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive });
+
             var skudefFile = skudefFiles
                 .OrderBy(SkudefVersion.Parse)
                 .LastOrDefault(); // TODO: This is not the right logic. needs to take into account the language.
@@ -72,7 +87,7 @@ namespace OpenSage.Data
                 var spaceIndex = line.IndexOf(' ');
                 var command = line.Substring(0, spaceIndex);
                 var parameter = line.Substring(spaceIndex + 1);
-                var fullPath = Path.Combine(skudefDirectory, parameter);
+                var fullPath = FileSystem.NormalizeFilePath(Path.Combine(skudefDirectory, parameter));
 
                 switch (command)
                 {

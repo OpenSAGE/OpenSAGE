@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Scripting
 {
-    public sealed class ScriptList : Asset
+    public sealed class ScriptList : Asset, IPersistableObject
     {
         public const string AssetName = "ScriptList";
 
@@ -106,33 +105,23 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var numScripts = reader.ReadUInt16();
+            reader.PersistArrayWithUInt16Length(
+                Scripts,
+                static (StatePersister persister, ref Script item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
 
-            if (numScripts != Scripts.Length)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < numScripts; i++)
-            {
-                Scripts[i].Load(reader);
-            }
-
-            var numScriptGroups = reader.ReadUInt16();
-
-            if (numScriptGroups != ScriptGroups.Length)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < numScriptGroups; i++)
-            {
-                ScriptGroups[i].Load(reader);
-            }
+            reader.PersistArrayWithUInt16Length(
+                ScriptGroups,
+                static (StatePersister persister, ref ScriptGroup item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
 
         internal ScriptList Copy(string appendix)

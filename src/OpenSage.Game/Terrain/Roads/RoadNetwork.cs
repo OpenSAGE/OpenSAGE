@@ -84,11 +84,13 @@ namespace OpenSage.Terrain.Roads
             {
                 foreach (var edgesPerTemplate in node.Edges.GroupBy(e => e.Template))
                 {
-                    var connectedEdges = edgesPerTemplate.Count();
-                    if (connectedEdges == 3 || connectedEdges == 4)
+                    if (edgesPerTemplate.Count() >= 3)
                     {
                         var incomingRoadData = ComputeRoadAngles(node, edgesPerTemplate, edgeSegments);
-                        CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, edgesPerTemplate.Key, edgeSegments);
+                        if (incomingRoadData.Count == 3 || incomingRoadData.Count == 4)
+                        {
+                            CrossingRoadSegment.CreateCrossing(incomingRoadData, node.Position, edgesPerTemplate.Key, edgeSegments);
+                        }
                     }
                 }
             }
@@ -142,15 +144,17 @@ namespace OpenSage.Terrain.Roads
 
         private static IReadOnlyList<IncomingRoadData> ComputeRoadAngles(RoadTopologyNode node, IEnumerable<RoadTopologyEdge> edges, IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
-            if (edges.Count() < 2)
+            var incomingRoads = edges
+                .Select(e => GetIncomingRoadData(node, e, edgeSegments[e]))
+                .GroupBy(d => d.AngleToAxis) // treat road segments coming in at the same angle as one
+                .Select(g => g.FirstOrDefault(d => d.TargetEndPoint.To != null) ?? g.First())
+                .OrderBy(d => d.AngleToAxis)
+                .ToList();
+
+            if (incomingRoads.Count < 2)
             {
                 return Array.Empty<IncomingRoadData>();
             }
-
-            var incomingRoads = edges
-                .Select(e => GetIncomingRoadData(node, e, edgeSegments[e]))
-                .OrderBy(d => d.AngleToAxis)
-                .ToList();
 
             for (var i = 1; i < incomingRoads.Count; ++i)
             {
@@ -167,13 +171,13 @@ namespace OpenSage.Terrain.Roads
         private static IncomingRoadData GetIncomingRoadData(RoadTopologyNode node, RoadTopologyEdge incomingEdge, StraightRoadSegment edgeSegment)
         {
             var isStart = incomingEdge.Start.Position == node.Position;
-            var fromPosition = isStart ? edgeSegment.EndPosition : edgeSegment.StartPosition;
+            var fromEndPoint = isStart ? edgeSegment.End : edgeSegment.Start;
             var segmentVector = (edgeSegment.EndPosition - edgeSegment.StartPosition) * (isStart ? 1 : -1);
             var direction = segmentVector.LengthSquared() < 0.01f ? Vector3.UnitX : Vector3.Normalize(segmentVector);
 
             return new IncomingRoadData(
                 incomingEdge,
-                fromPosition,
+                fromEndPoint,
                 direction,
                 MathF.Atan2(direction.Y, direction.X));
         }

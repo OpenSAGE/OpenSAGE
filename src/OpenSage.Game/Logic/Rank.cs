@@ -14,6 +14,8 @@ namespace OpenSage.Logic
         {
             _player = player;
             _rankTemplates = rankTemplates;
+
+            SetRank(1);
         }
 
         public void SetRank(int id)

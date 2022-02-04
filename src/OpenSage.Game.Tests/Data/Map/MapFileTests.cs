@@ -24,7 +24,7 @@ namespace OpenSage.Tests.Data.Map
             {
                 // These maps have false positive differences, so ignore differences.
                 bool skipRoundtripEqualityTest = false;
-                switch (entry.FilePath)
+                switch (entry.FilePath.ToLowerInvariant())
                 {
                     // Differences in passability data, because the original files have unusual
                     // values for partial passability bytes beyond the map width.

@@ -10,6 +10,7 @@ namespace OpenSage.Data.Ini
     partial class IniParser
     {
         private static readonly Dictionary<Type, Dictionary<string, Enum>> CachedEnumMap = new Dictionary<Type, Dictionary<string, Enum>>();
+        private static readonly Dictionary<Type, Dictionary<Enum, string>> CachedEnumMapReverse = new Dictionary<Type, Dictionary<Enum, string>>();
 
         static IniParser()
         {
@@ -126,6 +127,31 @@ namespace OpenSage.Data.Ini
                 }
             }
             return stringToValueMap;
+        }
+
+        public static Dictionary<Enum, string> GetEnumMapReverse<T>()
+            where T : Enum
+        {
+            var enumType = typeof(T);
+            if (!CachedEnumMapReverse.TryGetValue(enumType, out var valueToStringMap))
+            {
+                lock (CachedEnumMapReverse)
+                {
+                    valueToStringMap = Enum.GetValues(enumType)
+                        .Cast<Enum>()
+                        .Distinct()
+                        .SelectMany(x => GetIniNames(enumType, x).Select(y => new { Name = y, Value = x }))
+                        .Where(x => x.Name != null)
+                        .ToDictionary(x => x.Value, x => x.Name);
+
+                    // It might have been added by another thread.
+                    if (!CachedEnumMapReverse.ContainsKey(enumType))
+                    {
+                        CachedEnumMapReverse.Add(enumType, valueToStringMap);
+                    }
+                }
+            }
+            return valueToStringMap;
         }
 
         private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
