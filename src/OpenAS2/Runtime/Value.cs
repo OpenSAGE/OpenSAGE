@@ -541,7 +541,7 @@ namespace OpenAS2.Runtime
             {
                 var xf = x.ToFloat();
                 var yf = y.ToFloat();
-                if (Double.IsNaN(xf) && Double.IsNaN(yf))
+                if (double.IsNaN(xf) && double.IsNaN(yf))
                     return true;
                 else if (Math.Sign(xf) != Math.Sign(yf))
                     return false;

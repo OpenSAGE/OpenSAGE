@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29911.84
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject
@@ -60,7 +60,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.AptEditor.Wi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAS2", "OpenAS2\OpenAS2.csproj", "{81F18F1C-D009-447F-93DE-40794D5AAC4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAS2.Tests", "OpenAS2.Tests\OpenAS2.Tests.csproj", "{10E7E221-AF8F-42FF-82E9-32B1DB140ECE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAS2.Tests", "OpenAS2.Tests\OpenAS2.Tests.csproj", "{10E7E221-AF8F-42FF-82E9-32B1DB140ECE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.AptTool", "OpenSage.Tools.AptTool\OpenSage.Tools.AptTool.csproj", "{6C4CD746-F421-4A47-AC5F-0840F31711C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -168,6 +170,10 @@ Global
 		{10E7E221-AF8F-42FF-82E9-32B1DB140ECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10E7E221-AF8F-42FF-82E9-32B1DB140ECE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10E7E221-AF8F-42FF-82E9-32B1DB140ECE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C4CD746-F421-4A47-AC5F-0840F31711C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4CD746-F421-4A47-AC5F-0840F31711C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4CD746-F421-4A47-AC5F-0840F31711C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4CD746-F421-4A47-AC5F-0840F31711C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +191,7 @@ Global
 		{09B2C509-4033-433F-9442-4D81B930C715} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 		{CC67942B-862D-48DA-B2A5-BD61B924E4D0} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 		{C7E128CF-4C23-45A4-8D2D-9B6BE0B0908F} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
+		{6C4CD746-F421-4A47-AC5F-0840F31711C4} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DBD83F1E-3F41-45D9-AACC-62E00826AD5C}

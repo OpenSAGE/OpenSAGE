@@ -38,11 +38,11 @@ namespace OpenAS2.Base
                     ans = ((bool) Value) ? "true" : "false";
                     break;
                 case ConstantType.Integer:
-                    ans = ((Int32) Value).ToString();
+                    ans = ((int) Value).ToString();
                     break;
                 case ConstantType.Lookup:
                 case ConstantType.Register:
-                    ans = ((UInt32) Value).ToString();
+                    ans = ((uint) Value).ToString();
                     break;
                 case ConstantType.Float:
                     ans = ((float) Value).ToString();

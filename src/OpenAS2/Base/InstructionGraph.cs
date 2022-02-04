@@ -55,7 +55,7 @@ namespace OpenAS2.Base
 
         public override string ToString()
         {
-            if (Tag == null || Tag == "") return Inner.ToString() ?? String.Empty;
+            if (Tag == null || Tag == "") return Inner.ToString() ?? string.Empty;
 
             return $"// Tagged: {Tag}\n{Inner.ToString()}";
         }
