@@ -84,7 +84,8 @@ namespace OpenSage.Graphics.Shaders
                     new Material(
                         this,
                         pipeline,
-                        materialResourceSet));
+                        materialResourceSet,
+                        SurfaceType.Transparent));
 
                 _cachedMaterials.Add(key, result);
             }

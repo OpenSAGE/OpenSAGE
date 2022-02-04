@@ -1,25 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
+//using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
     internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
     {
+        private readonly Scene3D _scene;
         private readonly AssetLoadContext _loadContext;
         private readonly int _maxParticleCount;
+
+        private readonly RenderBucket _renderBucket;
 
         private readonly List<ParticleSystem> _particleSystems;
 
         private uint _previousParticleSystemId;
 
-        public ParticleSystemManager(AssetLoadContext assetLoadContext)
+        public ParticleSystemManager(Scene3D scene, AssetLoadContext assetLoadContext)
         {
+            _scene = scene;
             _loadContext = assetLoadContext;
             _maxParticleCount = assetLoadContext.AssetStore.GameData.Current.MaxParticleCount;
 
             _particleSystems = new List<ParticleSystem>();
+
+            _renderBucket = scene.RenderScene.CreateRenderBucket("Particles", 15);
         }
 
         public ParticleSystem Create(
@@ -34,6 +41,8 @@ namespace OpenSage.Graphics.ParticleSystems
                         template,
                         _loadContext,
                         getWorldMatrix)));
+
+            _renderBucket.AddObject(result);
 
             return result;
         }
@@ -51,6 +60,8 @@ namespace OpenSage.Graphics.ParticleSystems
                         _loadContext,
                         worldMatrix)));
 
+            _renderBucket.AddObject(result);
+
             return result;
         }
 
@@ -58,19 +69,12 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             if (_particleSystems.Remove(particleSystem))
             {
+                _renderBucket.RemoveObject(particleSystem);
                 RemoveAndDispose(ref particleSystem);
             }
         }
 
         public void Update(in TimeInterval gameTime)
-        {
-            foreach (var particleSystem in _particleSystems)
-            {
-                particleSystem.Update(gameTime);
-            }
-        }
-
-        public void BuildRenderList(RenderList renderList)
         {
             // TODO: Sort by ParticleSystem.Priority.
 
@@ -85,7 +89,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     continue;
                 }
 
-                particleSystem.BuildRenderList(renderList);
+                particleSystem.Update(gameTime);
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
@@ -96,10 +100,10 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 totalParticles += particleSystem.CurrentParticleCount;
 
-                if (totalParticles > _maxParticleCount)
-                {
-                    break;
-                }
+                //if (totalParticles > _maxParticleCount)
+                //{
+                //    break;
+                //}
             }
         }
 

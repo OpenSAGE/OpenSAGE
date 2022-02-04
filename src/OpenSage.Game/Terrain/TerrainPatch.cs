@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using OpenSage.Graphics.Rendering;
+﻿using System.Numerics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
@@ -10,18 +8,19 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainPatch : DisposableBase
+    public sealed class TerrainPatch : RenderObject
     {
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
-        private readonly Material _material;
-
-        private readonly BeforeRenderDelegate _beforeRender;
 
         public Rectangle Bounds { get; }
 
-        public AxisAlignedBoundingBox BoundingBox { get; }
+        public override MaterialPass MaterialPass { get; }
+
+        public override string DebugName { get; }
+
+        public override AxisAlignedBoundingBox BoundingBox { get; }
 
         public Triangle[] Triangles { get; }
 
@@ -32,6 +31,8 @@ namespace OpenSage.Terrain
             TerrainPatchIndexBufferCache indexBufferCache,
             Material material)
         {
+            DebugName = $"Terrain_{Bounds}";
+
             Bounds = patchBounds;
 
             _indexBuffer = indexBufferCache.GetIndexBuffer(
@@ -52,12 +53,7 @@ namespace OpenSage.Terrain
             BoundingBox = boundingBox;
             Triangles = triangles;
 
-            _material = material;
-
-            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
-            {
-                cl.SetVertexBuffer(0, _vertexBuffer);
-            };
+            MaterialPass = new MaterialPass(material, null);
         }
 
         private static DeviceBuffer CreateVertexBuffer(
@@ -144,17 +140,13 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(RenderList renderList)
+        public override void Render(CommandList commandList)
         {
-            renderList.Terrain.RenderItems.Add(new RenderItem(
-                $"Terrain-{Bounds}",
-                _material,
-                BoundingBox,
-                Matrix4x4.Identity,
-                0,
-                _numIndices,
-                _indexBuffer,
-                _beforeRender));
+            commandList.SetVertexBuffer(0, _vertexBuffer);
+
+            commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+
+            commandList.DrawIndexed(_numIndices, 1, 0, 0, 0);
         }
     }
 }

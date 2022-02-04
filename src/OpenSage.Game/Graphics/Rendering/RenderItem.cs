@@ -57,5 +57,5 @@ namespace OpenSage.Graphics.Rendering
         }
     }
 
-    internal delegate void BeforeRenderDelegate(CommandList commandList, RenderContext context, in RenderItem renderItem);
+    internal delegate void BeforeRenderDelegate(CommandList commandList, in RenderItem renderItem);
 }

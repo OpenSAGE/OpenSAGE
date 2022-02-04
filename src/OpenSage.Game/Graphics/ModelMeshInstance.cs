@@ -31,12 +31,12 @@ namespace OpenSage.Graphics
                     modelMeshInstance.ModelInstance.SkinningBuffer,
                     modelMeshInstance.ModelInstance.RenderItemConstantsBufferPS));
 
-            BeforeRenderCallback = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
+            BeforeRenderCallback = (CommandList cl, in RenderItem renderItem) =>
             {
                 OnBeforeRender(cl,  renderItem);
             };
 
-            BeforeRenderCallbackDepth = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
+            BeforeRenderCallbackDepth = (CommandList cl, in RenderItem renderItem) =>
             {
                 OnBeforeRender(cl, renderItem);
             };

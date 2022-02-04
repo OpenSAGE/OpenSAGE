@@ -18,6 +18,7 @@ using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
@@ -54,13 +55,21 @@ namespace OpenSage
         public readonly Terrain.Terrain Terrain;
 
         public readonly Quadtree<GameObject> Quadtree;
-        public bool ShowTerrain { get; set; } = true;
+        public bool ShowTerrain
+        {
+            get => RenderScene.GetRenderBucket("Terrain").Visible;
+            set => RenderScene.GetRenderBucket("Terrain").Visible = value;
+        }
 
         public readonly WaterAreaCollection WaterAreas;
         public bool ShowWater { get; set; } = true;
 
         public readonly RoadCollection Roads;
-        public bool ShowRoads { get; set; } = true;
+        public bool ShowRoads
+        {
+            get => RenderScene.GetRenderBucket("Roads").Visible;
+            set => RenderScene.GetRenderBucket("Roads").Visible = value;
+        }
 
         public readonly Bridge[] Bridges;
         public bool ShowBridges { get; set; } = true;
@@ -96,6 +105,8 @@ namespace OpenSage
         public readonly Game Game;
 
         public GameObject BuildPreviewObject;
+
+        public readonly RenderScene RenderScene;
 
         internal Scene3D(
             Game game,
@@ -239,7 +250,7 @@ namespace OpenSage
             }
 
             cameras = new CameraCollection(namedCameras?.Cameras);
-            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
+            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap, RenderScene));
             waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
             bridges = bridgesList.ToArray();
         }
@@ -277,10 +288,12 @@ namespace OpenSage
 
             Random = new Random(randomSeed);
 
+            RenderScene = new RenderScene();
+
             if (mapFile != null)
             {
                 MapFile = mapFile;
-                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext));
+                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext, RenderScene));
                 WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
@@ -294,7 +307,7 @@ namespace OpenSage
                 RegisterInputHandler(_debugMessageHandler = new DebugMessageHandler(DebugOverlay), inputMessageBuffer);
             }
 
-            ParticleSystemManager = AddDisposable(new ParticleSystemManager(game.AssetStore.LoadContext));
+            ParticleSystemManager = AddDisposable(new ParticleSystemManager(this, game.AssetStore.LoadContext));
 
             Radar = new Radar(this, game.AssetStore, mapPath);
 
@@ -374,19 +387,9 @@ namespace OpenSage
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
-            if (ShowTerrain)
-            {
-                Terrain?.BuildRenderList(renderList);
-            }
-
             if (ShowWater)
             {
                 WaterAreas.BuildRenderList(renderList);
-            }
-
-            if (ShowRoads)
-            {
-                Roads.BuildRenderList(renderList);
             }
 
             if (ShowBridges)
@@ -409,8 +412,6 @@ namespace OpenSage
                     }
                 }
             }
-
-            ParticleSystemManager.BuildRenderList(renderList);
 
             _orderGeneratorSystem.BuildRenderList(renderList, camera, gameTime);
         }

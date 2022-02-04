@@ -228,10 +228,6 @@ namespace OpenSage.Graphics.Rendering
             RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
-            commandList.PushDebugGroup("Road");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, forwardPassResourceSet);
-            commandList.PopDebugGroup();
-
             commandList.PushDebugGroup("Opaque");
             RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
@@ -239,6 +235,8 @@ namespace OpenSage.Graphics.Rendering
             commandList.PushDebugGroup("Transparent");
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
+
+            scene.RenderScene.Render(commandList, _globalShaderResourceData.GlobalConstantsResourceSet, forwardPassResourceSet);
 
             commandList.PushDebugGroup("Water");
             DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, forwardPassResourceSet);
@@ -388,7 +386,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetGraphicsResourceSet(2, _waterMapRenderer.ResourceSetForRendering);
                 }
 
-                renderItem.BeforeRenderCallback.Invoke(commandList, context, renderItem);
+                renderItem.BeforeRenderCallback.Invoke(commandList, renderItem);
 
                 if (renderItem.Material.MaterialResourceSet != null)
                 {

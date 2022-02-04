@@ -848,6 +848,10 @@ namespace OpenSage
             if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)
             {
                 SkirmishManager?.Update();
+
+                // TODO: This is a hack just to get MapTime correct immediately after we start a game.
+                _mapTimer.Update();
+                MapTime = _mapTimer.CurrentGameTime;
             }
 
             // How close are we to the next logic frame?
