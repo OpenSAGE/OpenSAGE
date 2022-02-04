@@ -9,7 +9,6 @@ using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.IO;
@@ -37,13 +36,15 @@ namespace OpenSage.Terrain
         private readonly Material _material;
         private readonly TerrainPatchIndexBufferCache _indexBufferCache;
 
+        private readonly RenderBucket _renderBucket;
+
+        private readonly List<TerrainPatch> _patches = new();
+
         internal const int PatchSize = 17;
 
         public readonly MapFile Map;
 
         public HeightMap HeightMap { get; }
-
-        public IReadOnlyList<TerrainPatch> Patches { get; private set; }
 
         private float _causticsIndex;
 
@@ -53,11 +54,13 @@ namespace OpenSage.Terrain
 
         internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
 
-        internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
+        internal Terrain(MapFile mapFile, AssetLoadContext loadContext, RenderScene scene)
         {
             Map = mapFile;
 
             HeightMap = new HeightMap(mapFile.HeightMapData);
+
+            _renderBucket = scene.CreateRenderBucket("Terrain", 0);
 
             _loadContext = loadContext;
             _graphicsDevice = loadContext.GraphicsDevice;
@@ -80,8 +83,6 @@ namespace OpenSage.Terrain
                 out var textureDetails);
 
             var textureDetailsBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
-
-            var terrainPipeline = loadContext.ShaderResources.Terrain.Pipeline;
 
             _materialConstantsBuffer = AddDisposable(
                 new ConstantBuffer<TerrainShaderResources.TerrainMaterialConstants>(
@@ -111,7 +112,8 @@ namespace OpenSage.Terrain
                 new Material(
                     loadContext.ShaderResources.Terrain,
                     loadContext.ShaderResources.Terrain.Pipeline,
-                    materialResourceSet));
+                    materialResourceSet,
+                    SurfaceType.Opaque));
 
             CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
@@ -187,36 +189,36 @@ namespace OpenSage.Terrain
 
         internal void OnHeightMapChanged()
         {
-            // TODO: Dispose old patches?
+            foreach (var patch in _patches)
+            {
+                patch.Dispose();
+                RemoveToDispose(patch);
 
-            Patches = CreatePatches(
-                _graphicsDevice,
-                HeightMap,
-                _indexBufferCache);
+                _renderBucket.RemoveObject(patch);
+            }
+
+            _patches.Clear();
+
+            CreatePatches();
         }
 
-        private List<TerrainPatch> CreatePatches(
-            GraphicsDevice graphicsDevice,
-            HeightMap heightMap,
-            TerrainPatchIndexBufferCache indexBufferCache)
+        private void CreatePatches()
         {
             const int numTilesPerPatch = PatchSize - 1;
 
-            var heightMapWidthMinusOne = heightMap.Width - 1;
+            var heightMapWidthMinusOne = HeightMap.Width - 1;
             var numPatchesX = heightMapWidthMinusOne / numTilesPerPatch;
             if (heightMapWidthMinusOne % numTilesPerPatch != 0)
             {
                 numPatchesX += 1;
             }
 
-            var heightMapHeightMinusOne = heightMap.Height - 1;
+            var heightMapHeightMinusOne = HeightMap.Height - 1;
             var numPatchesY = heightMapHeightMinusOne / numTilesPerPatch;
             if (heightMapHeightMinusOne % numTilesPerPatch != 0)
             {
                 numPatchesY += 1;
             }
-
-            var patches = new List<TerrainPatch>();
 
             for (var y = 0; y < numPatchesY; y++)
             {
@@ -228,19 +230,22 @@ namespace OpenSage.Terrain
                     var patchBounds = new Rectangle(
                         patchX,
                         patchY,
-                        Math.Min(PatchSize, heightMap.Width - patchX),
-                        Math.Min(PatchSize, heightMap.Height - patchY));
+                        Math.Min(PatchSize, HeightMap.Width - patchX),
+                        Math.Min(PatchSize, HeightMap.Height - patchY));
 
-                    patches.Add(AddDisposable(new TerrainPatch(
-                        heightMap,
-                        patchBounds,
-                        graphicsDevice,
-                        indexBufferCache,
-                        _material)));
+                    var patch = AddDisposable(
+                        new TerrainPatch(
+                            HeightMap,
+                            patchBounds,
+                            _graphicsDevice,
+                            _indexBufferCache,
+                            _material));
+
+                    _renderBucket.AddObject(patch);
+
+                    _patches.Add(patch);
                 }
             }
-
-            return patches;
         }
 
         private static Texture CreateTileDataTexture(
@@ -522,7 +527,7 @@ namespace OpenSage.Terrain
         {
             float? closestIntersection = null;
 
-            foreach (var patch in Patches)
+            foreach (var patch in _patches)
             {
                 patch.Intersect(ray, ref closestIntersection);
             }
@@ -544,14 +549,6 @@ namespace OpenSage.Terrain
                 : -1;
 
             _materialConstantsBuffer.Update(_graphicsDevice);
-        }
-
-        internal void BuildRenderList(RenderList renderList)
-        {
-            foreach (var patch in Patches)
-            {
-                patch.BuildRenderList(renderList);
-            }
         }
     }
 }

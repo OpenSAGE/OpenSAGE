@@ -61,7 +61,8 @@ namespace OpenSage.Graphics.Shaders
                     new Material(
                         this,
                         pipeline,
-                        materialResourceSet));
+                        materialResourceSet,
+                        blendEnabled ? SurfaceType.Transparent : SurfaceType.Opaque));
 
                 _materialCache.Add(materialKey, result);
             }

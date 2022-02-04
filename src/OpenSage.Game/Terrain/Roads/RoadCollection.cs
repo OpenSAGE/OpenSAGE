@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Rendering;
-using Veldrid;
+using OpenSage.Rendering;
 
 namespace OpenSage.Terrain.Roads
 {
@@ -19,7 +18,8 @@ namespace OpenSage.Terrain.Roads
         internal RoadCollection(
             RoadTopology topology,
             AssetLoadContext loadContext,
-            HeightMap heightMap)
+            HeightMap heightMap,
+            RenderScene scene)
             : this()
         {
             // The map stores road segments with no connectivity:
@@ -42,12 +42,19 @@ namespace OpenSage.Terrain.Roads
 
             var networks = RoadNetwork.BuildNetworks(topology, roadTemplateList);
 
+            var renderBucket = scene.CreateRenderBucket("Roads", 10);
+
             foreach (var network in networks)
             {
-                _roads.Add(AddDisposable(new Road(
+                var road = AddDisposable(
+                    new Road(
                         loadContext,
                         heightMap,
-                        network)));
+                        network));
+
+                renderBucket.AddObject(road);
+
+                _roads.Add(road);
             }
         }
 
@@ -56,14 +63,6 @@ namespace OpenSage.Terrain.Roads
         public int Count => _roads.Count;
 
         public IEnumerator<Road> GetEnumerator() => _roads.GetEnumerator();
-
-        internal void BuildRenderList(RenderList renderList)
-        {
-            foreach (var road in _roads)
-            {
-                road.BuildRenderList(renderList);
-            }
-        }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }

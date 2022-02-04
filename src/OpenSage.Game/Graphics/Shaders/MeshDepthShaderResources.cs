@@ -31,7 +31,8 @@ namespace OpenSage.Graphics.Shaders
                 new Material(
                     this,
                     pipeline,
-                    null));
+                    null,
+                    SurfaceType.Opaque));
         }
     }
 }

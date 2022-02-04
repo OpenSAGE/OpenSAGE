@@ -120,11 +120,12 @@ namespace OpenSage.Terrain
                 new Material(
                     _shaderSet,
                     _pipeline,
-                    null)); // TODO: MaterialResourceSet
+                    null,
+                    SurfaceType.Transparent)); // TODO: MaterialResourceSet
 
             _debugName = debugName;
 
-            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
+            _beforeRender = (CommandList cl, in RenderItem renderItem) =>
             {
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
