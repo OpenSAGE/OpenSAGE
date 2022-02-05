@@ -2,10 +2,10 @@
 using System.Numerics;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
 using OpenSage.Mathematics;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public class ButtonItem : TexturedItem
     {

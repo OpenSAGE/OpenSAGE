@@ -5,12 +5,12 @@ using OpenSage.Content;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public sealed class AptWindow : DisposableBase
     {

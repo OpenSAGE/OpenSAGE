@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
 
-namespace OpenAS2.Script
+namespace OpenAS2.FlashDom.Script
 {
     /// <summary>
     /// This class is meant to access builtin variables and return the corresponding value

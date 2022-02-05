@@ -14,6 +14,9 @@ namespace OpenAS2.Runtime
 
         public ESObject This { get; private set; }
         public ESObject Global { get; private set; }
+        public ESObject Extern { get; private set; }
+        public HostObject? Root { get; private set; }
+
         public Scope ReferredScope { get; private set; }
 
         public DomHandler? Dom => Avm == null ? null : Avm.Dom;
@@ -39,18 +42,24 @@ namespace OpenAS2.Runtime
             VirtualMachine avm,
             ESObject globalVar,
             ESObject thisVar,
+            ESObject externVar, 
             Scope scope,
             InstructionStream? stream,
             IList<ConstantEntry>? globalConstPool = null,
             IList<Value>? constPool = null,
+            HostObject? rootVar = null,
             int numRegisters = 4,
             string? displayName = null
             )
         {
             // assignments
             Avm = avm;
+
             Global = globalVar;
             This = thisVar;
+            Extern = externVar;
+            Root = rootVar;
+
             ReferredScope = scope;
             Stream = stream ?? new(new(), true);
             RegisterCount = numRegisters;
@@ -315,13 +324,15 @@ namespace OpenAS2.Runtime
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
             {
-                _registers[reg] = Dom != null ? Value.FromObject(Dom.RootScriptObject) : Value.Undefined();
+                _registers[reg] = Dom != null ? Value.FromObject(Root) : Value.Undefined();
                 _registers[reg].DisplayString = "Preload Root";
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
-                _registers[reg] = Value.FromObject(((HostObject)This).GetParent(this));
+                var parent = This as HostObject;
+                if (parent != null) parent = parent.GetParent(this);
+                _registers[reg] = parent != null ? Value.FromObject(parent) : Value.Undefined();
                 _registers[reg].DisplayString = "Preload Parent";
                 ++reg;
             }
@@ -333,7 +344,7 @@ namespace OpenAS2.Runtime
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
             {
-                _registers[reg] = Value.FromObject(Avm.ExternObject);
+                _registers[reg] = Value.FromObject(Extern);
                 _registers[reg].DisplayString = "Preload Extern";
                 ++reg;
             }

@@ -7,11 +7,11 @@ using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Graphics;
-using OpenAS2.Script;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
+using OpenAS2.FlashDom.Script;
 using OpenSage.Mathematics;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public struct ItemTransform : ICloneable
     {

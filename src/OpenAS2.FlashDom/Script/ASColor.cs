@@ -1,46 +1,57 @@
 ﻿using System.Linq;
 using System;
 using System.Collections.Generic;
+using OpenAS2.Runtime.Dom;
+using OpenAS2.Runtime;
 using OpenSage.Mathematics;
+using OpenAS2.Runtime.Library;
 
-namespace OpenAS2.Script
+namespace OpenAS2.FlashDom.Script
 {
-    internal sealed class ASColor : ASObject
+    public sealed class ASColor : ASObject
     {
-        public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
-            // properties
-            // methods
-            ["getRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (vm, tv, args) => {
-                     var ans = ((ASColor) tv).getRGB();
-                     return ans;
-                 }
-                 , avm)), true, false, false),
-            ["setRGB"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                (vm, tv, args) => {
-                    ((ASColor) tv).setRGB(args);
-                    return null;
-                }
-                , avm)), true, false, false),
+
         };
 
-        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        public static new readonly Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
         {
-            
+            ["getRGB"] = (vm, tv, args) => {
+                     var ans = ((ASColor)tv).getRGB();
+                     return ESCallable.Return(ans);
+                },
+            ["setRGB"] = (vm, tv, args) => {
+                    ((ASColor)tv).setRGB(args);
+                    return ESCallable.Normal(Value.Undefined());
+                },
+        };
+
+        public static new readonly Dictionary<string, Func<PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
+        {
+
+        };
+
+        public static new readonly Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+
         };
 
         private ColorRgba _color = ColorRgba.White;
 
-        public ASColor(VM vm) : base(vm, "Color") { }
+        public ASColor(VirtualMachine vm) : base(vm, "Color", "Object", true)
+        {
+
+        }
+
         public Value getRGB()
         {
             return Value.FromInteger(_color.ToIntegerRGB());
         }
-        public Value setRGB(Value[] args)
+        public void setRGB(IList<Value>? args)
         {
-            _color = ColorRgba.FromHex(_color, args.First().ToString());
-            return Value.Undefined();
+            if (args != null)
+                _color = ColorRgba.FromHex(_color, args.First().ToString());
         }
     }
 }

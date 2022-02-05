@@ -4,13 +4,13 @@ using System.Numerics;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Graphics;
-using OpenAS2.Script;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
+using OpenAS2.FlashDom.Script;
 using OpenSage.Mathematics;
 using Veldrid;
 using Action = OpenSage.FileFormats.Apt.FrameItems.Action;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public enum PlayState
     {

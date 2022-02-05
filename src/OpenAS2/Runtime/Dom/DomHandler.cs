@@ -11,9 +11,11 @@ namespace OpenAS2.Runtime.Dom
     public abstract class DomHandler
     {
 
-        public virtual (ESObject, ESObject) CreateGlobalAndExternObject(VirtualMachine vm)
+
+
+        public virtual ESObject CreateGlobalObject(VirtualMachine vm)
         {
-            return (new ESObject(vm), new ESObject(vm));
+            return new ESObject(vm);
         }
 
         public virtual bool TryHandle(ExecutionContext context, RawInstruction inst)
@@ -105,6 +107,5 @@ namespace OpenAS2.Runtime.Dom
             return false;
         }
 
-        public abstract HostObject RootScriptObject { get; protected set; }
     }
 }

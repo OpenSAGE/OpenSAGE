@@ -2,52 +2,73 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using OpenSage.FileFormats.Apt.Characters;
 using OpenAS2.Runtime.Dom;
+using OpenAS2.Runtime.Library;
+using OpenAS2.Runtime;
+using OpenAS2.FlashDom.HostObjects;
 
-namespace OpenAS2.Script
+namespace OpenAS2.FlashDom.Script
 {
     public class StageObject: HostObject
     {
-        public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>()
+        public static new Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {
-            // properties
-            ["_parent"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        ((StageObject) tv).AnotherGetParent(),
-                (tv, val) => { throw new NotImplementedException(); }, 
+            ["_parent"] = () => PropertyDescriptor.A(
+                (_, tv, _) => ESCallable.Return(((StageObject)tv).Item == null ? Value.Undefined() :
+                        ((StageObject)tv).AnotherGetParent()),
+                (_, tv, val) => { throw new NotImplementedException(); },
                 false, false),
-            ["_x"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.X),
-                (tv, val) => { throw new NotImplementedException(); },
+            ["_x"] = () => PropertyDescriptor.A(
+                (_, tv, _) => ESCallable.Return(((StageObject)tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject)tv).Item.Transform.GeometryTranslation.X)),
+                (_, tv, val) => { throw new NotImplementedException(); },
                 false, false),
-            ["_y"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.GeometryTranslation.Y),
-                (tv, val) => { throw new NotImplementedException(); },
+            ["_y"] = () => PropertyDescriptor.A(
+                (_, tv, _) => ESCallable.Return(((StageObject)tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject)tv).Item.Transform.GeometryTranslation.Y)),
+                (_, tv, val) => { throw new NotImplementedException(); },
                 false, false),
-            ["_name"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromString(((StageObject) tv).Item.Name),
-                (tv, val) => { throw new NotImplementedException(); },
+            ["_name"] = () => PropertyDescriptor.A(
+                (_, tv, _) => ESCallable.Return(((StageObject)tv).Item == null ? Value.Undefined() :
+                        Value.FromString(((StageObject)tv).Item.Name)),
+                (_, tv, val) => { throw new NotImplementedException(); },
                 false, false),
-            ["_alpha"] = (avm) => Property.A(
-                (tv) => ((StageObject) tv).Item == null ? Value.Undefined() :
-                        Value.FromFloat(((StageObject) tv).Item.Transform.ColorTransform.A * 100),
-                (tv, val) =>
+            ["_alpha"] = () => PropertyDescriptor.A(
+                (_, tv, _) => ESCallable.Return(((StageObject)tv).Item == null ? Value.Undefined() :
+                        Value.FromFloat(((StageObject)tv).Item.Transform.ColorTransform.A * 100)),
+                (ec, tv, args) =>
                 {
-                    var ctx = (StageObject) tv;
-                    if (ctx is null)
-                        return;
-                    var transform = ctx.Item.Transform;
-                    ctx.Item.Transform =
-                        transform.WithColorTransform(transform.ColorTransform.WithA((float) (val.ToFloat() / 100.0)));
+                    if (HasArgs(args))
+                    {
+                        var val = args![0].ToFloat();
+                        var ctx = (StageObject)tv;
+                        if (ctx is null)
+                            return ESCallable.Throw(ec.ConstrutError("TypeError"));
+                        var transform = ctx.Item.Transform;
+                        ctx.Item.Transform =
+                            transform.WithColorTransform(transform.ColorTransform.WithA((float)(val / 100.0)));
+                    }
+                    return ESCallable.Normal(Value.Undefined());
+                    
                 },
                 false, false),
-            // methods
-            // nothing
         };
+
+        public static new readonly Dictionary<string, ESCallable.Func> MethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+            
+        };
+
+        public static new readonly Dictionary<string, Func<PropertyDescriptor>> StaticPropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
+        {
+
+        };
+
+        public static new readonly Dictionary<string, ESCallable.Func> StaticMethodsDefined = new Dictionary<string, ESCallable.Func>()
+        {
+
+        };
+
 
         /// <summary>
         /// The item that this context is connected to
@@ -59,7 +80,7 @@ namespace OpenAS2.Script
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public StageObject(DisplayItem item, VM vm = null, string prototype_indicator = "Object") : base(vm == null ? (item == null ? null : item.Context.Avm) : vm, prototype_indicator)
+        public StageObject(DisplayItem item, VirtualMachine? vm = null, string classIndicator = "Object") : base(vm == null ? (item == null ? null : item.Context.Avm) : vm, classIndicator)
         {
             Item = item;
         }
@@ -97,15 +118,13 @@ namespace OpenAS2.Script
             return obj.GetMember(member);
         }
 
-        public StageObject GetParent()
+        public override StageObject? GetParent(ExecutionContext ec)
         {
-            StageObject result = null;
-
+            StageObject? result = null;
             if (Item.Parent != null)
             {
                 result = Item.Parent.ScriptObject;
             }
-
             return result;
         }
 
@@ -183,175 +202,4 @@ namespace OpenAS2.Script
 
     }
 
-    public class TextField: StageObject
-    {
-        public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.PropertiesDefined)
-        {
-            ["textColor"] = (avm) => Property.A(
-                (tv) => Value.FromString(((Text) ((StageObject)tv).Item.Character).Color.ToHex()),
-                (tv, val) =>
-                {
-                    var ctx = (StageObject) tv;
-                    var hexStr = val.ToString();
-                    var hexColor = Convert.ToInt32(hexStr, 16);
-
-                    var b = (hexColor & 0xFF) / 255.0f;
-                    var g = ((hexColor & 0xFF00) >> 8) / 255.0f;
-                    var r = ((hexColor & 0xFF0000) >> 16) / 255.0f;
-
-                    var transform = ctx.Item.Transform;
-                    ctx.Item.Transform =
-                        transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
-                },
-                true, false),
-        };
-
-        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.StaticPropertiesDefined)
-        {
-            
-        };
-
-        public TextField(VM vm) : this(null, vm) { }
-        public TextField(RenderItem item, VM vm = null) : base(item, vm, "TextField") { }
-    }
-
-    public class MovieClip : StageObject
-    {
-        public static new Dictionary<string, Func<VM, Property>> PropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.PropertiesDefined)
-        {
-            // properties
-            ["_currentframe"] = (avm) => Property.A(
-                (tv) => Value.FromInteger(((SpriteItem) ((StageObject) tv).Item).CurrentFrame),
-                (tv, val) =>
-                {
-                    throw new NotImplementedException();
-                },
-                false, false),
-
-            // methods
-            ["gotoAndPlay"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).GotoAndPlay(actx, args);
-                     return null;
-                 }
-                 , avm)), true, false, false),
-            ["gotoAndStop"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).GotoAndStop(args);
-                     return null;
-                 }
-                 , avm)), true, false, false),
-            ["stop"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).Stop();
-                     return null;
-                 }
-                 , avm)), true, false, false),
-            ["loadMovie"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     ((MovieClip) tv).LoadMovie(actx, args);
-                     return null;
-                 }
-                 , avm)), true, false, false),
-            ["attachMovie"] = (avm) => Property.D(Value.FromFunction(new NativeFunction(
-                 (actx, tv, args) => {
-                     var m = ((MovieClip) tv).AttachMovie(actx, args);
-                     return Value.FromObject(m);
-                 }
-                 , avm)), true, false, false),
-        };
-
-        public static new Dictionary<string, Func<VM, Property>> StaticPropertiesDefined = new Dictionary<string, Func<VM, Property>>(StageObject.StaticPropertiesDefined)
-        {
-            
-        };
-
-        public MovieClip(VM vm) : this(null, vm) { }
-        public MovieClip(SpriteItem item, VM vm = null) : base(item, vm, "MovieClip") { }
-
-        public void GotoAndPlay(ExecutionContext actx, Value[] args)
-        {
-            if (Item is SpriteItem si)
-            {
-                var dest = args.First().ResolveRegister(actx);
-
-                if (dest.Type == ValueType.String)
-                {
-                    si.Goto(dest.ToString());
-                }
-                else if (dest.Type == ValueType.Integer)
-                {
-                    si.GotoFrame(dest.ToInteger() - 1);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Can only jump to labels or frame numbers");
-                }
-
-                si.Play();
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public void GotoAndStop(Value[] args)
-        {
-            if (Item is SpriteItem si)
-            {
-                var dest = args.First();
-
-                if (dest.Type == ValueType.String)
-                {
-                    si.Goto(dest.ToString());
-                }
-                else if (dest.Type == ValueType.Integer)
-                {
-                    si.GotoFrame(dest.ToInteger() - 1);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Can only jump to labels or frame numbers");
-                }
-
-                si.Stop(true);
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public void Stop()
-        {
-            if (Item is SpriteItem si)
-            {
-                si.Stop();
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public void LoadMovie(ExecutionContext context, Value[] args)
-        {
-            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
-            // TODO Change to MovieHandler
-            var window = context.Apt.Window.Manager.Game.LoadAptWindow(url);
-
-            context.Apt.Window.Manager.QueryPush(window);
-        }
-
-        public MovieClip AttachMovie(ExecutionContext context, Value[] args)
-        {
-            var url = Path.ChangeExtension(args[0].ToString(), ".apt");
-            var name = args[1].ToString();
-            var depth = args[2].ToInteger();
-
-            throw new NotImplementedException();
-        }
-
-    }
 }

@@ -19,7 +19,9 @@ namespace OpenAS2.Runtime.Library
 
         public class Result
         {
-            public static ExecutionContext NativeContext = new(null, null, null, null, null, null, null, 0, "<Native>");
+            public static readonly ExecutionContext NativeContext = new(null, null, null, null, null, null,
+                numRegisters: 0,
+                displayName: "[Native Code]");
 
             /// <summary>
             /// the code is guarenteed to be called either res.Type == Normal or Return.

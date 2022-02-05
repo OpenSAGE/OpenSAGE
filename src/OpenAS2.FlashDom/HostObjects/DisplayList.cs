@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public sealed class DisplayList : DisposableBase
     {

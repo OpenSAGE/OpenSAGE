@@ -27,7 +27,6 @@ namespace OpenAS2.Runtime
         public ESObject GlobalObject { get; }
         public Scope GlobalScope { get; }
         public ExecutionContext GlobalContext { get; }
-        public ESObject ExternObject { get; }
 
         public Dictionary<string, ESObject> Prototypes { get; private set; }
         public Dictionary<string, ESFunction> Constructors { get; private set; }
@@ -40,9 +39,9 @@ namespace OpenAS2.Runtime
 
         public void RegisterClass(string className, Type classType)
         {
-            var c1 = (ESCallable.Func)classType.GetField("ICallDefault")!.GetValue(null)!;
-            var c2 = (ESCallable.Func)classType.GetField("IConstructDefault")!.GetValue(null)!;
-            var fp = (IList<string>)classType.GetField("FormalParametersDefault")!.GetValue(null)!;
+            var c1 = (ESCallable.Func)(classType.GetField("ICallDefault"))!.GetValue(null)!;
+            var c2 = (ESCallable.Func)(classType.GetField("IConstructDefault"))!.GetValue(null)!;
+            var fp = (IList<string>)(classType.GetField("FormalParametersDefault"))!.GetValue(null)!;
 
             var props = (Dictionary<string, Func<PropertyDescriptor>>)classType.GetField("PropertiesDefined")!.GetValue(null)!;
             var statProps = (Dictionary<string, Func<PropertyDescriptor>>)classType.GetField("StaticPropertiesDefined")!.GetValue(null)!;
@@ -137,9 +136,20 @@ namespace OpenAS2.Runtime
             }
 
             // initialize global vars and methods
-            (GlobalObject, ExternObject) = Dom.CreateGlobalAndExternObject(this);
+            GlobalObject = Dom.CreateGlobalObject(this);
             GlobalScope = new ObjectScope(this, GlobalObject, null, "[Global Scope]");
-            GlobalContext = new ExecutionContext(this, GlobalObject, GlobalObject, GlobalScope, null, null) { DisplayName = "[Global Context]", };
+            GlobalContext = new ExecutionContext(
+                this,
+                GlobalObject,
+                GlobalObject,
+                GlobalObject,
+
+                GlobalScope,
+                null,
+                null)
+            {
+                DisplayName = "[Global Context]",
+            };
             PushContext(GlobalContext);
 
             // expose builtin stuffs
@@ -283,6 +293,7 @@ namespace OpenAS2.Runtime
 
         // context, execution & debug
         public ExecutionContext CreateContext(
+            ExecutionContext? outerContext, 
             Scope? outerScope,
             ESObject thisVar,
             int numRegisters,
@@ -291,12 +302,19 @@ namespace OpenAS2.Runtime
             IList<ConstantEntry>? globalConstants = null,
             string? name = null)
         {
+            outerContext = outerContext ?? GlobalContext;
             outerScope = outerScope ?? GlobalScope;
+            ESObject externVar = outerContext.ReferredScope is ObjectScope os ? os.TheObject : outerContext.Extern;
             var s = new RecordScope(this, outerScope, name);
-            var context = new ExecutionContext(this, GlobalObject, thisVar, s,
+            var context = new ExecutionContext(
+                this, GlobalObject,
+                thisVar,
+                externVar,
+                s,
                 stream,
                 globalConstPool: globalConstants,
                 constPool: consts,
+                rootVar: outerContext.Root, 
                 displayName: name,
                 numRegisters: numRegisters);
             return context;

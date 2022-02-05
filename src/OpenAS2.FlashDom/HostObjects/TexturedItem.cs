@@ -1,6 +1,6 @@
 ﻿using Veldrid;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public abstract class TexturedItem : DisplayItem
     {

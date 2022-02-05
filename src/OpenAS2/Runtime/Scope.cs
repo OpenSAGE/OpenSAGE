@@ -147,7 +147,7 @@ namespace OpenAS2.Runtime
 
         public override bool HasPropertyOnLocal(string name, out PropertyDescriptor? prop)
         {
-            prop = TheObject.IGetProperty(name, out var own);
+            prop = TheObject.IGetProperty(name, out var _);
             return prop != null;
         }
 

@@ -406,14 +406,14 @@ namespace OpenAS2.Runtime
         {
             var vm = context.Avm;
             var thisFunc = (DefinedFunction)thisVar;
-            var thisEC = thisFunc.GetContext(vm, args ?? new Value[0], thisVar);
+            var thisEC = thisFunc.GetContext(context, args ?? new Value[0], thisVar);
             vm.PushContext(thisEC);
             return new(thisEC);
         }
 
-        public ExecutionContext GetContext(VirtualMachine vm, IList<Value> args, ESObject thisVar)
+        public ExecutionContext GetContext(ExecutionContext parent, IList<Value> args, ESObject thisVar)
         {
-            var context = vm.CreateContext(IScope, thisVar, RegisterNumber, Constants, new(Instructions), null);
+            var context = parent.Avm.CreateContext(parent, IScope, thisVar, RegisterNumber, Constants, new(Instructions), null);
 
             if (args == null)
                 args = new Value[0];
@@ -455,7 +455,7 @@ namespace OpenAS2.Runtime
 
                 // then load variables
                 // overwrite parameters if register is coincidently the same
-                var a = Value.FromObject(new ESArray(args, vm));
+                var a = Value.FromObject(new ESArray(args, parent.Avm));
                 context.Preload(Flags, a);
             }
 

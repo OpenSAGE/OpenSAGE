@@ -10,9 +10,11 @@ namespace OpenAS2.Runtime.Dom
         protected HostObject(string? classIndicator, bool extensible, ESObject? prototype, IEnumerable<ESObject>? interfaces) : base(classIndicator, extensible, prototype, interfaces)
         {
         }
+        protected HostObject(VirtualMachine vm, string? classIndicator, string? protoIndicator = null, bool extensible = true) : base(vm, classIndicator, protoIndicator, extensible)
+        {
+        }
 
-
-        public abstract ESObject GetParent(ExecutionContext ec);
+        public abstract HostObject? GetParent(ExecutionContext ec);
 
     }
 

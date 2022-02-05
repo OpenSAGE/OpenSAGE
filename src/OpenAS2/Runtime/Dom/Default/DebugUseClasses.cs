@@ -21,17 +21,16 @@ namespace OpenAS2.Runtime.Dom.Default
 
     public class SimpleDomHandler : DomHandler
     {
-        public override HostObject RootScriptObject { get; protected set; }
 
         public SimpleDomHandler()
         {
-            RootScriptObject = new SimpleHostObject("HuangXuDong", false, null, null);
+            // RootScriptObject = new SimpleHostObject("HuangXuDong", false, null, null);
         }
 
-        public override (ESObject, ESObject) CreateGlobalAndExternObject(VirtualMachine vm)
+        public override ESObject CreateGlobalObject(VirtualMachine vm)
         {
             // RootScriptObject.IPrototype = vm.ObjCst;
-            return (new ESObject(vm), new ESObject(vm));
+            return new ESObject(vm);
         }
 
         public override bool TryHandle(ExecutionContext context, RawInstruction inst)

@@ -3,11 +3,11 @@ using OpenSage.Content.Translation;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenAS2.Script;
-using OpenAS2.Script;
+using OpenAS2.FlashDom.Script;
+using OpenAS2.FlashDom.Script;
 using Veldrid;
 
-namespace OpenAS2.HostObjects
+namespace OpenAS2.FlashDom.HostObjects
 {
     public sealed class RenderItem : TexturedItem
     {
