@@ -99,17 +99,17 @@ namespace OpenAS2.Tests
             string codeFilePath = "", constFilePath = "";
 
             codeFilePath = "main_mouse_C0_F0_I1_Action";
-            codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
-            codeFilePath = "main_mouse_C0_F0_I41___Packages.main_mouse_settings_Init";
+            // codeFilePath = "main_mouse_C0_F0_I2___Packages.Cafe2_Imp_BaseControl_Init";
+            // codeFilePath = "main_mouse_C0_F0_I41___Packages.main_mouse_settings_Init";
             // codeFilePath = "main_mouse_C0_F0_I40___Packages.ICafe2_FWSettings_Init";
 
-            codeFilePath = "fes_m_chapterSelect_C0_F0_I12___Packages.Cafe2_BaseUIScreen_Init";
-            codeFilePath = "fes_m_chapterSelect_C0_F0_I13___Packages.fes_m_chapterSelect_Init";
+            // codeFilePath = "fes_m_chapterSelect_C0_F0_I12___Packages.Cafe2_BaseUIScreen_Init";
+            // codeFilePath = "fes_m_chapterSelect_C0_F0_I13___Packages.fes_m_chapterSelect_Init";
 
 
             constFilePath = "main_mouse_Constants";
 
-            constFilePath = "fes_m_chapterSelect_Constants";
+            ///constFilePath = "fes_m_chapterSelect_Constants";
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));
 

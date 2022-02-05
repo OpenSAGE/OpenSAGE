@@ -155,7 +155,7 @@ namespace OpenAS2.Base
                     }
                     else if (inst.IsBranch)
                     {
-                        if (inst != b.BranchCondition || b.NextBlockCondition == null)
+                        if (!RawInstruction.ContentEquals(inst, b.BranchCondition) || b.NextBlockCondition == null)
                             throw new InvalidOperationException();
                         curPos = curPosWithOffset;
                         res.Add(new LogicalBranchInstruction(inst.Type, b.NextBlockCondition!));
