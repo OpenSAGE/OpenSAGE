@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenAS2.Base
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
     using RawConstantStorage = IList<ConstantEntry>;
 
     public static class StringParsingUtils
@@ -15,7 +15,7 @@ namespace OpenAS2.Base
 
         public static string FormInstructionStorage(RawInstructionStorage insts)
         {
-            SortedList<int, string> dtemp = new();
+            SortedList<uint, string> dtemp = new();
             foreach (var (pos, inst) in insts)
                 dtemp[pos] = inst.Serialize();
             return JsonConvert.SerializeObject(dtemp);
@@ -23,9 +23,9 @@ namespace OpenAS2.Base
 
         public static RawInstructionStorage ParseInstructionStorage(string sinsts)
         {
-            var dtemp = JsonConvert.DeserializeObject<Dictionary<int, string>>(sinsts);
-            RawInstructionStorage res = new SortedList<int, RawInstruction>();
-            foreach (var (pos, inst) in dtemp)
+            var dtemp = JsonConvert.DeserializeObject<Dictionary<uint, string>>(sinsts);
+            RawInstructionStorage res = new();
+            foreach (var (pos, inst) in dtemp!)
                 res[pos] = RawInstruction.Deserialize(inst);
             return res;
         }

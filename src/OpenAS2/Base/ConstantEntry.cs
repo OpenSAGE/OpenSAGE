@@ -114,7 +114,7 @@ namespace OpenAS2.Base
                         ans.Value = n1;
                     break;
                 case ConstantType.None:
-                    ans.Value = null;
+                    ans.Value = null!;
                     break;
                 default:
                     throw new InvalidDataException();

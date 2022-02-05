@@ -213,6 +213,38 @@ namespace OpenAS2.Base
             return v;
         }
 
+        public override bool Equals(object? obj)
+        {
+            if (obj is RawValue rv)
+            {
+                if (Type != rv.Type)
+                    return false;
+                bool ans;
+                switch (Type)
+                {
+                    case RawValueType.String:
+                        ans = String == rv.String;
+                        break;
+                    case RawValueType.Boolean:
+                        ans = Boolean && rv.Boolean;
+                        break;
+                    case RawValueType.Integer:
+                    case RawValueType.Constant:
+                    case RawValueType.Register:
+                        ans = Integer == rv.Integer;
+                        break;
+                    case RawValueType.Float:
+                        ans = Double == rv.Double;
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                return ans;
+            }
+
+            return base.Equals(obj);
+        }
+
     }
 }
 

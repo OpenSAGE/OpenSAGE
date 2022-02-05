@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace OpenAS2.Compilation
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
 
     public static class CompilationUtils
     {

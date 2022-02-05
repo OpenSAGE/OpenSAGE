@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Newtonsoft.Json;
 using OpenAS2.Base;
 using OpenAS2.Compilation;
@@ -9,7 +10,8 @@ using OpenAS2.Runtime.Dom.Default;
 
 namespace OpenAS2.Tests
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
+    using InstKvp = KeyValuePair<uint, RawInstruction>;
 
     class Program
     {
@@ -23,12 +25,35 @@ namespace OpenAS2.Tests
             if (ci == null)
                 return null;
 
+
+            Definition.GetParamLength(InstructionType.End);
             var g_ = new InstructionGraph(ci, 0, null, regNames);
-            // Console.WriteLine(g_.ToDotForm());
+
+            List<InstKvp> cil = new List<InstKvp>(ci);
+            var ci2 = GraphifyUtils.ReverseGraphify(g_, cil[0].Key);
+            List<InstKvp> ci2l = new List<InstKvp>(ci2);
+
+            int i = 0;
+            
+            List<uint> origOffset = cil.Select(x => x.Key - cil[0].Key).ToList();
+            var offset = GraphifyUtils.CalculateOffset(ci.Select(x => x.Value.Type));
+            foreach (var (pos, ins) in ci)
+            {
+                var (pos2, ins2) = ci2l[i];
+                var (npos, nins) = cil[(i + 1) % ci.Count];
+                Console.WriteLine($"{pos} {pos % 4} {(npos > pos ? npos - pos : 0)} {GraphifyUtils.GetRealParamLength(pos, ins.Type)} {origOffset[i]} {offset[i]} {ins.Type} {Definition.IsAlignmentRequired(ins.Type)}");
+                Console.WriteLine($"{ins} \n{ins2}");
+                ++i;
+            }
+
+            Console.Write($"IsStorageEquivalent = {GraphifyUtils.IsStorageEquivalent(ci, ci2, out var msg)}\n{msg}");
+
+            
+            // Console.WriteLine(JsonConvert.SerializeObject(g_, Formatting.Indented));
 
             Console.WriteLine("Gan Si Huang Xu Dong");
 
-            var g = g_; // InstructionGraph.OptimizeGraph(g_);
+            var g = g_; // GraphifyUtils.OptimizeGraph(g_);
             var gd = g.ToDotForm();
 
             System.IO.File.WriteAllText("E:/1.dot", gd);
@@ -88,13 +113,13 @@ namespace OpenAS2.Tests
 
             var code = StringParsingUtils.ParseInstructionStorage(System.IO.File.ReadAllText($"{basePath}/{codeFilePath}.asc"));
 
-            var cj = JsonConvert.SerializeObject(code, Formatting.Indented);
-            Console.WriteLine(cj);
-            var cj2 = JsonConvert.DeserializeObject(cj);
-            Console.WriteLine(JsonConvert.SerializeObject(cj2, Formatting.Indented) == cj);
+            // var cj = JsonConvert.SerializeObject(code, Formatting.Indented);
+            // Console.WriteLine(cj);
+            // var cj2 = JsonConvert.DeserializeObject(cj);
+            // Console.WriteLine(JsonConvert.SerializeObject(cj2, Formatting.Indented) == cj);
 
             var cstf = StringParsingUtils.ParseConstantStorage(System.IO.File.ReadAllText($"{basePath}/{constFilePath}.cst"));
-            Console.WriteLine(JsonConvert.SerializeObject(cstf));
+            // Console.WriteLine(JsonConvert.SerializeObject(cstf));
 
             Console.WriteLine("/Test");
 

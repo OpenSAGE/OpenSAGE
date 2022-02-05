@@ -6,7 +6,7 @@ using OpenAS2.Runtime.Library;
 
 namespace OpenAS2.Runtime
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
     public static class FunctionUtils
     {
         public static void DoDefineFunction(ExecutionContext context, IList<RawValue> Parameters)

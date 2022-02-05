@@ -7,7 +7,7 @@ using OpenAS2.Runtime;
 
 namespace OpenAS2.Base
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
 
     public enum TagType
     {
@@ -83,7 +83,7 @@ namespace OpenAS2.Base
         public static LogicalFunctionContext OptimizeGraph(LogicalFunctionContext fc)
         {
             var ans = new LogicalFunctionContext(fc.Inner, null);
-            ans.Instructions = InstructionGraph.OptimizeGraph(fc.Instructions);
+            ans.Instructions = GraphifyUtils.OptimizeGraph(fc.Instructions);
             return ans;
         }
 
@@ -197,8 +197,6 @@ namespace OpenAS2.Base
         {
             StringBuilder sb = new();
             var space = "  ";
-            var space2 = "    ";
-            // sb.Append(space2);
             sb.Append($"Block #{Hierarchy}, {Items.Count} Instructions:\n");
             foreach (var (k, inst) in Items)
             {
@@ -441,97 +439,7 @@ namespace OpenAS2.Base
             return sb.ToString();
         }
 
-        /// <summary>
-        /// replace all blocks with no meaningful operations inside it
-        /// strip all labels and tags
-        /// </summary>
-        /// <param name="g"></param>
-        /// <returns></returns>
-        public static InstructionGraph OptimizeGraph(InstructionGraph g, bool optimizeSubGraphs = false, bool stripTags = false)
-        {
-            Dictionary<InstructionBlock, bool> empty = new();
-            Dictionary<InstructionBlock, (InstructionBlock?, InstructionBlock?)> jump = new();
-            Dictionary<InstructionBlock, InstructionBlock> map = new();
-
-            // init dicts
-            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
-            {
-                // judge empty
-                var flagEmpty = true;
-                foreach (var (pos, inst) in b.Items)
-                {
-                    var it = inst.Type;
-                    flagEmpty = flagEmpty && (it == InstructionType.End || it == InstructionType.Padding || (
-                            it == InstructionType.BranchAlways && b.NextBlockCondition == b.NextBlockDefault
-                        ));
-                }
-                empty[b] = flagEmpty;
-
-                // store jump
-                jump[b] = (b.NextBlockDefault, b.NextBlockCondition);
-
-                // init map dict
-                map[b] = b;
-            }
-
-            // fix map array
-            foreach (var (b, e) in empty)
-            {
-                if (!e) continue;
-                var bo = b;
-                while (bo.NextBlockDefault != null && empty[bo])
-                    bo = bo.NextBlockDefault;
-                map[b] = bo;
-            }
-
-            // create main block chain
-            InstructionBlock? prev = null;
-            Dictionary<InstructionBlock, InstructionBlock> newBlocks = new();
-            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
-            {
-                var bm = map[b];
-                if (newBlocks.TryGetValue(bm, out var nb))
-                {
-                    // do nothing
-                    // continue;
-                }
-                else
-                {
-                    nb = new InstructionBlock(prev);
-                    nb.BranchCondition = bm.BranchCondition;
-                }
-                nb.Labels.AddRange(b.Labels);
-                var damnparsing = 0;
-                foreach (var (pos, inst) in b.Items)
-                {
-                    if (inst is LogicalTaggedInstruction lti)
-                        if (lti is LogicalFunctionContext lfc)
-                            if (optimizeSubGraphs)
-                                nb.Items.Add(pos, LogicalFunctionContext.OptimizeGraph(lfc));
-                            else
-                                nb.Items.Add(pos, lfc); // TODO strip
-                        else if (!(inst.Type == InstructionType.End || inst.Type == InstructionType.Padding))
-                            nb.Items.Add(pos, stripTags ? lti.MostInner : lti);
-                        else
-                            ++damnparsing;
-                    else
-                        nb.Items.Add(pos, inst);
-                }
-                newBlocks[bm] = nb;
-                prev = nb;
-            }
-
-            // fix branches
-            for (var b = g.BaseBlock; b != null; b = b.NextBlockDefault)
-            {
-                var nb = newBlocks[map[b]];
-                var (bd, bc) = jump[b];
-                var nbc = bc == null ? null : newBlocks[map[bc]];
-                nb.NextBlockCondition = nbc;
-            }
-
-            return new(g, newBlocks[map[g.BaseBlock]]);
-        }
+        
 
     }
 

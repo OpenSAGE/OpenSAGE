@@ -14,6 +14,28 @@ namespace OpenAS2.Base
         public virtual InstructionType Type { get; internal set; }
         public virtual IList<RawValue> Parameters { get; private set; }
 
+        public RawInstruction(InstructionType type, IList<RawValue> parameters)
+        {
+            Type = type;
+            Parameters = parameters;
+        }
+
+        public static bool ContentEquals(RawInstruction? x, RawInstruction? y)
+        {
+            if (x == null && y == null)
+                return true;
+            if (x == null || y == null)
+                return false;
+            if (x.Type != y.Type)
+                return false;
+            if (x.Parameters.Count != y.Parameters.Count)
+                return false;
+            for (int i = 0; i < x.Parameters.Count; ++i)
+                if (!x.Parameters[i].Equals(y.Parameters[i]))
+                    return false;
+            return true;
+        }
+
         public RawInstruction(InstructionType type, List<RawValue>? parameters = null, bool reformList = true)
         {
             Type = type;

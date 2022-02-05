@@ -6,7 +6,7 @@ using OpenAS2.Base;
 
 namespace OpenAS2.Base
 {
-    using RawInstructionStorage = SortedList<int, RawInstruction>;
+    using RawInstructionStorage = SortedList<uint, RawInstruction>;
     public sealed class InstructionStream
     {
 
@@ -24,24 +24,24 @@ namespace OpenAS2.Base
                 _instructions.Add(
                     (_instructions.Count == 0 ?
                         0 :
-                        _instructions.Last().Key + Definition.GetParamLength(_instructions.Last().Value.Type))
+                        _instructions.Last().Key + (uint)GraphifyUtils.GetRealParamLength(_instructions.Last().Key, _instructions.Last().Value.Type))
                     ,
                     RawInstruction.CreateEnd()
                 );
             Index = 0;
         }
 
-        public int GetPositionByIndex(int index)
+        public uint GetPositionByIndex(int index)
         {
             return _instructions.Keys[index];
         }
 
-        public int GetIndexByPosition(int position)
+        public int GetIndexByPosition(uint position)
         {
             var index = _instructions.IndexOfKey(position);
             if (index > _instructions.Last().Key)
                 // We branched behind the last valid instruction...
-                return _instructions.Last().Key;
+                return -1;
             return index;
         }
 
@@ -125,7 +125,7 @@ namespace OpenAS2.Base
         {
             var startPosition = GetPositionByIndex(index);
             var destinationPosition = startPosition + offset;
-            return GetIndexByPosition(destinationPosition);
+            return GetIndexByPosition((uint) destinationPosition);
         }
 
         public void GotoIndex(int index)

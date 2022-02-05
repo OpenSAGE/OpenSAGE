@@ -234,23 +234,23 @@ namespace OpenAS2.Base
     public static class Definition
     {
         public const uint IntPtrSize = 4;
-        private static Dictionary<InstructionType, List<RawParamType>> _typeParams;
-        private static Dictionary<InstructionType, int> _typeLength;
+        private static Dictionary<InstructionType, List<RawParamType>> TypeParams;
+        private static Dictionary<InstructionType, int> TypeLength;
 
         static Definition()
         {
-            _typeParams = new();
-            _typeLength = new();
+            TypeParams = new();
+            TypeLength = new();
             foreach (var itype in Enum.GetValues(typeof(InstructionType)).Cast<InstructionType>())
             {
                 try
                 {
-                    _typeParams[itype] = GetParamSequenceInner(itype);
-                    _typeLength[itype] = CalcLengthInner(_typeParams[itype]);
+                    TypeParams[itype] = GetParamSequenceInner(itype);
+                    TypeLength[itype] = CalcLengthInner(TypeParams[itype]);
                 }
                 catch (NotImplementedException nie)
                 {
-
+                    throw nie;
                 }
             }
         }
@@ -286,12 +286,12 @@ namespace OpenAS2.Base
 
         public static List<RawParamType> GetParamSequence(InstructionType type)
         {
-            return _typeParams.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
+            return TypeParams.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
         }
 
         public static int GetParamLength(InstructionType type)
         {
-            return _typeLength.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
+            return TypeLength.TryGetValue(type, out var x) ? x : throw new NotImplementedException();
         }
 
         private static int GetTypeLengthInner(RawParamType t)
@@ -299,6 +299,7 @@ namespace OpenAS2.Base
             switch (t)
             {
                 case RawParamType.UI8:
+                case RawParamType.I8:
                 case RawParamType.Jump8:
                 case RawParamType.Boolean:
                     return 1;
@@ -346,6 +347,7 @@ namespace OpenAS2.Base
             {
                 if (t == RawParamType.ArrayBegin)
                 {
+                    ans += GetTypeLengthInner(t);
                     if (mark)
                         throw new InvalidOperationException();
                     else
@@ -368,6 +370,7 @@ namespace OpenAS2.Base
                 // no parameters
                 case InstructionType.ToNumber:
                 case InstructionType.NextFrame:
+                case InstructionType.PrevFrame:
                 case InstructionType.Play:
                 case InstructionType.Stop:
                 case InstructionType.Add:
@@ -476,7 +479,7 @@ namespace OpenAS2.Base
 
                 case InstructionType.SetRegister:
                     paramSequence.Add(RawParamType.UI32);
-                    // do not cancel this commet
+                    // do not cancel this comment
                     // otherwise the parameter will be parsed as a reference but not a numerical index
                     // paramSequence.Add(RawParamType.Register);
                     break;
@@ -550,12 +553,14 @@ namespace OpenAS2.Base
 
                 case InstructionType.BranchAlways:
                 case InstructionType.BranchIfTrue:
+                case InstructionType.EA_BranchIfFalse:
                     paramSequence.Add(RawParamType.I32);
                     paramSequence.Add(RawParamType.BranchOffset);
                     break;
 
                 default:
-                    throw new InvalidDataException("Unimplemented bytecode instruction parsing:" + type.ToString());
+                    break;
+                    // throw new InvalidDataException("Unimplemented bytecode instruction parsing:" + type.ToString());
             }
             return paramSequence;
         }
