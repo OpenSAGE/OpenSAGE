@@ -4,9 +4,9 @@ namespace OpenSage.Rendering;
 
 public abstract class ShaderSet : DisposableBase
 {
-    private byte _nextMaterialId;
+    private ushort _nextMaterialId;
 
-    public readonly byte Id;
+    public readonly ushort Id;
     public readonly ShaderSetDescription Description;
     public readonly ResourceLayout[] ResourceLayouts;
 
@@ -48,7 +48,7 @@ public abstract class ShaderSet : DisposableBase
         }
     }
 
-    internal byte GetNextMaterialId()
+    internal ushort GetNextMaterialId()
     {
         return checked(_nextMaterialId++);
     }

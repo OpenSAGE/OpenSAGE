@@ -4,7 +4,7 @@ namespace OpenSage.Rendering;
 
 public sealed class Material : DisposableBase
 {
-    public readonly byte Id;
+    public readonly ushort Id;
     public readonly ShaderSet ShaderSet;
     public readonly Pipeline Pipeline;
     public readonly ResourceSet MaterialResourceSet;
