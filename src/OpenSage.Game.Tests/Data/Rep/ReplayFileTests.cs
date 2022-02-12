@@ -138,6 +138,18 @@ namespace OpenSage.Tests.Data.Rep
             WriteOrders(replayFile);
         }
 
+        [Fact]
+        public void Test_011_Spydrone()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(2197, replayFile.Header.NumTimecodes);
+            Assert.Equal(2280, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))

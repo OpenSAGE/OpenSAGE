@@ -2,7 +2,8 @@
 {
     public enum OrderType
     {
-        EndGame = 27, // Something to do with end of game
+        EndGame = 27,
+
         SetSelection = 1001,
         ClearSelection = 1003,
         SpecialPower = 1040,
@@ -79,9 +80,6 @@
         Unknown1038 = 1038,
         Unknown1039 = 1039,
         Unknown1040 = 1040,
-        Unknown1041 = 1041, //encountered when spawning usa spydrone (Integer:16,Position:<1055.208, 466.9498, 18.75>,ObjectId:0,Integer:928,ObjectId:657),
-                            //again with  (Integer:16,Position:<1762,799. 3837,869. 100>,ObjectId:0,Integer:928,ObjectId:0)
-
         Unknown1042 = 1042,
         Unknown1050 = 1050,
 
