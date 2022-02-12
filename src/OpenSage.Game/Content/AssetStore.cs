@@ -25,6 +25,7 @@ using OpenSage.Logic.Pathfinding;
 using OpenSage.Rendering;
 using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
+using OpenSage.Utilities;
 using Veldrid;
 
 namespace OpenSage.Content

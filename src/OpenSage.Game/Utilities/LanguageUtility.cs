@@ -1,57 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using OpenSage.Data;
-using OpenSage.IO;
 
 namespace OpenSage.Utilities
 {
-    namespace OpenSage.Utilities
+    public enum GameLanguage
     {
-        public enum GameLanguage
+        Chinese,
+        Dutch,
+        English,
+        French,
+        German,
+        Italian,
+        Norwegian,
+        Polish,
+        Spanish,
+        Swedish
+    }
+
+    public static class LanguageUtility
+    {
+        private const GameLanguage DefaultLanguage = GameLanguage.English;
+
+        public static GameLanguage ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
         {
-            Chinese,
-            Dutch,
-            English,
-            French,
-            German,
-            Italian,
-            Norwegian,
-            Polish,
-            Spanish,
-            Swedish
+            switch (gameDefinition.Game)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.Bfme:
+                    return DetectLanguage(rootDirectory);
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    return DetectLanguage(Path.Combine(rootDirectory, "lang"));
+            }
+            return DefaultLanguage;
         }
 
-        public static class LanguageUtility
+        private static GameLanguage DetectLanguage(string langDirectory)
         {
-            private const GameLanguage DefaultLanguage = GameLanguage.English;
-
-            public static GameLanguage ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
+            foreach (GameLanguage lang in Enum.GetValues(typeof(GameLanguage)))
             {
-                switch (gameDefinition.Game)
+                if (File.Exists(Path.Combine(langDirectory, lang + ".big")))
                 {
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                    case SageGame.Bfme:
-                        return DetectLanguage(rootDirectory);
-                    case SageGame.Bfme2:
-                    case SageGame.Bfme2Rotwk:
-                        return DetectLanguage(Path.Combine(rootDirectory, "lang"));
+                    return lang;
                 }
-                return DefaultLanguage;
             }
-
-            private static GameLanguage DetectLanguage(string langDirectory)
-            {
-                foreach (GameLanguage lang in Enum.GetValues(typeof(GameLanguage)))
-                {
-                    if (File.Exists(Path.Combine(langDirectory, lang + ".big")))
-                    {
-                        return lang;
-                    }
-                }
-                return DefaultLanguage;
-            }
+            return DefaultLanguage;
         }
     }
 

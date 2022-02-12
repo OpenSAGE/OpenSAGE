@@ -13,7 +13,7 @@ namespace OpenSage.Content.Translation
         {
             private const string _missing = "MISSING: '{0}'";
 
-            private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = new Dictionary<string, List<ITranslationProvider>>();
+            private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = new();
 
             public string Name => nameof(TranslationManager);
             public string NameOverride { get => Name; set { } } // do nothing on set
@@ -32,23 +32,22 @@ namespace OpenSage.Content.Translation
                 }
             }
 
-            public void SetCultureFromLanguage(string language)
+            public void SetCultureFromLanguage(Utilities.GameLanguage gameLanguage)
             {
                 //TODO: just a hack for now
-                var cultureString = "";
-                switch (language.ToLower())
+                string cultureString;
+                switch (gameLanguage)
                 {
-                    case "german":
-                    case "german2":
+                    case Utilities.GameLanguage.German:
                         cultureString = "de-DE";
                         break;
                     // Special case for Generals: 
                     // Generals does not distinct between Simplified Chinese (chinese_s) / Traditional Chinese (chinese_t)
                     // It just assumes it's traditional
-                    case "chinese":
+                    case Utilities.GameLanguage.Chinese:
                         cultureString = "zh-Hant";
                         break;
-                    case "english":
+                    case Utilities.GameLanguage.English:
                     default:
                         cultureString = "en-US";
                         break;
@@ -96,7 +95,7 @@ namespace OpenSage.Content.Translation
 
             public IReadOnlyList<ITranslationProvider> GetParticularProviders(string context)
             {
-                Debug.Assert(!(context is null), $"{nameof(context)} is null");
+                Debug.Assert(context is not null, $"{nameof(context)} is null");
                 _translationProviders.TryGetValue(context, out var result);
                 return result;
             }
@@ -208,25 +207,25 @@ namespace OpenSage.Content.Translation
 
         public static ITranslationManager Instance => _lazy.Value;
 
-        public static void LoadGameStrings(FileSystem fileSystem, string language, IGameDefinition gameDefinition)
+        public static void LoadGameStrings(FileSystem fileSystem, Utilities.GameLanguage gameLanguage, SageGame game)
         {
             var path = gameDefinition.GetLocalizedStringsPath(language);
 
-            FileSystemEntry file;
-            if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
-            {
-                using var stream = file.Open();
-                Instance.SetCultureFromLanguage(language);
-                Instance.RegisterProvider(new CsfTranslationProvider(stream, gameDefinition.Game));
+                FileSystemEntry file;
+                if ((file = fileSystem.GetFile($"{path}.csf")) is not null)
+                {
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(gameLanguage);
+                    Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
 
                 return;
             }
 
-            if (!((file = fileSystem.GetFile($"{path}.str")) is null))
-            {
-                using var stream = file.Open();
-                Instance.SetCultureFromLanguage(language);
-                Instance.RegisterProvider(new StrTranslationProvider(stream, language));
+                if ((file = fileSystem.GetFile($"{path}.str")) is not null)
+                {
+                    using var stream = file.Open();
+                    Instance.SetCultureFromLanguage(gameLanguage);
+                    Instance.RegisterProvider(new StrTranslationProvider(stream, gameLanguage.ToString()));
 
                 return;
             }

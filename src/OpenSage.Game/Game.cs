@@ -480,10 +480,12 @@ namespace OpenSage
                 var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
 
+                var language = LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory);
+
                 AssetStore = new AssetStore(
                     SageGame,
                     _fileSystem,
-                    LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem),
+                    language.ToString(),
                     GraphicsDevice,
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
@@ -497,6 +499,7 @@ namespace OpenSage
                     this,
                     _fileSystem,
                     GraphicsDevice,
+                    language,
                     SageGame));
 
                 // Create file system for user data folder and load user maps.
@@ -920,7 +923,7 @@ namespace OpenSage
                 var prefixLang = Definition.LauncherImagePrefixLang;
                 if (prefixLang)
                 {
-                    launcherImagePath = ContentManager.Language + launcherImagePath;
+                    launcherImagePath = ContentManager.GameLanguage + launcherImagePath;
                 }
 
                 var launcherImageEntry = _fileSystem.GetFile(launcherImagePath);

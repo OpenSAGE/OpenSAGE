@@ -33,7 +33,7 @@ namespace OpenSage.Content
                         @"Data\INI\Mouse.ini",
                         @"Data\INI\Water.ini",
                         @"Data\INI\AudioSettings.ini",
-                        $@"Data\{_contentManager.Language}\HeaderTemplate.ini",
+                        $@"Data\{_contentManager.GameLanguage}\HeaderTemplate.ini",
                         @"Maps\MapCache.ini");
 
                     break;
@@ -185,7 +185,7 @@ namespace OpenSage.Content
                     switch (_gameDefinition.Game)
                     {
                         case SageGame.Bfme:
-                            _contentManager.LoadIniFile($@"Lang\{_contentManager.Language}\HeaderTemplate.ini");
+                            _contentManager.LoadIniFile($@"Lang\{_contentManager.GameLanguage}\HeaderTemplate.ini");
                             break;
 
                         case SageGame.Bfme2:
