@@ -479,8 +479,7 @@ namespace OpenSage
                 var shaderSetStore = AddDisposable(new ShaderSetStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
                 var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
-
-                var language = LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem.RootDirectory);
+                var language = LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem);
 
                 AssetStore = new AssetStore(
                     SageGame,

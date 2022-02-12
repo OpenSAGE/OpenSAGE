@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+using System.Linq;
+using OpenSage.IO;
 
 namespace OpenSage.Utilities
 {
@@ -21,26 +22,28 @@ namespace OpenSage.Utilities
     {
         private const GameLanguage DefaultLanguage = GameLanguage.English;
 
-        public static GameLanguage ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
+        public static GameLanguage ReadCurrentLanguage(IGameDefinition gameDefinition, FileSystem fileSystem)
         {
             switch (gameDefinition.Game)
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
-                    return DetectLanguage(rootDirectory);
+                    return DetectLanguage(fileSystem, "");
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    return DetectLanguage(Path.Combine(rootDirectory, "lang"));
+                    return DetectLanguage(fileSystem, "lang");
             }
             return DefaultLanguage;
         }
 
-        private static GameLanguage DetectLanguage(string langDirectory)
+        private static GameLanguage DetectLanguage(FileSystem fileSystem, string langDirectory = "")
         {
             foreach (GameLanguage lang in Enum.GetValues(typeof(GameLanguage)))
             {
-                if (File.Exists(Path.Combine(langDirectory, lang + ".big")))
+                var languageFileExists = fileSystem
+                    .GetFilesInDirectory(langDirectory).Any(x => x.FilePath.Contains(lang + ".big"));
+                if (languageFileExists)
                 {
                     return lang;
                 }

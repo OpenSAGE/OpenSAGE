@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using OpenSage.Content.Translation.Providers;
 using OpenSage.IO;
+using OpenSage.Utilities;
 
 namespace OpenSage.Content.Translation
 {
@@ -32,7 +33,7 @@ namespace OpenSage.Content.Translation
                 }
             }
 
-            public void SetCultureFromLanguage(Utilities.GameLanguage gameLanguage)
+            public void SetCultureFromLanguage(GameLanguage gameLanguage)
             {
                 //TODO: just a hack for now
                 string cultureString;
@@ -207,25 +208,25 @@ namespace OpenSage.Content.Translation
 
         public static ITranslationManager Instance => _lazy.Value;
 
-        public static void LoadGameStrings(FileSystem fileSystem, Utilities.GameLanguage gameLanguage, SageGame game)
+        public static void LoadGameStrings(FileSystem fileSystem, GameLanguage language, IGameDefinition gameDefinition)
         {
-            var path = gameDefinition.GetLocalizedStringsPath(language);
+            var path = gameDefinition.GetLocalizedStringsPath(language.ToString());
 
-                FileSystemEntry file;
-                if ((file = fileSystem.GetFile($"{path}.csf")) is not null)
-                {
-                    using var stream = file.Open();
-                    Instance.SetCultureFromLanguage(gameLanguage);
-                    Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
+            FileSystemEntry file;
+            if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
+            {
+                using var stream = file.Open();
+                Instance.SetCultureFromLanguage(language);
+                Instance.RegisterProvider(new CsfTranslationProvider(stream, gameDefinition.Game));
 
                 return;
             }
 
-                if ((file = fileSystem.GetFile($"{path}.str")) is not null)
-                {
-                    using var stream = file.Open();
-                    Instance.SetCultureFromLanguage(gameLanguage);
-                    Instance.RegisterProvider(new StrTranslationProvider(stream, gameLanguage.ToString()));
+            if (!((file = fileSystem.GetFile($"{path}.str")) is null))
+            {
+                using var stream = file.Open();
+                Instance.SetCultureFromLanguage(language);
+                Instance.RegisterProvider(new StrTranslationProvider(stream, language.ToString()));
 
                 return;
             }
