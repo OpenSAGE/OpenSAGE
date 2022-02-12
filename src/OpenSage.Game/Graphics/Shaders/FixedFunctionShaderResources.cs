@@ -8,7 +8,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class FixedFunctionShaderResources : ShaderSet
+    internal sealed class FixedFunctionShaderResources : ShaderSetBase
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelineCache = new();
         private readonly Dictionary<MaterialKey, Material> _materialCache = new();

@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class MeshDepthShaderResources : ShaderSet
+    internal sealed class MeshDepthShaderResources : ShaderSetBase
     {
         public readonly Material Material;
 

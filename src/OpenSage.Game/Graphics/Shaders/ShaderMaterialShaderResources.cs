@@ -10,7 +10,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal abstract class ShaderMaterialShaderResources : ShaderSet
+    internal abstract class ShaderMaterialShaderResources : ShaderSetBase
     {
         private readonly Dictionary<string, Material> _materialCache = new();
 

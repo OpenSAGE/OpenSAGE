@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
@@ -10,7 +9,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class ParticleShaderResources : ShaderSet
+    internal sealed class ParticleShaderResources : ShaderSetBase
     {
         private readonly Pipeline _alphaPipeline;
         private readonly Pipeline _additivePipeline;

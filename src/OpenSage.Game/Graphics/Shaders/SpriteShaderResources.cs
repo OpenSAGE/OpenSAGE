@@ -9,7 +9,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class SpriteShaderResources : ShaderSet
+    internal sealed class SpriteShaderResources : ShaderSetBase
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
         private readonly Dictionary<Sampler, ResourceSet> _samplerResourceSets;

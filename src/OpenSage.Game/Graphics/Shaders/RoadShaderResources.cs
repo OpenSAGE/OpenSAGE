@@ -6,7 +6,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class RoadShaderResources : ShaderSet
+    internal sealed class RoadShaderResources : ShaderSetBase
     {
         public readonly Pipeline Pipeline;
 

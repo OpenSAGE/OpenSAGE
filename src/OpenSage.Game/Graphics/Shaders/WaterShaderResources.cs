@@ -1,12 +1,11 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class WaterShaderResources : ShaderSet
+    internal sealed class WaterShaderResources : ShaderSetBase
     {
         public readonly ResourceLayout WaterResourceLayout;
 
