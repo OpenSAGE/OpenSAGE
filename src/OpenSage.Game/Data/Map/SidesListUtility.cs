@@ -103,7 +103,7 @@ namespace OpenSage.Data.Map
             {
                 var playerSetting = playerSettings[i];
 
-                var factionPlayer = originalMapPlayers.Single(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
+                var factionPlayer = originalMapPlayers.First(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
 
                 var isHuman = playerSetting.Owner == PlayerOwner.Player;
 
@@ -165,7 +165,7 @@ namespace OpenSage.Data.Map
                 mapPlayers[i + 2].Properties.AddAsciiString("playerEnemies", playerEnemies[i]);
             }
 
-            var originalMapScriptLists = mapFile.SidesList.PlayerScripts.ScriptLists;
+            var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
 
             var playerNames = mapPlayers
                 .Select(p => p.Properties.GetPropOrNull("playerName")?.Value.ToString())

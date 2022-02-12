@@ -26,18 +26,24 @@ namespace OpenSage.Logic
 
         internal uint NextObjectId = 1;
 
+        private readonly List<GameObject> _objectsToIterate = new();
         // TODO: This allocates memory. Don't do this.
         public IEnumerable<GameObject> Objects
         {
             get
             {
+                // TODO: We can't return _objects directly because it's possible for new objects to be added
+                // during iteration. We should instead create new objects in a pending list, like we do for
+                // removed objects.
+                _objectsToIterate.Clear();
                 foreach (var gameObject in _objects)
                 {
                     if (gameObject != null)
                     {
-                        yield return gameObject;
+                        _objectsToIterate.Add(gameObject);
                     }
                 }
+                return _objectsToIterate;
             }
         }
 

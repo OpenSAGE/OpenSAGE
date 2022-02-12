@@ -180,8 +180,8 @@ namespace OpenSage.Diagnostics
                                 new EchoConnection(),
                                 new PlayerSetting[]
                                 {
-                                    new PlayerSetting(null, _faction.Side, new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
-                                    new PlayerSetting(null, faction2.Side, new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
+                                    new PlayerSetting(null, $"Faction{_faction.Side}", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                    new PlayerSetting(null, $"Faction{faction2.Side}", new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
                                 },
                                 Environment.TickCount,
                                 false

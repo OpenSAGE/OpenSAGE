@@ -72,7 +72,7 @@ namespace OpenSage.Graphics.Shaders
             {
                 sha256.AppendData(BitConverter.GetBytes((int)property.PropertyType));
                 sha256.AppendData(Encoding.UTF8.GetBytes(property.PropertyName));
-                sha256.AppendData(Encoding.UTF8.GetBytes(property.StringValue));
+                sha256.AppendData(Encoding.UTF8.GetBytes(property.StringValue ?? ""));
                 sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.X));
                 sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Y));
                 sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Z));
