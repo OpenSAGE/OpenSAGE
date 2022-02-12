@@ -304,7 +304,7 @@ namespace OpenSage.Network
             var text = _disconnectReason switch
             {
                 DisconnectReason.ConnectionRejected => "LAN:ErrorGameFull",
-                DisconnectReason.Timeout => "LAN:ErrorTimeout",                
+                DisconnectReason.Timeout => "LAN:ErrorTimeout",
                 _ => "LAN:HostNotResponding"
             };
 
