@@ -48,6 +48,9 @@ namespace OpenSage.Gui
                 case CommandType.DozerConstruct:
                     game.OrderGenerator.StartConstructBuilding(objectDefinition);
                     break;
+                case CommandType.DozerConstructCancel:
+                    order = CreateOrder(OrderType.CancelBuild);
+                    break;
 
                 case CommandType.ToggleOvercharge:
                     order = CreateOrder(OrderType.ToggleOvercharge);
