@@ -499,13 +499,10 @@ namespace OpenSage.Mods.Generals.Gui
                     _baseText = StringConverter.FromPrintf(_progressText.Text);
                 }
 
-                Control cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction");
-                cancelButton.SystemCallback = (control, message, context) =>
-                {
-                    var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
-                    var order = new Order(playerIndex, OrderType.CancelBuild);
-                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
-                };
+                Button cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction") as Button;
+                // Is that CommandButton hardcoded or defined somewhere?
+                var commandButton = controlBar._window.Game.AssetStore.CommandButtons.GetByName("Command_CancelConstruction");
+                CommandButtonUtils.SetCommandButton(cancelButton, commandButton, controlBar);
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
