@@ -6,7 +6,6 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.IO;
 using OpenSage.Mathematics;
-using OpenSage.Terrain;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -126,10 +125,10 @@ namespace OpenSage.Mods.Generals.Gui
                             break;
 
                         case "ReplayMenu.wnd:ButtonBack":
-                            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
-                            // TODO: Go back to Replay sub-menu
-                            //QueueTransition("MainMenuDefaultMenuBack");
-                            //QueueTransition("MainMenuLoadReplayMenu");
+                            // TODO: what would be the proper way of transitioning back here?
+                            var win = context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                            context.WindowManager.TransitionManager.QueueTransition(null, win, "MainMenuDefaultMenuBack");
+                            context.WindowManager.TransitionManager.QueueTransition(null, win, "MainMenuLoadReplayMenu");
                             break;
                     }
                     break;
@@ -145,10 +144,7 @@ namespace OpenSage.Mods.Generals.Gui
                 return false;
             }
 
-            var title = "GUI:NoFileSelected";
-            var text = "GUI:PleaseSelectAFile";
-
-            context.Game.Scene2D.WndWindowManager.ShowMessageBox(title.Translate(), text.Translate());
+            context.Game.Scene2D.WndWindowManager.ShowMessageBox("GUI:NoFileSelected".Translate(), "GUI:PleaseSelectAFile".Translate());
             return true;
         }
     }
