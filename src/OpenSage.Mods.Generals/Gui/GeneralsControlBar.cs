@@ -499,7 +499,13 @@ namespace OpenSage.Mods.Generals.Gui
                     _baseText = StringConverter.FromPrintf(_progressText.Text);
                 }
 
-                //TODO: connect cancel button to some order.
+                Control cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction");
+                cancelButton.SystemCallback = (control, message, context) =>
+                {
+                    var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                    var order = new Order(playerIndex, OrderType.CancelBuild);
+                    context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                };
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)

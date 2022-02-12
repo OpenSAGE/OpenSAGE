@@ -50,6 +50,7 @@ namespace OpenSage.Content
                     _contentManager.LoadIniFiles(@"Data\INI\Object");
                     // TODO: Not sure of order here, but they definitely need to be loaded after all the object ini files above.
                     LoadFiles(
+                        @"Data\INI\ObjectCreationList.ini",
                         @"Data\INI\Upgrade.ini",
                         @"Data\INI\Crate.ini");
                     break;

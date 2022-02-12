@@ -61,6 +61,15 @@ namespace OpenSage.Logic.Orders
                             gameObject.StartConstruction(_game.MapTime);
                         }
                         break;
+                    case OrderType.CancelBuild:
+                        {
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                // This probably shouldn't trigger a Die
+                                unit.Die(DeathType.Normal, TimeInterval.Zero);
+                            }
+                        }
+                        break;
 
                     case OrderType.BeginUpgrade:
                         {
@@ -236,7 +245,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.SpecialPowerAtObject:
                         throw new NotImplementedException();
 
-                    case OrderType.Unknown27:
+                    case OrderType.EndGame:
                         _game.EndGame();
                         break;
 
