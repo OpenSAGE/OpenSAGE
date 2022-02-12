@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Veldrid;
@@ -19,6 +20,7 @@ internal static class ShaderCrossCompiler
 
     public static ShaderCacheFile GetOrCreateCachedShaders(
         ResourceFactory factory,
+        Assembly shaderAssembly,
         string shaderName)
     {
         const string shaderCacheFolder = "ShaderCache";
@@ -30,11 +32,8 @@ internal static class ShaderCrossCompiler
             Directory.CreateDirectory(shaderCacheFolder);
         }
 
-        var vsSpvName = $"Assets/Shaders/{shaderName}.vert.spv";
-        var fsSpvName = $"Assets/Shaders/{shaderName}.frag.spv";
-
-        var vsSpvBytes = File.ReadAllBytes(vsSpvName);
-        var fsSpvBytes = File.ReadAllBytes(fsSpvName);
+        var vsSpvBytes = ReadShaderSpv(shaderAssembly, shaderName, "vert");
+        var fsSpvBytes = ReadShaderSpv(shaderAssembly, shaderName, "frag");
 
         var spvHash = GetShaderHash(vsSpvBytes, fsSpvBytes);
 
@@ -103,6 +102,17 @@ internal static class ShaderCrossCompiler
         shaderCacheFile.Save(cacheFilePath);
 
         return shaderCacheFile;
+    }
+
+    private static byte[] ReadShaderSpv(Assembly assembly, string shaderName, string shaderType)
+    {
+        var bytecodeShaderName = $"OpenSage.Assets.Shaders.{shaderName}.{shaderType}.spv";
+        using (var shaderStream = assembly.GetManifestResourceStream(bytecodeShaderName))
+        using (var memoryStream = new MemoryStream())
+        {
+            shaderStream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
+        }
     }
 
     private static byte[] CompileHlsl(string hlsl, string profile)

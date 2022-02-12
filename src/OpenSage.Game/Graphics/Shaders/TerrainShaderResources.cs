@@ -7,7 +7,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class TerrainShaderResources : ShaderSet
+    internal sealed class TerrainShaderResources : ShaderSetBase
     {
         public readonly Pipeline Pipeline;
 

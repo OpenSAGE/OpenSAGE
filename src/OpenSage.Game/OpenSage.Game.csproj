@@ -73,12 +73,12 @@
     <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -DCOMPILING_FOR_FRAGMENT_SHADER -V %(FragmentShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(FragmentShaderFiles.FileName)%(FragmentShaderFiles.Extension).spv&quot;" />
   </Target>
 
-  <Target Name="CopyShaders" AfterTargets="CompileShaders">
+  <Target Name="EmbedShaders" AfterTargets="CompileShaders">
     <ItemGroup>
       <CompiledShaderFiles Include="$(IntermediateOutputPath)Assets\Shaders\*.*" />
-      <Content Include="@(CompiledShaderFiles)" CopyToOutputDirectory="PreserveNewest">
-        <Link>Assets\Shaders\%(Filename)%(Extension)</Link>
-      </Content>
+      <EmbeddedResource Include="@(CompiledShaderFiles)">
+        <LogicalName>OpenSage.Assets.Shaders.%(FileName)%(Extension)</LogicalName>
+      </EmbeddedResource>
     </ItemGroup>
   </Target>
 </Project>

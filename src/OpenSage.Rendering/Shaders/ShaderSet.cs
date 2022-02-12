@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using System.Reflection;
+using Veldrid;
 
 namespace OpenSage.Rendering;
 
@@ -18,6 +19,7 @@ public abstract class ShaderSet : DisposableBase
 
     public ShaderSet(
         ShaderSetStore store,
+        Assembly shaderAssembly,
         string shaderName,
         params VertexLayoutDescription[] vertexDescriptors)
     {
@@ -27,7 +29,7 @@ public abstract class ShaderSet : DisposableBase
 
         var factory = store.GraphicsDevice.ResourceFactory;
 
-        var cacheFile = ShaderCrossCompiler.GetOrCreateCachedShaders(factory, shaderName);
+        var cacheFile = ShaderCrossCompiler.GetOrCreateCachedShaders(factory, shaderAssembly, shaderName);
 
         var vertexShader = AddDisposable(factory.CreateShader(cacheFile.VertexShaderDescription));
         vertexShader.Name = $"{shaderName}.vert";
