@@ -126,6 +126,18 @@ namespace OpenSage.Tests.Data.Rep
             WriteOrders(replayFile);
         }
 
+        [Fact]
+        public void Test_010_CancelConstruction()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(3517, replayFile.Header.NumTimecodes);
+            Assert.Equal(4163, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))

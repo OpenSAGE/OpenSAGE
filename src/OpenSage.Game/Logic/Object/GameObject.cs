@@ -1016,40 +1016,51 @@ namespace OpenSage.Logic.Object
         internal void Die(DeathType deathType, TimeInterval time)
         {
             Logger.Info("Object dying " + deathType);
+            bool construction = IsBeingConstructed();
 
-            ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
-            ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+            if (construction)
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
+            }
+            else
+            {
+                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+                ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+            }
 
             IsSelectable = false;
 
             // TODO: Can we avoid updating this every time?
             _behaviorUpdateContext.UpdateTime(time);
 
-            // If there are multiple SlowDeathBehavior modules,
-            // we need to use ProbabilityModifier to choose between them.
-            var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-                .Where(x => x.IsApplicable(deathType))
-                .ToList();
-            if (slowDeathBehaviors.Count > 1)
+            if (!construction)
             {
-                var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-                var random = _gameContext.Random.Next(sumProbabilityModifiers);
-                var cumulative = 0;
-                foreach (var deathBehavior in slowDeathBehaviors)
+                // If there are multiple SlowDeathBehavior modules,
+                // we need to use ProbabilityModifier to choose between them.
+                var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
+                    .Where(x => x.IsApplicable(deathType))
+                    .ToList();
+                if (slowDeathBehaviors.Count > 1)
                 {
-                    cumulative += deathBehavior.ProbabilityModifier;
-                    if (random < cumulative)
+                    var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
+                    var random = _gameContext.Random.Next(sumProbabilityModifiers);
+                    var cumulative = 0;
+                    foreach (var deathBehavior in slowDeathBehaviors)
                     {
-                        deathBehavior.OnDie(_behaviorUpdateContext, deathType);
-                        return;
+                        cumulative += deathBehavior.ProbabilityModifier;
+                        if (random < cumulative)
+                        {
+                            deathBehavior.OnDie(_behaviorUpdateContext, deathType);
+                            return;
+                        }
                     }
+                    throw new InvalidOperationException();
                 }
-                throw new InvalidOperationException();
             }
 
-            foreach (var dieModule in _behaviorModules)
+            foreach (var module in _behaviorModules)
             {
-                dieModule.OnDie(_behaviorUpdateContext, deathType);
+                module.OnDie(_behaviorUpdateContext, deathType);
             }
         }
 

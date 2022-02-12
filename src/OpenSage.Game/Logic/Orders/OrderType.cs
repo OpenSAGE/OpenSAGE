@@ -2,18 +2,20 @@
 {
     public enum OrderType
     {
-        Unknown27 = 27, // Something to do with end of game
+        EndGame = 27, // Something to do with end of game
         SetSelection = 1001,
         ClearSelection = 1003,
         SpecialPower = 1040,
         SpecialPowerAtLocation = 1041,
         SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
+        PurchaseScience = 1044,
         BeginUpgrade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593), also for flashbangs in the barracks (ObjectId:678,Integer:1594)
         CancelUpgrade = 1046,
         CreateUnit = 1047,
         CancelUnit = 1048,
         BuildObject = 1049,
+        CancelBuild = 1051,
         Sell = 1052,
         DrawBoxSelection = 1058,
         AttackObject = 1059,
@@ -36,7 +38,6 @@
         Unknown7 = 7,
         Unknown8 = 8,
         Unknown9 = 9,
-
 
 
         Unknown1002 = 1002,
@@ -82,9 +83,7 @@
                             //again with  (Integer:16,Position:<1762,799. 3837,869. 100>,ObjectId:0,Integer:928,ObjectId:0)
 
         Unknown1042 = 1042,
-        PurchaseScience = 1044,
         Unknown1050 = 1050,
-        Unknown1051 = 1051,
 
         Unknown1053 = 1053,
         Unknown1054 = 1054,
