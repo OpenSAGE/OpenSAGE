@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
@@ -12,8 +11,8 @@ namespace OpenSage.Gui.Wnd.Controls
     {
         public event EventHandler SelectedIndexChanged
         {
-            add { _itemsArea.SelectedIndexChanged += value; }
-            remove { _itemsArea.SelectedIndexChanged -= value; }
+            add => _itemsArea.SelectedIndexChanged += value;
+            remove => _itemsArea.SelectedIndexChanged -= value;
         }
 
         private readonly Button _upButton;
@@ -144,7 +143,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
                 ThumbImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbEnabledDrawData, 0);
                 ThumbHoverImage = imageLoader.CreateFromWndDrawData(wndWindow.SliderThumbHiliteDrawData, 0);
-            };
+            }
 
             if (wndWindow.ListBoxData.ForceSelect)
             {
@@ -171,14 +170,14 @@ namespace OpenSage.Gui.Wnd.Controls
             Controls.Add(_itemsArea);
 
             // Calculate the columnwidths
-            int missing = columns - columnWidths.Length;
+            var missing = columns - columnWidths.Length;
             if (missing > 0)
             {
                 var currentColumns = columnWidths.ToList();
-                int remaining = 100 - columnWidths.Sum();
+                var remaining = 100 - columnWidths.Sum();
 
                 // Split the remaining columns evenly
-                for (int i = 0; i < missing; ++i)
+                for (var i = 0; i < missing; ++i)
                 {
                     currentColumns.Add(remaining / missing);
                 }
@@ -273,7 +272,7 @@ namespace OpenSage.Gui.Wnd.Controls
     {
         public event EventHandler SelectedIndexChanged;
 
-        private ListBoxDataItem[] _items = new ListBoxDataItem[0];
+        private ListBoxDataItem[] _items = Array.Empty<ListBoxDataItem>();
         public ListBoxDataItem[] Items
         {
             get => _items;
@@ -282,6 +281,9 @@ namespace OpenSage.Gui.Wnd.Controls
                 Controls.Clear();
 
                 _items = value;
+                _hoveredIndex = -1;
+                _selectedIndex = -1;
+                _maxDisplay = -1;
 
                 foreach (var item in value)
                 {
@@ -318,10 +320,7 @@ namespace OpenSage.Gui.Wnd.Controls
         public int HoveredIndex
         {
             get => _hoveredIndex;
-            set
-            {
-                UpdateHoveredItem(value);
-            }
+            set => UpdateHoveredItem(value);
         }
 
         private int _maxDisplay = -1;

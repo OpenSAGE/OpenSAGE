@@ -15,7 +15,7 @@ namespace OpenSage.IO
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
             string searchPattern,
-            SearchOption searchOption)
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var childDirectory = Path.Combine(RootDirectory, directoryPath);
 

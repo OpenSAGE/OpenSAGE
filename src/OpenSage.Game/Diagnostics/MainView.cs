@@ -8,7 +8,6 @@ using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
-using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
@@ -32,9 +31,9 @@ namespace OpenSage.Diagnostics
                 .Select(m => (mapCache: m, mapName: m.IsOfficial ? m.GetNameKey().Translate() : m.Name))
                 .OrderBy(m => m.mapCache.IsOfficial ? 0 : 1).ThenBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
-            if (_maps.FirstOrDefault() is KeyValuePair<MapCache, string> kv)
+            if (_maps.FirstOrDefault() is var (mapCache, value))
             {
-                _map = (kv.Key, kv.Value);
+                _map = (mapCache, value);
             }
 
             _playableSides = _context.Game.GetPlayableSides().ToList();
