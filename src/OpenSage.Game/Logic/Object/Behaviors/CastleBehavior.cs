@@ -128,7 +128,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var entry in _moduleData.CastleToUnpackForFactions)
             {
-                if (entry.FactionName == side)
+                if (side.Contains(entry.FactionName))
                 {
                     return entry;
                 }

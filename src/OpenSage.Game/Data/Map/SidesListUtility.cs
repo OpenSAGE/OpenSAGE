@@ -200,7 +200,11 @@ namespace OpenSage.Data.Map
 
             // TODO: Generals and ZH use SkirmishScripts.scb,
             // but later games use "libraries".
-            if (skirmishScriptsEntry != null)
+            if (skirmishScriptsEntry == null)
+            {
+                mapTeams.AddRange(mapFile.GetTeams());
+            }
+            else
             {
                 using var stream = skirmishScriptsEntry.Open();
                 var skirmishScripts = ScbFile.FromStream(stream);
