@@ -369,9 +369,12 @@ namespace OpenSage.Graphics.ParticleSystems
             var physics = (FXParticleDefaultPhysics) Template.Physics;
             particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
 
-            for (var i = 0; i < KeyframeCount; i++)
+            if (Template.Alpha is not null)
             {
-                particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
+                for (var i = 0; i < KeyframeCount; i++)
+                {
+                    particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
+                }
             }
         }
 

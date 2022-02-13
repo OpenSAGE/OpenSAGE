@@ -97,52 +97,50 @@ namespace OpenSage.Data.Map
 
         public static Stream Decompress(Stream stream)
         {
-            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
+            using var reader = new BinaryReader(stream, Encoding.ASCII, true);
+            var compressionFlag = reader.ReadFourCc();
+
+            uint decompressedSize;
+            switch (compressionFlag)
             {
-                var compressionFlag = reader.ReadFourCc();
+                // Uncompressed
+                case FourCcUncompressed:
+                    // Back up, so we can read this value again in Parse.
+                    stream.Seek(-4, SeekOrigin.Current);
+                    return stream;
 
-                uint decompressedSize;
-                switch (compressionFlag)
-                {
-                    // Uncompressed
-                    case FourCcUncompressed:
-                        // Back up, so we can read this value again in Parse.
-                        stream.Seek(-4, SeekOrigin.Current);
-                        return stream;
+                // EA RefPack
+                case "EAR\0":
+                    // Compressed (after decompression, contents are exactly the same
+                    // as uncompressed format, so we call back into this method)
+                    decompressedSize = reader.ReadUInt32();
+                    return new RefPackStream(reader.BaseStream);
 
-                    // EA RefPack
-                    case "EAR\0":
-                        // Compressed (after decompression, contents are exactly the same
-                        // as uncompressed format, so we call back into this method)
-                        decompressedSize = reader.ReadUInt32();
-                        return new RefPackStream(reader.BaseStream);
+                // Zlib. Only found this on C&C Generals "Woodcrest Circle" map.
+                // Thanks to OmniBlade for figuring out that it's zlib copression.
+                case "ZL5\0":
+                    decompressedSize = reader.ReadUInt32();
+                    // We have the zlib header bytes, but .NET's DeflateStream only supports
+                    // the Deflate section of the zlib container.
+                    var zlibHeader1 = reader.ReadByte();
+                    var zlibHeader2 = reader.ReadByte();
+                    if (zlibHeader1 != 0x78 || zlibHeader2 != 0x9C)
+                    {
+                        throw new InvalidDataException();
+                    }
+                    // DeflateStream doesn't support .Position or .Length, so to simplify
+                    // the rest of the map loading process, we decompress it to a MemoryStream
+                    // here. Not optimal, but only used on one 187kb map so it doesn't matter.
+                    var result = new MemoryStream((int) decompressedSize);
+                    using (var deflateStream = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
+                    {
+                        deflateStream.CopyTo(result);
+                    }
+                    result.Position = 0;
+                    return result;
 
-                    // Zlib. Only found this on C&C Generals "Woodcrest Circle" map.
-                    // Thanks to OmniBlade for figuring out that it's zlib copression.
-                    case "ZL5\0":
-                        decompressedSize = reader.ReadUInt32();
-                        // We have the zlib header bytes, but .NET's DeflateStream only supports
-                        // the Deflate section of the zlib container.
-                        var zlibHeader1 = reader.ReadByte();
-                        var zlibHeader2 = reader.ReadByte();
-                        if (zlibHeader1 != 0x78 || zlibHeader2 != 0x9C)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // DeflateStream doesn't support .Position or .Length, so to simplify
-                        // the rest of the map loading process, we decompress it to a MemoryStream
-                        // here. Not optimal, but only used on one 187kb map so it doesn't matter.
-                        var result = new MemoryStream((int) decompressedSize);
-                        using (var deflateStream = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
-                        {
-                            deflateStream.CopyTo(result);
-                        }
-                        result.Position = 0;
-                        return result;
-
-                    default:
-                        throw new NotSupportedException();
-                }
+                default:
+                    throw new NotSupportedException();
             }
         }
 
@@ -150,25 +148,21 @@ namespace OpenSage.Data.Map
         {
             var dataStream = Decompress(stream);
 
-            using (var reader = new BinaryReader(dataStream, Encoding.ASCII, true))
+            using var reader = new BinaryReader(dataStream, Encoding.ASCII, true);
+            var compressionFlag = reader.ReadFourCc();
+
+            if (compressionFlag != FourCcUncompressed)
             {
-                var compressionFlag = reader.ReadFourCc();
-
-                if (compressionFlag != FourCcUncompressed)
-                {
-                    throw new InvalidDataException();
-                }
-
-                return parseCallback(reader);
+                throw new InvalidDataException();
             }
+
+            return parseCallback(reader);
         }
 
         public static MapFile FromFileSystemEntry(FileSystemEntry entry)
         {
-            using (var stream = entry.Open())
-            {
-                return FromStream(stream);
-            }
+            using var stream = entry.Open();
+            return FromStream(stream);
         }
 
         public static MapFile FromStream(Stream stream)
@@ -318,14 +312,12 @@ namespace OpenSage.Data.Map
 
         public void WriteTo(Stream stream)
         {
-            using (var writer = new BinaryWriter(stream))
-            {
-                // Always writes an uncompressed map, until (and if) we implement refpack compression.
+            using var writer = new BinaryWriter(stream);
+            // Always writes an uncompressed map, until (and if) we implement refpack compression.
 
-                writer.Write(FourCcUncompressed.ToFourCc());
+            writer.Write(FourCcUncompressed.ToFourCc());
 
-                WriteMapDataTo(writer);
-            }
+            WriteMapDataTo(writer);
         }
 
         private void WriteMapDataTo(BinaryWriter writer)

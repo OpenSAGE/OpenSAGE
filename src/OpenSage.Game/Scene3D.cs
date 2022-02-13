@@ -551,7 +551,7 @@ namespace OpenSage
             }
             else
             {
-                var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
+                var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
                 foreach (var gameObject in GameObjects.Items)
                 {
                     var team = gameObject.TeamTemplate;
@@ -564,7 +564,7 @@ namespace OpenSage
                         }
                     }
                 }
-                foreach (var (castleBehavior, team) in castleBehaviors)
+                foreach (var (castleBehavior, _) in castleBehaviors)
                 {
                     castleBehavior.Unpack(player, instant: true);
                 }
