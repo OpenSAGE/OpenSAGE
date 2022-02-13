@@ -43,7 +43,6 @@ namespace OpenSage.Data.Map
             }
 
             // TODO: Probably don't add replay observer player and team when viewing a replay?
-
             var replayObserverPlayerProperties = new AssetPropertyCollection();
             replayObserverPlayerProperties.AddAsciiString("playerFaction", "FactionObserver");
             replayObserverPlayerProperties.AddAsciiString("playerName", "ReplayObserver");
