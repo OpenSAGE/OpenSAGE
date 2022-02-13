@@ -2,7 +2,6 @@
 {
     public enum SageGame
     {
-        Tool,
         CncGenerals,
         CncGeneralsZeroHour,
         Bfme,
@@ -12,6 +11,7 @@
         Cnc3KanesWrath,
         Ra3,
         Ra3Uprising,
-        Cnc4
+        Cnc4,
+        Tool,
     }
 }
