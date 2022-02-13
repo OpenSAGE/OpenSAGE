@@ -283,7 +283,6 @@ namespace OpenSage.Gui.Wnd.Controls
                 _items = value;
                 _hoveredIndex = -1;
                 _selectedIndex = -1;
-                _maxDisplay = -1;
 
                 foreach (var item in value)
                 {
