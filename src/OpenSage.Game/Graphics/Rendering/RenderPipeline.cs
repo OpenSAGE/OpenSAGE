@@ -21,7 +21,7 @@ namespace OpenSage.Graphics.Rendering
         private static readonly RgbaFloat ClearColor = new RgbaFloat(105, 105, 105, 255);
 
         public static readonly OutputDescription GameOutputDescription = new OutputDescription(
-            new OutputAttachmentDescription(PixelFormat.D24_UNorm_S8_UInt),
+            new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
             new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
 
         private readonly RenderList _renderList;
@@ -89,7 +89,7 @@ namespace OpenSage.Graphics.Rendering
             RemoveAndDispose(ref _intermediateFramebuffer);
 
             _intermediateDepthBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(target.Width, target.Height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil)));
+                TextureDescription.Texture2D(target.Width, target.Height, 1, 1, PixelFormat.D32_Float_S8_UInt, TextureUsage.DepthStencil)));
 
             _intermediateTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(target.Width, target.Height, 1, 1, target.ColorTargets[0].Target.Format, TextureUsage.RenderTarget | TextureUsage.Sampled)));
