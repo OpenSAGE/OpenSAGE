@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object
             _gameObject.Hidden = true;
             _gameObject.IsSelectable = false;
 
-            var castleEntry = FindCastle(player.Side);
+            var castleEntry = FindCastle(player.Template.Side);
 
             if (castleEntry != null)
             {
@@ -101,7 +101,7 @@ namespace OpenSage.Logic.Object
 
             var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
 
-            if (nearbyUnits.Count() == 0)
+            if (!nearbyUnits.Any())
             {
                 _gameObject.Owner = _nativePlayer;
                 return;
@@ -128,7 +128,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var entry in _moduleData.CastleToUnpackForFactions)
             {
-                if (side.Contains(entry.FactionName))
+                if (side == entry.FactionName)
                 {
                     return entry;
                 }
