@@ -115,6 +115,8 @@ namespace OpenSage.Logic
 
         public HashSet<Player> Enemies { get; internal set; }
 
+        private HashSet<GameObject>[] _selectionGroups;
+
         // TODO: Does the order matter? Is it ever visible in UI?
         // TODO: Yes the order does matter. For example, the sound played when moving mixed groups of units is the one for the most-recently-selected unit.
         private HashSet<GameObject> _selectedUnits;
@@ -131,6 +133,7 @@ namespace OpenSage.Logic
             Id = id;
             Template = template;
             Color = color;
+            _selectionGroups = new HashSet<GameObject>[10];
             _selectedUnits = new HashSet<GameObject>();
             Allies = new HashSet<Player>();
             Enemies = new HashSet<Player>();
@@ -221,6 +224,30 @@ namespace OpenSage.Logic
                 }
             }
             _selectedUnits.Clear();
+        }
+
+        public void CreateSelectionGroup(int idx)
+        {
+            if(idx > _selectionGroups.Length)
+            {
+                Logger.Warn($"Do not support more than { _selectionGroups.Length} groups!");
+                return;
+            }
+
+            // TODO: when one game object dies we need to remove it from these groups
+            _selectionGroups[idx] = new HashSet<GameObject>(_selectedUnits);
+        }
+
+        public void SelectGroup(int idx)
+        {
+            if (idx > _selectionGroups.Length)
+            {
+                Logger.Warn($"Do not support more than { _selectionGroups.Length} groups!");
+                return;
+            }
+
+            // TODO: when one game object dies we need to remove it from these groups
+            SelectUnits(_selectionGroups[idx]);
         }
 
         public bool ScienceAvailable(Science science)
