@@ -47,7 +47,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 {
                     var transform = ctx.Item.Transform;
                     var color = transform.MultiplicativeColorTransform.WithA(v.ToInteger() / 100.0f);
-                    ctx.Item.Transform = transform.WithColorTransform(color, add: ColorRgbaF.Black);
+                    ctx.Item.Transform = transform.WithColorTransform(color, add: ColorRgbaF.Transparent);
                 },
                 ["textColor"] = (ctx, v) =>
                 {
@@ -60,7 +60,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
                     var transform = ctx.Item.Transform;
                     var color = transform.MultiplicativeColorTransform.WithRGB(r, g, b);
-                    ctx.Item.Transform = transform.WithColorTransform(color, add: ColorRgbaF.Black);
+                    ctx.Item.Transform = transform.WithColorTransform(color, add: ColorRgbaF.Transparent);
                 }
             };
 
