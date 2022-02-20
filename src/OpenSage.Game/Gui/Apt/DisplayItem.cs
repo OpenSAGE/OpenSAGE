@@ -10,7 +10,7 @@ namespace OpenSage.Gui.Apt
 {
     public struct ItemTransform : ICloneable
     {
-        public static readonly ItemTransform None = new(ColorRgbaF.White, ColorRgbaF.Black, Matrix3x2.Identity, Vector2.Zero);
+        public static readonly ItemTransform None = new(ColorRgbaF.White, ColorRgbaF.Transparent, Matrix3x2.Identity, Vector2.Zero);
 
         public ColorRgbaF MultiplicativeColorTransform;
         public ColorRgbaF AdditiveColorTransform;
@@ -27,11 +27,11 @@ namespace OpenSage.Gui.Apt
 
         public static ItemTransform operator *(in ItemTransform a, in ItemTransform b)
         {
-            /* Combining ColorTransform:
-             * f(x) = x * a + b
-             * g(x) = x * i + j
-             * g(f(x)) = (x * a + b) * i + j
-             *  = x * (a * i) + (b * i + j)
+            /*  Combining ColorTransform:
+             *  f(x) = x * a + b
+             *  g(x) = x * i + j
+             *  g(f(x)) = (x * a + b) * i + j
+             *      = x * (a * i) + (b * i + j)
              */
             var multiply = a.MultiplicativeColorTransform * b.MultiplicativeColorTransform;
             var add = a.AdditiveColorTransform * b.MultiplicativeColorTransform;

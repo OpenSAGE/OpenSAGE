@@ -283,7 +283,7 @@ namespace OpenSage.Gui.Apt
             else
             {
                 multiplyColor = ColorRgbaF.White;
-                addColor = ColorRgbaF.Black;
+                addColor = ColorRgbaF.Transparent;
             }
 
             return new ItemTransform(multiplyColor, addColor, geoRotate, geoTranslate);
