@@ -254,21 +254,12 @@ namespace OpenSage.Gui.Apt
                                 //    throw new NotImplementedException();
 
                                 var tex = _aptContext.GetTexture(tt.Image, shape);
-                                // Currently DrawingContext2D.FillRectangle
-                                // (and the underlying SpriteBatch.DrawImage)
-                                // only accepts an multiplicative tint color.
-                                // Probably we need to change all of them to
-                                // support additive color as well.
-                                var tintColor = transform.AdditiveColorTransform == ColorRgbaF.Black
-                                    ? transform.MultiplicativeColorTransform
-                                    : throw new NotImplementedException(
-                                        $"{nameof(DrawingContext2D)} and {nameof(SpriteBatch)}"
-                                        + " needs to be reworked to accept an additive color");
+                                var tintColor = transform.TransformColor(ColorRgbaF.White);
                                 _activeDrawingContext.FillTriangle(
                                     tex,
                                     Triangle2D.Transform(tri, coordinatesTransform),
                                     Triangle2D.Transform(tri, matrix),
-                                    transform.MultiplicativeColorTransform);
+                                    tintColor);
                             }
                             break;
                         }

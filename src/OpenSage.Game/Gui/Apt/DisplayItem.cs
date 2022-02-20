@@ -36,6 +36,9 @@ namespace OpenSage.Gui.Apt
             var multiply = a.MultiplicativeColorTransform * b.MultiplicativeColorTransform;
             var add = a.AdditiveColorTransform * b.MultiplicativeColorTransform;
             add += b.AdditiveColorTransform;
+            // FIXME: Adobe's specification claims that colors are clamped between 0 and 255
+            // during every single step of transformation.
+            // Probably We can't achieve that by using our current ItemTransform.
             return new(multiply,
                        add,
                        a.GeometryRotation * b.GeometryRotation,
