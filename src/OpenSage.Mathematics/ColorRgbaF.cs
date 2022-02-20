@@ -34,6 +34,15 @@ namespace OpenSage.Mathematics
                 value1.A * value2.A);
         }
 
+        public static ColorRgbaF operator +(in ColorRgbaF value1, in ColorRgbaF value2)
+        {
+            return new ColorRgbaF(
+                value1.R + value2.R,
+                value1.G + value2.G,
+                value1.B + value2.B,
+                value1.A + value2.A);
+        }
+
         public static bool operator ==(in ColorRgbaF f1, in ColorRgbaF f2)
         {
             return f1.Equals(f2);

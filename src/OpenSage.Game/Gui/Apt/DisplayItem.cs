@@ -10,24 +10,36 @@ namespace OpenSage.Gui.Apt
 {
     public struct ItemTransform : ICloneable
     {
-        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity, Vector2.Zero);
+        public static readonly ItemTransform None = new(ColorRgbaF.White, ColorRgbaF.Black, Matrix3x2.Identity, Vector2.Zero);
 
-        public ColorRgbaF ColorTransform;
+        public ColorRgbaF MultiplicativeColorTransform;
+        public ColorRgbaF AdditiveColorTransform;
         public Matrix3x2 GeometryRotation;
         public Vector2 GeometryTranslation;
 
-        public ItemTransform(in ColorRgbaF color, in Matrix3x2 rotation, in Vector2 translation)
+        public ItemTransform(in ColorRgbaF multiply, in ColorRgbaF add, in Matrix3x2 rotation, in Vector2 translation)
         {
-            ColorTransform = color;
+            MultiplicativeColorTransform = multiply;
+            AdditiveColorTransform = add;
             GeometryRotation = rotation;
             GeometryTranslation = translation;
         }
 
         public static ItemTransform operator *(in ItemTransform a, in ItemTransform b)
         {
-            return new ItemTransform(a.ColorTransform * b.ColorTransform,
-                                     a.GeometryRotation * b.GeometryRotation,
-                                     a.GeometryTranslation + b.GeometryTranslation);
+            /* Combining ColorTransform:
+             * f(x) = x * a + b
+             * g(x) = x * i + j
+             * g(f(x)) = (x * a + b) * i + j
+             *  = x * (a * i) + (b * i + j)
+             */
+            var multiply = a.MultiplicativeColorTransform * b.MultiplicativeColorTransform;
+            var add = a.AdditiveColorTransform * b.MultiplicativeColorTransform;
+            add += b.AdditiveColorTransform;
+            return new(multiply,
+                       add,
+                       a.GeometryRotation * b.GeometryRotation,
+                       a.GeometryTranslation + b.GeometryTranslation);
         }
 
         public void Scale(float x, float y)
@@ -35,11 +47,17 @@ namespace OpenSage.Gui.Apt
             GeometryRotation = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryRotation);
         }
 
-        public ItemTransform WithColorTransform(in ColorRgbaF color)
+        public ItemTransform WithColorTransform(in ColorRgbaF multiply, in ColorRgbaF add)
         {
-            return new ItemTransform(color,
-                         GeometryRotation,
-                         GeometryTranslation);
+            return new(multiply,
+                       add,
+                       GeometryRotation,
+                       GeometryTranslation);
+        }
+
+        public ColorRgbaF TransformColor(in ColorRgbaF sourceColor)
+        {
+            return sourceColor * MultiplicativeColorTransform + AdditiveColorTransform;
         }
 
         public object Clone()
