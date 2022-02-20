@@ -72,7 +72,7 @@ namespace OpenSage.Data.Apt.FrameItems
         public int Character { get; private set; }
         public Matrix2x2 RotScale { get; private set; }
         public Vector2 Translation { get; private set; }
-        public ColorRgba MultiplicativeColor { get; private set; }
+        public ColorRgba TintColor { get; private set; }
         public ColorRgba AdditiveColor { get; private set; }
         public float Ratio { get; private set; }
         public string Name { get; private set; }
@@ -105,7 +105,7 @@ namespace OpenSage.Data.Apt.FrameItems
 
             if (placeobject.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
             {
-                placeobject.MultiplicativeColor = reader.ReadColorRgba();
+                placeobject.TintColor = reader.ReadColorRgba();
                 placeobject.AdditiveColor = reader.ReadColorRgba();
             }
             else
@@ -178,7 +178,7 @@ namespace OpenSage.Data.Apt.FrameItems
             var matrix = transform.GeometryRotation;
             matrix.Translation = transform.GeometryTranslation;
             SetTransform(matrix);
-            SetColorTransform((transform.MultiplicativeColorTransform.ToColorRgba(),
+            SetColorTransform((transform.TintColorTransform.ToColorRgba(),
                                transform.AdditiveColorTransform.ToColorRgba()));
         }
 
@@ -196,12 +196,12 @@ namespace OpenSage.Data.Apt.FrameItems
             }
         }
 
-        public void SetColorTransform(in (ColorRgba multiply, ColorRgba add)? colorTransform)
+        public void SetColorTransform(in (ColorRgba tint, ColorRgba add)? colorTransform)
         {
-            if (colorTransform is (ColorRgba multiply, ColorRgba add))
+            if (colorTransform is (ColorRgba tint, ColorRgba add))
             {
                 Flags |= PlaceObjectFlags.HasColorTransform;
-                MultiplicativeColor = multiply;
+                TintColor = tint;
                 AdditiveColor = add;
             }
             else

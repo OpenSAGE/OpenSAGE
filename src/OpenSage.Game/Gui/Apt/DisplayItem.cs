@@ -12,14 +12,14 @@ namespace OpenSage.Gui.Apt
     {
         public static readonly ItemTransform None = new(ColorRgbaF.White, ColorRgbaF.Transparent, Matrix3x2.Identity, Vector2.Zero);
 
-        public ColorRgbaF MultiplicativeColorTransform;
+        public ColorRgbaF TintColorTransform;
         public ColorRgbaF AdditiveColorTransform;
         public Matrix3x2 GeometryRotation;
         public Vector2 GeometryTranslation;
 
-        public ItemTransform(in ColorRgbaF multiply, in ColorRgbaF add, in Matrix3x2 rotation, in Vector2 translation)
+        public ItemTransform(in ColorRgbaF tint, in ColorRgbaF add, in Matrix3x2 rotation, in Vector2 translation)
         {
-            MultiplicativeColorTransform = multiply;
+            TintColorTransform = tint;
             AdditiveColorTransform = add;
             GeometryRotation = rotation;
             GeometryTranslation = translation;
@@ -33,13 +33,13 @@ namespace OpenSage.Gui.Apt
              *  g(f(x)) = (x * a + b) * i + j
              *      = x * (a * i) + (b * i + j)
              */
-            var multiply = a.MultiplicativeColorTransform * b.MultiplicativeColorTransform;
-            var add = a.AdditiveColorTransform * b.MultiplicativeColorTransform;
+            var tint = a.TintColorTransform * b.TintColorTransform;
+            var add = a.AdditiveColorTransform * b.TintColorTransform;
             add += b.AdditiveColorTransform;
             // FIXME: Adobe's specification claims that colors are clamped between 0 and 255
             // during every single step of transformation.
             // Probably We can't achieve that by using our current ItemTransform.
-            return new(multiply,
+            return new(tint,
                        add,
                        a.GeometryRotation * b.GeometryRotation,
                        a.GeometryTranslation + b.GeometryTranslation);
@@ -50,9 +50,9 @@ namespace OpenSage.Gui.Apt
             GeometryRotation = Matrix3x2.Multiply(Matrix3x2.CreateScale(x, y), GeometryRotation);
         }
 
-        public ItemTransform WithColorTransform(in ColorRgbaF multiply, in ColorRgbaF add)
+        public ItemTransform WithColorTransform(in ColorRgbaF tint, in ColorRgbaF add)
         {
-            return new(multiply,
+            return new(tint,
                        add,
                        GeometryRotation,
                        GeometryTranslation);
@@ -60,7 +60,7 @@ namespace OpenSage.Gui.Apt
 
         public ColorRgbaF TransformColor(in ColorRgbaF sourceColor)
         {
-            return sourceColor * MultiplicativeColorTransform + AdditiveColorTransform;
+            return sourceColor * TintColorTransform + AdditiveColorTransform;
         }
 
         public object Clone()
