@@ -1,5 +1,5 @@
 ﻿using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenAS2.Runtime;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
