@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Apt
         public override void CreateFrom(Character character, AptContext context, SpriteItem parent = null)
         {
             Character = character;
-            Context = context;
+            Origin = context;
             Parent = parent;
             ScriptObject = character switch
             {
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Apt
                 return;
             }
 
-            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds < Context.MsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds < Origin.MsPerFrame)
             {
                 return;
             }
@@ -55,11 +55,29 @@ namespace OpenSage.Gui.Apt
                 string textValue = null;
                 try
                 {
-                    var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
-                    if (val.Type != ValueType.Undefined)
-                    {
-                        textValue = val.ToString();
-                    }
+                    var ec = Origin.VM.CreateContext(
+                        null,
+                        Origin.RootScope,
+                        ScriptObject,
+                        4,
+                        null,
+                        null,
+                        null,
+                        $"Text Update: {Name}");
+                    var callable = ScriptObject.GetParent().ResolveValue(ec, t.Value)
+                        .AddRecallCode(res =>
+                        {
+                            if (res.Value.Type != ValueType.Undefined)
+                                return res.Value.ToString(ec);
+                            return null;
+                        })
+                        .AddRecallCode(res =>
+                        {
+                            textValue = res.Value.ToString();
+                            return null;
+                        });
+                    ec.EnqueueResultCallback(callable);
+                    Origin.VM.EnqueueContext(ec);
                 }
                 catch (System.Exception e)
                 {
@@ -106,7 +124,7 @@ namespace OpenSage.Gui.Apt
             switch (Character)
             {
                 case Shape s:
-                    var geometry = Context.GetGeometry(s.GeometryId, Character);
+                    var geometry = Origin.GetGeometry(s.GeometryId, Character);
                     if (RenderCallback != null)
                     {
                         RenderCallback(renderingContext, geometry, Texture);

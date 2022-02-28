@@ -74,7 +74,7 @@ namespace OpenSage.Gui.Apt
             });
             Root.CreateFrom(aptFile.Movie, _context);
 
-            _context.Root = Root;
+            _context.ChangeRoot(Root);
 
             _context.LoadContext();
 

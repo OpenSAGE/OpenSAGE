@@ -14,7 +14,7 @@ namespace OpenSage.Gui.Apt.Script
         {
         }
 
-        public override HostObject? GetParent(ExecutionContext ec)
+        public override HostObject? GetParent()
         {
             return null;
         }

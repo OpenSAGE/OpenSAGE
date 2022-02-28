@@ -71,6 +71,7 @@ namespace OpenSage.Gui.Apt
         public ExecutionContext CreateRootContext(
             VirtualMachine targetVM, 
             StageObject rootVar,
+            Scope scope, 
             HostObject externVar, 
             int numRegisters,
             IList<Value> consts,
@@ -78,7 +79,7 @@ namespace OpenSage.Gui.Apt
             IList<ConstantEntry> globalConstants = null,
             string name = null)
         {
-            var scope = new ObjectScope(targetVM, rootVar, targetVM.GlobalScope, name);
+            
             var context = new ExecutionContext(
                 targetVM, targetVM.GlobalObject,
                 rootVar, // this == root
@@ -109,7 +110,7 @@ namespace OpenSage.Gui.Apt
                         return null;
                     if (part == "..")
                     {
-                        obj = obj!.GetParent(context);
+                        obj = obj!.GetParent();
                     }
                     else
                     {
@@ -149,7 +150,7 @@ namespace OpenSage.Gui.Apt
                         var movie = HandleMovie(context, url);
                         var oldName = targetSprite.Name;
 
-                        targetSprite.CreateFrom(movie, targetSprite.Context, targetSprite.Parent);
+                        targetSprite.CreateFrom(movie, targetSprite.Origin, targetSprite.Parent);
                         targetSprite.Name = oldName;
                     }
                 }

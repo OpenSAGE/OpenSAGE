@@ -83,12 +83,12 @@ namespace OpenSage.Gui.Apt
     [DebuggerDisplay("[DisplayItem:{Name}]")]
     public abstract class DisplayItem : DisposableBase
     {
-        public AptContext Context { get; protected set; }
+        public AptContext Origin { get; protected set; }
         public SpriteItem Parent { get; protected set; }
         public Character Character { get; protected set; }
         public Dictionary<ClipEventFlags, List<(byte, InstructionStorage)>> ClipEvents { get; protected set; } = new ();
         public AptContext ClipEventDefinedContext { get; set; }
-        public List<ConstantEntry> Constants => Context.AptFile.Constants.Entries;
+        public List<ConstantEntry> Constants => Origin.AptFile.Constants.Entries;
         public ItemTransform Transform { get; set; } = ItemTransform.None;
         public StageObject ScriptObject { get; protected set; }
         public string Name { get; set; }
@@ -156,7 +156,16 @@ namespace OpenSage.Gui.Apt
                 if (ClipEvents.TryGetValue(f, out var lst))
                     foreach (var (cid, insts) in lst)
                     {
-                        Context.VM.EnqueueContext(insts, ClipEventDefinedContext, ScriptObject, Name + "." + flags.ToString());
+                        var ec = ClipEventDefinedContext.VM.CreateContext(
+                            ClipEventDefinedContext.VM.GlobalContext, //outercontext
+                            ClipEventDefinedContext.RootScope, //outerscope
+                            ScriptObject,
+                            4,
+                            null // constants
+                            , insts.CreateStream(),
+                            globalConstants: Constants,
+                            name: Name + "." + flags.ToString());
+                        Origin.VM.EnqueueContext(ec);
                     }
                         
                 return true;

@@ -14,7 +14,7 @@ namespace OpenAS2.Runtime.Dom
         {
         }
 
-        public abstract HostObject? GetParent(ExecutionContext ec);
+        public abstract HostObject? GetParent();
 
     }
 

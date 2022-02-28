@@ -79,7 +79,7 @@ namespace OpenSage.Gui.Apt.Script
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public StageObject(DisplayItem item, VirtualMachine? vm = null, string classIndicator = "Object") : base(vm == null ? item.Context.VM : vm, classIndicator)
+        public StageObject(DisplayItem item, VirtualMachine? vm = null, string classIndicator = "Object") : base(vm == null ? item.Origin.VM : vm, classIndicator)
         {
             Item = item;
         }
@@ -89,35 +89,7 @@ namespace OpenSage.Gui.Apt.Script
             return Item == null ? "StageObject" : Item.Name;
         }
 
-        /// <summary>
-        /// used by text
-        /// </summary>
-        /// <param name="value">value name</param>
-        /// <returns></returns>
-        public Value ResolveValue(ExecutionContext ec, string value, StageObject ctx)
-        {
-            var path = value.Split('.');
-            var obj = ctx.GetParent(ec);
-            var member = path.Last();
-
-            for (var i = 0; i < path.Length - 1; i++)
-            {
-                var fragment = path[i];
-
-                if (obj.IHasProperty(fragment))
-                {
-                    obj = (StageObject) obj.GetMember(fragment).ToObject();
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            return obj.GetMember(member);
-        }
-
-        public override StageObject? GetParent(ExecutionContext ec)
+        public override StageObject? GetParent()
         {
             StageObject? result = null;
             if (Item.Parent != null)

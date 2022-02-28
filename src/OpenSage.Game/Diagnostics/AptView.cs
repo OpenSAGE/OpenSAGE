@@ -214,7 +214,7 @@ namespace OpenSage.Diagnostics
             }
             _selectedItem = item;
             _selectedItem.Highlight = true;
-            Context.SelectedAptWindow = _selectedItem.Context.Window;
+            Context.SelectedAptWindow = _selectedItem.Origin.Window;
         }
     }
 }

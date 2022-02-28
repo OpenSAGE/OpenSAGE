@@ -26,7 +26,9 @@ namespace OpenSage.Gui.Apt
         public ConstantStorage Constants => AptFile.Constants;
         public uint MsPerFrame => AptFile != null ? AptFile.Movie.MillisecondsPerFrame : MsPerFrameDefault; // Java style. Any fancier implementations?
         public static readonly uint MsPerFrameDefault = 30;
-        public SpriteItem Root { get; set; }
+
+        public SpriteItem Root { get; private set; }
+        public ObjectScope RootScope { get; private set; }
 
         public Dictionary<int, (string, string)> ImportDict { get; private set; }
         public Dictionary<string, int> ExportDict { get; private set; }
@@ -34,7 +36,11 @@ namespace OpenSage.Gui.Apt
         public Dictionary<int, InstructionStorage> InitActionsDict { get; private set; }
 
         // The general constructor
-        public AptContext(AptWindow window, AptFile file = null, VirtualMachine vm = null)
+        public AptContext(AptWindow window,
+            AptFile file = null,
+            VirtualMachine vm = null,
+            SpriteItem root = null
+            )
         {
             if (window == null)
                 throw new InvalidOperationException("An AptWindow is required to be assigned.");
@@ -49,6 +55,28 @@ namespace OpenSage.Gui.Apt
             if (vm == null)
                 vm = new(window.Dom);
             VM = vm;
+
+            ChangeRoot(root ?? Window.Root);
+        }
+
+        /// <summary>
+        /// returns the value if Root is null
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        internal bool ChangeRoot(SpriteItem root)
+        {
+            Root = root;
+            if (Root != null)
+            {
+                RootScope = new ObjectScope(VM, Root.ScriptObject, VM.GlobalScope, Root.Name);
+                return true;
+            }
+            else
+            {
+                RootScope = null;
+                return false;
+            }
         }
 
         // Constructor to be used without an apt file
@@ -74,10 +102,7 @@ namespace OpenSage.Gui.Apt
                 var importPath = Path.Combine(AptFile.RootDirectory, Path.ChangeExtension(import.Movie, ".apt"));
                 var importEntry = Window.ContentManager.FileSystem.GetFile(importPath);
                 var importFile = AptFileHelper.FromFileSystemEntry(importEntry);
-                var importContext = new AptContext(Window, importFile, VM)
-                {
-                    Root = Root,
-                };
+                var importContext = new AptContext(Window, importFile, VM, Root);
                 importContext.LoadContext();
                 ImportContextDict[import.Movie] = importContext;
             }
@@ -128,7 +153,8 @@ namespace OpenSage.Gui.Apt
                 throw new NotImplementedException("extern object");
                 var context = Window.Dom.CreateRootContext(
                     VM,
-                    Window.Root.ScriptObject,
+                    Root.ScriptObject,
+                    RootScope, 
                     null,
                     4,
                     new List<Value>(),

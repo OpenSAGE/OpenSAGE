@@ -4,9 +4,9 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Library;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Library;
+using OpenSage.Gui.Apt.Script;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -16,7 +16,7 @@ using SixLabors.Fonts;
 using Veldrid;
 using Geometry = OpenSage.FileFormats.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
-using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
+using ValueType = OpenAS2.Runtime.ValueType;
  
 namespace OpenSage.Mods.Bfme
 {

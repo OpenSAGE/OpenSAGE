@@ -20,7 +20,7 @@ namespace OpenSage.Gui.Apt
         public override void CreateFrom(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             Character = chararacter;
-            Context = context;
+            Origin = context;
             Parent = parent;
             Name = "";
             Visible = true;
@@ -74,17 +74,16 @@ namespace OpenSage.Gui.Apt
             // enqueue all actions
             foreach (var action in _actionList)
             {
-                var ec = Context.VM.CreateContext(
-                    null, // for raising error
-                    null, //outercontext
-                    null, //outerscope
+                var ec = Origin.VM.CreateContext(
+                    Origin.VM.GlobalContext, //outercontext
+                    Origin.RootScope, //outerscope
                     ScriptObject,
                     4,
                     null // constants
                     , action.CreateStream(),
                     globalConstants: Constants,
                     name: $"ButtonAction: \"{Name}\"");
-                Context.VM.EnqueueContext(ec);
+                Origin.VM.EnqueueContext(ec);
             }
             _actionList.Clear();
         }

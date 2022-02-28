@@ -331,7 +331,7 @@ namespace OpenAS2.Runtime
             if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
             {
                 var parent = This as HostObject;
-                if (parent != null) parent = parent.GetParent(this);
+                if (parent != null) parent = parent.GetParent();
                 _registers[reg] = parent != null ? Value.FromObject(parent) : Value.Undefined();
                 _registers[reg].DisplayString = "Preload Parent";
                 ++reg;

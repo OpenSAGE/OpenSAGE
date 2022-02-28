@@ -19,7 +19,13 @@ namespace OpenAS2.Runtime
 
         public Dictionary<string, PropertyDescriptor>.KeyCollection GetAllProperties() { return _properties.Keys; }
 
-        public virtual void ForceAddAccessoryProperty(ExecutionContext context, string name, ESFunction? getter, ESFunction? setter, bool enumerable = false, bool configurable = true)
+
+        public virtual void ForceAddDataProperty(string name, Value v, bool writable = true, bool enumerable = false, bool configurable = true)
+        {
+            var prop = PropertyDescriptor.D(v, writable, enumerable, configurable);
+            _properties[name] = prop;
+        }
+        public virtual void ForceAddAccessoryProperty(string name, ESFunction? getter, ESFunction? setter, bool enumerable = false, bool configurable = true)
         {
             var prop = PropertyDescriptor.A(getter, setter, enumerable, configurable);
             _properties[name] = prop;
@@ -374,6 +380,45 @@ namespace OpenAS2.Runtime
             return call;
         }
 
+        public ESCallable.Result ResolveValue(ExecutionContext ec, string value)
+        {
+            var path = value.Split('.');
+            var obj = this;
+            var member = path.Last();
+
+            ESCallable.Result? ans = null;
+
+            for (var i = 0; i < path.Length - 1; i++)
+            {
+                var fragment = path[i];
+
+                if (obj.IHasProperty(fragment))
+                {
+                    if (ans == null)
+                        ans = obj.IGet(ec, fragment);
+                    else
+                    {
+                        ans .AddRecallCode((res) => res.Value.ToObject(ec))
+                            .AddRecallCode((res) => res.Value.ToObject().IGet(ec, fragment));
+                    }
+                }
+                else
+                {
+                    var err = ESCallable.Throw(ec.ConstrutError("Error", "Undefined proprety"));
+                    if (ans != null)
+                        ans.AddRecallCode(_ => err);
+                    else
+                        ans = err;
+                    break;
+                }
+            }
+            if (ans == null)
+                ans = obj.IGet(ec, member);
+            else
+                ans.AddRecallCode((res) => res.Value.ToObject().IGet(ec, member));
+            return ans;
+        }
+
         public static PropertyDescriptor AddFunction(ESCallable.Func f, VirtualMachine vm, bool w = true, bool e = false, bool c = true)
         {
             return PropertyDescriptor.D(Value.FromFunction(new NativeFunction(vm, f)), w, e, c);
@@ -471,7 +516,7 @@ namespace OpenAS2.Runtime
                          var setter = args.Count > 2 ? args[2] : null;
                          ans = !string.IsNullOrWhiteSpace(name) && getter != null && (setter == null || setter.IsCallable());
                          if (ans)
-                             tv.ForceAddAccessoryProperty(ec, name, getter!.ToFunction(), setter != null ? setter.ToFunction() : null);
+                             tv.ForceAddAccessoryProperty(name, getter!.ToFunction(), setter != null ? setter.ToFunction() : null);
                      }
                      return ESCallable.Return(Value.FromBoolean(ans));
                  },

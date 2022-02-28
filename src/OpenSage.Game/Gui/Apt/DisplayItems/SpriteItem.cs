@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenAS2.Runtime;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
@@ -35,6 +36,7 @@ namespace OpenSage.Gui.Apt
         public ColorDelegate SetBackgroundColor { get; set; }
 
         public DisplayList Content { get; private set; }
+        private Dictionary<string, DisplayItem> _namedChildren = new();
 
         public int CurrentFrame => (int) _currentFrame;
 
@@ -49,12 +51,13 @@ namespace OpenSage.Gui.Apt
             Content?.Dispose();
             RemoveToDispose(Content);
             FrameLabels = new();
+            _namedChildren.Clear();
             State = PlayState.PLAYING;
 
             Name = "";
             Visible = true;
             Character = _sprite;
-            Context = context;
+            Origin = context;
             Content = AddDisposable(new DisplayList());
             Parent = parent;
             ScriptObject = new MovieClip(this);
@@ -203,7 +206,7 @@ namespace OpenSage.Gui.Apt
             if (State == PlayState.STOPPED)
                 return false;
 
-            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Context.MsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds >= Origin.MsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
@@ -314,7 +317,8 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
+                _namedChildren[po.Name] = displayItem;
+                ScriptObject.ForceAddDataProperty(po.Name, Value.FromObject(displayItem.ScriptObject));
             }
 
             displayItem.Transform = cTransform;
@@ -327,19 +331,21 @@ namespace OpenSage.Gui.Apt
                 return;
             }
             var itemTransform = CreateTransform(po);
-            var displayItem = Context.GetInstantiatedCharacter(po.Character, itemTransform, this);
+            var displayItem = Origin.GetInstantiatedCharacter(po.Character, itemTransform, this);
 
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                ScriptObject.SetMember(po.Name, Value.FromObject(displayItem.ScriptObject));
                 displayItem.Name = po.Name;
+                _namedChildren[po.Name] = displayItem;
+                ScriptObject.ForceAddDataProperty(po.Name, Value.FromObject(displayItem.ScriptObject));
+               
             }
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction) && po.ClipEvents != null)
             {
                 displayItem.RegisterClipEvents(po.ClipEvents);
-                displayItem.ClipEventDefinedContext = Context;
+                displayItem.ClipEventDefinedContext = Origin;
                 displayItem.CallClipEventLocal(ClipEventFlags.Initialize);
                 displayItem.CallClipEventLocal(ClipEventFlags.Load);
                 displayItem.CallClipEventLocal(ClipEventFlags.Construct); // TODO can't tell the difference
@@ -348,7 +354,7 @@ namespace OpenSage.Gui.Apt
             if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
             {
                 displayItem.ClipDepth = po.ClipDepth;
-                displayItem.ClipMask = new RenderTarget(Context.Window.ContentManager.GraphicsDevice);
+                displayItem.ClipMask = new RenderTarget(Origin.Window.ContentManager.GraphicsDevice);
             }
 
             Content.AddItem(po.Depth, displayItem);
@@ -359,7 +365,19 @@ namespace OpenSage.Gui.Apt
         {
             // enqueue all actions
             foreach (var action in _actionList)
-                Context.VM.EnqueueContext(this, action, $"FrameAction: \"{Name}\"");
+            { 
+                var ec = Origin.VM.CreateContext(
+                    Origin.VM.GlobalContext, //outercontext
+                    Origin.RootScope, //outerscope
+                    ScriptObject,
+                    4,
+                    null // constants
+                    , action.CreateStream(),
+                    globalConstants: Constants,
+                    name: $"FrameAction: \"{Name}\"");
+                Origin.VM.EnqueueContext(ec);
+            }
+                
             _actionList.Clear();
 
             // enqueue all subitems actions
@@ -427,7 +445,7 @@ namespace OpenSage.Gui.Apt
 
         public DisplayItem GetNamedItem(string name)
         {
-            return ScriptObject.GetMember(name).ToObject<StageObject>().Item;
+            return _namedChildren.TryGetValue(name, out var item) ? item : null;
         }
     }
 }

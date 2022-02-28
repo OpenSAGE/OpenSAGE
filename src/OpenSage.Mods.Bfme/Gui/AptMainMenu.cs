@@ -1,7 +1,7 @@
 ﻿using OpenSage.FileFormats.Apt;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Library;
 using Veldrid;
 
 namespace OpenSage.Mods.Bfme.Gui

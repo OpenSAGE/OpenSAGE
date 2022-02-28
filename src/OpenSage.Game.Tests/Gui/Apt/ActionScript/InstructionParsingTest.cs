@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.FileFormats.Apt;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
-using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Dom.Default;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Text.Encoding;
@@ -107,7 +106,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             var rightValue = "test2";
             var stream = Get19SimpleInstructions(paramName, "test1", rightValue, magic);
             var reader = new BinaryReader(stream, UTF8, true);
-            var collection = InstructionCollection.Parse(InstructionStorage.Parse(stream, reader.ReadUInt32()));
+            var collection = InstructionStorage.Parse(stream, reader.ReadUInt32());
             // Assert that the last pathological branch instruction was not read
             Assert.True(collection.Count == 19);
 
@@ -115,13 +114,18 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             // Assert that after parsing instructions, stream will be sought back
             Assert.True(afterInstructions == magic);
 
-            var vm = new VM();
-            var context = new ASObject(vm);
-
-            vm.EnqueueContext(collection, null, context, "Parsing Test");
+            var vm = new VirtualMachine(new SimpleDomHandler());
+            var context = new ESObject(vm);
+            // collection, null, context, "Parsing Test"
+            vm.EnqueueContext(vm.CreateContext(null, null, context, 4, null, collection.CreateStream()));
             vm.ExecuteUntilHalt();
             // Assert that during execution of instructions, the right value is set
-            Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
+            context.IGet(vm.GlobalContext, paramName).AddRecallCode(res =>
+            {
+                Assert.True(res.ToString().Equals(rightValue));
+                return null;
+            });
+       
         }
     }
 }

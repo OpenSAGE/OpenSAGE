@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt.Script
             _properties["gPlatform"] = PropertyDescriptor.D(Value.FromString("PC"), false, true, false);
         }
 
-        public override HostObject GetParent(ExecutionContext ec)
+        public override HostObject GetParent()
         {
             throw new NotImplementedException();
         }
