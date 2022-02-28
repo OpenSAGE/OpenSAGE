@@ -1,6 +1,6 @@
 ﻿using System;
 using ImGuiNET;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 
 namespace OpenSage.Diagnostics
 {

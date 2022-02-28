@@ -395,7 +395,7 @@ namespace OpenAS2.Runtime
 
         // only used in debugging
 
-        public virtual string ToStringWithType(ExecutionContext ctx)
+        public virtual string ToStringWithType()
         {
             var ttype = Type.ToString().Substring(0, 3);
             string tstr = DisplayString;

@@ -147,7 +147,7 @@ namespace OpenAS2.Runtime
             var ans = $"Total {RegisterCount} Registers";
             for (int i = 0; i < RegisterCount; ++i)
             {
-                if (_registers[i] != null) ans = ans + $"[{i}]{_registers[i].ToStringWithType(this)}";
+                if (_registers[i] != null) ans = ans + $"[{i}]{_registers[i].ToStringWithType()}";
             }
             return ans;
         }
@@ -158,7 +158,7 @@ namespace OpenAS2.Runtime
             var null_str = "unused";
             for (int i = 0; i < RegisterCount; ++i)
             {
-                ans[i] = $"[{i}]{(_registers[i] == null ? null_str : _registers[i].ToStringWithType(this))}";
+                ans[i] = $"[{i}]{(_registers[i] == null ? null_str : _registers[i].ToStringWithType())}";
             }
             return ans;
         }
@@ -178,7 +178,7 @@ namespace OpenAS2.Runtime
         public string DumpStack()
         {
             var stack_val = _stack.ToArray();
-            var ans = string.Join("|", stack_val.Select(x => x.ToStringWithType(this)).ToArray());
+            var ans = string.Join("|", stack_val.Select(x => x.ToStringWithType()).ToArray());
 
             ans = string.Format("TOP|{0}|BOTTOM", ans);
             return ans;
@@ -189,7 +189,7 @@ namespace OpenAS2.Runtime
             var ans = new string[_stack.Count];
             for (int i = 0; i < _stack.Count; ++i)
             {
-                ans[i] = $"[{i}]{_stack.ElementAt(i).ToStringWithType(this)}";
+                ans[i] = $"[{i}]{_stack.ElementAt(i).ToStringWithType()}";
             }
             return ans;
         }

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using OpenSage.Mathematics;
-using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.FileFormats.Apt
 {

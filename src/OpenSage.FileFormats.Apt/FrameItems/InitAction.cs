@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using OpenSage.FileFormats.Apt.ActionScript;
 
 namespace OpenSage.FileFormats.Apt.FrameItems
 {

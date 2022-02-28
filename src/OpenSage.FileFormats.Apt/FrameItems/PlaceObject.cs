@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.FileFormats.Apt.ActionScript;
 using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.Apt.FrameItems

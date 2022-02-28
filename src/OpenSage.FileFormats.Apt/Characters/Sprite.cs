@@ -2,8 +2,7 @@
 using System.IO;
 using System;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenSage.FileFormats;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 
 namespace OpenSage.FileFormats.Apt.Characters
 {

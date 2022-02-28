@@ -3,7 +3,7 @@ using System;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ESString : ESObject
+    public class ESString : ESObject
     {
         public static new readonly Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {

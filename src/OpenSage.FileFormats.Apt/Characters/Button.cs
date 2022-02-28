@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using OpenSage.FileFormats;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.Apt.Characters

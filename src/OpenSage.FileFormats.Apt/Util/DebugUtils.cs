@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 using System.IO;
 
 namespace OpenSage.FileFormats.Apt
@@ -84,7 +84,7 @@ namespace OpenSage.FileFormats.Apt
 
         public static void SaveInstructions(InstructionStorage insts, string path)
         {
-            var s = StringParsingUtils.FormInstructionStorage((SortedList<int, RawInstruction>) insts.GetPositionedInstructions());
+            var s = StringParsingUtils.FormInstructionStorage(insts.GetPositionedInstructions());
             File.WriteAllText(path, s);
         }
 

@@ -13,7 +13,7 @@ namespace OpenAS2.Runtime.Dom.Default
         {
         }
 
-        public override ESObject GetParent(ExecutionContext ec)
+        public override HostObject GetParent(ExecutionContext ec)
         {
             throw new NotImplementedException();
         }

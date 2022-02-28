@@ -5,21 +5,25 @@ using OpenSage.Content;
 using OpenSage.FileFormats.Apt;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats.Apt.FrameItems;
-using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
+using OpenAS2.Runtime;
 
 namespace OpenSage.Gui.Apt
 {
     public sealed class AptWindow : DisposableBase
     {
         private readonly AptContext _context;
+        private readonly AptDomHandler _dom;
         private readonly Game _game;
         private readonly AptCallbackResolver _resolver;
         private readonly AptRenderingContext _renderingContext;
         private Vector2 _movieSize;
         private Vector2 _destinationSize;
+
+        private TimeInterval _lastUpdateTime = new TimeInterval();
+        private DateTime _lastUpdateDateTime = DateTime.Now;
 
         /// <summary>
         /// The background color of the movie set by the BackgroundColor frameItem
@@ -37,6 +41,8 @@ namespace OpenSage.Gui.Apt
         internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
         public AptContext Context => _context;
+        public AptDomHandler Dom => _dom;
+        public Game Game => _game;
 
         // event handler related
         public DisplayItem MouseFocus { get; private set; }
@@ -56,9 +62,9 @@ namespace OpenSage.Gui.Apt
             AssetStore = game.AssetStore;
             AptFile = aptFile;
 
-            //Create our context
-            _context = new AptContext(this);
-            _context.Avm.SetHandlers(HandleCommand, HandleVariable, HandleMovie);
+            //Create our context & set handlers
+            _dom = new(this);
+            _context = new(this);
 
             //First thing to do here is to initialize the display list
             Root = AddDisposable(new SpriteItem
@@ -66,7 +72,7 @@ namespace OpenSage.Gui.Apt
                 Transform = ItemTransform.None,
                 SetBackgroundColor = (c) => _backgroundColor = c
             });
-            Root.Create(aptFile.Movie, _context);
+            Root.CreateFrom(aptFile.Movie, _context);
 
             _context.Root = Root;
 
@@ -140,12 +146,25 @@ namespace OpenSage.Gui.Apt
             return Root.HandleInput(mousePos, mouseDown);
         }
 
+        public Value GetTime()
+        {
+            return Value.FromFloat(_lastUpdateTime.TotalTime.TotalMilliseconds);
+        }
+
+        public Value GetTime2()
+        {
+            return Value.FromFloat((_lastUpdateTime.TotalTime + (DateTime.Now - _lastUpdateDateTime)).TotalMilliseconds);
+        }
+
         internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
-            var vm = _context.Avm;
+            _lastUpdateDateTime = DateTime.Now;
+            _lastUpdateTime = gt;
+
+            var vm = _context.VM;
 
             vm.ExecuteUntilEmpty(); // clear remaining codes
-            vm.UpdateIntervals(gt);
+            vm.UpdateIntervals(gt.TotalTime);
             Root.Update(gt);
             Root.EnqueueActions(gt);
             vm.ExecuteUntilEmpty();
@@ -186,7 +205,8 @@ namespace OpenSage.Gui.Apt
 
         internal Value HandleVariable(string variable)
         {
-            //Mostly no idea what those mean, but they are all booleans
+            // Mostly no idea what those mean, but they are all booleans
+            // TODO move to an extern object
             switch (variable)
             {
                 case "InGame":
@@ -206,7 +226,7 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        internal AptFile HandleMovie(string movie)
+        internal AptFile LoadAptFileFromUrl(string movie)
         {
             var aptFileName = System.IO.Path.ChangeExtension(movie, ".apt");
             var entry = ContentManager.FileSystem.GetFile(aptFileName);

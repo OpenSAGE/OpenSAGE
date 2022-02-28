@@ -102,7 +102,7 @@ namespace OpenSage.Mods.Bfme
                     var good = Array.Exists(player.Template.IntrinsicSciences, s => s.Value.Name == "SCIENCE_GOOD");
                     var emptyArgs = new List<Value>();
                     emptyArgs.Add(Value.FromString(good ? "_good" : "_evil"));
-                    FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
+                    FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.VM);
                     _palantirInitialized = true;
                 }
             }
@@ -182,7 +182,7 @@ namespace OpenSage.Mods.Bfme
                 };
 
                 //TODO: fix so this works
-                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
+                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.VM);
 
                 placeHolder.Item.Visible = true;
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
@@ -284,7 +284,7 @@ namespace OpenSage.Mods.Bfme
                     if (fadeIn.Type != ValueType.Undefined)
                     {
                         var emptyArgs = new List<Value>();
-                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.VM);
                         _commandbarVisible = true;
                     }
                 }
@@ -296,7 +296,7 @@ namespace OpenSage.Mods.Bfme
                 if (fadeOut.Type != ValueType.Undefined)
                 {
                     var emptyArgs = new List<Value>();
-                    FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                    FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.VM);
                     _commandbarVisible = true;
                 }
 

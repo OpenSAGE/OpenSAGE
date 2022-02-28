@@ -2,7 +2,7 @@
 using System.IO;
 using System;
 using System.Text;
-using OpenSage.FileFormats.Apt.ActionScript;
+using OpenAS2.Base;
 
 namespace OpenSage.FileFormats.Apt
 {
@@ -40,42 +40,40 @@ namespace OpenSage.FileFormats.Apt
 
             for (var i = 0; i < numEntries; i++)
             {
-                var constEntry = new ConstantEntry
-                {
-                    Type = reader.ReadUInt32AsEnum<ConstantType>()
-                };
+                
+                var type = reader.ReadUInt32AsEnum<ConstantType>();
+                object? value = null;
 
                 //read the number/ string offset
-                switch (constEntry.Type)
+                switch (type)
                 {
                     case ConstantType.Undef:
                         throw new InvalidDataException("Undefined const entry");
                     case ConstantType.String:
-                        constEntry.Value = reader.ReadStringAtOffset();
+                        value = reader.ReadStringAtOffset();
                         break;
                     case ConstantType.Register:
-                        constEntry.Value = reader.ReadUInt32();
+                        value = reader.ReadUInt32();
                         break;
                     case ConstantType.Boolean:
-                        constEntry.Value = reader.ReadBooleanUInt32Checked();
+                        value = reader.ReadBooleanUInt32Checked();
                         break;
                     case ConstantType.Float:
-                        constEntry.Value = reader.ReadSingle();
+                        value = reader.ReadSingle();
                         break;
                     case ConstantType.Integer:
-                        constEntry.Value = reader.ReadInt32();
+                        value = reader.ReadInt32();
                         break;
                     case ConstantType.Lookup:
-                        constEntry.Value = reader.ReadUInt32();
+                        value = reader.ReadUInt32();
                         break;
                     case ConstantType.None:
-                        constEntry.Value = null;
                         break;
                     default:
                         throw new InvalidDataException();
                 }
 
-                data.Entries.Add(constEntry);
+                data.Entries.Add(new ConstantEntry(type, value!));
             }
 
             return data;

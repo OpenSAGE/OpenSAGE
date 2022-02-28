@@ -3,8 +3,9 @@ using ImGuiNET;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Library;
+using OpenSage.Gui.Apt.Script;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Library;
 
 namespace OpenSage.Diagnostics
 {
@@ -18,32 +19,6 @@ namespace OpenSage.Diagnostics
             : base(context)
         {
 
-        }
-
-        private object CreateObject(Value value)
-        {
-            switch (value.Type)
-            {
-                case ValueType.String:
-                    return value.ToString();
-                case ValueType.Boolean:
-                    return value.ToBoolean();
-                case ValueType.Integer:
-                    return value.ToInteger();
-                case ValueType.Float:
-                    return value.ToFloat();
-                case ValueType.Object:
-                    if (value.ToObject() is ASFunction)
-                        return "[FUNCTION]";
-                    else if (value.ToObject() is ASArray)
-                        return "[ARRAY]";
-                    else
-                        return "[OBJECT]";
-                case ValueType.Undefined:
-                    return "[UNDEFINED]";
-            }
-
-            return null;
         }
 
         protected override void DrawOverride(ref bool isGameViewFocused)
@@ -121,7 +96,7 @@ namespace OpenSage.Diagnostics
                             var so = _selectedItem.ScriptObject;
                             foreach (var key in so.GetAllProperties())
                             {
-                                ImGuiUtility.PropertyRow(key, CreateObject(so.GetMember(key)));
+                                ImGuiUtility.PropertyRow(key, so.IGetProperty(key, out var _, true));
                             }
                         }
                         ImGuiUtility.EndPropertyList();

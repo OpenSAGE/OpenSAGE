@@ -14,10 +14,10 @@ namespace OpenAS2.Runtime
     public sealed class VirtualMachine
     {
 
-        private DateTime _lastTick;
-        private DateTime _pauseTick;
+        private TimeSpan _lastTick;
+        private TimeSpan _pauseTick;
         private bool _paused;
-        private Dictionary<string, ValueTuple<DateTime, int, ESFunction, IList<Value>>> _intervals;
+        private Dictionary<string, ValueTuple<TimeSpan, int, ESFunction, IList<Value>>> _intervals;
 
         public DomHandler Dom { get; private set; }
 
@@ -37,7 +37,7 @@ namespace OpenAS2.Runtime
         // TODO check!
 
 
-        public void RegisterClass(string className, Type classType)
+        public void RegisterClass(string className, Type classType, bool expose = true)
         {
             var c1 = (ESCallable.Func)(classType.GetField("ICallDefault"))!.GetValue(null)!;
             var c2 = (ESCallable.Func)(classType.GetField("IConstructDefault"))!.GetValue(null)!;
@@ -60,6 +60,8 @@ namespace OpenAS2.Runtime
             Prototypes[className] = newProto;
             Constructors[className] = newCtor;
             // PrototypesInverse[newProto] = classType;
+            if (expose)
+                GlobalObject.IPut(GlobalContext, className, Value.FromFunction(newCtor));
         }
 
         public ESFunction ObjCst { get; private set; }
@@ -132,8 +134,9 @@ namespace OpenAS2.Runtime
             {
                 if (c.Key == "Object" || c.Key == "Function" || c.Key == "Error")
                     continue;
-                RegisterClass(c.Key, c.Value);
+                RegisterClass(c.Key, c.Value, false);
             }
+            
 
             // initialize global vars and methods
             GlobalObject = Dom.CreateGlobalObject(this);
@@ -160,6 +163,8 @@ namespace OpenAS2.Runtime
             GlobalObject.DefineAllProperties(GlobalContext, Builtin.BuiltinVariables);
             // functions
             GlobalObject.DefineAllMethods(GlobalContext, this, Builtin.BuiltinFunctions);
+
+            Dom.RegisterBuiltinStuffs(this);
         }
 
         // interval & debug operations
@@ -173,7 +178,7 @@ namespace OpenAS2.Runtime
                                 );
         }
 
-        public void UpdateIntervals(DateTime current)
+        public void UpdateIntervals(TimeSpan current)
         {
             foreach (var interval_kv in _intervals)
             {
@@ -194,23 +199,23 @@ namespace OpenAS2.Runtime
             _intervals.Remove(name);
         }
 
-        public void Pause(DateTime? pauseTick)
+        public void Pause(TimeSpan pauseTick)
         {
             if (!_paused)
             {
                 _paused = true;
-                _pauseTick = pauseTick ?? DateTime.Now;
+                _pauseTick = pauseTick;
             }
         }
 
         public bool Paused() { return _paused; }
 
-        public void Resume(DateTime? nowTick)
+        public void Resume(TimeSpan nowTick)
         {
             if (_paused)
             {
                 _paused = false;
-                var span = (nowTick ?? DateTime.Now) - _pauseTick;
+                var span = nowTick - _pauseTick;
                 _lastTick = _lastTick + span;
             }
         }

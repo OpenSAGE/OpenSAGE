@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenAS2.Runtime.Library
 {
-    class ESArray : ESObject
+    public class ESArray : ESObject
     {
         public static new readonly Dictionary<string, Func<PropertyDescriptor>> PropertiesDefined = new Dictionary<string, Func<PropertyDescriptor>>()
         {

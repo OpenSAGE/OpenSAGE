@@ -5,6 +5,7 @@ using System;
 using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.Apt;
+using OpenSage.IO;
 
 namespace OpenSage.Data
 {

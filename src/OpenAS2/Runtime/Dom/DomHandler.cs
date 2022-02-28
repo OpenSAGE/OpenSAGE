@@ -10,12 +10,23 @@ namespace OpenAS2.Runtime.Dom
     /// </summary>
     public abstract class DomHandler
     {
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <returns></returns>
         public virtual ESObject CreateGlobalObject(VirtualMachine vm)
         {
             return new ESObject(vm);
+        }
+
+        /// <summary>
+        /// builtin vars and classes are registered here
+        /// </summary>
+        /// <param name="vm"></param>
+        public virtual void RegisterBuiltinStuffs(VirtualMachine vm)
+        {
+
         }
 
         public virtual bool TryHandle(ExecutionContext context, RawInstruction inst)

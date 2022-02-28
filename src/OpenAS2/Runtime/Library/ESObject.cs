@@ -595,19 +595,19 @@ namespace OpenAS2.Runtime
         /// <returns></returns>
 
 
-        public string ToStringDisp(ExecutionContext ec)
+        public string ToStringDisp()
         {
             string ans = "{\n";
             foreach (string s in _properties.Keys)
             {
                 _properties.TryGetValue(s, out var v);
-                ans = ans + s + ": " + v.ToString(ec) + ", \n";
+                ans = ans + s + ": " + v!.ToString() + ", \n";
             }
             ans = ans + "}";
             return ans;
         }
 
-        public (string[], string[]) ToListDisp(ExecutionContext ec)
+        public (string[], string[]) ToListDisp()
         {
             var ans1 = new string[_properties.Keys.Count];
             var ans2 = GetAllProperties().ToArray();
@@ -615,7 +615,7 @@ namespace OpenAS2.Runtime
             {
                 var k = ans2[i];
                 _properties.TryGetValue(k, out var v);
-                ans1[i] = $"{k}: {v.ToString(ec)}";
+                ans1[i] = $"{k}: {v!}";
                 ans2[i] = k;
             }
             return (ans1, ans2);

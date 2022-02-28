@@ -36,6 +36,18 @@ namespace OpenAS2.Base
         public ConstantType Type { get; internal set; }
         public object Value { get; internal set; }
 
+        public ConstantEntry()
+        {
+            Type = ConstantType.None;
+            Value = null!;
+        }
+
+        public ConstantEntry(ConstantType type, object value)
+        {
+            Type = type;
+            Value = value;
+        }
+
         public override string ToString()
         {
             return $"{Type}:{Value}";

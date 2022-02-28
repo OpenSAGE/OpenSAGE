@@ -147,7 +147,7 @@ namespace OpenAS2.Runtime.Library
         }
         public virtual string? ToString(ExecutionContext ec)
         {
-            return base.ToString();
+            return ToString();
         }
 
 
@@ -197,9 +197,9 @@ namespace OpenAS2.Runtime.Library
             Configurable = c;
         }
 
-        public override string ToString(ExecutionContext ec)
+        public override string ToString()
         {
-            return Value.ToStringWithType(ec);
+            return $"NDP({Value.ToStringWithType()} (W={Writable}, E={Enumerable}, C={Configurable})";
         }
     }
     public class NamedAccessoryProperty : PropertyDescriptor
@@ -252,9 +252,9 @@ namespace OpenAS2.Runtime.Library
             return (r1, r2);
         }
 
-        public override string ToString(ExecutionContext ec)
+        public override string ToString()
         {
-            return $"NAP(Get: {Get}, Set: {Set})";
+            return $"NAP(Get: {Get}, Set: {Set}, E={Enumerable}, C={Configurable})";
         }
     }
 
