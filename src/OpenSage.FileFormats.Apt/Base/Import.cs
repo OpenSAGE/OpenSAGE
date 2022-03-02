@@ -10,6 +10,20 @@ namespace OpenSage.FileFormats.Apt
         public uint Character { get; private set; }
         public uint Pointer { get; private set; }
 
+        public Import()
+        {
+            Movie = string.Empty;
+            Name = string.Empty;
+        }
+
+        public Import(string movie, string name, uint character, uint pointer = 0)
+        {
+            Movie = movie;
+            Name = name;
+            Character = character;
+            Pointer = pointer;
+        }
+
         public static Import Parse(BinaryReader reader)
         {
             var import = new Import();

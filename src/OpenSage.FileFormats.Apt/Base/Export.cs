@@ -9,13 +9,24 @@ namespace OpenSage.FileFormats.Apt
         public string Name { get; private set; }
         public uint Character { get; private set; }
 
+        public Export()
+        {
+            Name = string.Empty;
+        }
+
+        public Export(string name, uint character)
+        {
+            Name = name;
+            Character = character;
+        }
+
         public static Export Parse(BinaryReader reader)
         {
-            return new Export
-            {
-                Name = reader.ReadStringAtOffset(),
-                Character = reader.ReadUInt32()
-            };
+            return new
+            (
+                reader.ReadStringAtOffset(),
+                reader.ReadUInt32()
+            );
         }
 
         public void Write(BinaryWriter writer, BinaryMemoryChain memory)
@@ -24,13 +35,5 @@ namespace OpenSage.FileFormats.Apt
             writer.Write(Character);
         }
 
-            public static Export Create(string name, int character)
-        {
-            return new Export
-            {
-                Name = name,
-                Character = (uint) character
-            };
-        }
     }
 }

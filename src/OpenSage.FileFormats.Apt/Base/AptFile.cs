@@ -40,7 +40,7 @@ namespace OpenSage.FileFormats.Apt
         public override string GetMovieName() => AptName;
         public override string GetRootPath() => RootPath;
 
-        public StandardStreamGetter(string path, string apt, Func<string, FileMode, Stream> getter = null)
+        public StandardStreamGetter(string path, string apt, Func<string, FileMode, Stream>? getter = null)
         {
             RootPath = path;
             AptName = apt;
@@ -56,8 +56,8 @@ namespace OpenSage.FileFormats.Apt
             ))
         { }
 
-        public StandardStreamGetter(string aptPath, Func<string, FileMode, Stream> getter = null) : this(
-            Path.GetDirectoryName(aptPath), 
+        public StandardStreamGetter(string aptPath, Func<string, FileMode, Stream>? getter = null) : this(
+            Path.GetDirectoryName(aptPath) ?? string.Empty, 
             Path.GetFileNameWithoutExtension(aptPath),
             getter
             )
@@ -128,14 +128,16 @@ namespace OpenSage.FileFormats.Apt
 
         public Movie Movie { get; private set; }
         public ImageMap ImageMap { get; private set; }
-        public Dictionary<uint, Geometry> GeometryMap { get; private set; }
+        public Dictionary<uint, Geometry?> GeometryMap { get; private set; }
 
+#pragma warning disable CS8618
         private AptFile(ConstantStorage constants, string movieName, string rootPath)
         {
             Constants = constants;
             MovieName = movieName;
             RootDirectory = rootPath;
         }
+#pragma warning restore CS8618
 
         public static AptFile Parse(string path) { return Parse(new StandardStreamGetter(path)); }
         public static AptFile Parse(AptStreamGetter getter)
@@ -170,7 +172,7 @@ namespace OpenSage.FileFormats.Apt
                         apt.ImageMap = ImageMap.Parse(datReader);
 
                     //resolve geometries
-                    apt.GeometryMap = new Dictionary<uint, Geometry>();
+                    apt.GeometryMap = new();
                     foreach (Shape shape in apt.Movie.Characters.FindAll((x) => x is Shape))
                     {
                         try
@@ -213,10 +215,11 @@ namespace OpenSage.FileFormats.Apt
                 () => getter.GetStream(DataType.Dat, mode)
                 );
 
-            foreach (var shapekvp in GeometryMap)
+            foreach (var (id, shapeVal) in GeometryMap)
             {
-                var id = shapekvp.Key;
-                var shape = shapekvp.Value.RawText;
+                if (shapeVal == null)
+                    continue;
+                var shape = shapeVal.RawText;
                 using var g = getter.GetStream(DataType.Geometry, id, mode);
                 using var s = new StreamWriter(g);
                 s.Write(shape);
@@ -245,10 +248,11 @@ namespace OpenSage.FileFormats.Apt
                 () => getter.GetStream(DataType.Dat, mode)
                 )));
 
-            foreach (var shapekvp in GeometryMap)
+            foreach (var (id, shapeVal) in GeometryMap)
             {
-                var id = shapekvp.Key;
-                var shape = shapekvp.Value.RawText;
+                if (shapeVal == null)
+                    continue;
+                var shape = shapeVal.RawText;
                 using var g = getter.GetStream(DataType.Geometry, id, mode);
                 using var s = new StreamWriter(g);
                 tasks.Add(s.WriteAsync(shape));
@@ -257,7 +261,7 @@ namespace OpenSage.FileFormats.Apt
             await Task.WhenAll(tasks);
         }
 
-        public void WriteTextures(AptStreamGetter getter, AptStreamGetter sourceGetter = null)
+        public void WriteTextures(AptStreamGetter getter, AptStreamGetter? sourceGetter = null)
         {
             if (sourceGetter == null)
                 sourceGetter = new StandardStreamGetter(RootDirectory, MovieName);
@@ -327,8 +331,8 @@ namespace OpenSage.FileFormats.Apt
             var constData = new ConstantStorage();
             var apt = new AptFile(constData, name, string.Empty)
             {
-                ImageMap = new ImageMap(),
-                GeometryMap = new Dictionary<uint, Geometry>()
+                ImageMap = new(),
+                GeometryMap = new()
             };
             apt.Movie = Movie.CreateEmpty(apt, width, height, millisecondsPerFrame);
             return apt;

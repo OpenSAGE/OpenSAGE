@@ -9,4 +9,9 @@ namespace OpenSage.Tools.AptTool.Base
     public record WrappedCharacter
     {
     }
+
+    public record WrappedText: WrappedCharacter
+    {
+
+    }
 }
