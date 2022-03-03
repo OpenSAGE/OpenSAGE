@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using OpenSage.FileFormats.Apt.Characters;
 
 namespace OpenSage.Tools.AptTool.Base
 {
-    [JsonObject()]
-    public class WrappedAptFile
+    public record WrappedButton : WrappedCharacter<Button>
     {
-
     }
 }
