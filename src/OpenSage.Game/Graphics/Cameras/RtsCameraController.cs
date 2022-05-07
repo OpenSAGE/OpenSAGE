@@ -28,10 +28,12 @@ namespace OpenSage.Graphics.Cameras
         public bool CanPlayerInputChangePitch { get; set; }
         
         private float _yaw;
+
         public void SetLookDirection(Vector3 lookDirection)
         {
             _yaw = MathF.Atan2(lookDirection.Y, lookDirection.X);
         }
+
         public Vector3 GetLookDirection()
         {
             return new Vector3(
@@ -273,10 +275,7 @@ namespace OpenSage.Graphics.Cameras
 
         private void KeyRotateCamera(float rotationValue)
         {
-            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
-            yaw -= rotationValue;
-            _lookDirection.X = MathF.Cos(yaw);
-            _lookDirection.Y = MathF.Sin(yaw);
+            _yaw -= rotationValue;
         }
 
         private void PanCamera(float forwards, float right)
