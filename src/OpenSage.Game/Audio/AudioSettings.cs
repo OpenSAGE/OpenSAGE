@@ -56,7 +56,7 @@ namespace OpenSage.Audio
             { "DefaultVoiceVolume", (parser, x) => x.DefaultVoiceVolume = parser.ParsePercentage() },
             { "Default3DSoundVolume", (parser, x) => x.Default3DSoundVolume = parser.ParsePercentage() },
             { "DefaultSpeechVolume", (parser, x) => x.DefaultSpeechVolume = parser.ParsePercentage() },
-            { "DefaultMusicVolume", (parser, x) => x.DefaultMusicVolume = parser.ParsePercentage() },
+            { "DefaultMusicVolume", (parser, x) => x.DefaultMusicVolume = new Percentage(0.0f) },
             { "Default2DSpeakerType", (parser, x) => x.Default2DSpeakerType = parser.ParseString() },
             { "Default3DSpeakerType", (parser, x) => x.Default3DSpeakerType = parser.ParseString() },
 
@@ -140,7 +140,7 @@ namespace OpenSage.Audio
 
             result.DefaultSoundVolume = reader.ReadPercentage();
             result.DefaultVoiceVolume = reader.ReadPercentage();
-            result.DefaultMusicVolume = reader.ReadPercentage();
+            result.DefaultMusicVolume = new Percentage(0.0f);
             result.DefaultMovieVolume = reader.ReadPercentage();
             result.DefaultAmbientVolume = reader.ReadPercentage();
             result.AutomaticSubtitleDuration = reader.ReadTime();

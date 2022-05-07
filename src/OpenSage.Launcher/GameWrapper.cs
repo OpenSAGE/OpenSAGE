@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommandLine;
-using NLog.Targets;
+using System.Threading.Tasks;
+using static OpenSage.Launcher.Program;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
@@ -12,64 +12,24 @@ using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
+using System.IO;
 using Veldrid;
+using Veldrid.Sdl2;
+using OpenSage.Logic.Orders;
 
 namespace OpenSage.Launcher
 {
-    public static class Program
+    public class GameWrapper
     {
-        public sealed class Options
-        {
-            [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend (Direct3D11,Vulkan,OpenGL,Metal,OpenGLES).")]
-            public GraphicsBackend? Renderer { get; set; }
-
-            [Option("noshellmap", Default = false, Required = false, HelpText = "Disables loading the shell map, speeding up startup time.")]
-            public bool NoShellmap { get; set; }
-
-            [Option('g', "game", Default = SageGame.CncGenerals, Required = false, HelpText = "Chooses which game to start.")]
-            public SageGame Game { get; set; }
-
-            [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.")]
-            public string Map { get; set; }
-
-            [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
-            public bool DisableVsync { get; set; }
-
-            [Option('f', "fullscreen", Default = false, Required = false, HelpText = "Enable fullscreen mode.")]
-            public bool Fullscreen { get; set; }
-
-            [Option('d', "renderdoc", Default = false, Required = false, HelpText = "Enable renderdoc debugging.")]
-            public bool RenderDoc { get; set; }
-
-            [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
-            public bool DeveloperMode { get; set; }
-
-            [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
-            public string TraceFile { get; set; }
-
-            [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
-            public string ReplayFile { get; set; }
-
-            [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
-            public string GamePath { get; set; }
-
-            [Option('u', "uniqueports", Default = false, Required = false, HelpText = "Use a unique port for each client in a multiplayer game. Normally, port 8088 is used, but when we want to run multiple game instances on the same machine (for debugging purposes), each client needs a different port.")]
-            public bool UseUniquePorts { get; set; }
-        }
-
-        public static void Main(string[] args)
-        {
-            Console.OutputEncoding = Encoding.UTF8;
-
-            Target.Register<Core.InternalLogger>("OpenSage");
-            GameWrapper gameBuilder = new GameWrapper();
-            Parser.Default.ParseArguments<Options>(args)
-              .WithParsed(opts => Run(opts));
-        }
+        public event EventHandler InitializationComplete;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private Game game;
+        private GameWindow window;
+        private TextureCopier textureCopier;
+        private DeveloperModeView developerModeView;
 
-        public static void Run(Options opts)
+        public void Initialize(Options opts)
         {
             logger.Info("Starting...");
 
@@ -144,10 +104,10 @@ namespace OpenSage.Launcher
 
             logger.Debug($"Have configuration");
 
-            using (var window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen))
-            using (var game = new Game(installation, opts.Renderer, config, window))
-            using (var textureCopier = new TextureCopier(game, window.Swapchain.Framebuffer.OutputDescription))
-            using (var developerModeView = new DeveloperModeView(game, window))
+            this.window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen);
+            this.game = new Game(installation, opts.Renderer, config, window);
+            this.textureCopier = new TextureCopier(game, window.Swapchain.Framebuffer.OutputDescription);
+            this.developerModeView = new DeveloperModeView(game, window);
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
@@ -186,8 +146,8 @@ namespace OpenSage.Launcher
                         {
                             var pSettings = new PlayerSetting[]
                             {
-                                new(1, "FactionAmerica", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
-                                new(2, "FactionGLA", new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
+                                new PlayerSetting(2, "FactionChina", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                new PlayerSetting(1, "FactionGLA", new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
                             };
 
                             logger.Debug("Starting multiplayer game");
@@ -235,6 +195,7 @@ namespace OpenSage.Launcher
                 logger.Debug("Starting game");
 
                 game.StartRun();
+                this.OnInitializationComplete(new EventArgs());
 
                 while (game.IsRunning)
                 {
@@ -272,6 +233,53 @@ namespace OpenSage.Launcher
             }
 
             Platform.Stop();
+        }
+
+        public void SendKey(KeyEvent keyEvent)
+        {
+            //_window.KeyDown += HandleKeyDown;
+            //_window.KeyUp += HandleKeyUp;
+
+            //_window.MouseDown += HandleMouseDown;
+            //_window.MouseUp += HandleMouseUp;
+            //_window.MouseMove += HandleMouseMove;
+            //_window.MouseWheel += HandleMouseWheel;
+
+            if (keyEvent.Down)
+            {
+                this.window.HandleKeyDown(keyEvent);
+            }
+            else
+            {
+                this.window.HandleKeyUp(keyEvent);
+            }
+        }
+
+        public void AddOrder(Order order)
+        {
+            this.game.NetworkMessageBuffer?.AddLocalOrder(order);
+        }
+
+        public void SendMouseMove(MouseState state)
+        {
+            // MouseMoveEventArgs mouseMove = new MouseMoveEventArgs(new MouseState()
+            // this.window.handl
+        }
+
+        public void Shutdown()
+        {
+            this.game.Exit();
+        }
+
+        protected virtual void OnInitializationComplete(EventArgs e)
+        {
+            EventHandler raiseEvent = InitializationComplete;
+
+            // Event will be null if there are no subscribers
+            if (raiseEvent != null)
+            {
+                raiseEvent(this, e);
+            }
         }
     }
 }

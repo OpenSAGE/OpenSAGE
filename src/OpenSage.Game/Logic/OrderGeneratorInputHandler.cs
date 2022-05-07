@@ -1,4 +1,5 @@
 ﻿using OpenSage.Input;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
@@ -44,9 +45,13 @@ namespace OpenSage.Logic
                         _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
                     }
                     break;
-
-                case InputMessageType.MouseLeftButtonDown:
-                    if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
+                case InputMessageType.MouseRightButtonDown:
+                    if (_orderGeneratorSystem.ActiveGenerator is ConstructBuildingOrderGenerator)
+                    {
+                        _orderGeneratorSystem.CancelOrderGenerator();
+                        break;
+                    }
+                    else if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
                         if (_orderGeneratorSystem.TryActivate(_keyModifiers))
                         {
@@ -59,7 +64,7 @@ namespace OpenSage.Logic
                     _dragEndPosition = _mousePosition;
                     return InputMessageResult.Handled;
 
-                case InputMessageType.MouseLeftButtonUp:
+                case InputMessageType.MouseRightButtonUp:
                     if (_isDragging)
                     {
                         _orderGeneratorSystem.TryActivate(_keyModifiers);
@@ -68,9 +73,16 @@ namespace OpenSage.Logic
                     }
                     break;
 
-                case InputMessageType.MouseRightButtonDown:
+                case InputMessageType.MouseLeftButtonDown:
                     // TODO: is this desirable if we don't actually deselect the unit, but simply pan the camera?
-                    _orderGeneratorSystem.CancelOrderGenerator();
+                    if (_orderGeneratorSystem.ActiveGenerator is ConstructBuildingOrderGenerator)
+                    {
+                        _orderGeneratorSystem.TryActivate(_keyModifiers);
+                    }
+                    else
+                    {
+                        _orderGeneratorSystem.CancelOrderGenerator();
+                    }
                     break;
 
                 case InputMessageType.KeyDown:
