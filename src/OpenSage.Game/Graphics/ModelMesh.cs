@@ -5,6 +5,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -19,78 +20,29 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed partial class ModelMesh : BaseAsset
+    public sealed partial class ModelMesh : ModelRenderObject
     {
-        private readonly ShaderSet _shaderSet;
-        private ShaderSet _depthShaderSet;
-
-        private readonly Pipeline _depthPipeline;
-
-        private readonly DeviceBuffer _vertexBuffer;
+        internal readonly DeviceBuffer VertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
-        private readonly ResourceSet _meshConstantsResourceSet;
+        internal readonly ConstantBuffer<MeshShaderResources.MeshConstants> MeshConstantsBuffer;
 
-        private ResourceSet _samplerResourceSet;
+        private readonly AxisAlignedBoundingBox _boundingBox;
 
-        internal BeforeRenderDelegate[] BeforeRenderDelegates { get; private set; }
-        internal BeforeRenderDelegate[] BeforeRenderDelegatesDepth { get; private set; }
-
-        public readonly AxisAlignedBoundingBox BoundingBox;
+        public override ref readonly AxisAlignedBoundingBox BoundingBox => ref _boundingBox;
 
         public readonly List<ModelMeshPart> MeshParts;
 
         public readonly bool Skinned;
 
-        public readonly bool Hidden;
+        public override bool Hidden { get; }
         public readonly bool CameraOriented;
 
-        private void PostInitialize(AssetLoadContext loadContext)
-        {
-            _samplerResourceSet = loadContext.ShaderResources.Mesh.SamplerResourceSet;
-            _depthShaderSet = loadContext.ShaderResources.MeshDepth.ShaderSet;
-
-            BeforeRenderDelegates = new BeforeRenderDelegate[MeshParts.Count];
-            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[MeshParts.Count];
-
-            for (var i = 0; i < BeforeRenderDelegates.Length; i++)
-            {
-                var meshPart = MeshParts[i];
-
-                BeforeRenderDelegates[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-
-                BeforeRenderDelegatesDepth[i] = (cl, context) =>
-                {
-                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-
-                    if (meshPart.TexCoordVertexBuffer != null)
-                    {
-                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                    }
-                };
-            }
-        }
-
-        internal void BuildRenderList(
+        internal override void BuildRenderList(
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
-            BeforeRenderDelegate[] beforeRender,
-            BeforeRenderDelegate[] beforeRenderDepth,
+            ModelMeshInstance modelMeshInstance,
             ModelBone parentBone,
             in Matrix4x4 modelTransform,
             bool castsShadow,
@@ -104,20 +56,18 @@ namespace OpenSage.Graphics
                 renderList,
                 camera,
                 modelInstance,
-                beforeRender,
-                beforeRenderDepth,
+                modelMeshInstance,
                 parentBone,
                 meshWorldMatrix,
                 castsShadow,
                 renderItemConstantsPS);
         }
 
-        internal void BuildRenderListWithWorldMatrix(
+        internal override void BuildRenderListWithWorldMatrix(
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
-            BeforeRenderDelegate[] beforeRender,
-            BeforeRenderDelegate[] beforeRenderDepth,
+            ModelMeshInstance modelMeshInstance,
             ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow,
@@ -172,14 +122,13 @@ namespace OpenSage.Graphics
                 {
                     renderList.Shadow.RenderItems.Add(new RenderItem(
                         Name,
-                        _depthShaderSet,
-                        _depthPipeline,
+                        modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ShadowPass,
                         meshBoundingBox,
                         world,
                         meshPart.StartIndex,
                         meshPart.IndexCount,
                         _indexBuffer,
-                        beforeRenderDepth[i]));
+                        modelMeshInstance.MeshPartInstances[i].BeforeRenderCallbackDepth));
                 }
 
                 // Standard pass
@@ -189,16 +138,16 @@ namespace OpenSage.Graphics
                     : renderList.Opaque;
 
                 renderQueue.RenderItems.Add(new RenderItem(
-                    Name,
-                    _shaderSet,
-                    forceBlendEnabled ? meshPart.PipelineBlend : meshPart.Pipeline,
+                    FullName,
+                    forceBlendEnabled
+                        ? modelMeshInstance.MeshPartInstances[i].ModelMeshPart.MaterialBlend.ForwardPass
+                        : modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ForwardPass,
                     meshBoundingBox,
                     world,
                     meshPart.StartIndex,
                     meshPart.IndexCount,
                     _indexBuffer,
-                    beforeRender[i],
-                    renderItemConstantsPS));
+                    modelMeshInstance.MeshPartInstances[i].BeforeRenderCallback));
             }
         }
     }

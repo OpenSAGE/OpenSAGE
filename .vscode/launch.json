@@ -5,49 +5,20 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": "Apt Editor",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "buildAptEditor",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/OpenSage.Tools.AptEditor/bin/Debug/netcoreapp2.2/OpenSage.Tools.AptEditor.dll",
-            "args": [],
-            "cwd": "${workspaceRoot}/OpenSage.Tools.AptEditor",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "externalTerminal",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net5.0/OpenSage.Launcher.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/OpenSage.Launcher",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-
-        {
             "name": "Generals",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net5.0/OpenSage.Launcher.dll",
+            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
             "args": [
                 "--developermode", "true",
                 "--game", "0"
             ]
         },
-        
         {
             "name": "Zero Hour",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net5.0/OpenSage.Launcher.dll",
+            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
             "args": [
                 "--developermode", "true",
                 "--game", "1"

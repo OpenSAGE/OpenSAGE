@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
@@ -8,11 +7,11 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "LibraryMaps";
 
-        public string[] Values { get; private set; }
+        public string[] Values { get; private init; }
 
         internal static LibraryMaps Parse(BinaryReader reader, MapParseContext context)
         {
-            return ParseAsset(reader, context, version =>
+            return ParseAsset(reader, context, _ =>
             {
                 var values = new string[reader.ReadUInt32()];
                 for (var i = 0; i < values.Length; i++)

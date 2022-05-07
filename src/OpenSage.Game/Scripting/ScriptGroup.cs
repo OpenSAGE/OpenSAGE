@@ -2,12 +2,11 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
-using OpenSage.Data.Sav;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Scripting
 {
-    public sealed class ScriptGroup : Asset
+    public sealed class ScriptGroup : Asset, IPersistableObject
     {
         public const string AssetName = "ScriptGroup";
 
@@ -120,21 +119,16 @@ namespace OpenSage.Scripting
             });
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var numScripts = reader.ReadUInt16();
-
-            if (numScripts != Scripts.Length)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < numScripts; i++)
-            {
-                Scripts[i].Load(reader);
-            }
+            reader.PersistArrayWithUInt16Length(
+                Scripts,
+                static (StatePersister persister, ref Script item) =>
+                {
+                    persister.PersistObjectValue(item);
+                });
         }
 
         public ScriptGroup Copy(string appendix)

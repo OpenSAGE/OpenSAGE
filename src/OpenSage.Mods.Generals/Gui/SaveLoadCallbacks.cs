@@ -23,7 +23,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 foreach (var file in fileSystem.GetFilesInDirectory("", "*.sav"))
                 {
-                    var saveGameState = SaveFile.GetGameState(file);
+                    var saveGameState = SaveFile.GetGameState(file, game);
 
                     newItems.Add(new ListBoxDataItem(
                         file.FilePath,

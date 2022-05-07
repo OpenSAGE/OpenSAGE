@@ -194,7 +194,8 @@ namespace OpenSage.Scripting
         public string Spawn(string objectType)  //quick spawn
         {
             if (objectType.Equals("")) { objectType = "AmericaVehicleDozer"; }
-            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, Game.Scene3D.LocalPlayer);
+            var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, Game.Scene3D.LocalPlayer);
             var localPlayerStartPosition = Game.Scene3D.Waypoints[$"Player_{1}_Start"].Position;
             localPlayerStartPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(localPlayerStartPosition.X, localPlayerStartPosition.Y);
             var spawnUnitPosition = localPlayerStartPosition;
@@ -202,20 +203,21 @@ namespace OpenSage.Scripting
             var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
             spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
             spawnUnit.SetTranslation(spawnUnitPosition);
-            return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
+            return GetLuaObjectIndex(spawnUnit.ID);
         }
 
         public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
         {
             var player = Game.Scene3D.LocalPlayer;
-            var spawnUnit = Game.Scene3D.GameObjects.Add(objectType, player);
+            var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
+            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, player);
             var spawnPosition = new System.Numerics.Vector3(xPos, yPos, zPos);
             spawnPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(spawnPosition.X, spawnPosition.Y);
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }
             var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
             spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
             spawnUnit.SetTranslation(spawnPosition);
-            return GetLuaObjectIndex(Game.Scene3D.GameObjects.GetObjectId(spawnUnit));
+            return GetLuaObjectIndex(spawnUnit.ID);
         }
 
         public string GetActionNameVariant(string action, int variant)
@@ -343,7 +345,7 @@ namespace OpenSage.Scripting
 
         public int ObjectCountNearbyEnemies(string gameObject, string radius)
         {
-            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Team.Owner.Enemies.Count; //placeholder
+            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Owner.Enemies.Count; //placeholder
         }
 
         public int ObjectGetHealthFraction(string gameObject)
@@ -353,7 +355,7 @@ namespace OpenSage.Scripting
 
         public string ObjectDescription(string gameObject)  //EXAMPLE C&C3: "Object 1187 (_jIWv4) [NODAvatar, owned by player 3 (MetaIdea)]"
         {
-            var ObjectID = Game.Scene3D.GameObjects.GetObjectId(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)));
+            var ObjectID = GetLuaObjectID(gameObject);
             var ObjectNameRef = "TODO";
             var ObjectTypeName = Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Definition.Name;
             var PlayerIndex = "TODO";
@@ -363,7 +365,7 @@ namespace OpenSage.Scripting
 
         public string ObjectTeamName(string gameObject) //EXAMPLE C&C3: "teamPlayer_2"
         {
-            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Team.Name;
+            return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Name;
         }
 
         public string ObjectPlayerSide(string gameObject) //EXAMPLE C&C3: "{0,0}ED46C05A" BFME: "Isengard""

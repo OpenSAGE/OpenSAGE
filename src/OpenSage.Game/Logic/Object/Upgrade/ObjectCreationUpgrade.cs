@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,35 +14,33 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
-            {
-                foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
-                {
-                    var createdObjects = item.Execute(context);
+            // TODO: Get rid of this context thing.
+            var context = new BehaviorUpdateContext(_gameObject.GameContext, _gameObject, _gameObject.GameContext.Scene3D.Game.GetTimeInterval());
 
-                    foreach (var createdObject in createdObjects)
+            foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
+            {
+                var createdObjects = item.Execute(context);
+
+                foreach (var createdObject in createdObjects)
+                {
+                    var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
+                    if (slavedUpdateBehaviour != null)
                     {
-                        var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
-                        if (slavedUpdateBehaviour != null)
-                        {
-                            slavedUpdateBehaviour.Master = context.GameObject;
-                        }
+                        slavedUpdateBehaviour.Master = _gameObject;
                     }
                 }
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
         }
     }
 

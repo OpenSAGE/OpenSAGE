@@ -11,10 +11,15 @@ namespace OpenSage.Tests.Data
 {
     internal static class InstalledFilesTestData
     {
-        public static string GetInstallationDirectory(SageGame game)
+        public static GameInstallation GetInstallation(SageGame game)
         {
             var definition = GameDefinition.FromGame(game);
-            return InstallationLocators.FindAllInstallations(definition).First().Path;
+            return InstallationLocators.FindAllInstallations(definition).First();
+        }
+
+        public static string GetInstallationDirectory(SageGame game)
+        {
+            return GetInstallation(game).Path;
         }
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)

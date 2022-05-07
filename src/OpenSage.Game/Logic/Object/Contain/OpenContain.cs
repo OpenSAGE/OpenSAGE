@@ -1,21 +1,87 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class OpenContainModule : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private readonly List<uint> _containedObjectIds = new();
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private BitArray<ModelConditionFlag> _modelConditionFlags = new();
+        private readonly Matrix4x3[] _unknownTransforms = new Matrix4x3[32];
+        private uint _nextFirePointIndex;
+        private uint _numFirePoints;
+        private bool _hasNoFirePoints;
+        private readonly List<OpenContainSomething> _unknownList = new();
+        private int _unknownInt;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistListWithUInt32Count(
+                _containedObjectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
+
+            reader.SkipUnknownBytes(2);
+
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+
+            reader.SkipUnknownBytes(8);
+
+            reader.PersistBitArray(ref _modelConditionFlags);
+
+            // Where does the 32 come from?
+            reader.PersistArray(
+                _unknownTransforms,
+                static (StatePersister persister, ref Matrix4x3 item) =>
+                {
+                    persister.PersistMatrix4x3Value(ref item, readVersion: false);
+                });
+
+            var unknown6 = -1;
+            reader.PersistInt32(ref unknown6);
+            if (unknown6 != -1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.PersistUInt32(ref _nextFirePointIndex);
+            reader.PersistUInt32(ref _numFirePoints);
+            reader.PersistBoolean(ref _hasNoFirePoints);
+
+            reader.SkipUnknownBytes(13);
+
+            reader.PersistList(
+                _unknownList,
+                static (StatePersister persister, ref OpenContainSomething item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
+
+            reader.PersistInt32(ref _unknownInt);
+        }
+
+        private struct OpenContainSomething : IPersistableObject
+        {
+            public uint ObjectId;
+            public int Unknown;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistObjectID(ref ObjectId);
+                persister.PersistInt32(ref Unknown);
+            }
         }
     }
 

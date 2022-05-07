@@ -1,23 +1,28 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class PropagandaTowerBehavior : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private uint _unknownFrame;
+        private readonly List<uint> _objectIds = new();
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
             base.Load(reader);
 
-            // TODO
+            reader.PersistFrame(ref _unknownFrame);
+
+            reader.PersistList(
+                _objectIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
         }
     }
 

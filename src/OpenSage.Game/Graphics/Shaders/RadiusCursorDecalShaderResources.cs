@@ -1,7 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
-using OpenSage.Graphics.Rendering.Shadows;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders

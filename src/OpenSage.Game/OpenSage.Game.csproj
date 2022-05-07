@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="FixedMath.NET" Version="1.0.1" />
-    <PackageReference Include="ImGui.NET" Version="1.78.0" />
+    <PackageReference Include="ImGui.NET" Version="1.86.0" />
     <PackageReference Include="LiteNetLib" Version="0.9.5.2" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="MoonSharp" Version="2.0.0" />
@@ -35,19 +35,22 @@
     <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+    <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Network\Protocol\lobby.proto" />
   </ItemGroup>
 
-
   <ItemGroup>
     <EmbeddedResource Include="Content\Fonts\*.ttf" />
   </ItemGroup>
 
   <ItemGroup>
-    <ShaderFiles Include="Assets\Shaders\*.vert;Assets\Shaders\*.frag" />
+    <VertexShaderFiles Include="Assets\Shaders\*.vert" />
+    <FragmentShaderFiles Include="Assets\Shaders\*.frag" />
+    
+    <ShaderFiles Include="@(VertexShaderFiles);@(FragmentShaderFiles)" />
     <UpToDateCheckInput Include="@(ShaderFiles)" />
 
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
@@ -66,7 +69,8 @@
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -V %(ShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv&quot;" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -DCOMPILING_FOR_VERTEX_SHADER -V %(VertexShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(VertexShaderFiles.FileName)%(VertexShaderFiles.Extension).spv&quot;" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath)&quot; -I'.' -DCOMPILING_FOR_FRAGMENT_SHADER -V %(FragmentShaderFiles.Identity) -o &quot;$(IntermediateOutputPath)Assets\Shaders\%(FragmentShaderFiles.FileName)%(FragmentShaderFiles.Extension).spv&quot;" />
   </Target>
 
   <Target Name="EmbedShaders" AfterTargets="CompileShaders">

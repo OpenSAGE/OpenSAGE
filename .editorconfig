@@ -53,7 +53,7 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
-csharp_space_after_cast = true
+csharp_space_after_cast = false
 csharp_prefer_braces = true:suggestion
 
 dotnet_naming_rule.constants_must_be_pascal_cased.symbols                                             = constant_symbols

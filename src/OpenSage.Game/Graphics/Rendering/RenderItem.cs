@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
@@ -10,11 +10,9 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly string DebugName;
 
-        public readonly ShaderSet ShaderSet;
-        public readonly Pipeline Pipeline;
+        public readonly Material Material;
         public readonly AxisAlignedBoundingBox BoundingBox;
         public readonly Matrix4x4 World;
-        public readonly MeshShaderResources.RenderItemConstantsPS? RenderItemConstantsPS;
         public readonly BeforeRenderDelegate BeforeRenderCallback;
         public readonly uint StartIndex;
         public readonly uint IndexCount;
@@ -24,35 +22,33 @@ namespace OpenSage.Graphics.Rendering
 
         public RenderItem(
             string debugName,
-            ShaderSet shaderSet,
-            Pipeline pipeline,
+            Material material,
             in AxisAlignedBoundingBox boundingBox,
             in Matrix4x4 world,
             uint startIndex,
             uint indexCount,
             DeviceBuffer indexBuffer,
-            BeforeRenderDelegate beforeRenderCallback,
-            MeshShaderResources.RenderItemConstantsPS? renderItemConstantsPS = null)
+            BeforeRenderDelegate beforeRenderCallback)
         {
             DebugName = debugName;
-            ShaderSet = shaderSet;
-            Pipeline = pipeline;
+            Material = material;
             BoundingBox = boundingBox;
             World = world;
             StartIndex = startIndex;
             IndexCount = indexCount;
             IndexBuffer = indexBuffer;
             BeforeRenderCallback = beforeRenderCallback;
-            RenderItemConstantsPS = renderItemConstantsPS;
 
             // Key.
             Key = 0;
 
             // Bit 24-31: ShaderSet
-            Key |= (shaderSet.Id << 24);
+            Key |= (material.ShaderSet.Id << 24);
 
-            // Bit 8-23: Pipeline
-            Key |= (pipeline.GetHashCode()) << 8;
+            // Bit 16-23: Material
+            Key |= (material.Id) << 16;
+
+            // TODO: Vertex buffer?
         }
 
         int IComparable<RenderItem>.CompareTo(RenderItem other)
@@ -61,5 +57,5 @@ namespace OpenSage.Graphics.Rendering
         }
     }
 
-    public delegate void BeforeRenderDelegate(CommandList commandList, RenderContext context);
+    internal delegate void BeforeRenderDelegate(CommandList commandList, RenderContext context, in RenderItem renderItem);
 }

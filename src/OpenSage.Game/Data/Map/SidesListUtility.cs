@@ -43,7 +43,6 @@ namespace OpenSage.Data.Map
             }
 
             // TODO: Probably don't add replay observer player and team when viewing a replay?
-
             var replayObserverPlayerProperties = new AssetPropertyCollection();
             replayObserverPlayerProperties.AddAsciiString("playerFaction", "FactionObserver");
             replayObserverPlayerProperties.AddAsciiString("playerName", "ReplayObserver");
@@ -103,7 +102,7 @@ namespace OpenSage.Data.Map
             {
                 var playerSetting = playerSettings[i];
 
-                var factionPlayer = originalMapPlayers.Single(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
+                var factionPlayer = originalMapPlayers.First(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
 
                 var isHuman = playerSetting.Owner == PlayerOwner.Player;
 
@@ -165,7 +164,7 @@ namespace OpenSage.Data.Map
                 mapPlayers[i + 2].Properties.AddAsciiString("playerEnemies", playerEnemies[i]);
             }
 
-            var originalMapScriptLists = mapFile.SidesList.PlayerScripts.ScriptLists;
+            var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
 
             var playerNames = mapPlayers
                 .Select(p => p.Properties.GetPropOrNull("playerName")?.Value.ToString())
@@ -196,76 +195,17 @@ namespace OpenSage.Data.Map
                 1,
                 appendIndex: false);
 
-            var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
-
-            // TODO: Generals and ZH use SkirmishScripts.scb,
-            // but later games use "libraries".
-            if (skirmishScriptsEntry != null)
+            switch (game.SageGame)
             {
-                using var stream = skirmishScriptsEntry.Open();
-                var skirmishScripts = ScbFile.FromStream(stream);
-
-                // This probably isn't right, but it does make the teams match those in .sav files.
-                // We first add human player(s) teams, then the replay observer team, 
-                // then neutral and civilian teams, and then finally AI skirmish players.
-
-                var skirmishScriptsPlayerNames = skirmishScripts.ScriptsPlayers.Players.Select(p => p.Name).ToArray();
-
-                // Skip neutral and civilian players.
-                for (var i = 2; i < mapPlayers.Count; i++)
-                {
-                    if ((bool) mapPlayers[i].Properties["playerIsHuman"].Value)
-                    {
-                        // Copy the scripts from the civilian player to all human players.
-                        CopyScripts(
-                            skirmishScripts.PlayerScripts.ScriptLists,
-                            skirmishScriptsPlayerNames,
-                            civilianPlayerName,
-                            mapScriptLists,
-                            i,
-                            appendIndex: true);
-
-                        mapTeams.Add(CreateDefaultTeam((string) mapPlayers[i].Properties["playerName"].Value));
-                    }
-                }
-
-                mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
-
-                mapTeams.Add(CreateDefaultTeam(neutralPlayerName));
-                mapTeams.Add(CreateDefaultTeam(civilianPlayerName));
-
-                // Skip neutral and civilian players.
-                for (var i = 2; i < mapPlayers.Count; i++)
-                {
-                    if (!(bool) mapPlayers[i].Properties["playerIsHuman"].Value)
-                    {
-                        var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
-                        var sourcePlayerName = $"Skirmish{playerSide}";
-
-                        // Copy the scripts from the according skirmish player for all AI players.
-                        CopyScripts(
-                            skirmishScripts.PlayerScripts.ScriptLists,
-                            skirmishScriptsPlayerNames,
-                            sourcePlayerName,
-                            mapScriptLists,
-                            i,
-                            appendIndex: true);
-
-                        // TODO: Not sure about the order the teams are added.
-                        foreach (var team in skirmishScripts.Teams.Teams)
-                        {
-                            var teamOwner = (string) team.Properties["teamOwner"].Value;
-                            if (teamOwner == sourcePlayerName)
-                            {
-                                var teamName = $"{team.Properties["teamName"].Value}{i}";
-                                mapTeams.Add(CreateTeam(
-                                    teamName,
-                                    (string) mapPlayers[i].Properties["playerName"].Value,
-                                    (bool) team.Properties["teamIsSingleton"].Value));
-                            }
-                        }
-                    }
-                }
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    CreateTeamsFromScbFile(game, mapPlayers, mapTeams, mapScriptLists, playerSettings, neutralPlayerName, civilianPlayerName);
+                    break;
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    mapTeams.AddRange(mapFile.GetTeams());
+                    break;
             }
 
             if (playerSettings.Length > 1)
@@ -332,6 +272,83 @@ namespace OpenSage.Data.Map
             mapScriptLists.AddRange(mapFile.GetPlayerScriptsList().ScriptLists);
 
             mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
+        }
+
+        private static void CreateTeamsFromScbFile(
+            Game game,
+            List<Player> mapPlayers,
+            List<Team> mapTeams,
+            List<ScriptList> mapScriptLists,
+            PlayerSetting[] playerSettings,
+            string neutralPlayerName,
+            string civilianPlayerName)
+        {
+            var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
+
+            using var stream = skirmishScriptsEntry.Open();
+            var skirmishScripts = ScbFile.FromStream(stream);
+
+            // This probably isn't right, but it does make the teams match those in .sav files.
+            // We first add human player(s) teams, then the replay observer team, 
+            // then neutral and civilian teams, and then finally AI skirmish players.
+
+            var skirmishScriptsPlayerNames = skirmishScripts.ScriptsPlayers.Players.Select(p => p.Name).ToArray();
+
+            // Skip neutral and civilian players.
+            for (var i = 2; i < mapPlayers.Count; i++)
+            {
+                if ((bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                {
+                    // Copy the scripts from the civilian player to all human players.
+                    CopyScripts(
+                        skirmishScripts.PlayerScripts.ScriptLists,
+                        skirmishScriptsPlayerNames,
+                        civilianPlayerName,
+                        mapScriptLists,
+                        i,
+                        appendIndex: true);
+
+                    mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                }
+            }
+
+            mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
+
+            mapTeams.Add(CreateDefaultTeam(neutralPlayerName));
+            mapTeams.Add(CreateDefaultTeam(civilianPlayerName));
+
+            // Skip neutral and civilian players.
+            for (var i = 2; i < mapPlayers.Count; i++)
+            {
+                if (!(bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                {
+                    var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
+                    var sourcePlayerName = $"Skirmish{playerSide}";
+
+                    // Copy the scripts from the according skirmish player for all AI players.
+                    CopyScripts(
+                        skirmishScripts.PlayerScripts.ScriptLists,
+                        skirmishScriptsPlayerNames,
+                        sourcePlayerName,
+                        mapScriptLists,
+                        i,
+                        appendIndex: true);
+
+                    // TODO: Not sure about the order the teams are added.
+                    foreach (var team in skirmishScripts.Teams.Teams)
+                    {
+                        var teamOwner = (string)team.Properties["teamOwner"].Value;
+                        if (teamOwner == sourcePlayerName)
+                        {
+                            var teamName = $"{team.Properties["teamName"].Value}{i}";
+                            mapTeams.Add(CreateTeam(
+                                teamName,
+                                (string)mapPlayers[i].Properties["playerName"].Value,
+                                (bool)team.Properties["teamIsSingleton"].Value));
+                        }
+                    }
+                }
+            }
         }
     }
 }

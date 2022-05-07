@@ -1,33 +1,30 @@
-﻿using System.IO;
-using System.Text;
-using OpenSage.Client;
-using OpenSage.Data.Map;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using OpenSage.Graphics.Cameras;
 using OpenSage.IO;
-using OpenSage.Logic;
-using OpenSage.Terrain;
 
 namespace OpenSage.Data.Sav
 {
     public static class SaveFile
     {
-        public static GameState GetGameState(FileSystemEntry entry)
+        public static GameState GetGameState(FileSystemEntry entry, Game game)
         {
             using (var stream = entry.Open())
-            using (var binaryReader = new BinaryReader(stream, Encoding.Unicode, true))
             {
-                var reader = new SaveFileReader(binaryReader);
+                var reader = new StateReader(stream, game);
 
                 while (true)
                 {
-                    var chunkName = reader.ReadAsciiString();
+                    var chunkName = "";
+                    reader.PersistAsciiString(ref chunkName);
 
-                    reader.BeginSegment();
+                    reader.BeginSegment(chunkName);
 
                     if (chunkName == "CHUNK_GameState")
                     {
                         var gameState = new GameState();
-                        gameState.Load(reader);
+                        gameState.Persist(reader);
                         return gameState;
                     }
 
@@ -35,7 +32,7 @@ namespace OpenSage.Data.Sav
                 }
             }
 
-            throw new InvalidDataException();
+            throw new InvalidStateException();
         }
 
         public static void Load(FileSystemEntry entry, Game game)
@@ -46,122 +43,134 @@ namespace OpenSage.Data.Sav
 
         public static void LoadFromStream(Stream stream, Game game)
         {
-            using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
+            using var statePersister = new StateReader(stream, game);
 
-            var reader = new SaveFileReader(binaryReader);
+            Persist(statePersister);
+        }
 
-            var gameState = new GameState();
-            GameLogic gameLogic = null;
-            GameClient gameClient = null;
-            CampaignManager campaignManager = null;
-            var terrainLogic = new TerrainLogic();
-            var terrainVisual = new TerrainVisual();
-            var partitionCellManager = new PartitionCellManager(game);
-            var ghostObjectManager = new GhostObjectManager();
+        private record struct ChunkDefinition(string ChunkName, Func<Game, IPersistableObject> GetPersistableObject);
 
-            while (true)
+        private static readonly List<ChunkDefinition> ChunkDefinitions = new()
+        {
+            new ChunkDefinition("CHUNK_GameState", game => game.GameState),
+            new ChunkDefinition("CHUNK_Campaign", game => game.CampaignManager),
+            new ChunkDefinition("CHUNK_GameStateMap", game => game.GameStateMap),
+            new ChunkDefinition("CHUNK_TerrainLogic", game => game.TerrainLogic),
+            new ChunkDefinition("CHUNK_TeamFactory", game => game.TeamFactory),
+            new ChunkDefinition("CHUNK_Players", game => game.PlayerManager),
+            new ChunkDefinition("CHUNK_GameLogic", game => game.GameLogic),
+            new ChunkDefinition("CHUNK_ParticleSystem", game => game.Scene3D.ParticleSystemManager),
+            new ChunkDefinition("CHUNK_Radar", game => game.Scene3D.Radar),
+            new ChunkDefinition("CHUNK_ScriptEngine", game => game.Scripting),
+            new ChunkDefinition("CHUNK_SidesList", game => game.Scene3D.PlayerScripts),
+            new ChunkDefinition("CHUNK_TacticalView", game => ((RtsCameraController) game.Scene3D.CameraController)),
+            new ChunkDefinition("CHUNK_GameClient", game => game.GameClient),
+            new ChunkDefinition("CHUNK_InGameUI", game => game.AssetStore.InGameUI.Current),
+            new ChunkDefinition("CHUNK_Partition", game => game.PartitionCellManager),
+            new ChunkDefinition("CHUNK_TerrainVisual", game => game.TerrainVisual),
+            new ChunkDefinition("CHUNK_GhostObject", game => game.GhostObjectManager),
+
+        };
+
+        public static void Persist(StatePersister persister)
+        {
+            //using var binaryReader = new BinaryReader(stream, Encoding.Unicode, true);
+
+            //if (game.SageGame >= SageGame.Bfme)
+            //{
+            //    var header1 = binaryReader.ReadFourCc(bigEndian: true);
+            //    if (header1 != "EALA")
+            //    {
+            //        throw new InvalidStateException();
+            //    }
+
+            //    var header2 = binaryReader.ReadFourCc(bigEndian: true);
+            //    if (header2 != "RTS1")
+            //    {
+            //        throw new InvalidStateException();
+            //    }
+
+            //    var header3 = binaryReader.ReadUInt32();
+            //    if (header3 != 0)
+            //    {
+            //        throw new InvalidStateException();
+            //    }
+            //}
+
+            persister.BeginArray();
+
+            if (persister.Mode == StatePersistMode.Read)
             {
-                var chunkName = reader.ReadAsciiString();
-                if (chunkName == "SG_EOF")
+                while (true)
                 {
-                    if (stream.Position != stream.Length)
+                    persister.BeginObject();
+
+                    var chunkName = "";
+                    persister.PersistAsciiString(ref chunkName);
+
+                    if (chunkName == "SG_EOF")
                     {
-                        throw new InvalidDataException();
+                        //if (stream.Position != stream.Length)
+                        //{
+                        //    throw new InvalidStateException();
+                        //}
+                        break;
                     }
-                    break;
-                }
 
-                reader.BeginSegment();
+                    var chunkLength = persister.BeginSegment(chunkName);
 
-                switch (chunkName)
-                {
-                    case "CHUNK_GameState":
-                        gameState.Load(reader);
-                        break;
+                    var chunkDefinition = ChunkDefinitions.Find(x => x.ChunkName == chunkName);
 
-                    case "CHUNK_Campaign":
-                        campaignManager = new CampaignManager();
-                        campaignManager.Load(reader);
-                        break;
-
-                    case "CHUNK_GameStateMap":
-                        GameStateMap.Load(reader, game);
-                        partitionCellManager.OnNewGame();
-                        break;
-
-                    case "CHUNK_TerrainLogic":
-                        terrainLogic.Load(reader);
-                        break;
-
-                    case "CHUNK_TeamFactory":
-                        game.Scene3D.TeamFactory.Load(reader);
-                        break;
-
-                    case "CHUNK_Players":
-                        game.Scene3D.PlayerManager.Load(reader, game);
-                        break;
-
-                    case "CHUNK_GameLogic":
-                        gameLogic = new GameLogic(game.Scene3D);
-                        gameLogic.Load(reader);
-                        break;
-
-                    case "CHUNK_ParticleSystem":
-                        game.Scene3D.ParticleSystemManager.Load(reader);
-                        break;
-
-                    case "CHUNK_Radar":
-                        game.Scene3D.Radar.Load(reader);
-                        break;
-
-                    case "CHUNK_ScriptEngine":
-                        game.Scripting.Load(reader);
-                        break;
-
-                    case "CHUNK_SidesList":
-                        game.Scene3D.PlayerScripts.Load(reader);
-                        break;
-
-                    case "CHUNK_TacticalView":
-                        ((RtsCameraController) game.Scene3D.CameraController).Load(reader);
-                        break;
-
-                    case "CHUNK_GameClient":
-                        gameClient = new GameClient(game.Scene3D, gameLogic);
-                        gameClient.Load(reader);
-                        break;
-
-                    case "CHUNK_InGameUI":
-                        game.AssetStore.InGameUI.Current.Load(reader);
-                        break;
-
-                    case "CHUNK_Partition":
-                        partitionCellManager.Load(reader);
-                        break;
-
-                    case "CHUNK_TerrainVisual":
-                        terrainVisual.Load(reader, game);
-                        break;
-
-                    case "CHUNK_GhostObject":
-                        ghostObjectManager.Load(reader, gameLogic, game);
-                        break;
-
-                    default:
+                    if (chunkDefinition == default)
+                    {
                         throw new InvalidDataException($"Unknown chunk type '{chunkName}'.");
+                    }
+
+                    var persistableObject = chunkDefinition.GetPersistableObject(persister.Game);
+                    persister.PersistObject(persistableObject, "ChunkData");
+
+                    persister.EndSegment();
+
+                    persister.EndObject();
                 }
 
-                reader.EndSegment();
+                // If we haven't started a game yet (which will be the case for
+                // "mission start" save files), then start it now.
+                if (!persister.Game.InGame)
+                {
+                    persister.Game.StartCampaign(
+                        persister.Game.CampaignManager.CampaignName,
+                        persister.Game.CampaignManager.MissionName);
+                }
+            }
+            else
+            {
+                foreach (var chunkDefinition in ChunkDefinitions)
+                {
+                    persister.BeginObject();
+
+                    var chunkName = chunkDefinition.ChunkName;
+                    persister.PersistAsciiString(ref chunkName);
+
+                    persister.BeginSegment(chunkName);
+
+                    var persistableObject = chunkDefinition.GetPersistableObject(persister.Game);
+                    persister.PersistObject(persistableObject, "ChunkData");
+
+                    persister.EndSegment();
+
+                    persister.EndObject();
+                }
+
+                persister.BeginObject();
+
+                var endChunkName = "SG_EOF";
+                persister.PersistAsciiString(ref endChunkName, "ChunkName");
+
+                persister.EndObject();
             }
 
-            // If we haven't started a game yet (which will be the case for
-            // "mission start" save files), then start it now.
-            if (!game.InGame)
-            {
-                game.StartCampaign(
-                    campaignManager.CampaignName,
-                    campaignManager.MissionName);
-            }
+            persister.EndArray();
         }
     }
 

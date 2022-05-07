@@ -1,23 +1,22 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers
 {
     internal sealed class ObjectFiringTrackerHelper : UpdateModule
     {
-        // TODO
+        private uint _numShotsFiredAtLastTarget;
+        private uint _lastTargetObjectId;
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown = reader.ReadBytes(12);
+            reader.PersistUInt32(ref _numShotsFiredAtLastTarget);
+            reader.PersistObjectID(ref _lastTargetObjectId);
+
+            reader.SkipUnknownBytes(4);
         }
     }
 }

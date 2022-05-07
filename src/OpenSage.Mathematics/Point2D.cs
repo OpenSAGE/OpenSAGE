@@ -3,18 +3,9 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct Point2D
+    public readonly record struct Point2D(int X, int Y)
     {
         public static readonly Point2D Zero = new Point2D(0, 0);
-
-        public readonly int X;
-        public readonly int Y;
-
-        public Point2D(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
 
         public override string ToString()
         {

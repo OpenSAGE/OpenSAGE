@@ -1,29 +1,41 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
-
-namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object
 {
-    public sealed class Animation : BaseAsset
+    public sealed class Animation : IPersistableObject
     {
-        internal static Animation Parse(IniParser parser)
+        public readonly AnimationTemplate Template;
+
+        private ushort _currentImageIndex;
+        private uint _lastUpdatedFrame;
+
+        private ushort _unknown;
+
+        private ushort _lastImageIndex;
+        private uint _animationDelayFrames;
+
+        public Animation(AnimationTemplate template)
         {
-            return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("Animation", name),
-                FieldParseTable);
+            Template = template;
         }
 
-        private static readonly IniParseTable<Animation> FieldParseTable = new IniParseTable<Animation>
+        public void Persist(StatePersister reader)
         {
-            { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationDelay", (parser, x) => x.AnimationDelay = parser.ParseInteger() },
-            { "RandomizeStartFrame", (parser, x) => x.RandomizeStartFrame = parser.ParseBoolean() },
-            { "NumberImages", (parser, x) => parser.ParseInteger() },
-            { "Image", (parser, x) => x.Images.Add(parser.ParseAssetReference()) },
-        };
+            reader.PersistVersion(1);
 
-        public AnimationMode AnimationMode { get; private set; }
-        public int AnimationDelay { get; private set; }
-        public bool RandomizeStartFrame { get; private set; }
-        public List<string> Images { get; } = new List<string>();
+            reader.PersistUInt16(ref _currentImageIndex);
+            reader.PersistFrame(ref _lastUpdatedFrame);
+            reader.PersistUInt16(ref _unknown);
+
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistUInt16(ref _lastImageIndex);
+            reader.PersistUInt32(ref _animationDelayFrames);
+
+            var unknownFloat = 1.0f;
+            reader.PersistSingle(ref unknownFloat);
+            if (unknownFloat != 1.0f)
+            {
+                throw new InvalidStateException();
+            }
+        }
     }
 }

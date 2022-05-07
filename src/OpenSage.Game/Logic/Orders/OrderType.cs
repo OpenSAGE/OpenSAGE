@@ -2,23 +2,52 @@
 {
     public enum OrderType
     {
-        Unknown27 = 27, // Something to do with end of game
+        EndGame = 27,
+
+        // Selection
         SetSelection = 1001,
         ClearSelection = 1003,
+
+        // Group management
+        CreateGroup0 = 1006,
+        CreateGroup1 = 1007,
+        CreateGroup2 = 1008,
+        CreateGroup3 = 1009,
+        CreateGroup4 = 1010,
+        CreateGroup5 = 1011,
+        CreateGroup6 = 1012,
+        CreateGroup7 = 1013,
+        CreateGroup8 = 1014,
+        CreateGroup9 = 1015,
+        SelectGroup0 = 1016,
+        SelectGroup1 = 1017,
+        SelectGroup2 = 1018,
+        SelectGroup3 = 1019,
+        SelectGroup4 = 1020,
+        SelectGroup5 = 1021,
+        SelectGroup6 = 1022,
+        SelectGroup7 = 1023,
+        SelectGroup8 = 1024,
+        SelectGroup9 = 1025,
+
+
         SpecialPower = 1040,
         SpecialPowerAtLocation = 1041,
         SpecialPowerAtObject = 1042,
         SetRallyPoint = 1043,
+        PurchaseScience = 1044,
         BeginUpgrade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593), also for flashbangs in the barracks (ObjectId:678,Integer:1594)
         CancelUpgrade = 1046,
         CreateUnit = 1047,
         CancelUnit = 1048,
         BuildObject = 1049,
+        CancelBuild = 1051,
         Sell = 1052,
         DrawBoxSelection = 1058,
         AttackObject = 1059,
         ForceAttackObject = 1060,
         ForceAttackGround = 1061,
+        ResumeBuild = 1065,
         MoveTo = 1068,
         ToggleOvercharge = 1078,
         SetCameraPosition = 1092,
@@ -38,31 +67,10 @@
         Unknown9 = 9,
 
 
-
         Unknown1002 = 1002,
 
         Unknown1004 = 1004,
         Unknown1005 = 1005,
-        Unknown1006 = 1006,
-        Unknown1007 = 1007,
-        Unknown1008 = 1008,
-        Unknown1009 = 1009,
-        Unknown1010 = 1010, //something to do with an object
-        Unknown1011 = 1011,
-        Unknown1012 = 1012,
-        Unknown1013 = 1013,
-        Unknown1014 = 1014,
-        Unknown1015 = 1015,
-        Unknown1016 = 1016,
-        Unknown1017 = 1017,
-        Unknown1018 = 1018,
-        Unknown1019 = 1019,
-        Unknown1020 = 1020,
-        Unknown1021 = 1021,
-        Unknown1022 = 1022,
-        Unknown1023 = 1023,
-        Unknown1024 = 1024,
-        Unknown1025 = 1025,
         Unknown1026 = 1026,
         Unknown1027 = 1027,
         Unknown1028 = 1028,
@@ -78,13 +86,8 @@
         Unknown1038 = 1038,
         Unknown1039 = 1039,
         Unknown1040 = 1040,
-        Unknown1041 = 1041, //encountered when spawning usa spydrone (Integer:16,Position:<1055.208, 466.9498, 18.75>,ObjectId:0,Integer:928,ObjectId:657),
-                            //again with  (Integer:16,Position:<1762,799. 3837,869. 100>,ObjectId:0,Integer:928,ObjectId:0)
-
         Unknown1042 = 1042,
-        PurchaseScience = 1044,
         Unknown1050 = 1050,
-        Unknown1051 = 1051,
 
         Unknown1053 = 1053,
         Unknown1054 = 1054,
@@ -95,7 +98,6 @@
         Unknown1062 = 1062,
         Unknown1063 = 1063,
         Unknown1064 = 1064,
-        Unknown1065 = 1065,
         Enter = 1066,
         Unknown1067 = 1067,
 

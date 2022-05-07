@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.InGame
 {
-    public sealed class InGameUI : BaseSingletonAsset
+    public sealed class InGameUI : BaseSingletonAsset, IPersistableObject
     {
         internal static void Parse(IniParser parser, InGameUI value) => parser.ParseBlockContent(value, FieldParseTable);
 
@@ -180,6 +179,13 @@ namespace OpenSage.Gui.InGame
 
             { "RadiusCursorTemplate", (parser, x) => x.AddRadiusCursor(RadiusCursor.Parse(parser)) }
         };
+
+        private uint _unknown1;
+        private bool _unknown2;
+        private bool _unknown3;
+        private bool _unknown4;
+        private uint _unknown5;
+        private readonly List<SuperweaponSomething> _superweaponSomethings = new();
 
         private void AddRadiusCursor(RadiusCursor radiusCursor)
         {
@@ -357,30 +363,86 @@ namespace OpenSage.Gui.InGame
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            reader.ReadUInt32(); // 0
-            reader.ReadBoolean();
-            reader.ReadBoolean();
-            reader.ReadBoolean();
-            reader.ReadUInt32(); // 0
+            reader.PersistUInt32(ref _unknown1); // 0
+            reader.PersistBoolean(ref _unknown2);
+            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _unknown4);
+            reader.PersistUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
-            var something = reader.ReadUInt32();
-            while (something != uint.MaxValue) // A way to store things the engine doesn't know the length of?
+            reader.BeginArray("SuperweaponSomethings");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var someString1 = reader.ReadAsciiString();
-                var someString2 = reader.ReadAsciiString();
-                var unknown1 = reader.ReadUInt32();
-                var unknown2 = reader.ReadUInt32(); // 0xFFFFFFFF
-                reader.ReadBoolean();
-                reader.ReadBoolean();
-                reader.ReadBoolean();
+                while (true)
+                {
+                    reader.BeginObject();
 
-                something = reader.ReadUInt32();
+                    var something = 0u;
+                    reader.PersistUInt32(ref something);
+
+                    // A way to store things the engine doesn't know the length of?
+                    if (something == uint.MaxValue)
+                    {
+                        break;
+                    }
+
+                    var item = new SuperweaponSomething();
+                    reader.PersistObject(ref item);
+                    _superweaponSomethings.Add(item);
+
+                    reader.EndObject();
+                }
             }
+            else
+            {
+                for (var i = 0u; i < _superweaponSomethings.Count; i++)
+                {
+                    reader.BeginObject();
+
+                    reader.PersistUInt32(ref i, "Something");
+
+                    var item = _superweaponSomethings[(int)i];
+                    reader.PersistObject(ref item);
+
+                    reader.EndObject();
+                }
+
+                reader.BeginObject();
+
+                var somethingEnd = uint.MaxValue;
+                reader.PersistUInt32(ref somethingEnd, "Something");
+
+                reader.EndObject();
+            }
+            reader.EndArray();
+        }
+    }
+
+    internal struct SuperweaponSomething : IPersistableObject
+    {
+        public string UnknownString1;
+        public string UnknownString2;
+        public uint UnknownInt1;
+        public uint UnknownInt2;
+        public bool UnknownBool1;
+        public bool UnknownBool2;
+        public bool UnknownBool3;
+        public uint UnknownInt3;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistAsciiString(ref UnknownString1);
+            reader.PersistAsciiString(ref UnknownString2);
+
+            reader.PersistUInt32(ref UnknownInt1);
+            reader.PersistUInt32(ref UnknownInt2); // 0xFFFFFFFF
+            reader.PersistBoolean(ref UnknownBool1);
+            reader.PersistBoolean(ref UnknownBool2);
+            reader.PersistBoolean(ref UnknownBool3);
         }
     }
 

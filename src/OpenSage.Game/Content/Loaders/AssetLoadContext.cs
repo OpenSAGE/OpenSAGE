@@ -1,6 +1,7 @@
 ﻿using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.IO;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Content.Loaders
@@ -12,6 +13,7 @@ namespace OpenSage.Content.Loaders
         public GraphicsDevice GraphicsDevice { get; }
         public StandardGraphicsResources StandardGraphicsResources { get; }
         public ShaderResourceManager ShaderResources { get; }
+        public ShaderSetStore ShaderSetStore { get; }
         public AssetStore AssetStore { get; }
 
         public AssetLoadContext(
@@ -20,6 +22,7 @@ namespace OpenSage.Content.Loaders
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
+            ShaderSetStore shaderSetStore,
             AssetStore assetStore)
         {
             FileSystem = fileSystem;
@@ -27,6 +30,7 @@ namespace OpenSage.Content.Loaders
             GraphicsDevice = graphicsDevice;
             StandardGraphicsResources = standardGraphicsResources;
             ShaderResources = shaderResources;
+            ShaderSetStore = shaderSetStore;
             AssetStore = assetStore;
         }
     }

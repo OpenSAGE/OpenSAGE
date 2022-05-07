@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SlowDeathBehavior : UpdateModule
+    public class SlowDeathBehavior : UpdateModule
     {
         private readonly SlowDeathBehaviorModuleData _moduleData;
 
@@ -21,6 +19,12 @@ namespace OpenSage.Logic.Object
         private TimeSpan _sinkStartTime;
         private TimeSpan _midpointTime;
         private TimeSpan _destructionTime;
+
+        private uint _frameSinkStart;
+        private uint _frameMidpoint;
+        private uint _frameDestruction;
+        private float _slowDeathScale;
+        private SlowDeathBehaviorFlags _flags;
 
         public int ProbabilityModifier => _moduleData.ProbabilityModifier;
 
@@ -104,7 +108,7 @@ namespace OpenSage.Logic.Object
             {
                 ExecutePhaseActions(context, SlowDeathPhase.Final);
                 context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
-                context.GameObject.Destroy();
+                context.GameContext.GameObjects.DestroyObject(context.GameObject);
                 _isDying = false;
             }
 
@@ -131,21 +135,27 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown1 = reader.ReadBytes(12);
+            reader.PersistFrame(ref _frameSinkStart);
+            reader.PersistFrame(ref _frameMidpoint);
+            reader.PersistFrame(ref _frameDestruction);
+            reader.PersistSingle(ref _slowDeathScale);
+            reader.PersistEnumFlags(ref _flags);
+        }
 
-            var unknown2 = reader.ReadSingle();
-
-            var unknown3 = reader.ReadUInt32();
+        [Flags]
+        private enum SlowDeathBehaviorFlags
+        {
+            None = 0,
+            BegunSlowDeath = 1,
+            ReachedMidpoint = 2,
         }
     }
 

@@ -1,28 +1,38 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public class SpecialPowerModule : BehaviorModule
     {
+        private uint _countdownStartFrame;
+        private uint _unknown;
+        private uint _countdownEndFrame;
+
         internal virtual void Activate(Vector3 position)
         {
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistFrame(ref _countdownStartFrame);
+
+            reader.PersistUInt32(ref _unknown);
+            if (_unknown != 1 && _unknown != 0)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.PersistFrame(ref _countdownEndFrame);
 
-            var unknown = reader.ReadBytes(16);
+            reader.SkipUnknownBytes(4);
         }
     }
 

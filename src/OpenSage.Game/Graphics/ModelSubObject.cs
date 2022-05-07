@@ -5,15 +5,25 @@ namespace OpenSage.Graphics
     [DebuggerDisplay("ModelSubOject '{Name}'")]
     public sealed class ModelSubObject
     {
+        public readonly string FullName;
         public readonly string Name;
         public readonly ModelBone Bone;
-        public readonly ModelMesh RenderObject;
+        public readonly ModelRenderObject RenderObject;
 
-        internal ModelSubObject(string name, ModelBone bone, ModelMesh renderObject)
+        internal ModelSubObject(string fullName, string name, ModelBone bone, ModelRenderObject renderObject)
         {
+            FullName = fullName;
             Name = name;
             Bone = bone;
             RenderObject = renderObject;
+
+            RenderObject.SubObject = this;
+        }
+
+        internal ModelSubObject(string fullName, ModelBone bone, ModelRenderObject renderObject)
+            : this(fullName, fullName.Substring(fullName.IndexOf('.') + 1), bone, renderObject)
+        {
+
         }
     }
 }

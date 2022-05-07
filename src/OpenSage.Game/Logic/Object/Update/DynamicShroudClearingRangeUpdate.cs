@@ -3,6 +3,51 @@ using OpenSage.Gui.InGame;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class DynamicShroudClearingRangeUpdate : UpdateModule
+    {
+        private uint _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
+        private uint _unknown4;
+        private uint _unknown5;
+        private uint _unknown6;
+        private uint _unknown7;
+        private float _unknownFloat;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown4);
+            reader.PersistUInt32(ref _unknown5);
+            reader.PersistUInt32(ref _unknown6);
+            reader.PersistUInt32(ref _unknown7);
+
+            var unknown7_1 = true;
+            reader.PersistBoolean(ref unknown7_1);
+            if (!unknown7_1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(4);
+
+            var unknown9 = 300.0f;
+            reader.PersistSingle(ref unknown9);
+            if (unknown9 != 300.0f)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistSingle(ref _unknownFloat);
+        }
+    }
+
     public sealed class DynamicShroudClearingRangeUpdateModuleData : UpdateModuleData
     {
         internal static DynamicShroudClearingRangeUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -29,5 +74,10 @@ namespace OpenSage.Logic.Object
         public int GrowInterval { get; private set; }
 
         public RadiusDecalTemplate GridDecalTemplate { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new DynamicShroudClearingRangeUpdate();
+        }
     }
 }

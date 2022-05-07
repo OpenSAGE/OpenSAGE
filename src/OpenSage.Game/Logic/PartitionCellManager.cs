@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Sav;
+using System.Numerics;
+using ImGuiNET;
 
 namespace OpenSage.Logic
 {
-    public sealed class PartitionCellManager
+    public sealed class PartitionCellManager : IPersistableObject
     {
         private readonly Game _game;
         private readonly float _partitionCellSize;
+        private readonly List<ShroudReveal> _shroudReveals = new();
 
         private int _numCellsX;
         private int _numCellsY;
@@ -38,70 +41,65 @@ namespace OpenSage.Logic
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            var partitionCellSize = reader.ReadSingle();
+            var partitionCellSize = _partitionCellSize;
+            reader.PersistSingle(ref partitionCellSize);
             if (partitionCellSize != _partitionCellSize)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var partitionCellCount = reader.ReadUInt32();
-            if (partitionCellCount != _cells.Length)
-            {
-                throw new InvalidDataException();
-            }
-
-            for (var i = 0; i < partitionCellCount; i++)
-            {
-                _cells[i].Load(reader);
-            }
+            reader.PersistArrayWithUInt32Length(
+                _cells, static (StatePersister persister, ref PartitionCell item) =>
+                {
+                    persister.PersistObjectValue(item);
+                },
+                "PartitionCells");
 
 #if DEBUG
-            var builder = new System.Text.StringBuilder();
-            for (var y = 0; y < _numCellsY; y++)
-            {
-                for (var x = 0; x < _numCellsX; x++)
-                {
-                    var cell = _cells[((_numCellsY - 1 - y) * _numCellsX) + x];
-                    var value = cell.Values[2];
+            //var builder = new System.Text.StringBuilder();
+            //for (var y = 0; y < _numCellsY; y++)
+            //{
+            //    for (var x = 0; x < _numCellsX; x++)
+            //    {
+            //        var cell = _cells[((_numCellsY - 1 - y) * _numCellsX) + x];
+            //        var value = cell.Values[2];
 
-                    char c;
-                    if (value.State < 0)
-                    {
-                        c = (char)((-value.State) + '0');
-                    }
-                    else if (value.State == 0)
-                    {
-                        c = '-';
-                    }
-                    else if (value.State == 1)
-                    {
-                        c = '*';
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
+            //        char c;
+            //        if (value.State < 0)
+            //        {
+            //            c = (char)((-value.State) + '0');
+            //        }
+            //        else if (value.State == 0)
+            //        {
+            //            c = '-';
+            //        }
+            //        else if (value.State == 1)
+            //        {
+            //            c = '*';
+            //        }
+            //        else
+            //        {
+            //            throw new InvalidOperationException();
+            //        }
 
-                    builder.Append(c);
-                }
-                builder.AppendLine();
-            }
-            File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
+            //        builder.Append(c);
+            //    }
+            //    builder.AppendLine();
+            //}
+            //File.WriteAllText($"Partition{Path.GetFileNameWithoutExtension(((FileStream) reader.Inner.BaseStream).Name)}.txt", builder.ToString());
 #endif
 
-            var someOtherCount = reader.ReadUInt32();
-            for (var i = 0; i < someOtherCount; i++)
-            {
-                reader.ReadVersion(1);
-                var position = reader.ReadVector3();
-                var visionRange = reader.ReadSingle();
-                reader.ReadUInt16();
-                var frameSomething = reader.ReadUInt32();
-            }
+            reader.PersistListWithUInt32Count(
+                _shroudReveals,
+                static (StatePersister persister, ref ShroudReveal item) =>
+                {
+                    item ??= new ShroudReveal();
+                    persister.PersistObjectValue(item);
+                });
         }
 
         // TODO: We think the algorithm is:
@@ -114,37 +112,93 @@ namespace OpenSage.Logic
         //     cell++
         //   }
         // }
+
+        internal void DrawDiagnostic()
+        {
+            var p = ImGui.GetCursorScreenPos();
+
+            var availableSize = ImGui.GetContentRegionAvail();
+            var cellSize = availableSize / new Vector2(_numCellsX, _numCellsY);
+
+            for (var y = 0; y < _numCellsY; y++)
+            {
+                for (var x = 0; x < _numCellsX; x++)
+                {
+                    var cell = _cells[((_numCellsY - 1 - y) * _numCellsX) + x];
+                    var value = cell.Values[2];
+
+                    uint cellColor;
+                    if (value.State < 0)
+                    {
+                        //c = (char) ((-value.State) + '0');
+                        cellColor = 0xFFFF00FF;
+                    }
+                    else if (value.State == 0)
+                    {
+                        cellColor = 0xFF0000FF;
+                    }
+                    else if (value.State == 1)
+                    {
+                        cellColor = 0xFF00FFFF;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    ImGui.GetWindowDrawList().AddRectFilled(
+                        p + new Vector2(cellSize.X * x, cellSize.Y * y),
+                        p + new Vector2(cellSize.X * x, cellSize.Y * y) + cellSize,
+                        cellColor);
+                }
+            }
+        }
     }
 
-    public sealed class PartitionCell
+    public sealed class PartitionCell : IPersistableObject
     {
         public readonly PartitionCellValue[] Values;
 
         internal PartitionCell()
         {
-            Values = new PartitionCellValue[16];
+            Values = new PartitionCellValue[Player.MaxPlayers];
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var valuesSpan = Values.AsSpan();
-            reader.ReadSpan(valuesSpan);
-
-            for (var i = 0; i < Values.Length; i++)
-            {
-                if (Values[i].Unknown != 0)
+            reader.PersistArray(
+                Values,
+                static (StatePersister persister, ref PartitionCellValue item) =>
                 {
-                    throw new InvalidDataException();
-                }
-            }
+                    persister.PersistInt16Value(ref item.State);
+
+                    persister.SkipUnknownBytes(2);
+                });
         }
     }
 
     public struct PartitionCellValue
     {
         public short State;
-        public short Unknown;
+    }
+
+    public sealed class ShroudReveal : IPersistableObject
+    {
+        public Vector3 Position;
+        public float VisionRange;
+        public ushort Unknown;
+        public uint FrameSomething;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistVector3(ref Position);
+            reader.PersistSingle(ref VisionRange);
+            reader.PersistUInt16(ref Unknown);
+            reader.PersistFrame(ref FrameSomething);
+        }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using OpenSage.Audio;
+using OpenSage.Client;
 using OpenSage.Content.Loaders;
 using OpenSage.DataStructures;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 
 namespace OpenSage
@@ -16,6 +18,12 @@ namespace OpenSage
         public readonly Terrain.Terrain Terrain;
         public readonly Navigation.Navigation Navigation;
         public readonly Radar Radar;
+
+        public Game Game => Scene3D.Game;
+
+        public GameLogic GameLogic => Scene3D.Game.GameLogic;
+
+        public GameClient GameClient => Scene3D.Game.GameClient;
 
         public readonly Random Random = new Random();
 

@@ -7,6 +7,15 @@ namespace OpenSage.Logic.Object
         [IniEnum("None")]
         None,
 
+        [IniEnum("VETERAN")]
+        Veteran,
+
+        [IniEnum("ELITE")]
+        Elite,
+
+        [IniEnum("HERO")]
+        Hero,
+
         [IniEnum("PLAYER_UPGRADE")]
         PlayerUpgrade,
 

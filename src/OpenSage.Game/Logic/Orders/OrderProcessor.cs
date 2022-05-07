@@ -37,6 +37,34 @@ namespace OpenSage.Logic.Orders
 
                 switch (order.OrderType)
                 {
+                    case OrderType.CreateGroup0:
+                    case OrderType.CreateGroup1:
+                    case OrderType.CreateGroup2:
+                    case OrderType.CreateGroup3:
+                    case OrderType.CreateGroup4:
+                    case OrderType.CreateGroup5:
+                    case OrderType.CreateGroup6:
+                    case OrderType.CreateGroup7:
+                    case OrderType.CreateGroup8:
+                    case OrderType.CreateGroup9:
+                        {
+                            player.CreateSelectionGroup(order.OrderType - OrderType.CreateGroup0);
+                        }
+                        break;
+                    case OrderType.SelectGroup0:
+                    case OrderType.SelectGroup1:
+                    case OrderType.SelectGroup2:
+                    case OrderType.SelectGroup3:
+                    case OrderType.SelectGroup4:
+                    case OrderType.SelectGroup5:
+                    case OrderType.SelectGroup6:
+                    case OrderType.SelectGroup7:
+                    case OrderType.SelectGroup8:
+                    case OrderType.SelectGroup9:
+                        {
+                            player.SelectGroup(order.OrderType - OrderType.SelectGroup0);
+                        }
+                        break;
                     // TODO
                     case OrderType.MoveTo:
                         {
@@ -61,7 +89,24 @@ namespace OpenSage.Logic.Orders
                             gameObject.StartConstruction(_game.MapTime);
                         }
                         break;
+                    case OrderType.CancelBuild:
+                        {
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                // This probably shouldn't trigger a Die
+                                unit.Die(DeathType.Normal, TimeInterval.Zero);
+                            }
+                        }
+                        break;
+                    case OrderType.ResumeBuild:
+                        {
+                            var objId = order.Arguments[0].Value.ObjectId;
+                            var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
+                            // TODO: move selected unit (Dozer) to destination object
+
+                        }
+                        break;
                     case OrderType.BeginUpgrade:
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
@@ -135,7 +180,7 @@ namespace OpenSage.Logic.Orders
                         {
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
                             // TODO: is there any logic for ModelConditionFlag.Sold ?
-                            unit.Destroy();
+                            _game.Scene3D.GameObjects.DestroyObject(unit);
                             player.BankAccount.Deposit((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
@@ -170,14 +215,13 @@ namespace OpenSage.Logic.Orders
                     case OrderType.AttackObject:
                     case OrderType.ForceAttackObject:
                         {
-                            var objectDefinitionId = order.Arguments[0].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
+                            var objectId = order.Arguments[0].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(gameObject));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, (uint)objectId));
                                 }
                             }
                         }
@@ -237,7 +281,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.SpecialPowerAtObject:
                         throw new NotImplementedException();
 
-                    case OrderType.Unknown27:
+                    case OrderType.EndGame:
                         _game.EndGame();
                         break;
 

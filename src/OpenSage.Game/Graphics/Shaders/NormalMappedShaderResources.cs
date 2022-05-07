@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -6,15 +7,8 @@ namespace OpenSage.Graphics.Shaders
     internal sealed class NormalMappedShaderResources : ShaderMaterialShaderResources
     {
         public NormalMappedShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            MeshShaderResources meshShaderResources)
-            : base(
-                graphicsDevice,
-                globalShaderResources,
-                meshShaderResources,
-                "NormalMapped",
-                CreateMaterialResourceBindings)
+            ShaderSetStore store)
+            : base(store, "NormalMapped", CreateMaterialResourceBindings)
         {
 
         }
@@ -44,6 +38,11 @@ namespace OpenSage.Graphics.Shaders
                 2,
                 new ResourceLayoutElementDescription("NormalMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 ResourceType.Texture2D);
+
+            yield return new ResourceBinding(
+                3,
+                new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                ResourceType.Sampler);
         }
     }
 }

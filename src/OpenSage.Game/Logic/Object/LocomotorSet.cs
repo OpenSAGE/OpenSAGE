@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class LocomotorSet
+    public sealed class LocomotorSet : IPersistableObject
     {
         private readonly GameObject _gameObject;
         private readonly List<Locomotor> _locomotors;
@@ -64,31 +62,58 @@ namespace OpenSage.Logic.Object
             throw new InvalidOperationException();
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
-
-            var numLocomotorTemplates = reader.ReadUInt16();
-            for (var i = 0; i < numLocomotorTemplates; i++)
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var locomotorTemplateName = reader.ReadAsciiString();
-
-                var locomotorTemplate = _gameObject.GameContext.AssetLoadContext.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
-
-                var locomotor = new Locomotor(_gameObject, locomotorTemplate, 100);
-
-                locomotor.Load(reader);
-
-                _locomotors.Add(locomotor);
+                _locomotors.Clear();
             }
 
-            _surfaces = reader.ReadEnumFlags<Surfaces>();
-            
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1 != false)
+            reader.PersistVersion(1);
+
+            var numLocomotorTemplates = (ushort) _locomotors.Count;
+            reader.PersistUInt16(ref numLocomotorTemplates, "NumLocomotors");
+
+            reader.BeginArray("Locomotors");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                throw new InvalidDataException();
+                for (var i = 0; i < numLocomotorTemplates; i++)
+                {
+                    reader.BeginObject();
+
+                    var locomotorTemplateName = "";
+                    reader.PersistAsciiString(ref locomotorTemplateName, "TemplateName");
+
+                    var locomotorTemplate = reader.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
+
+                    var locomotor = new Locomotor(_gameObject, locomotorTemplate, 100);
+
+                    reader.PersistObject(locomotor);
+
+                    _locomotors.Add(locomotor);
+
+                    reader.EndArray();
+                }
             }
+            else
+            {
+                foreach (var locomotor in _locomotors)
+                {
+                    reader.BeginObject();
+
+                    var templateName = locomotor.LocomotorTemplate.Name;
+                    reader.PersistAsciiString(ref templateName);
+
+                    reader.PersistObject(locomotor);
+
+                    reader.EndObject();
+                }
+            }
+            reader.EndArray();
+
+            reader.PersistEnumFlags(ref _surfaces);
+
+            reader.SkipUnknownBytes(1);
         }
     }
 }

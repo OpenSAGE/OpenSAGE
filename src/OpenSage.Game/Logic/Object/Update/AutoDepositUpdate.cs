@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -12,6 +10,10 @@ namespace OpenSage.Logic.Object
         AutoDepositUpdateModuleData _moduleData;
 
         private TimeSpan _waitUntil;
+
+        private uint _unknownFrame;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
 
         internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
         {
@@ -36,17 +38,17 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            // TODO
+            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 

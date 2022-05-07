@@ -4,11 +4,12 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class SpriteShaderResources : ShaderResourcesBase
+    internal sealed class SpriteShaderResources : ShaderSetBase
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
         private readonly Dictionary<Sampler, ResourceSet> _samplerResourceSets;
@@ -18,30 +19,26 @@ namespace OpenSage.Graphics.Shaders
         private readonly ResourceLayout _alphaMaskResourceLayout;
         private readonly ResourceLayout[] _resourceLayouts;
 
-        public SpriteShaderResources(GraphicsDevice graphicsDevice)
-            : base(
-                 graphicsDevice,
-                 "Sprite",
-                 new GlobalResourceSetIndices(null, LightingType.None, null, null, null, null),
-                 SpriteVertex.VertexDescriptor)
+        public SpriteShaderResources(ShaderSetStore store)
+            : base(store, "Sprite", SpriteVertex.VertexDescriptor)
         {
             _pipelines = new Dictionary<PipelineKey, Pipeline>();
             _samplerResourceSets = new Dictionary<Sampler, ResourceSet>();
 
-            _spriteConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            _spriteConstantsResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("SpriteConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
 
-            _samplerResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            _samplerResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
-            _textureResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            _textureResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
-            _alphaMaskResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            _alphaMaskResourceLayout = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("AlphaMask", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
@@ -68,7 +65,7 @@ namespace OpenSage.Graphics.Shaders
                         DepthStencilStateDescription.Disabled,
                         RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
                         PrimitiveTopology.TriangleList,
-                        ShaderSet.Description,
+                        Description,
                         _resourceLayouts,
                         outputDescription))));
             }

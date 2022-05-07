@@ -14,6 +14,7 @@ using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.IO;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
@@ -28,14 +29,12 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain : DisposableBase
     {
-        private readonly ShaderSet _shaderSet;
-        private readonly Pipeline _pipeline;
-
+        private readonly AssetLoadContext _loadContext;
         private readonly GraphicsDevice _graphicsDevice;
 
         private readonly ConstantBuffer<TerrainShaderResources.TerrainMaterialConstants> _materialConstantsBuffer;
 
-        private readonly ResourceSet _materialResourceSet;
+        private readonly Material _material;
         private readonly TerrainPatchIndexBufferCache _indexBufferCache;
 
         internal const int PatchSize = 17;
@@ -46,15 +45,13 @@ namespace OpenSage.Terrain
 
         public IReadOnlyList<TerrainPatch> Patches { get; private set; }
 
-        public ResourceSet CloudResourceSet { get; }
-
         private float _causticsIndex;
 
         private const uint NumOfCausticsAnimation = 32;
 
-        internal readonly RadiusCursorDecals RadiusCursorDecals;
+        internal readonly Texture CloudTexture;
 
-        internal readonly ResourceSet RadiusCursorDecalsResourceSet;
+        internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext)
         {
@@ -62,6 +59,7 @@ namespace OpenSage.Terrain
 
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
+            _loadContext = loadContext;
             _graphicsDevice = loadContext.GraphicsDevice;
 
             _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
@@ -98,10 +96,9 @@ namespace OpenSage.Terrain
 
             var macroTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
-            RadiusCursorDecals = AddDisposable(new RadiusCursorDecals(loadContext.AssetStore, loadContext.GraphicsDevice));
-
             var casuticsTextures = BuildCausticsTextureArray(loadContext.AssetStore);
-            _materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+
+            var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
                 _materialConstantsBuffer.Buffer,
                 tileDataTexture,
                 cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
@@ -110,25 +107,13 @@ namespace OpenSage.Terrain
                 macroTexture,
                 casuticsTextures));
 
-            RadiusCursorDecalsResourceSet = AddDisposable(loadContext.ShaderResources.RadiusCursor.CreateRadiusCursorDecalsResourceSet(
-                RadiusCursorDecals.TextureArray,
-                RadiusCursorDecals.DecalConstants,
-                RadiusCursorDecals.DecalsBuffer));
+            _material = AddDisposable(
+                new Material(
+                    loadContext.ShaderResources.Terrain,
+                    loadContext.ShaderResources.Terrain.Pipeline,
+                    materialResourceSet));
 
-            var cloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
-
-            var cloudResourceLayout = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
-
-            CloudResourceSet = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    cloudResourceLayout,
-                    cloudTexture.Texture)));
-            CloudResourceSet.Name = "Cloud resource set";
-
-            _shaderSet = loadContext.ShaderResources.Terrain.ShaderSet;
-            _pipeline = terrainPipeline;
+            CloudTexture = loadContext.AssetStore.Textures.GetByName(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
             OnHeightMapChanged();
         }
@@ -207,17 +192,13 @@ namespace OpenSage.Terrain
             Patches = CreatePatches(
                 _graphicsDevice,
                 HeightMap,
-                _indexBufferCache,
-                _materialResourceSet,
-                RadiusCursorDecalsResourceSet);
+                _indexBufferCache);
         }
 
         private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
-            TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet,
-            ResourceSet radiusCursorDecalsResourceSet)
+            TerrainPatchIndexBufferCache indexBufferCache)
         {
             const int numTilesPerPatch = PatchSize - 1;
 
@@ -255,8 +236,7 @@ namespace OpenSage.Terrain
                         patchBounds,
                         graphicsDevice,
                         indexBufferCache,
-                        materialResourceSet,
-                        radiusCursorDecalsResourceSet)));
+                        _material)));
                 }
             }
 
@@ -570,10 +550,7 @@ namespace OpenSage.Terrain
         {
             foreach (var patch in Patches)
             {
-                patch.BuildRenderList(
-                    renderList,
-                    _shaderSet,
-                    _pipeline);
+                patch.BuildRenderList(renderList);
             }
         }
     }

@@ -602,6 +602,11 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
+                if (string.Equals(token.Value.Text, "None", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    continue;
+                }
+
                 result.Add(_assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(token.Value.Text));
             }
 

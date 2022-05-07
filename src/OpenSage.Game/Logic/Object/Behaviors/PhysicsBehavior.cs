@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,6 +17,18 @@ namespace OpenSage.Logic.Object
         private Vector3 _velocity;
 
         private Vector3 _cumulativeForces;
+
+        private Vector3 _unknownVector1;
+        private Vector3 _unknownVector2;
+        private Vector3 _unknownVector3;
+        private Vector3 _unknownVector4;
+        private int _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private uint _unknownFrame;
+        private float _unknownFloat1;
 
         public float Mass
         {
@@ -90,27 +100,29 @@ namespace OpenSage.Logic.Object
             ImGui.DragFloat3("Velocity", ref _velocity);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown1 = reader.ReadBytes(52);
+            reader.PersistVector3(ref _unknownVector1);
+            reader.PersistVector3(ref _unknownVector2);
+            reader.PersistVector3(ref _unknownVector3);
+            reader.PersistVector3(ref _unknownVector4);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistSingle(ref _mass);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistFrame(ref _unknownFrame);
 
-            var unknown2 = reader.ReadUInt32();
+            reader.SkipUnknownBytes(8);
 
-            var unknown3 = reader.ReadUInt32();
-
-            var unknown4 = reader.ReadSingle();
-
-            var unknown5 = reader.ReadBytes(20);
-
-            var unknown6 = reader.ReadSingle();
+            reader.PersistSingle(ref _unknownFloat1);
         }
     }
 

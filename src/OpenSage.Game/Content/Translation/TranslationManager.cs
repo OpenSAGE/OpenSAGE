@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using OpenSage.Content.Translation.Providers;
-using OpenSage.Data;
 using OpenSage.IO;
-using OpenSage.Logic.Object;
 
 namespace OpenSage.Content.Translation
 {

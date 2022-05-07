@@ -1,12 +1,15 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public class SupplyTruckAIUpdate : SupplyAIUpdate
     {
-        private SupplyTruckAIUpdateModuleData _moduleData;
+        private readonly SupplyTruckAIUpdateModuleData _moduleData;
+
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine = new();
+        private uint _dockId;
+        private int _unknownInt;
+        private bool _unknownBool;
 
         internal SupplyTruckAIUpdate(GameObject gameObject, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -18,17 +21,18 @@ namespace OpenSage.Logic.Object
             base.Update(context);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            // TODO
+            reader.PersistObject(_stateMachine);
+            reader.PersistObjectID(ref _dockId);
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistBoolean(ref _unknownBool);
         }
     }
 

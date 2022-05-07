@@ -2,11 +2,18 @@
 
 namespace OpenSage.Logic.Object.Production
 {
-    public sealed class ProductionJob
+    public sealed class ProductionJob : IPersistableObject
     {
         //Duration in milliseconds
         private readonly int _duration;
         private float _passed;
+
+        private uint _jobId;
+        private float _progressPercentage;
+        private int _progressInFrames;
+        private int _unknownInt2;
+        private int _unknownInt3;
+        private int _unknownInt4;
 
         public ProductionJobType Type { get; }
 
@@ -38,13 +45,22 @@ namespace OpenSage.Logic.Object.Production
             Type = ProductionJobType.Upgrade;
             _duration = (int) (definition.BuildTime * 1000.0f);
         }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistUInt32(ref _jobId);
+            reader.PersistSingle(ref _progressPercentage);
+            reader.PersistInt32(ref _progressInFrames); // Maybe progress
+            reader.PersistInt32(ref _unknownInt2);
+            reader.PersistInt32(ref _unknownInt3);
+            reader.PersistInt32(ref _unknownInt4);
+        }
     }
 
     public enum ProductionJobType
     {
-        Unit,
-        Upgrade,
-        Science
+        Unit = 1,
+        Upgrade = 2,
     }
 
     public enum ProductionJobResult

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -34,10 +32,26 @@ namespace OpenSage.Logic.Object
     ///   These control how much acceleration and cornering, respectively, will cause
     ///   the chassis to pitch or roll.
     /// </summary>
-    public sealed class Locomotor
+    public sealed class Locomotor : IPersistableObject
     {
         private readonly GameObject _gameObject;
         private readonly float _baseSpeed;
+
+        private uint _frameSomething;
+        private Vector3 _positionSomething;
+        private float _unknownFloat1;
+        private float _unknownFloat2 = 99999.0f;
+        private float _unknownFloat3 = 99999.0f;
+        private float _unknownFloat4 = 99999.0f;
+        private float _unknownFloat5 = 99999.0f;
+        private float _unknownFloat6 = 99999.0f;
+        private float _unknownFloat7 = 1.0f;
+        private uint _unknownInt1;
+        private float _unknownFloat8;
+        private float _unknownFloat9;
+        private float _unknownFloat10;
+        private float _unknownFloat11;
+
         public readonly LocomotorTemplate LocomotorTemplate;
 
         public float LiftFactor;
@@ -352,73 +366,57 @@ namespace OpenSage.Logic.Object
 
         public float GetLocomotorValue(Func<LocomotorTemplate, float> getValue) => getValue(LocomotorTemplate);
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(2);
+            reader.PersistVersion(2);
 
-            var frameSomething = reader.ReadUInt32();
+            reader.PersistFrame(ref _frameSomething);
+            reader.PersistVector3(ref _positionSomething);
+            reader.PersistSingle(ref _unknownFloat1);
 
-            var positionSomething = reader.ReadVector3();
-
-            var unknownFloat1 = reader.ReadSingle();
-            if (unknownFloat1 != 1.0f)
+            reader.PersistSingle(ref _unknownFloat2); // 99999
+            if (_unknownFloat2 != 99999.0f)
             {
-                //throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat2 = reader.ReadSingle();
-            if (unknownFloat2 != 99999.0f)
+            reader.PersistSingle(ref _unknownFloat3); // 99999
+            if (_unknownFloat3 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat3 = reader.ReadSingle();
-            if (unknownFloat3 != 99999.0f)
+            reader.PersistSingle(ref _unknownFloat4); // 99999
+            if (_unknownFloat4 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat4 = reader.ReadSingle();
-            if (unknownFloat4 != 99999.0f)
+            reader.PersistSingle(ref _unknownFloat5); // 99999
+            if (_unknownFloat5 != 99999.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat5 = reader.ReadSingle();
-            if (unknownFloat5 != 99999.0f)
+            reader.PersistSingle(ref _unknownFloat6); // 99999, 0
+
+            reader.PersistSingle(ref _unknownFloat7); // 1
+            if (_unknownFloat7 != 1.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat6 = reader.ReadSingle();
-            if (unknownFloat6 != 99999.0f)
+            reader.PersistUInt32(ref _unknownInt1); // 0, 4
+            reader.PersistSingle(ref _unknownFloat8); // 0, 100
+
+            reader.PersistSingle(ref _unknownFloat9);
+            if (_unknownFloat9 != 1.0f)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownFloat7 = reader.ReadSingle();
-            if (unknownFloat7 != 1.0f)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0) // 0, 4
-            {
-                //throw new InvalidDataException();
-            }
-
-            var unknown3 = reader.ReadSingle(); // 0, 100
-
-            var unknownFloat8 = reader.ReadSingle();
-            if (unknownFloat8 != 1.0f)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownFloat9 = reader.ReadSingle(); // 0.4849...
-
-            var unknownFloat10 = reader.ReadSingle(); // 0.0892...
+            reader.PersistSingle(ref _unknownFloat10); // 0.4849...
+            reader.PersistSingle(ref _unknownFloat11); // 0.0892...
         }
     }
 }

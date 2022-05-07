@@ -13,10 +13,7 @@ namespace OpenSage.Scripting
         [ScriptCondition(ScriptConditionType.Flag, "Scripting/Flag compared to value", "{0} is {1}")]
         public static bool Flag(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.FlagName)] string flagName, bool compareValue)
         {
-            if (!context.Scripting.Flags.TryGetValue(flagName, out var flagValue))
-            {
-                return false;
-            }
+            var flagValue = context.Scripting.GetFlagValue(flagName);
 
             return flagValue == compareValue;
         }
@@ -24,13 +21,13 @@ namespace OpenSage.Scripting
         [ScriptCondition(ScriptConditionType.TimerExpired, "Scripting/Timer expired", "{0} has expired")]
         public static bool TimerExpired(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string timerName)
         {
-            return context.Scripting.Timers.IsTimerExpired(timerName);
+            return context.Scripting.HasTimerExpired(timerName);
         }
 
         [ScriptCondition(ScriptConditionType.Counter, "Scripting/Counter compared to value", "{0} is {1} {2}")]
         public static bool Counter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string counterName, [ScriptArgumentType(ScriptArgumentType.Comparison)] ScriptingComparison comparison, int compareValue)
         {
-            return EvaluateComparison(context.Scripting.Counters[counterName], comparison, compareValue);
+            return EvaluateComparison(context.Scripting.GetCounterValue(counterName), comparison, compareValue);
         }
 
         private static bool EvaluateComparison(int a, ScriptingComparison comp, int b)

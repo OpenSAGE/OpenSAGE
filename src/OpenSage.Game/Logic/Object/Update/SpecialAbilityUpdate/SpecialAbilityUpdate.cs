@@ -1,25 +1,59 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public class SpecialAbilityUpdate : UpdateModule
     {
-        // TODO
+        private bool _unknownBool1;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private bool _unknownBool2;
+        private bool _unknownBool3;
+        private float _unknownFloat;
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _unknownInt1);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistUInt32(ref _unknownInt2);
+
+            reader.SkipUnknownBytes(16);
+
+            var unknown1 = true;
+            reader.PersistBoolean(ref unknown1);
+            if (!unknown1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.SkipUnknownBytes(7);
 
-            var unknown = reader.ReadBytes(49);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool2);
+
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistBoolean(ref _unknownBool3);
+
+            var unknown2 = true;
+            reader.PersistBoolean(ref unknown2);
+            if (!unknown2)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistSingle(ref _unknownFloat);
         }
     }
 

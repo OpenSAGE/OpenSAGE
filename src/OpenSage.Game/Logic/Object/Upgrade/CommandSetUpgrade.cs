@@ -7,24 +7,25 @@ namespace OpenSage.Logic.Object
     internal class CommandSetUpgrade : UpgradeModule
     {
         private readonly CommandSetUpgradeModuleData _moduleData;
-        private readonly LazyAssetReference<CommandSet> _defaultCommandSet;
 
-        public CommandSetUpgrade(GameObject gameObject, CommandSetUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        public CommandSetUpgrade(GameObject gameObject, CommandSetUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            _defaultCommandSet = gameObject.Definition.CommandSet;
         }
 
-        internal override void OnTrigger(BehaviorUpdateContext context, bool triggered)
+        protected override void OnUpgrade()
         {
-            if (triggered)
-            {
-                _gameObject.Definition.CommandSet = _moduleData.CommandSet;
-            }
-            else
-            {
-                _gameObject.Definition.CommandSet = _defaultCommandSet;
-            }
+            _gameObject.Definition.CommandSet = _moduleData.CommandSet;
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
         }
     }
 

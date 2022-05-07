@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -14,6 +15,7 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
+        private readonly Material _material;
 
         private readonly BeforeRenderDelegate _beforeRender;
 
@@ -28,8 +30,7 @@ namespace OpenSage.Terrain
             Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache,
-            ResourceSet materialResourceSet,
-            ResourceSet radiusCursorDecalsResourceSet)
+            Material material)
         {
             Bounds = patchBounds;
 
@@ -51,10 +52,10 @@ namespace OpenSage.Terrain
             BoundingBox = boundingBox;
             Triangles = triangles;
 
-            _beforeRender = (cl, context) =>
+            _material = material;
+
+            _beforeRender = (CommandList cl, Graphics.Rendering.RenderContext context, in RenderItem renderItem) =>
             {
-                cl.SetGraphicsResourceSet(4, materialResourceSet);
-                cl.SetGraphicsResourceSet(5, radiusCursorDecalsResourceSet);
                 cl.SetVertexBuffer(0, _vertexBuffer);
             };
         }
@@ -143,15 +144,11 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(
-            RenderList renderList,
-            ShaderSet shaderSet,
-            Pipeline pipeline)
+        internal void BuildRenderList(RenderList renderList)
         {
             renderList.Terrain.RenderItems.Add(new RenderItem(
                 $"Terrain-{Bounds}",
-                shaderSet,
-                pipeline,
+                _material,
                 BoundingBox,
                 Matrix4x4.Identity,
                 0,

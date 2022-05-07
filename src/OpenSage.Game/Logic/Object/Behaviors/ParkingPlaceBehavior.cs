@@ -7,7 +7,7 @@ using OpenSage.Logic.Object.Production;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ParkingPlaceBehaviour : BehaviorModule, IProductionExit
+    public sealed class ParkingPlaceBehaviour : UpdateModule, IProductionExit
     {
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;
@@ -222,6 +222,38 @@ namespace OpenSage.Logic.Object
 
         private int SlotToHangar(int slot) => slot / 2 + 1;
         private int SlotToRunway(int slot) => slot % 2 + 1;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(3);
+
+            base.Load(reader);
+
+            var unknown1 = 4u;
+            reader.PersistUInt32(ref unknown1);
+            if (unknown1 != 4)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(17);
+
+            var unknown2 = 2u;
+            reader.PersistUInt32(ref unknown2);
+            if (unknown2 != 2)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(29);
+
+            var unknown3 = 0x3FFFFFFFu;
+            reader.PersistUInt32(ref unknown3);
+            if (unknown3 != 0x3FFFFFFF)
+            {
+                throw new InvalidStateException();
+            }
+        }
     }
 
     /// <summary>

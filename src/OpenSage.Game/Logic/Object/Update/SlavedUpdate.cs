@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
         private TimeSpan _waitUntil;
         private RepairStatus _repairStatus;
 
+        private int _unknown;
+
         private enum RepairStatus
         {
             INITIAL,
@@ -37,6 +39,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            if (Master == null)
+            {
+                // TODO: Should this ever be null?
+                return;
+            }
+
             var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
             var masterHealthPercent = Master.HealthPercentage;
 
@@ -124,7 +132,7 @@ namespace OpenSage.Logic.Object
             else if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
                 // stay near target
-                var target = _gameObject.CurrentWeapon.CurrentTarget.TargetObject;
+                var target = _gameObject.CurrentWeapon.CurrentTarget.GetTargetObject();
 
                 if (target != null)
                 {
@@ -164,6 +172,21 @@ namespace OpenSage.Logic.Object
             {
                 _gameObject.Die(DeathType.Exploded, context.Time);
             }
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.SkipUnknownBytes(16);
+
+            reader.PersistInt32(ref _unknown);
+
+            reader.SkipUnknownBytes(5);
         }
     }
 

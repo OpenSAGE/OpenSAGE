@@ -1,22 +1,24 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class RadarUpdate : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private uint _radarExtendEndFrame;
+        private bool _isRadarExtending;
+        private bool _isRadarExtended;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            // TODO
+            reader.PersistUInt32(ref _radarExtendEndFrame);
+            reader.PersistBoolean(ref _isRadarExtended);
+            reader.PersistBoolean(ref _isRadarExtending);
         }
     }
 

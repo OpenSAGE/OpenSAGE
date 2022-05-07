@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
-using System.Text;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.FX;
 using OpenSage.Mathematics;
 
@@ -19,6 +15,7 @@ namespace OpenSage.Logic.Object
         private float _toppleSpeed;
         private Vector3 _toppleDirection;
         private float _toppleAngle;
+        private float _unknownFloat;
         private uint _stumpId;
 
         internal ToppleUpdate(ToppleUpdateModuleData moduleData)
@@ -103,7 +100,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var stump = context.GameContext.GameObjects.Add(_moduleData.StumpName.Value);
+            var stump = context.GameContext.GameObjects.Add(_moduleData.StumpName.Value, null);
             stump.UpdateTransform(context.GameObject.Translation, context.GameObject.Rotation);
             _stumpId = stump.ID;
         }
@@ -113,42 +110,24 @@ namespace OpenSage.Logic.Object
             context.GameObject.Kill(DeathType.Toppled, context.Time);
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadByte();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            _toppleSpeed = reader.ReadSingle();
-            _toppleAcceleration = reader.ReadSingle();
-            _toppleDirection = reader.ReadVector3();
-            _toppleState = reader.ReadUInt32AsEnum<ToppleState>();
-            _toppleAngle = reader.ReadSingle();
-            var unknownFloat6 = reader.ReadSingle();
+            reader.PersistSingle(ref _toppleSpeed);
+            reader.PersistSingle(ref _toppleAcceleration);
+            reader.PersistVector3(ref _toppleDirection);
+            reader.PersistEnum(ref _toppleState);
+            reader.PersistSingle(ref _toppleAngle);
+            reader.PersistSingle(ref _unknownFloat);
 
-            var unknownUint4 = reader.ReadUInt32();
-            if (unknownUint4 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(9);
 
-            var unknownUint5 = reader.ReadUInt32();
-            if (unknownUint5 != 0)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownBool6 = reader.ReadBooleanChecked();
-            if (unknownBool6)
-            {
-                throw new InvalidDataException();
-            }
-
-            _stumpId = reader.ReadUInt32();
+            reader.PersistUInt32(ref _stumpId);
         }
 
         private enum ToppleState

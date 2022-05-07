@@ -52,5 +52,17 @@ namespace OpenSage.Data.Map
             }
             throw new InvalidOperationException();
         }
+
+        internal PolygonTrigger GetPolygonTriggerByName(string name)
+        {
+            for (var i = 0; i < Triggers.Length; i++)
+            {
+                if (Triggers[i].Name == name)
+                {
+                    return Triggers[i];
+                }
+            }
+            throw new InvalidOperationException();
+        }
     }
 }

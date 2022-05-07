@@ -8,7 +8,6 @@ using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
-using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
@@ -29,12 +28,12 @@ namespace OpenSage.Diagnostics
 
             _maps = _context.Game.AssetStore.MapCaches
                 .Where(m => _context.Game.ContentManager.GetMapEntry(m.Name) != null)
-                .Select(m => (mapCache: m, mapName: m.GetNameKey().Translate()))
-                .OrderBy(m => m.mapName)
+                .Select(m => (mapCache: m, mapName: m.IsOfficial ? m.GetNameKey().Translate() : m.Name))
+                .OrderBy(m => m.mapCache.IsOfficial ? 0 : 1).ThenBy(m => m.mapName)
                 .ToDictionary(m => m.mapCache, m => m.mapName);
-            if (_maps.FirstOrDefault() is KeyValuePair<MapCache, string> kv)
+            if (_maps.FirstOrDefault() is var (mapCache, value))
             {
-                _map = (kv.Key, kv.Value);
+                _map = (mapCache, value);
             }
 
             _playableSides = _context.Game.GetPlayableSides().ToList();
@@ -64,6 +63,7 @@ namespace OpenSage.Diagnostics
             AddView(new InspectorView(context));
             AddView(new PreviewView(context));
             AddView(new CameraView(context));
+            AddView(new PartitionView(context));
         }
 
         private void DrawTimingControls()
@@ -74,7 +74,7 @@ namespace OpenSage.Diagnostics
 
             var buttonSize = new Vector2(80.0f, 0);
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 250);
             ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
 
             if (ImGui.Button(playPauseText, buttonSize))
@@ -84,7 +84,7 @@ namespace OpenSage.Diagnostics
 
             ImGui.PopStyleColor();
 
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 160);
+            ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - 160);
 
             if (!_context.Game.IsLogicRunning)
             {
@@ -104,8 +104,8 @@ namespace OpenSage.Diagnostics
         public void Draw(ref bool isGameViewFocused)
         {
             var viewport = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(viewport.GetWorkPos());
-            ImGui.SetNextWindowSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowPos(viewport.WorkPos);
+            ImGui.SetNextWindowSize(viewport.WorkSize);
             ImGui.SetNextWindowViewport(viewport.ID);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
@@ -179,8 +179,8 @@ namespace OpenSage.Diagnostics
                                 new EchoConnection(),
                                 new PlayerSetting[]
                                 {
-                                    new PlayerSetting(null, _faction.Side, new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
-                                    new PlayerSetting(null, faction2.Side, new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
+                                    new PlayerSetting(1, $"Faction{_faction.Side}", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                    new PlayerSetting(2, $"Faction{faction2.Side}", new ColorRgb(255, 255, 255), 0, PlayerOwner.EasyAi),
                                 },
                                 Environment.TickCount,
                                 false
@@ -291,7 +291,7 @@ namespace OpenSage.Diagnostics
 
                 var fpsText = $"{ImGui.GetIO().Framerate:N2} FPS";
                 var fpsTextSize = ImGui.CalcTextSize(fpsText).X;
-                ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - fpsTextSize);
+                ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - fpsTextSize);
                 ImGui.Text(fpsText);
 
                 ImGui.EndMenuBar();

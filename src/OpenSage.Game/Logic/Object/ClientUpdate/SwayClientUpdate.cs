@@ -1,12 +1,17 @@
-﻿using System.IO;
-using OpenSage.Client;
+﻿using OpenSage.Client;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class SwayClientUpdate : ClientUpdateModule
     {
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+        private float _unknownFloat3;
+        private float _unknownFloat4;
+        private float _unknownFloat5;
+        private ushort _unknownShort;
+
         // TODO: Set this to false when ToppleUpdate starts toppling tree.
         private bool _isActive;
 
@@ -15,24 +20,21 @@ namespace OpenSage.Logic.Object
             _isActive = true;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknownFloat1 = reader.ReadSingle();
-            var unknownFloat2 = reader.ReadSingle();
-            var unknownFloat3 = reader.ReadSingle();
-            var unknownFloat4 = reader.ReadSingle();
-            var unknownFloat5 = reader.ReadSingle();
-            var unknownShort1 = reader.ReadUInt16();
-
-            _isActive = reader.ReadBooleanChecked();
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistSingle(ref _unknownFloat3);
+            reader.PersistSingle(ref _unknownFloat4);
+            reader.PersistSingle(ref _unknownFloat5);
+            reader.PersistUInt16(ref _unknownShort);
+            reader.PersistBoolean(ref _isActive);
         }
     }
 

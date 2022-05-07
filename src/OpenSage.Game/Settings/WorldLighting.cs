@@ -17,7 +17,7 @@ namespace OpenSage.Settings
 
         public static WorldLighting CreateDefault()
         {
-            var lights = new GlobalShaderResources.LightingConstantsPS
+            var lights = new GlobalShaderResources.LightingConfiguration
             {
                 Light0 = new GlobalShaderResources.Light
                 {

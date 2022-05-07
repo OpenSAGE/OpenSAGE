@@ -1,7 +1,48 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class AssaultTransportAIUpdate : AIUpdate
+    {
+        private readonly List<AssaultTransportMember> _members = new();
+
+        internal AssaultTransportAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
+            : base(gameObject, moduleData)
+        {
+        }
+
+        // TODO
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+
+            reader.PersistListWithUInt32Count(
+                _members,
+                static (StatePersister persister, ref AssaultTransportMember item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
+
+            reader.SkipUnknownBytes(26);
+        }
+
+        private struct AssaultTransportMember : IPersistableObject
+        {
+            public uint ObjectId;
+            public bool Unknown;
+
+            public void Persist(StatePersister persister)
+            {
+                persister.PersistObjectID(ref ObjectId);
+                persister.PersistBoolean(ref Unknown);
+            }
+        }
+    }
+
     /// <summary>
     /// This AI, if armed with a weapon using the DEPLOY Damaged type, will order the passengers
     /// to hop out of the vehicle and attack the selected target. The passengers will auto return
@@ -18,5 +59,10 @@ namespace OpenSage.Logic.Object
             });
 
         public float MembersGetHealedAtLifeRatio { get; private set; }
+
+        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        {
+            return new AssaultTransportAIUpdate(gameObject, this);
+        }
     }
 }

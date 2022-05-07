@@ -2,55 +2,26 @@
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class TerrainShaderResources : ShaderResourcesBase
+    internal sealed class TerrainShaderResources : ShaderSetBase
     {
-        private readonly ResourceLayout _materialResourceLayout;
-
         public readonly Pipeline Pipeline;
 
-        public TerrainShaderResources(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            RadiusCursorDecalShaderResources radiusCursorDecalShaderResources)
-            : base(
-                graphicsDevice,
-                "Terrain",
-                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
-                TerrainVertex.VertexDescriptor)
+        public TerrainShaderResources(ShaderSetStore store)
+            : base(store, "Terrain", TerrainVertex.VertexDescriptor)
         {
-            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("TerrainMaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("TileData", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("CliffDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("TextureDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Textures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("MacroTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("CausticsTextures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            var resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
-                _materialResourceLayout,
-                radiusCursorDecalShaderResources.RadiusCursorDecalsResourceLayout,
-            };
-
-            Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+            Pipeline = AddDisposable(store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
                     BlendStateDescription.SingleDisabled,
                     DepthStencilStateDescription.DepthOnlyLessEqual,
                     RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                     PrimitiveTopology.TriangleList, // TODO: Use triangle strip
-                    ShaderSet.Description,
-                    resourceLayouts,
+                    Description,
+                    ResourceLayouts,
                     RenderPipeline.GameOutputDescription)));
         }
 
@@ -65,7 +36,7 @@ namespace OpenSage.Graphics.Shaders
         {
             return GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    _materialResourceLayout,
+                    MaterialResourceLayout,
                     materialConstantsBuffer,
                     tileDataTexture,
                     cliffDetailsBuffer,
@@ -92,7 +63,6 @@ namespace OpenSage.Graphics.Shaders
             public int CausticTextureIndex;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct TextureInfo
         {
             public uint TextureIndex;
@@ -100,7 +70,6 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 _Padding;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct CliffInfo
         {
             public const int Size = sizeof(float) * 8;
@@ -111,7 +80,6 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 TopLeftUV;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         internal struct TerrainVertex
         {
             public Vector3 Position;

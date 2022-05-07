@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object
             _gameObject.Hidden = true;
             _gameObject.IsSelectable = false;
 
-            var castleEntry = FindCastle(player.Side);
+            var castleEntry = FindCastle(player.Template.Side);
 
             if (castleEntry != null)
             {
@@ -67,13 +67,7 @@ namespace OpenSage.Logic.Object
                     var angle = viewAngle + castleTemplate.Angle;
                     mapObject.Position = new Vector3(_gameObject.Translation.X, _gameObject.Translation.Y, 0.0f) + offset;
 
-                    var baseObject = GameObject.FromMapObject(
-                        mapObject,
-                        _context.AssetLoadContext.AssetStore,
-                        _context.GameObjects,
-                        _context.Terrain.HeightMap,
-                        false,
-                        angle);
+                    var baseObject = GameObject.FromMapObject(mapObject, _context, false, angle);
 
                     if (!instant)
                     {
@@ -107,7 +101,7 @@ namespace OpenSage.Logic.Object
 
             var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
 
-            if (nearbyUnits.Count() == 0)
+            if (!nearbyUnits.Any())
             {
                 _gameObject.Owner = _nativePlayer;
                 return;
@@ -134,7 +128,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var entry in _moduleData.CastleToUnpackForFactions)
             {
-                if (entry.FactionName == side)
+                if (side == entry.FactionName)
                 {
                     return entry;
                 }

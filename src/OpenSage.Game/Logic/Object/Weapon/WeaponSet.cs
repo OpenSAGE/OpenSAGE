@@ -1,15 +1,19 @@
-﻿using OpenSage.Data.Sav;
+﻿using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class WeaponSet
+    public sealed class WeaponSet : IPersistableObject
     {
         private readonly GameObject _gameObject;
         private readonly Weapon[] _weapons;
         private WeaponTemplateSet _currentWeaponTemplateSet;
         private WeaponSlot _currentWeaponSlot;
+        private uint _unknown1;
         private uint _filledWeaponSlots;
         private WeaponAntiFlags _combinedAntiMask;
+        private uint _unknown2;
+        private bool _unknown3;
+        private bool _unknown4;
 
         internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
 
@@ -52,45 +56,57 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            // This is the object definition which defined the WeaponSet
-            // (either a normal object or DefaultThingTemplate)
-            var objectDefinitionName = reader.ReadAsciiString();
+            var objectDefinitionName = _currentWeaponTemplateSet?.ObjectDefinition.Name;
+            reader.PersistAsciiString(ref objectDefinitionName);
 
-            var conditions = reader.ReadBitArray<WeaponSetConditions>();
+            var conditions = _currentWeaponTemplateSet?.Conditions ?? new BitArray<WeaponSetConditions>();
+            reader.PersistBitArray(ref conditions);
 
-            _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _currentWeaponTemplateSet = _gameObject.Definition.WeaponSets[conditions];
+            }
 
             // In Generals there are 3 possible weapons.
             // Later games have up to 5.
+            reader.BeginArray("Weapons");
             for (var i = 0; i < 3; i++)
             {
-                var slotFilled = reader.ReadBoolean();
+                reader.BeginObject();
+
+                var slotFilled = _weapons[i] != null;
+                reader.PersistBoolean(ref slotFilled);
                 if (slotFilled)
                 {
-                    _weapons[i] = new Weapon(_gameObject, _currentWeaponTemplateSet.Slots[i].Weapon.Value, (WeaponSlot) i, _gameObject.GameContext);
-                    _weapons[i].Load(reader);
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        _weapons[i] = new Weapon(
+                            _gameObject,
+                            _currentWeaponTemplateSet.Slots[i].Weapon.Value,
+                            (WeaponSlot)i, _gameObject.GameContext);
+                    }
+                    reader.PersistObject(_weapons[i], "Value");
                 }
                 else
                 {
                     _weapons[i] = null;
                 }
+
+                reader.EndObject();
             }
+            reader.EndArray();
 
-            _currentWeaponSlot = reader.ReadEnum<WeaponSlot>();
-
-            var unknown2 = reader.ReadUInt32();
-
-            _filledWeaponSlots = reader.ReadUInt32();
-            _combinedAntiMask = reader.ReadEnumFlags<WeaponAntiFlags>();
-
-            var unknown5 = reader.ReadUInt32();
-
-            var unknownBool1 = reader.ReadBoolean();
-            var unknownBool2 = reader.ReadBoolean();
+            reader.PersistEnum(ref _currentWeaponSlot);
+            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _filledWeaponSlots);
+            reader.PersistEnumFlags(ref _combinedAntiMask);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _unknown4);
         }
     }
 }

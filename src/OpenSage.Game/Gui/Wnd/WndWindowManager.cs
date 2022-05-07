@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
@@ -86,7 +87,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public void ShowMessageBox(string title, string text)
+        private Window PrepareMessageBox(string title, string text)
         {
             var messageBox = PushWindow(@"Menus\MessageBox.wnd");
             messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = title;
@@ -94,7 +95,24 @@ namespace OpenSage.Gui.Wnd
             staticTextTitle.TextAlignment = TextAlignment.Leading;
 
             messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = text;
+
+            return messageBox;
+        }
+
+        public void ShowMessageBox(string title, string text)
+        {
+            var messageBox = this.PrepareMessageBox(title, text);
+
             messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
+        }
+
+        public void ShowDialogBox(string title, string text, out Control yesButton, out Control noButton)
+        {
+            var messageBox = this.PrepareMessageBox(title, text);
+            yesButton = messageBox.Controls.FindControl("MessageBox.wnd:ButtonYes");
+            yesButton.Show();
+            noButton = messageBox.Controls.FindControl("MessageBox.wnd:ButtonNo");
+            noButton.Show();
         }
 
         public Control GetControlAtPoint(in Point2D mousePosition)
@@ -126,7 +144,7 @@ namespace OpenSage.Gui.Wnd
         {
             if (WindowStack.Count == 0)
             {
-                return new Control[0];
+                return Array.Empty<Control>();
             }
 
             var window = WindowStack.Peek();

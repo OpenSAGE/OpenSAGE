@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
-using OpenSage.Content;
-using OpenSage.Data.Map;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Terrain
@@ -8,23 +7,22 @@ namespace OpenSage.Terrain
     public sealed class BridgeTowers
     {
         internal static BridgeTowers CreateForLandmarkBridge(
-            AssetStore assetStore,
-            GameObjectCollection gameObjects,
-            GameObject gameObject,
-            MapObject mapObject)
+            GameContext gameContext,
+            GameObject gameObject)
         {
             var worldMatrix =
                 Matrix4x4.CreateFromQuaternion(gameObject.Rotation)
                 * Matrix4x4.CreateTranslation(gameObject.Translation);
 
-            var landmarkBridgeTemplate = assetStore.BridgeTemplates.GetByName(mapObject.TypeName);
+            var landmarkBridgeTemplate = gameContext.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(gameObject.Definition.Name);
 
             var halfLength = gameObject.Definition.Geometry.MinorRadius;
             var halfWidth = gameObject.Definition.Geometry.MajorRadius;
 
             return new BridgeTowers(
                 landmarkBridgeTemplate,
-                gameObjects,
+                gameObject.Owner,
+                gameContext,
                 worldMatrix,
                 -halfWidth,
                 -halfLength,
@@ -33,9 +31,10 @@ namespace OpenSage.Terrain
                 gameObject.Rotation);
         }
 
-        public BridgeTowers(
+        internal BridgeTowers(
             BridgeTemplate template,
-            GameObjectCollection gameObjects,
+            Player owner,
+            GameContext gameContext,
             Matrix4x4 worldMatrix,
             float startX,
             float startY,
@@ -45,7 +44,7 @@ namespace OpenSage.Terrain
         {
             void CreateTower(ObjectDefinition objectDefinition, float x, float y)
             {
-                var tower = gameObjects.Add(objectDefinition);
+                var tower = gameContext.GameObjects.Add(objectDefinition, owner);
 
                 var translation = Vector3.Transform(
                     new Vector3(x, y, 0),

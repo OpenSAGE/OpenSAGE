@@ -30,6 +30,8 @@ namespace OpenSage.Mathematics
         public readonly float M33;
         public readonly float M43;
 
+        public Vector3 Translation => new Vector3(M41, M42, M43);
+
         public Matrix4x3(
             float m11, float m12, float m13,
             float m21, float m22, float m23,
@@ -96,6 +98,15 @@ namespace OpenSage.Mathematics
                 M21, M22, M23, 0,
                 M31, M32, M33, 0,
                 M41, M42, M43, 1);
+        }
+
+        public static Matrix4x3 FromMatrix4x4(in Matrix4x4 value)
+        {
+            return new Matrix4x3(
+                value.M11, value.M12, value.M13,
+                value.M21, value.M22, value.M23,
+                value.M31, value.M32, value.M33,
+                value.M41, value.M42, value.M43);
         }
 
         public static bool operator ==(in Matrix4x3 left, in Matrix4x3 right)

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Content;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Mathematics;
@@ -10,43 +11,31 @@ namespace OpenSage.Graphics.Shaders
     internal sealed class GlobalShaderResources : DisposableBase
     {
         public readonly ResourceLayout GlobalConstantsResourceLayout;
-        public readonly ResourceLayout GlobalLightingConstantsResourceLayout;
-        public readonly ResourceLayout GlobalCloudResourceLayout;
-        public readonly ResourceLayout GlobalShadowResourceLayout;
-
-        public readonly ResourceSet DefaultCloudResourceSet;
+        public readonly ResourceLayout ForwardPassResourceLayout;
 
         public readonly Sampler ShadowSampler;
 
-        public GlobalShaderResources(
-            GraphicsDevice graphicsDevice,
-            Texture solidWhiteTexture)
+        internal readonly Terrain.RadiusCursorDecals RadiusCursorDecals;
+
+        public GlobalShaderResources(GraphicsDevice graphicsDevice)
         {
             GlobalConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("GlobalConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
+                    new ResourceLayoutElementDescription("GlobalConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment))));
 
-            GlobalLightingConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            ForwardPassResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("GlobalLightingConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("GlobalLightingConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
-
-            GlobalCloudResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
-
-            GlobalShadowResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("GlobalLightingConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_CloudSampler", ResourceKind.Sampler, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Global_ShadowConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Global_ShadowMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Global_ShadowSampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            DefaultCloudResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    GlobalCloudResourceLayout,
-                    solidWhiteTexture)));
+                    new ResourceLayoutElementDescription("Global_ShadowSampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RadiusCursorDecalTextures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RadiusCursorDecalSampler", ResourceKind.Sampler, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RadiusCursorDecalConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("RadiusCursorDecals", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment))));
 
             ShadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
                 new SamplerDescription(
@@ -61,31 +50,21 @@ namespace OpenSage.Graphics.Shaders
                     0,
                     SamplerBorderColor.OpaqueBlack)));
             ShadowSampler.Name = "Shadow Sampler";
+
+            RadiusCursorDecals = AddDisposable(new Terrain.RadiusCursorDecals(graphicsDevice));
         }
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        public struct GlobalConstantsShared
+        public struct GlobalConstants
         {
             public Vector3 CameraPosition;
             public float TimeInSeconds;
-        }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct GlobalConstantsVS
-        {
             public Matrix4x4 ViewProjection;
             public Vector4 ClippingPlane1;
             public Vector4 ClippingPlane2;
             public Bool32 HasClippingPlane1;
             public Bool32 HasClippingPlane2;
-#pragma warning disable IDE1006, CS0169
-            private readonly Vector2 _padding;
-#pragma warning restore IDE1006, CS0169
-        }
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        public struct GlobalConstantsPS
-        {
             public Vector2 ViewportSize;
         }
 
@@ -115,7 +94,19 @@ namespace OpenSage.Graphics.Shaders
         [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
         public struct LightingConstantsPS
         {
-            public const int SizeInBytes = 48 * 3;
+            public const int SizeInBytes = LightingConfiguration.SizeInBytes * 2;
+
+            [FieldOffset(0)]
+            public LightingConfiguration Terrain;
+
+            [FieldOffset(LightingConfiguration.SizeInBytes)]
+            public LightingConfiguration Object;
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
+        public struct LightingConfiguration
+        {
+            public const int SizeInBytes = Light.SizeInBytes * 3;
 
             [FieldOffset(0)]
             public Light Light0;

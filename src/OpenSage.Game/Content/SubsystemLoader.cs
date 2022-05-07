@@ -50,6 +50,7 @@ namespace OpenSage.Content
                     _contentManager.LoadIniFiles(@"Data\INI\Object");
                     // TODO: Not sure of order here, but they definitely need to be loaded after all the object ini files above.
                     LoadFiles(
+                        @"Data\INI\ObjectCreationList.ini",
                         @"Data\INI\Upgrade.ini",
                         @"Data\INI\Crate.ini");
                     break;
@@ -115,6 +116,9 @@ namespace OpenSage.Content
                     break;
                 case Subsystem.Rank:
                     LoadFiles(@"Data\INI\Rank.ini");
+                    break;
+                case Subsystem.Animation2D:
+                    LoadFiles(@"Data\INI\Animation2D.ini");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
@@ -403,6 +407,9 @@ namespace OpenSage.Content
                 case Subsystem.Rank:
                     yield return "TheRankInfoStore";
                     yield break;
+                case Subsystem.Animation2D:
+                    yield return "Animation2D";
+                    yield break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -424,7 +431,7 @@ namespace OpenSage.Content
                             break;
                         case InitPath folder:
                             // TODO: Validate that exclusions work.
-                            var entries = _fileSystem.GetFilesInDirectory(folder.Value, "*.ini").WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
+                            var entries = _fileSystem.GetFilesInDirectory(folder.Value, "*.ini", System.IO.SearchOption.AllDirectories).WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
                             foreach (var file in entries)
                             {
                                 yield return file;

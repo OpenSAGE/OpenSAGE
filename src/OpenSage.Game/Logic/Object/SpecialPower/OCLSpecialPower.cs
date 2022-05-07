@@ -40,6 +40,15 @@ namespace OpenSage.Logic.Object
         {
             return _moduleData.SpecialPower.Value == specialPower;
         }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+        }
     }
 
     public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData

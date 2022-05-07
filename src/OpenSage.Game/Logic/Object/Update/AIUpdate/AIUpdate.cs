@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
 
@@ -33,6 +31,54 @@ namespace OpenSage.Logic.Object
         private IEnumerator<Vector3> _waypointEnumerator;
 
         private Vector3? _targetDirection;
+
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private uint _unknownInt3;
+        private bool _unknownBool1;
+        private bool _unknownBool2;
+        private uint _unknownInt4;
+        private uint _unknownInt5;
+        private float _unknownFloat1;
+        private uint _unknownInt6;
+        private uint _unknownInt7;
+        private uint _unknownInt8;
+        private uint _unknownInt9;
+        private uint _unknownInt10;
+        private uint _unknownInt11;
+        private uint _unknownInt12;
+        private uint _unknownInt13;
+        private bool _unknownBool3;
+        private bool _unknownBool4;
+        private bool _unknownBool5;
+        private bool _unknownBool6;
+        private string _guardAreaPolygonTriggerName;
+        private string _attackPriorityName;
+        private uint _unknownInt14;
+        private bool _unknownBool7;
+        private uint _unknownInt15;
+        private bool _unknownBool8;
+        private PathfindingPath _path;
+        private uint _unknownInt16;
+        private Vector3 _unknownPosition1;
+        private uint _unknownObjectId;
+        private float _unknownFloat2;
+        private Point2D _unknownPos2D1;
+        private Point2D _unknownPos2D2;
+        private uint _unknownFrame1;
+        private uint _unknownFrame2;
+        private Vector3 _unknownPosition2;
+        private bool _unknownBool9;
+        private bool _unknownBool10;
+        private bool _unknownBool11;
+        private bool _unknownBool12;
+        private uint _unknownObjectId2;
+        private uint _unknownInt17;
+        private uint _unknownInt18;
+        private float _angleSomething;
+        private int _unknownInt19;
+        private int _unknownInt20;
+        private uint _unknownFrame3;
 
         /// <summary>
         /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
@@ -240,158 +286,126 @@ namespace OpenSage.Logic.Object
             // TODO: Locomotor?
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 4)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(4);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknownInt1 = reader.ReadUInt32();
-            var unknownInt2 = reader.ReadUInt32();
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
+            reader.PersistObject(_stateMachine);
+            reader.PersistUInt32(ref _unknownInt3);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistUInt32(ref _unknownInt4);
+            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistSingle(ref _unknownFloat1); // 999999
+            reader.PersistUInt32(ref _unknownInt6); // 2
+            reader.PersistUInt32(ref _unknownInt7); // 3
+            reader.PersistUInt32(ref _unknownInt8); // 3
+            reader.PersistUInt32(ref _unknownInt9); // 3
+            reader.PersistUInt32(ref _unknownInt10); // 0
+            reader.PersistUInt32(ref _unknownInt11); // 0
+            reader.PersistUInt32(ref _unknownInt12); // 0
+            reader.PersistUInt32(ref _unknownInt13); // 0
+            reader.PersistBoolean(ref _unknownBool3);
+            reader.PersistBoolean(ref _unknownBool4);
+            reader.PersistBoolean(ref _unknownBool5); // 0
+            reader.PersistBoolean(ref _unknownBool6); // 0
+            reader.PersistAsciiString(ref _guardAreaPolygonTriggerName);
+            reader.PersistAsciiString(ref _attackPriorityName);
+            reader.PersistUInt32(ref _unknownInt14); // 0
+            reader.PersistBoolean(ref _unknownBool7);
+            reader.PersistUInt32(ref _unknownInt15); // 0
 
-            _stateMachine.Load(new Data.Sav.SaveFileReader(reader));
-
-            var numPositionsSomething = reader.ReadUInt32();
-            for (var i = 0; i < numPositionsSomething; i++)
+            var unknownInt15_1 = 0x7FFFFFFFu;
+            reader.PersistUInt32(ref unknownInt15_1);
+            if (unknownInt15_1 != 0x7FFFFFFF)
             {
-                var positionSomething = reader.ReadVector3();
+                throw new InvalidStateException();
             }
 
-            var waypointName = reader.ReadBytePrefixedAsciiString();
-            var unknownBool7 = reader.ReadBooleanChecked();
+            reader.PersistBoolean(ref _unknownBool8);
 
-            var unknownInt11 = reader.ReadUInt32();
-            if (unknownInt11 != 999999)
+            var hasPath = _path != null;
+            reader.PersistBoolean(ref hasPath);
+            if (hasPath)
             {
-                throw new InvalidDataException();
+                _path ??= new PathfindingPath();
+                reader.PersistObject(_path);
             }
 
-            var unknownInt12 = reader.ReadUInt32();
-            var unknownBool8 = reader.ReadBooleanChecked();
-            var unknownBool9 = reader.ReadBooleanChecked();
-            var unknownInt13 = reader.ReadUInt32();
-            var unknownInt14 = reader.ReadUInt32();
+            reader.PersistUInt32(ref _unknownInt16);
+            reader.PersistVector3(ref _unknownPosition1);
 
-            var unknownFloat1 = reader.ReadSingle();
-            if (unknownFloat1 != 999999)
+            reader.SkipUnknownBytes(12);
+
+            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistSingle(ref _unknownFloat2);
+            reader.PersistPoint2D(ref _unknownPos2D1);
+            reader.PersistPoint2D(ref _unknownPos2D2);
+            reader.PersistFrame(ref _unknownFrame1);
+            reader.PersistFrame(ref _unknownFrame2);
+            reader.PersistVector3(ref _unknownPosition2);
+
+            reader.SkipUnknownBytes(1);
+
+            reader.PersistBoolean(ref _unknownBool9);
+            reader.PersistBoolean(ref _unknownBool10);
+
+            reader.SkipUnknownBytes(5);
+
+            reader.PersistBoolean(ref _unknownBool11);
+            reader.PersistBoolean(ref _unknownBool12);
+
+            reader.SkipUnknownBytes(8);
+
+            reader.PersistObjectID(ref _unknownObjectId2);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistObject(_locomotorSet);
+
+            var currentLocomotorTemplateName = CurrentLocomotor?.LocomotorTemplate.Name;
+            reader.PersistAsciiString(ref currentLocomotorTemplateName);
+
+            if (reader.Mode == StatePersistMode.Read)
             {
-                throw new InvalidDataException();
+                CurrentLocomotor = currentLocomotorTemplateName != ""
+                    ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
+                    : null;
             }
 
-            var unknownInt15 = reader.ReadUInt32(); // 2
-            var unknownInt16 = reader.ReadUInt32(); // 3
-            var unknownInt17 = reader.ReadUInt32(); // 3
-            var unknownInt17_1 = reader.ReadUInt32(); // 3
-
-            var unknownInt18 = reader.ReadUInt32(); // 0
-            var unknownInt19 = reader.ReadUInt32(); // 0
-            var unknownInt20 = reader.ReadUInt32(); // 0
-            var unknownInt21 = reader.ReadUInt32(); // 0
-            var unknownBool10 = reader.ReadBooleanChecked();
-            var unknownBool11 = reader.ReadBooleanChecked();
-            var unknownInt22 = reader.ReadBooleanChecked(); // 0
-            var unknownInt22_2 = reader.ReadBooleanChecked(); // 0
-            var unknownInt22_3 = reader.ReadBooleanChecked(); // 0
-            var attackPriorityName = reader.ReadBytePrefixedAsciiString();
-            var unknownInt23 = reader.ReadUInt32(); // 0
-            var unknownBool12 = reader.ReadBooleanChecked();
-            var unknownInt23_1 = reader.ReadUInt32(); // 0
-
-            var unknownInt24 = reader.ReadUInt32();
-            if (unknownInt24 != 0x7FFFFFFF)
+            reader.PersistUInt32(ref _unknownInt17);
+            if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var unknownBool13 = reader.ReadBooleanChecked();
-            var unknownBool14 = reader.ReadBooleanChecked();
-            if (unknownBool14)
-            {
-                var unknownVersion4 = reader.ReadVersion();
-                if (unknownVersion4 != 1)
-                {
-                    throw new InvalidDataException();
-                }
+            reader.PersistUInt32(ref _unknownInt18); // 0, 1
+            reader.PersistSingle(ref _angleSomething);
 
-                var unknownCount1 = reader.ReadUInt32(); // 2
-                for (var i = 0; i < unknownCount1; i++)
-                {
-                    var id = reader.ReadUInt32();
-                    var position2 = reader.ReadVector3();
-                    var unknown25 = reader.ReadUInt32();
-                    var unknownBool15 = reader.ReadBooleanChecked();
-                    var nextId = reader.ReadUInt32();
-                }
-
-                var unknownBool16 = reader.ReadBooleanChecked();
-                var unknownInt25 = reader.ReadUInt32();
-                var unknownInt26 = reader.ReadUInt32(); // 1
-                var unknownBool17 = reader.ReadBooleanChecked();
-            }
-
-            var unknownInt27 = reader.ReadUInt32();
-            var unknownPosition = reader.ReadVector3();
-            reader.ReadBytes(5 * 4);
-
-            var unknownPos1 = reader.ReadPoint2D();
-            var unknownPos2 = reader.ReadPoint2D();
-
-            reader.ReadBytes(46);
-
-            _locomotorSet.Load(new Data.Sav.SaveFileReader(reader));
-
-            var currentLocomotorTemplateName = reader.ReadBytePrefixedAsciiString();
-            CurrentLocomotor = currentLocomotorTemplateName != ""
-                ? _locomotorSet.GetLocomotor(currentLocomotorTemplateName)
-                : null;
-
-            var unknownInt29 = reader.ReadUInt32();
-            if (unknownInt29 != 0 && unknownInt29 != uint.MaxValue)
-            {
-                throw new InvalidDataException();
-            }
-
-            var unknownInt30 = reader.ReadUInt32();
-            if (unknownInt30 != 1) // 0, 1
-            {
-                //throw new InvalidDataException();
-            }
-
-            var angleSomething = reader.ReadSingle();
-
-            for (var i = 0; i < 2; i++)
-            {
-                var unknownInt31 = reader.ReadUInt32();
-                if (unknownInt31 != 0)
-                {
-                    throw new InvalidDataException();
-                }
-            }
+            reader.SkipUnknownBytes(8);
 
             if (_moduleData.Turret != null)
             {
-                _turretAIUpdate.Load(reader);
+                reader.PersistObject(_turretAIUpdate, "TurretAI");
             }
 
-            var unknownInt32 = reader.ReadInt32(); // -1, 258
+            reader.PersistInt32(ref _unknownInt19); // -1, 258
 
-            var unknownInt33 = reader.ReadInt32();
-            if (unknownInt33 != 0 && unknownInt33 != 1 && unknownInt33 != 2)
+            reader.PersistInt32(ref _unknownInt20);
+            if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            var frameSomething = reader.ReadUInt32();
+            reader.PersistFrame(ref _unknownFrame3);
 
-            var unknownInt34 = reader.ReadInt32();
-            if (unknownInt34 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(4);
         }
     }
 
@@ -526,5 +540,49 @@ namespace OpenSage.Logic.Object
     public sealed class UnitAITargetChooserData : BaseAITargetChooserData
     {
 
+    }
+
+    internal sealed class PathfindingPath : IPersistableObject
+    {
+        private readonly List<PathPoint> _points = new();
+        private bool _unknownBool1;
+        private uint _unknownInt1;
+        private uint _unknownInt2;
+        private bool _unknownBool2;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.PersistListWithUInt32Count(
+                _points,
+                static (StatePersister persister, ref PathPoint item) =>
+                {
+                    persister.PersistObjectValue(ref item);
+                });
+
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2); // 1
+            reader.PersistBoolean(ref _unknownBool2);
+        }
+    }
+
+    internal struct PathPoint : IPersistableObject
+    {
+        private uint _id;
+        private Vector3 _position;
+        private uint _unknownInt1;
+        private bool _unknownBool1;
+        private uint _nextId;
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistUInt32(ref _id);
+            reader.PersistVector3(ref _position);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistUInt32(ref _nextId);
+        }
     }
 }

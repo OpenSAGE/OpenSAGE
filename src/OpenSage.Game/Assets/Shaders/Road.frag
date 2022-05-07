@@ -2,25 +2,10 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Lighting.h"
-#include "Cloud.h"
-#include "Shadows.h"
-#include "RadiusCursorDecals.h"
+#include "ForwardPass.h"
 
-MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
-
-MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1)
-
-MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
-
-MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
-
-layout(set = 4, binding = 0) uniform texture2D Texture;
-layout(set = 4, binding = 1) uniform sampler Sampler;
-
-MAKE_RADIUS_CURSOR_DECAL_RESOURCES(5)
-
-#include "RadiusCursorDecalsFunctions.h"
+layout(set = 2, binding = 0) uniform texture2D Texture;
+layout(set = 2, binding = 1) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
@@ -34,29 +19,25 @@ layout(location = 0) out vec4 out_Color;
 
 void main()
 {
-    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
+    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Terrain.Lights[0].Direction));
     vec3 shadowVisibility = ShadowVisibility(
-        Global_ShadowMap,
-        Global_ShadowSampler,
         in_WorldPosition, 
         in_ViewSpaceDepth, 
         nDotL, 
         in_WorldNormal, 
-        ivec2(gl_FragCoord.xy), 
-        _ShadowConstantsPS);
+        ivec2(gl_FragCoord.xy));
 
     vec3 diffuseColor;
     vec3 specularColor;
 
     DoLighting(
-        _GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS.Terrain,
         in_WorldPosition,
         in_WorldNormal,
         vec3(1, 1, 1),
         vec3(1, 1, 1),
         vec3(0, 0, 0),
         0,
-        _GlobalConstantsShared.CameraPosition,
         false,
         shadowVisibility,
         diffuseColor,
@@ -64,7 +45,7 @@ void main()
 
     vec4 textureColor = texture(sampler2D(Texture, Sampler), in_UV);
 
-    vec3 cloudColor = GetCloudColor(Global_CloudTexture, Sampler, in_CloudUV);
+    vec3 cloudColor = GetCloudColor(in_CloudUV);
 
     vec3 decalColor = GetRadiusCursorDecalColor(in_WorldPosition);
 

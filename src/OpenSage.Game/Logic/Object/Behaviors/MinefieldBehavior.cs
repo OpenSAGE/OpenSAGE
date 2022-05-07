@@ -1,23 +1,41 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class MinefieldBehavior : UpdateModule
     {
-        internal override void Load(BinaryReader reader)
+        private uint _numVirtualMachines;
+        private uint _unknownFrame;
+
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistUInt32(ref _numVirtualMachines);
+            reader.PersistFrame(ref _unknownFrame);
+
+            reader.SkipUnknownBytes(29);
+
+            ushort unknown2 = 1;
+            reader.PersistUInt16(ref unknown2);
+            if (unknown2 != 1)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            ushort unknown3 = 3;
+            reader.PersistUInt16(ref unknown3);
+            if (unknown3 != 3)
+            {
+                throw new InvalidStateException();
+            }
 
-            // TODO
+            reader.SkipUnknownBytes(23);
         }
     }
 

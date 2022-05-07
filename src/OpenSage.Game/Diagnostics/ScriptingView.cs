@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using ImGuiNET;
-using OpenSage.Data.Map;
 using OpenSage.Scripting;
 
 namespace OpenSage.Diagnostics
@@ -30,26 +29,7 @@ namespace OpenSage.Diagnostics
 
             _scriptStateContent.Clear();
 
-            _scriptStateContent.AppendLine("Counters:");
-
-            foreach (var kv in scripting.Counters)
-            {
-                _scriptStateContent.AppendFormat("  {0}: {1}\n", kv.Key, kv.Value);
-            }
-
-            _scriptStateContent.AppendLine("Flags:");
-
-            foreach (var kv in scripting.Flags)
-            {
-                _scriptStateContent.AppendFormat("  {0}: {1}\n", kv.Key, kv.Value);
-            }
-
-            _scriptStateContent.AppendLine("Timers:");
-
-            foreach (var kv in scripting.Timers)
-            {
-                _scriptStateContent.AppendFormat("  {0}: {1} ({2})\n", kv.Key, kv.Value, scripting.Counters[kv.Key]);
-            }
+            scripting.Dump(_scriptStateContent);
         }
 
         protected override void DrawOverride(ref bool isGameViewFocused)

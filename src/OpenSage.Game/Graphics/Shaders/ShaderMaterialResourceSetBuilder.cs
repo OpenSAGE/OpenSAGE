@@ -35,6 +35,9 @@ namespace OpenSage.Graphics.Shaders
 
             _resources = new BindableResource[_resourceBindings.Count];
             _resources[0] = _constantsBuffer;
+
+            // TODO: Don't hardcode this...
+            _resources[_resources.Length - 1] = graphicsDevice.Aniso4xSampler;
         }
 
         public void SetTexture(string name, Texture value)

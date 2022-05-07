@@ -8,7 +8,7 @@
         [ScriptAction(ScriptActionType.SetFlag, "Scripting/Flags/Set flag to value", "Set {0} to {1}")]
         public static void SetFlag(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.FlagName)] string flagName, bool flagValue)
         {
-            context.Scripting.Flags[flagName] = flagValue;
+            context.Scripting.SetFlagValue(flagName, flagValue);
         }
 
         [ScriptAction(ScriptActionType.EnableScript, "Scripting/Script/Enable script", "Enable {0}")]

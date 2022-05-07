@@ -1,42 +1,68 @@
-﻿using System.IO;
-using OpenSage.Data.Sav;
-
-namespace OpenSage.Terrain
+﻿namespace OpenSage.Terrain
 {
-    public sealed class TerrainVisual
+    public sealed class TerrainVisual : IPersistableObject
     {
-        internal void Load(SaveFileReader reader, Game game)
-        {
-            reader.ReadVersion(2);
-            reader.ReadVersion(1);
+        private bool _unknownBool;
 
-            var unknownBool1 = reader.ReadBoolean();
-            if (unknownBool1)
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(2);
+
+            reader.BeginObject("Base");
+            reader.PersistVersion(1);
+            reader.EndObject();
+
+            reader.PersistBoolean(ref _unknownBool);
+            if (_unknownBool)
             {
-                throw new InvalidDataException();
+                reader.BeginObject("UnknownThing");
+
+                reader.PersistVersion(1);
+
+                // Matches VertexWaterXGridCellsN and VertexWaterYGridCellsN in GameData.ini
+                var gridCellsX = 0;
+                reader.PersistInt32(ref gridCellsX);
+                var gridCellsY = 0;
+                reader.PersistInt32(ref gridCellsY);
+
+                // Don't know why, but this gives the correct length for this array.
+                var dataCount = (gridCellsX + 3) * (gridCellsY + 3) * 10;
+                reader.SkipUnknownBytes(dataCount);
+
+                reader.EndObject();
             }
 
-            var area = reader.ReadUInt32();
+            var game = reader.Game;
+
+            var area = game.Scene3D.MapFile.HeightMapData.Area;
+            reader.PersistUInt32(ref area);
             if (area != game.Scene3D.MapFile.HeightMapData.Area)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
             var width = game.Scene3D.MapFile.HeightMapData.Width;
             var height = game.Scene3D.MapFile.HeightMapData.Height;
             var elevations = game.Scene3D.MapFile.HeightMapData.Elevations;
 
+            reader.BeginArray("Elevations");
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
                 {
-                    elevations[x, y] = reader.ReadByte();
+                    var elevation = (byte)elevations[x, y];
+                    reader.PersistByteValue(ref elevation);
+                    elevations[x, y] = elevation;
                 }
             }
+            reader.EndArray();
 
-            // TODO: Not great to create the initial patches,
-            // then recreate them here.
-            game.Scene3D.Terrain.OnHeightMapChanged();
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                // TODO: Not great to create the initial patches,
+                // then recreate them here.
+                game.Scene3D.Terrain.OnHeightMapChanged();
+            }
         }
     }
 }

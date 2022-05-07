@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,7 +12,16 @@ namespace OpenSage.Logic.Object
         private List<GameObject> _spawnedUnits;
         private bool _initial;
         private IProductionExit _productionExit;
-  
+
+        private bool _unknownBool1;
+        private string _templateName;
+        private int _unknownInt1;
+        private int _unknownInt2;
+        private readonly List<uint> _unknownIntList = new();
+        private readonly List<uint> _unknownObjectList = new();
+        private ushort _unknownInt3;
+        private int _unknownInt4;
+
         internal SpawnBehavior(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -28,8 +35,7 @@ namespace OpenSage.Logic.Object
         {
             _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
 
-            var spawnedObject = _gameObject.Parent.Add(_moduleData.SpawnTemplate.Value);
-            spawnedObject.Owner = _gameObject.Owner;
+            var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
             var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
@@ -75,17 +81,62 @@ namespace OpenSage.Logic.Object
             // TODO: respawn killed/dead units
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 2)
+            reader.PersistVersion(2);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistAsciiString(ref _templateName);
+            reader.PersistInt32(ref _unknownInt1);
+            reader.PersistInt32(ref _unknownInt2);
+
+            reader.SkipUnknownBytes(4);
+
+            var unknownBool2 = true;
+            reader.PersistBoolean(ref unknownBool2);
+            if (!unknownBool2)
             {
-                throw new InvalidDataException();
+                throw new InvalidStateException();
             }
 
-            base.Load(reader);
+            reader.PersistList(
+                _unknownIntList,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
 
-            // TODO
+            var unknownBool3 = true;
+            reader.PersistBoolean(ref unknownBool3);
+            if (!unknownBool3)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistList(
+                _unknownObjectList,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistObjectIDValue(ref item);
+                });
+
+            reader.PersistUInt16(ref _unknownInt3);
+            if (_unknownInt3 != 0 && _unknownInt3 != 1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistInt32(ref _unknownInt4);
+            if (_unknownInt4 != _unknownObjectList.Count && _unknownInt4 != -1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(4);
         }
     }
 

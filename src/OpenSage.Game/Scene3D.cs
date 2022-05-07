@@ -80,14 +80,12 @@ namespace OpenSage
 
         public WaterSettings Waters { get; } = new WaterSettings();
 
-        public readonly PlayerManager PlayerManager;
-
-        public IReadOnlyList<Player> Players => PlayerManager.Players;
-        public Player LocalPlayer => PlayerManager.LocalPlayer;
+        public IReadOnlyList<Player> Players => Game.PlayerManager.Players;
+        public Player LocalPlayer => Game.PlayerManager.LocalPlayer;
         public readonly Navigation.Navigation Navigation;
 
-        internal readonly AudioSystem Audio;
-        internal readonly AssetLoadContext AssetLoadContext;
+        internal AudioSystem Audio => Game.Audio;
+        internal AssetLoadContext AssetLoadContext => Game.AssetStore.LoadContext;
 
         public readonly Random Random;
 
@@ -96,8 +94,6 @@ namespace OpenSage
         public readonly Radar Radar;
 
         public readonly Game Game;
-
-        internal readonly TeamFactory TeamFactory;
 
         public GameObject BuildPreviewObject;
 
@@ -112,15 +108,11 @@ namespace OpenSage
             GameType gameType)
             : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
-            var contentManager = game.ContentManager;
+            game.Scene3D = this;
 
-            PlayerManager.OnNewGame(mapPlayers, game, gameType);
+            game.PlayerManager.OnNewGame(mapPlayers, gameType);
 
-            TeamFactory = new TeamFactory();
-            TeamFactory.Initialize(mapTeams, PlayerManager.Players);
-
-            Audio = game.Audio;
-            AssetLoadContext = game.AssetStore.LoadContext;
+            game.TeamFactory.Initialize(mapTeams);
 
             Lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -153,7 +145,7 @@ namespace OpenSage
                     Terrain.HeightMap.Height / 2)
             };
 
-            contentManager.GraphicsDevice.WaitForIdle();
+            game.ContentManager.GraphicsDevice.WaitForIdle();
         }
 
         private void LoadObjects(
@@ -186,7 +178,7 @@ namespace OpenSage
                                 break;
 
                             default:
-                                GameObject.FromMapObject(mapObject, loadContext.AssetStore, GameObjects, heightMap, overwriteAngle: null, teamFactory: TeamFactory);
+                                GameObject.FromMapObject(mapObject, GameContext, overwriteAngle: null);
                                 break;
                         }
                         break;
@@ -203,12 +195,10 @@ namespace OpenSage
                         var bridgeEnd = mapObjects[++i];
 
                         bridgesList.Add(AddDisposable(new Bridge(
-                            loadContext,
-                            heightMap,
+                            GameContext,
                             mapObject,
                             mapObject.Position,
-                            bridgeEnd.Position,
-                            GameObjects)));
+                            bridgeEnd.Position)));
 
                         break;
 
@@ -248,9 +238,8 @@ namespace OpenSage
                 loadContext.GraphicsDevice.WaitForIdle();
             }
 
-            GameObjects.InsertCreated();
             cameras = new CameraCollection(namedCameras?.Cameras);
-            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap, Terrain.RadiusCursorDecalsResourceSet));
+            roads = AddDisposable(new RoadCollection(roadTopology, loadContext, heightMap));
             waypointCollection = new WaypointCollection(waypoints, MapFile.WaypointsList.WaypointPaths);
             bridges = bridgesList.ToArray();
         }
@@ -265,8 +254,6 @@ namespace OpenSage
             bool isDiagnosticScene = false)
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
-            TeamFactory = new TeamFactory();
-
             WaterAreas = AddDisposable(new WaterAreaCollection());
             Lighting = lighting;
 
@@ -281,8 +268,6 @@ namespace OpenSage
         private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
         {
             Game = game;
-
-            PlayerManager = new PlayerManager();
 
             Camera = new Camera(getViewport);
 
@@ -332,6 +317,9 @@ namespace OpenSage
                 Quadtree,
                 this);
 
+            Game.GameLogic.Reset();
+            Game.GameClient.Reset();
+
             GameObjects = AddDisposable(new GameObjectCollection(GameContext));
 
             GameContext.GameObjects = GameObjects;
@@ -346,19 +334,18 @@ namespace OpenSage
         }
 
         // TODO: Move this over to a player collection?
-        public int GetPlayerIndex(Player player) => PlayerManager.GetPlayerIndex(player);
+        public int GetPlayerIndex(Player player) => Game.PlayerManager.GetPlayerIndex(player);
 
         internal void LogicTick(ulong frame, in TimeInterval time)
         {
-            GameObjects.DeleteDestroyed();
-            GameObjects.InsertCreated();
-
-            PlayerManager.LogicTick();
+            Game.PlayerManager.LogicTick();
 
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.LogicTick(frame, time);
             }
+
+            GameObjects.DeleteDestroyed();
         }
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT)
@@ -381,6 +368,8 @@ namespace OpenSage
             }
 
             Terrain?.Update(Waters, gameTime);
+
+            ParticleSystemManager?.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -562,10 +551,10 @@ namespace OpenSage
             }
             else
             {
-                var castleBehaviors = new List<(CastleBehavior, Logic.TeamTemplate)>();
+                var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
                 foreach (var gameObject in GameObjects.Items)
                 {
-                    var team = gameObject.Team;
+                    var team = gameObject.TeamTemplate;
                     if (team?.Name == $"Player_{playerSetting.StartPosition}_Inherit")
                     {
                         var castleBehavior = gameObject.FindBehavior<CastleBehavior>();
@@ -575,7 +564,7 @@ namespace OpenSage
                         }
                     }
                 }
-                foreach (var (castleBehavior, team) in castleBehaviors)
+                foreach (var (castleBehavior, _) in castleBehaviors)
                 {
                     castleBehavior.Unpack(player, instant: true);
                 }

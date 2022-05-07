@@ -1,13 +1,15 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Data.Sav;
 using OpenSage.Graphics;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
-    public sealed class GhostObject
+    public sealed class GhostObject : IPersistableObject
     {
+        public uint OriginalObjectId;
+
         private GameObject _gameObject;
 
         private ObjectGeometry _geometryType;
@@ -18,105 +20,154 @@ namespace OpenSage.Logic
         private float _angle;
         private Vector3 _position;
 
-        internal void Load(SaveFileReader reader, GameLogic gameLogic, Game game)
+        private readonly List<ModelInstance>[] _modelsPerPlayer;
+
+        private bool _hasUnknownThing;
+        private byte _unknownByte;
+        private uint _unknownInt;
+
+        public GhostObject()
         {
-            reader.ReadVersion(1);
-            reader.ReadVersion(1);
-
-            var objectId = reader.ReadObjectID();
-            _gameObject = gameLogic.GetObjectById(objectId);
-
-            _geometryType = reader.ReadEnum<ObjectGeometry>();
-
-            // Sometimes there's a 0xC0, when it should be 0x0.
-            _geometryIsSmall = reader.ReadByte() == 1;
-
-            _geometryMajorRadius = reader.ReadSingle();
-            _geometryMinorRadius = reader.ReadSingle();
-
-            _angle = reader.ReadSingle();
-            _position = reader.ReadVector3();
-
-            var unknown6 = reader.ReadUInt32();
-            if (unknown6 != 0)
+            _modelsPerPlayer = new List<ModelInstance>[Player.MaxPlayers];
+            for (var i = 0; i < _modelsPerPlayer.Length; i++)
             {
-                throw new InvalidDataException();
+                _modelsPerPlayer[i] = new List<ModelInstance>();
+            }
+        }
+
+        public void Persist(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            reader.PersistVersion(1);
+            reader.EndObject();
+
+            var objectId = _gameObject?.ID ?? 0u;
+            reader.PersistObjectID(ref objectId);
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                _gameObject = reader.Game.GameLogic.GetObjectById(objectId);
             }
 
-            var unknown7 = reader.ReadUInt32();
-            if (unknown7 != 0)
+            reader.PersistEnum(ref _geometryType);
+
+            // Sometimes there's a 0xC, which is probably uninitialized data.
+            byte geometryIsSmall = _geometryIsSmall ? (byte)1 : (byte)0;
+            reader.PersistByte(ref geometryIsSmall);
+            _geometryIsSmall = geometryIsSmall == 1;
+
+            reader.PersistSingle(ref _geometryMajorRadius);
+            reader.PersistSingle(ref _geometryMinorRadius);
+            reader.PersistSingle(ref _angle);
+            reader.PersistVector3(ref _position);
+
+            reader.SkipUnknownBytes(12);
+
+            reader.BeginArray("ModelsPerPlayer");
+            for (var i = 0; i < Player.MaxPlayers; i++)
             {
-                throw new InvalidDataException();
-            }
+                reader.BeginObject();
 
-            var unknown8 = reader.ReadUInt32();
-            if (unknown8 != 0)
-            {
-                throw new InvalidDataException();
-            }
+                byte numModels = (byte)_modelsPerPlayer[i].Count;
+                reader.PersistByte(ref numModels);
 
-            for (var i = 0; i < 16; i++)
-            {
-                var numModels = reader.ReadByte();
-
-                if (numModels > 0 && i != 2)
-                {
-                    throw new InvalidDataException();
-                }
-
-                var modelInstances = new ModelInstance[numModels];
-
+                reader.BeginArray("Models");
                 for (var j = 0; j < numModels; j++)
                 {
-                    var modelName = reader.ReadAsciiString();
+                    reader.BeginObject();
 
-                    var model = game.AssetStore.Models.GetByName(modelName);
-                    var modelInstance = model.CreateInstance(game.AssetStore.LoadContext);
-                    modelInstances[j] = modelInstance;
+                    var modelName = reader.Mode == StatePersistMode.Write
+                        ? _modelsPerPlayer[i][j].Model.Name
+                        : "";
+                    reader.PersistAsciiString(ref modelName);
 
-                    var scale = reader.ReadSingle();
+                    Model model;
+                    ModelInstance modelInstance;
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        model = reader.AssetStore.Models.GetByName(modelName);
+                        modelInstance = model.CreateInstance(reader.AssetStore.LoadContext);
+
+                        _modelsPerPlayer[i].Add(modelInstance);
+                    }
+                    else
+                    {
+                        modelInstance = _modelsPerPlayer[i][j];
+                        model = modelInstance.Model;
+                    }
+
+                    var scale = 1.0f;
+                    reader.PersistSingle(ref scale);
                     if (scale != 1.0f)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidStateException();
                     }
 
-                    var houseColor = reader.ReadColorRgba();
-                    // TODO: Use house color.
+                    reader.PersistColorRgba(ref modelInstance.HouseColor, "HouseColor");
 
-                    reader.ReadVersion(1);
+                    reader.PersistVersion(1);
 
-                    var modelTransform = reader.ReadMatrix4x3Transposed();
+                    var modelTransform = reader.Mode == StatePersistMode.Write
+                        ? Matrix4x3.FromMatrix4x4(modelInstance.GetWorldMatrix())
+                        : Matrix4x3.Identity;
+                    reader.PersistMatrix4x3(ref modelTransform, readVersion: false);
 
-                    modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
+                    if (reader.Mode == StatePersistMode.Read)
+                    {
+                        modelInstance.SetWorldMatrix(modelTransform.ToMatrix4x4());
+                    }
 
-                    var numMeshes = reader.ReadUInt32();
+                    var numMeshes = (uint)model.SubObjects.Length;
+                    reader.PersistUInt32(ref numMeshes);
                     if (numMeshes > 0 && numMeshes != model.SubObjects.Length)
                     {
-                        throw new InvalidDataException();
+                        throw new InvalidStateException();
                     }
 
+                    reader.BeginArray("Meshes");
                     for (var k = 0; k < numMeshes; k++)
                     {
-                        var meshName = reader.ReadAsciiString();
-                        var meshBool = reader.ReadBoolean();
-                        var meshTransform = reader.ReadMatrix4x3Transposed();
+                        reader.BeginObject();
 
-                        if (meshName != model.SubObjects[k].Name)
+                        var meshName = model.SubObjects[k].FullName;
+                        reader.PersistAsciiString(ref meshName);
+
+                        if (meshName != model.SubObjects[k].FullName)
                         {
-                            throw new InvalidDataException();
+                            throw new InvalidStateException();
                         }
 
-                        // TODO: meshTransform is actually absolute, not relative.
-                        modelInstance.RelativeBoneTransforms[k] = meshTransform.ToMatrix4x4();
-                    }
-                }
-            }
+                        reader.PersistBoolean(ref modelInstance.UnknownBools[k], "UnknownBool");
 
-            var unknown = reader.ReadBoolean();
-            if (unknown)
+                        var meshTransform = reader.Mode == StatePersistMode.Write
+                            ? Matrix4x3.FromMatrix4x4(modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index])
+                            : Matrix4x3.Identity;
+                        reader.PersistMatrix4x3(ref meshTransform, readVersion: false);
+
+                        if (reader.Mode == StatePersistMode.Read)
+                        {
+                            // TODO: meshTransform is actually absolute, not relative.
+                            modelInstance.RelativeBoneTransforms[model.SubObjects[k].Bone.Index] = meshTransform.ToMatrix4x4();
+                        }
+
+                        reader.EndObject();
+                    }
+                    reader.EndArray();
+
+                    reader.EndObject();
+                }
+                reader.EndArray();
+
+                reader.EndObject();
+            }
+            reader.EndArray();
+
+            reader.PersistBoolean(ref _hasUnknownThing);
+            if (_hasUnknownThing)
             {
-                reader.ReadByte();
-                reader.ReadUInt32();
+                reader.PersistByte(ref _unknownByte);
+                reader.PersistUInt32(ref _unknownInt);
             }
         }
     }

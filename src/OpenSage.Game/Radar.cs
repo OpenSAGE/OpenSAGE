@@ -3,8 +3,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data;
-using OpenSage.Data.Sav;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -12,7 +10,7 @@ using Veldrid;
 
 namespace OpenSage
 {
-    public sealed class Radar
+    public sealed class Radar : IPersistableObject
     {
         private readonly Scene3D _scene;
         private readonly Texture _miniMapTexture;
@@ -21,6 +19,10 @@ namespace OpenSage
         private readonly RadarItemCollection _hiddenItems;
 
         private readonly List<RadarEvent> _radarEvents;
+
+        private bool _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
 
         internal Radar(Scene3D scene, AssetStore assetStore, string mapPath)
         {
@@ -79,7 +81,7 @@ namespace OpenSage
             return _scene.Terrain.HeightMap.GetPosition((int) position2D.X, (int) position2D.Y);
         }
 
-        public void AddGameObject(GameObject gameObject, uint objectId)
+        public void AddGameObject(GameObject gameObject)
         {
             switch (gameObject.Definition.RadarPriority)
             {
@@ -97,14 +99,14 @@ namespace OpenSage
 
             items.Add(new RadarItem
             {
-                ObjectId = objectId,
+                ObjectId = gameObject.ID,
                 Color = gameObject.Owner.Color.ToColorRgba()
             });
         }
 
         public void RemoveGameObject(GameObject gameObject)
         {
-            var objectId = (uint) _scene.GameObjects.GetObjectId(gameObject);
+            var objectId = gameObject.ID;
 
             _visibleItems.Remove(objectId);
             _hiddenItems.Remove(objectId);
@@ -115,6 +117,11 @@ namespace OpenSage
         public void Draw(DrawingContext2D drawingContext, in Mathematics.Rectangle destinationRectangle)
         {
             // TODO: Don't draw minimap if player doesn't have radar.
+
+            if (_miniMapTexture == null)
+            {
+                return;
+            }
 
             var fittedRectangle = RectangleF.CalculateRectangleFittingAspectRatio(
                 new RectangleF(0, 0, _miniMapTexture.Width, _miniMapTexture.Height),
@@ -258,99 +265,105 @@ namespace OpenSage
             DrawFrustumLine(terrain3.Value, terrain0.Value);
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var unknown1 = reader.ReadByte();
-            if (unknown1 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            reader.SkipUnknownBytes(1);
 
-            var unknown2 = reader.ReadBoolean();
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistObject(_visibleItems);
+            reader.PersistObject(_hiddenItems);
 
-            _visibleItems.Clear();
-            _visibleItems.Load(reader);
+            reader.PersistList(
+                _radarEvents,
+                static (StatePersister persister, ref RadarEvent item) =>
+                {
+                    item ??= new RadarEvent();
+                    persister.PersistObjectValue(item);
+                });
 
-            _hiddenItems.Clear();
-            _hiddenItems.Load(reader);
-
-            _radarEvents.Clear();
-
-            var numRadarEvents = reader.ReadUInt16();
-            for (var i = 0; i < numRadarEvents; i++)
-            {
-                var radarEvent = new RadarEvent();
-                radarEvent.Load(reader);
-                _radarEvents.Add(radarEvent);
-            }
-
-            var unknown3 = reader.ReadUInt32();
-            var unknown4 = reader.ReadUInt32();
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
         }
     }
 
-    internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>
+    internal sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>, IPersistableObject
     {
-        public void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var count = reader.ReadUInt16();
+            var count = (ushort) Count;
+            reader.PersistUInt16(ref count);
 
-            for (var i = 0; i < count; i++)
+            reader.BeginArray("Items");
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var item = new RadarItem();
-                item.Load(reader);
+                Clear();
 
-                Add(item);
+                for (var i = 0; i < count; i++)
+                {
+                    var item = new RadarItem();
+                    reader.PersistObjectValue(item);
+                    Add(item);
+                }
             }
+            else
+            {
+                foreach (var item in this)
+                {
+                    reader.PersistObjectValue(item);
+                }
+            }
+            reader.EndArray();
         }
 
         protected override uint GetKeyForItem(RadarItem item) => item.ObjectId;
     }
 
-    internal sealed class RadarItem
+    internal sealed class RadarItem : IPersistableObject
     {
         public uint ObjectId;
         public ColorRgba Color;
 
-        public void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            ObjectId = reader.ReadUInt32();
-            Color = reader.ReadColorRgba();
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistColorRgba(ref Color);
         }
     }
 
-    internal sealed class RadarEvent
+    internal sealed class RadarEvent : IPersistableObject
     {
         public RadarEventType Type;
         public Vector3 Position;
 
-        public void Load(SaveFileReader reader)
+        private bool _unknown1;
+        private uint _unknown2;
+        private uint _unknown3;
+        private uint _unknown4;
+        private ColorRgba _color1;
+        private ColorRgba _color2;
+        private uint _unknown5;
+        private uint _unknown6;
+        private bool _unknown7;
+
+        public void Persist(StatePersister reader)
         {
-            Type = reader.ReadEnum<RadarEventType>();
-
-            var unknown1 = reader.ReadBoolean();
-
-            var unknown2 = reader.ReadUInt32();
-            var unknown3 = reader.ReadUInt32();
-            var unknown4 = reader.ReadUInt32();
-
-            for (var i = 0; i < 8; i++)
-            {
-                var unknown5 = reader.ReadUInt32();
-            }
-
-            Position = reader.ReadVector3();
-
-            var unknown6 = reader.ReadUInt32();
-            var unknown7 = reader.ReadUInt32();
-
-            var unknown8 = reader.ReadBoolean();
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref _unknown1);
+            reader.PersistUInt32(ref _unknown2);
+            reader.PersistUInt32(ref _unknown3);
+            reader.PersistUInt32(ref _unknown4);
+            reader.PersistColorRgbaInt(ref _color1);
+            reader.PersistColorRgbaInt(ref _color2);
+            reader.PersistVector3(ref Position);
+            reader.PersistUInt32(ref _unknown5);
+            reader.PersistUInt32(ref _unknown6);
+            reader.PersistBoolean(ref _unknown7);
         }
     }
 

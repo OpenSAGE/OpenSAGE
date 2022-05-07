@@ -9,7 +9,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class RtsCameraController : ICameraController
+    public sealed class RtsCameraController : ICameraController, IPersistableObject
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.0005f;
@@ -27,10 +27,19 @@ namespace OpenSage.Graphics.Cameras
 
         public bool CanPlayerInputChangePitch { get; set; }
         
-        private Vector3 _lookDirection;
+        private float _yaw;
+
         public void SetLookDirection(Vector3 lookDirection)
         {
-            _lookDirection = Vector3.Normalize(new Vector3(lookDirection.X, lookDirection.Y, 0));
+            _yaw = MathF.Atan2(lookDirection.Y, lookDirection.X);
+        }
+
+        public Vector3 GetLookDirection()
+        {
+            return new Vector3(
+                MathF.Cos(_yaw),
+                MathF.Sin(_yaw),
+                0);
         }
 
         private float _zoom = 1;
@@ -61,7 +70,7 @@ namespace OpenSage.Graphics.Cameras
             return _animation = new CameraAnimation(
                 this,
                 points,
-                _lookDirection,
+                GetLookDirection(),
                 startTime,
                 duration,
                 _currentPitchAngle,
@@ -87,11 +96,7 @@ namespace OpenSage.Graphics.Cameras
 
             _currentPitchAngle = -_defaultPitchAngle;
 
-            var yaw = gameData.CameraYaw;
-            SetLookDirection(new Vector3(
-                MathF.Sin(yaw),
-                MathF.Cos(yaw),
-                0));
+            _yaw = gameData.CameraYaw;
         }
 
         internal float CalculatePitchAngle(float pitch)
@@ -187,7 +192,7 @@ namespace OpenSage.Graphics.Cameras
                 }
             }
 
-            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
+            var yaw = _yaw;
 
             var cameraHeight = MathUtility.Lerp(
                 0,
@@ -250,10 +255,7 @@ namespace OpenSage.Graphics.Cameras
 
         private void RotateCamera(float deltaX, float deltaY)
         {
-            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
-            yaw -= deltaX * RotationSpeed;
-            _lookDirection.X = MathF.Cos(yaw);
-            _lookDirection.Y = MathF.Sin(yaw);
+            _yaw -= deltaX * RotationSpeed;
 
             if (CanPlayerInputChangePitch)
             {
@@ -273,20 +275,19 @@ namespace OpenSage.Graphics.Cameras
 
         private void KeyRotateCamera(float rotationValue)
         {
-            var yaw = MathF.Atan2(_lookDirection.Y, _lookDirection.X);
-            yaw -= rotationValue;
-            _lookDirection.X = MathF.Cos(yaw);
-            _lookDirection.Y = MathF.Sin(yaw);
+            _yaw -= rotationValue;
         }
 
         private void PanCamera(float forwards, float right)
         {
             var panSpeed = PanSpeed * _zoom;
 
-            _terrainPosition += _lookDirection * forwards * panSpeed;
+            var lookDirection = GetLookDirection();
+
+            _terrainPosition += lookDirection * forwards * panSpeed;
 
             // Get "right" vector from look direction.
-            var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
+            var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(lookDirection));
 
             _terrainPosition += cameraOrientation.Right() * right * panSpeed;
 
@@ -314,12 +315,12 @@ namespace OpenSage.Graphics.Cameras
             TerrainPosition = gameObject.Translation;
         }
 
-        internal void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
+            reader.PersistVersion(1);
 
-            var cameraAngle = reader.ReadSingle(); // TODO
-            _terrainPosition = reader.ReadVector3();
+            reader.PersistSingle(ref _yaw);
+            reader.PersistVector3(ref _terrainPosition);
         }
 
         internal void DrawInspector()

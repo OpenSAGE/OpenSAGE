@@ -1,12 +1,14 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Sav;
 
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class Geometry
+    public sealed class Geometry : IPersistableObject
     {
+        private float _unknownFloat1;
+        private float _unknownFloat2;
+
         public Geometry() { }
 
         public Geometry(ObjectGeometry type)
@@ -27,27 +29,28 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string Name { get; set; }
-        public ObjectGeometry Type { get; set; }
-        public bool IsSmall { get; set; }
-        public float Height { get; set; }
-        public float MajorRadius { get; set; }
-        public float MinorRadius { get; set; }
-        public int OffsetX { get; set; }
-        public Vector3 Offset { get; set; }
-        public bool IsActive { get; set; }
-        public float FrontAngle { get; set; }
+        public string Name;
+        public ObjectGeometry Type;
+        public bool IsSmall;
+        public float Height;
+        public float MajorRadius;
+        public float MinorRadius;
+        public int OffsetX;
+        public Vector3 Offset;
+        public bool IsActive;
+        public float FrontAngle;
 
-        public void Load(SaveFileReader reader)
+        public void Persist(StatePersister reader)
         {
-            reader.ReadVersion(1);
-            Type = reader.ReadEnum<ObjectGeometry>();
-            IsSmall = reader.ReadBoolean();
-            Height = reader.ReadSingle();
-            MajorRadius = reader.ReadSingle();
-            MinorRadius = reader.ReadSingle();
-            var unknown1 = reader.ReadSingle();
-            var unknown2 = reader.ReadSingle();
+            reader.PersistVersion(1);
+
+            reader.PersistEnum(ref Type);
+            reader.PersistBoolean(ref IsSmall);
+            reader.PersistSingle(ref Height);
+            reader.PersistSingle(ref MajorRadius);
+            reader.PersistSingle(ref MinorRadius);
+            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _unknownFloat2);
         }
 
         public Geometry Clone() => (Geometry) MemberwiseClone();

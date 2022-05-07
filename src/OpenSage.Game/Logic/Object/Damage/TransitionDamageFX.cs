@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -13,6 +12,9 @@ namespace OpenSage.Logic.Object
     public sealed class TransitionDamageFX : DamageModule
     {
         private readonly TransitionDamageFXModuleData _moduleData;
+
+        private const int NumParticleSystemsPerDamageType = 12;
+        private readonly uint[] _particleSystemIds = new uint[EnumUtility.GetEnumCount<BodyDamageType>() * NumParticleSystemsPerDamageType];
 
         public TransitionDamageFX(TransitionDamageFXModuleData moduleData)
         {
@@ -53,17 +55,20 @@ namespace OpenSage.Logic.Object
             // TODO: FXLists
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown = reader.ReadBytes(192);
+            reader.PersistArray(
+                _particleSystemIds,
+                static (StatePersister persister, ref uint item) =>
+                {
+                    persister.PersistUInt32Value(ref item);
+                });
         }
     }
 

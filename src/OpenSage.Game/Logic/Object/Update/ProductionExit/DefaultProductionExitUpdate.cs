@@ -7,6 +7,9 @@ namespace OpenSage.Logic.Object
     {
         private readonly DefaultProductionExitUpdateModuleData _moduleData;
 
+        private Vector3 _unknownPos;
+        private bool _unknownBool;
+
         internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -15,6 +18,18 @@ namespace OpenSage.Logic.Object
         Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistVector3(ref _unknownPos);
+            reader.PersistBoolean(ref _unknownBool);
+        }
     }
 
     public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData

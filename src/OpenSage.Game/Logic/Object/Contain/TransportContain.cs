@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         private readonly TransportContainModuleData _moduleData;
         private readonly List<GameObject> _contained;
 
+        private uint _unknownFrame;
+
         internal TransportContain(TransportContainModuleData moduleData)
         {
             _moduleData = moduleData;
@@ -33,56 +35,24 @@ namespace OpenSage.Logic.Object
             contained.IsSelectable = false;
         }
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var numObjectsInside = reader.ReadUInt32();
-            for (var i = 0; i < numObjectsInside; i++)
+            var unknownInt1 = 1;
+            reader.PersistInt32(ref unknownInt1);
+            if (unknownInt1 != 1)
             {
-                var objectId = reader.ReadUInt32();
+                throw new InvalidStateException();
             }
 
-            var unknown1 = reader.ReadBytes(6);
+            reader.SkipUnknownBytes(1);
 
-            var unknown2 = reader.ReadBytes(13);
-
-            var statusCount = reader.ReadUInt32();
-            for (var i = 0; i < statusCount; i++)
-            {
-                var someStatus = reader.ReadBytePrefixedAsciiString(); // "LOADED"
-            }
-
-            // Where does the 32 come from?
-            for (var i = 0; i < 32; i++)
-            {
-                var someTransform = reader.ReadMatrix4x3Transposed();
-            }
-
-            var unknown3 = reader.ReadInt32(); // -1
-
-            var numObjectsInside2 = reader.ReadUInt32();
-            var capacity = reader.ReadUInt32(); // Maybe
-
-            var unknown4 = reader.ReadBytes(14);
-
-            var unknownCount = reader.ReadUInt16();
-            for (var i = 0; i < unknownCount; i++)
-            {
-                var unknown5 = reader.ReadUInt32();
-                var unknown6 = reader.ReadUInt32();
-            }
-
-            var unknown7 = reader.ReadUInt32();
-            var unknown8 = reader.ReadUInt32();
-
-            var unknown9 = reader.ReadBytes(5);
+            reader.PersistFrame(ref _unknownFrame);
         }
     }
 

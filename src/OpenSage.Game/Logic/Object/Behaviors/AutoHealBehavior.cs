@@ -1,38 +1,52 @@
-﻿using System.IO;
-using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     // It looks from the .sav files that this actually inherits from UpdateModule,
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
-    public sealed class AutoHealBehavior : UpdateModule
+    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule
     {
-        public AutoHealBehavior()
+        private readonly UpgradeLogic _upgradeLogic;
+        private uint _unknownFrame;
+
+        public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
         {
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
-        // TODO
+        public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
 
-        internal override void Load(BinaryReader reader)
+        public void TryUpgrade(UpgradeSet completedUpgrades) => _upgradeLogic.TryUpgrade(completedUpgrades);
+
+        private void OnUpgrade()
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            // TODO
+        }
 
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown = reader.ReadBytes(11);
+            reader.PersistObject(_upgradeLogic);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistFrame(ref _unknownFrame);
+
+            reader.SkipUnknownBytes(1);
         }
     }
 
-    public sealed class AutoHealBehaviorModuleData : UpgradeModuleData
+    public sealed class AutoHealBehaviorModuleData : UpdateModuleData
     {
         internal static AutoHealBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<AutoHealBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        private static readonly IniParseTable<AutoHealBehaviorModuleData> FieldParseTable =
+            new IniParseTableChild<AutoHealBehaviorModuleData, UpgradeLogicData>(x => x.UpgradeData, UpgradeLogicData.FieldParseTable)
             .Concat(new IniParseTable<AutoHealBehaviorModuleData>
             {
                 { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseFloat() },
@@ -55,6 +69,8 @@ namespace OpenSage.Logic.Object
                 { "RespawnMinimumDelay", (parser, x) => x.RespawnMinimumDelay = parser.ParseInteger() },
                 { "HealOnlyIfNotUnderAttack", (parser, x) => x.HealOnlyIfNotUnderAttack = parser.ParseBoolean() }
             });
+
+        public UpgradeLogicData UpgradeData { get; } = new();
 
         public float HealingAmount { get; private set; }
         public int HealingDelay { get; private set; }
@@ -100,7 +116,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoHealBehavior();
+            return new AutoHealBehavior(this);
         }
     }
 }

@@ -22,6 +22,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Pathfinding;
+using OpenSage.Rendering;
 using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;
 using Veldrid;
@@ -78,7 +79,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<AIBase> AIBases { get; }
         public ScopedAssetCollection<AIDozerAssignment> AIDozerAssignments { get; }
         public ScopedAssetCollection<AmbientStream> AmbientStreams { get; }
-        public ScopedAssetCollection<Animation> Animations { get; }
+        public ScopedAssetCollection<AnimationTemplate> Animations { get; }
         public ScopedAssetCollection<ArmorTemplate> ArmorTemplates { get; }
         public ScopedAssetCollection<ArmyDefinition> ArmyDefinitions { get; }
         public ScopedAssetCollection<AudioEvent> AudioEvents { get; }
@@ -181,6 +182,7 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             StandardGraphicsResources standardGraphicsResources,
             ShaderResourceManager shaderResources,
+            ShaderSetStore shaderSetStore,
             OnDemandAssetLoadStrategy loadStrategy)
         {
             LoadContext = new AssetLoadContext(
@@ -189,6 +191,7 @@ namespace OpenSage.Content
                 graphicsDevice,
                 standardGraphicsResources,
                 shaderResources,
+                shaderSetStore,
                 this);
 
             _scopedSingleAssetStorage = new List<IScopedSingleAssetStorage>();
@@ -253,7 +256,7 @@ namespace OpenSage.Content
             AddAssetCollection(AIBases = new ScopedAssetCollection<AIBase>(this));
             AddAssetCollection(AIDozerAssignments = new ScopedAssetCollection<AIDozerAssignment>(this));
             AddAssetCollection(AmbientStreams = new ScopedAssetCollection<AmbientStream>(this));
-            AddAssetCollection(Animations = new ScopedAssetCollection<Animation>(this));
+            AddAssetCollection(Animations = new ScopedAssetCollection<AnimationTemplate>(this));
             AddAssetCollection(ArmorTemplates = new ScopedAssetCollection<ArmorTemplate>(this));
             AddAssetCollection(ArmyDefinitions = new ScopedAssetCollection<ArmyDefinition>(this));
             AddAssetCollection(AudioEvents = new ScopedAssetCollection<AudioEvent>(this));

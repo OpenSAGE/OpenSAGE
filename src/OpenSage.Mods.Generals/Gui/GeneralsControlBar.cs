@@ -499,7 +499,10 @@ namespace OpenSage.Mods.Generals.Gui
                     _baseText = StringConverter.FromPrintf(_progressText.Text);
                 }
 
-                //TODO: connect cancel button to some order.
+                Button cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction") as Button;
+                // Is that CommandButton hardcoded or defined somewhere?
+                var commandButton = controlBar._window.Game.AssetStore.CommandButtons.GetByName("Command_CancelConstruction");
+                CommandButtonUtils.SetCommandButton(cancelButton, commandButton, controlBar);
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)

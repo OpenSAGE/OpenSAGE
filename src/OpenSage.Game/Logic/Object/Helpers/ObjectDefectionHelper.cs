@@ -1,23 +1,25 @@
-﻿using System.IO;
-using OpenSage.FileFormats;
-
-namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers
 {
     internal sealed class ObjectDefectionHelper : ObjectHelperModule
     {
-        // TODO
+        private uint _frameStart;
+        private uint _frameEnd;
+        private bool _unknown;
 
-        internal override void Load(BinaryReader reader)
+        internal override void Load(StatePersister reader)
         {
-            var version = reader.ReadVersion();
-            if (version != 1)
-            {
-                throw new InvalidDataException();
-            }
+            reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            var unknown = reader.ReadBytes(13);
+            reader.PersistUInt32(ref _frameStart);
+            reader.PersistUInt32(ref _frameEnd);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistBoolean(ref _unknown);
         }
     }
 }
