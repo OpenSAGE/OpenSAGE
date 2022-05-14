@@ -104,9 +104,10 @@ namespace OpenSage.Logic.Object
             return currentLift * LiftFactor;
         }
 
-        public bool RotateToTargetDirection(in TimeInterval gameTime, in Vector3 targetDirection)
+        public bool RotateToTargetDirection(in Vector3 targetDirection)
         {
-            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
+            // TODO
+            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
 
             var currentYaw = _gameObject.Yaw;
 
@@ -126,9 +127,10 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        public bool MoveTowardsPosition(in TimeInterval gameTime, in Vector3 targetPoint, HeightMap heightMap, in Vector3? nextPoint)
+        public bool MoveTowardsPosition(in Vector3 targetPoint, HeightMap heightMap, in Vector3? nextPoint)
         {
-            var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
+            // TODO
+            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
 
             var translation = _gameObject.Translation;
             var x = translation.X;
@@ -230,7 +232,7 @@ namespace OpenSage.Logic.Object
                 case LocomotorAppearance.GiantBird:
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
-                    thrust = GetCurrentThrust(height, deltaTime, translation.Z);
+                    thrust = GetCurrentThrust(height, translation.Z);
                     if (!reachedTurnSpeed)
                     {
                         break;
@@ -312,12 +314,13 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        public void MaintainPosition(in TimeInterval gameTime, HeightMap heightMap)
+        public void MaintainPosition(HeightMap heightMap)
         {
             switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Wings:
-                    var deltaTime = (float) gameTime.DeltaTime.TotalSeconds;
+                    // TODO
+                    var deltaTime = 1.0f / Game.LogicFramesPerSecond;
 
                     var translation = _gameObject.Translation;
 
@@ -332,7 +335,7 @@ namespace OpenSage.Logic.Object
                     translation += deltaTransform;
 
                     var height = heightMap.GetHeight(translation.X, translation.Y);
-                    translation.Z += GetCurrentThrust(height, deltaTime, translation.Z);
+                    translation.Z += GetCurrentThrust(height, translation.Z);
                     _gameObject.SetTranslation(translation);
 
                     var normal = heightMap.GetNormal(translation.X, translation.Y);
@@ -350,8 +353,11 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private float GetCurrentThrust(float terrainHeight, float deltaTime, float height)
+        private float GetCurrentThrust(float terrainHeight, float height)
         {
+            // TODO
+            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
+
             var heightRemaining = (terrainHeight + LocomotorTemplate.PreferredHeight) - height;
             var lift = GetLift();
             _gameObject.Lift += lift;

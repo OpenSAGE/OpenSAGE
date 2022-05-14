@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object
 {
     internal sealed class ReloadingWeaponState : FixedDurationWeaponState
     {
@@ -18,9 +16,9 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlagUtility.GetFiringOrReloadingFlag(weaponIndex)
             };
 
-        public override WeaponState? GetNextState(TimeSpan currentTime)
+        public override WeaponState? GetNextState()
         {
-            if (IsTimeToExitState(currentTime))
+            if (IsTimeToExitState())
             {
                 Context.Weapon.FillClip();
 

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
 
         internal override void Load(StatePersister reader)
         {

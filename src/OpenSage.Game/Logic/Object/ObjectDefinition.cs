@@ -95,7 +95,7 @@ namespace OpenSage.Logic.Object
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
-            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
+            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseTimeSecondsToLogicFrames() },
             { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
             { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseFloat() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
@@ -494,10 +494,7 @@ namespace OpenSage.Logic.Object
         public int CrushableLevel { get; private set; }
         public float BuildCost { get; private set; } //TODO: should this really be a float?
 
-        /// <summary>
-        /// Build time in seconds.
-        /// </summary>
-        public float BuildTime { get; private set; }
+        public LogicFrameSpan BuildTime { get; private set; }
         public int RefundValue { get; private set; }
         public int EnergyProduction { get; private set; }
         public int EnergyBonus { get; private set; }

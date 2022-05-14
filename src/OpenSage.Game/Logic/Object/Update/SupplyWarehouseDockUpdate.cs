@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
 
             if (_currentBoxes <= 0)
             {
-                _gameObject.Die(DeathType.Normal, context.Time);
+                _gameObject.Die(DeathType.Normal);
             }
         }
 

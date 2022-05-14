@@ -10,8 +10,7 @@ namespace OpenSage.Logic.Object
 
         private bool _rodsExtended;
 
-        // TODO: This should be in frame numbers.
-        private TimeSpan _rodsExtendedEndTime;
+        private LogicFrame _rodsExtendedEndFrame;
 
         internal PowerPlantUpdate(GameObject gameObject, PowerPlantUpdateModuleData moduleData)
         {
@@ -25,18 +24,18 @@ namespace OpenSage.Logic.Object
 
             _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
 
-            _rodsExtendedEndTime = _gameObject.GameContext.Scene3D.Game.GetTimeInterval().TotalTime + _moduleData.RodsExtendTime;
+            _rodsExtendedEndFrame = _gameObject.GameContext.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
 
-            if (_rodsExtended && _rodsExtendedEndTime < context.Time.TotalTime)
+            if (_rodsExtended && _rodsExtendedEndFrame < context.LogicFrame)
             {
                 _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
                 _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, true);
-                _rodsExtendedEndTime = TimeSpan.MaxValue;
+                _rodsExtendedEndFrame = LogicFrame.MaxValue;
             }
         }
 
@@ -63,10 +62,10 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<PowerPlantUpdateModuleData> FieldParseTable = new IniParseTable<PowerPlantUpdateModuleData>
         {
-            { "RodsExtendTime", (parser, x) => x.RodsExtendTime = parser.ParseTimeMilliseconds() }
+            { "RodsExtendTime", (parser, x) => x.RodsExtendTime = parser.ParseTimeMillisecondsToLogicFrames() }
         };
 
-        public TimeSpan RodsExtendTime { get; private set; }
+        public LogicFrameSpan RodsExtendTime { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

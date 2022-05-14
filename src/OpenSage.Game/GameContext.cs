@@ -27,6 +27,14 @@ namespace OpenSage
 
         public readonly Random Random = new Random();
 
+        public LogicFrameSpan GetRandomLogicFrameSpan(LogicFrameSpan min, LogicFrameSpan max)
+        {
+            var value = Random.Next(
+                (int)min.Value,
+                (int)max.Value);
+            return new LogicFrameSpan((uint)value);
+        }
+
         // TODO: Make this readonly.
         public GameObjectCollection GameObjects;
         public readonly Quadtree<GameObject> Quadtree;

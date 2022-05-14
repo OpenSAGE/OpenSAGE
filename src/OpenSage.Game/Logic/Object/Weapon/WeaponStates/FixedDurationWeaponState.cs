@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     internal abstract class FixedDurationWeaponState : BaseWeaponState
     {
-        private TimeSpan _exitTime;
+        private LogicFrame _exitTime;
 
         protected abstract RangeDuration Duration { get; }
 
@@ -13,13 +13,13 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        protected override void OnEnterStateImpl(TimeInterval time)
+        protected override void OnEnterStateImpl()
         {
             // TODO: Randomly pick value between Duration.Min and Duration.Max
-            _exitTime = time.TotalTime + Duration.Min;
+            _exitTime = Context.GameContext.GameLogic.CurrentFrame + Duration.Min;
         }
 
-        protected bool IsTimeToExitState(TimeSpan currentTime) =>
-            currentTime >= _exitTime;
+        protected bool IsTimeToExitState() =>
+            Context.GameContext.GameLogic.CurrentFrame >= _exitTime;
     }
 }

@@ -8,26 +8,19 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly DeletionUpdateModuleData _moduleData;
 
-        private TimeSpan _lifeTime;
-        private bool _initial = true;
-
-        private uint _unknown;
+        private LogicFrame _frameToDelete;
 
         public DeletionUpdate(GameObject gameObject, DeletionUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
+
+            _frameToDelete = gameObject.GameContext.GameLogic.CurrentFrame + gameObject.GameContext.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_initial)
-            {
-                _lifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(context.GameContext.Random.Next((int)_moduleData.MinLifetime, (int)_moduleData.MaxLifetime));
-                _initial = false;
-            }
-
-            if (context.Time.TotalTime > _lifeTime)
+            if (context.LogicFrame >= _frameToDelete)
             {
                 context.GameContext.GameObjects.DestroyObject(_gameObject);
             }
@@ -39,7 +32,7 @@ namespace OpenSage.Logic.Object
 
             base.Load(reader);
 
-            reader.PersistUInt32(ref _unknown);
+            reader.PersistLogicFrame(ref _frameToDelete);
         }
     }
 
@@ -50,12 +43,12 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<DeletionUpdateModuleData> FieldParseTable = new IniParseTable<DeletionUpdateModuleData>
         {
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseLong() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseLong() }
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() }
         };
 
-        public long MinLifetime { get; private set; }
-        public long MaxLifetime { get; private set; }
+        public LogicFrameSpan MinLifetime { get; private set; }
+        public LogicFrameSpan MaxLifetime { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

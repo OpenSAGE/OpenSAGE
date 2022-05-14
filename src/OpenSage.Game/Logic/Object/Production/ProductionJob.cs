@@ -4,25 +4,24 @@ namespace OpenSage.Logic.Object.Production
 {
     public sealed class ProductionJob : IPersistableObject
     {
-        //Duration in milliseconds
-        private readonly int _duration;
-        private float _passed;
+        private readonly uint _duration;
 
         private uint _jobId;
         private float _progressPercentage;
-        private int _progressInFrames;
+        private uint _progressInFrames;
         private int _unknownInt2;
         private int _unknownInt3;
         private int _unknownInt4;
 
         public ProductionJobType Type { get; }
 
-        public float Progress => Math.Max(0, Math.Min(1, (float) (_passed / _duration)));
+        public float Progress => Math.Max(0, Math.Min(1, _progressPercentage));
 
-        public ProductionJobResult Produce(float passed)
+        public ProductionJobResult Produce()
         {
-            _passed += passed;
-            if (_passed >= _duration)
+            _progressInFrames++;
+            _progressPercentage = _progressInFrames / (float)_duration;
+            if (_progressInFrames >= _duration)
             {
                 return ProductionJobResult.Finished;
             }
@@ -32,25 +31,25 @@ namespace OpenSage.Logic.Object.Production
         public ObjectDefinition ObjectDefinition { get; }
         public UpgradeTemplate UpgradeDefinition { get; }
 
-        public ProductionJob(ObjectDefinition definition, float buildTime = 0.0f)
+        public ProductionJob(ObjectDefinition definition, LogicFrameSpan buildTime)
         {
             ObjectDefinition = definition;
             Type = ProductionJobType.Unit;
-            _duration = (int) (buildTime * 1000.0f);
+            _duration = buildTime.Value;
         }
 
         public ProductionJob(UpgradeTemplate definition)
         {
             UpgradeDefinition = definition;
             Type = ProductionJobType.Upgrade;
-            _duration = (int) (definition.BuildTime * 1000.0f);
+            _duration = definition.BuildTime.Value;
         }
 
         public void Persist(StatePersister reader)
         {
             reader.PersistUInt32(ref _jobId);
             reader.PersistSingle(ref _progressPercentage);
-            reader.PersistInt32(ref _progressInFrames); // Maybe progress
+            reader.PersistUInt32(ref _progressInFrames);
             reader.PersistInt32(ref _unknownInt2);
             reader.PersistInt32(ref _unknownInt3);
             reader.PersistInt32(ref _unknownInt4);

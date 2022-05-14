@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
 
         public JetAIState CurrentJetAIState;
 
-        private TimeSpan _waitUntil;
+        private LogicFrame _waitUntil;
 
         private bool _afterburnerEnabled;
 
@@ -219,11 +219,11 @@ namespace OpenSage.Logic.Object
                     }
 
                     CurrentJetAIState = JetAIState.PreparingStart;
-                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
+                    _waitUntil = context.LogicFrame + _moduleData.TakeoffPause;
                     break;
 
                 case JetAIState.PreparingStart:
-                    if (context.Time.TotalTime < _waitUntil)
+                    if (context.LogicFrame < _waitUntil)
                     {
                         break;
                     }
@@ -263,17 +263,16 @@ namespace OpenSage.Logic.Object
                         break;
                     }
                     CurrentJetAIState = JetAIState.ReachedTargetPoint;
-                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.ReturnToBaseIdleTime);
+                    _waitUntil = context.LogicFrame + _moduleData.ReturnToBaseIdleTime;
                     break;
 
                 case JetAIState.ReachedTargetPoint:
-                    if (context.Time.TotalTime < _waitUntil)
+                    if (context.LogicFrame < _waitUntil)
                     {
                         break;
                     }
 
-                    var endPosition =
-                        Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject));
+                    var endPosition = Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject));
 
                     base.SetTargetPoint(endPosition);
                     CurrentJetAIState = JetAIState.ReturningToBase;
@@ -311,7 +310,7 @@ namespace OpenSage.Logic.Object
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying))
             {
                 parkingPlaceBehavior.ClearObjectFromSlot(GameObject);
-                Base.ProductionUpdate?.CloseDoor(context.Time, parkingPlaceBehavior.GetCorrespondingSlot(GameObject));
+                Base.ProductionUpdate?.CloseDoor(parkingPlaceBehavior.GetCorrespondingSlot(GameObject));
             }
         }
 
@@ -327,10 +326,10 @@ namespace OpenSage.Logic.Object
                 var nextPoint = path.Peek();
                 if (parkingPlaceBehavior.IsTaxiingPointBlocked(nextPoint))
                 {
-                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.TakeoffPause);
+                    _waitUntil = context.LogicFrame + _moduleData.TakeoffPause;
                     return true;
                 }
-                if (context.Time.TotalTime < _waitUntil)
+                if (context.LogicFrame < _waitUntil)
                 {
                     return true;
                 }
@@ -362,7 +361,7 @@ namespace OpenSage.Logic.Object
                 { "OutOfAmmoDamagePerSecond", (parser, x) => x.OutOfAmmoDamagePerSecond = parser.ParsePercentage() },
                 { "TakeoffSpeedForMaxLift", (parser, x) => x.TakeoffSpeedForMaxLift = parser.ParsePercentage() },
                 { "TakeoffDistForMaxLift", (parser, x) => x.TakeoffDistForMaxLift = parser.ParsePercentage() },
-                { "TakeoffPause", (parser, x) => x.TakeoffPause = parser.ParseInteger() },
+                { "TakeoffPause", (parser, x) => x.TakeoffPause = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "MinHeight", (parser, x) => x.MinHeight = parser.ParseInteger() },
                 { "NeedsRunway", (parser, x) => x.NeedsRunway = parser.ParseBoolean() },
                 { "KeepsParkingSpaceWhenAirborne", (parser, x) => x.KeepsParkingSpaceWhenAirborne = parser.ParseBoolean() },
@@ -372,7 +371,7 @@ namespace OpenSage.Logic.Object
                 { "AttackersMissPersistTime", (parser, x) => x.AttackersMissPersistTime = parser.ParseInteger() },
                 { "ReturnForAmmoLocomotorType", (parser, x) => x.ReturnForAmmoLocomotorType = parser.ParseEnum<LocomotorSetType>() },
                 { "ParkingOffset", (parser, x) => x.ParkingOffset = parser.ParseInteger() },
-                { "ReturnToBaseIdleTime", (parser, x) => x.ReturnToBaseIdleTime = parser.ParseInteger() },
+                { "ReturnToBaseIdleTime", (parser, x) => x.ReturnToBaseIdleTime = parser.ParseTimeMillisecondsToLogicFrames() },
             });
 
         /// <summary>
@@ -383,7 +382,7 @@ namespace OpenSage.Logic.Object
         /// smaller numbers give more lift sooner when taking off
         /// </summary>
         public Percentage TakeoffSpeedForMaxLift { get; private set; }
-        public int TakeoffPause { get; private set; }
+        public LogicFrameSpan TakeoffPause { get; private set; }
         public int MinHeight { get; private set; }
 
         /// <summary>
@@ -416,7 +415,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// if idle for this long, return to base, even if not out of ammo
         /// </summary>
-        public int ReturnToBaseIdleTime { get; private set; }
+        public LogicFrameSpan ReturnToBaseIdleTime { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public Percentage TakeoffDistForMaxLift { get; private set; }

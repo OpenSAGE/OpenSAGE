@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
         protected override void OnUpgrade()
         {
             // TODO: Get rid of this context thing.
-            var context = new BehaviorUpdateContext(_gameObject.GameContext, _gameObject, _gameObject.GameContext.Scene3D.Game.GetTimeInterval());
+            var context = new BehaviorUpdateContext(_gameObject.GameContext, _gameObject);
 
             foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
             {

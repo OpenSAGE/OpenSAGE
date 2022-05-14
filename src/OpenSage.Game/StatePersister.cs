@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage
@@ -484,6 +485,20 @@ namespace OpenSage
         }
 
         public static void PersistFrameValue(this StatePersister persister, ref uint value) => persister.PersistUInt32Value(ref value);
+
+        public static void PersistLogicFrame(this StatePersister persister, ref LogicFrame value, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.PersistFieldName(name);
+
+            persister.PersistLogicFrameValue(ref value);
+        }
+
+        public static void PersistLogicFrameValue(this StatePersister persister, ref LogicFrame value)
+        {
+            var innerValue = value.Value;
+            persister.PersistUInt32Value(ref innerValue);
+            value = new LogicFrame(innerValue);
+        }
 
         public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true, [CallerArgumentExpression("value")] string name = "")
         {

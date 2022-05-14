@@ -138,16 +138,15 @@ namespace OpenSage.Logic.Object
             return Vector3.Zero;
         }
 
-        public void EnqueuePayload(ProductionUpdate productionUpdate, int delay)
+        public void EnqueuePayload(ProductionUpdate productionUpdate, LogicFrameSpan delay)
         {
-            var delay_s = delay / 1000.0f;
             _productionUpdate = productionUpdate;
 
             foreach (var rank in _formation.Values)
             {
                 foreach (var position in rank)
                 {
-                    _productionUpdate.SpawnPayload(position.Definition, delay_s);
+                    _productionUpdate.SpawnPayload(position.Definition, delay);
                     _pendingRegistrations++;
                 }
             }
