@@ -8,7 +8,15 @@ namespace OpenSage.Game.CodeGen
     [Generator]
     public sealed class ScriptConditionsGenerator : ScriptContentGeneratorBase
     {
-        public override void Execute(GeneratorExecutionContext context)
+        public override string ScriptContentClassName => "ScriptConditions";
+
+        public override string ScriptContentTypeEnumName => "ScriptConditionType";
+
+        protected override void Execute(
+            SourceProductionContext context,
+            INamedTypeSymbol scriptContentClass,
+            INamedTypeSymbol scriptContentTypeEnum,
+            INamedTypeSymbol sageGameEnum)
         {
             var sb = new StringBuilder();
 
@@ -23,7 +31,7 @@ namespace OpenSage.Game.CodeGen
             sb.AppendLine("            switch (conditionType)");
             sb.AppendLine("            {");
 
-            WriteCases(context, sb);
+            WriteCases(scriptContentClass, scriptContentTypeEnum, sageGameEnum, sb);
 
             sb.AppendLine("                default:");
             sb.AppendLine("                    Logger.Warn($\"Script condition type '{conditionType}' not implemented\");");
@@ -36,14 +44,16 @@ namespace OpenSage.Game.CodeGen
             context.AddSource("ScriptConditions.Execution.g.cs", sb.ToString());
         }
 
-        private static void WriteCases(GeneratorExecutionContext context, StringBuilder sb)
+        private static void WriteCases(
+            INamedTypeSymbol scriptContentClass,
+            INamedTypeSymbol scriptContentTypeEnum,
+            INamedTypeSymbol sageGameEnum,
+            StringBuilder sb)
         {
-            var scriptConditionsType = context.Compilation.GetTypeByMetadataName("OpenSage.Scripting.ScriptConditions");
+            var scriptConditionNameLookup = GetScriptContentNameLookup(scriptContentTypeEnum);
+            var sageGameNameLookup = GetSageGameNameLookup(sageGameEnum);
 
-            var scriptConditionNameLookup = GetScriptContentNameLookup(context, "OpenSage.Scripting.ScriptConditionType");
-            var sageGameNameLookup = GetSageGameNameLookup(context);
-
-            var methods = scriptConditionsType.GetMembers()
+            var methods = scriptContentClass.GetMembers()
                 .Where(x => x.Kind == SymbolKind.Method)
                 .Cast<IMethodSymbol>();
 
