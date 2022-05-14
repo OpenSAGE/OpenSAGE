@@ -16,9 +16,9 @@ namespace OpenSage.Logic.Object
         private bool _isDying;
         private SlowDeathPhase? _phase;
         private bool _passedMidpoint;
-        private TimeSpan _sinkStartTime;
-        private TimeSpan _midpointTime;
-        private TimeSpan _destructionTime;
+        private LogicFrame _sinkStartTime;
+        private LogicFrame _midpointTime;
+        private LogicFrame _destructionTime;
 
         private uint _frameSinkStart;
         private uint _frameMidpoint;
@@ -49,10 +49,10 @@ namespace OpenSage.Logic.Object
             // TODO: ProbabilityModifier
 
             var destructionDelay = GetDelayWithVariance(context, _moduleData.DestructionDelay, _moduleData.DestructionDelayVariance);
-            _midpointTime = context.Time.TotalTime + (destructionDelay / 2.0f);
-            _destructionTime = context.Time.TotalTime + destructionDelay;
+            _midpointTime = context.LogicFrame + (destructionDelay / 2.0f);
+            _destructionTime = context.LogicFrame + destructionDelay;
 
-            _sinkStartTime = context.Time.TotalTime + GetDelayWithVariance(context, _moduleData.SinkDelay, _moduleData.SinkDelayVariance);
+            _sinkStartTime = context.LogicFrame + GetDelayWithVariance(context, _moduleData.SinkDelay, _moduleData.SinkDelayVariance);
 
             // TODO: Decay
             // TODO: Fling
@@ -60,10 +60,10 @@ namespace OpenSage.Logic.Object
             ExecutePhaseActions(context, SlowDeathPhase.Initial);
         }
 
-        private static TimeSpan GetDelayWithVariance(BehaviorUpdateContext context, TimeSpan delay, TimeSpan variance)
+        private static LogicFrameSpan GetDelayWithVariance(BehaviorUpdateContext context, LogicFrameSpan delay, LogicFrameSpan variance)
         {
             var randomMultiplier = (context.GameContext.Random.NextDouble() * 2.0) - 1.0;
-            return delay + variance * randomMultiplier;
+            return delay + (variance * (float)randomMultiplier);
         }
 
         private void ExecutePhaseActions(BehaviorUpdateContext context, SlowDeathPhase phase)
@@ -97,14 +97,14 @@ namespace OpenSage.Logic.Object
             // TODO: SlowDeathPhase.HitGround
 
             // Midpoint
-            if (!_passedMidpoint && context.Time.TotalTime > _midpointTime)
+            if (!_passedMidpoint && context.LogicFrame >= _midpointTime)
             {
                 ExecutePhaseActions(context, SlowDeathPhase.Midpoint);
                 _passedMidpoint = true;
             }
 
             // Destruction
-            if (context.Time.TotalTime > _destructionTime)
+            if (context.LogicFrame >= _destructionTime)
             {
                 ExecutePhaseActions(context, SlowDeathPhase.Final);
                 context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
@@ -113,9 +113,9 @@ namespace OpenSage.Logic.Object
             }
 
             // Sinking
-            if (context.Time.TotalTime > _sinkStartTime)
+            if (context.LogicFrame >= _sinkStartTime)
             {
-                context.GameObject.VerticalOffset -= (float)(_moduleData.SinkRate * context.Time.DeltaTime.TotalSeconds);
+                context.GameObject.VerticalOffset -= _moduleData.SinkRate;
             }
         }
 
@@ -173,11 +173,11 @@ namespace OpenSage.Logic.Object
             { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnumBitArray<ObjectStatus>() },
             { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
             { "ModifierBonusPerOverkillPercent", (parser, x) => x.ModifierBonusPerOverkillPercent = parser.ParsePercentage() },
-            { "SinkRate", (parser, x) => x.SinkRate = parser.ParseFloat() },
-            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseTimeMilliseconds() },
-            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseTimeMilliseconds() },
-            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseTimeMilliseconds() },
-            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseTimeMilliseconds() },
+            { "SinkRate", (parser, x) => x.SinkRate = parser.ParseVelocityToLogicFrames() },
+            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
             { "FlingForce", (parser, x) => x.FlingForce = parser.ParseInteger() },
             { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
             { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
@@ -199,10 +199,10 @@ namespace OpenSage.Logic.Object
         public int ProbabilityModifier { get; private set; }
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
-        public TimeSpan SinkDelay { get; private set; }
-        public TimeSpan SinkDelayVariance { get; private set; }
-        public TimeSpan DestructionDelay { get; private set; }
-        public TimeSpan DestructionDelayVariance { get; private set; }
+        public LogicFrameSpan SinkDelay { get; private set; }
+        public LogicFrameSpan SinkDelayVariance { get; private set; }
+        public LogicFrameSpan DestructionDelay { get; private set; }
+        public LogicFrameSpan DestructionDelayVariance { get; private set; }
         public int FlingForce { get; private set; }
         public int FlingForceVariance { get; private set; }
         public int FlingPitch { get; private set; }

@@ -249,9 +249,9 @@ namespace OpenSage.Logic.Object
         }
         public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
-        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
-            _body.DoDamage(damageType, amount, deathType, time);
+            _body.DoDamage(damageType, amount, deathType);
         }
 
         public Collider RoughCollider { get; set; }
@@ -304,9 +304,9 @@ namespace OpenSage.Logic.Object
 
         internal Weapon CurrentWeapon => _weaponSet.CurrentWeapon;
 
-        private TimeSpan ConstructionStart { get; set; }
+        private LogicFrame ConstructionStart { get; set; }
 
-        public TimeSpan? LifeTime { get; set; }
+        public LogicFrame? LifeTime { get; set; }
 
         public float BuildProgress;
 
@@ -378,7 +378,7 @@ namespace OpenSage.Logic.Object
             _gameContext = gameContext;
             Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
 
-            _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
+            _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
 
             _weaponSet = new WeaponSet(this);
             WeaponSetConditions = new BitArray<WeaponSetConditions>();
@@ -608,8 +608,8 @@ namespace OpenSage.Logic.Object
 
                 foreach (var intersect in intersecting)
                 {
-                    DoCollide(intersect, time);
-                    intersect.DoCollide(this, time);
+                    DoCollide(intersect);
+                    intersect.DoCollide(this);
                 }
 
                 if (AffectsAreaPassability)
@@ -620,16 +620,13 @@ namespace OpenSage.Logic.Object
                 _objectMoved = false;
             }
 
-            // TODO: Should there be a BeforeLogicTick where we update this?
-            _behaviorUpdateContext.UpdateTime(time);
-
             if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
-                CurrentWeapon?.LogicTick(time);
+                CurrentWeapon?.LogicTick();
             }
             if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
             {
-                Die(DeathType.Normal, time);
+                Die(DeathType.Normal);
                 ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
             }
 
@@ -701,24 +698,21 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        internal void DoCollide(GameObject collidingObject, in TimeInterval time)
+        internal void DoCollide(GameObject collidingObject)
         {
-            // TODO: Can we avoid updating this every time?
-            _behaviorUpdateContext.UpdateTime(time);
-
             foreach (var behavior in _behaviorModules)
             {
                 behavior.OnCollide(_behaviorUpdateContext, collidingObject);
             }
         }
 
-        private void HandleConstruction(in TimeInterval gameTime)
+        private void HandleConstruction()
         {
             // Check if the unit is being constructed
             if (IsBeingConstructed())
             {
-                var passed = gameTime.TotalTime - ConstructionStart;
-                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+                var passed = GameContext.GameLogic.CurrentFrame - ConstructionStart;
+                BuildProgress = Math.Clamp(passed.Value / (float)Definition.BuildTime.Value, 0.0f, 1.0f);
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -763,7 +757,7 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        internal void StartConstruction(in TimeInterval gameTime)
+        internal void StartConstruction()
         {
             if (IsStructure)
             {
@@ -771,7 +765,7 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                ConstructionStart = gameTime.TotalTime;
+                ConstructionStart = GameContext.GameLogic.CurrentFrame;
             }
         }
 
@@ -832,7 +826,7 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            HandleConstruction(gameTime);
+            HandleConstruction();
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
@@ -1009,12 +1003,12 @@ namespace OpenSage.Logic.Object
             // TODO: Set _triggered to false for all affected upgrade modules
         }
 
-        internal void Kill(DeathType deathType, TimeInterval time)
+        internal void Kill(DeathType deathType)
         {
-            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType, time);
+            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType);
         }
 
-        internal void Die(DeathType deathType, TimeInterval time)
+        internal void Die(DeathType deathType)
         {
             Logger.Info("Object dying " + deathType);
             bool construction = IsBeingConstructed();
@@ -1030,9 +1024,6 @@ namespace OpenSage.Logic.Object
             }
 
             IsSelectable = false;
-
-            // TODO: Can we avoid updating this every time?
-            _behaviorUpdateContext.UpdateTime(time);
 
             if (!construction)
             {
@@ -1288,8 +1279,7 @@ namespace OpenSage.Logic.Object
 
             if (ImGui.Button("Kill"))
             {
-                // TODO: Time isn't right.
-                Kill(DeathType.Exploded, _gameContext.Scene3D.Game.MapTime);
+                Kill(DeathType.Exploded);
             }
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))

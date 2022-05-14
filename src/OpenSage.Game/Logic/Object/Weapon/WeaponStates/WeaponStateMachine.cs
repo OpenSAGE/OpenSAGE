@@ -88,10 +88,10 @@ namespace OpenSage.Logic.Object
                 { WeaponState.Reloading, new ReloadingWeaponState(context) }
             };
 
-            TransitionToState(WeaponState.Inactive, TimeInterval.Zero);
+            TransitionToState(WeaponState.Inactive);
         }
 
-        public void TransitionToState(WeaponState state, TimeInterval time)
+        public void TransitionToState(WeaponState state)
         {
             Logger.Info($"Weapon {_context.Weapon.Template.Name} on game object {_context.GameObject.Name} transitioning to state {state}");
 
@@ -99,19 +99,19 @@ namespace OpenSage.Logic.Object
 
             _currentState = _states[state];
 
-            _currentState.OnEnterState(time);
+            _currentState.OnEnterState();
         }
 
-        public void Update(TimeInterval time)
+        public void Update()
         {
             while (true)
             {
                 // TODO: Fix timing. Need to use actual time that previous state ended.
-                var nextState = _currentState.GetNextState(time.TotalTime);
+                var nextState = _currentState.GetNextState();
 
                 if (nextState != null)
                 {
-                    TransitionToState(nextState.Value, time);
+                    TransitionToState(nextState.Value);
                 }
                 else
                 {
@@ -120,9 +120,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void Fire(TimeInterval time)
+        public void Fire()
         {
-            TransitionToState(WeaponState.Firing, time);
+            TransitionToState(WeaponState.Firing);
         }
     }
 

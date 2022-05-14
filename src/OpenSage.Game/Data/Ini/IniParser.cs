@@ -445,6 +445,16 @@ namespace OpenSage.Data.Ini
         public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
         public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
+        public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / Game.LogicUpdateInterval));
+
+        public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * Game.LogicFramesPerSecond));
+
+        public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / Game.LogicUpdateInterval));
+
+        public float ParseAngularVelocityToLogicFrames() => ParseFloat() / MathUtility.DegreesToRadiansRatio / Game.LogicFramesPerSecond;
+
+        public float ParseVelocityToLogicFrames() => ParseFloat() / Game.LogicFramesPerSecond;
+
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()
         {
             var name = ParseAssetReference();

@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         GameObject _gameObject;
         AutoDepositUpdateModuleData _moduleData;
 
-        private TimeSpan _waitUntil;
+        private LogicFrame _waitUntil;
 
         private uint _unknownFrame;
         private bool _unknownBool1;
@@ -23,13 +23,12 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_gameObject.IsBeingConstructed()
-                 || (context.Time.TotalTime < _waitUntil))
+            if (_gameObject.IsBeingConstructed() || (context.LogicFrame < _waitUntil))
             {
                 return;
             }
 
-            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.DepositTiming);
+            _waitUntil = context.LogicFrame + _moduleData.DepositTiming;
             var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
             _gameObject.Owner.BankAccount.Deposit(amount);
             if (!_moduleData.GiveNoXP)
@@ -58,7 +57,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<AutoDepositUpdateModuleData> FieldParseTable = new IniParseTable<AutoDepositUpdateModuleData>
         {
-            { "DepositTiming", (parser, x) => x.DepositTiming = parser.ParseInteger() },
+            { "DepositTiming", (parser, x) => x.DepositTiming = parser.ParseTimeMillisecondsToLogicFrames() },
             { "DepositAmount", (parser, x) => x.DepositAmount = parser.ParseInteger() },
             { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() },
             { "ActualMoney", (parser, x) => x.ActualMoney = parser.ParseBoolean() },
@@ -71,9 +70,9 @@ namespace OpenSage.Logic.Object
         };
 
         /// <summary>
-        /// How often, in milliseconds, to give money to the owning player.
+        /// How often, in logic frames, to give money to the owning player.
         /// </summary>
-        public int DepositTiming { get; private set; }
+        public LogicFrameSpan DepositTiming { get; private set; }
 
         /// <summary>
         /// Amount of cash to deposit after every <see cref="DepositTiming"/>.

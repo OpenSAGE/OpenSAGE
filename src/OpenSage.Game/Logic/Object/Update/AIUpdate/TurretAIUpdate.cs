@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
 
         private WeaponTarget _currentTarget;
-        private TimeSpan _waitUntil;
+        private LogicFrame _waitUntil;
         private TurretAIStates _turretAIstate;
 
         private float _unknownFloat1;
@@ -45,8 +45,6 @@ namespace OpenSage.Logic.Object
 
         internal void Update(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
         {
-            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
-
             var target = _gameObject.CurrentWeapon?.CurrentTarget;
             float targetYaw;
 
@@ -67,7 +65,7 @@ namespace OpenSage.Logic.Object
                         _turretAIstate = TurretAIStates.Turning;
                         _currentTarget = target;
                     }
-                    else if (context.Time.TotalTime > _waitUntil && (autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.Yes) ?? true))
+                    else if (context.LogicFrame >= _waitUntil && (autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.Yes) ?? true))
                     {
                         _turretAIstate = TurretAIStates.ScanningForTargets;
                     }
@@ -78,11 +76,10 @@ namespace OpenSage.Logic.Object
                     {
                         if (!FoundTargetWhileScanning(context, autoAcquireEnemiesWhenIdle))
                         {
-                            var scanInterval =
-                                context.GameContext.Random.NextDouble() *
-                                (_moduleData.MaxIdleScanInterval - _moduleData.MinIdleScanInterval) +
-                                _moduleData.MinIdleScanInterval;
-                            _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(scanInterval);
+                            var scanInterval = context.GameContext.GetRandomLogicFrameSpan(
+                                _moduleData.MinIdleScanInterval,
+                                _moduleData.MaxIdleScanInterval);
+                            _waitUntil = context.LogicFrame + scanInterval;
                             _turretAIstate = TurretAIStates.Idle;
                             break;
                         }
@@ -99,7 +96,7 @@ namespace OpenSage.Logic.Object
                 case TurretAIStates.Turning:
                     if (target == null)
                     {
-                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.RecenterTime);
+                        _waitUntil = context.LogicFrame + _moduleData.RecenterTime;
                         _turretAIstate = TurretAIStates.Recentering;
                         break;
                     }
@@ -107,7 +104,7 @@ namespace OpenSage.Logic.Object
                     var directionToTarget = (target.TargetPosition - _gameObject.Translation).Vector2XY();
                     targetYaw = MathUtility.GetYawFromDirection(directionToTarget) - _gameObject.Yaw;
 
-                    if (Rotate(targetYaw, deltaTime))
+                    if (Rotate(targetYaw))
                     {
                         break;
                     }
@@ -123,7 +120,7 @@ namespace OpenSage.Logic.Object
                 case TurretAIStates.Attacking:
                     if (target == null)
                     {
-                        _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.RecenterTime);
+                        _waitUntil = context.LogicFrame + _moduleData.RecenterTime;
                         _turretAIstate = TurretAIStates.Recentering;
                     }
                     else if (target != _currentTarget)
@@ -134,10 +131,10 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case TurretAIStates.Recentering:
-                    if (context.Time.TotalTime > _waitUntil)
+                    if (context.LogicFrame >= _waitUntil)
                     {
                         targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle) ;
-                        if (!Rotate(targetYaw, deltaTime))
+                        if (!Rotate(targetYaw))
                         {
                             _turretAIstate = TurretAIStates.Idle;
                         }
@@ -146,13 +143,13 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private bool Rotate(float targetYaw, float deltaTime)
+        private bool Rotate(float targetYaw)
         {
             var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw);
 
             if (MathF.Abs(deltaYaw) > 0.15f)
             {
-                _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * deltaTime * MathUtility.ToRadians(_moduleData.TurretTurnRate);
+                _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * _moduleData.TurretTurnRate;
                 return true;
             }
             _gameObject.TurretYaw -= deltaYaw;
@@ -237,7 +234,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<TurretAIUpdateModuleData> FieldParseTable = new IniParseTable<TurretAIUpdateModuleData>
         {
             { "InitiallyDisabled", (parser, x) => x.InitiallyDisabled = parser.ParseBoolean() },
-            { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },
+            { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseAngularVelocityToLogicFrames() },
             { "TurretPitchRate", (parser, x) => x.TurretPitchRate = parser.ParseInteger() },
             { "AllowsPitch", (parser, x) => x.AllowsPitch = parser.ParseBoolean() },
             { "FiresWhileTurning", (parser, x) => x.FiresWhileTurning = parser.ParseBoolean() },
@@ -248,9 +245,9 @@ namespace OpenSage.Logic.Object
             { "FirePitch", (parser, x) => x.FirePitch = parser.ParseInteger() },
             { "MinIdleScanAngle", (parser, x) => x.MinIdleScanAngle = parser.ParseInteger() },
             { "MaxIdleScanAngle", (parser, x) => x.MaxIdleScanAngle = parser.ParseInteger() },
-            { "MinIdleScanInterval", (parser, x) => x.MinIdleScanInterval = parser.ParseInteger() },
-            { "MaxIdleScanInterval", (parser, x) => x.MaxIdleScanInterval = parser.ParseInteger() },
-            { "RecenterTime", (parser, x) => x.RecenterTime = parser.ParseInteger() },
+            { "MinIdleScanInterval", (parser, x) => x.MinIdleScanInterval = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "MaxIdleScanInterval", (parser, x) => x.MaxIdleScanInterval = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "RecenterTime", (parser, x) => x.RecenterTime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "ControlledWeaponSlots", (parser, x) => x.ControlledWeaponSlots = parser.ParseEnumBitArray<WeaponSlot>() },
 
             { "TurretFireAngleSweep", (parser, x) => x.TurretFireAngleSweeps.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseInteger()) },
@@ -263,9 +260,9 @@ namespace OpenSage.Logic.Object
         public bool InitiallyDisabled { get; private set; }
 
         /// <summary>
-        /// Turn rate, in degrees per second.
+        /// Turn rate, in radians per logic frame.
         /// </summary>
-        public int TurretTurnRate { get; private set; }
+        public float TurretTurnRate { get; private set; }
 
         public int TurretPitchRate { get; private set; }
 
@@ -299,14 +296,14 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int MaxIdleScanAngle { get; private set; }
 
-        public int MinIdleScanInterval { get; private set; }
+        public LogicFrameSpan MinIdleScanInterval { get; private set; }
 
-        public int MaxIdleScanInterval { get; private set; }
+        public LogicFrameSpan MaxIdleScanInterval { get; private set; }
 
         /// <summary>
         /// Time to wait when idling before recentering.
         /// </summary>
-        public int RecenterTime { get; private set; }
+        public LogicFrameSpan RecenterTime { get; private set; }
 
         public BitArray<WeaponSlot> ControlledWeaponSlots { get; private set; }
         public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();

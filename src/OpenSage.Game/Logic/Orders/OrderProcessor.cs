@@ -86,7 +86,7 @@ namespace OpenSage.Logic.Orders
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                             gameObject.Owner = player;
                             gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                            gameObject.StartConstruction(_game.MapTime);
+                            gameObject.StartConstruction();
                         }
                         break;
                     case OrderType.CancelBuild:
@@ -94,7 +94,7 @@ namespace OpenSage.Logic.Orders
                             foreach (var unit in player.SelectedUnits)
                             {
                                 // This probably shouldn't trigger a Die
-                                unit.Die(DeathType.Normal, TimeInterval.Zero);
+                                unit.Die(DeathType.Normal);
                             }
                         }
                         break;

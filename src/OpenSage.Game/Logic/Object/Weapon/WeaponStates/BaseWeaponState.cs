@@ -24,16 +24,16 @@ namespace OpenSage.Logic.Object
 
         protected abstract ModelConditionFlag[] GetModelConditionFlags(int weaponIndex);
 
-        public abstract WeaponState? GetNextState(TimeSpan currentTime);
+        public abstract WeaponState? GetNextState();
 
-        public void OnEnterState(TimeInterval time)
+        public void OnEnterState()
         {
             SetModelConditionFlags(true);
 
-            OnEnterStateImpl(time);
+            OnEnterStateImpl();
         }
 
-        protected virtual void OnEnterStateImpl(TimeInterval time) { }
+        protected virtual void OnEnterStateImpl() { }
 
         public void OnExitState()
         {

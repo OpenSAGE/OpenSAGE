@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
             SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             if (Health <= Fix64.Zero)
             {
@@ -81,7 +81,7 @@ namespace OpenSage.Logic.Object
 
             if (Health <= Fix64.Zero)
             {
-                GameObject.Die(deathType, time);
+                GameObject.Die(deathType);
             }
         }
 

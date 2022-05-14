@@ -20,7 +20,9 @@ namespace OpenSage.Logic
         private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides = new();
         private readonly List<string> _commandSetNamesPrefixedWithCommandButtonIndex = new();
 
-        private uint _currentFrame;
+        private LogicFrame _currentFrame;
+
+        public LogicFrame CurrentFrame => _currentFrame;
 
         private uint _rankLevelLimit;
 
@@ -154,11 +156,19 @@ namespace OpenSage.Logic
             NextObjectId = 1;
         }
 
+        public void Tick()
+        {
+            _currentFrame++;
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(9);
 
-            reader.PersistUInt32(ref _currentFrame);
+            var currentFrame = _currentFrame.Value;
+            reader.PersistUInt32(ref currentFrame);
+            _currentFrame = new LogicFrame(currentFrame);
+
             reader.PersistObject(_objectDefinitionLookupTable, "ObjectDefinitions");
 
             var objectsCount = (uint)_objects.Count;

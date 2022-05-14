@@ -251,7 +251,7 @@ namespace OpenSage.Logic.Object
                     nextPoint = TargetPoints[1];
                 }
 
-                var reachedPosition = CurrentLocomotor.MoveTowardsPosition(context.Time, TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
+                var reachedPosition = CurrentLocomotor.MoveTowardsPosition(TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
 
                 // this should be moved to LogicTick
                 if (reachedPosition)
@@ -266,7 +266,7 @@ namespace OpenSage.Logic.Object
             }
             else if (_targetDirection.HasValue)
             {
-                if (!CurrentLocomotor.RotateToTargetDirection(context.Time, _targetDirection.Value))
+                if (!CurrentLocomotor.RotateToTargetDirection(_targetDirection.Value))
                 {
                     return;
                 }
@@ -277,7 +277,7 @@ namespace OpenSage.Logic.Object
             else
             {
                 // maintain position (jets etc)
-                CurrentLocomotor.MaintainPosition(context.Time, context.GameContext.Terrain.HeightMap);
+                CurrentLocomotor.MaintainPosition(context.GameContext.Terrain.HeightMap);
             }
         }
 

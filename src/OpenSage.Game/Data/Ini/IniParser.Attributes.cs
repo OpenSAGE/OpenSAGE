@@ -111,6 +111,11 @@ namespace OpenSage.Data.Ini
             return ParseAttribute(label, ScanInteger);
         }
 
+        public LogicFrameSpan ParseAttributeTimeMillisecondsToLogicFrames(string label)
+        {
+            return ParseAttribute(label, ScanTimeMillisecondsToLogicFrames);
+        }
+
         public string ParseAttributeIdentifier(string label)
         {
             string GetText(in IniToken token) => token.Text;

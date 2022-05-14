@@ -45,10 +45,12 @@ namespace OpenSage
 
         // TODO: These should be configurable at runtime with GameSpeed.
 
+        internal const float LogicFramesPerSecond = 30.0f;
+
         // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
         // so as a temporary workaround, we simply tick the logic at 30fps.
         //internal const double LogicUpdateInterval = 1000.0 / 5.0;
-        internal const double LogicUpdateInterval = 1000.0 / 30.0;
+        internal const float LogicUpdateInterval = 1000.0f / LogicFramesPerSecond;
 
         private readonly double _scriptingUpdateInterval;
 
@@ -865,6 +867,8 @@ namespace OpenSage
 
         internal void LogicTick(ulong frame)
         {
+            GameLogic.Tick();
+
             NetworkMessageBuffer?.Tick();
 
             foreach (var gameSystem in GameSystems)

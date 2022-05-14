@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
                 case ToppleState.Toppling:
                     {
                         // TODO: InitialAccelPercent
-                        var deltaAngle = 0.3f * (float) context.Time.DeltaTime.TotalSeconds;
+                        var deltaAngle = 0.01f;
                         _toppleAngle += deltaAngle;
                         context.GameObject.SetRotation(context.GameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
                         if (_toppleAngle > MathUtility.PiOver2)
@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         private void KillObject(BehaviorUpdateContext context)
         {
-            context.GameObject.Kill(DeathType.Toppled, context.Time);
+            context.GameObject.Kill(DeathType.Toppled);
         }
 
         internal override void Load(StatePersister reader)
