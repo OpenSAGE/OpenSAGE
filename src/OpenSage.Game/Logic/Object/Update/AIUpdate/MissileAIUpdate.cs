@@ -152,9 +152,9 @@ namespace OpenSage.Logic.Object
         private new static readonly IniParseTable<MissileAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable.Concat(new IniParseTable<MissileAIUpdateModuleData>
         {
             { "TryToFollowTarget", (parser, x) => x.TryToFollowTarget = parser.ParseBoolean() },
-            { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseInteger() },
+            { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "DetonateOnNoFuel", (parser, x) => x.DetonateOnNoFuel = parser.ParseBoolean() },
-            { "InitialVelocity", (parser, x) => x.InitialVelocity = parser.ParseInteger() },
+            { "InitialVelocity", (parser, x) => x.InitialVelocity = parser.ParseVelocityToLogicFrames() },
             { "IgnitionDelay", (parser, x) => x.IgnitionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "DistanceToTravelBeforeTurning", (parser, x) => x.DistanceToTravelBeforeTurning = parser.ParseInteger() },
             { "DistanceToTargetBeforeDiving", (parser, x) => x.DistanceToTargetBeforeDiving = parser.ParseInteger() },
@@ -170,9 +170,9 @@ namespace OpenSage.Logic.Object
         });
 
         public bool TryToFollowTarget { get; private set; }
-        public int FuelLifetime { get; private set; }
+        public LogicFrameSpan FuelLifetime { get; private set; }
         public bool DetonateOnNoFuel { get; private set; }
-        public int InitialVelocity { get; private set; }
+        public float InitialVelocity { get; private set; }
         public LogicFrameSpan IgnitionDelay { get; private set; }
         public int DistanceToTravelBeforeTurning { get; private set; }
         public int DistanceToTargetBeforeDiving { get; private set; }

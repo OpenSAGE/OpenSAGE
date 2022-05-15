@@ -16,17 +16,17 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<LocomotorTemplate> FieldParseTable = new IniParseTable<LocomotorTemplate>
         {
             { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumFlags<Surfaces>() },
-            { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },
-            { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseFloat() },
-            { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParsePercentage() },
-            { "TurnRate", (parser, x) => x.TurnRate = parser.ParseFloat() },
-            { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseFloat() },
-            { "Acceleration", (parser, x) => x.Acceleration = parser.ParseFloat() },
-            { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseFloat() },
-            { "Lift", (parser, x) => x.Lift = parser.ParseFloat() },
-            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseFloat() },
-            { "Braking", (parser, x) => x.Braking = parser.ParseInteger() },
-            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParseFloat() },
+            { "Speed", (parser, x) => x.Speed = parser.ParseVelocityToLogicFrames() },
+            { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseVelocityToLogicFrames() },
+            { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParseVelocityToLogicFrames() },
+            { "TurnRate", (parser, x) => x.TurnRate = parser.ParseAngularVelocityToLogicFrames() },
+            { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseAngularVelocityToLogicFrames() },
+            { "Acceleration", (parser, x) => x.Acceleration = parser.ParseAccelerationToLogicFrames() },
+            { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseAccelerationToLogicFrames() },
+            { "Lift", (parser, x) => x.Lift = parser.ParseAccelerationToLogicFrames() },
+            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseAccelerationToLogicFrames() },
+            { "Braking", (parser, x) => x.Braking = parser.ParseAccelerationToLogicFrames() },
+            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParseVelocityToLogicFrames() },
             { "TurnPivotOffset", (parser, x) => x.TurnPivotOffset = parser.ParseFloat() },
             { "AllowAirborneMotiveForce", (parser, x) => x.AllowAirborneMotiveForce = parser.ParseBoolean() },
             { "PreferredHeight", (parser, x) => x.PreferredHeight = parser.ParseFloat() },
@@ -75,7 +75,7 @@ namespace OpenSage.Logic.Object
             { "CanMoveBackwards", (parser, x) => x.CanMoveBackwards = parser.ParseBoolean() },
             { "MaximumWheelExtension", (parser, x) => x.MaximumWheelExtension = parser.ParseFloat() },
             { "MaximumWheelCompression", (parser, x) => x.MaximumWheelCompression = parser.ParseFloat() },
-            { "FrontWheelTurnAngle", (parser, x) => x.FrontWheelTurnAngle = parser.ParseInteger() },
+            { "FrontWheelTurnAngle", (parser, x) => x.FrontWheelTurnAngle = parser.ParseAngle() },
 
             { "SlideIntoPlaceTime", (parser, x) => x.SlideIntoPlaceTime = parser.ParseInteger() },
 
@@ -128,20 +128,23 @@ namespace OpenSage.Logic.Object
         public Surfaces Surfaces { get; private set; }
         public float? Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
-        public Percentage MinSpeed { get; private set; }
+        public float MinSpeed { get; private set; }
+
         /// <summary>
-        /// TurnRate in Degrees/second
+        /// Turn rate in radians per logic frame.
         /// </summary>
         public float TurnRate { get; private set; }
+
         /// <summary>
-        /// TurnRate when damaged in Degrees/second
+        /// Turn rate when damaged in radians per logic frame.
         /// </summary>
         public float TurnRateDamaged { get; private set; }
+
         public float Acceleration { get; private set; }
         public float AccelerationDamaged { get; private set; }
         public float Lift { get; private set; }
         public float LiftDamaged { get; private set; }
-        public int Braking { get; private set; }
+        public float Braking { get; private set; }
         public float MinTurnSpeed { get; private set; }
         public float TurnPivotOffset { get; private set; }
         public bool AllowAirborneMotiveForce { get; private set; }
@@ -195,7 +198,7 @@ namespace OpenSage.Logic.Object
         public bool CanMoveBackwards { get; private set; }
         public float MaximumWheelExtension { get; private set; }
         public float MaximumWheelCompression { get; private set; }
-        public int FrontWheelTurnAngle { get; private set; }
+        public float FrontWheelTurnAngle { get; private set; }
 
         public int SlideIntoPlaceTime { get; private set; }
 

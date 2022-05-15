@@ -106,9 +106,6 @@ namespace OpenSage.Logic.Object
 
         public bool RotateToTargetDirection(in Vector3 targetDirection)
         {
-            // TODO
-            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
-
             var currentYaw = _gameObject.Yaw;
 
             var targetYaw = MathUtility.GetYawFromDirection(new Vector2(targetDirection.X, targetDirection.Y));
@@ -119,7 +116,7 @@ namespace OpenSage.Logic.Object
                 return true;
             }
 
-            var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
+            var d = GetTurnRate();
             var newDelta = -MathF.Sign(angleDelta) * MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
             var yaw = currentYaw + newDelta;
 
@@ -129,9 +126,6 @@ namespace OpenSage.Logic.Object
 
         public bool MoveTowardsPosition(in Vector3 targetPoint, HeightMap heightMap, in Vector3? nextPoint)
         {
-            // TODO
-            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
-
             var translation = _gameObject.Translation;
             var x = translation.X;
             var y = translation.Y;
@@ -158,7 +152,7 @@ namespace OpenSage.Logic.Object
                         braking = 0;
                     }
 
-                    var circumference = 360.0f / GetTurnRate() * oldSpeed;
+                    var circumference = MathUtility.TwoPi / GetTurnRate() * oldSpeed;
                     var radius = circumference / MathUtility.TwoPi;
 
                     if (distanceRemaining < (radius + 0.25f) && nextPoint != null)
@@ -185,14 +179,14 @@ namespace OpenSage.Logic.Object
                 ? GetAcceleration()
                 : -braking;
 
-            var deltaSpeed = currentAcceleration * deltaTime;
+            var deltaSpeed = currentAcceleration;
 
             var newSpeed = oldSpeed + deltaSpeed;
             var reachedTurnSpeed = newSpeed >= GetScaledLocomotorValue(_ => _.MinTurnSpeed);
             _gameObject.Speed = Math.Clamp(newSpeed, 0, GetSpeed());
 
             // This locomotor speed is distance/second
-            var distance = MathF.Min(_gameObject.Speed * deltaTime, distanceRemaining);
+            var distance = MathF.Min(_gameObject.Speed, distanceRemaining);
 
             // The distance we're moving
             var direction = Vector2.Normalize(delta.Vector2XY());
@@ -204,13 +198,13 @@ namespace OpenSage.Logic.Object
             var targetYaw = MathUtility.GetYawFromDirection(direction);
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
-            var d = MathUtility.ToRadians(GetTurnRate()) * deltaTime;
+            var d = GetTurnRate();
             var turningDelta = MathF.Min(MathF.Abs(angleDelta), MathF.Abs(d));
             var newDelta = -MathF.Sign(angleDelta) * turningDelta;
 
             var yaw = reachedTurnSpeed ? currentYaw + newDelta : currentYaw;
 
-            _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, MathUtility.ToRadians(-GetFrontWheelTurnAngle()), MathUtility.ToRadians(GetFrontWheelTurnAngle()));
+            _gameObject.SteeringWheelsYaw = Math.Clamp(-angleDelta, -GetFrontWheelTurnAngle(), GetFrontWheelTurnAngle());
 
             var thrust = 0.0f;
             var deltaZ = 0.0f;
@@ -319,9 +313,6 @@ namespace OpenSage.Logic.Object
             switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Wings:
-                    // TODO
-                    var deltaTime = 1.0f / Game.LogicFramesPerSecond;
-
                     var translation = _gameObject.Translation;
 
                     _gameObject.Speed = GetSpeed();
@@ -330,7 +321,7 @@ namespace OpenSage.Logic.Object
 
                     var moveDirection = Vector2.Normalize(new Vector2(_gameObject.LookDirection.X, _gameObject.LookDirection.Y));
 
-                    var deltaTransform = new Vector3(moveDirection * _gameObject.Speed * deltaTime, 0);
+                    var deltaTransform = new Vector3(moveDirection * _gameObject.Speed, 0);
 
                     translation += deltaTransform;
 
@@ -344,7 +335,7 @@ namespace OpenSage.Logic.Object
                     var worldPitch = 0; //-(float) Math.Asin(normal.X);
                     var worldRoll = 0; //-(float) Math.Asin(normal.Y);
 
-                    var deltaYaw = (deltaTime / timePerRoundtrip) * MathUtility.TwoPi;
+                    var deltaYaw = timePerRoundtrip * MathUtility.TwoPi;
                     var worldYaw = _gameObject.Yaw + deltaYaw;
                     var modelRoll = -deltaYaw * deltaTransform.Length();
                     _gameObject.ModelTransform.Rotation = Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0);
@@ -355,14 +346,11 @@ namespace OpenSage.Logic.Object
 
         private float GetCurrentThrust(float terrainHeight, float height)
         {
-            // TODO
-            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
-
             var heightRemaining = (terrainHeight + LocomotorTemplate.PreferredHeight) - height;
             var lift = GetLift();
             _gameObject.Lift += lift;
             _gameObject.Lift = Math.Clamp(_gameObject.Lift, 0, lift);
-            return MathF.Min(_gameObject.Lift * deltaTime, heightRemaining);
+            return MathF.Min(_gameObject.Lift, heightRemaining);
         }
 
         public float GetScaledLocomotorValue(Func<LocomotorTemplate, float> getValue)
