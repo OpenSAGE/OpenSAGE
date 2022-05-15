@@ -102,6 +102,8 @@ namespace OpenSage.Logic.Object
     {
         public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
 
+        public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)Game.LogicFramesPerSecond);
+
         internal readonly uint Value;
 
         public LogicFrameSpan(uint value)

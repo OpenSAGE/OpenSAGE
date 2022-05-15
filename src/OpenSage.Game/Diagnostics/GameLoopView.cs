@@ -15,7 +15,7 @@ namespace OpenSage.Diagnostics
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            ImGui.Text($"Logic frame: {Game.CurrentFrame}");
+            ImGui.Text($"Logic frame: {Game.GameLogic.CurrentFrame.Value}");
             ImGui.Separator();
             ImGui.Text($"Map time:    {FormatTime(Game.MapTime.TotalTime)}");
             ImGui.Text($"Render time: {FormatTime(Game.RenderTime.TotalTime)}");

@@ -116,11 +116,6 @@ namespace OpenSage
         public GhostObjectManager GhostObjectManager { get; } = new GhostObjectManager();
 
         /// <summary>
-        /// The current logic frame. Increments depending on game speed; by default once per 200ms.
-        /// </summary>
-        public ulong CurrentFrame { get; private set; }
-
-        /// <summary>
         /// Is the game running?
         /// This is only false when the game is shutting down.
         /// </summary>
@@ -720,7 +715,6 @@ namespace OpenSage
             }
 
             // Reset everything, and run the first update on the first frame.
-            CurrentFrame = 0;
             _mapTimer.Reset();
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
@@ -815,7 +809,7 @@ namespace OpenSage
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
-                LogicTick(CurrentFrame);
+                LogicTick();
                 CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
                 // Logic updates happen at 5Hz.
                 _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
@@ -865,23 +859,16 @@ namespace OpenSage
             Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
         }
 
-        internal void LogicTick(ulong frame)
+        internal void LogicTick()
         {
             GameLogic.Tick();
 
             NetworkMessageBuffer?.Tick();
 
-            foreach (var gameSystem in GameSystems)
-            {
-                gameSystem.LogicTick(CurrentFrame);
-            }
-
             // TODO: What is the order?
             // TODO: Calculate time correctly.
             var timeInterval = GetTimeInterval();
-            Scene3D?.LogicTick(frame, timeInterval);
-
-            CurrentFrame += 1;
+            Scene3D?.LogicTick(timeInterval);
         }
 
         internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));

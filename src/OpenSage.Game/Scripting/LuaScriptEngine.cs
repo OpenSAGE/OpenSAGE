@@ -471,7 +471,7 @@ namespace OpenSage.Scripting
 
         public int GetFrame()
         {
-            return (int) Game.CurrentFrame;
+            return (int)Game.GameLogic.CurrentFrame.Value;
         }
     }
 }

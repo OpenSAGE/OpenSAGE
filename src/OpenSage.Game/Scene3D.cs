@@ -336,13 +336,13 @@ namespace OpenSage
         // TODO: Move this over to a player collection?
         public int GetPlayerIndex(Player player) => Game.PlayerManager.GetPlayerIndex(player);
 
-        internal void LogicTick(ulong frame, in TimeInterval time)
+        internal void LogicTick(in TimeInterval time)
         {
             Game.PlayerManager.LogicTick();
 
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.LogicTick(frame, time);
+                gameObject.LogicTick(time);
             }
 
             GameObjects.DeleteDestroyed();
