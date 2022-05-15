@@ -598,7 +598,7 @@ namespace OpenSage.Logic.Object
             _gameContext.Quadtree.Update(this);
         }
 
-        internal void LogicTick(ulong frame, in TimeInterval time)
+        internal void LogicTick(in TimeInterval time)
         {
             if (_objectMoved)
             {
