@@ -451,9 +451,13 @@ namespace OpenSage.Data.Ini
 
         public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / Game.LogicUpdateInterval));
 
-        public float ParseAngularVelocityToLogicFrames() => ParseFloat() / MathUtility.DegreesToRadiansRatio / Game.LogicFramesPerSecond;
+        public float ParseAngularVelocityToLogicFrames() => ParseFloat() * MathUtility.DegreesToRadiansRatio / Game.LogicFramesPerSecond;
 
         public float ParseVelocityToLogicFrames() => ParseFloat() / Game.LogicFramesPerSecond;
+
+        public float ParseAccelerationToLogicFrames() => ParseFloat() / (Game.LogicFramesPerSecond * Game.LogicFramesPerSecond);
+
+        public float ParseAngle() => ParseFloat() * MathUtility.DegreesToRadiansRatio;
 
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()
         {
