@@ -434,21 +434,23 @@ namespace OpenSage.Logic.Object
                     }
 
                     AddBehavior(behaviorDataContainer.Tag, module);
+
+                    if (module is BodyModule body)
+                    {
+                        _body = body;
+                    }
+                    else if (module is AIUpdate aiUpdate)
+                    {
+                        AIUpdate = aiUpdate;
+                    }
+                    else if (module is ProductionUpdate productionUpdate)
+                    {
+                        ProductionUpdate = productionUpdate;
+                    }
                 }
             }
 
             _behaviorModules = behaviors;
-
-            ProductionUpdate = FindBehavior<ProductionUpdate>();
-
-            _body = AddDisposable(((BodyModuleData) objectDefinition.Body.Data).CreateBodyModule(this));
-            AddModule(objectDefinition.Body.Tag, _body);
-
-            if (objectDefinition.AIUpdate != null)
-            {
-                AIUpdate = AddDisposable(((AIUpdateModuleData) objectDefinition.AIUpdate.Value.Data).CreateAIUpdate(this));
-                AddModule(objectDefinition.AIUpdate.Value.Tag, AIUpdate);
-            }
 
             _geometry = Definition.Geometry.Clone();
 
@@ -630,13 +632,6 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
             }
 
-            AIUpdate?.Update(_behaviorUpdateContext);
-
-            foreach (var behavior in _behaviorModules)
-            {
-                behavior.Update(_behaviorUpdateContext);
-            }
-
             foreach (var (key, modifier) in _attributeModifiers)
             {
                 if (!modifier.Applied)
@@ -652,6 +647,14 @@ namespace OpenSage.Logic.Object
                 {
                     modifier.Update(this, time);
                 }
+            }
+        }
+
+        internal void Update()
+        {
+            foreach (var behavior in _behaviorModules)
+            {
+                behavior.Update(_behaviorUpdateContext);
             }
         }
 

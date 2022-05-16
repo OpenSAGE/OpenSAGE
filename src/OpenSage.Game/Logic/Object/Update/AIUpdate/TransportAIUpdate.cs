@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
         private new static readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<TransportAIUpdateModuleData>());
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new TransportAIUpdate(gameObject, this);
         }

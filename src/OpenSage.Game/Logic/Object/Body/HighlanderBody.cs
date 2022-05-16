@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<HighlanderBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
             .Concat(new IniParseTable<HighlanderBodyModuleData>());
 
-        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new HighlanderBody(gameObject, this);
         }

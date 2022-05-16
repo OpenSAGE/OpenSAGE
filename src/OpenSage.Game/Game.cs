@@ -861,7 +861,7 @@ namespace OpenSage
 
         internal void LogicTick()
         {
-            GameLogic.Tick();
+            GameLogic.Update();
 
             NetworkMessageBuffer?.Tick();
 
