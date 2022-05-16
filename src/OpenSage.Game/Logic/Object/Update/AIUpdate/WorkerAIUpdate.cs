@@ -316,7 +316,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public LogicFrameSpan HarvestActionTime { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WorkerAIUpdate(gameObject, this);
         }

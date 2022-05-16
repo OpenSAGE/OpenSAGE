@@ -420,7 +420,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public Percentage TakeoffDistForMaxLift { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new JetAIUpdate(gameObject, this);
         }

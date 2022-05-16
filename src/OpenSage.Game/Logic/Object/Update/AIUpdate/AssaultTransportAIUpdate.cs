@@ -60,7 +60,7 @@ namespace OpenSage.Logic.Object
 
         public float MembersGetHealedAtLifeRatio { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new AssaultTransportAIUpdate(gameObject, this);
         }

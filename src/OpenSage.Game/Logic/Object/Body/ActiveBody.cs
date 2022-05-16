@@ -225,7 +225,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2Rotwk)]
         public string ReallyDamagedAttributeModifier { get; private set; }
 
-        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new ActiveBody(gameObject, this);
         }

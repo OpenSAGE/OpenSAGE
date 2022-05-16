@@ -261,18 +261,11 @@ namespace OpenSage.Logic.Object
                 (parser, x) =>
                 {
                     var behavior = BehaviorModuleData.ParseBehavior(parser, x._currentInheritanceMode);
-                    if (behavior.Data is AIUpdateModuleData)
-                    {
-                        x.AIUpdate = behavior;
-                    }
-                    else
-                    {
-                        AddModuleData(x.Behaviors, behavior);
-                    }
+                    AddModuleData(x.Behaviors, behavior);
                 }
             },
 
-            { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser, x._currentInheritanceMode) },
+            { "Body", (parser, x) => AddModuleData(x.Behaviors, BodyModuleData.ParseBody(parser, x._currentInheritanceMode)) },
             { "Draw", (parser, x) => AddModuleData(x.Draws, DrawModuleData.ParseDrawModule(parser, x._currentInheritanceMode)) },
             { "ClientUpdate", (parser, x) => AddModuleData(x.ClientUpdates, ClientUpdateModuleData.ParseClientUpdate(parser, x._currentInheritanceMode)) },
             { "ClientBehavior", (parser, x) => AddModuleData(x.ClientBehaviors, ClientBehaviorModuleData.ParseClientBehavior(parser, x._currentInheritanceMode)) },
@@ -880,9 +873,6 @@ namespace OpenSage.Logic.Object
         public Dictionary<string, ModuleDataContainer> ClientUpdates { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
         [AddedIn(SageGame.Bfme)]
         public Dictionary<string, ModuleDataContainer> ClientBehaviors { get; internal set; } = new Dictionary<string, ModuleDataContainer>();
-
-        public ModuleDataContainer Body { get; internal set; }
-        public ModuleDataContainer? AIUpdate { get; internal set; }
 
         [AddedIn(SageGame.Bfme)]
         public Dictionary<LocomotorSetType, LocomotorSetTemplate> LocomotorSets { get; internal set; } = new Dictionary<LocomotorSetType, LocomotorSetTemplate>();

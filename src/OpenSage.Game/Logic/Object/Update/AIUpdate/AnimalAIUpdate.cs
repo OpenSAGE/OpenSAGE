@@ -39,6 +39,9 @@ namespace OpenSage.Logic.Object
         public int UpdateTimer { get; private set; }
         public bool AfraidOfCastles { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject) => new AnimalAIUpdate(gameObject, this);
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new AnimalAIUpdate(gameObject, this); ;
+        }
     }
 }

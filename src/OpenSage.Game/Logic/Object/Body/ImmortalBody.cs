@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<ImmortalBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
             .Concat(new IniParseTable<ImmortalBodyModuleData>());
 
-        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new ImmortalBody(gameObject, this);
         }

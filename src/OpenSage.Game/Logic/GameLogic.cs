@@ -156,8 +156,13 @@ namespace OpenSage.Logic
             NextObjectId = 1;
         }
 
-        public void Tick()
+        public void Update()
         {
+            foreach (var gameObject in _objects)
+            {
+                gameObject?.Update();
+            }
+
             _currentFrame++;
         }
 

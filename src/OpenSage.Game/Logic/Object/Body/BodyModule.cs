@@ -72,12 +72,5 @@ namespace OpenSage.Logic.Object
             { "SymbioticStructuresBody", SymbioticStructuresBodyModuleData.Parse },
             { "UndeadBody", UndeadBodyModuleData.Parse },
         };
-
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            throw new InvalidOperationException();
-        }
-
-        internal virtual BodyModule CreateBodyModule(GameObject gameObject) => null; // TODO: Make this abstract.
     }
 }
