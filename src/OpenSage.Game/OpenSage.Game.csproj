@@ -17,9 +17,12 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
     <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
     <PackageReference Include="SharpAudio.Codec" Version="1.0.27-beta" />
+
+    <!-- Necessary to stop conflict with earlier version of Microsoft.CodeAnalysis.CSharp package used by SharpDX -->
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
+    
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
