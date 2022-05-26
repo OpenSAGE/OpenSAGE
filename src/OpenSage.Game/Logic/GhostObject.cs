@@ -12,7 +12,7 @@ namespace OpenSage.Logic
 
         private GameObject _gameObject;
 
-        private ObjectGeometry _geometryType;
+        private GeometryType _geometryType;
         private bool _geometryIsSmall;
         private float _geometryMajorRadius;
         private float _geometryMinorRadius;

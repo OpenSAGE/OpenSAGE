@@ -13,8 +13,6 @@ namespace OpenSage.Logic.Object
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
 
-        internal virtual void OnCollide(BehaviorUpdateContext context, GameObject collidingObject) { }
-
         internal virtual void DrawInspector() { }
 
         internal override void Load(StatePersister reader)

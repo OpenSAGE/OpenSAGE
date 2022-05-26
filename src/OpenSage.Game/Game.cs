@@ -370,6 +370,11 @@ namespace OpenSage
                 {
                     gameSystem.OnSceneChanged();
                 }
+
+                if (value != null)
+                {
+                    PartitionCellManager.OnNewGame();
+                }
             }
         }
 
@@ -869,6 +874,8 @@ namespace OpenSage
             // TODO: Calculate time correctly.
             var timeInterval = GetTimeInterval();
             Scene3D?.LogicTick(timeInterval);
+
+            PartitionCellManager.Update();
         }
 
         internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));

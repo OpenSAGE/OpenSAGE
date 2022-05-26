@@ -152,7 +152,9 @@ namespace OpenSage.Logic.Object
 
         public readonly ObjectDefinition Definition;
 
-        private readonly Geometry _geometry;
+        public PartitionObject PartitionObject { get; internal set; }
+
+        public readonly Geometry Geometry;
 
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
@@ -204,20 +206,28 @@ namespace OpenSage.Logic.Object
 
         public void SetTranslation(Vector3 translation)
         {
+            if (_transform.Translation == translation)
+            {
+                return;
+            }
             _transform.Translation = translation;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void SetRotation(Quaternion rotation)
         {
+            if (_transform.Rotation == rotation)
+            {
+                return;
+            }
             _transform.Rotation = rotation;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void SetScale(float scale)
         {
             _transform.Scale = scale;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void UpdateTransform(in Vector3? translation = null, in Quaternion? rotation = null, float scale = 1.0f)
@@ -225,7 +235,13 @@ namespace OpenSage.Logic.Object
             _transform.Translation = translation ?? _transform.Translation;
             _transform.Rotation = rotation ?? _transform.Rotation;
             _transform.Scale = scale;
+            OnObjectMoved();
+        }
+
+        private void OnObjectMoved()
+        {
             _objectMoved = true;
+            PartitionObject.SetDirty();
         }
 
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
@@ -452,17 +468,10 @@ namespace OpenSage.Logic.Object
 
             _behaviorModules = behaviors;
 
-            _geometry = Definition.Geometry.Clone();
-
-            var allGeometries = new List<Geometry>
-            {
-                Definition.Geometry
-            };
-            allGeometries.AddRange(Definition.AdditionalGeometries);
-            allGeometries.AddRange(Definition.OtherGeometries);
+            Geometry = Definition.Geometry.Clone();
 
             Colliders = new List<Collider>();
-            foreach (var geometry in allGeometries)
+            foreach (var geometry in Geometry.Shapes)
             {
                 Colliders.Add(Collider.Create(geometry, _transform));
             }
@@ -514,6 +523,8 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool IsKindOf(ObjectKinds kind) => Definition.KindOf.Get(kind);
+
         public void AddAttributeModifier(string name, AttributeModifier modifier)
         {
             if (_attributeModifiers.ContainsKey(name))
@@ -535,15 +546,8 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var allGeometries = new List<Geometry>
-            {
-                Definition.Geometry
-            };
-            allGeometries.AddRange(Definition.AdditionalGeometries);
-            allGeometries.AddRange(Definition.OtherGeometries);
-
             var newColliders = new List<Collider>();
-            foreach (var geometry in allGeometries)
+            foreach (var geometry in Definition.Geometry.Shapes)
             {
                 if (geometry.Name.Equals(name))
                 {
@@ -605,14 +609,6 @@ namespace OpenSage.Logic.Object
             if (_objectMoved)
             {
                 UpdateColliders();
-
-                var intersecting = _gameContext.Quadtree.FindIntersecting(this);
-
-                foreach (var intersect in intersecting)
-                {
-                    DoCollide(intersect);
-                    intersect.DoCollide(this);
-                }
 
                 if (AffectsAreaPassability)
                 {
@@ -701,11 +697,14 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        internal void DoCollide(GameObject collidingObject)
+        internal void OnCollide(GameObject collidingObject)
         {
             foreach (var behavior in _behaviorModules)
             {
-                behavior.OnCollide(_behaviorUpdateContext, collidingObject);
+                if (behavior is ICollideModule collideModule)
+                {
+                    collideModule.OnCollide(collidingObject);
+                }
             }
         }
 
@@ -1117,7 +1116,7 @@ namespace OpenSage.Logic.Object
             reader.PersistByte(ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
-            reader.PersistObject(_geometry);
+            reader.PersistObject(Geometry);
 
             reader.PersistObject(_shroudRevealSomething1);
             reader.PersistObject(_shroudRevealSomething2);

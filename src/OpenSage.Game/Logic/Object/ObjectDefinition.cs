@@ -283,15 +283,15 @@ namespace OpenSage.Logic.Object
             { "Geometry", (parser, x) => x.ParseGeometry(parser) },
             { "AdditionalGeometry", (parser, x) => x.ParseAdditionalGeometry(parser) },
 
-            { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
-            { "GeometryMajorRadius", (parser, x) => x.CurrentGeometry.MajorRadius = parser.ParseFloat() },
-            { "GeometryMinorRadius", (parser, x) => x.CurrentGeometry.MinorRadius = parser.ParseFloat() },
-            { "GeometryHeight", (parser, x) => x.CurrentGeometry.Height = parser.ParseFloat() },
-            { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
-            { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParseVector3() },
+            { "GeometryName", (parser, x) => x._currentGeometryShape.Name = parser.ParseString() },
+            { "GeometryMajorRadius", (parser, x) => x._currentGeometryShape.MajorRadius = parser.ParseFloat() },
+            { "GeometryMinorRadius", (parser, x) => x._currentGeometryShape.MinorRadius = parser.ParseFloat() },
+            { "GeometryHeight", (parser, x) => x._currentGeometryShape.Height = parser.ParseFloat() },
+            { "GeometryIsSmall", (parser, x) => x.Geometry.IsSmall = parser.ParseBoolean() },
+            { "GeometryOffset", (parser, x) => x._currentGeometryShape.Offset = parser.ParseVector3() },
             { "GeometryRotationAnchorOffset", (parser, x) => x.RotationAnchorOffset = parser.ParseVector2() },
-            { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
-            { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
+            { "GeometryActive", (parser, x) => x._currentGeometryShape.IsActive = parser.ParseBoolean() },
+            { "GeometryFrontAngle", (parser, x) => x._currentGeometryShape.FrontAngle = parser.ParseFloat() },
 
             { "GeometryOther", (parser, x) => x.ParseOtherGeometry(parser) },
 
@@ -902,10 +902,7 @@ namespace OpenSage.Logic.Object
 
         public Vector2 RotationAnchorOffset { get; set; }
 
-        public Geometry Geometry { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();
+        public Geometry Geometry { get; private set; } = new Geometry();
 
         [AddedIn(SageGame.Bfme)]
         public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
@@ -1235,7 +1232,6 @@ namespace OpenSage.Logic.Object
             result.KindOf = new BitArray<ObjectKinds>(result.KindOf);
             result.UnitSpecificSounds = new UnitSpecificSounds(result.UnitSpecificSounds);
             result.Geometry = result.Geometry.Clone();
-            result.AdditionalGeometries = new List<Geometry>(result.AdditionalGeometries);
             result.OtherGeometries = new List<Geometry>(result.OtherGeometries);
             result.AttackContactPoints = new List<ContactPoint>(result.AttackContactPoints);
             result.GeometryContactPoints = new List<ContactPoint>(result.GeometryContactPoints);
@@ -1267,26 +1263,45 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        private Geometry CurrentGeometry { get; set; }
+        private GeometryShape _currentGeometryShape;
 
         internal void ParseGeometry(IniParser parser)
         {
-            Geometry = new Geometry(parser.ParseEnum<ObjectGeometry>());
-            CurrentGeometry = Geometry;
+            var geometryShape = Geometry.Shapes[0];
+            geometryShape.Type = parser.ParseEnum<GeometryType>();
+            _currentGeometryShape = geometryShape;
         }
 
         internal void ParseAdditionalGeometry(IniParser parser)
         {
-            var geometry = new Geometry(parser.ParseEnum<ObjectGeometry>());
-            AdditionalGeometries.Add(geometry);
-            CurrentGeometry = geometry;
+            var geometryShape = new GeometryShape(Geometry) { Type = parser.ParseEnum<GeometryType>() };
+            Geometry.Shapes.Add(geometryShape);
+            _currentGeometryShape = geometryShape;
         }
 
         internal void ParseOtherGeometry(IniParser parser)
         {
-            var geometry = Geometry.Parse(parser);
+            var geometryType = parser.ParseAttributeEnum<GeometryType>("GeomType");
+            var isSmall = parser.ParseAttributeBoolean("IsSmall");
+
+            var geometry = new Geometry
+            {
+                IsSmall = isSmall
+            };
+
+            var geometryShape = new GeometryShape(geometry)
+            {
+                Type = geometryType,
+                Height = parser.ParseAttributeInteger("Height"),
+                MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
+                MinorRadius = parser.ParseAttributeInteger("MinorRadius"),
+                Offset = new Vector3(parser.ParseAttributeInteger("OffsetX"), 0, 0)
+            };
+
+            geometry.Shapes.Clear();
+            geometry.Shapes.Add(geometryShape);
+
             OtherGeometries.Add(geometry);
-            CurrentGeometry = geometry;
         }
 
         internal static void AddModuleData(Dictionary<string, ModuleDataContainer> modules, ModuleDataContainer module)
