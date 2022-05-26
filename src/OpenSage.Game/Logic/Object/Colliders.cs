@@ -32,18 +32,18 @@ namespace OpenSage.Logic.Object
         public abstract bool Contains(Vector2 point);
         public abstract bool Contains(Vector3 point);
 
-        public static Collider Create(Geometry geometry, Transform transform)
+        public static Collider Create(GeometryShape geometryShape, Transform transform)
         {
-            switch (geometry.Type)
+            switch (geometryShape.Type)
             {
-                case ObjectGeometry.Box:
-                    return new BoxCollider(geometry, transform);
+                case GeometryType.Box:
+                    return new BoxCollider(geometryShape, transform);
 
-                case ObjectGeometry.Sphere:
-                    return new SphereCollider(geometry, transform);
+                case GeometryType.Sphere:
+                    return new SphereCollider(geometryShape, transform);
 
-                case ObjectGeometry.Cylinder:
-                    return new CylinderCollider(geometry, transform);
+                case GeometryType.Cylinder:
+                    return new CylinderCollider(geometryShape, transform);
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -77,25 +77,18 @@ namespace OpenSage.Logic.Object
         private readonly Vector3 _offset;
         public BoundingSphere SphereBounds { get; protected set; }
 
-        public SphereCollider(Geometry geometry, Transform transform, float? radius = null, float offsetZ = 0.0f)
+        public SphereCollider(GeometryShape geometry, Transform transform, float? radius = null, float offsetZ = 0.0f)
             : base(transform, geometry.Height)
         {
             radius ??= geometry.MajorRadius;
             Name = geometry.Name ?? "";
-            _offset = geometry.Offset + new Vector3(geometry.OffsetX, 0, 0);
+            _offset = geometry.Offset;
             SphereBounds = new BoundingSphere(Vector3.Zero + new Vector3(0, 0, offsetZ), radius.Value);
             Update(transform);
         }
 
         public SphereCollider(Transform transform, float radius)
             : base(transform, radius)
-        {
-            SphereBounds = new BoundingSphere(Vector3.Zero, radius);
-            Update(transform);
-        }
-
-        protected SphereCollider(Transform transform, float radius, float height)
-            : base(transform, height)
         {
             SphereBounds = new BoundingSphere(Vector3.Zero, radius);
             Update(transform);
@@ -255,7 +248,7 @@ namespace OpenSage.Logic.Object
         // but it works well for buildings (only have yaw) and updating the terrain passability
         public TransformedRectangle BoundingArea { get; protected set; }
 
-        public BoxCollider(Geometry geometry, Transform transform)
+        public BoxCollider(GeometryShape geometry, Transform transform)
             : base(geometry, transform)
         {
             var min = new Vector3(-geometry.MajorRadius, -geometry.MinorRadius, 0);
@@ -417,7 +410,7 @@ namespace OpenSage.Logic.Object
         public float LowerRadius { get; private set; }
         public float UpperRadius { get; private set; }
 
-        public CylinderCollider(Geometry geometry, Transform transform)
+        public CylinderCollider(GeometryShape geometry, Transform transform)
             : base(geometry, transform)
         {
             LowerRadius = geometry.MajorRadius;

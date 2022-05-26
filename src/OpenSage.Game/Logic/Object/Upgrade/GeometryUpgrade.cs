@@ -7,18 +7,11 @@ namespace OpenSage.Logic.Object
     internal class GeometryUpgrade : UpgradeModule
     {
         private readonly GeometryUpgradeModuleData _moduleData;
-        private readonly List<Geometry> _allGeometries;
 
-        internal GeometryUpgrade(GameObject gameObject, GeometryUpgradeModuleData moduleData) : base(gameObject, moduleData)
+        internal GeometryUpgrade(GameObject gameObject, GeometryUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-
-            _allGeometries = new List<Geometry>
-            {
-                _gameObject.Definition.Geometry
-            };
-            _allGeometries.AddRange(_gameObject.Definition.AdditionalGeometries);
-            _allGeometries.AddRange(_gameObject.Definition.OtherGeometries);
         }
 
         protected override void OnUpgrade()

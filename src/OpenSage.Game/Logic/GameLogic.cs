@@ -69,6 +69,7 @@ namespace OpenSage.Logic
 
             _game.Scene3D.Quadtree?.Insert(gameObject);
             _game.Scene3D.Radar?.AddGameObject(gameObject);
+            _game.PartitionCellManager.OnObjectAdded(gameObject);
 
             return gameObject;
         }
@@ -131,6 +132,7 @@ namespace OpenSage.Logic
             {
                 _game.Scene3D.Quadtree.Remove(gameObject);
                 _game.Scene3D.Radar.RemoveGameObject(gameObject);
+                gameObject.PartitionObject.Remove();
 
                 gameObject.Drawable.Destroy();
 

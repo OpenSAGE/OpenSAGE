@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.Sav2Json", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Rendering", "OpenSage.Rendering\OpenSage.Rendering.csproj", "{493357DD-0659-4C7F-8E98-0252E9BA4901}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mathematics.Tests", "OpenSage.Mathematics.Tests\OpenSage.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{493357DD-0659-4C7F-8E98-0252E9BA4901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

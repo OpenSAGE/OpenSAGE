@@ -201,7 +201,7 @@ namespace OpenSage.Scripting
             var spawnUnitPosition = localPlayerStartPosition;
             var playerTemplate = Game.Scene3D.LocalPlayer.Template;
             var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
-            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+            spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
             spawnUnit.SetTranslation(spawnUnitPosition);
             return GetLuaObjectIndex(spawnUnit.ID);
         }

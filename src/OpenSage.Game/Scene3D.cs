@@ -428,12 +428,12 @@ namespace OpenSage
         {
             void DrawHealthBox(GameObject gameObject)
             {
-                if (gameObject.Definition.Geometry is null || gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
                 {
                     return;
                 }
 
-                var geometrySize = gameObject.Definition.Geometry.MajorRadius;
+                var geometrySize = gameObject.Definition.Geometry.Shapes[0].MajorRadius;
 
                 // Not sure if this is what IsSmall is actually for.
                 if (gameObject.Definition.Geometry.IsSmall)
@@ -441,11 +441,10 @@ namespace OpenSage
                     geometrySize = Math.Max(geometrySize, 15);
                 }
 
-
                 var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
-                var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Height);
+                var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height);
                 var healthBoxRect = Camera.WorldToScreenRectangle(
                     healthBoxWorldSpacePos,
                     new SizeF(healthBoxSize, 3));
@@ -544,7 +543,7 @@ namespace OpenSage
 
                 var startingUnit0 = GameObjects.Add(player.Template.StartingUnits[0].Unit.Value, player);
                 var startingUnit0Position = playerStartPosition;
-                startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+                startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
                 startingUnit0.SetTranslation(startingUnit0Position);
 
                 Game.Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);

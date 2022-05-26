@@ -6,8 +6,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ToppleUpdate : UpdateModule
+    public sealed class ToppleUpdate : UpdateModule, ICollideModule
     {
+        private readonly GameObject _gameObject;
         private readonly ToppleUpdateModuleData _moduleData;
 
         private ToppleState _toppleState;
@@ -18,8 +19,9 @@ namespace OpenSage.Logic.Object
         private float _unknownFloat;
         private uint _stumpId;
 
-        internal ToppleUpdate(ToppleUpdateModuleData moduleData)
+        internal ToppleUpdate(GameObject gameObject, ToppleUpdateModuleData moduleData)
         {
+            _gameObject = gameObject;
             _moduleData = moduleData;
 
             _toppleState = ToppleState.NotToppled;
@@ -34,14 +36,14 @@ namespace OpenSage.Logic.Object
                         // TODO: InitialAccelPercent
                         var deltaAngle = 0.01f;
                         _toppleAngle += deltaAngle;
-                        context.GameObject.SetRotation(context.GameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
+                        _gameObject.SetRotation(_gameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
                         if (_toppleAngle > MathUtility.PiOver2)
                         {
                             _toppleAngle = MathUtility.PiOver2;
                             if (_moduleData.BounceVelocityPercent.IsZero)
                             {
                                 _toppleState = ToppleState.Toppled;
-                                KillObject(context);
+                                KillObject();
                             }
                             else
                             {
@@ -56,7 +58,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal override void OnCollide(BehaviorUpdateContext context, GameObject collidingObject)
+        public void OnCollide(GameObject collidingObject)
         {
             // If we've already started toppling, don't do anything.
             if (_toppleState != ToppleState.NotToppled)
@@ -65,49 +67,53 @@ namespace OpenSage.Logic.Object
             }
 
             // Only things with a CrusherLevel greater than our CrushableLevel, can topple us.
-            if (collidingObject.Definition.CrusherLevel <= context.GameObject.Definition.CrushableLevel)
+            if (collidingObject.Definition.CrusherLevel <= _gameObject.Definition.CrushableLevel)
             {
                 return;
             }
 
             // TODO: Use colliding object's position (and velocity?) to decide topple direction.
             // TODO: ToppleLeftOrRightOnly
-            StartTopple(context);
+            StartTopple();
         }
 
-        private void StartTopple(BehaviorUpdateContext context)
+        private void StartTopple()
         {
-            _moduleData.ToppleFX?.Value.Execute(context);
+            _moduleData.ToppleFX?.Value.Execute(
+                new FXListExecutionContext(
+                    _gameObject.Rotation,
+                    _gameObject.Translation,
+                    _gameObject.GameContext));
 
-            CreateStump(context);
+            CreateStump();
 
             if (_moduleData.KillWhenStartToppling)
             {
-                KillObject(context);
+                KillObject();
                 return;
             }
 
             _toppleState = ToppleState.Toppling;
 
             // TODO: Is this the right time to do this?
-            context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
+            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
         }
 
-        private void CreateStump(BehaviorUpdateContext context)
+        private void CreateStump()
         {
             if (_moduleData.StumpName == null)
             {
                 return;
             }
 
-            var stump = context.GameContext.GameObjects.Add(_moduleData.StumpName.Value, null);
-            stump.UpdateTransform(context.GameObject.Translation, context.GameObject.Rotation);
+            var stump = _gameObject.GameContext.GameObjects.Add(_moduleData.StumpName.Value, null);
+            stump.UpdateTransform(_gameObject.Translation, _gameObject.Rotation);
             _stumpId = stump.ID;
         }
 
-        private void KillObject(BehaviorUpdateContext context)
+        private void KillObject()
         {
-            context.GameObject.Kill(DeathType.Toppled);
+            _gameObject.Kill(DeathType.Toppled);
         }
 
         internal override void Load(StatePersister reader)
@@ -165,7 +171,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ToppleUpdate(this);
+            return new ToppleUpdate(gameObject, this);
         }
     }
 }
