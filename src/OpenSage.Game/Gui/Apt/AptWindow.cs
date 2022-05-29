@@ -1,23 +1,29 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Data;
 using OpenSage.Content;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
+using OpenSage.FileFormats.Apt.FrameItems;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
+using OpenAS2.Runtime;
 
 namespace OpenSage.Gui.Apt
 {
     public sealed class AptWindow : DisposableBase
     {
         private readonly AptContext _context;
+        private readonly AptDomHandler _dom;
         private readonly Game _game;
         private readonly AptCallbackResolver _resolver;
         private readonly AptRenderingContext _renderingContext;
         private Vector2 _movieSize;
         private Vector2 _destinationSize;
+
+        private TimeInterval _lastUpdateTime = new TimeInterval();
+        private DateTime _lastUpdateDateTime = DateTime.Now;
 
         /// <summary>
         /// The background color of the movie set by the BackgroundColor frameItem
@@ -35,6 +41,14 @@ namespace OpenSage.Gui.Apt
         internal AssetStore AssetStore { get; }
         public AptInputMessageHandler InputHandler { get; set; }
         public AptContext Context => _context;
+        public AptDomHandler Dom => _dom;
+        public Game Game => _game;
+
+        // event handler related
+        public DisplayItem MouseFocus { get; private set; }
+        public DisplayItem MouseFocusOnLastStateChanged { get; private set; }
+        public bool MouseState { get; private set; }
+        public DisplayItem KeyFocus { get; private set; }
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
@@ -48,8 +62,9 @@ namespace OpenSage.Gui.Apt
             AssetStore = game.AssetStore;
             AptFile = aptFile;
 
-            //Create our context
-            _context = new AptContext(this);
+            //Create our context & set handlers
+            _dom = new(this);
+            _context = new(this);
 
             //First thing to do here is to initialize the display list
             Root = AddDisposable(new SpriteItem
@@ -57,12 +72,11 @@ namespace OpenSage.Gui.Apt
                 Transform = ItemTransform.None,
                 SetBackgroundColor = (c) => _backgroundColor = c
             });
-            Root.Create(aptFile.Movie, _context);
+            Root.CreateFrom(aptFile.Movie, _context);
 
-            _context.Root = Root;
-            _context.Avm.CommandHandler = HandleCommand;
-            _context.Avm.VariableHandler = HandleVariable;
-            _context.Avm.MovieHandler = HandleMovie;
+            _context.ChangeRoot(Root);
+
+            _context.LoadContext();
 
             var m = Root.Character as Movie;
             _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
@@ -75,18 +89,86 @@ namespace OpenSage.Gui.Apt
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
             _destinationSize = new Vector2(windowSize.Width, windowSize.Height);
+
         }
 
         internal bool HandleInput(Point2D mousePos, bool mouseDown)
         {
+            var windowScaling = new Vector2(1, 1) / GetScaling();
+            var screenPos = Vector2.Transform(mousePos.ToVector2(), Matrix3x2.CreateScale(windowScaling));
+
+            var curFocus = Root.GetMouseFocus(screenPos);
+
+            var state_changed_flag = mouseDown != MouseState;
+            var focus_changed_flag = curFocus != MouseFocus;
+
+            // MouseUp, MouseDown, MouseMove
+            // Press, Release, ReleaseOutside
+            if (state_changed_flag)
+            {
+                if (Root != null)
+                    Root.HandleEventOnTree(mouseDown ? ClipEventFlags.MouseDown : ClipEventFlags.MouseUp);
+                if (curFocus != null)
+                    curFocus.HandleEvent(mouseDown ? ClipEventFlags.Press : ClipEventFlags.Release);
+                if (focus_changed_flag && !mouseDown)
+                    if (MouseFocusOnLastStateChanged != null)
+                        MouseFocusOnLastStateChanged.HandleEvent(ClipEventFlags.ReleaseOutside);
+            }
+            else
+                if (Root != null)
+                    Root.HandleEventOnTree(ClipEventFlags.MouseMove);
+
+            // DragOut, DragOver, RollOut, RollOver
+            if (focus_changed_flag)
+            {
+                if (curFocus != null)
+                    curFocus.HandleEvent(mouseDown ? ClipEventFlags.DragOver : ClipEventFlags.RollOver);
+                if (MouseFocus != null)
+                    MouseFocus.HandleEvent(mouseDown ? ClipEventFlags.DragOut : ClipEventFlags.RollOut);
+            }
+
+            // KeyFocus Related
+            if (state_changed_flag && mouseDown)
+            {
+                if (KeyFocus != curFocus)
+                {
+                    // curfocus handle event onsetfocus
+                    // keyfocus handle event onkillfocus
+                    KeyFocus = curFocus;
+                }
+            }
+
+            MouseState = mouseDown;
+            MouseFocus = curFocus;
+            if (state_changed_flag) MouseFocusOnLastStateChanged = curFocus;
+
+            // TODO should be removed eventually
             return Root.HandleInput(mousePos, mouseDown);
+        }
+
+        public Value GetTime()
+        {
+            return Value.FromFloat(_lastUpdateTime.TotalTime.TotalMilliseconds);
+        }
+
+        public Value GetTime2()
+        {
+            return Value.FromFloat((_lastUpdateTime.TotalTime + (DateTime.Now - _lastUpdateDateTime)).TotalMilliseconds);
         }
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
-            _context.Avm.UpdateIntervals(gt);
+            _lastUpdateDateTime = DateTime.Now;
+            _lastUpdateTime = gt;
+
+            var vm = _context.VM;
+
+            vm.ExecuteUntilEmpty(); // clear remaining codes
+            vm.UpdateIntervals(gt.TotalTime);
             Root.Update(gt);
-            Root.RunActions(gt);
+            Root.EnqueueActions(gt);
+            vm.ExecuteUntilEmpty();
+            
         }
 
         internal Vector2 GetScaling()
@@ -116,14 +198,15 @@ namespace OpenSage.Gui.Apt
             _renderingContext.PopTransform();
         }
 
-        internal void HandleCommand(ActionContext context, string cmd, string param)
+        internal void HandleCommand(ExecutionContext context, string cmd, string param)
         {
             _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
         }
 
         internal Value HandleVariable(string variable)
         {
-            //Mostly no idea what those mean, but they are all booleans
+            // Mostly no idea what those mean, but they are all booleans
+            // TODO move to an extern object
             switch (variable)
             {
                 case "InGame":
@@ -143,15 +226,15 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        internal AptFile HandleMovie(string movie)
+        internal AptFile LoadAptFileFromUrl(string movie)
         {
             var aptFileName = System.IO.Path.ChangeExtension(movie, ".apt");
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
-            var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
 
             return aptFile;
         }
 
-        public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);
+        public delegate void ActionscriptCallback(string param, ExecutionContext context, AptWindow window, Game game);
     }
 }

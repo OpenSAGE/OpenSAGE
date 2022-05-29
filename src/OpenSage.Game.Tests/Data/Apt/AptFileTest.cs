@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
+﻿using OpenSage.Data;
 using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,7 +25,7 @@ namespace OpenSage.Tests.Data.Apt
                     return;
                 }
 
-                var aptFile = AptFile.FromFileSystemEntry(entry);
+                var aptFile = AptFileHelper.FromFileSystemEntry(entry);
 
                 Assert.NotNull(aptFile);
             });
@@ -36,7 +37,7 @@ namespace OpenSage.Tests.Data.Apt
             var fileSystem = new BigFileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
             var entry = fileSystem.GetFile(@"MainMenu.apt");
 
-            var data = AptFile.FromFileSystemEntry(entry);
+            var data = AptFileHelper.FromFileSystemEntry(entry);
             Assert.NotNull(data);
         }
     }

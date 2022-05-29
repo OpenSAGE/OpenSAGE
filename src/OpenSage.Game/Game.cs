@@ -8,7 +8,7 @@ using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
 using OpenSage.Data.Map;
 using OpenSage.Data.Rep;
 using OpenSage.Data.Sav;
@@ -177,7 +177,7 @@ namespace OpenSage
 
             foreach (var slot in slots)
             {
-                var colorIndex = (int) slot.Color;
+                var colorIndex = (int)slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
                     availableColors.Remove(AssetStore.MultiplayerColors.GetByIndex(colorIndex));
@@ -207,7 +207,7 @@ namespace OpenSage
 
                 ColorRgb color;
 
-                var colorIndex = (int) slot.Color;
+                var colorIndex = (int)slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
                     color = AssetStore.MultiplayerColors.GetByIndex(slot.Color).RgbColor;
@@ -653,7 +653,7 @@ namespace OpenSage
         public AptWindow LoadAptWindow(string aptFileName)
         {
             var entry = ContentManager.FileSystem.GetFile(aptFileName);
-            var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFileHelper.FromFileSystemEntry(entry);
             return new AptWindow(this, ContentManager, aptFile);
         }
 
@@ -852,7 +852,7 @@ namespace OpenSage
             }
 
             // How close are we to the next logic frame?
-            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
+            var tickT = (float)(1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
                                      .TotalMilliseconds / LogicUpdateInterval);
 
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.

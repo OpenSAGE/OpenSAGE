@@ -1,0 +1,179 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Numerics;
+using OpenAS2.Base;
+using OpenSage.Mathematics;
+
+namespace OpenSage.FileFormats.Apt.Characters
+{
+
+    [Flags]
+    public enum ButtonRecordFlags : byte
+    {
+        None = 0,
+        StateUp = 1,
+        StateOver = 2,
+        StateDown = 4,
+        StateHit = 8
+    }
+
+    public struct ButtonRecord : IMemoryStorage
+    {
+        public ButtonRecordFlags Flags;
+        public uint Reserved;
+        public uint Character;
+        public int Depth;
+        public Matrix2x2 RotScale;
+        public Vector2 Translation;
+        public ColorRgbaF Color;
+        public Vector4 Unknown;
+
+        public ButtonRecord(ButtonRecordFlags flags, uint reserved, uint character, int depth, Matrix2x2 rotscale,
+            Vector2 translation, ColorRgbaF color, Vector4 unknown)
+        {
+            Flags = flags;
+            Reserved = reserved;
+            Character = character;
+            Depth = depth;
+            RotScale = rotscale;
+            Translation = translation;
+            Color = color;
+            Unknown = unknown;
+        }
+
+        public static ButtonRecord Parse(BinaryReader reader)
+        {
+            return new ButtonRecord(
+                reader.ReadByteAsEnumFlags<ButtonRecordFlags>(),
+                reader.ReadUInt24(),
+                reader.ReadUInt32(),
+                reader.ReadInt32(),
+                reader.ReadMatrix2x2(),
+                reader.ReadVector2(),
+                reader.ReadColorRgbaF(),
+                reader.ReadVector4()
+                );
+        }
+
+        public void Write(BinaryWriter writer, BinaryMemoryChain _)
+        {
+            writer.Write((byte) Flags);
+            writer.WriteUInt24(Reserved);
+            writer.Write(Character);
+            writer.Write(Depth);
+            writer.Write(RotScale);
+            writer.Write(Translation);
+            writer.Write(Color);
+            writer.Write(Unknown);
+        }
+    }
+
+    [Flags]
+    public enum ButtonActionFlags : byte
+    {
+        IdleToOverUp = 1,
+        OverUpToIdle = 2,
+        OverUpToOverDown = 4,
+        OverDownToOverUp = 8,
+        OverDownToOutDown = 16,
+        OutDownToOverDown = 32,
+        IdleToOverDown = 64,
+        OverDownToIdle = 128
+    }
+
+    public enum ButtonInput : ushort
+    {
+        MouseButton0 = 0,
+        Left = 1,
+        Right = 2,
+        Home = 3,
+        End = 4,
+        Insert = 5,
+        Delete = 6,
+        BackSpace = 8,
+        Enter = 13,
+        Unknown = 240,
+    }
+
+    public struct ButtonAction : IMemoryStorage
+    {
+        public ButtonActionFlags Flags;
+        public ButtonInput KeyCode;
+        public Byte Reserved;
+        public InstructionStorage Instructions;
+
+        public ButtonAction(ButtonActionFlags flags, ButtonInput input, Byte res,
+            InstructionStorage instructions)
+        {
+            Flags = flags;
+            KeyCode = input;
+            Reserved = res;
+            Instructions = instructions;
+        }
+
+        public static ButtonAction Parse(BinaryReader reader)
+        {
+            return new(
+                reader.ReadByteAsEnumFlags<ButtonActionFlags>(),
+                reader.ReadUInt16AsEnum<ButtonInput>(),
+                reader.ReadByte(),
+                InstructionStorage.Parse(reader.BaseStream, reader.ReadUInt32()));
+        }
+
+        public void Write(BinaryWriter writer, BinaryMemoryChain pool)
+        {
+            writer.Write((byte) Flags);
+            writer.Write((UInt16) KeyCode);
+            writer.Write((byte) Reserved);
+            writer.WriteInstructions(Instructions, pool);
+        }
+    }
+
+    public sealed class Button : Character
+    {
+        public Vector4 Bounds { get; private set; }
+        public IndexedTriangle[] Triangles { get; private set; }
+        public Vector2[] Vertices { get; private set; }
+        public bool IsMenu { get; private set; }
+        public List<ButtonRecord> Records { get; private set; }
+        public List<ButtonAction> Actions { get; private set; }
+
+        public static Button Parse(BinaryReader reader)
+        {
+            var button = new Button();
+            button.IsMenu = reader.ReadBooleanUInt32Checked();
+            button.Bounds = reader.ReadVector4();
+            var tc = reader.ReadUInt32();
+            var vc = reader.ReadUInt32();
+            button.Vertices = reader.ReadFixedSizeArrayAtOffset<Vector2>(() => reader.ReadVector2(), vc);
+            button.Triangles = reader.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => reader.ReadIndexedTri(), tc);
+
+            //TODO: read actionscript related stuff and buttonrecords
+            button.Records = reader.ReadListAtOffset<ButtonRecord>(() => ButtonRecord.Parse(reader));
+            button.Actions = reader.ReadListAtOffset<ButtonAction>(() => ButtonAction.Parse(reader));
+            return button;
+        }
+        public override void Write(BinaryWriter writer, BinaryMemoryChain pool)
+        {
+            writer.Write((UInt32) CharacterType.Button);
+            writer.Write((UInt32) Character.SIGNATURE);
+            writer.WriteBooleanUInt32(IsMenu);
+            writer.Write((Vector4) Bounds);
+
+            writer.Write((uint) Triangles.Length);
+            writer.Write((uint) Vertices.Length);
+            writer.WriteArrayAtOffset(Triangles.Length,
+                (i, w, p) => {
+                    var ti = Triangles[i];
+                    w.Write(ti.IDX0);
+                    w.Write(ti.IDX1);
+                    w.Write(ti.IDX2);
+                }, pool);
+            writer.WriteArrayAtOffset(Vertices.Length, (i, w, p) => w.Write(Vertices[i]), pool);
+
+            writer.WriteArrayAtOffsetWithSize(Records, pool);
+            writer.WriteArrayAtOffsetWithSize(Actions, pool);
+        }
+    }
+}

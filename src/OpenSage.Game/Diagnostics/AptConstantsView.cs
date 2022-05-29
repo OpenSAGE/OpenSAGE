@@ -1,6 +1,6 @@
 ﻿using System;
 using ImGuiNET;
-using OpenSage.Data.Apt;
+using OpenAS2.Base;
 
 namespace OpenSage.Diagnostics
 {
@@ -36,7 +36,7 @@ namespace OpenSage.Diagnostics
 
                 ImGui.Text(i.ToString()); ImGui.NextColumn();
 
-                var value = (entry.Type == ConstantEntryType.Register)
+                var value = (entry.Type == ConstantType.Register)
                     ? Convert.ToUInt32(entry.Value).ToString()
                     : Convert.ToString(entry.Value);
 

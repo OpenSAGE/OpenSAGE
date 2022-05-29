@@ -146,12 +146,12 @@ namespace OpenSage.Mathematics
         public bool Contains(in Point2D point) => Contains(point.X, point.Y);
         public bool Contains(in Vector2 point) => Contains(point.X, point.Y);
 
-        public bool Contains(float x, float y)
+        public bool Contains(float x, float y, float expand = 0)
         {
-            return x >= X
-                && x <= Right
-                && y >= Y
-                && y <= Bottom;
+            return x >= X - expand
+                && x <= Right + expand
+                && y >= Y - expand
+                && y <= Bottom + expand;
         }
 
 

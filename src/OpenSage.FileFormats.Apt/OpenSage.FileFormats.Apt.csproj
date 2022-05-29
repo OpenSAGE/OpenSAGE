@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenAS2\OpenAS2.csproj" />
+    <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
+    <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
+    <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+  </ItemGroup>
+
+</Project>

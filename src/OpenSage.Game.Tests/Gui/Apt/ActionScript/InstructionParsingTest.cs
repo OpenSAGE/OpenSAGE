@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Apt;
+using OpenSage.FileFormats.Apt;
+using OpenAS2.Base;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Dom.Default;
 using Xunit;
 using Xunit.Abstractions;
 using static System.Text.Encoding;
@@ -25,7 +26,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             writer.Write((byte) type);
             if (argument.HasValue)
             {
-                if (InstructionAlignment.IsAligned(type))
+                if (Definition.IsAlignmentRequired(type))
                 {
                     Align(writer);
                 }
@@ -73,7 +74,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
                 instructionWriter.WriteSimpleInstruction(InstructionType.SetVariable);
                 instructionWriter.WriteSimpleInstruction(InstructionType.End);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushOne);
-                instructionWriter.WriteSimpleInstruction(InstructionType.Not);
+                instructionWriter.WriteSimpleInstruction(InstructionType.LogicalNot);
                 instructionWriter.WriteSimpleInstruction(InstructionType.BranchIfTrue, 18);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushString, variableNamePosition);
                 instructionWriter.WriteSimpleInstruction(InstructionType.EA_PushString, rightValuePosition);
@@ -105,7 +106,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             var rightValue = "test2";
             var stream = Get19SimpleInstructions(paramName, "test1", rightValue, magic);
             var reader = new BinaryReader(stream, UTF8, true);
-            var collection = InstructionCollection.Parse(stream, reader.ReadUInt32());
+            var collection = InstructionStorage.Parse(stream, reader.ReadUInt32());
             // Assert that the last pathological branch instruction was not read
             Assert.True(collection.Count == 19);
 
@@ -113,11 +114,18 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             // Assert that after parsing instructions, stream will be sought back
             Assert.True(afterInstructions == magic);
 
-            var context = new ObjectContext(new SpriteItem());
-            var vm = new VM();
-            vm.Execute(collection, context, new List<ConstantEntry>());
+            var vm = new VirtualMachine(new SimpleDomHandler());
+            var context = new ESObject(vm);
+            // collection, null, context, "Parsing Test"
+            vm.EnqueueContext(vm.CreateContext(null, null, context, 4, null, collection.CreateStream()));
+            vm.ExecuteUntilHalt();
             // Assert that during execution of instructions, the right value is set
-            Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
+            context.IGet(vm.GlobalContext, paramName).AddRecallCode(res =>
+            {
+                Assert.True(res.ToString().Equals(rightValue));
+                return null;
+            });
+       
         }
     }
 }

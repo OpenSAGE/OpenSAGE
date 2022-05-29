@@ -4,8 +4,9 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Library;
+using OpenSage.Gui.Apt.Script;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -13,10 +14,10 @@ using OpenSage.Mathematics;
 using OpenSage.Mods.Bfme.Gui;
 using SixLabors.Fonts;
 using Veldrid;
-using Geometry = OpenSage.Data.Apt.Geometry;
+using Geometry = OpenSage.FileFormats.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
-using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
-
+using ValueType = OpenAS2.Runtime.ValueType;
+ 
 namespace OpenSage.Mods.Bfme
 {
     class AptControlBar : IControlBar
@@ -59,7 +60,7 @@ namespace OpenSage.Mods.Bfme
         {
             if (!_minimapInitialized)
             {
-                var radar = _root.ScriptObject.GetMember("Radar").ToObject();
+                var radar = _root.ScriptObject.GetMember("Radar").ToObject<StageObject>();
                 var radarClipValue = radar.GetMember("RadarClip");
 
                 if (radarClipValue.Type == ValueType.Undefined)
@@ -68,7 +69,7 @@ namespace OpenSage.Mods.Bfme
                 }
 
                 // This shape is used to render the minimap
-                var radarClip = radarClipValue.ToObject().Item as SpriteItem;
+                var radarClip = radarClipValue.ToObject<StageObject>().Item as SpriteItem;
                 var shape = radarClip.Content.Items[1] as RenderItem;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
@@ -101,7 +102,7 @@ namespace OpenSage.Mods.Bfme
                     var good = Array.Exists(player.Template.IntrinsicSciences, s => s.Value.Name == "SCIENCE_GOOD");
                     var emptyArgs = new List<Value>();
                     emptyArgs.Add(Value.FromString(good ? "_good" : "_evil"));
-                    FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.Avm);
+                    FunctionCommon.ExecuteFunction(showCommandInterface, emptyArgs.ToArray(), _root.ScriptObject, _window.Context.VM);
                     _palantirInitialized = true;
                 }
             }
@@ -110,18 +111,22 @@ namespace OpenSage.Mods.Bfme
         private void ClearCommandbuttons()
         {
             var aptCommandButtons = _root.ScriptObject.GetMember("CommandButtons").ToObject();
+            // TODO what does this mean?
+            /*
             if (aptCommandButtons.Constants.Count == 0)
             {
                 return;
             }
+            */
+            throw new NotImplementedException();
 
             for (var i = 1; i <= 6; i++)
             {
                 // we do not know how bfme handles this yet
                 if (_game.SageGame == SageGame.Bfme) continue;
 
-                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
-                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject<StageObject>();
+                var placeHolder = commandButton.GetMember("placeholder").ToObject<StageObject>();
                 placeHolder.Item.Visible = false;
 
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
@@ -155,8 +160,8 @@ namespace OpenSage.Mods.Bfme
                 // we do not know how bfme handles this yet
                 if (_game.SageGame == SageGame.Bfme) continue;
 
-                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
-                var placeHolder = commandButton.GetMember("placeholder").ToObject();
+                var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject<StageObject>();
+                var placeHolder = commandButton.GetMember("placeholder").ToObject<StageObject>();
                 placeHolder.Item.Visible = false;
 
                 if (!commandSet.Buttons.ContainsKey(i))
@@ -177,7 +182,7 @@ namespace OpenSage.Mods.Bfme
                 };
 
                 //TODO: fix so this works
-                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.Avm);
+                FunctionCommon.ExecuteFunction(createContent, args.ToArray(), commandButton.Item.ScriptObject, _window.Context.VM);
 
                 placeHolder.Item.Visible = true;
                 var shape = (placeHolder.Item as SpriteItem).Content.Items[1] as RenderItem;
@@ -209,7 +214,7 @@ namespace OpenSage.Mods.Bfme
         }
 
 
-        private void ApplyPortrait(GameObject unit, ObjectContext frame)
+        private void ApplyPortrait(GameObject unit, StageObject frame)
         {
             if (frame == null || ((SpriteItem) frame.Item).Content.Items.Count == 0)
             {
@@ -248,7 +253,7 @@ namespace OpenSage.Mods.Bfme
 
         private void UpdatePalantir(Player player)
         {
-            var palantirFrame = _root.ScriptObject.GetMember("CommandBackground").ToObject();
+            var palantirFrame = _root.ScriptObject.GetMember("CommandBackground").ToObject<StageObject>();
 
             if (player.SelectedUnits.Count > 0)
             {
@@ -268,7 +273,7 @@ namespace OpenSage.Mods.Bfme
 
         private void UpdateSideCommandbar(Player player)
         {
-            var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject();
+            var sideCommandBar = _root.ScriptObject.GetMember("SideCommandBar").ToObject<StageObject>();
 
             if (player.SelectedUnits.Count > 0)
             {
@@ -279,7 +284,7 @@ namespace OpenSage.Mods.Bfme
                     if (fadeIn.Type != ValueType.Undefined)
                     {
                         var emptyArgs = new List<Value>();
-                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                        FunctionCommon.ExecuteFunction(fadeIn, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.VM);
                         _commandbarVisible = true;
                     }
                 }
@@ -291,7 +296,7 @@ namespace OpenSage.Mods.Bfme
                 if (fadeOut.Type != ValueType.Undefined)
                 {
                     var emptyArgs = new List<Value>();
-                    FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.Avm);
+                    FunctionCommon.ExecuteFunction(fadeOut, emptyArgs.ToArray(), sideCommandBar.Item.ScriptObject, _window.Context.VM);
                     _commandbarVisible = true;
                 }
 

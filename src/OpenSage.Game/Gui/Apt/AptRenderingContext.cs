@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Apt;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -63,9 +63,12 @@ namespace OpenSage.Gui.Apt
             }
 
             var scaling = Window.GetScaling();
+            transform.GeometryTransform *= Matrix3x2.CreateScale(scaling);
+            /*
             transform.GeometryRotation.M11 *= scaling.X;
             transform.GeometryRotation.M22 *= scaling.Y;
             transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
+            */
         }
 
         internal void SetRenderTarget(RenderTarget renderTarget)
@@ -139,21 +142,21 @@ namespace OpenSage.Gui.Apt
                 font,
                 TextAlignment.Center,
                 character.Color.ToColorRgbaF() * transform.ColorTransform,
-                RectangleF.Transform(character.Bounds, transform.GeometryRotation));
+                RectangleF.Transform(character.Bounds, transform.GeometryTransform));
         }
 
         public Matrix3x2 GetCurrentTransformMatrix()
         {
             var transform = _transformStack.Peek();
             CalculateTransform(ref transform);
-            return transform.GeometryRotation;
+            return transform.GeometryTransform;
         }
 
         public RectangleF GetBoundingBox(Geometry geom)
         {
             var transform = _transformStack.Peek();
             CalculateTransform(ref transform);
-            var matrix = transform.GeometryRotation;
+            var matrix = transform.GeometryTransform;
 
             return RectangleF.Transform(geom.BoundingBox, matrix);
         }
@@ -162,7 +165,7 @@ namespace OpenSage.Gui.Apt
         {
             var transform = _transformStack.Peek();
             CalculateTransform(ref transform);
-            var matrix = transform.GeometryRotation;
+            var matrix = transform.GeometryTransform;
 
             var bounds = RectangleF.Transform(shape.BoundingBox, matrix);
             var tl = new Vector2(bounds.Left, bounds.Top);
@@ -186,7 +189,7 @@ namespace OpenSage.Gui.Apt
         {
             var transform = _transformStack.Peek();
             CalculateTransform(ref transform);
-            var matrix = transform.GeometryRotation;
+            var matrix = transform.GeometryTransform;
 
             foreach (var e in shape.Entries)
             {

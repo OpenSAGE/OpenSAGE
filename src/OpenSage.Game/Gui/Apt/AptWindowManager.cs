@@ -58,7 +58,7 @@ namespace OpenSage.Gui.Apt
         {
             if (_pushWindow != null)
             {
-                PushWindow(_pushWindow);
+                PushWindow(_pushWindow); 
                 _pushWindow = null;
             }
 

@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Apt.Characters;
+using OpenSage.FileFormats.Apt.Characters;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.Script;
+using OpenAS2.Runtime;
+using OpenAS2.Runtime.Library;
 
 namespace OpenSage.Diagnostics
 {
@@ -17,32 +19,6 @@ namespace OpenSage.Diagnostics
             : base(context)
         {
 
-        }
-
-        private object CreateObject(Value value)
-        {
-            switch (value.Type)
-            {
-                case ValueType.String:
-                    return value.ToString();
-                case ValueType.Boolean:
-                    return value.ToBoolean();
-                case ValueType.Short:
-                case ValueType.Integer:
-                    return value.ToInteger();
-                case ValueType.Float:
-                    return value.ToFloat();
-                case ValueType.Object:
-                    return "[OBJECT]";
-                case ValueType.Function:
-                    return "[FUNCTION]";
-                case ValueType.Array:
-                    return "[ARRAY]";
-                case ValueType.Undefined:
-                    return "[UNDEFINED]";
-            }
-
-            return null;
         }
 
         protected override void DrawOverride(ref bool isGameViewFocused)
@@ -106,7 +82,7 @@ namespace OpenSage.Diagnostics
                             {
                                 var shape = _selectedItem.Character as Shape;
                                 ImGuiUtility.BeginPropertyList();
-                                ImGuiUtility.PropertyRow("GeometryID", shape.Geometry);
+                                ImGuiUtility.PropertyRow("GeometryID", shape.GeometryId);
                                 ImGuiUtility.EndPropertyList();
                             }
                             break;
@@ -117,14 +93,17 @@ namespace OpenSage.Diagnostics
                         ImGuiUtility.BeginPropertyList();
                         if (_selectedItem.ScriptObject != null)
                         {
-                            foreach (var variable in _selectedItem.ScriptObject.Variables)
+                            var so = _selectedItem.ScriptObject;
+                            foreach (var key in so.GetAllProperties())
                             {
-                                ImGuiUtility.PropertyRow(variable.Key, CreateObject(variable.Value));
+                                ImGuiUtility.PropertyRow(key, so.IGetProperty(key, out var _, true));
                             }
                         }
                         ImGuiUtility.EndPropertyList();
                     }
-
+                    // Constants are now handled by ActionContext
+                    // TODO: How to view these constants?
+                    /*
                     if (ImGui.CollapsingHeader("Constants", ImGuiTreeNodeFlags.DefaultOpen))
                     {
                         ImGuiUtility.BeginPropertyList();
@@ -138,6 +117,7 @@ namespace OpenSage.Diagnostics
                         }
                         ImGuiUtility.EndPropertyList();
                     }
+                    */
                 }
                 ImGui.EndChild();
             }
@@ -234,7 +214,7 @@ namespace OpenSage.Diagnostics
             }
             _selectedItem = item;
             _selectedItem.Highlight = true;
-            Context.SelectedAptWindow = _selectedItem.Context.Window;
+            Context.SelectedAptWindow = _selectedItem.Origin.Window;
         }
     }
 }

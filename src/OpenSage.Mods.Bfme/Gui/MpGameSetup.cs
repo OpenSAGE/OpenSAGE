@@ -1,5 +1,5 @@
 ﻿using OpenSage.Gui.Apt;
-using OpenSage.Gui.Apt.ActionScript;
+using OpenAS2.Runtime;
 
 namespace OpenSage.Mods.Bfme2.Gui
 {
@@ -7,7 +7,7 @@ namespace OpenSage.Mods.Bfme2.Gui
     static class MpGameSetup
     {
         // Called after the initialization has been performed
-        public static void OnReadyPress(string param, ActionContext context, AptWindow window, Game game)
+        public static void OnReadyPress(string param, ExecutionContext context, AptWindow window, Game game)
         {
         }
     }
