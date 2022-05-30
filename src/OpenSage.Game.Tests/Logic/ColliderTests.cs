@@ -74,8 +74,9 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var geometryShape = new GeometryShape(new Geometry())
+            var geometryShape = new GeometryShape
             {
+                Geometry = new Geometry(),
                 Type = GeometryType.Sphere,
                 Height = 10,
                 MajorRadius = radius
@@ -93,8 +94,9 @@ namespace OpenSage.Tests.Logic
             var rect = new RectangleF(0, 0, 6, 4);
 
             var transform = new Transform(new Vector3(x, y, 0), Quaternion.Identity);
-            var geometryShape = new GeometryShape(new Geometry())
+            var geometryShape = new GeometryShape
             {
+                Geometry = new Geometry(),
                 Type = GeometryType.Box,
                 Height = 10,
                 MajorRadius = width,

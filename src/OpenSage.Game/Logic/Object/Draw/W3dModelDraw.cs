@@ -356,7 +356,7 @@ namespace OpenSage.Logic.Object
             if (_activeConditionState.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent))
             {
                 var progress = GameObject.BuildProgress;
-                GameObject.VerticalOffset = -((1.0f - progress) * GameObject.RoughCollider.Height);
+                GameObject.VerticalOffset = -((1.0f - progress) * GameObject.Geometry.MaxZ);
             }
 
             _activeModelDrawConditionState?.Update(gameTime);

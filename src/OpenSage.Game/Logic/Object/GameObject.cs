@@ -241,7 +241,7 @@ namespace OpenSage.Logic.Object
         private void OnObjectMoved()
         {
             _objectMoved = true;
-            PartitionObject.SetDirty();
+            PartitionObject?.SetDirty();
         }
 
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
