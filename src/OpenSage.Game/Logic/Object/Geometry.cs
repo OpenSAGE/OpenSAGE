@@ -21,12 +21,24 @@ namespace OpenSage.Logic.Object
         public float BoundingCircleRadius => _boundingCircleRadius;
         public float BoundingSphereRadius => _boundingSphereRadius;
 
+        public float MinZ { get; private set; }
+        public float MaxZ { get; private set; }
+
         public Geometry()
         {
             Shapes = new List<GeometryShape>
             {
-                new GeometryShape(this)
+                new GeometryShape
+                {
+                    Geometry = this
+                }
             };
+        }
+
+        public void AddShape(GeometryShape shape)
+        {
+            shape.Geometry = this;
+            Shapes.Add(shape);
         }
 
         public void Persist(StatePersister reader)
@@ -74,8 +86,12 @@ namespace OpenSage.Logic.Object
 
             foreach (var geometryShape in Shapes)
             {
-                result.Shapes.Add(geometryShape.Clone());
+                var newShape = geometryShape.Clone();
+                newShape.Geometry = result;
+                result.Shapes.Add(newShape);
             }
+
+            result.OnShapeChanged();
 
             return result;
         }
@@ -84,19 +100,27 @@ namespace OpenSage.Logic.Object
         {
             _boundingCircleRadius = _boundingSphereRadius = 0.0f;
 
+            MinZ = float.MaxValue;
+            MaxZ = float.MinValue;
+
             foreach (var shape in Shapes)
             {
                 float boundingCircleRadius, boundingSphereRadius;
+                float minZ, maxZ;
 
                 switch (shape.Type)
                 {
                     case GeometryType.Sphere:
                         boundingCircleRadius = boundingSphereRadius = shape.MajorRadius;
+                        minZ = -shape.MajorRadius;
+                        maxZ = shape.MajorRadius;
                         break;
 
                     case GeometryType.Cylinder:
                         boundingCircleRadius = shape.MajorRadius;
                         boundingSphereRadius = Math.Max(shape.MajorRadius, shape.Height / 2.0f);
+                        minZ = 0;
+                        maxZ = shape.Height;
                         break;
 
                     case GeometryType.Box:
@@ -104,6 +128,8 @@ namespace OpenSage.Logic.Object
                         boundingCircleRadius = MathF.Sqrt(radiusSquared2D);
                         var halfHeight = shape.Height / 2.0f;
                         boundingSphereRadius = MathF.Sqrt(radiusSquared2D + halfHeight * halfHeight);
+                        minZ = 0;
+                        maxZ = shape.Height;
                         break;
 
                     default:
@@ -112,6 +138,9 @@ namespace OpenSage.Logic.Object
 
                 _boundingCircleRadius = Math.Max(_boundingCircleRadius, boundingCircleRadius);
                 _boundingSphereRadius = Math.Max(_boundingSphereRadius, boundingSphereRadius);
+
+                MinZ = Math.Min(MinZ, minZ);
+                MaxZ = Math.Max(MaxZ, maxZ);
             }
         }
 
@@ -146,12 +175,12 @@ namespace OpenSage.Logic.Object
 
     public sealed class GeometryShape
     {
-        private readonly Geometry _geometry;
-
         private GeometryType _type;
         private float _height;
         private float _majorRadius;
         private float _minorRadius;
+
+        internal Geometry Geometry;
 
         public GeometryType Type
         {
@@ -198,10 +227,8 @@ namespace OpenSage.Logic.Object
         public float FrontAngle;
         public string Name;
 
-        internal GeometryShape(Geometry geometry)
+        internal GeometryShape()
         {
-            _geometry = geometry;
-
             _type = GeometryType.Sphere;
             _majorRadius = 1.0f;
             _minorRadius = 1.0f;
@@ -211,10 +238,15 @@ namespace OpenSage.Logic.Object
 
         private void OnChanged()
         {
-            _geometry.OnShapeChanged();
+            Geometry.OnShapeChanged();
         }
 
-        public GeometryShape Clone() => (GeometryShape)MemberwiseClone();
+        public GeometryShape Clone()
+        {
+            var result = (GeometryShape)MemberwiseClone();
+            result.Geometry = null;
+            return result;
+        }
     }
 
     internal static class GeometryCollisionDetectionUtility
