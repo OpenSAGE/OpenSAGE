@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Diagnostics.Util;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -111,6 +114,34 @@ namespace OpenSage.Logic.Object
                 _boundingSphereRadius = Math.Max(_boundingSphereRadius, boundingSphereRadius);
             }
         }
+
+        internal void DebugDraw(DrawingContext2D drawingContext, Camera camera, GameObject parent)
+        {
+            var collideInfo = GeometryCollisionDetectionUtility.CreateCollideInfo(parent);
+
+            foreach (var shape in Shapes)
+            {
+                var shapeCollideInfo = GeometryCollisionDetectionUtility.CreateShapeInfo(shape, collideInfo);
+
+                switch (shape.Type)
+                {
+                    case GeometryType.Sphere:
+                        drawingContext.DrawSphere(camera, shapeCollideInfo.CreateSphere());
+                        break;
+
+                    case GeometryType.Cylinder:
+                        drawingContext.DrawCylinder(camera, shapeCollideInfo.CreateCylinder());
+                        break;
+
+                    case GeometryType.Box:
+                        drawingContext.DrawBox(camera, shapeCollideInfo.CreateBox());
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+        }
     }
 
     public sealed class GeometryShape
@@ -188,16 +219,21 @@ namespace OpenSage.Logic.Object
 
     internal static class GeometryCollisionDetectionUtility
     {
+        public static GeometryCollideInfo CreateCollideInfo(GameObject gameObject)
+        {
+            return new GeometryCollideInfo(gameObject.Geometry, gameObject.Translation, gameObject.Yaw);
+        }
+
+        public static GeometryShapeCollideInfo CreateShapeInfo(GeometryShape shape, GeometryCollideInfo collideInfo)
+        {
+            return new GeometryShapeCollideInfo(
+                shape,
+                collideInfo.Position + shape.Offset, // TODO: Not right, needs to use object's orientation
+                collideInfo.Angle);
+        }
+
         public static bool Intersects(in GeometryCollideInfo left, in GeometryCollideInfo right)
         {
-            static GeometryShapeCollideInfo CreateShapeInfo(GeometryShape shape, GeometryCollideInfo collideInfo)
-            {
-                return new GeometryShapeCollideInfo(
-                    shape,
-                    collideInfo.Position + shape.Offset, // TODO: Not right, needs to use object's orientation
-                    collideInfo.Angle);
-            }
-
             foreach (var leftShape in left.Geometry.Shapes)
             {
                 var leftShapeInfo = CreateShapeInfo(leftShape, left);
@@ -222,7 +258,7 @@ namespace OpenSage.Logic.Object
             return intersectionDelegate(shape1, shape2);
         }
 
-        private readonly record struct GeometryShapeCollideInfo(GeometryShape Shape, Vector3 Position, float Angle)
+        internal readonly record struct GeometryShapeCollideInfo(GeometryShape Shape, Vector3 Position, float Angle)
         {
             public SphereShape CreateSphere()
             {

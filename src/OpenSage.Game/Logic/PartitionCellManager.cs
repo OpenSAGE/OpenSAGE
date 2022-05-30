@@ -390,14 +390,9 @@ namespace OpenSage.Logic
                 return false;
             }
 
-            static GeometryCollideInfo Create(GameObject gameObject)
-            {
-                return new GeometryCollideInfo(gameObject.Geometry, gameObject.Translation, gameObject.Yaw);
-            }
-
             return GeometryCollisionDetectionUtility.Intersects(
-                Create(GameObject),
-                Create(otherObject.GameObject));
+                GeometryCollisionDetectionUtility.CreateCollideInfo(GameObject),
+                GeometryCollisionDetectionUtility.CreateCollideInfo(otherObject.GameObject));
         }
     }
 }

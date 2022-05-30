@@ -699,6 +699,8 @@ namespace OpenSage.Logic.Object
 
         internal void OnCollide(GameObject collidingObject)
         {
+            Logger.Info($"GameObject {Definition.Name} colliding with {collidingObject.Definition.Name}");
+
             foreach (var behavior in _behaviorModules)
             {
                 if (behavior is ICollideModule collideModule)
