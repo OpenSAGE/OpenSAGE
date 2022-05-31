@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
@@ -127,7 +128,49 @@ namespace OpenSage.Logic
             _dirtyObjects.Clear();
         }
 
-        internal Rectangle WorldSpaceToPartitionSpace(Vector2 worldSpaceMin, Vector2 worldSpaceMax)
+        public IEnumerable<PartitionCell> GetCells(Vector2 worldPosition, float worldRadius)
+        {
+            // Compute which cells are overlapped by this object.
+            var partitionSpaceBounds = GetPartitionSpaceBounds(worldPosition, worldRadius);
+
+            for (var y = partitionSpaceBounds.TopLeft.Y; y < partitionSpaceBounds.BottomRight.Y; y++)
+            {
+                if (y < 0 || y >= NumCellsY)
+                {
+                    continue;
+                }
+
+                for (var x = partitionSpaceBounds.TopLeft.X; x < partitionSpaceBounds.BottomRight.X; x++)
+                {
+                    if (x < 0 || x >= NumCellsX)
+                    {
+                        continue;
+                    }
+
+                    var cell = this[x, y];
+
+                    if (cell.WorldSpaceBounds.Intersects(worldPosition, worldRadius))
+                    {
+                        yield return cell;
+                    }
+                }
+            }
+        }
+
+        private Rectangle GetPartitionSpaceBounds(in Vector2 worldPosition, float worldRadius)
+        {
+            // Compute which cells are overlapped by this object.
+            var minX = worldPosition.X - worldRadius;
+            var maxX = worldPosition.X + worldRadius;
+            var minY = worldPosition.Y - worldRadius;
+            var maxY = worldPosition.Y + worldRadius;
+
+            return WorldSpaceToPartitionSpace(
+                new Vector2(minX, minY),
+                new Vector2(maxX, maxY));
+        }
+
+        private Rectangle WorldSpaceToPartitionSpace(Vector2 worldSpaceMin, Vector2 worldSpaceMax)
         {
             var partitionSpaceMin = (worldSpaceMin - _terrainBoundary.TopLeft.ToVector2()) / _partitionCellSize;
             var partitionSpaceMax = (worldSpaceMax - _terrainBoundary.TopLeft.ToVector2()) / _partitionCellSize;
@@ -135,6 +178,26 @@ namespace OpenSage.Logic
             return Rectangle.FromCorners(
                 new Point2D((int)partitionSpaceMin.X, (int)partitionSpaceMin.Y),
                 new Point2D((int)Math.Ceiling(partitionSpaceMax.X), (int)Math.Ceiling(partitionSpaceMax.Y)));
+        }
+
+        public IEnumerable<GameObject> QueryObjects<T>(
+            GameObject searchObject,
+            Vector3 searchPosition,
+            float searchRadius,
+            T query)
+            where T : struct, IPartitionQuery
+        {
+            foreach (var cell in GetCells(searchPosition.Vector2XY(), searchRadius))
+            {
+                foreach (var partitionObject in cell.Objects)
+                {
+                    if (searchObject != partitionObject.GameObject &&
+                        query.Evaluate(partitionObject.GameObject))
+                    {
+                        yield return partitionObject.GameObject;
+                    }
+                }
+            }
         }
 
         public void Persist(StatePersister reader)
@@ -344,42 +407,10 @@ namespace OpenSage.Logic
             OverlappingCells.Clear();
 
             // Compute which cells are overlapped by this object.
-            var boundingCircleCenter = GameObject.Translation.Vector2XY();
-            var boundingCircleRadius = GameObject.Geometry.BoundingCircleRadius;
-
-            var minX = boundingCircleCenter.X - boundingCircleRadius;
-            var maxX = boundingCircleCenter.X + boundingCircleRadius;
-            var minY = boundingCircleCenter.Y - boundingCircleRadius;
-            var maxY = boundingCircleCenter.Y + boundingCircleRadius;
-
-            var partitionSpaceBounds = _manager.WorldSpaceToPartitionSpace(
-                new Vector2(minX, minY),
-                new Vector2(maxX, maxY));
-
-            var partitionCellSize = _manager.PartitionCellSize;
-
-            for (var y = partitionSpaceBounds.TopLeft.Y; y < partitionSpaceBounds.BottomRight.Y; y++)
+            foreach (var overlappingCell in _manager.GetCells(GameObject.Translation.Vector2XY(), GameObject.Geometry.BoundingCircleRadius))
             {
-                if (y < 0 || y >= _manager.NumCellsY)
-                {
-                    continue;
-                }
-
-                for (var x = partitionSpaceBounds.TopLeft.X; x < partitionSpaceBounds.BottomRight.X; x++)
-                {
-                    if (x < 0 || x >= _manager.NumCellsX)
-                    {
-                        continue;
-                    }
-
-                    var cell = _manager[x, y];
-
-                    if (cell.WorldSpaceBounds.Intersects(boundingCircleCenter, boundingCircleRadius))
-                    {
-                        OverlappingCells.Add(cell);
-                        cell.Objects.Add(this);
-                    }
-                }
+                OverlappingCells.Add(overlappingCell);
+                overlappingCell.Objects.Add(this);
             }
         }
 
@@ -393,6 +424,37 @@ namespace OpenSage.Logic
             return GeometryCollisionDetectionUtility.Intersects(
                 GeometryCollisionDetectionUtility.CreateCollideInfo(GameObject),
                 GeometryCollisionDetectionUtility.CreateCollideInfo(otherObject.GameObject));
+        }
+    }
+
+    public interface IPartitionQuery
+    {
+        bool Evaluate(GameObject queryObject);
+    }
+
+    public static class PartitionQueries
+    {
+        public readonly record struct TrueQuery
+            : IPartitionQuery
+        {
+            public bool Evaluate(GameObject queryObject) => true;
+        }
+
+        public readonly record struct KindOfQuery(ObjectKinds kind)
+            : IPartitionQuery
+        {
+            public bool Evaluate(GameObject queryObject) => queryObject.IsKindOf(kind);
+        }
+
+        public readonly record struct CollidesWithObjectQuery(GameObject GameObject)
+            : IPartitionQuery
+        {
+            public bool Evaluate(GameObject queryObject)
+            {
+                return GeometryCollisionDetectionUtility.Intersects(
+                    GeometryCollisionDetectionUtility.CreateCollideInfo(GameObject),
+                    GeometryCollisionDetectionUtility.CreateCollideInfo(queryObject));
+            }
         }
     }
 }
