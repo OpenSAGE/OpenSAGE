@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -32,16 +33,17 @@ namespace OpenSage.Logic.Object
 
             waitUntil = context.LogicFrame + interval;
 
-            var collidingObjects = context.GameContext.Quadtree.FindNearby(obj, obj.Transform, obj.RoughCollider.WorldBounds.Radius);
+            var collidingObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                obj,
+                obj.Translation,
+                obj.Geometry.BoundingCircleRadius,
+                new PartitionQueries.KindOfQuery(ObjectKinds.Structure));
 
-            foreach (var collidingObject in collidingObjects)
+            if (collidingObjects.Any())
             {
-                if (collidingObject.Definition.KindOf.Get(ObjectKinds.Structure))
-                {
-                    obj.IsSelectable = false;
-                    obj.Hidden = true;
-                    return;
-                }
+                obj.IsSelectable = false;
+                obj.Hidden = true;
+                return;
             }
 
             obj.IsSelectable = true;
