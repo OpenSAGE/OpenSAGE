@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
@@ -18,7 +17,6 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
-
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -29,15 +27,14 @@ namespace OpenSage.Logic.Object
             }
             _nextPing = context.LogicFrame + _moduleData.PingDelay;
 
-            var nearbyObjects = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.EffectRadius);
+            var nearbyObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                _gameObject,
+                _gameObject.Translation,
+                _moduleData.EffectRadius,
+                new PartitionQueries.ObjectFilterQuery(_moduleData.AllowFilter));
 
             foreach (var nearbyObject in nearbyObjects)
             {
-                if (!_moduleData.AllowFilter.Matches(nearbyObject))
-                {
-                    continue;
-                }
-
                 // TODO: HealPercentPerSecond, UpgradeRequired, NonStackable, HealFX, AntiCategories
 
                 foreach (var modifier in _moduleData.Modifiers)

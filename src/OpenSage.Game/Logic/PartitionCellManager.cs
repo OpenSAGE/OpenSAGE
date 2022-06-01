@@ -451,6 +451,12 @@ namespace OpenSage.Logic
             public bool Evaluate(GameObject queryObject) => queryObject.IsKindOf(kind);
         }
 
+        public readonly record struct ObjectFilterQuery(ObjectFilter filter)
+            : IPartitionQuery
+        {
+            public bool Evaluate(GameObject queryObject) => filter.Matches(queryObject);
+        }
+
         public readonly record struct CollidesWithObjectQuery(GameObject GameObject)
             : IPartitionQuery
         {
