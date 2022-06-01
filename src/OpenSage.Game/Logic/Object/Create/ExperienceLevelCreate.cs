@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
         }
 
-        internal override void Execute(BehaviorUpdateContext context)
+        public override void OnCreate()
         {
             _gameObject.Rank = _moduleData.LevelToGrant;
         }

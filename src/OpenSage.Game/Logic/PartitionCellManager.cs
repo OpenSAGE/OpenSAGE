@@ -200,6 +200,11 @@ namespace OpenSage.Logic
             }
         }
 
+        public float GetDistanceBetweenObjectsSquared(GameObject gameObject1, GameObject gameObject2)
+        {
+            return Vector3.DistanceSquared(gameObject1.Translation, gameObject2.Translation);
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);

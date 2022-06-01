@@ -67,6 +67,14 @@ namespace OpenSage.Logic
 
             gameObject.ID = NextObjectId++;
 
+            foreach (var module in gameObject.BehaviorModules)
+            {
+                if (module is ICreateModule createModule)
+                {
+                    createModule.OnCreate();
+                }
+            }
+
             _game.Scene3D.Quadtree?.Insert(gameObject);
             _game.Scene3D.Radar?.AddGameObject(gameObject);
             _game.PartitionCellManager.OnObjectAdded(gameObject);
@@ -136,6 +144,8 @@ namespace OpenSage.Logic
 
                 gameObject.Drawable.Destroy();
 
+                gameObject.OnDestroy();
+
                 if (gameObject.Name != null)
                 {
                     _nameLookup.Remove(gameObject.Name);
@@ -160,7 +170,7 @@ namespace OpenSage.Logic
 
         public void Update()
         {
-            foreach (var gameObject in _objects)
+            foreach (var gameObject in Objects)
             {
                 gameObject?.Update();
             }
