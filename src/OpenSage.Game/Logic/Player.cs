@@ -19,7 +19,7 @@ namespace OpenSage.Logic
 
         private readonly Game _game;
 
-        private readonly SupplyManager _supplyManager;
+        public readonly SupplyManager SupplyManager;
 
         private readonly List<Upgrade> _upgrades;
         private readonly UpgradeSet _upgradesInProgress;
@@ -138,7 +138,7 @@ namespace OpenSage.Logic
             Allies = new HashSet<Player>();
             Enemies = new HashSet<Player>();
 
-            _supplyManager = new SupplyManager();
+            SupplyManager = new SupplyManager(game);
 
             _upgrades = new List<Upgrade>();
             _upgradesInProgress = new UpgradeSet();
@@ -534,11 +534,11 @@ namespace OpenSage.Logic
                 reader.PersistObject(AIPlayer);
             }
 
-            var hasSupplyManager = _supplyManager != null;
+            var hasSupplyManager = SupplyManager != null;
             reader.PersistBoolean(ref hasSupplyManager);
             if (hasSupplyManager)
             {
-                reader.PersistObject(_supplyManager);
+                reader.PersistObject(SupplyManager);
             }
 
             var hasTunnelManager = _tunnelManager != null;
@@ -692,13 +692,108 @@ namespace OpenSage.Logic
 
     public sealed class SupplyManager : IPersistableObject
     {
+        private readonly Game _game;
+
         private readonly ObjectIdSet _supplyWarehouses;
         private readonly ObjectIdSet _supplyCenters;
 
-        internal SupplyManager()
+        internal SupplyManager(Game game)
         {
+            _game = game;
+
             _supplyWarehouses = new ObjectIdSet();
             _supplyCenters = new ObjectIdSet();
+        }
+
+        public void AddSupplyCenter(GameObject supplyCenter)
+        {
+            _supplyCenters.Add(supplyCenter.ID);
+        }
+
+        public void RemoveSupplyCenter(GameObject supplyCenter)
+        {
+            _supplyCenters.Remove(supplyCenter.ID);
+        }
+
+        public void AddSupplyWarehouse(GameObject supplyWarehouse)
+        {
+            _supplyWarehouses.Add(supplyWarehouse.ID);
+        }
+
+        public void RemoveSupplyWarehouse(GameObject supplyWarehouse)
+        {
+            _supplyWarehouses.Remove(supplyWarehouse.ID);
+        }
+
+        public GameObject FindClosestSupplyCenter(GameObject supplyGatherer)
+        {
+            GameObject closestSupplyCenter = null;
+            var closestDistanceSquared = float.MaxValue;
+
+            foreach (var supplyCenterId in _supplyCenters)
+            {
+                var supplyCenter = _game.GameLogic.GetObjectById(supplyCenterId);
+
+                if (supplyCenter.Owner != supplyGatherer.Owner)
+                {
+                    continue;
+                }
+
+                var dockUpdate = supplyCenter.FindBehavior<SupplyCenterDockUpdate>();
+                if (!dockUpdate?.CanApproach() ?? false)
+                {
+                    continue;
+                }
+
+                var distanceSquared = _game.PartitionCellManager.GetDistanceBetweenObjectsSquared(supplyGatherer, supplyCenter);
+
+                if (distanceSquared < closestDistanceSquared)
+                {
+                    closestSupplyCenter = supplyCenter;
+                    closestDistanceSquared = distanceSquared;
+                }
+            }
+
+            return closestSupplyCenter;
+        }
+
+        public GameObject FindClosestSupplyWarehouse(GameObject supplyGatherer)
+        {
+            GameObject closestSupplyWarehouse = null;
+            var closestDistanceSquared = float.MaxValue;
+
+            var supplyAIUpdate = supplyGatherer.FindBehavior<SupplyAIUpdate>();
+            if (supplyAIUpdate != null)
+            {
+                closestDistanceSquared = supplyAIUpdate.SupplyWarehouseScanDistance * supplyAIUpdate.SupplyWarehouseScanDistance;
+            }
+
+            foreach (var supplyWarehouseId in _supplyWarehouses)
+            {
+                var supplyWarehouse = _game.GameLogic.GetObjectById(supplyWarehouseId);
+
+                var dockUpdate = supplyWarehouse.FindBehavior<SupplyWarehouseDockUpdate>();
+
+                if (!dockUpdate?.CanApproach() ?? false)
+                {
+                    continue;
+                }
+
+                if (!dockUpdate?.HasBoxes() ?? false)
+                {
+                    continue;
+                }
+
+                var distanceSquared = _game.PartitionCellManager.GetDistanceBetweenObjectsSquared(supplyGatherer, supplyWarehouse);
+
+                if (distanceSquared < closestDistanceSquared)
+                {
+                    closestSupplyWarehouse = supplyWarehouse;
+                    closestDistanceSquared = distanceSquared;
+                }
+            }
+
+            return closestSupplyWarehouse;
         }
 
         public void Persist(StatePersister reader)

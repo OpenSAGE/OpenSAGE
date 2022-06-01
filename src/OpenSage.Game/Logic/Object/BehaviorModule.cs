@@ -33,6 +33,11 @@ namespace OpenSage.Logic.Object
         }
     }
 
+    public interface IDestroyModule
+    {
+        void OnDestroy();
+    }
+
     internal sealed class BehaviorUpdateContext
     {
         public readonly GameContext GameContext;

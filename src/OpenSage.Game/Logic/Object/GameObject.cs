@@ -408,6 +408,8 @@ namespace OpenSage.Logic.Object
 
             var behaviors = new List<BehaviorModule>();
 
+            _behaviorModules = behaviors;
+
             void AddBehavior(string tag, BehaviorModule behavior)
             {
                 behaviors.Add(behavior);
@@ -444,11 +446,6 @@ namespace OpenSage.Logic.Object
                 // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
                 {
-                    if (module is CreateModule createModule)
-                    {
-                        createModule.Execute(_behaviorUpdateContext);
-                    }
-
                     AddBehavior(behaviorDataContainer.Tag, module);
 
                     if (module is BodyModule body)
@@ -465,8 +462,6 @@ namespace OpenSage.Logic.Object
                     }
                 }
             }
-
-            _behaviorModules = behaviors;
 
             Geometry = Definition.Geometry.Clone();
 
@@ -710,6 +705,17 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal void OnDestroy()
+        {
+            foreach (var behavior in _behaviorModules)
+            {
+                if (behavior is IDestroyModule destroyModule)
+                {
+                    destroyModule.OnDestroy();
+                }
+            }
+        }
+
         private void HandleConstruction()
         {
             // Check if the unit is being constructed
@@ -777,6 +783,14 @@ namespace OpenSage.Logic.Object
         {
             ClearModelConditionFlags();
             EnergyProduction += Definition.EnergyProduction;
+
+            foreach (var module in _behaviorModules)
+            {
+                if (module is ICreateModule createModule)
+                {
+                    createModule.OnBuildComplete();
+                }
+            }
         }
 
         public bool IsBeingConstructed()
