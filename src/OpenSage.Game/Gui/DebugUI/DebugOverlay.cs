@@ -156,7 +156,7 @@ namespace OpenSage.Gui.DebugUI
 
             if (ShowQuadTree)
             {
-                _scene3D.Quadtree.DebugDraw(context, camera);
+                _scene3D.Game.PartitionCellManager.DebugDraw(context, camera);
             }
 
             if (_scene3D.ShowRoads && ShowRoadMeshes)
