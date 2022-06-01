@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -276,6 +277,31 @@ namespace OpenSage.Logic
         //     cell++
         //   }
         // }
+
+        internal void DebugDraw(DrawingContext2D drawingContext, Camera camera)
+        {
+            var strokeColor = new ColorRgbaF(0, 220, 0, 255);
+
+            foreach (var cell in _cells)
+            {
+                var bounds = cell.WorldSpaceBounds;
+
+                var ltWorld = new Vector3(bounds.Position + new Vector2(0, bounds.Height), 0);
+                var rtWorld = new Vector3(bounds.Position + new Vector2(bounds.Width, bounds.Height), 0);
+                var rbWorld = new Vector3(bounds.Position + new Vector2(bounds.Width, 0), 0);
+                var lbWorld = new Vector3(bounds.Position, 0);
+
+                var ltScreen = camera.WorldToScreenPoint(ltWorld).Vector2XY();
+                var rtScreen = camera.WorldToScreenPoint(rtWorld).Vector2XY();
+                var rbScreen = camera.WorldToScreenPoint(rbWorld).Vector2XY();
+                var lbScreen = camera.WorldToScreenPoint(lbWorld).Vector2XY();
+
+                drawingContext.DrawLine(new Line2D(ltScreen, lbScreen), 1, strokeColor);
+                drawingContext.DrawLine(new Line2D(lbScreen, rbScreen), 1, strokeColor);
+                drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
+                drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
+            }
+        }
 
         internal void DrawDiagnostic()
         {
