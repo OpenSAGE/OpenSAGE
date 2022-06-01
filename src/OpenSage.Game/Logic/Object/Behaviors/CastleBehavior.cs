@@ -99,7 +99,11 @@ namespace OpenSage.Logic.Object
                 Unpack(_gameObject.Owner, instant: true);
             }
 
-            var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
+            var nearbyUnits = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                _gameObject,
+                _gameObject.Translation,
+                _moduleData.ScanDistance,
+                new PartitionQueries.TrueQuery());
 
             if (!nearbyUnits.Any())
             {
