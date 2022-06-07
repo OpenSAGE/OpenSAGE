@@ -28,8 +28,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly Material _particleMaterial;
 
-        private readonly BeforeRenderDelegate _beforeRender;
-
         private int _initialDelay;
 
         private readonly float _startSizeRate;
@@ -175,13 +173,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 out _numIndices));
 
             State = ParticleSystemState.Inactive;
-
-            _beforeRender = (CommandList cl, in RenderItem renderItem) =>
-            {
-                UpdateVertexBuffer(cl);
-
-                cl.SetVertexBuffer(0, _vertexBuffer);
-            };
         }
 
         public void Activate()
@@ -521,6 +512,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public override void Render(CommandList commandList)
         {
+            if (State == ParticleSystemState.Inactive)
+            {
+                return;
+            }
+
             UpdateVertexBuffer(commandList);
 
             commandList.SetVertexBuffer(0, _vertexBuffer);
@@ -528,24 +524,6 @@ namespace OpenSage.Graphics.ParticleSystems
             commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
 
             commandList.DrawIndexed(_numIndices, 1, 0, 0, 0);
-        }
-
-        internal void BuildRenderList(RenderList renderList)
-        {
-            if (_particles == null)
-            {
-                return;
-            }
-
-            //renderList.Transparent.RenderItems.Add(new RenderItem(
-            //    Template.Name,
-            //    _particleMaterial,
-            //    AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(_worldTransform.Translation, 10)), // TODO
-            //    Matrix4x4.Identity,
-            //    0,
-            //    _numIndices,
-            //    _indexBuffer,
-            //    _beforeRender));
         }
 
         private ref readonly Matrix4x4 GetWorldMatrix()
