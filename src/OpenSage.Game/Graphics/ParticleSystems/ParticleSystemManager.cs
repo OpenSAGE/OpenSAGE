@@ -93,6 +93,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
+                    _renderBucket.RemoveObject(particleSystem);
+                    particleSystem.Dispose();
                     RemoveToDispose(particleSystem);
                     _particleSystems.RemoveAt(i);
                     i--;
