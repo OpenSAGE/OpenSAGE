@@ -22,6 +22,7 @@ namespace OpenSage.LivingWorld
             { "AddPlayer", (parser, x) => x.AddPlayers.Add(AddPlayer.Parse(parser)) },
             { "LocalPlayer", (parser, x) => x.LocalPlayer = parser.ParseAssetReference() },
             { "Scenario", (parser, x) => x.Scenario = Scenario.Parse(parser) },
+            { "LivingWorldVictoryType", (parser, x) => x.VictoryTypes.Add(Scenario.Parse(parser)) },
             { "Tutorial", (parser, x) => x.Tutorial = Tutorial.Parse(parser) },
             { "SecondsPerReinforcement", (parser, x) => x.SecondsPerReinforcement = parser.ParseInteger() },
             { "StartingCashRTS", (parser, x) => x.StartingCashRTS = parser.ParseInteger() },
@@ -45,6 +46,8 @@ namespace OpenSage.LivingWorld
 
         [AddedIn(SageGame.Bfme2)]
         public Scenario Scenario { get; private set; }
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public List<Scenario> VictoryTypes { get; private set; } = new List<Scenario>();
 
         [AddedIn(SageGame.Bfme2)]
         public Tutorial Tutorial { get; private set; }
