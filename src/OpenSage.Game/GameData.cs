@@ -601,7 +601,11 @@ namespace OpenSage
 
             { "VTune", (parser, x) => x.VTune = parser.ParseBoolean() },
 
-            { "ShellMapOn", (parser, x) => x.ShellMapOn = parser.ParseBoolean() }
+            { "ShellMapOn", (parser, x) => x.ShellMapOn = parser.ParseBoolean() },
+
+            { "PlayIntro", (parser, x) => x.PlayIntro = parser.ParseBoolean() },
+            { "AmbientStreamsOn", (parser, x) => x.AmbientStreamsOn = parser.ParseBoolean() },
+            { "Sounds3DOn", (parser, x) => x.Sounds3DOn = parser.ParseBoolean() }
         };
 
         public string ShellMapName { get; private set; }
@@ -1551,6 +1555,12 @@ namespace OpenSage
         public int MaxDebugCashValueMapValue { get; private set; }
 
         public bool VTune { get; private set; }
+
+        public bool PlayIntro { get; private set; }
+
+        public bool AmbientStreamsOn { get; private set; }
+
+        public bool Sounds3DOn { get; private set; }
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool ShellMapOn { get; private set; }
