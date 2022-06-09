@@ -82,14 +82,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAnimation(IniParser parser)
         {
-            if (parser.SageGame == SageGame.CncGenerals || parser.SageGame == SageGame.CncGeneralsZeroHour)
-            {
-                ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
-            }
-            else
-            {
-                Animations.Add(AnimationStateAnimation.Parse(parser));
-            }
+            ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
         }
 
         internal ModelConditionState Clone()
@@ -104,7 +97,6 @@ namespace OpenSage.Logic.Object
             result.WeaponHideShowBones = new List<BoneAttachPoint>(result.WeaponHideShowBones);
 
             result.ConditionAnimations = new List<ObjectConditionAnimation>(result.ConditionAnimations);
-            result.Animations = new List<AnimationStateAnimation>(result.Animations);
 
             result.IdleAnimations = new List<ObjectConditionAnimation>(result.IdleAnimations);
             result.ParticleSysBones = new List<ParticleSysBone>(result.ParticleSysBones);
@@ -128,7 +120,6 @@ namespace OpenSage.Logic.Object
 
         // Model animation settings
         public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
-        public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public AnimationMode AnimationMode { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; } = new FloatRange(1.0f, 1.0f);
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();

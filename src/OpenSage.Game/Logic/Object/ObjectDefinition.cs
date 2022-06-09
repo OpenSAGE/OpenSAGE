@@ -1274,7 +1274,7 @@ namespace OpenSage.Logic.Object
 
         internal void ParseAdditionalGeometry(IniParser parser)
         {
-            var geometryShape = new GeometryShape { Type = parser.ParseEnum<GeometryType>() };
+            var geometryShape = new GeometryShape { Geometry = Geometry, Type = parser.ParseEnum<GeometryType>() };
             Geometry.AddShape(geometryShape);
             _currentGeometryShape = geometryShape;
         }
@@ -1286,11 +1286,12 @@ namespace OpenSage.Logic.Object
 
             var geometry = new Geometry
             {
-                IsSmall = isSmall
+                IsSmall = isSmall,
             };
 
             var geometryShape = new GeometryShape
             {
+                Geometry = geometry,
                 Type = geometryType,
                 Height = parser.ParseAttributeInteger("Height"),
                 MajorRadius = parser.ParseAttributeInteger("MajorRadius"),

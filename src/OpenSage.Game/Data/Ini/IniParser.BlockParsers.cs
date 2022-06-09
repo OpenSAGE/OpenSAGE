@@ -74,7 +74,7 @@ namespace OpenSage.Data.Ini
             { "DynamicGameLOD", (parser, assetStore) => assetStore.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
             { "EmotionNugget", (parser, assetStore) => assetStore.EmotionNuggets.Add(EmotionNugget.Parse(parser)) },
             { "EvaEvent", (parser, assetStore) => assetStore.EvaEvents.Add(EvaEvent.Parse(parser)) },
-            { "EvaEventForwardReference", (parser, assetStore) => EvaEvent.Parse(parser) },
+            { "EvaEventForwardReference", (parser, assetStore) => parser.ParseIdentifier() },
             { "ExperienceLevel", (parser, assetStore) => assetStore.ExperienceLevels.Add(ExperienceLevel.Parse(parser)) },
             { "ExperienceScalarTable", (parser, assetStore) => assetStore.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
             { "FactionVictoryData", (parser, assetStore) => assetStore.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },

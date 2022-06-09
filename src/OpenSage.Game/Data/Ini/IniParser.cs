@@ -38,7 +38,7 @@ namespace OpenSage.Data.Ini
 
         private TokenReader _tokenReader;
 
-        private readonly string _directory;
+        private readonly Stack<string> _directory;
         private readonly IniDataContext _dataContext;
         private readonly FileSystem _fileSystem;
 
@@ -71,7 +71,8 @@ namespace OpenSage.Data.Ini
                 }
             }
 
-            _directory = Path.GetDirectoryName(entry.FilePath);
+            _directory = new Stack<string>();
+            _directory.Push(Path.GetDirectoryName(entry.FilePath));
             _dataContext = dataContext;
             _fileSystem = entry.FileSystem;
             _assetStore = assetStore;
@@ -1014,7 +1015,7 @@ namespace OpenSage.Data.Ini
         private bool ParseIncludedFile<T>(T result, IIniFieldParserProvider<T> fieldParserProvider) where T : class, new()
         {
             var includeFileName = ParseQuotedString();
-            var directory = _directory;
+            var directory = _directory.Peek();
             while (includeFileName.StartsWith(".."))
             {
                 includeFileName = includeFileName.Remove(0, 3);
@@ -1026,6 +1027,7 @@ namespace OpenSage.Data.Ini
             }
 
             var path = Path.Combine(directory, includeFileName);
+            _directory.Push(Path.GetDirectoryName(path));
             var includeEntry = _fileSystem.GetFile(path);
             // I doubt locale-specific-encoded files will ever include other files.
             // But if they do, it's reasonable to assume included files use the same encoding as the includer.
@@ -1041,6 +1043,7 @@ namespace OpenSage.Data.Ini
             finally
             {
                 _tokenReader = original;
+                _directory.Pop();
             }
 
             return reachedEndOfBlock;
@@ -1087,7 +1090,7 @@ namespace OpenSage.Data.Ini
                         includeFileName = includeFileName.Remove(0, 1);
                     }
 
-                    var includePath = Path.Combine(_directory, includeFileName);
+                    var includePath = Path.Combine(_directory.Peek(), includeFileName);
                     var includeEntry = _fileSystem.GetFile(includePath);
                     // I doubt locale-specific-encoded files will ever include other files.
                     // But if they do, it's reasonable to assume included files use the same encoding as the includer.
