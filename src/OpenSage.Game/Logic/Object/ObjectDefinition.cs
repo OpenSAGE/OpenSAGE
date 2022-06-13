@@ -904,8 +904,11 @@ namespace OpenSage.Logic.Object
 
         public Geometry Geometry { get; private set; } = new Geometry();
 
+        /// <summary>
+        /// For crushing / squishing detection.
+        /// </summary>
         [AddedIn(SageGame.Bfme)]
-        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
+        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>();
 
         [AddedIn(SageGame.Bfme2)]
         public float CamouflageDetectionMultiplier { get; private set; }

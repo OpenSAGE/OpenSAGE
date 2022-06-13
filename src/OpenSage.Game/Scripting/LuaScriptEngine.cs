@@ -53,8 +53,8 @@ namespace OpenSage.Scripting
             MainScript.DoString(externalCode);
         }
 
-        private W3dScriptedModelDraw _currentDrawModule;
-        public void ExecuteDrawModuleLuaCode(W3dScriptedModelDraw drawModule, string luaCode)
+        private W3dModelDraw _currentDrawModule;
+        public void ExecuteDrawModuleLuaCode(W3dModelDraw drawModule, string luaCode)
         {
             _currentDrawModule = drawModule;
             Logger.Info($"Executing ini code {luaCode}");
@@ -109,6 +109,7 @@ namespace OpenSage.Scripting
             MainScript.Globals["GetRandomNumber"] = (Func<double>) GetRandomNumber;
             MainScript.Globals["GetFrame"] = (Func<int>) GetFrame;
             MainScript.Globals["CurDrawablePrevAnimationState"] = (Func<string>) CurDrawableGetPrevAnimationState;
+            MainScript.Globals["CurDrawableAllowToContinue"] = (Action)CurDrawableAllowToContinue;
             MainScript.Globals["CurDrawablePlaySound"] = (Action<string>) CurDrawablePlaySound;
             MainScript.Globals["CurDrawableShowSubObject"] = (Action<string>) CurDrawableShowSubObject;
             MainScript.Globals["CurDrawableHideSubObject"] = (Action<string>) CurDrawableHideSubObject;
@@ -449,6 +450,12 @@ namespace OpenSage.Scripting
         }
 
         public string CurDrawableGetPrevAnimationState() => _currentDrawModule.PreviousAnimationState?.StateName ?? "";
+
+        public void CurDrawableAllowToContinue()
+        {
+            // Equivalent of WaitForStateToFinishIfPossible ?
+        }
+
         public void CurDrawablePlaySound(string sound) => Game.Audio.PlayAudioEvent(sound);
         public void CurDrawableShowSubObject(string subObject) => _currentDrawModule.Drawable.ShowSubObject(subObject);
         public void CurDrawableHideSubObject(string subObject) => _currentDrawModule.Drawable.HideSubObject(subObject);
