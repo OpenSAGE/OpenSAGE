@@ -104,6 +104,8 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState = modelDrawConditionState;
 
             _activeModelDrawConditionState?.Activate();
+
+            NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish()
@@ -131,6 +133,14 @@ namespace OpenSage.Logic.Object
 
             PreviousAnimationState = _activeAnimationState;
 
+            if (_activeModelDrawConditionState?.Model != null)
+            {
+                foreach (var animationInstance in _activeModelDrawConditionState.Model.AnimationInstances)
+                {
+                    animationInstance.Stop();
+                }
+            }
+
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
             _activeAnimationState = animationState;
@@ -154,6 +164,8 @@ namespace OpenSage.Logic.Object
             {
                 _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
+
+            NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {GameObject.Definition.Name}");
 
             return true;
         }
@@ -322,6 +334,11 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
+            foreach (var conditionFlags in _activeConditionState.ConditionFlags)
+            {
+                ImGui.LabelText("ConditionFlags", conditionFlags.DisplayName);
+            }
+
             ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
         }
 
@@ -398,11 +415,6 @@ namespace OpenSage.Logic.Object
 
         public void Deactivate()
         {
-            foreach (var animationInstance in Model.AnimationInstances)
-            {
-                animationInstance.Stop();
-            }
-
             foreach (var particleSystem in _particleSystems)
             {
                 particleSystem.Deactivate();
@@ -530,7 +542,7 @@ namespace OpenSage.Logic.Object
             {
                 case ParseConditionStateType.Default:
                     modelConditionState = new ModelConditionStateGenerals();
-                    modelConditionState.ConditionFlags.Add(parser.ParseEnumBitArray<ModelConditionFlag>());
+                    modelConditionState.ConditionFlags.Add(new BitArray<ModelConditionFlag>());
                     break;
 
                 case ParseConditionStateType.Normal:
@@ -570,6 +582,7 @@ namespace OpenSage.Logic.Object
             {
                 case ParseConditionStateType.Default:
                     modelConditionState = new ModelConditionState();
+                    modelConditionState.ConditionFlags.Add(new BitArray<ModelConditionFlag>());
                     break;
 
                 case ParseConditionStateType.Normal:

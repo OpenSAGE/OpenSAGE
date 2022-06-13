@@ -209,6 +209,9 @@ namespace OpenSage.Logic.Object
         {
             var result = (ModelConditionStateGenerals)MemberwiseClone();
 
+            result.NonAnimationPropertySet = false;
+            result.AnimationPropertySet = false;
+
             result.ConditionFlags = new List<BitArray<ModelConditionFlag>>();
             result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
             result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
