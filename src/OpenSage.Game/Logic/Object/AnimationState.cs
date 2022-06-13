@@ -8,11 +8,23 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class AnimationState : IConditionState
     {
-        internal static AnimationState Parse(IniParser parser)
+        internal static AnimationState Parse(IniParser parser, ParseConditionStateType type)
         {
-            var stateTypeFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
-            var result = parser.ParseBlock(FieldParseTable);
-            result.ConditionFlags = stateTypeFlags;
+            var result = new AnimationState();
+
+            switch (type)
+            {
+                case ParseConditionStateType.Normal:
+                    result.ConditionFlags.Add(parser.ParseEnumBitArray<ModelConditionFlag>());
+                    break;
+
+                case ParseConditionStateType.Transition:
+                    result.StateName = parser.ParseIdentifier();
+                    break;
+            }
+
+            parser.ParseBlock(FieldParseTable, result);
+
             return result;
         }
 
@@ -32,13 +44,13 @@ namespace OpenSage.Logic.Object
             { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
         };
 
-        public BitArray<ModelConditionFlag> ConditionFlags { get; protected set; }
+        public List<BitArray<ModelConditionFlag>> ConditionFlags { get; } = new();
 
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
-        public AnimationFlags Flags { get; private set; }
-        public string Script { get; private set; }
-        public string StateName { get; private set; }
+        public AnimationFlags Flags { get; internal set; }
+        public string Script { get; internal set; }
+        public string StateName { get; internal set; }
         public int FrameForPristineBonePositions { get; private set; }
         public bool SimilarRestart { get; private set; }
         public string EnteringStateFX { get; private set; }
@@ -50,6 +62,17 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();
+        public ParseConditionStateType ParseConditionStateType { get; set; }
+        // Only used in Generals and ZH?
+        public bool IsIdleAnimation { get; internal set; }
+    }
+
+    // From C&C3 SDK ParseCondStateType.
+    public enum ParseConditionStateType
+    {
+        Normal,
+        Default,
+        Transition,
     }
 
     public sealed class AnimationStateAnimation
@@ -72,9 +95,9 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<AnimationStateAnimation> FieldParseTable = new IniParseTable<AnimationStateAnimation>
         {
-            { "AnimationName", (parser, x) => x.Animations = parser.ParseAnimationReferenceArray() },
+            { "AnimationName", (parser, x) => x.ParseAnimationName(parser) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationPriority", (parser, x) => x.AnimationPriority = parser.ParseInteger() },
+            { "AnimationPriority", (parser, x) => x.Priority = parser.ParseInteger() },
             { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
             { "AnimationBlendTime", (parser, x) => x.AnimationBlendTime = parser.ParseInteger() },
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = parser.ParseFloatRange() },
@@ -86,17 +109,26 @@ namespace OpenSage.Logic.Object
         };
 
         public string AnimationType { get; private set; }
-        public LazyAssetReference<Graphics.Animation.W3DAnimation>[] Animations { get; private set; }
-        public AnimationMode AnimationMode { get; private set; }
-        public int AnimationPriority { get; private set; }
+        public LazyAssetReference<Graphics.Animation.W3DAnimation> Animation { get; internal set; }
+        public AnimationMode AnimationMode { get; internal set; }
+        public int Priority { get; internal set; } = 1;
         public bool UseWeaponTiming { get; private set; }
         public int AnimationBlendTime { get; private set; }
-        public FloatRange AnimationSpeedFactorRange { get; private set; }
-        public float Distance { get; private set; }
+        public FloatRange AnimationSpeedFactorRange { get; internal set; } = new FloatRange(1.0f, 1.0f);
+        public float Distance { get; internal set; }
         public bool AnimationMustCompleteBlend { get; private set; }
         public float FadeBeginFrame { get; private set; }
         public float FadeEndFrame { get; private set; }
         public bool FadingIn { get; private set; }
+
+        private void ParseAnimationName(IniParser parser)
+        {
+            var animationNameToken = parser.GetNextTokenOptional();
+            if (animationNameToken != null)
+            {
+                Animation = parser.ScanAnimationReference(animationNameToken.Value);
+            }
+        }
     }
 
     public sealed class FXEvent
