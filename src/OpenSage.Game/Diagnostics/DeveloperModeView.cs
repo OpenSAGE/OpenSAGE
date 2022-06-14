@@ -59,8 +59,9 @@ namespace OpenSage.Diagnostics
 
             _commandList = AddDisposable(game.GraphicsDevice.ResourceFactory.CreateCommandList());
 
-            _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, window, _imGuiRenderer)));
             ImGuiUtility.SetupDocking();
+
+            _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, window, _imGuiRenderer)));
         }
 
         public void Tick()
