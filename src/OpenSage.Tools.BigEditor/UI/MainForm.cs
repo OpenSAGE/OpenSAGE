@@ -247,14 +247,14 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.Text("Size"); ImGui.NextColumn();
             ImGui.Separator();
 
-            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.DownArrow)) && _currentFile != _files.Count - 1)
+            if (ImGui.IsKeyPressed(ImGuiKey.DownArrow) && _currentFile != _files.Count - 1)
             {
                 _currentFile++;
                 _scrollY += ImGui.GetIO().DeltaTime * 1000.0f;
                 ImGui.SetScrollY(_scrollY);
 
             }
-            if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.UpArrow)) && _currentFile != 0)
+            if (ImGui.IsKeyPressed(ImGuiKey.UpArrow) && _currentFile != 0)
             {
                 _currentFile--;
                 _scrollY -= ImGui.GetIO().DeltaTime * 1000.0f;
