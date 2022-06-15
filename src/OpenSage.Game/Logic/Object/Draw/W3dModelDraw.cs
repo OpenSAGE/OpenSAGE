@@ -110,11 +110,13 @@ namespace OpenSage.Logic.Object
 
         private bool ShouldWaitForRunningAnimationsToFinish()
         {
-            return _activeConditionState != null
+            return false;
+
+            //return _activeConditionState != null;
                 // TODO
                 //&& animationState.WaitForStateToFinishIfPossible != null
                 //&& _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible
-                && (_activeModelDrawConditionState?.StillActive() ?? false);
+                //&& (_activeModelDrawConditionState?.StillActive() ?? false);
         }
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
@@ -339,7 +341,7 @@ namespace OpenSage.Logic.Object
                 ImGui.LabelText("ConditionFlags", conditionFlags.DisplayName);
             }
 
-            ImGui.LabelText("Model", _activeModelDrawConditionState?.Model.Model.Name ?? "<null>");
+            _activeModelDrawConditionState?.Model?.DrawInspector();
         }
 
         internal override void Load(StatePersister reader)

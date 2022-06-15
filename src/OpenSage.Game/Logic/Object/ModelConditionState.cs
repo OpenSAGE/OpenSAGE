@@ -213,6 +213,7 @@ namespace OpenSage.Logic.Object
             result.AnimationPropertySet = false;
 
             result.ConditionFlags = new List<BitArray<ModelConditionFlag>>();
+            result.ConditionAnimations = new List<ObjectConditionAnimation>();
             result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
             result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
             result.WeaponMuzzleFlashes = new List<BoneAttachPoint>(result.WeaponMuzzleFlashes);

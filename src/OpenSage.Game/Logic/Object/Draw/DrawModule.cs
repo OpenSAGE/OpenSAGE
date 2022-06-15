@@ -40,8 +40,6 @@ namespace OpenSage.Logic.Object
 
         internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 
-        internal virtual void DrawInspector() { }
-
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

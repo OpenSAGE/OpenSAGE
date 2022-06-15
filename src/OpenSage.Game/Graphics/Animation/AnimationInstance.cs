@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -320,6 +321,17 @@ namespace OpenSage.Graphics.Animation
 
                 default:
                     throw new InvalidOperationException();
+            }
+        }
+
+        internal void DrawInspector()
+        {
+            if (ImGui.TreeNodeEx("Animation", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                ImGui.LabelText("Name", _animation.Name);
+                ImGui.LabelText("Playing", _playing.ToString());
+
+                ImGui.TreePop();
             }
         }
     }
