@@ -21,8 +21,6 @@ namespace OpenSage.Logic.Object
         private readonly W3dModelDrawModuleData _data;
         private readonly GameContext _context;
 
-        private readonly Dictionary<ModelConditionState, W3dModelDrawConditionState> _cachedModelDrawConditionStates;
-
         private ModelConditionState _activeConditionState;
         protected AnimationState _activeAnimationState;
 
@@ -74,8 +72,6 @@ namespace OpenSage.Logic.Object
             Drawable = drawable;
             _context = context;
 
-            _cachedModelDrawConditionStates = new Dictionary<ModelConditionState, W3dModelDrawConditionState>();
-
             UpdateConditionState(new BitArray<ModelConditionFlag>(), context.Random);
 
             _unknownSomething = new List<W3dModelDrawSomething>[3];
@@ -92,18 +88,16 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _activeModelDrawConditionState?.Deactivate();
-
-            if (!_cachedModelDrawConditionStates.TryGetValue(conditionState, out var modelDrawConditionState))
+            if (_activeModelDrawConditionState != null)
             {
-                modelDrawConditionState = AddDisposable(CreateModelDrawConditionStateInstance(conditionState, random));
-                _cachedModelDrawConditionStates.Add(conditionState, modelDrawConditionState);
+                _activeModelDrawConditionState.Deactivate();
+                RemoveAndDispose(ref _activeModelDrawConditionState);
             }
+
+            var modelDrawConditionState = AddDisposable(CreateModelDrawConditionStateInstance(conditionState, random));
 
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
-
-            _activeModelDrawConditionState?.Activate();
 
             NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
         }
@@ -405,21 +399,13 @@ namespace OpenSage.Logic.Object
             _context = context;
         }
 
-        public void Activate()
-        {
-            foreach (var particleSystem in _particleSystems)
-            {
-                particleSystem.Activate();
-            }
-        }
-
         public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying);
 
         public void Deactivate()
         {
             foreach (var particleSystem in _particleSystems)
             {
-                particleSystem.Deactivate();
+                particleSystem.Finish();
             }
         }
 
@@ -448,16 +434,6 @@ namespace OpenSage.Logic.Object
                 renderItemConstantsPS,
                 shownSubObjects,
                 hiddenSubObjects);
-        }
-
-        protected override void Dispose(bool disposeManagedResources)
-        {
-            foreach (var particleSystem in _particleSystems)
-            {
-                _context.ParticleSystems.Remove(particleSystem);
-            }
-
-            base.Dispose(disposeManagedResources);
         }
     }
 

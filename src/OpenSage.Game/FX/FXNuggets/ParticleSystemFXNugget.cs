@@ -91,11 +91,9 @@ namespace OpenSage.FX
 
             worldMatrix.Translation = position;
 
-            var particleSystem = context.GameContext.ParticleSystems.Create(
+            context.GameContext.ParticleSystems.Create(
                 Template.Value,
                 worldMatrix);
-
-            particleSystem.Activate();
         }
     }
 }

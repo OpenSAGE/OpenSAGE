@@ -172,7 +172,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 maxParticles,
                 out _numIndices));
 
-            State = ParticleSystemState.Inactive;
+            State = ParticleSystemState.Active;
         }
 
         public void Activate()
@@ -189,6 +189,11 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 State = ParticleSystemState.Inactive;
             }
+        }
+
+        public void Finish()
+        {
+            State = ParticleSystemState.Finished;
         }
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
