@@ -17,10 +17,10 @@ namespace OpenSage.Content.Loaders
 
                 var soundFileName = $"{key}.{audioSettings.SoundsExtension}";
 
-                var localisedAudioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
+                var localizedAudioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder, context.Language);
                 var audioRoot = Path.Combine(audioSettings.AudioRoot, audioSettings.SoundsFolder);
 
-                foreach (var rootPath in new[] { localisedAudioRoot, audioRoot })
+                foreach (var rootPath in new[] { localizedAudioRoot, audioRoot })
                 {
                     var fullPath = Path.Combine(rootPath, soundFileName);
                     entry = context.FileSystem.GetFile(fullPath);

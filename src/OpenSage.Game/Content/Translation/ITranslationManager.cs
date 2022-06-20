@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using OpenSage.Utilities;
 
 namespace OpenSage.Content.Translation
 {
@@ -11,7 +12,7 @@ namespace OpenSage.Content.Translation
 
         event EventHandler LanguageChanged;
 
-        void SetCultureFromLanguage(string language);
+        void SetCultureFromLanguage(GameLanguage language);
 
         void RegisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true);
 

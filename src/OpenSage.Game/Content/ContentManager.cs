@@ -27,16 +27,17 @@ namespace OpenSage.Content
 
         public ITranslationManager TranslationManager { get; }
         // LocaleSpecificEncoding is Mainly used by "9x" ini files
-        public Encoding LocaleSpecificEncoding { get; private set; }
+        public Encoding LocaleSpecificEncoding { get; }
 
         public FontManager FontManager { get; }
 
-        public string Language { get; }
+        public GameLanguage GameLanguage { get; }
 
         public ContentManager(
             Game game,
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
+            GameLanguage language,
             SageGame sageGame)
         {
             using (GameTrace.TraceDurationEvent("ContentManager()"))
@@ -49,10 +50,10 @@ namespace OpenSage.Content
 
                 SageGame = sageGame;
 
-                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem);
+                GameLanguage = language;
 
                 TranslationManager = Translation.TranslationManager.Instance;
-                Translation.TranslationManager.LoadGameStrings(fileSystem, Language, game.Definition);
+                Translation.TranslationManager.LoadGameStrings(fileSystem, GameLanguage, game.Definition);
                 LocaleSpecificEncoding = Encoding.GetEncoding(TranslationManager.CurrentLanguage.TextInfo.ANSICodePage);
 
                 void OnLanguageChanged(object sender, EventArgs e)
@@ -132,7 +133,7 @@ namespace OpenSage.Content
 
                 UpgradeManager.Initialize(_game.AssetStore);
 
-                FontManager = new FontManager(Language, StringComparer.Create(TranslationManager.CurrentLanguage, true));
+                FontManager = new FontManager(GameLanguage.ToString(), StringComparer.Create(TranslationManager.CurrentLanguage, true));
             }
         }
 

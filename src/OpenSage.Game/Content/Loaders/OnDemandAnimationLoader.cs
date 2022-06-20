@@ -8,7 +8,7 @@ namespace OpenSage.Content.Loaders
     internal sealed class OnDemandAnimationLoader : IOnDemandAssetLoader<W3DAnimation>
     {
         private readonly IPathResolver _pathResolver;
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public OnDemandAnimationLoader(IPathResolver pathResolver)
         {
@@ -37,7 +37,7 @@ namespace OpenSage.Content.Loaders
 
             if(entry == null)
             {
-                logger.Warn("Failed to load animation: " + key);
+                Logger.Warn("Failed to load animation: " + key);
                 return null;
             }
 
@@ -51,13 +51,13 @@ namespace OpenSage.Content.Loaders
 
             if (animation == null)
             {
-                logger.Warn("Failed to load animation (was null): " + key);
+                Logger.Warn("Failed to load animation (was null): " + key);
                 return null;
             }
 
             if (!string.Equals(animation.Name, key, StringComparison.OrdinalIgnoreCase))
             {
-                logger.Warn("animation name '" + animation.Name + "' does not match '" + key + "'");
+                Logger.Warn("animation name '" + animation.Name + "' does not match '" + key + "'");
             }
 
             return animation;

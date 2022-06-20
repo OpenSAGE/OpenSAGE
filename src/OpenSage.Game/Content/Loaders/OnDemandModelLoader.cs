@@ -50,7 +50,7 @@ namespace OpenSage.Content.Loaders
             {
                 boneHierarchy = new ModelBoneHierarchy(w3dHierarchy);
             }
-            else if (w3dHLod != null && w3dHierarchy == null)
+            else if (w3dHLod != null)
             {
                 // Load referenced hierarchy.
                 boneHierarchy = context.AssetStore.ModelBoneHierarchies.GetByName(w3dHLod.Header.HierarchyName);

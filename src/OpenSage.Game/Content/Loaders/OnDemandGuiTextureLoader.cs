@@ -56,7 +56,7 @@ namespace OpenSage.Content.Loaders
                         {
                             entry = new FileSystemEntry(context.FileSystem, possibleFilePath, (uint)info.Length, info.OpenRead);
                             break;
-                        }                        
+                        }
                     }
                 }
 
@@ -119,17 +119,15 @@ namespace OpenSage.Content.Loaders
         {
             var rgbaData = TgaFile.ConvertPixelsToRgba8(tgaFile);
 
-            using (var tgaImage = Image.LoadPixelData<Rgba32>(
+            using var tgaImage = Image.LoadPixelData<Rgba32>(
                 rgbaData,
                 tgaFile.Header.Width,
-                tgaFile.Header.Height))
-            {
-                var imageSharpTexture = new ImageSharpTexture(
-                    tgaImage,
-                    _generateMipMaps);
+                tgaFile.Header.Height);
+            var imageSharpTexture = new ImageSharpTexture(
+                tgaImage,
+                _generateMipMaps);
 
-                return CreateFromImageSharpTexture(imageSharpTexture, graphicsDevice);
-            }
+            return CreateFromImageSharpTexture(imageSharpTexture, graphicsDevice);
         }
 
         private Texture CreateFromImageSharpTexture(ImageSharpTexture imageSharpTexture, GraphicsDevice graphicsDevice)
