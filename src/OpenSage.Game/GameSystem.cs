@@ -24,10 +24,5 @@
         /// Override this to perform any required setup.
         /// </summary>
         public virtual void Initialize() { }
-
-        /// <summary>
-        /// Override this method to process game logic.
-        /// </summary>
-        public virtual void LogicTick(ulong frame) { }
     }
 }

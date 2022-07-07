@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
         private readonly MissileAIUpdateModuleData _moduleData;
 
         private MissileState _state;
-        private TimeSpan _nextStateChangeTime;
+        private LogicFrame _nextStateChangeTime;
 
         private Vector3 _unknownPosition;
         private uint _stateMaybe;
@@ -44,12 +44,12 @@ namespace OpenSage.Logic.Object
             switch (_state)
             {
                 case MissileState.Inactive:
-                    _nextStateChangeTime = context.Time.TotalTime + _moduleData.IgnitionDelay;
+                    _nextStateChangeTime = context.LogicFrame + _moduleData.IgnitionDelay;
                     _state = MissileState.WaitingForIgnition;
                     goto case MissileState.WaitingForIgnition;
 
                 case MissileState.WaitingForIgnition:
-                    if (context.Time.TotalTime > _nextStateChangeTime)
+                    if (context.LogicFrame >= _nextStateChangeTime)
                     {
                         _moduleData.IgnitionFX?.Value?.Execute(
                             new FXListExecutionContext(
@@ -152,10 +152,10 @@ namespace OpenSage.Logic.Object
         private new static readonly IniParseTable<MissileAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable.Concat(new IniParseTable<MissileAIUpdateModuleData>
         {
             { "TryToFollowTarget", (parser, x) => x.TryToFollowTarget = parser.ParseBoolean() },
-            { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseInteger() },
+            { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "DetonateOnNoFuel", (parser, x) => x.DetonateOnNoFuel = parser.ParseBoolean() },
-            { "InitialVelocity", (parser, x) => x.InitialVelocity = parser.ParseInteger() },
-            { "IgnitionDelay", (parser, x) => x.IgnitionDelay = parser.ParseTimeMilliseconds() },
+            { "InitialVelocity", (parser, x) => x.InitialVelocity = parser.ParseVelocityToLogicFrames() },
+            { "IgnitionDelay", (parser, x) => x.IgnitionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "DistanceToTravelBeforeTurning", (parser, x) => x.DistanceToTravelBeforeTurning = parser.ParseInteger() },
             { "DistanceToTargetBeforeDiving", (parser, x) => x.DistanceToTargetBeforeDiving = parser.ParseInteger() },
             { "DistanceToTargetForLock", (parser, x) => x.DistanceToTargetForLock = parser.ParseInteger() },
@@ -170,10 +170,10 @@ namespace OpenSage.Logic.Object
         });
 
         public bool TryToFollowTarget { get; private set; }
-        public int FuelLifetime { get; private set; }
+        public LogicFrameSpan FuelLifetime { get; private set; }
         public bool DetonateOnNoFuel { get; private set; }
-        public int InitialVelocity { get; private set; }
-        public TimeSpan IgnitionDelay { get; private set; }
+        public float InitialVelocity { get; private set; }
+        public LogicFrameSpan IgnitionDelay { get; private set; }
         public int DistanceToTravelBeforeTurning { get; private set; }
         public int DistanceToTargetBeforeDiving { get; private set; }
         public int DistanceToTargetForLock { get; private set; }
@@ -192,7 +192,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int DistanceScatterWhenJammed { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new MissileAIUpdate(gameObject, this);
         }

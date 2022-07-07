@@ -72,7 +72,8 @@ namespace OpenSage.Data.Apt.FrameItems
         public int Character { get; private set; }
         public Matrix2x2 RotScale { get; private set; }
         public Vector2 Translation { get; private set; }
-        public ColorRgba Color { get; private set; }
+        public ColorRgba TintColor { get; private set; }
+        public ColorRgba AdditiveColor { get; private set; }
         public float Ratio { get; private set; }
         public string Name { get; private set; }
         public int ClipDepth { get; private set; }
@@ -103,11 +104,15 @@ namespace OpenSage.Data.Apt.FrameItems
             }
 
             if (placeobject.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
-                placeobject.Color = reader.ReadColorRgba();
+            {
+                placeobject.TintColor = reader.ReadColorRgba();
+                placeobject.AdditiveColor = reader.ReadColorRgba();
+            }
             else
+            {
                 reader.ReadColorRgba();
-
-            var unknown = reader.ReadUInt32();
+                reader.ReadColorRgba();
+            }
 
             if (placeobject.Flags.HasFlag(PlaceObjectFlags.HasRatio))
                 placeobject.Ratio = reader.ReadSingle();
@@ -173,7 +178,8 @@ namespace OpenSage.Data.Apt.FrameItems
             var matrix = transform.GeometryRotation;
             matrix.Translation = transform.GeometryTranslation;
             SetTransform(matrix);
-            SetColorTransform(transform.ColorTransform.ToColorRgba());
+            SetColorTransform((transform.TintColorTransform.ToColorRgba(),
+                               transform.AdditiveColorTransform.ToColorRgba()));
         }
 
         public void SetTransform(in Matrix3x2? matrix)
@@ -190,12 +196,13 @@ namespace OpenSage.Data.Apt.FrameItems
             }
         }
 
-        public void SetColorTransform(in ColorRgba? color)
+        public void SetColorTransform(in (ColorRgba tint, ColorRgba add)? colorTransform)
         {
-            if (color is ColorRgba value)
+            if (colorTransform is (ColorRgba tint, ColorRgba add))
             {
                 Flags |= PlaceObjectFlags.HasColorTransform;
-                Color = value;
+                TintColor = tint;
+                AdditiveColor = add;
             }
             else
             {

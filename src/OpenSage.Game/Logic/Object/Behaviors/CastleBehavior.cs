@@ -14,8 +14,8 @@ namespace OpenSage.Logic.Object
         private GameObject _gameObject;
         private CastleBehaviorModuleData _moduleData;
         private GameContext _context;
-        private TimeSpan _waitUntil;
-        private int _updateInterval;
+        private LogicFrame _waitUntil;
+        private LogicFrameSpan _updateInterval;
         private Player _nativePlayer;
 
         public bool IsUnpacked { get; set; }
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
             _gameObject = gameObject;
             _context = context;
-            _updateInterval = 500;
+            _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s
             _nativePlayer = _gameObject.Owner;
         }
 
@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
 
                     if (!instant)
                     {
-                        baseObject.StartConstruction(_context.Scene3D.Game.MapTime);
+                        baseObject.StartConstruction();
                         baseObject.BuildProgress = 0.0f;
                     }
 
@@ -99,7 +99,11 @@ namespace OpenSage.Logic.Object
                 Unpack(_gameObject.Owner, instant: true);
             }
 
-            var nearbyUnits = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.ScanDistance);
+            var nearbyUnits = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                _gameObject,
+                _gameObject.Translation,
+                _moduleData.ScanDistance,
+                new PartitionQueries.TrueQuery());
 
             if (!nearbyUnits.Any())
             {

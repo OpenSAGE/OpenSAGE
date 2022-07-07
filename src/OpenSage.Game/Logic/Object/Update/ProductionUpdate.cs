@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
         private readonly List<ProductionJob> _productionQueue = new();
 
         private DoorState _currentDoorState;
-        private TimeSpan _currentStepEnd;
+        private LogicFrame _currentStepEnd;
 
         private GameObject _producedUnit;
         private IProductionExit _productionExit;
@@ -60,16 +60,14 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            var time = context.Time;
-
             // If door is opening, halt production until it's finished opening.
             if (_currentDoorState == DoorState.Opening)
             {
-                if (time.TotalTime >= _currentStepEnd)
+                if (context.LogicFrame >= _currentStepEnd)
                 {
                     _productionQueue.RemoveAt(0);
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
-                    _currentStepEnd = time.TotalTime + _moduleData.DoorWaitOpenTime;
+                    _currentStepEnd = context.LogicFrame + _moduleData.DoorWaitOpenTime;
                     _currentDoorState = DoorState.Open;
 
                     GetDoorConditionFlags(out var doorOpening, out var doorWaitingOpen, out var _);
@@ -85,7 +83,7 @@ namespace OpenSage.Logic.Object
             if (_productionQueue.Count > 0)
             {
                 var front = _productionQueue[0];
-                var result = front.Produce((float) time.DeltaTime.TotalMilliseconds);
+                var result = front.Produce();
                 if (result == ProductionJobResult.Finished)
                 {
                     if (front.Type == ProductionJobType.Unit)
@@ -95,7 +93,7 @@ namespace OpenSage.Logic.Object
                             && (_currentDoorState != DoorState.OpenForHordePayload))
                         {
                             Logger.Info($"Door opening for {_moduleData.DoorOpeningTime}");
-                            _currentStepEnd = time.TotalTime + _moduleData.DoorOpeningTime;
+                            _currentStepEnd = context.LogicFrame + _moduleData.DoorOpeningTime;
                             _currentDoorState = DoorState.Opening;
 
                             SetDoorIndex();
@@ -123,19 +121,19 @@ namespace OpenSage.Logic.Object
             switch (_currentDoorState)
             {
                 case DoorState.Open:
-                    if (time.TotalTime >= _currentStepEnd)
+                    if (context.LogicFrame >= _currentStepEnd)
                     {
                         _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
                         if (_productionExit is ParkingPlaceBehaviour)
                         {
                             break; // Door is closed on aircraft death from JetAIUpdate
                         }
-                        CloseDoor(time, _doorIndex);
+                        CloseDoor(_doorIndex);
                     }
                     break;
 
                 case DoorState.Closing:
-                    if (time.TotalTime >= _currentStepEnd)
+                    if (context.LogicFrame >= _currentStepEnd)
                     {
                         Logger.Info($"Door closed");
                         _currentDoorState = DoorState.Closed;
@@ -148,11 +146,11 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void CloseDoor(TimeInterval time, int doorIndex)
+        public void CloseDoor(int doorIndex)
         {
             _doorIndex = doorIndex;
             Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
-            _currentStepEnd = time.TotalTime + _moduleData.DoorCloseTime;
+            _currentStepEnd = _gameObject.GameContext.GameLogic.CurrentFrame + _moduleData.DoorCloseTime;
             _currentDoorState = DoorState.Closing;
             GetDoorConditionFlags(out var _, out var doorWaitingOpen, out var doorClosing);
             _gameObject.ModelConditionFlags.Set(doorWaitingOpen, false);
@@ -396,11 +394,11 @@ namespace OpenSage.Logic.Object
 
         internal void Spawn(ObjectDefinition objectDefinition)
         {
-            var job = new ProductionJob(objectDefinition);
+            var job = new ProductionJob(objectDefinition, LogicFrameSpan.Zero);
             _productionQueue.Insert(0, job);
         }
 
-        internal void SpawnPayload(ObjectDefinition objectDefinition, float buildTime = 0.0f)
+        internal void SpawnPayload(ObjectDefinition objectDefinition, LogicFrameSpan buildTime)
         {
             var job = new ProductionJob(objectDefinition, buildTime / _gameObject.ProductionModifier);
             _productionQueue.Insert(1, job);
@@ -472,7 +470,7 @@ namespace OpenSage.Logic.Object
                 {
                     item = productionJobType switch
                     {
-                        ProductionJobType.Unit => new ProductionJob(persister.AssetStore.ObjectDefinitions.GetByName(templateName)),
+                        ProductionJobType.Unit => new ProductionJob(persister.AssetStore.ObjectDefinitions.GetByName(templateName), LogicFrameSpan.Zero),
                         ProductionJobType.Upgrade => new ProductionJob(persister.AssetStore.Upgrades.GetByName(templateName)),
                         _ => throw new InvalidStateException(),
                     };
@@ -530,10 +528,10 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<ProductionUpdateModuleData> FieldParseTable = new IniParseTable<ProductionUpdateModuleData>
         {
             { "NumDoorAnimations", (parser, x) => x.NumDoorAnimations = parser.ParseInteger() },
-            { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseTimeMilliseconds() },
-            { "DoorWaitOpenTime", (parser, x) => x.DoorWaitOpenTime = parser.ParseTimeMilliseconds() },
-            { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseTimeMilliseconds() },
-            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseTimeMilliseconds() },
+            { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "DoorWaitOpenTime", (parser, x) => x.DoorWaitOpenTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseTimeMillisecondsToLogicFrames() },
             { "MaxQueueEntries", (parser, x) => x.MaxQueueEntries = parser.ParseInteger() },
             { "QuantityModifier", (parser, x) => x.QuantityModifier = Object.QuantityModifier.Parse(parser) },
 
@@ -557,22 +555,22 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// How long doors should be opening for.
         /// </summary>
-        public TimeSpan DoorOpeningTime { get; private set; }
+        public LogicFrameSpan DoorOpeningTime { get; private set; }
 
         /// <summary>
         /// Time the door stays open so units can exit.
         /// </summary>
-        public TimeSpan DoorWaitOpenTime { get; private set; }
+        public LogicFrameSpan DoorWaitOpenTime { get; private set; }
 
         /// <summary>
         /// How long doors should be closing for.
         /// </summary>
-        public TimeSpan DoorCloseTime { get; private set; }
+        public LogicFrameSpan DoorCloseTime { get; private set; }
 
         /// <summary>
         /// Wait time between units.
         /// </summary>
-        public TimeSpan ConstructionCompleteDuration { get; private set; }
+        public LogicFrameSpan ConstructionCompleteDuration { get; private set; }
 
         public int MaxQueueEntries { get; private set; }
 

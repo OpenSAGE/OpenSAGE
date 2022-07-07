@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
         private new static readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<WanderAIUpdateModuleData>());
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WanderAIUpdate(gameObject, this);
         }

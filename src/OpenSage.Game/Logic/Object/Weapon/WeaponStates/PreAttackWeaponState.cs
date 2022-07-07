@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object
 {
     internal sealed class PreAttackWeaponState : FixedDurationWeaponState
     {
@@ -18,14 +16,14 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlagUtility.GetFiringOrPreAttackFlag(weaponIndex)
             };
 
-        public override WeaponState? GetNextState(TimeSpan currentTime)
+        public override WeaponState? GetNextState()
         {
             if (!Context.Weapon.HasValidTarget)
             {
                 return WeaponState.Inactive;
             }
 
-            if (IsTimeToExitState(currentTime))
+            if (IsTimeToExitState())
             {
                 return WeaponState.Firing;
             }

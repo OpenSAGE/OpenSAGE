@@ -152,7 +152,9 @@ namespace OpenSage.Logic.Object
 
         public readonly ObjectDefinition Definition;
 
-        private readonly Geometry _geometry;
+        public PartitionObject PartitionObject { get; internal set; }
+
+        public readonly Geometry Geometry;
 
         private readonly Transform _transform;
         public readonly Transform ModelTransform;
@@ -204,20 +206,28 @@ namespace OpenSage.Logic.Object
 
         public void SetTranslation(Vector3 translation)
         {
+            if (_transform.Translation == translation)
+            {
+                return;
+            }
             _transform.Translation = translation;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void SetRotation(Quaternion rotation)
         {
+            if (_transform.Rotation == rotation)
+            {
+                return;
+            }
             _transform.Rotation = rotation;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void SetScale(float scale)
         {
             _transform.Scale = scale;
-            _objectMoved = true;
+            OnObjectMoved();
         }
 
         public void UpdateTransform(in Vector3? translation = null, in Quaternion? rotation = null, float scale = 1.0f)
@@ -225,7 +235,13 @@ namespace OpenSage.Logic.Object
             _transform.Translation = translation ?? _transform.Translation;
             _transform.Rotation = rotation ?? _transform.Rotation;
             _transform.Scale = scale;
+            OnObjectMoved();
+        }
+
+        private void OnObjectMoved()
+        {
             _objectMoved = true;
+            PartitionObject?.SetDirty();
         }
 
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
@@ -249,9 +265,9 @@ namespace OpenSage.Logic.Object
         }
         public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
-        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time)
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
-            _body.DoDamage(damageType, amount, deathType, time);
+            _body.DoDamage(damageType, amount, deathType);
         }
 
         public Collider RoughCollider { get; set; }
@@ -304,9 +320,9 @@ namespace OpenSage.Logic.Object
 
         internal Weapon CurrentWeapon => _weaponSet.CurrentWeapon;
 
-        private TimeSpan ConstructionStart { get; set; }
+        private LogicFrame ConstructionStart { get; set; }
 
-        public TimeSpan? LifeTime { get; set; }
+        public LogicFrame? LifeTime { get; set; }
 
         public float BuildProgress;
 
@@ -378,7 +394,7 @@ namespace OpenSage.Logic.Object
             _gameContext = gameContext;
             Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
 
-            _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this, TimeInterval.Zero);
+            _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
 
             _weaponSet = new WeaponSet(this);
             WeaponSetConditions = new BitArray<WeaponSetConditions>();
@@ -391,6 +407,8 @@ namespace OpenSage.Logic.Object
             Drawable = gameContext.GameClient.CreateDrawable(objectDefinition, this);
 
             var behaviors = new List<BehaviorModule>();
+
+            _behaviorModules = behaviors;
 
             void AddBehavior(string tag, BehaviorModule behavior)
             {
@@ -428,39 +446,27 @@ namespace OpenSage.Logic.Object
                 // TODO: This will never be null once we've implemented all the behaviors.
                 if (module != null)
                 {
-                    if (module is CreateModule createModule)
-                    {
-                        createModule.Execute(_behaviorUpdateContext);
-                    }
-
                     AddBehavior(behaviorDataContainer.Tag, module);
+
+                    if (module is BodyModule body)
+                    {
+                        _body = body;
+                    }
+                    else if (module is AIUpdate aiUpdate)
+                    {
+                        AIUpdate = aiUpdate;
+                    }
+                    else if (module is ProductionUpdate productionUpdate)
+                    {
+                        ProductionUpdate = productionUpdate;
+                    }
                 }
             }
 
-            _behaviorModules = behaviors;
-
-            ProductionUpdate = FindBehavior<ProductionUpdate>();
-
-            _body = AddDisposable(((BodyModuleData) objectDefinition.Body.Data).CreateBodyModule(this));
-            AddModule(objectDefinition.Body.Tag, _body);
-
-            if (objectDefinition.AIUpdate != null)
-            {
-                AIUpdate = AddDisposable(((AIUpdateModuleData) objectDefinition.AIUpdate.Value.Data).CreateAIUpdate(this));
-                AddModule(objectDefinition.AIUpdate.Value.Tag, AIUpdate);
-            }
-
-            _geometry = Definition.Geometry.Clone();
-
-            var allGeometries = new List<Geometry>
-            {
-                Definition.Geometry
-            };
-            allGeometries.AddRange(Definition.AdditionalGeometries);
-            allGeometries.AddRange(Definition.OtherGeometries);
+            Geometry = Definition.Geometry.Clone();
 
             Colliders = new List<Collider>();
-            foreach (var geometry in allGeometries)
+            foreach (var geometry in Geometry.Shapes)
             {
                 Colliders.Add(Collider.Create(geometry, _transform));
             }
@@ -512,6 +518,8 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool IsKindOf(ObjectKinds kind) => Definition.KindOf.Get(kind);
+
         public void AddAttributeModifier(string name, AttributeModifier modifier)
         {
             if (_attributeModifiers.ContainsKey(name))
@@ -533,15 +541,8 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var allGeometries = new List<Geometry>
-            {
-                Definition.Geometry
-            };
-            allGeometries.AddRange(Definition.AdditionalGeometries);
-            allGeometries.AddRange(Definition.OtherGeometries);
-
             var newColliders = new List<Collider>();
-            foreach (var geometry in allGeometries)
+            foreach (var geometry in Definition.Geometry.Shapes)
             {
                 if (geometry.Name.Equals(name))
                 {
@@ -598,19 +599,11 @@ namespace OpenSage.Logic.Object
             _gameContext.Quadtree.Update(this);
         }
 
-        internal void LogicTick(ulong frame, in TimeInterval time)
+        internal void LogicTick(in TimeInterval time)
         {
             if (_objectMoved)
             {
                 UpdateColliders();
-
-                var intersecting = _gameContext.Quadtree.FindIntersecting(this);
-
-                foreach (var intersect in intersecting)
-                {
-                    DoCollide(intersect, time);
-                    intersect.DoCollide(this, time);
-                }
 
                 if (AffectsAreaPassability)
                 {
@@ -620,24 +613,14 @@ namespace OpenSage.Logic.Object
                 _objectMoved = false;
             }
 
-            // TODO: Should there be a BeforeLogicTick where we update this?
-            _behaviorUpdateContext.UpdateTime(time);
-
             if (ModelConditionFlags.Get(ModelConditionFlag.Attacking))
             {
-                CurrentWeapon?.LogicTick(time);
+                CurrentWeapon?.LogicTick();
             }
             if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
             {
-                Die(DeathType.Normal, time);
+                Die(DeathType.Normal);
                 ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
-            }
-
-            AIUpdate?.Update(_behaviorUpdateContext);
-
-            foreach (var behavior in _behaviorModules)
-            {
-                behavior.Update(_behaviorUpdateContext);
             }
 
             foreach (var (key, modifier) in _attributeModifiers)
@@ -655,6 +638,14 @@ namespace OpenSage.Logic.Object
                 {
                     modifier.Update(this, time);
                 }
+            }
+        }
+
+        internal void Update()
+        {
+            foreach (var behavior in _behaviorModules)
+            {
+                behavior.Update(_behaviorUpdateContext);
             }
         }
 
@@ -701,24 +692,37 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        internal void DoCollide(GameObject collidingObject, in TimeInterval time)
+        internal void OnCollide(GameObject collidingObject)
         {
-            // TODO: Can we avoid updating this every time?
-            _behaviorUpdateContext.UpdateTime(time);
+            Logger.Info($"GameObject {Definition.Name} colliding with {collidingObject.Definition.Name}");
 
             foreach (var behavior in _behaviorModules)
             {
-                behavior.OnCollide(_behaviorUpdateContext, collidingObject);
+                if (behavior is ICollideModule collideModule)
+                {
+                    collideModule.OnCollide(collidingObject);
+                }
             }
         }
 
-        private void HandleConstruction(in TimeInterval gameTime)
+        internal void OnDestroy()
+        {
+            foreach (var behavior in _behaviorModules)
+            {
+                if (behavior is IDestroyModule destroyModule)
+                {
+                    destroyModule.OnDestroy();
+                }
+            }
+        }
+
+        private void HandleConstruction()
         {
             // Check if the unit is being constructed
             if (IsBeingConstructed())
             {
-                var passed = gameTime.TotalTime - ConstructionStart;
-                BuildProgress = Math.Clamp((float) passed.TotalSeconds / Definition.BuildTime, 0.0f, 1.0f);
+                var passed = GameContext.GameLogic.CurrentFrame - ConstructionStart;
+                BuildProgress = Math.Clamp(passed.Value / (float)Definition.BuildTime.Value, 0.0f, 1.0f);
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -763,7 +767,7 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        internal void StartConstruction(in TimeInterval gameTime)
+        internal void StartConstruction()
         {
             if (IsStructure)
             {
@@ -771,7 +775,7 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                ConstructionStart = gameTime.TotalTime;
+                ConstructionStart = GameContext.GameLogic.CurrentFrame;
             }
         }
 
@@ -779,6 +783,14 @@ namespace OpenSage.Logic.Object
         {
             ClearModelConditionFlags();
             EnergyProduction += Definition.EnergyProduction;
+
+            foreach (var module in _behaviorModules)
+            {
+                if (module is ICreateModule createModule)
+                {
+                    createModule.OnBuildComplete();
+                }
+            }
         }
 
         public bool IsBeingConstructed()
@@ -832,7 +844,7 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            HandleConstruction(gameTime);
+            HandleConstruction();
 
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
@@ -1009,12 +1021,12 @@ namespace OpenSage.Logic.Object
             // TODO: Set _triggered to false for all affected upgrade modules
         }
 
-        internal void Kill(DeathType deathType, TimeInterval time)
+        internal void Kill(DeathType deathType)
         {
-            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType, time);
+            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType);
         }
 
-        internal void Die(DeathType deathType, TimeInterval time)
+        internal void Die(DeathType deathType)
         {
             Logger.Info("Object dying " + deathType);
             bool construction = IsBeingConstructed();
@@ -1030,9 +1042,6 @@ namespace OpenSage.Logic.Object
             }
 
             IsSelectable = false;
-
-            // TODO: Can we avoid updating this every time?
-            _behaviorUpdateContext.UpdateTime(time);
 
             if (!construction)
             {
@@ -1123,7 +1132,7 @@ namespace OpenSage.Logic.Object
             reader.PersistByte(ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
-            reader.PersistObject(_geometry);
+            reader.PersistObject(Geometry);
 
             reader.PersistObject(_shroudRevealSomething1);
             reader.PersistObject(_shroudRevealSomething2);
@@ -1288,8 +1297,7 @@ namespace OpenSage.Logic.Object
 
             if (ImGui.Button("Kill"))
             {
-                // TODO: Time isn't right.
-                Kill(DeathType.Exploded, _gameContext.Scene3D.Game.MapTime);
+                Kill(DeathType.Exploded);
             }
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))

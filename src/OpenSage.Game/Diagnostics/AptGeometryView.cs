@@ -135,6 +135,7 @@ namespace OpenSage.Diagnostics
 
                 var itemTransform = new ItemTransform(
                     ColorRgbaF.White,
+                    ColorRgbaF.Transparent,
                     Matrix3x2.CreateScale(_scale, _scale),
                     translation);
 

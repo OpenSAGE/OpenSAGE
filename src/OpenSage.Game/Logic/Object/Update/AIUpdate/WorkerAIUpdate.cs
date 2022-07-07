@@ -38,30 +38,56 @@ namespace OpenSage.Logic.Object
             return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
 
-        internal override List<GameObject> GetNearbySupplySources(BehaviorUpdateContext context)
+        internal override GameObject FindClosestSupplyWarehouse(BehaviorUpdateContext context)
         {
-            var supplySources = base.GetNearbySupplySources(context);
             if (_moduleData.HarvestTrees)
             {
-                var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
-                supplySources.AddRange(nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.Tree) && x.Definition.IsHarvestable).ToList());
+                var nearbyTrees = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                    context.GameObject,
+                    context.GameObject.Translation,
+                    _moduleData.SupplyWarehouseScanDistance,
+                    new PartitionQueries.KindOfQuery(ObjectKinds.Tree));
+
+                GameObject closestTree = null;
+                var closestDistance = float.MaxValue;
+
+                foreach (var tree in nearbyTrees)
+                {
+                    if (!tree.Definition.IsHarvestable)
+                    {
+                        continue;
+                    }
+
+                    if (tree.Supply <= 0)
+                    {
+                        continue;
+                    }
+
+                    var distance = context.GameContext.Game.PartitionCellManager.GetDistanceBetweenObjectsSquared(context.GameObject, tree);
+
+                    if (distance < closestDistance)
+                    {
+                        closestTree = tree;
+                        closestDistance = distance;
+                    }
+                }
+
+                return closestTree;
             }
-            return supplySources;
+            else
+            {
+                return base.FindClosestSupplyWarehouse(context);
+            }
         }
 
         internal override float GetHarvestActivationRange() => _moduleData.HarvestActivationRange;
-        internal override float GetPreparationTime() => _moduleData.HarvestPreparationTime;
+        internal override LogicFrameSpan GetPreparationTime() => _moduleData.HarvestPreparationTime;
 
         internal override bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
         {
             if (_moduleData.HarvestTrees && supplySource.Definition.KindOf.Get(ObjectKinds.Tree))
             {
-                if (supplySource.Supply > 0)
-                {
-                    return true;
-                }
-                supplySource.Die(DeathType.Normal, context.Time);
-                return false;
+                return supplySource.Supply > 0;
             }
             return base.SupplySourceHasBoxes(context, dockUpdate, supplySource);
         }
@@ -71,6 +97,11 @@ namespace OpenSage.Logic.Object
             if (_moduleData.HarvestTrees && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree))
             {
                 _currentSupplySource.Supply -= context.GameContext.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
+                if (_currentSupplySource.Supply <= 0)
+                {
+                    _currentSupplySource.Die(DeathType.Normal);
+                    _currentSupplySource = null;
+                }
                 return;
             }
             base.GetBox(context);
@@ -81,7 +112,7 @@ namespace OpenSage.Logic.Object
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestPreparation, true);
         }
 
-        internal override float GetPickingUpTime() => _moduleData.HarvestActionTime;
+        internal override LogicFrameSpan GetPickingUpTime() => _moduleData.HarvestActionTime;
 
         internal override void SetActionConditionFlags()
         {
@@ -92,18 +123,6 @@ namespace OpenSage.Logic.Object
         internal override void ClearActionConditionFlags()
         {
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, false);
-        }
-
-        internal override List<GameObject> GetNearbySupplyCenters(BehaviorUpdateContext context)
-        {
-            var supplyCenters = base.GetNearbySupplyCenters(context);
-            if (_moduleData.HarvestTrees)
-            {
-                var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.SupplyWarehouseScanDistance);
-                supplyCenters.AddRange(nearbyObjects.Where(x => x.Definition.KindOf.Get(ObjectKinds.SupplyGatheringCenter)).ToList());
-            }
-
-            return supplyCenters;
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -120,7 +139,7 @@ namespace OpenSage.Logic.Object
                         SupplyGatherState = SupplyGatherStateToResume;
                         break;
                     }
-                    _waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.BoredTime);
+                    _waitUntil = context.LogicFrame + _moduleData.BoredTime;
                     break;
             }
         }
@@ -288,17 +307,17 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<WorkerAIUpdateModuleData>
             {
                 { "RepairHealthPercentPerSecond", (parser, x) => x.RepairHealthPercentPerSecond = parser.ParsePercentage() },
-                { "BoredTime", (parser, x) => x.BoredTime = parser.ParseInteger() },
+                { "BoredTime", (parser, x) => x.BoredTime = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
                 { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
                 { "HarvestTrees", (parser, x) => x.HarvestTrees = parser.ParseBoolean() },
                 { "HarvestActivationRange", (parser, x) => x.HarvestActivationRange = parser.ParseInteger() },
-                { "HarvestPreparationTime", (parser, x) => x.HarvestPreparationTime = parser.ParseInteger() },
-                { "HarvestActionTime", (parser, x) => x.HarvestActionTime = parser.ParseInteger() },
+                { "HarvestPreparationTime", (parser, x) => x.HarvestPreparationTime = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "HarvestActionTime", (parser, x) => x.HarvestActionTime = parser.ParseTimeMillisecondsToLogicFrames() },
             });
 
         public Percentage RepairHealthPercentPerSecond { get; private set; }
-        public int BoredTime { get; private set; }
+        public LogicFrameSpan BoredTime { get; private set; }
         public int BoredRange { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -311,12 +330,12 @@ namespace OpenSage.Logic.Object
         public int HarvestActivationRange { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int HarvestPreparationTime { get; private set; }
+        public LogicFrameSpan HarvestPreparationTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int HarvestActionTime { get; private set; }
+        public LogicFrameSpan HarvestActionTime { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new WorkerAIUpdate(gameObject, this);
         }

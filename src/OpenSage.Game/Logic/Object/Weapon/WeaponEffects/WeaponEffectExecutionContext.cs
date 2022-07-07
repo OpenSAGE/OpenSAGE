@@ -4,13 +4,11 @@
     {
         public readonly Weapon Weapon;
         public readonly GameContext GameContext;
-        public readonly TimeInterval Time;
 
-        public WeaponEffectExecutionContext(Weapon weapon, GameContext gameContext, TimeInterval time)
+        public WeaponEffectExecutionContext(Weapon weapon, GameContext gameContext)
         {
             Weapon = weapon;
             GameContext = gameContext;
-            Time = time;
         }
     }
 }

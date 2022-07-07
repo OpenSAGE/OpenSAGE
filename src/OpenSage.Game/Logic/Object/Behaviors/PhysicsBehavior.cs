@@ -63,7 +63,8 @@ namespace OpenSage.Logic.Object
             var acceleration = _gravityAcceleration + cumulativeAcceleration;
 
             // Integrate velocity.
-            var deltaTime = (float) context.Time.DeltaTime.TotalSeconds;
+            // TODO
+            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
             _velocity += acceleration * deltaTime;
 
             // Integrate position.
@@ -82,7 +83,7 @@ namespace OpenSage.Logic.Object
 
                 if (_moduleData.KillWhenRestingOnGround && _velocity.Z < 0.1f)
                 {
-                    context.GameObject.Kill(DeathType.Normal, context.Time);
+                    context.GameObject.Kill(DeathType.Normal);
                 }
             }
 

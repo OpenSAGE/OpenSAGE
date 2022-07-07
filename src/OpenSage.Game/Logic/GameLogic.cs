@@ -20,7 +20,9 @@ namespace OpenSage.Logic
         private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides = new();
         private readonly List<string> _commandSetNamesPrefixedWithCommandButtonIndex = new();
 
-        private uint _currentFrame;
+        private LogicFrame _currentFrame;
+
+        public LogicFrame CurrentFrame => _currentFrame;
 
         private uint _rankLevelLimit;
 
@@ -65,8 +67,17 @@ namespace OpenSage.Logic
 
             gameObject.ID = NextObjectId++;
 
+            foreach (var module in gameObject.BehaviorModules)
+            {
+                if (module is ICreateModule createModule)
+                {
+                    createModule.OnCreate();
+                }
+            }
+
             _game.Scene3D.Quadtree?.Insert(gameObject);
             _game.Scene3D.Radar?.AddGameObject(gameObject);
+            _game.PartitionCellManager.OnObjectAdded(gameObject);
 
             return gameObject;
         }
@@ -129,8 +140,11 @@ namespace OpenSage.Logic
             {
                 _game.Scene3D.Quadtree.Remove(gameObject);
                 _game.Scene3D.Radar.RemoveGameObject(gameObject);
+                gameObject.PartitionObject.Remove();
 
                 gameObject.Drawable.Destroy();
+
+                gameObject.OnDestroy();
 
                 if (gameObject.Name != null)
                 {
@@ -154,11 +168,24 @@ namespace OpenSage.Logic
             NextObjectId = 1;
         }
 
+        public void Update()
+        {
+            foreach (var gameObject in Objects)
+            {
+                gameObject?.Update();
+            }
+
+            _currentFrame++;
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(9);
 
-            reader.PersistUInt32(ref _currentFrame);
+            var currentFrame = _currentFrame.Value;
+            reader.PersistUInt32(ref currentFrame);
+            _currentFrame = new LogicFrame(currentFrame);
+
             reader.PersistObject(_objectDefinitionLookupTable, "ObjectDefinitions");
 
             var objectsCount = (uint)_objects.Count;

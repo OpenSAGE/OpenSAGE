@@ -14,14 +14,14 @@ namespace OpenSage.Logic.Object
         protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
             Array.Empty<ModelConditionFlag>();
 
-        public override WeaponState? GetNextState(TimeSpan currentTime)
+        public override WeaponState? GetNextState()
         {
             if (!Context.Weapon.HasValidTarget)
             {
                 return WeaponState.Inactive;
             }
 
-            if (IsTimeToExitState(currentTime))
+            if (IsTimeToExitState())
             {
                 if (Context.Weapon.IsClipEmpty())
                 {

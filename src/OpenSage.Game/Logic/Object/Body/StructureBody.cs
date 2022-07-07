@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
             .Concat(new IniParseTable<StructureBodyModuleData>());
 
-        internal override BodyModule CreateBodyModule(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new StructureBody(gameObject, this);
         }

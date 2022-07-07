@@ -77,8 +77,8 @@ namespace OpenSage.Logic.Object
             { "MaxForcePitch", (parser, x) => x.MaxForcePitch = parser.ParseFloat() },
             { "SpinRate", (parser, x) => x.SpinRate = parser.ParseFloat() },
             { "ParticleSystem", (parser, x) => x.ParticleSystem = parser.ParseAssetReference() },
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() },
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "BounceSound", (parser, x) => x.BounceSound = parser.ParseAssetReference() },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
             { "IgnorePrimaryObstacle", (parser, x) => x.IgnorePrimaryObstacle = parser.ParseBoolean() },
@@ -104,8 +104,8 @@ namespace OpenSage.Logic.Object
         public float MaxForcePitch { get; private set; }
         public float SpinRate { get; private set; }
         public string ParticleSystem { get; private set; }
-        public int MinLifetime { get; private set; }
-        public int MaxLifetime { get; private set; }
+        public LogicFrameSpan MinLifetime { get; private set; }
+        public LogicFrameSpan MaxLifetime { get; private set; }
         public string BounceSound { get; private set; }
         public bool OkToChangeModelColor { get; private set; }
         public bool IgnorePrimaryObstacle { get; private set; }
@@ -129,8 +129,8 @@ namespace OpenSage.Logic.Object
 
             var debrisObject = context.GameContext.GameObjects.Add(debrisObjectDefinition, context.GameObject.Owner);
 
-            var lifeTime = context.GameContext.Random.NextDouble() * (MaxLifetime - MinLifetime) + MinLifetime;
-            debrisObject.LifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(lifeTime);
+            var lifeTime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+            debrisObject.LifeTime = context.LogicFrame + lifeTime;
 
             debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
 
@@ -195,8 +195,8 @@ namespace OpenSage.Logic.Object
             { "ExtraBounciness", (parser, x) => x.ExtraBounciness = parser.ParseFloat() },
             { "ExtraFriction", (parser, x) => x.ExtraFriction = parser.ParseFloat() },
             { "ContainInsideSourceObject", (parser, x) => x.ContainInsideSourceObject = parser.ParseBoolean() },
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() },
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "SkipIfSignificantlyAirborne", (parser, x) => x.SkipIfSignificantlyAirborne = parser.ParseBoolean() },
             { "DiesOnBadLand", (parser, x) => x.DiesOnBadLand = parser.ParseBoolean() },
             { "VelocityScale", (parser, x) => x.VelocityScale = parser.ParseFloat() },
@@ -252,8 +252,8 @@ namespace OpenSage.Logic.Object
         public float ExtraBounciness { get; private set; }
         public float ExtraFriction { get; private set; }
         public bool ContainInsideSourceObject { get; private set; }
-        public int MinLifetime { get; private set; }
-        public int MaxLifetime { get; private set; }
+        public LogicFrameSpan MinLifetime { get; private set; }
+        public LogicFrameSpan MaxLifetime { get; private set; }
         public bool SkipIfSignificantlyAirborne { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -349,8 +349,8 @@ namespace OpenSage.Logic.Object
                 var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
                 if (lifetimeUpdate != null)
                 {
-                    var lifetime = context.GameContext.Random.NextDouble() * (MaxLifetime - MinLifetime) + MinLifetime;
-                    lifetimeUpdate.Lifetime = context.Time.TotalTime + TimeSpan.FromMilliseconds(lifetime);
+                    var lifetime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+                    lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
                 }
 
                 result.Add(newGameObject);

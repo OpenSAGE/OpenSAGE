@@ -138,7 +138,7 @@ namespace OpenSage.Gui.Apt
                 actualText,
                 font,
                 TextAlignment.Center,
-                character.Color.ToColorRgbaF() * transform.ColorTransform,
+                transform.TransformColor(character.Color.ToColorRgbaF()),
                 RectangleF.Transform(character.Bounds, transform.GeometryRotation));
         }
 
@@ -194,7 +194,7 @@ namespace OpenSage.Gui.Apt
                 {
                     case GeometryLines l:
                         {
-                            var color = l.Color.ToColorRgbaF() * transform.ColorTransform;
+                            var color = transform.TransformColor(l.Color.ToColorRgbaF());
                             foreach (var line in l.Lines)
                             {
                                 _activeDrawingContext.DrawLine(
@@ -207,7 +207,7 @@ namespace OpenSage.Gui.Apt
 
                     case GeometrySolidTriangles st:
                         {
-                            var color = st.Color.ToColorRgbaF() * transform.ColorTransform;
+                            var color = transform.TransformColor(st.Color.ToColorRgbaF());
                             foreach (var tri in st.Triangles)
                             {
                                 if (solidTexture == null)
@@ -254,12 +254,12 @@ namespace OpenSage.Gui.Apt
                                 //    throw new NotImplementedException();
 
                                 var tex = _aptContext.GetTexture(tt.Image, shape);
-
+                                var tintColor = transform.TransformColor(ColorRgbaF.White);
                                 _activeDrawingContext.FillTriangle(
                                     tex,
                                     Triangle2D.Transform(tri, coordinatesTransform),
                                     Triangle2D.Transform(tri, matrix),
-                                    transform.ColorTransform);
+                                    tintColor);
                             }
                             break;
                         }

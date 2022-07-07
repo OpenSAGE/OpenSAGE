@@ -113,10 +113,7 @@ namespace OpenSage.Gui.DebugUI
 
                 if (_scene3D.BuildPreviewObject != null)
                 {
-                    foreach (var collider in _scene3D.BuildPreviewObject.Colliders)
-                    {
-                        collider.DebugDraw(context, camera);
-                    }
+                    _scene3D.BuildPreviewObject.Geometry.DebugDraw(context, camera, _scene3D.BuildPreviewObject);
                 }
 
                 foreach (var gameObject in _scene3D.GameObjects.Items)
@@ -129,10 +126,7 @@ namespace OpenSage.Gui.DebugUI
                         //    gameObject.RoughCollider.DebugDraw(context, camera);
                         //}
 
-                        foreach (var collider in gameObject.Colliders)
-                        {
-                            collider.DebugDraw(context, camera);
-                        }
+                        gameObject.Geometry.DebugDraw(context, camera, gameObject);
                     }
 
                     var targetPoints = gameObject.AIUpdate?.TargetPoints;
@@ -162,7 +156,7 @@ namespace OpenSage.Gui.DebugUI
 
             if (ShowQuadTree)
             {
-                _scene3D.Quadtree.DebugDraw(context, camera);
+                _scene3D.Game.PartitionCellManager.DebugDraw(context, camera);
             }
 
             if (_scene3D.ShowRoads && ShowRoadMeshes)

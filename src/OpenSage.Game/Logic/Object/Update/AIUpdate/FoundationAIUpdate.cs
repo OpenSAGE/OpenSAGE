@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -7,14 +8,15 @@ namespace OpenSage.Logic.Object
     public class FoundationAIUpdate : AIUpdate
     {
         private readonly FoundationAIUpdateModuleData _moduleData;
-        private TimeSpan _waitUntil;
-        private int _updateInterval;
+        private LogicFrame _waitUntil;
+        private LogicFrameSpan _updateInterval;
 
         //TODO: rather notify this when the corresponding order is processed and update again when the object is dead/destroyed
-        internal FoundationAIUpdate(GameObject gameObject, FoundationAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal FoundationAIUpdate(GameObject gameObject, FoundationAIUpdateModuleData moduleData)
+            : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            _updateInterval = 500; // we do not have to check every frame
+            _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -22,25 +24,26 @@ namespace OpenSage.Logic.Object
             CheckForStructure(context, GameObject, ref _waitUntil, _updateInterval);
         }
 
-        internal static void CheckForStructure(BehaviorUpdateContext context, GameObject obj, ref TimeSpan waitUntil, int interval)
+        internal static void CheckForStructure(BehaviorUpdateContext context, GameObject obj, ref LogicFrame waitUntil, LogicFrameSpan interval)
         {
-            if (context.Time.TotalTime < waitUntil)
+            if (context.LogicFrame < waitUntil)
             {
                 return;
             }
 
-            waitUntil = context.Time.TotalTime + TimeSpan.FromMilliseconds(interval);
+            waitUntil = context.LogicFrame + interval;
 
-            var collidingObjects = context.GameContext.Quadtree.FindNearby(obj, obj.Transform, obj.RoughCollider.WorldBounds.Radius);
+            var collidingObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                obj,
+                obj.Translation,
+                obj.Geometry.BoundingCircleRadius,
+                new PartitionQueries.KindOfQuery(ObjectKinds.Structure));
 
-            foreach (var collidingObject in collidingObjects)
+            if (collidingObjects.Any())
             {
-                if (collidingObject.Definition.KindOf.Get(ObjectKinds.Structure))
-                {
-                    obj.IsSelectable = false;
-                    obj.Hidden = true;
-                    return;
-                }
+                obj.IsSelectable = false;
+                obj.Hidden = true;
+                return;
             }
 
             obj.IsSelectable = true;
@@ -62,7 +65,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public int BuildVariation { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new FoundationAIUpdate(gameObject, this);
         }

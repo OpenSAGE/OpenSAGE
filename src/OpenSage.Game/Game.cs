@@ -45,10 +45,12 @@ namespace OpenSage
 
         // TODO: These should be configurable at runtime with GameSpeed.
 
+        internal const float LogicFramesPerSecond = 30.0f;
+
         // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
         // so as a temporary workaround, we simply tick the logic at 30fps.
         //internal const double LogicUpdateInterval = 1000.0 / 5.0;
-        internal const double LogicUpdateInterval = 1000.0 / 30.0;
+        internal const float LogicUpdateInterval = 1000.0f / LogicFramesPerSecond;
 
         private readonly double _scriptingUpdateInterval;
 
@@ -112,11 +114,6 @@ namespace OpenSage
         public Terrain.TerrainVisual TerrainVisual { get; } = new Terrain.TerrainVisual();
 
         public GhostObjectManager GhostObjectManager { get; } = new GhostObjectManager();
-
-        /// <summary>
-        /// The current logic frame. Increments depending on game speed; by default once per 200ms.
-        /// </summary>
-        public ulong CurrentFrame { get; private set; }
 
         /// <summary>
         /// Is the game running?
@@ -372,6 +369,11 @@ namespace OpenSage
                 foreach (var gameSystem in GameSystems)
                 {
                     gameSystem.OnSceneChanged();
+                }
+
+                if (value != null)
+                {
+                    PartitionCellManager.OnNewGame();
                 }
             }
         }
@@ -718,7 +720,6 @@ namespace OpenSage
             }
 
             // Reset everything, and run the first update on the first frame.
-            CurrentFrame = 0;
             _mapTimer.Reset();
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
@@ -813,7 +814,7 @@ namespace OpenSage
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
-                LogicTick(CurrentFrame);
+                LogicTick();
                 CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
                 // Logic updates happen at 5Hz.
                 _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
@@ -863,21 +864,18 @@ namespace OpenSage
             Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
         }
 
-        internal void LogicTick(ulong frame)
+        internal void LogicTick()
         {
-            NetworkMessageBuffer?.Tick();
+            GameLogic.Update();
 
-            foreach (var gameSystem in GameSystems)
-            {
-                gameSystem.LogicTick(CurrentFrame);
-            }
+            NetworkMessageBuffer?.Tick();
 
             // TODO: What is the order?
             // TODO: Calculate time correctly.
             var timeInterval = GetTimeInterval();
-            Scene3D?.LogicTick(frame, timeInterval);
+            Scene3D?.LogicTick(timeInterval);
 
-            CurrentFrame += 1;
+            PartitionCellManager.Update();
         }
 
         internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));

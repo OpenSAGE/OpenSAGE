@@ -1,10 +1,24 @@
 ﻿namespace OpenSage.Logic.Object
 {
-    public abstract class CreateModule : BehaviorModule
+    public abstract class CreateModule : BehaviorModule, ICreateModule
     {
-        private bool _unknown;
+        private bool _shouldCallOnBuildComplete;
 
-        internal virtual void Execute(BehaviorUpdateContext context) { }
+        public virtual void OnCreate() { }
+
+        public void OnBuildComplete()
+        {
+            if (!_shouldCallOnBuildComplete)
+            {
+                return;
+            }
+
+            _shouldCallOnBuildComplete = false;
+
+            OnBuildCompleteImpl();
+        }
+
+        protected virtual void OnBuildCompleteImpl() { }
 
         internal override void Load(StatePersister reader)
         {
@@ -14,12 +28,18 @@
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean(ref _unknown);
+            reader.PersistBoolean(ref _shouldCallOnBuildComplete);
         }
     }
 
     public abstract class CreateModuleData : BehaviorModuleData
     {
         public override ModuleKinds ModuleKinds => ModuleKinds.Create;
+    }
+
+    public interface ICreateModule
+    {
+        void OnCreate();
+        void OnBuildComplete();
     }
 }

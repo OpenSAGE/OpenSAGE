@@ -273,17 +273,20 @@ namespace OpenSage.Gui.Apt
                 geoTranslate = Vector2.Zero;
             }
 
-            ColorRgbaF colorTransform;
+            ColorRgbaF tintColor;
+            ColorRgbaF additiveColor;
             if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
             {
-                colorTransform = po.Color.ToColorRgbaF();
+                tintColor = po.TintColor.ToColorRgbaF();
+                additiveColor = po.AdditiveColor.ToColorRgbaF();
             }
             else
             {
-                colorTransform = ColorRgbaF.White;
+                tintColor = ColorRgbaF.White;
+                additiveColor = ColorRgbaF.Transparent;
             }
 
-            return new ItemTransform(colorTransform, geoRotate, geoTranslate);
+            return new ItemTransform(tintColor, additiveColor, geoRotate, geoTranslate);
         }
 
         private void MoveItem(PlaceObject po)
@@ -307,7 +310,8 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
             {
-                cTransform.ColorTransform = po.Color.ToColorRgbaF();
+                cTransform.TintColorTransform = po.TintColor.ToColorRgbaF();
+                cTransform.AdditiveColorTransform = po.AdditiveColor.ToColorRgbaF();
             }
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))

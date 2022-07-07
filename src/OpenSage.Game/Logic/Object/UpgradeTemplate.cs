@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             { "Type", (parser, x) => x.Type = parser.ParseEnum<UpgradeType>() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "Tooltip", (parser, x) => x.Tooltip = parser.ParseLocalizedStringKey() },
-            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
+            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseTimeSecondsToLogicFrames() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
             { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAssetReference() },
@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string Tooltip { get; private set; }
 
-        public float BuildTime { get; private set; }
+        public LogicFrameSpan BuildTime { get; private set; }
         public float BuildCost { get; private set; }
         public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
         public string ResearchSound { get; private set; }

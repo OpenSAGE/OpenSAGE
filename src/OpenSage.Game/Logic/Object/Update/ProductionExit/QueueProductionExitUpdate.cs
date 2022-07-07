@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
 
-        public int ExitDelay => _moduleData.ExitDelay;
+        public LogicFrameSpan ExitDelay => _moduleData.ExitDelay;
 
         internal override void Load(StatePersister reader)
         {
@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
         {
             { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
             { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
-            { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
+            { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "NoExitPath", (parser, x) => x.NoExitPath = parser.ParseBoolean() },
@@ -56,7 +56,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Used for Red Guards to make them come out one at a time.
         /// </summary>
-        public int ExitDelay { get; private set; }
+        public LogicFrameSpan ExitDelay { get; private set; }
 
         public int InitialBurst { get; private set; }
 

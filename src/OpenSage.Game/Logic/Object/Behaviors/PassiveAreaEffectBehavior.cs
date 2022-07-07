@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
@@ -12,32 +11,30 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameObject _gameObject;
         private readonly PassiveAreaEffectBehaviorModuleData _moduleData;
-        private TimeSpan _nextPing;
+        private LogicFrame _nextPing;
 
         public PassiveAreaEffectBehavior(GameObject gameObject, PassiveAreaEffectBehaviorModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
-
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (context.Time.TotalTime < _nextPing)
+            if (context.LogicFrame < _nextPing)
             {
                 return;
             }
-            _nextPing = context.Time.TotalTime + TimeSpan.FromMilliseconds(_moduleData.PingDelay);
+            _nextPing = context.LogicFrame + _moduleData.PingDelay;
 
-            var nearbyObjects = context.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.EffectRadius);
+            var nearbyObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+                _gameObject,
+                _gameObject.Translation,
+                _moduleData.EffectRadius,
+                new PartitionQueries.ObjectFilterQuery(_moduleData.AllowFilter));
 
             foreach (var nearbyObject in nearbyObjects)
             {
-                if (!_moduleData.AllowFilter.Matches(nearbyObject))
-                {
-                    continue;
-                }
-
                 // TODO: HealPercentPerSecond, UpgradeRequired, NonStackable, HealFX, AntiCategories
 
                 foreach (var modifier in _moduleData.Modifiers)
@@ -56,7 +53,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<PassiveAreaEffectBehaviorModuleData> FieldParseTable = new IniParseTable<PassiveAreaEffectBehaviorModuleData>
         {
             { "EffectRadius", (parser, x) => x.EffectRadius = parser.ParseLong() },
-            { "PingDelay", (parser, x) => x.PingDelay = parser.ParseInteger() },
+            { "PingDelay", (parser, x) => x.PingDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "HealPercentPerSecond", (parser, x) => x.HealPercentPerSecond = parser.ParsePercentage() },
             { "AllowFilter", (parser, x) => x.AllowFilter = ObjectFilter.Parse(parser) },
             { "ModifierName", (parser, x) => x.Modifiers.Add(parser.ParseModifierListReference()) },
@@ -67,7 +64,7 @@ namespace OpenSage.Logic.Object
         };
 
         public long EffectRadius { get; private set; }
-        public int PingDelay { get; private set; }
+        public LogicFrameSpan PingDelay { get; private set; }
         public Percentage HealPercentPerSecond { get; private set; }
         public ObjectFilter AllowFilter { get; private set; }
         public List<LazyAssetReference<ModifierList>> Modifiers { get; } = new List<LazyAssetReference<ModifierList>>();

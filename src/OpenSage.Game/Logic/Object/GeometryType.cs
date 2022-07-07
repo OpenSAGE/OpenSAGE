@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public enum ObjectGeometry
+    public enum GeometryType
     {
         [IniEnum("SPHERE")]
         Sphere = 0,

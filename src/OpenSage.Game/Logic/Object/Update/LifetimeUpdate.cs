@@ -1,5 +1,4 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -8,39 +7,32 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly LifetimeUpdateModuleData _moduleData;
 
-        private TimeSpan _lifeTime;
-        private bool _initial = true;
+        private LogicFrame _frameToDie;
 
-        public TimeSpan Lifetime
+        // TODO: Should this be public?
+        public LogicFrame FrameToDie
         {
-            get => _lifeTime;
-            set
-            {
-                _lifeTime = value;
-                _initial = false;
-            }
+            get => _frameToDie;
+            set => _frameToDie = value;
         }
-
-        // TODO: This shouold replace _lifeTime above
-        private uint _frameToDie;
 
         public LifetimeUpdate(GameObject gameObject, LifetimeUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
+
+            var lifetimeFrames = gameObject.GameContext.Random.Next(
+                (int)moduleData.MinLifetime.Value,
+                (int)moduleData.MaxLifetime.Value);
+
+            _frameToDie = gameObject.GameContext.GameLogic.CurrentFrame + new LogicFrameSpan((uint)lifetimeFrames);
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_initial)
+            if (context.LogicFrame >= _frameToDie)
             {
-                _lifeTime = context.Time.TotalTime + TimeSpan.FromMilliseconds(context.GameContext.Random.Next((int) _moduleData.MinLifetime, (int) _moduleData.MaxLifetime));
-                _initial = false;
-            }
-
-            if (context.Time.TotalTime > _lifeTime)
-            {
-                _gameObject.Die(_moduleData.DeathType, context.Time);
+                _gameObject.Die(_moduleData.DeathType);
             }
         }
 
@@ -52,7 +44,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref _frameToDie);
+            reader.PersistLogicFrame(ref _frameToDie);
         }
     }
 
@@ -62,14 +54,14 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<LifetimeUpdateModuleData> FieldParseTable = new IniParseTable<LifetimeUpdateModuleData>
         {
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseLong() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseLong() },
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "WaitForWakeUp", (parser, x) => x.WaitForWakeUp = parser.ParseBoolean() },
             { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() }
         };
 
-        public long MinLifetime { get; private set; }
-        public long MaxLifetime { get; private set; }
+        public LogicFrameSpan MinLifetime { get; private set; }
+        public LogicFrameSpan MaxLifetime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool WaitForWakeUp { get; private set; }

@@ -108,7 +108,7 @@ namespace OpenSage.Logic.Object
         public int BoredTime { get; private set; }
         public int BoredRange { get; private set; }
 
-        internal override AIUpdate CreateAIUpdate(GameObject gameObject)
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new DozerAIUpdate(gameObject, this);
         }

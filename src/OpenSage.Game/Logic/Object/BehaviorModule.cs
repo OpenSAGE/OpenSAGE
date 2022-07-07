@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,8 +12,6 @@ namespace OpenSage.Logic.Object
         internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType) { }
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
-
-        internal virtual void OnCollide(BehaviorUpdateContext context, GameObject collidingObject) { }
 
         internal virtual void DrawInspector() { }
 
@@ -34,25 +33,110 @@ namespace OpenSage.Logic.Object
         }
     }
 
+    public interface IDestroyModule
+    {
+        void OnDestroy();
+    }
+
     internal sealed class BehaviorUpdateContext
     {
         public readonly GameContext GameContext;
         public readonly GameObject GameObject;
-        public TimeInterval Time { get; private set; }
+
+        public LogicFrame LogicFrame => GameContext.GameLogic.CurrentFrame;
 
         public BehaviorUpdateContext(
             GameContext gameContext,
-            GameObject gameObject,
-            in TimeInterval time)
+            GameObject gameObject)
         {
             GameContext = gameContext;
             GameObject = gameObject;
-            Time = time;
+        }
+    }
+
+    public readonly struct LogicFrame
+    {
+        public static readonly LogicFrame MaxValue = new LogicFrame(uint.MaxValue);
+
+        internal readonly uint Value;
+
+        public LogicFrame(uint value)
+        {
+            Value = value;
         }
 
-        public void UpdateTime(TimeInterval time)
+        public static LogicFrame operator +(LogicFrame left, LogicFrameSpan right)
         {
-            Time = time;
+            return new LogicFrame(left.Value + right.Value);
+        }
+
+        public static LogicFrame operator ++(LogicFrame left)
+        {
+            return new LogicFrame(left.Value + 1);
+        }
+
+        public static LogicFrame operator -(LogicFrame left, LogicFrame right)
+        {
+            return new LogicFrame(left.Value - right.Value);
+        }
+
+        public static bool operator <(LogicFrame left, LogicFrame right)
+        {
+            return left.Value < right.Value;
+        }
+
+        public static bool operator <=(LogicFrame left, LogicFrame right)
+        {
+            return left.Value <= right.Value;
+        }
+
+        public static bool operator >(LogicFrame left, LogicFrame right)
+        {
+            return left.Value > right.Value;
+        }
+
+        public static bool operator >=(LogicFrame left, LogicFrame right)
+        {
+            return left.Value >= right.Value;
+        }
+    }
+
+    public readonly struct LogicFrameSpan
+    {
+        public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
+
+        public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)Game.LogicFramesPerSecond);
+
+        internal readonly uint Value;
+
+        public LogicFrameSpan(uint value)
+        {
+            Value = value;
+        }
+
+        public static LogicFrameSpan operator +(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return new LogicFrameSpan(left.Value + right.Value);
+        }
+
+        public static LogicFrameSpan operator *(LogicFrameSpan left, Percentage right)
+        {
+            return new LogicFrameSpan((uint)MathF.Ceiling(left.Value * (float)right));
+        }
+
+        public static LogicFrameSpan operator *(LogicFrameSpan left, float right)
+        {
+            return new LogicFrameSpan((uint)MathF.Ceiling(left.Value * right));
+        }
+
+        public static LogicFrameSpan operator /(LogicFrameSpan left, float right)
+        {
+            return new LogicFrameSpan((uint)MathF.Ceiling(left.Value / right));
+        }
+
+        public static LogicFrameSpan operator /(LogicFrameSpan left, Percentage right)
+        {
+            return new LogicFrameSpan((uint)MathF.Ceiling(left.Value / (float)right));
         }
     }
 

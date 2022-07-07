@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
                 //TODO: increase damage with context.Weapon.Template.WeaponBonuses
             }
 
-            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType, context.Time);
+            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType);
         }
     }
 }

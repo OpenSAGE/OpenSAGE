@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, TimeInterval time) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
 
         internal override void Load(StatePersister reader)
         {
@@ -72,12 +72,5 @@ namespace OpenSage.Logic.Object
             { "SymbioticStructuresBody", SymbioticStructuresBodyModuleData.Parse },
             { "UndeadBody", UndeadBodyModuleData.Parse },
         };
-
-        internal sealed override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            throw new InvalidOperationException();
-        }
-
-        internal virtual BodyModule CreateBodyModule(GameObject gameObject) => null; // TODO: Make this abstract.
     }
 }

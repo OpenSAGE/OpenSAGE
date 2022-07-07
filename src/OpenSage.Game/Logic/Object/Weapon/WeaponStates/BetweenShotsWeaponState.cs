@@ -17,14 +17,14 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlagUtility.GetBetweenFiringShotsFlag(weaponIndex)
             };
 
-        public override WeaponState? GetNextState(TimeSpan currentTime)
+        public override WeaponState? GetNextState()
         {
             if (!Context.Weapon.HasValidTarget)
             {
                 return WeaponState.Inactive;
             }
 
-            if (IsTimeToExitState(currentTime))
+            if (IsTimeToExitState())
             {
                 return WeaponState.Firing;
             }

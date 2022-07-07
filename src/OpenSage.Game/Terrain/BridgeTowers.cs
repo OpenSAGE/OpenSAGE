@@ -16,8 +16,10 @@ namespace OpenSage.Terrain
 
             var landmarkBridgeTemplate = gameContext.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(gameObject.Definition.Name);
 
-            var halfLength = gameObject.Definition.Geometry.MinorRadius;
-            var halfWidth = gameObject.Definition.Geometry.MajorRadius;
+            var geometryShape = gameObject.Definition.Geometry.Shapes[0];
+
+            var halfLength = geometryShape.MinorRadius;
+            var halfWidth = geometryShape.MajorRadius;
 
             return new BridgeTowers(
                 landmarkBridgeTemplate,

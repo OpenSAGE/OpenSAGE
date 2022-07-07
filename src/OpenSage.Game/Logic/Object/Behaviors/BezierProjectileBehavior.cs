@@ -81,7 +81,7 @@ namespace OpenSage.Logic.Object
             if (context.GameObject.CurrentWeapon != null)
             {
                 context.GameObject.CurrentWeapon.SetTarget(target);
-                context.GameObject.CurrentWeapon.Fire(context.Time);
+                context.GameObject.CurrentWeapon.Fire();
             }
 
             if (target.TargetType == WeaponTargetType.Position)
@@ -94,11 +94,11 @@ namespace OpenSage.Logic.Object
 
             if (detonateCallsKill)
             {
-                context.GameObject.Kill(DeathType.Detonated, context.Time);
+                context.GameObject.Kill(DeathType.Detonated);
             }
             else
             {
-                context.GameObject.Die(DeathType.Detonated, context.Time);
+                context.GameObject.Die(DeathType.Detonated);
             }
         }
 
