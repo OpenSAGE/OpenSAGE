@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
             _output = output;
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Interactive")]
         public void CanReadIniFiles()
         {
             var gameDefinitions = new[]
