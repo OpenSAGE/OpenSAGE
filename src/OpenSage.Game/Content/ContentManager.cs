@@ -14,7 +14,7 @@ namespace OpenSage.Content
     {
         private readonly Game _game;
 
-        public ISubsystemLoader SubsystemLoader { get; }
+        public SubsystemLoader SubsystemLoader { get; }
 
         public GraphicsDevice GraphicsDevice { get; }
 
@@ -65,63 +65,37 @@ namespace OpenSage.Content
 
                 IniDataContext = new IniDataContext();
 
-                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, FileSystem, game, this);
+                SubsystemLoader = new SubsystemLoader(game.Definition, FileSystem, game, this);
+
+                SubsystemLoader.Load(Subsystem.Core);
+                SubsystemLoader.Load(Subsystem.Audio);
+                SubsystemLoader.Load(Subsystem.Players);
+                SubsystemLoader.Load(Subsystem.ParticleSystems);
+                SubsystemLoader.Load(Subsystem.ObjectCreation);
+                SubsystemLoader.Load(Subsystem.Locomotors);
+                SubsystemLoader.Load(Subsystem.Sciences);
+                SubsystemLoader.Load(Subsystem.Weapons);
+                SubsystemLoader.Load(Subsystem.FXList);
+                SubsystemLoader.Load(Subsystem.Multiplayer);
+                SubsystemLoader.Load(Subsystem.LinearCampaign);
+                SubsystemLoader.Load(Subsystem.Wnd);
+                SubsystemLoader.Load(Subsystem.Terrain);
+                SubsystemLoader.Load(Subsystem.Credits);
+                SubsystemLoader.Load(Subsystem.Damage);
+                SubsystemLoader.Load(Subsystem.SpecialPower);
+                SubsystemLoader.Load(Subsystem.InGameUI);
+                SubsystemLoader.Load(Subsystem.Rank);
+                SubsystemLoader.Load(Subsystem.Animation2D);
 
                 switch (sageGame)
                 {
                     // Only load these INI files for a subset of games, because we can't parse them for others yet.
                     // TODO: Defer subsystem loading until necessary
-                    case SageGame.CncGenerals:
-                    case SageGame.CncGeneralsZeroHour:
-                        SubsystemLoader.Load(Subsystem.Core);
-                        SubsystemLoader.Load(Subsystem.Audio);
-                        SubsystemLoader.Load(Subsystem.Players);
-                        SubsystemLoader.Load(Subsystem.ParticleSystems);
-                        SubsystemLoader.Load(Subsystem.ObjectCreation);
-                        SubsystemLoader.Load(Subsystem.Locomotors);
-                        SubsystemLoader.Load(Subsystem.Sciences);
-                        SubsystemLoader.Load(Subsystem.Weapons);
-                        SubsystemLoader.Load(Subsystem.FXList);
-                        SubsystemLoader.Load(Subsystem.Multiplayer);
-                        SubsystemLoader.Load(Subsystem.LinearCampaign);
-                        SubsystemLoader.Load(Subsystem.Wnd);
-                        SubsystemLoader.Load(Subsystem.Terrain);
-                        SubsystemLoader.Load(Subsystem.Credits);
-                        SubsystemLoader.Load(Subsystem.Damage);
-                        SubsystemLoader.Load(Subsystem.SpecialPower);
-                        SubsystemLoader.Load(Subsystem.InGameUI);
-                        SubsystemLoader.Load(Subsystem.Rank);
-                        SubsystemLoader.Load(Subsystem.Animation2D);
-                        break;
-
                     case SageGame.Bfme:
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
-                        SubsystemLoader.Load(Subsystem.Core);
-                        SubsystemLoader.Load(Subsystem.Audio);
-                        SubsystemLoader.Load(Subsystem.Players);
-                        SubsystemLoader.Load(Subsystem.ParticleSystems);
-                        SubsystemLoader.Load(Subsystem.ObjectCreation);
-                        SubsystemLoader.Load(Subsystem.Locomotors);
-                        SubsystemLoader.Load(Subsystem.Sciences);
-                        SubsystemLoader.Load(Subsystem.Weapons);
-                        SubsystemLoader.Load(Subsystem.FXList);
-                        SubsystemLoader.Load(Subsystem.Multiplayer);
-                        SubsystemLoader.Load(Subsystem.LinearCampaign);
-                        SubsystemLoader.Load(Subsystem.Wnd);
-                        SubsystemLoader.Load(Subsystem.Terrain);
-                        SubsystemLoader.Load(Subsystem.Credits);
-                        SubsystemLoader.Load(Subsystem.Damage);
-                        SubsystemLoader.Load(Subsystem.SpecialPower);
-                        SubsystemLoader.Load(Subsystem.InGameUI);
-                        SubsystemLoader.Load(Subsystem.Rank);
-                        SubsystemLoader.Load(Subsystem.Animation2D);
-
                         SubsystemLoader.Load(Subsystem.ExperienceLevels);
                         SubsystemLoader.Load(Subsystem.AttributeModifiers);
-                        break;
-
-                    default:
                         break;
                 }
 
