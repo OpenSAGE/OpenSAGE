@@ -49,19 +49,7 @@ namespace OpenSage.Input.Cursors
                     cursorFileName += ".ani";
                 }
 
-                string cursorDirectory;
-                switch (_contentManager.SageGame)
-                {
-                    case SageGame.Cnc3:
-                    case SageGame.Cnc3KanesWrath:
-                        // TODO: Get version number dynamically.
-                        cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
-                        break;
-
-                    default:
-                        cursorDirectory = Path.Combine("Data", "Cursors");
-                        break;
-                }
+                var cursorDirectory = Path.Combine("Data", "Cursors");
 
                 var cursorFilePath = Path.Combine(cursorDirectory, cursorFileName);
                 var cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);

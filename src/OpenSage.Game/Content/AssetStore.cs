@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
-using OpenSage.Data.StreamFS;
 using OpenSage.Eva;
 using OpenSage.FX;
 using OpenSage.Graphics;
@@ -32,10 +31,8 @@ namespace OpenSage.Content
     public sealed class AssetStore
     {
         private readonly List<IScopedSingleAssetStorage> _scopedSingleAssetStorage;
-        private readonly Dictionary<uint, IScopedSingleAssetStorage> _singleAssetStorageByTypeId;
 
         private readonly List<IScopedAssetCollection> _scopedAssetCollections;
-        private readonly Dictionary<uint, IScopedAssetCollection> _byTypeId;
 
         internal AssetLoadContext LoadContext { get; }
 
@@ -195,15 +192,11 @@ namespace OpenSage.Content
                 this);
 
             _scopedSingleAssetStorage = new List<IScopedSingleAssetStorage>();
-            _singleAssetStorageByTypeId = new Dictionary<uint, IScopedSingleAssetStorage>();
 
             void AddSingleAssetStorage<TAsset>(ScopedSingleAsset<TAsset> assetStorage)
                 where TAsset : BaseSingletonAsset, new()
             {
                 _scopedSingleAssetStorage.Add(assetStorage);
-
-                var typeId = AssetTypeUtility.GetAssetTypeId<TAsset>(sageGame);
-                _singleAssetStorageByTypeId.Add(typeId, assetStorage);
             }
 
             AddSingleAssetStorage(AIData = new ScopedSingleAsset<AIData>());
@@ -242,15 +235,11 @@ namespace OpenSage.Content
             AddSingleAssetStorage(Weather = new ScopedSingleAsset<Weather>());
 
             _scopedAssetCollections = new List<IScopedAssetCollection>();
-            _byTypeId = new Dictionary<uint, IScopedAssetCollection>();
 
             void AddAssetCollection<TAsset>(ScopedAssetCollection<TAsset> assetCollection)
                 where TAsset : BaseAsset
             {
                 _scopedAssetCollections.Add(assetCollection);
-
-                var typeId = AssetTypeUtility.GetAssetTypeId<TAsset>(sageGame);
-                _byTypeId.Add(typeId, assetCollection);
             }
 
             AddAssetCollection(AIBases = new ScopedAssetCollection<AIBase>(this));
@@ -351,18 +340,6 @@ namespace OpenSage.Content
             AddAssetCollection(WeaponTemplates = new ScopedAssetCollection<WeaponTemplate>(this));
             AddAssetCollection(WeatherDatas = new ScopedAssetCollection<WeatherData>(this));
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
-        }
-
-        internal IScopedAssetCollection GetAssetCollection(uint typeId)
-        {
-            _byTypeId.TryGetValue(typeId, out var result);
-            return result;
-        }
-
-        internal IScopedSingleAssetStorage GetSingleAsset(uint typeId)
-        {
-            _singleAssetStorageByTypeId.TryGetValue(typeId, out var result);
-            return result;
         }
 
         internal void PushScope()

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Data.StreamFS;
 
 namespace OpenSage.Audio
 {
@@ -19,18 +18,6 @@ namespace OpenSage.Audio
             {
                 { "Filename", (parser, x) => x.File = parser.ParseAudioFileReference() }
             });
-
-        internal static DialogEvent ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
-        {
-            var result = new DialogEvent();
-            result.SetNameAndInstanceId(asset);
-
-            ParseAsset(reader, result);
-
-            result.File = imports.GetImportedData<AudioFile>(reader);
-
-            return result;
-        }
 
         public LazyAssetReference<AudioFile> File { get; private set; }
     }
