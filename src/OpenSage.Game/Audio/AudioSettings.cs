@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.Data.StreamFS;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Audio
@@ -121,61 +118,6 @@ namespace OpenSage.Audio
             { "VoiceMoveToCampMinCampnessAtEndPoint", (parser, x) => x.VoiceMoveToCampMinCampnessAtEndPoint = parser.ParseInteger() },
             { "MinDelayBetweenEnterStateVoiceMS", (parser, x) => x.MinDelayBetweenEnterStateVoice = parser.ParseTimeMilliseconds() },
         };
-
-        internal static AudioSettings ParseAsset(BinaryReader reader, Asset asset)
-        {
-            var result = new AudioSettings();
-            result.SetNameAndInstanceId(asset);
-
-            var streamBufferSizePerChannel = reader.ReadUInt32();
-            var maxRequestsPerStream = reader.ReadUInt32();
-            result.ForceResetTime = reader.ReadTime();
-            result.EmergencyResetTime = reader.ReadTime();
-            result.MinOcclusion = reader.ReadPercentage();
-            var delayPriorToPlayingToReadSoundFile = reader.ReadSingle();
-            var readAheadTime = reader.ReadSingle();
-            var queueAheadTime = reader.ReadSingle();
-            var longTime = reader.ReadSingle();
-            result.AudioFootprintInBytes = reader.ReadInt32();
-
-            result.DefaultSoundVolume = reader.ReadPercentage();
-            result.DefaultVoiceVolume = reader.ReadPercentage();
-            result.DefaultMusicVolume = reader.ReadPercentage();
-            result.DefaultMovieVolume = reader.ReadPercentage();
-            result.DefaultAmbientVolume = reader.ReadPercentage();
-            result.AutomaticSubtitleDuration = reader.ReadTime();
-            result.AutomaticSubtitleLines = reader.ReadInt32();
-            var panRadiusScaleValue = reader.ReadSingle();
-            var panSize = reader.ReadSingle();
-            result.MinSampleVolume = reader.ReadSingle();
-            result.PositionDeltaForReverbRecheck = reader.ReadSingle();
-            result.TimeToFadeAudio = reader.ReadTime();
-            result.AmbientStreamHysteresisVolume = reader.ReadInt32();
-            var volumeMultiplierFor2DSounds = reader.ReadSingle();
-
-            result.VoiceMoveToCampMaxCampnessAtStartPoint = reader.ReadInt32();
-            result.VoiceMoveToCampMinCampnessAtEndPoint = reader.ReadInt32();
-            result.MinDelayBetweenEnterStateVoice = reader.ReadTime();
-            var timeSinceLastAttackForVoiceRetreatToCastle = reader.ReadSingle();
-            var distanceToLookForEnemiesForVoiceRetreatToCastle = reader.ReadSingle();
-            var postPostGameMusicWait = reader.ReadSingle();
-
-            result.AutomaticSubtitleWindowColor = reader.ReadColorRgbaF();
-            result.AutomaticSubtitleTextColor = reader.ReadColorRgbaF();
-
-            result.VolumeSliderMultipliersForMovie = reader.ReadArrayAtOffset(() => VolumeSliderMultiplier.ParseAsset(reader));
-
-            result.TacticalMicSettings = MicrophoneSettings.ParseAsset(reader);
-            result.LivingWorldMicSettings = MicrophoneSettings.ParseAsset(reader);
-            result.ShellMicSettings = MicrophoneSettings.ParseAsset(reader);
-
-            result.VolumeCompressionSettings = VolumeCompressionSettings.ParseAsset(reader);
-
-            result.SuppressOcclusion = reader.ReadBooleanChecked();
-            var playEnemySightedEventsOnlyFromNearbyUnits = reader.ReadBooleanChecked();
-
-            return result;
-        }
 
         public string AudioRoot { get; private set; }
         public string SoundsFolder { get; private set; }
@@ -404,74 +346,5 @@ namespace OpenSage.Audio
 
         [AddedIn(SageGame.Bfme2)]
         public TimeSpan MinDelayBetweenEnterStateVoice { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public VolumeSliderMultiplier[] VolumeSliderMultipliersForMovie { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public MicrophoneSettings TacticalMicSettings { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public MicrophoneSettings LivingWorldMicSettings { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public MicrophoneSettings ShellMicSettings { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public VolumeCompressionSettings VolumeCompressionSettings { get; private set; }
-    }
-
-    public sealed class MicrophoneSettings
-    {
-        internal static MicrophoneSettings ParseAsset(BinaryReader reader)
-        {
-            return new MicrophoneSettings
-            {
-                MicrophonePreferredFractionCameraToGround = reader.ReadSingle(),
-                VolumeMicrophonePullTowardsTerrainLookAtPoint = reader.ReadSingle(),
-                PanningMicrophonePullTowardsTerrainLookAtPoint = reader.ReadSingle(),
-                MicrophoneMinDistanceToCamera = reader.ReadSingle(),
-                MicrophoneMaxDistanceToCamera = reader.ReadSingle(),
-                ZoomMinDistance = reader.ReadSingle(),
-                ZoomMaxDistance = reader.ReadSingle(),
-                ZoomSoundVolumePercentageAmount = reader.ReadSingle(),
-                ZoomFadeDistanceForMaxEffect = reader.ReadSingle(),
-                ZoomFadeZeroEffectEdgeLength = reader.ReadSingle(),
-                ZoomFadeFullEffectEdgeLength = reader.ReadSingle()
-            };
-        }
-
-        public float MicrophonePreferredFractionCameraToGround { get; private set; }
-        public float VolumeMicrophonePullTowardsTerrainLookAtPoint { get; private set; }
-        public float PanningMicrophonePullTowardsTerrainLookAtPoint { get; private set; }
-        public float MicrophoneMinDistanceToCamera { get; private set; }
-        public float MicrophoneMaxDistanceToCamera { get; private set; }
-        public float ZoomMinDistance { get; private set; }
-        public float ZoomMaxDistance { get; private set; }
-        public float ZoomSoundVolumePercentageAmount { get; private set; }
-        public float ZoomFadeDistanceForMaxEffect { get; private set; }
-        public float ZoomFadeZeroEffectEdgeLength { get; private set; }
-        public float ZoomFadeFullEffectEdgeLength { get; private set; }
-    }
-
-    public sealed class VolumeCompressionSettings
-    {
-        internal static VolumeCompressionSettings ParseAsset(BinaryReader reader)
-        {
-            return new VolumeCompressionSettings
-            {
-                Threshold = reader.ReadSingle(),
-                Ratio = reader.ReadSingle(),
-                AttackTime = reader.ReadTime(),
-                ReleaseTime = reader.ReadTime(),
-                AppliesEquallyToAllChannels = reader.ReadBooleanChecked()
-            };
-        }
-
-        public float Threshold { get; private set; }
-        public float Ratio { get; private set; }
-        public TimeSpan AttackTime { get; private set; }
-        public TimeSpan ReleaseTime { get; private set; }
-        public bool AppliesEquallyToAllChannels { get; private set; }
     }
 }

@@ -307,19 +307,6 @@ namespace OpenSage
         {
             get
             {
-                string GetUserDataLeafNameFromRegistry(string defaultValue)
-                {
-                    foreach (var key in Definition.RegistryKeys)
-                    {
-                        var value = RegistryUtility.GetRegistryValue(new RegistryKeyPath(key.Key, "UserDataLeafName"));
-                        if (value is not null)
-                        {
-                            return value;
-                        }
-                    }
-                    return defaultValue;
-                }
-
                 // TODO: Move this to IGameDefinition?
                 switch (SageGame)
                 {
@@ -328,9 +315,6 @@ namespace OpenSage
 
                     case SageGame.CncGeneralsZeroHour:
                         return "Command and Conquer Generals Zero Hour Data";
-
-                    case SageGame.Ra3:
-                        return GetUserDataLeafNameFromRegistry("Red Alert 3");
 
                     default:
                         return AssetStore.GameData.Current.UserDataLeafName;

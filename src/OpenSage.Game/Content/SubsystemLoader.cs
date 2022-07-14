@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Data;
-using OpenSage.Data.StreamFS;
 using OpenSage.IO;
 using OpenSage.Utilities.Extensions;
 
@@ -174,14 +172,6 @@ namespace OpenSage.Content
                             _contentManager.LoadIniFile(@"Data\INI\WaterTextures.ini");
                             _contentManager.LoadIniFile(@"Maps\MapCache.ini");
                             break;
-
-                        case SageGame.Cnc3:
-                            // TODO: Use .version file.
-                            var manifestFileEntry = _fileSystem.GetFile(@"Data\global_common.manifest");
-                            var gameStream = new GameStream(manifestFileEntry, _game);
-                            var manifestFileEntry2 = _fileSystem.GetFile(@"Data\static_common.manifest");
-                            var gameStream2 = new GameStream(manifestFileEntry2, _game);
-                            break;
                     }
                     switch (_gameDefinition.Game)
                     {
@@ -251,12 +241,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             yield return "TheWritableGlobalData";
                             yield break;
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
-                            yield return "GameEngine";
-                            yield return "TheGameClient";
-                            yield return "TheWritableGlobalData";
-                            yield break;
                     }
                     break;
                 case Subsystem.Audio:
@@ -270,10 +254,6 @@ namespace OpenSage.Content
                             yield return "TheThingFactory";
                             yield return "TheUpgradeCenter";
                             yield break;
-                        // TODO: Figure out how to load object config for C&C3 and later
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
-                            yield break;
                     }
                     break;
                 case Subsystem.Players:
@@ -282,8 +262,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "ThePlayerTemplateStore";
                             yield break;
                     }
@@ -294,8 +272,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "TheLocomotorStore";
                             yield break;
                     }
@@ -306,8 +282,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "TheScienceStore";
                             yield break;
                     }
@@ -318,8 +292,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "TheWeaponStore";
                             yield break;
                     }
@@ -340,8 +312,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "TheTerrainTypes";
                             yield return "TheTerrainRoads";
                             yield break;
@@ -355,10 +325,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             yield return "TheParticleSystemManager";
                             yield return "TheFXParticleSystemManager";
-                            yield break;
-                        // TODO: Figure out how to load particle systems for C&C3 and later
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield break;
                     }
                     break;
@@ -379,8 +345,6 @@ namespace OpenSage.Content
                     {
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
                             yield return "TheLinearCampaignManager";
                             yield break;
                             // TODO: Figure out how to load campaigns for RA3 and later
@@ -456,13 +420,10 @@ namespace OpenSage.Content
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
                     return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, game, contentManager);
 
                 default:
-                    // TODO: Implement subsystem loader for new XML-based format used in RA3 and beyond.
-                    return null;
+                    throw new InvalidOperationException();
             }
         }
     }

@@ -37,25 +37,6 @@ namespace OpenSage.Content.Translation.Providers
             [Display("zh-Hant")] ChineseTraditional,
             [Display("ru-RU")] Russian = 17
         }
-        private enum LanguageCnC3
-        {
-            [Display("en-US")] English,
-            [Display("es-ES")] Spanish,
-            [Display("de-DE")] German = 3,
-            [Display("fr-FR")] French,
-            [Display("it-IT")] Italian,
-            [Display("nl-NL")] Dutch,
-            [Display("sv-SE")] Swedish = 8,
-            [Display("pl-PL")] Polish = 11,
-            [Display("ko-KR")] Korean = 13,
-            [Display("hu-HU")] Hungarian = 15,
-            [Display("ru-RU")] Russian = 17,
-            [Display("cs-CZ")] Czech = 19,
-            [Display("zh-Hans")] ChineseSimplified = 21,
-            [Display("zh-Hant")] ChineseTraditional
-        }
-        // Note: CnC3 only uses language code for the launcher's csf
-        // Note: RA3 and CnC4 doesn't use language codes at all
 
         private class Csf
         {
@@ -109,13 +90,8 @@ namespace OpenSage.Content.Translation.Providers
                         case SageGame.Bfme2Rotwk:
                             language = ((LanguageBFME) languageCode).GetName();
                             break;
-                        case SageGame.Cnc3:
-                        case SageGame.Cnc3KanesWrath:
-                            language = ((LanguageCnC3) languageCode).GetName();
-                            break;
                         default:
-                            language = "en-US";
-                            break;
+                            throw new InvalidOperationException();
                     }
                     if (language is null)
                     {
@@ -155,10 +131,7 @@ namespace OpenSage.Content.Translation.Providers
                                 if (colonIdx == -1)
                                 {
                                     categoryLabel = string.Empty;
-                                    if (game != SageGame.Ra3) // RA3 has a lot of empty categories, so I guess it should be valid for RA3
-                                    {
-                                        logger.Warn($"Empty category found for {label}.");
-                                    }
+                                    logger.Warn($"Empty category found for {label}.");
                                 }
                                 else
                                 {

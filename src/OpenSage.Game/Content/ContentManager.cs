@@ -121,11 +121,6 @@ namespace OpenSage.Content
                         SubsystemLoader.Load(Subsystem.AttributeModifiers);
                         break;
 
-                    case SageGame.Cnc3:
-                    case SageGame.Ra3:
-                        SubsystemLoader.Load(Subsystem.Core);
-                        break;
-
                     default:
                         break;
                 }

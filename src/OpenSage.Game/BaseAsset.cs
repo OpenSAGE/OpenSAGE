@@ -1,5 +1,4 @@
 ﻿using OpenSage.Content;
-using OpenSage.Data.StreamFS;
 
 namespace OpenSage
 {
@@ -14,13 +13,6 @@ namespace OpenSage
             Name = name;
             FullName = $"{typeName}:{name}";
             InstanceId = AssetHash.GetHash(name);
-        }
-
-        protected void SetNameAndInstanceId(Asset asset)
-        {
-            Name = asset.Name.Substring(asset.Name.IndexOf(':') + 1);
-            FullName = asset.Name;
-            InstanceId = asset.Header.InstanceId;
         }
 
         public int InternalId { get; internal set; }

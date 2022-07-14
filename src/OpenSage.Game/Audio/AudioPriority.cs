@@ -16,9 +16,6 @@ namespace OpenSage.Audio
         [IniEnum("high")]
         High,
 
-        [IniEnum("highest"), AddedIn(SageGame.Cnc3)]
-        Highest,
-
         [IniEnum("critical")]
         Critical
     }
