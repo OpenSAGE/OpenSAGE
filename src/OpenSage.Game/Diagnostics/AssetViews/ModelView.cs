@@ -15,7 +15,7 @@ namespace OpenSage.Diagnostics.AssetViews
         public ModelView(DiagnosticViewContext context, Model model)
             : base(context)
         {
-            _modelInstance = AddDisposable(model.CreateInstance(context.Game.AssetStore.LoadContext));
+            _modelInstance = AddDisposable(model.CreateInstance(context.Game.AssetStore.LoadContext.GraphicsDevice, context.Game.AssetStore.LoadContext.StandardGraphicsResources, context.Game.AssetStore.LoadContext.ShaderResources.Mesh));
             _modelInstance.Update(TimeInterval.Zero);
 
             var enclosingBoundingBox = GetEnclosingBoundingBox(_modelInstance);

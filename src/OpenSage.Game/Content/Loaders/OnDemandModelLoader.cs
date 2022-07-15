@@ -5,6 +5,7 @@ using System.Linq;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.IO;
+using Veldrid;
 
 namespace OpenSage.Content.Loaders
 {
@@ -138,9 +139,9 @@ namespace OpenSage.Content.Loaders
         {
             return w3dRenderableObject switch
             {
-                W3dMesh w3dMesh => new ModelSubObject(fullName, w3dMesh.Header.MeshName, bone, new ModelMesh(w3dMesh, context)),
+                W3dMesh w3dMesh => new ModelSubObject(fullName, w3dMesh.Header.MeshName, bone, new ModelMesh(w3dMesh, context.GraphicsDevice, context.StandardGraphicsResources, context.ShaderResources.FixedFunction, context.ShaderResources.Mesh, context.ShaderResources.MeshDepth, x => (Texture)context.AssetStore.Textures.GetByName(x), context.ShaderResources.GetShaderMaterialResources)),
 
-                W3dBox w3dBox => new ModelSubObject(fullName, bone, new ModelBox(w3dBox, context)),
+                W3dBox w3dBox => new ModelSubObject(fullName, bone, new ModelBox(w3dBox)),
 
                 _ => throw new ArgumentOutOfRangeException(nameof(w3dRenderableObject)),
             };

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
+    <ProjectReference Include="..\OpenSage.Graphics\OpenSage.Graphics.csproj" />
+  </ItemGroup>
+
+</Project>

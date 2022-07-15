@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
 
         private ModelConditionState _activeConditionState;
         protected AnimationState _activeAnimationState;
+        private AnimationFlags _activeAnimationFlags;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -150,9 +151,15 @@ namespace OpenSage.Logic.Object
                 {
                     var flags = animationState.Flags;
                     var mode = animationBlock.AnimationMode;
-                    var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
+                    var animationInstance = new AnimationInstance(
+                        modelInstance.ModelBoneInstances,
+                        anim,
+                        mode,
+                        flags.HasFlag(AnimationFlags.StartFrameLast) || ((mode == AnimationMode.OnceBackwards || mode == AnimationMode.LoopBackwards) && !flags.HasFlag(AnimationFlags.StartFrameFirst)));
                     modelInstance.AnimationInstances.Add(animationInstance);
                     animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
+                    ResetAnimationTimeStamps(animationInstance, anim, mode, flags);
+                    _activeAnimationFlags = flags;
                 }
             }
 
@@ -164,6 +171,36 @@ namespace OpenSage.Logic.Object
             NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {GameObject.Definition.Name}");
 
             return true;
+        }
+
+        private void ResetAnimationTimeStamps(
+            AnimationInstance animationInstance,
+            W3DAnimation animation,
+            AnimationMode mode,
+            AnimationFlags flags)
+        {
+            if (flags == AnimationFlags.None ||
+                flags.HasFlag(AnimationFlags.StartFrameFirst) ||
+                flags.HasFlag(AnimationFlags.StartFrameLast))
+            {
+                if (mode == AnimationMode.OnceBackwards || mode == AnimationMode.LoopBackwards || flags.HasFlag(AnimationFlags.StartFrameLast))
+                {
+                    animationInstance.SetTime(animation.Clips.Max(c => c.Keyframes.LastOrDefault().Time));
+                }
+                else
+                {
+                    animationInstance.SetTime(TimeSpan.Zero);
+                }
+            }
+            else if (flags.HasFlag(AnimationFlags.RandomStart))
+            {
+                animationInstance.SetTime(TimeSpan.FromMilliseconds(_context.Random.Next((int)animation.Duration.TotalMilliseconds)));
+            }
+            else
+            {
+                //TODO: implement other flags
+                //throw new NotImplementedException();
+            }
         }
 
         public void SetTransitionState(string state)
@@ -233,11 +270,13 @@ namespace OpenSage.Logic.Object
             SetActiveAnimationState(bestAnimationState, random);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(
+            ModelConditionState conditionState,
+            Random random)
         {
             // Load model, fallback to default model.
             var model = conditionState.Model?.Value;
-            var modelInstance = model?.CreateInstance(_context.AssetLoadContext) ?? null;
+            var modelInstance = model?.CreateInstance(_context.AssetLoadContext.GraphicsDevice, _context.AssetLoadContext.StandardGraphicsResources, _context.AssetLoadContext.ShaderResources.Mesh) ?? null;
 
             if (modelInstance == null)
             {

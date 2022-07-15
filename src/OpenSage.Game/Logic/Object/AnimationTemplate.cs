@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Logic.Object
 {

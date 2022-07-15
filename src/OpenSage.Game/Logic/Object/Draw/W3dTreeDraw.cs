@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
         {
             _gameContext = context;
             _moduleData = moduleData;
-            _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
+            _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext.GraphicsDevice, _gameContext.AssetLoadContext.StandardGraphicsResources, _gameContext.AssetLoadContext.ShaderResources.Mesh));
             //TODO: overwrite texture somehow & take care of other fields
         }
 
