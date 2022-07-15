@@ -157,6 +157,14 @@ namespace OpenSage.Content
             _subsystems = game.AssetStore.Subsystems;
         }
 
+        private void LoadIniFiles(string folder)
+        {
+            foreach (var iniFile in GetFilesInFolder(folder, new HashSet<string>()))
+            {
+                _contentManager.LoadIniFile(iniFile);
+            }
+        }
+
         public void Load(Subsystem subsystem)
         {
             foreach (var entry in GetFilesForSubsystem(subsystem))
@@ -212,8 +220,8 @@ namespace OpenSage.Content
                     break;
 
                 case Subsystem.Wnd:
-                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\HandCreated");
-                    _contentManager.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512");
+                    LoadIniFiles(@"Data\INI\MappedImages\HandCreated");
+                    LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512");
                     switch (_gameDefinition.Game)
                     {
                         case SageGame.CncGenerals:
@@ -225,7 +233,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                            _contentManager.LoadIniFiles(@"Data\INI\MappedImages\AptImages");
+                            LoadIniFiles(@"Data\INI\MappedImages\AptImages");
                             break;
                     }
                     break;
@@ -343,6 +351,13 @@ namespace OpenSage.Content
             }
         }
 
+        private IEnumerable<FileSystemEntry> GetFilesInFolder(string folder, HashSet<string> excludePaths)
+        {
+            return _fileSystem
+                .GetFilesInDirectory(folder, "*.ini", SearchOption.AllDirectories)
+                .WhereNot(c => excludePaths.Contains(c.FilePath));
+        }
+
         private IEnumerable<FileSystemEntry> GetFilesForSubsystem(Subsystem abstractSubsystem)
         {
             var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems.GetByName(entryName)).ToList();
@@ -357,10 +372,10 @@ namespace OpenSage.Content
                         case InitFile file:
                             yield return _fileSystem.GetFile(file.Value);
                             break;
+
                         case InitPath folder:
                             // TODO: Validate that exclusions work.
-                            var entries = _fileSystem.GetFilesInDirectory(folder.Value, "*.ini", System.IO.SearchOption.AllDirectories).WhereNot(c => subsystem.ExcludePath.Contains(c.FilePath));
-                            foreach (var file in entries)
+                            foreach (var file in GetFilesInFolder(folder.Value, subsystem.ExcludePath))
                             {
                                 yield return file;
                             }

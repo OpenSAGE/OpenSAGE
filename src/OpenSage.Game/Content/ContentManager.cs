@@ -105,15 +105,6 @@ namespace OpenSage.Content
             }
         }
 
-        // TODO: Move these methods to somewhere else (SubsystemLoader?)
-        internal void LoadIniFiles(string folder)
-        {
-            foreach (var iniFile in FileSystem.GetFilesInDirectory(folder, "*.ini"))
-            {
-                LoadIniFile(iniFile);
-            }
-        }
-
         internal void LoadIniFile(string filePath)
         {
             LoadIniFile(FileSystem.GetFile(filePath));
