@@ -38,7 +38,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
-    <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\OpenSage.Core.Graphics.W3d\OpenSage.Core.Graphics.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Core.Graphics\OpenSage.Core.Graphics.csproj" />

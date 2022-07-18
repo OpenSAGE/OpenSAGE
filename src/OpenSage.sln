@@ -29,10 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Benchmarks.DataStr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.Mathematics", "OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats", "OpenSage.FileFormats\OpenSage.FileFormats.csproj", "{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.W3d", "OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj", "{C3857171-4F4B-42F6-8741-ED652C13F04B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigTool", "OpenSage.Tools.BigTool\OpenSage.Tools.BigTool.csproj", "{09B2C509-4033-433F-9442-4D81B930C715}"
@@ -95,14 +91,6 @@ Global
 		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
