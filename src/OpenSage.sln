@@ -27,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Benchmarks.DataStructures", "OpenSage.Benchmarks.DataStructures\OpenSage.Benchmarks.DataStructures.csproj", "{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics", "OpenSage.Mathematics\OpenSage.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics", "OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats", "OpenSage.FileFormats\OpenSage.FileFormats.csproj", "{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}"
 EndProject
@@ -50,7 +50,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.Sav2Json", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Rendering", "OpenSage.Rendering\OpenSage.Rendering.csproj", "{493357DD-0659-4C7F-8E98-0252E9BA4901}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics.Tests", "OpenSage.Mathematics.Tests\OpenSage.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics.Tests", "OpenSage.Core.Mathematics.Tests\OpenSage.Core.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Graphics", "OpenSage.Graphics\OpenSage.Graphics.csproj", "{4F5F3042-17AA-4C64-BB18-484547FD3AD5}"
 EndProject

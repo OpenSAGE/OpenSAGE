@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
-    <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+    <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
   </ItemGroup>
 
 </Project>

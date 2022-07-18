@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+    <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
   </ItemGroup>
 
 </Project>
