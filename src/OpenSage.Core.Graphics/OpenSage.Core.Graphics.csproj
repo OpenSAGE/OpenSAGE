@@ -7,11 +7,11 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
-    <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
     <PackageReference Include="ImGui.NET" Version="1.87.3" />
   </ItemGroup>
 

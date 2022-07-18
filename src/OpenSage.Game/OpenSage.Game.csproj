@@ -43,7 +43,6 @@
     <ProjectReference Include="..\OpenSage.Core.Graphics.W3d\OpenSage.Core.Graphics.W3d.csproj" />
     <ProjectReference Include="..\OpenSage.Core.Graphics\OpenSage.Core.Graphics.csproj" />
     <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
-    <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
   </ItemGroup>
 
   <ItemGroup>
