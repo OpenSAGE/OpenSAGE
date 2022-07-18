@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj" />
+    <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
   </ItemGroup>
 
 </Project>

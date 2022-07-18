@@ -19,8 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
+    <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
-    <ProjectReference Include="..\OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj" />
   </ItemGroup>
 
 </Project>

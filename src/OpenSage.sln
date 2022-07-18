@@ -27,20 +27,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Benchmarks.DataStructures", "OpenSage.Benchmarks.DataStructures\OpenSage.Benchmarks.DataStructures.csproj", "{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics", "OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.Mathematics", "OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats", "OpenSage.FileFormats\OpenSage.FileFormats.csproj", "{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.W3d", "OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj", "{C3857171-4F4B-42F6-8741-ED652C13F04B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Big", "OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj", "{7E58D531-B547-45E0-8A24-E90403B4DBFD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5767CC8D-AD47-472E-B263-87D77964DC85} = {5767CC8D-AD47-472E-B263-87D77964DC85}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.RefPack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigTool", "OpenSage.Tools.BigTool\OpenSage.Tools.BigTool.csproj", "{09B2C509-4033-433F-9442-4D81B930C715}"
 EndProject
@@ -50,11 +43,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.Sav2Json", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Rendering", "OpenSage.Rendering\OpenSage.Rendering.csproj", "{493357DD-0659-4C7F-8E98-0252E9BA4901}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics.Tests", "OpenSage.Core.Mathematics.Tests\OpenSage.Core.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.Mathematics.Tests", "OpenSage.Core.Mathematics.Tests\OpenSage.Core.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Graphics", "OpenSage.Graphics\OpenSage.Graphics.csproj", "{4F5F3042-17AA-4C64-BB18-484547FD3AD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics", "OpenSage.Graphics\OpenSage.Graphics.csproj", "{4F5F3042-17AA-4C64-BB18-484547FD3AD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Graphics.W3d", "OpenSage.Graphics.W3d\OpenSage.Graphics.W3d.csproj", "{F2D569BD-AD26-4DB2-809C-E503E684AF44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics.W3d", "OpenSage.Graphics.W3d\OpenSage.Graphics.W3d.csproj", "{F2D569BD-AD26-4DB2-809C-E503E684AF44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core.IO", "OpenSage.Core.IO\OpenSage.Core.IO.csproj", "{14D3D1E4-900A-486C-9783-23266B7A5002}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,18 +105,10 @@ Global
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Release|Any CPU.Build.0 = Release|Any CPU
 		{09B2C509-4033-433F-9442-4D81B930C715}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{09B2C509-4033-433F-9442-4D81B930C715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09B2C509-4033-433F-9442-4D81B930C715}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -150,6 +137,10 @@ Global
 		{F2D569BD-AD26-4DB2-809C-E503E684AF44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2D569BD-AD26-4DB2-809C-E503E684AF44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2D569BD-AD26-4DB2-809C-E503E684AF44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14D3D1E4-900A-486C-9783-23266B7A5002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14D3D1E4-900A-486C-9783-23266B7A5002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14D3D1E4-900A-486C-9783-23266B7A5002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14D3D1E4-900A-486C-9783-23266B7A5002}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
