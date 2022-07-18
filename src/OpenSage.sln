@@ -45,9 +45,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Rendering", "OpenS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.Mathematics.Tests", "OpenSage.Core.Mathematics.Tests\OpenSage.Core.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics", "OpenSage.Graphics\OpenSage.Graphics.csproj", "{4F5F3042-17AA-4C64-BB18-484547FD3AD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics", "OpenSage.Core.Graphics\OpenSage.Core.Graphics.csproj", "{4F5F3042-17AA-4C64-BB18-484547FD3AD5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics.W3d", "OpenSage.Graphics.W3d\OpenSage.Graphics.W3d.csproj", "{F2D569BD-AD26-4DB2-809C-E503E684AF44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Graphics.W3d", "OpenSage.Core.Graphics.W3d\OpenSage.Core.Graphics.W3d.csproj", "{F2D569BD-AD26-4DB2-809C-E503E684AF44}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core.IO", "OpenSage.Core.IO\OpenSage.Core.IO.csproj", "{14D3D1E4-900A-486C-9783-23266B7A5002}"
 EndProject

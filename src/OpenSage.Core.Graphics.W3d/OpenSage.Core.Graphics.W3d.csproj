@@ -5,7 +5,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj" />
-    <ProjectReference Include="..\OpenSage.Graphics\OpenSage.Graphics.csproj" />
+    <ProjectReference Include="..\OpenSage.Core.Graphics\OpenSage.Core.Graphics.csproj" />
   </ItemGroup>
 
 </Project>
