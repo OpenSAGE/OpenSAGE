@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
-    internal static class DecoderExtensions
+    public static class DecoderExtensions
     {
         public static uint DecodeValue(this uint token, byte start, byte end)
         {

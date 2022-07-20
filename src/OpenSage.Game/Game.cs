@@ -466,7 +466,7 @@ namespace OpenSage
                 var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
                 GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
 
-                AssetStore = new AssetStore(
+                AssetStore = AddDisposable(new AssetStore(
                     SageGame,
                     _fileSystem,
                     LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem),
@@ -474,7 +474,7 @@ namespace OpenSage
                     GraphicsLoadContext.StandardGraphicsResources,
                     GraphicsLoadContext.ShaderResources,
                     shaderSetStore,
-                    Definition.CreateAssetLoadStrategy());
+                    Definition.CreateAssetLoadStrategy()));
 
                 // TODO
                 AssetStore.PushScope();

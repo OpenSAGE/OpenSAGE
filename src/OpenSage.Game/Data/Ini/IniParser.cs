@@ -680,7 +680,8 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<TextureAsset> ParseTextureReference()
         {
             var fileName = ParseFileName();
-            return _assetStore.Textures.GetLazyAssetReferenceByName(fileName);
+
+            return new LazyAssetReference<TextureAsset>(() => _assetStore.Textures.GetByName(fileName));
         }
 
         public LazyAssetReference<GuiTextureAsset> ParseGuiTextureReference()

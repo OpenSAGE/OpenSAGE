@@ -7,6 +7,7 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Gui.Wnd;
 using OpenSage.Mods.Generals.Gui;
+using OpenSage.Core.Graphics;
 
 namespace OpenSage.Mods.Generals
 {
@@ -41,7 +42,7 @@ namespace OpenSage.Mods.Generals
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
-            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
+            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, TexturePathResolvers.Generals, PathResolvers.GeneralsTexture);
         }
 
         public bool Probe(string directory)

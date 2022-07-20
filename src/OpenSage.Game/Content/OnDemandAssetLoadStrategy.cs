@@ -1,4 +1,5 @@
 ﻿using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
 
 namespace OpenSage.Content
 {
@@ -6,15 +7,17 @@ namespace OpenSage.Content
     {
         private readonly bool _allowOnDemandLoading;
         private readonly IPathResolver _w3dPathResolver;
-        private readonly IPathResolver _texturePathResolver;
+        private readonly ITexturePathResolver _texturePathResolver;
+        private readonly IPathResolver _guiTexturePathResolver;
 
         public static readonly OnDemandAssetLoadStrategy None = new OnDemandAssetLoadStrategy(false);
 
-        public OnDemandAssetLoadStrategy(IPathResolver w3dPathResolver, IPathResolver texturePathResolver)
+        public OnDemandAssetLoadStrategy(IPathResolver w3dPathResolver, ITexturePathResolver texturePathResolver, IPathResolver guiTexturePathResolver)
             : this(true)
         {
             _w3dPathResolver = w3dPathResolver;
             _texturePathResolver = texturePathResolver;
+            _guiTexturePathResolver = guiTexturePathResolver;
         }
 
         private OnDemandAssetLoadStrategy(bool allowOnDemandLoading)
@@ -46,15 +49,13 @@ namespace OpenSage.Content
         internal OnDemandGuiTextureLoader CreateGuiTextureLoader()
         {
             return _allowOnDemandLoading
-                ? new OnDemandGuiTextureLoader(false, _texturePathResolver)
+                ? new OnDemandGuiTextureLoader(false, _guiTexturePathResolver)
                 : null;
         }
 
-        internal OnDemandTextureLoader CreateTextureLoader()
+        internal ITexturePathResolver GetTexturePathResolver()
         {
-            return _allowOnDemandLoading
-                ? new OnDemandTextureLoader(true, _texturePathResolver)
-                : null;
+            return _texturePathResolver;
         }
 
         internal OnDemandAudioFileLoader CreateAudioFileLoader()

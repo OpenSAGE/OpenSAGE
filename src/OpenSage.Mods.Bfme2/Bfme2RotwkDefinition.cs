@@ -6,6 +6,7 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using System.IO;
+using OpenSage.Core.Graphics;
 
 namespace OpenSage.Mods.Bfme2
 {
@@ -42,7 +43,7 @@ namespace OpenSage.Mods.Bfme2
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
-            return new OnDemandAssetLoadStrategy(PathResolvers.Bfme2W3d, PathResolvers.Bfme2Texture);
+            return new OnDemandAssetLoadStrategy(PathResolvers.Bfme2W3d, TexturePathResolvers.Bfme2, PathResolvers.Bfme2Texture);
         }
 
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
