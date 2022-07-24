@@ -1,33 +1,23 @@
 ﻿using OpenSage.Graphics.Rendering;
-using OpenSage.Graphics.Shaders;
 using Veldrid;
 
 namespace OpenSage.Graphics
 {
     public sealed class ModelMeshPartInstance : DisposableBase
     {
-        private readonly ResourceSet _renderItemConstantsResourceSet;
+        private readonly ModelMeshInstance _meshInstance;
 
         public readonly ModelMeshPart ModelMeshPart;
-        public readonly ModelMeshInstance MeshInstance;
 
         public readonly BeforeRenderDelegate BeforeRenderCallback;
         public readonly BeforeRenderDelegate BeforeRenderCallbackDepth;
 
         public ModelMeshPartInstance(
             ModelMeshPart modelMeshPart,
-            ModelMeshInstance modelMeshInstance,
-            MeshShaderResources meshShaderResources)
+            ModelMeshInstance modelMeshInstance)
         {
             ModelMeshPart = modelMeshPart;
-            MeshInstance = modelMeshInstance;
-
-            _renderItemConstantsResourceSet = AddDisposable(
-                meshShaderResources.CreateRenderItemConstantsResourceSet(
-                    modelMeshPart.ModelMesh.MeshConstantsBuffer,
-                    modelMeshInstance.RenderItemConstantsBufferVS,
-                    modelMeshInstance.ModelInstance.SkinningBuffer,
-                    modelMeshInstance.ModelInstance.RenderItemConstantsBufferPS));
+            _meshInstance = modelMeshInstance;
 
             BeforeRenderCallback = (CommandList cl, in RenderItem renderItem) =>
             {
@@ -44,9 +34,7 @@ namespace OpenSage.Graphics
             CommandList cl,
             in RenderItem renderItem)
         {
-            MeshInstance.OnBeforeRender(cl, renderItem);
-
-            cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
+            _meshInstance.OnBeforeRender(cl, renderItem);
 
             ModelMeshPart.BeforeRender(cl);
         }

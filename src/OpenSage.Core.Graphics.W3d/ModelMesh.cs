@@ -20,6 +20,9 @@ namespace OpenSage.Graphics
     /// </summary>
     public sealed partial class ModelMesh : ModelRenderObject
     {
+        private readonly GraphicsDevice _graphicsDevice;
+        private readonly MeshShaderResources _meshShaderResources;
+
         internal readonly DeviceBuffer VertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
@@ -147,6 +150,15 @@ namespace OpenSage.Graphics
                     _indexBuffer,
                     modelMeshInstance.MeshPartInstances[i].BeforeRenderCallback));
             }
+        }
+
+        public ModelMeshInstance CreateInstance(ModelInstance modelInstance)
+        {
+            return new ModelMeshInstance(
+                this,
+                modelInstance,
+                _graphicsDevice,
+                _meshShaderResources);
         }
     }
 }

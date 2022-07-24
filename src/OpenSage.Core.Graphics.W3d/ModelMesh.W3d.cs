@@ -27,6 +27,9 @@ namespace OpenSage.Graphics
         {
             SetNameAndInstanceId("W3DMesh", w3dMesh.Header.MeshName);
 
+            _graphicsDevice = graphicsDevice;
+            _meshShaderResources = meshShaderResources;
+
             W3dShaderMaterial w3dShaderMaterial;
             ShaderSet shaderResources;
             if (w3dMesh.MaterialPasses.Count == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialIds != null)

@@ -7,9 +7,8 @@ namespace OpenSage.Graphics
 {
     public sealed class ModelMeshInstance : DisposableBase
     {
-        internal readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> RenderItemConstantsBufferVS;
-
-        public readonly ModelInstance ModelInstance;
+        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ResourceSet _renderItemConstantsResourceSet;
 
         public readonly List<ModelMeshPartInstance> MeshPartInstances = new();
 
@@ -19,21 +18,23 @@ namespace OpenSage.Graphics
             GraphicsDevice graphicsDevice,
             MeshShaderResources meshShaderResources)
         {
-            ModelInstance = modelInstance;
-
-            RenderItemConstantsBufferVS = AddDisposable(
+            _renderItemConstantsBufferVS = AddDisposable(
                 new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(
                     graphicsDevice,
                     $"{modelMesh.SubObject.FullName}_RenderItemConstantsVS"));
+
+            _renderItemConstantsResourceSet = AddDisposable(
+                meshShaderResources.CreateRenderItemConstantsResourceSet(
+                    modelMesh.MeshConstantsBuffer,
+                    _renderItemConstantsBufferVS,
+                    modelInstance.SkinningBuffer,
+                    modelInstance.RenderItemConstantsBufferPS));
 
             foreach (var modelMeshPart in modelMesh.MeshParts)
             {
                 MeshPartInstances.Add(
                     AddDisposable(
-                        new ModelMeshPartInstance(
-                            modelMeshPart,
-                            this,
-                            meshShaderResources)));
+                        new ModelMeshPartInstance(modelMeshPart, this)));
             }
         }
 
@@ -41,11 +42,13 @@ namespace OpenSage.Graphics
             CommandList cl,
             in RenderItem renderItem)
         {
-            if (RenderItemConstantsBufferVS.Value.World != renderItem.World)
+            if (_renderItemConstantsBufferVS.Value.World != renderItem.World)
             {
-                RenderItemConstantsBufferVS.Value.World = renderItem.World;
-                RenderItemConstantsBufferVS.Update(cl);
+                _renderItemConstantsBufferVS.Value.World = renderItem.World;
+                _renderItemConstantsBufferVS.Update(cl);
             }
+
+            cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
         }
     }
 }

@@ -50,18 +50,11 @@ public sealed class TextureAssetCache : IDisposable
 
         // Find it in the file system.
         FileSystemEntry entry = null;
-        foreach (var path in _pathResolver.GetPaths(name))
+        var path = _pathResolver.GetPath(name);
+        foreach (var possibleFileExtension in PossibleFileExtensions)
         {
-            foreach (var possibleFileExtension in PossibleFileExtensions)
-            {
-                var possibleFilePath = Path.ChangeExtension(path, possibleFileExtension);
-                entry = _fileSystem.GetFile(possibleFilePath);
-                if (entry != null)
-                {
-                    break;
-                }
-            }
-
+            var possibleFilePath = Path.ChangeExtension(path, possibleFileExtension);
+            entry = _fileSystem.GetFile(possibleFilePath);
             if (entry != null)
             {
                 break;
@@ -196,36 +189,27 @@ public sealed class TextureAssetCache : IDisposable
 
 public interface ITexturePathResolver
 {
-    IEnumerable<string> GetPaths(string name);
+    string GetPath(string name);
 }
 
 public static class TexturePathResolvers
 {
     public static readonly ITexturePathResolver Generals = new StandardTexturePathResolver();
-    public static readonly ITexturePathResolver Bfme = new BfmeTexturePathResolver();
     public static readonly ITexturePathResolver Bfme2 = new Bfme2TexturePathResolver();
 
     private sealed class StandardTexturePathResolver : ITexturePathResolver
     {
-        public IEnumerable<string> GetPaths(string name)
+        public string GetPath(string name)
         {
-            yield return Path.Combine("art", "textures", name);
-        }
-    }
-
-    private sealed class BfmeTexturePathResolver : ITexturePathResolver
-    {
-        public IEnumerable<string> GetPaths(string name)
-        {
-            yield return Path.Combine("art", "textures", name);
+            return Path.Combine("art", "textures", name);
         }
     }
 
     private sealed class Bfme2TexturePathResolver : ITexturePathResolver
     {
-        public IEnumerable<string> GetPaths(string name)
+        public string GetPath(string name)
         {
-            yield return Path.Combine("art", "compiledtextures", name.Substring(0, 2), name);
+            return Path.Combine("art", "compiledtextures", name.Substring(0, 2), name);
         }
     }
 }

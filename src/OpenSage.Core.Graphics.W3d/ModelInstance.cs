@@ -62,8 +62,7 @@ namespace OpenSage.Graphics
         internal ModelInstance(
             Model model,
             GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
-            MeshShaderResources meshShaderResources)
+            StandardGraphicsResources standardGraphicsResources)
         {
             Model = model;
 
@@ -126,12 +125,7 @@ namespace OpenSage.Graphics
                     continue;
                 }
 
-                MeshInstances[i] = AddDisposable(
-                    new ModelMeshInstance(
-                        mesh,
-                        this,
-                        graphicsDevice,
-                        meshShaderResources));
+                MeshInstances[i] = AddDisposable(mesh.CreateInstance(this));
             }
 
             UnknownBools = new bool[model.SubObjects.Length];

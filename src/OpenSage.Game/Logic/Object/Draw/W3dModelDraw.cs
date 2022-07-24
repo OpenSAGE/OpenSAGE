@@ -276,7 +276,7 @@ namespace OpenSage.Logic.Object
         {
             // Load model, fallback to default model.
             var model = conditionState.Model?.Value;
-            var modelInstance = model?.CreateInstance(_context.AssetLoadContext.GraphicsDevice, _context.AssetLoadContext.StandardGraphicsResources, _context.AssetLoadContext.ShaderResources.Mesh) ?? null;
+            var modelInstance = model?.CreateInstance(_context.AssetLoadContext.GraphicsDevice, _context.AssetLoadContext.StandardGraphicsResources) ?? null;
 
             if (modelInstance == null)
             {

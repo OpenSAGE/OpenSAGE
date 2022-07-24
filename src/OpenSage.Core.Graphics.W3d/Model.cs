@@ -40,14 +40,12 @@ namespace OpenSage.Graphics
 
         public ModelInstance CreateInstance(
             GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
-            MeshShaderResources meshShaderResources)
+            StandardGraphicsResources standardGraphicsResources)
         {
             return new ModelInstance(
                 this,
                 graphicsDevice,
-                standardGraphicsResources,
-                meshShaderResources);
+                standardGraphicsResources);
         }
     }
 }

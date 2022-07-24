@@ -131,7 +131,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             DebugName = $"ParticleSystem_{Template.Name}";
 
-            var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
+            var particleShaderSet = loadContext.ShaderResources.Particle;
 
             _particleMaterial = particleShaderSet.GetMaterial(Template);
 

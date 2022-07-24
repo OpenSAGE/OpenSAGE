@@ -2,6 +2,7 @@
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
 using OpenSage.Core.Graphics;
+using OpenSage.Core.Graphics.W3d;
 using OpenSage.Eva;
 using OpenSage.FX;
 using OpenSage.Graphics;
@@ -135,10 +136,6 @@ namespace OpenSage.Content
         public ScopedAssetCollection<MapCache> MapCaches { get; }
         public ScopedAssetCollection<MappedImage> MappedImages { get; }
         public ScopedAssetCollection<MeshNameMatches> MeshNameMatches { get; }
-        public ScopedAssetCollection<Model> Models { get; }
-        public ScopedAssetCollection<Graphics.Animation.W3DAnimation> ModelAnimations { get; }
-        public ScopedAssetCollection<ModelBoneHierarchy> ModelBoneHierarchies { get; }
-        public ScopedAssetCollection<ModelMesh> ModelMeshes { get; }
         public ScopedAssetCollection<ModifierList> ModifierLists { get; }
         public ScopedAssetCollection<MouseCursor> MouseCursors { get; }
         public ScopedAssetCollection<MultiplayerColor> MultiplayerColors { get; }
@@ -173,6 +170,7 @@ namespace OpenSage.Content
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
         public TextureAssetCache Textures { get; }
+        public W3dAssetCache W3dAssets { get; }
 
         internal AssetStore(
             SageGame sageGame,
@@ -305,10 +303,6 @@ namespace OpenSage.Content
             AddAssetCollection(MapCaches = new ScopedAssetCollection<MapCache>(this));
             AddAssetCollection(MappedImages = new ScopedAssetCollection<MappedImage>(this));
             AddAssetCollection(MeshNameMatches = new ScopedAssetCollection<MeshNameMatches>(this));
-            AddAssetCollection(Models = new ScopedAssetCollection<Model>(this, loadStrategy.CreateModelLoader()));
-            AddAssetCollection(ModelAnimations = new ScopedAssetCollection<Graphics.Animation.W3DAnimation>(this, loadStrategy.CreateAnimationLoader()));
-            AddAssetCollection(ModelBoneHierarchies = new ScopedAssetCollection<ModelBoneHierarchy>(this, loadStrategy.CreateModelBoneHierarchyLoader()));
-            AddAssetCollection(ModelMeshes = new ScopedAssetCollection<ModelMesh>(this)); // TODO: ModelMesh loader?
             AddAssetCollection(ModifierLists = new ScopedAssetCollection<ModifierList>(this));
             AddAssetCollection(MouseCursors = new ScopedAssetCollection<MouseCursor>(this));
             AddAssetCollection(MultiplayerColors = new ScopedAssetCollection<MultiplayerColor>(this));
@@ -343,6 +337,7 @@ namespace OpenSage.Content
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
 
             Textures = AddDisposable(new TextureAssetCache(graphicsDevice, fileSystem, loadStrategy.GetTexturePathResolver()));
+            W3dAssets = AddDisposable(new W3dAssetCache(graphicsDevice, fileSystem, loadStrategy.GetW3dPathResolver(), Textures, standardGraphicsResources, shaderSetStore));
         }
 
         internal void PushScope()
@@ -383,6 +378,10 @@ namespace OpenSage.Content
                 }
             }
             foreach (var asset in Textures.GetAssets())
+            {
+                yield return asset;
+            }
+            foreach (var asset in W3dAssets.GetAssets())
             {
                 yield return asset;
             }

@@ -1,18 +1,17 @@
 ﻿using OpenSage.Content.Loaders;
 using OpenSage.Core.Graphics;
+using OpenSage.Core.Graphics.W3d;
 
 namespace OpenSage.Content
 {
     public sealed class OnDemandAssetLoadStrategy
     {
         private readonly bool _allowOnDemandLoading;
-        private readonly IPathResolver _w3dPathResolver;
+        private readonly IW3dPathResolver _w3dPathResolver;
         private readonly ITexturePathResolver _texturePathResolver;
         private readonly IPathResolver _guiTexturePathResolver;
 
-        public static readonly OnDemandAssetLoadStrategy None = new OnDemandAssetLoadStrategy(false);
-
-        public OnDemandAssetLoadStrategy(IPathResolver w3dPathResolver, ITexturePathResolver texturePathResolver, IPathResolver guiTexturePathResolver)
+        public OnDemandAssetLoadStrategy(IW3dPathResolver w3dPathResolver, ITexturePathResolver texturePathResolver, IPathResolver guiTexturePathResolver)
             : this(true)
         {
             _w3dPathResolver = w3dPathResolver;
@@ -25,25 +24,9 @@ namespace OpenSage.Content
             _allowOnDemandLoading = allowOnDemandLoading;
         }
 
-        internal OnDemandAnimationLoader CreateAnimationLoader()
+        internal IW3dPathResolver GetW3dPathResolver()
         {
-            return _allowOnDemandLoading
-                ? new OnDemandAnimationLoader(_w3dPathResolver)
-                : null;
-        }
-
-        internal OnDemandModelLoader CreateModelLoader()
-        {
-            return _allowOnDemandLoading
-                ? new OnDemandModelLoader(_w3dPathResolver)
-                : null;
-        }
-
-        internal OnDemandModelBoneHierarchyLoader CreateModelBoneHierarchyLoader()
-        {
-            return _allowOnDemandLoading
-                ? new OnDemandModelBoneHierarchyLoader(_w3dPathResolver)
-                : null;
+            return _w3dPathResolver;
         }
 
         internal OnDemandGuiTextureLoader CreateGuiTextureLoader()
