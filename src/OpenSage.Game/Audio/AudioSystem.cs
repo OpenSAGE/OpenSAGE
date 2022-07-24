@@ -69,19 +69,20 @@ namespace OpenSage.Audio
         {
             // Create all available mixers
             _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.SoundFX].Volume = (float) _settings.DefaultSoundVolume;
+            // TODO_RM this doesn't work
+            _mixers[AudioVolumeSlider.SoundFX].Volume = 0f; // (float) _settings.DefaultSoundVolume;
 
             _mixers[AudioVolumeSlider.Music] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Music].Volume = (float) _settings.DefaultMusicVolume;
+            _mixers[AudioVolumeSlider.Music].Volume = 0f; // (float) _settings.DefaultMusicVolume;
 
             _mixers[AudioVolumeSlider.Ambient] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Ambient].Volume = (float) _settings.DefaultAmbientVolume;
+            _mixers[AudioVolumeSlider.Ambient].Volume = 0f; // (float) _settings.DefaultAmbientVolume;
 
             _mixers[AudioVolumeSlider.Voice] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Voice].Volume = (float) _settings.DefaultVoiceVolume;
+            _mixers[AudioVolumeSlider.Voice].Volume = 0f; // (float) _settings.DefaultVoiceVolume;
 
             _mixers[AudioVolumeSlider.Movie] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Movie].Volume = (float) _settings.DefaultMovieVolume;
+            _mixers[AudioVolumeSlider.Movie].Volume = 0f; // (float) _settings.DefaultMovieVolume;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -150,6 +151,8 @@ namespace OpenSage.Audio
 
         public void PlayAudioEvent(string eventName)
         {
+            // disabling it here didn't work either
+            return;
             var audioEvent = Game.AssetStore.AudioEvents.GetByName(eventName);
 
             if (audioEvent == null)
@@ -229,7 +232,8 @@ namespace OpenSage.Audio
 
             // TODO: fix issues with some units
             //_3dengine.SetSourcePosition(source, emitter.Transform.Translation);
-            source.Play();
+            // TODO_RM this worked
+            // source.Play();
             return source;
         }
 
@@ -241,7 +245,8 @@ namespace OpenSage.Audio
                 return null;
             }
 
-            source.Play();
+            // TODO_RM this worked
+            // source.Play();
             return source;
         }
 
