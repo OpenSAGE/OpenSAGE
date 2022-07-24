@@ -14,7 +14,7 @@ using Veldrid;
 namespace OpenSage.Graphics.ParticleSystems
 {
     [DebuggerDisplay("ParticleSystem {Template.Name}")]
-    public sealed class ParticleSystem : DisposableBase, IPersistableObject
+    public sealed class ParticleSystem : RenderObject, IPersistableObject
     {
         public const int KeyframeCount = 8;
 
@@ -27,8 +27,6 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
         private readonly Material _particleMaterial;
-
-        private readonly BeforeRenderDelegate _beforeRender;
 
         private int _initialDelay;
 
@@ -83,6 +81,16 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public int CurrentParticleCount { get; private set; }
 
+        public override string DebugName { get; }
+
+        public override MaterialPass MaterialPass { get; }
+
+        public override AxisAlignedBoundingBox BoundingBox =>
+            AxisAlignedBoundingBox.CreateFromSphere(
+                new BoundingSphere(
+                    _worldTransform.Translation,
+                    10)); // TODO
+
         internal ParticleSystem(
             FXParticleSystemTemplate template,
             AssetLoadContext loadContext,
@@ -121,9 +129,13 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
+            DebugName = $"ParticleSystem_{Template.Name}";
+
             var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
 
             _particleMaterial = particleShaderSet.GetMaterial(Template);
+
+            MaterialPass = new MaterialPass(_particleMaterial, null);
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
@@ -160,14 +172,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 maxParticles,
                 out _numIndices));
 
-            State = ParticleSystemState.Inactive;
-
-            _beforeRender = (CommandList cl, RenderContext context, in RenderItem renderItem) =>
-            {
-                UpdateVertexBuffer(cl);
-
-                cl.SetVertexBuffer(0, _vertexBuffer);
-            };
+            State = ParticleSystemState.Active;
         }
 
         public void Activate()
@@ -184,6 +189,11 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 State = ParticleSystemState.Inactive;
             }
+        }
+
+        public void Finish()
+        {
+            State = ParticleSystemState.Finished;
         }
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
@@ -505,22 +515,20 @@ namespace OpenSage.Graphics.ParticleSystems
             commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        internal void BuildRenderList(RenderList renderList)
+        public override void Render(CommandList commandList)
         {
-            if (_particles == null)
+            if (State == ParticleSystemState.Inactive)
             {
                 return;
             }
 
-            renderList.Transparent.RenderItems.Add(new RenderItem(
-                Template.Name,
-                _particleMaterial,
-                AxisAlignedBoundingBox.CreateFromSphere(new BoundingSphere(_worldTransform.Translation, 10)), // TODO
-                Matrix4x4.Identity,
-                0,
-                _numIndices,
-                _indexBuffer,
-                _beforeRender));
+            UpdateVertexBuffer(commandList);
+
+            commandList.SetVertexBuffer(0, _vertexBuffer);
+
+            commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+
+            commandList.DrawIndexed(_numIndices, 1, 0, 0, 0);
         }
 
         private ref readonly Matrix4x4 GetWorldMatrix()

@@ -113,6 +113,9 @@ namespace OpenSage.Client
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
+            _hiddenSubObjects = new Dictionary<string, bool>();
+            _shownSubObjects = new Dictionary<string, bool>();
+
             _drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
@@ -132,8 +135,6 @@ namespace OpenSage.Client
                 .ToList();
 
             _hiddenDrawModules = new List<string>();
-            _hiddenSubObjects = new Dictionary<string, bool>();
-            _shownSubObjects = new Dictionary<string, bool>();
 
             _clientUpdateModules = new List<ClientUpdateModule>();
             foreach (var clientUpdateModuleDataContainer in objectDefinition.ClientUpdates.Values)
@@ -277,7 +278,6 @@ namespace OpenSage.Client
             }
             _shownSubObjects.Remove(subObject);
         }
-
 
         public void ShowSubObject(string subObject)
         {

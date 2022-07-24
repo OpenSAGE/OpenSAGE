@@ -111,6 +111,7 @@ namespace OpenSage.Logic.Object
             if (CurrentTarget != null)
             {
                 ParentGameObject.ModelConditionFlags.Set(_usingFlag, true);
+                ParentGameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, true);
             }
         }
 
@@ -121,6 +122,7 @@ namespace OpenSage.Logic.Object
             if (CurrentTarget != null && CurrentTarget.IsDestroyed)
             {
                 CurrentTarget = null;
+                ParentGameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, false);
             }
         }
 

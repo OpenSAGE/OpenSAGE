@@ -47,8 +47,7 @@ namespace OpenSage.Logic.Object
                 foreach (var particleSystemTemplate in particleSystems)
                 {
                     context.GameContext.ParticleSystems
-                        .Create(particleSystemTemplate.ParticleSystem.Value, worldMatrix)
-                        .Activate();
+                        .Create(particleSystemTemplate.ParticleSystem.Value, worldMatrix);
                 }
             }
 

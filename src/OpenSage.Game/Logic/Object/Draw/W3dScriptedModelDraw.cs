@@ -1,50 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    // The "script" part of this is rolled up into the parent W3DModelDraw module.
     [AddedIn(SageGame.Bfme)]
     public class W3dScriptedModelDraw : W3dModelDraw
     {
-        private readonly GameContext _context;
-        public AnimationState PreviousAnimationState { get; private set; }
-
         internal W3dScriptedModelDraw(
             W3dScriptedModelDrawModuleData data,
             Drawable drawable,
             GameContext context)
             : base(data, drawable, context)
         {
-            _context = context;
-        }
-
-        protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
-        {
-            PreviousAnimationState = _activeAnimationState;
-            if (!base.SetActiveAnimationState(animationState, random))
-            {
-                return false;
-            }
-
-            if (animationState != null && animationState.Script != null)
-            {
-                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
-            }
-            _activeAnimationState = animationState;
-            return true;
-        }
-
-        public void SetTransitionState(string state)
-        {
-            var transitionState = _bfmeTransitionStates.Where(x => x.Name == state).FirstOrDefault();
-            SetActiveAnimationState(transitionState, _context.Random);
         }
     }
-
 
     public class W3dScriptedModelDrawModuleData : W3dModelDrawModuleData
     {

@@ -694,7 +694,8 @@ namespace OpenSage.Logic.Object
 
         internal void OnCollide(GameObject collidingObject)
         {
-            Logger.Info($"GameObject {Definition.Name} colliding with {collidingObject.Definition.Name}");
+            // TODO_RM un-comment
+            // Logger.Info($"GameObject {Definition.Name} colliding with {collidingObject.Definition.Name}");
 
             foreach (var behavior in _behaviorModules)
             {
@@ -1326,18 +1327,20 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            foreach (var drawModule in Drawable.DrawModules)
+            static void DrawInspector(ModuleBase module)
             {
-                if (ImGui.CollapsingHeader(drawModule.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+                if (ImGui.CollapsingHeader($"{module.GetType().Name} {module.Tag}", ImGuiTreeNodeFlags.DefaultOpen))
                 {
-                    drawModule.DrawInspector();
+                    module.DrawInspector();
                 }
             }
 
-            if (ImGui.CollapsingHeader(_body.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
+            foreach (var drawModule in Drawable.DrawModules)
             {
-                _body.DrawInspector();
+                DrawInspector(drawModule);
             }
+
+            DrawInspector(_body);
 
             if (CurrentWeapon != null)
             {
@@ -1350,10 +1353,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var behaviorModule in BehaviorModules)
             {
-                if (ImGui.CollapsingHeader(behaviorModule.GetType().Name, ImGuiTreeNodeFlags.DefaultOpen))
-                {
-                    behaviorModule.DrawInspector();
-                }
+                DrawInspector(behaviorModule);
             }
         }
 

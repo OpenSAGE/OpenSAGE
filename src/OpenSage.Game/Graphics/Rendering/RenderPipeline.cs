@@ -224,14 +224,6 @@ namespace OpenSage.Graphics.Rendering
 
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
-            commandList.PushDebugGroup("Terrain");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, standardPassCameraFrustum, forwardPassResourceSet);
-            commandList.PopDebugGroup();
-
-            commandList.PushDebugGroup("Road");
-            RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Road, standardPassCameraFrustum, forwardPassResourceSet);
-            commandList.PopDebugGroup();
-
             commandList.PushDebugGroup("Opaque");
             RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
@@ -239,6 +231,8 @@ namespace OpenSage.Graphics.Rendering
             commandList.PushDebugGroup("Transparent");
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
+
+            scene.RenderScene.Render(commandList, _globalShaderResourceData.GlobalConstantsResourceSet, forwardPassResourceSet);
 
             commandList.PushDebugGroup("Water");
             DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, forwardPassResourceSet);
@@ -284,7 +278,6 @@ namespace OpenSage.Graphics.Rendering
 
                         commandList.SetFullViewports();
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlaneTop, clippingPlaneBottom);
                         RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, forwardPassResourceSet, clippingPlaneTop, clippingPlaneBottom);
                         commandList.PopDebugGroup();
                     }
@@ -303,7 +296,6 @@ namespace OpenSage.Graphics.Rendering
                         commandList.ClearColorTarget(0, ClearColor);
                         commandList.ClearDepthStencil(1);
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
                         // -----------------------------------------------------------------------
 
                         // Render inverted scene for water reflection shader
@@ -316,7 +308,6 @@ namespace OpenSage.Graphics.Rendering
 
                         commandList.SetFullViewports();
 
-                        RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Terrain, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
                         RenderedObjectsOpaque += DoRenderPass(context, commandList, _renderList.Opaque, camera.BoundingFrustum, forwardPassResourceSet, clippingPlane);
 
                         camera.SetMirrorX(pivot);
@@ -388,7 +379,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetGraphicsResourceSet(2, _waterMapRenderer.ResourceSetForRendering);
                 }
 
-                renderItem.BeforeRenderCallback.Invoke(commandList, context, renderItem);
+                renderItem.BeforeRenderCallback.Invoke(commandList, renderItem);
 
                 if (renderItem.Material.MaterialResourceSet != null)
                 {

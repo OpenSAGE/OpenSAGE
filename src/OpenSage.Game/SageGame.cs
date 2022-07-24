@@ -12,6 +12,5 @@
         Ra3,
         Ra3Uprising,
         Cnc4,
-        Tool,
     }
 }

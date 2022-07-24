@@ -39,9 +39,6 @@ namespace OpenSage.Utilities
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
                     return DetectFromFileSystem(fileSystem, "lang", "", "Audio.big");
-                case SageGame.Ra3Uprising:
-                case SageGame.Ra3:
-                    return DetectFromFileSystem(fileSystem, "Data", "", "Audio.big");
             }
 
             return DefaultLanguage;

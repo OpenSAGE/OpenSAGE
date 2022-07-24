@@ -14,7 +14,8 @@ public sealed class Material : DisposableBase
     public Material(
         ShaderSet shaderSet,
         Pipeline pipeline,
-        ResourceSet materialResourceSet)
+        ResourceSet materialResourceSet,
+        SurfaceType surfaceType)
     {
         Id = shaderSet.GetNextMaterialId();
 
@@ -22,10 +23,19 @@ public sealed class Material : DisposableBase
         Pipeline = pipeline;
         MaterialResourceSet = materialResourceSet;
 
-        // Bit 24-31: ShaderSet
-        RenderKey |= (ShaderSet.Id << 24);
+        // Bit 31: SurfaceType
+        RenderKey |= ((int)surfaceType) << 31;
 
-        // Bit 16-23: Material
-        RenderKey |= (Id) << 16;
+        // Bit 23-30: ShaderSet
+        RenderKey |= (ShaderSet.Id << 23);
+
+        // Bit 15-22: Material
+        RenderKey |= (Id) << 15;
     }
+}
+
+public enum SurfaceType : byte
+{
+    Opaque = 0,
+    Transparent = 1,
 }

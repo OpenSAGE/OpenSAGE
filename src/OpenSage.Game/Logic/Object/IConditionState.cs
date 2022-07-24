@@ -1,9 +1,10 @@
-﻿using OpenSage.Mathematics;
+﻿using System.Collections.Generic;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public interface IConditionState
     {
-        BitArray<ModelConditionFlag> ConditionFlags { get; }
+        List<BitArray<ModelConditionFlag>> ConditionFlags { get; }
     }
 }

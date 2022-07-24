@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -236,6 +237,21 @@ namespace OpenSage.Graphics
                     _worldMatrix,
                     castsShadow,
                     renderItemConstantsPS);
+            }
+        }
+
+        internal void DrawInspector()
+        {
+            ImGui.LabelText("Model", Model.Name ?? "<null>");
+
+            if (ImGui.TreeNodeEx("Animations", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                foreach (var animationInstance in AnimationInstances)
+                {
+                    animationInstance.DrawInspector();
+                }
+
+                ImGui.TreePop();
             }
         }
     }

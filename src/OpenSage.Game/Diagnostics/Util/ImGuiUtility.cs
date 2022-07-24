@@ -13,10 +13,9 @@ namespace OpenSage.Diagnostics.Util
         public static void SetupDocking()
         {
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-            //TODO: For multi-viewports we need to connect the platform IO callbacks
-            //ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 
-            //ImGui.GetPlatformIO().Renderer_CreateWindow = ...
+            // Need to reload .ini file as described in https://github.com/mellinoe/veldrid/issues/410
+            ImGui.LoadIniSettingsFromDisk(ImGui.GetIO().IniFilename);
         }
 
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)

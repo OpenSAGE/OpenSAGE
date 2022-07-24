@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -9,24 +10,9 @@ namespace OpenSage.Logic.Object
 {
     public class ModelConditionState : IConditionState
     {
-        internal static ModelConditionState ParseDefault(IniParser parser)
+        internal static void Parse(IniParser parser, ModelConditionState result)
         {
-            var result = parser.ParseBlock(FieldParseTable);
-
-            result.ConditionFlags = new BitArray<ModelConditionFlag>(); // "NONE"
-
-            return result;
-        }
-
-        internal static ModelConditionState Parse(IniParser parser, ModelConditionState defaultConditionState)
-        {
-            var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
-
-            var result = parser.ParseBlock(FieldParseTable, defaultConditionState?.Clone() ?? new ModelConditionState());
-
-            result.ConditionFlags = conditionFlags;
-
-            return result;
+            parser.ParseBlock(FieldParseTable, result);
         }
 
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
@@ -39,11 +25,6 @@ namespace OpenSage.Logic.Object
             { "WeaponMuzzleFlash", (parser, x) => x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponLaunchBone", (parser, x) => x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
-            { "Animation", (parser, x) => x.ParseAnimation(parser) },
-            { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = parser.ParseFloatRange() },
-            { "IdleAnimation", (parser, x) => x.IdleAnimations.Add(ObjectConditionAnimation.Parse(parser)) },
-            { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<AnimationFlags>() },
 
             { "Turret", (parser, x) => x.Turret = parser.ParseAssetReference() },
             { "TurretArtAngle", (parser, x) => x.TurretArtAngle = parser.ParseInteger() },
@@ -51,12 +32,7 @@ namespace OpenSage.Logic.Object
             { "AltTurret", (parser, x) => x.AltTurret = parser.ParseAssetReference() },
             { "AltTurretPitch", (parser, x) => x.AltTurretPitch = parser.ParseAssetReference() },
 
-            { "HideSubObject", (parser, x) => x.HideSubObject = parser.ParseAssetReferenceArray() },
-            { "ShowSubObject", (parser, x) => x.ShowSubObject = parser.ParseAssetReferenceArray() },
             { "ParticleSysBone", (parser, x) => x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)) },
-
-            { "TransitionKey", (parser, x) => x.TransitionKey = parser.ParseIdentifier() },
-            { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
 
             { "OverrideTooltip", (parser, x) => x.OverrideTooltip = parser.ParseAssetReference() },
             { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
@@ -80,74 +56,45 @@ namespace OpenSage.Logic.Object
             { "ButtonImageName", (parser, x) => x.ButtonImageName = parser.ParseString() },
         };
 
-        private void ParseAnimation(IniParser parser)
-        {
-            if (parser.SageGame == SageGame.CncGenerals || parser.SageGame == SageGame.CncGeneralsZeroHour)
-            {
-                ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
-            }
-            else
-            {
-                Animations.Add(AnimationStateAnimation.Parse(parser));
-            }
-        }
-
         internal ModelConditionState Clone()
         {
             var result = (ModelConditionState) MemberwiseClone();
 
-            result.ConditionFlags = new BitArray<ModelConditionFlag>(result.ConditionFlags);
-            result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
-            result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
-            result.WeaponMuzzleFlashes = new List<BoneAttachPoint>(result.WeaponMuzzleFlashes);
-            result.WeaponLaunchBones = new List<BoneAttachPoint>(result.WeaponLaunchBones);
-            result.WeaponHideShowBones = new List<BoneAttachPoint>(result.WeaponHideShowBones);
-
-            result.ConditionAnimations = new List<ObjectConditionAnimation>(result.ConditionAnimations);
-            result.Animations = new List<AnimationStateAnimation>(result.Animations);
-
-            result.IdleAnimations = new List<ObjectConditionAnimation>(result.IdleAnimations);
-            result.ParticleSysBones = new List<ParticleSysBone>(result.ParticleSysBones);
+            result.ConditionFlags.AddRange(result.ConditionFlags);
+            result.WeaponRecoilBones.AddRange(result.WeaponRecoilBones);
+            result.WeaponFireFXBones.AddRange(result.WeaponFireFXBones);
+            result.WeaponMuzzleFlashes.AddRange(result.WeaponMuzzleFlashes);
+            result.WeaponLaunchBones.AddRange(result.WeaponLaunchBones);
+            result.WeaponHideShowBones.AddRange(result.WeaponHideShowBones);
+            result.ParticleSysBones.AddRange(result.ParticleSysBones);
             result.FXEvents = new List<FXEvent>(result.FXEvents);
+
             return result;
         }
 
-        public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
+        public List<BitArray<ModelConditionFlag>> ConditionFlags { get; } = new();
 
-        public LazyAssetReference<Model> Model { get; private set; }
+        public LazyAssetReference<Model> Model;
 
         [AddedIn(SageGame.Bfme)]
         public string Skeleton { get; private set; }
 
         // Weapon bone settings
-        public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
-        public List<BoneAttachPoint> WeaponFireFXBones { get; private set; } = new List<BoneAttachPoint>();
-        public List<BoneAttachPoint> WeaponMuzzleFlashes { get; private set; } = new List<BoneAttachPoint>();
-        public List<BoneAttachPoint> WeaponLaunchBones { get; private set; } = new List<BoneAttachPoint>();
-        public List<BoneAttachPoint> WeaponHideShowBones { get; private set; } = new List<BoneAttachPoint>();
-
-        // Model animation settings
-        public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
-        public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
-        public AnimationMode AnimationMode { get; private set; }
-        public FloatRange AnimationSpeedFactorRange { get; private set; } = new FloatRange(1.0f, 1.0f);
-        public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
-        public AnimationFlags Flags { get; private set; }
+        public readonly List<BoneAttachPoint> WeaponRecoilBones = new List<BoneAttachPoint>();
+        public readonly List<BoneAttachPoint> WeaponFireFXBones = new List<BoneAttachPoint>();
+        public readonly List<BoneAttachPoint> WeaponMuzzleFlashes = new List<BoneAttachPoint>();
+        public readonly List<BoneAttachPoint> WeaponLaunchBones = new List<BoneAttachPoint>();
+        public readonly List<BoneAttachPoint> WeaponHideShowBones = new List<BoneAttachPoint>();
 
         // Turret settings
-        public string Turret { get; private set; }
-        public int TurretArtAngle { get; private set; }
-        public string TurretPitch { get; private set; }
-        public string AltTurret { get; private set; }
-        public string AltTurretPitch { get; private set; }
+        public string Turret;
+        public int TurretArtAngle;
+        public string TurretPitch;
+        public string AltTurret;
+        public string AltTurretPitch;
 
         // Misc settings
-        public string[] HideSubObject { get; private set; }
-        public string[] ShowSubObject { get; private set; }
-        public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
-
-        public string TransitionKey { get; private set; }
-        public string WaitForStateToFinishIfPossible { get; private set; }
+        public readonly List<ParticleSysBone> ParticleSysBones = new List<ParticleSysBone>();
 
         [AddedIn(SageGame.Bfme)]
         public string OverrideTooltip { get; private set; }
@@ -205,44 +152,153 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string ButtonImageName { get; private set; }
+    }
 
-
-        /// <summary>
-        /// Used by AliasConditionState.
-        /// </summary>
-        public ModelConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
+    /// <summary>
+    /// For Generals and Zero Hour, we first parse ConditionState and TransitionState into one of these objects.
+    /// Then we convert it to the BFME-style ModelConditionState, AnimationState, and TransitionState objects.
+    /// </summary>
+    internal class ModelConditionStateGenerals
+    {
+        internal static void Parse(IniParser parser, ModelConditionStateGenerals result)
         {
-            return new ModelConditionState
-            {
-                ConditionFlags = conditionFlags,
-
-                Model = Model,
-
-                WeaponRecoilBones = WeaponRecoilBones,
-                WeaponFireFXBones = WeaponFireFXBones,
-                WeaponMuzzleFlashes = WeaponMuzzleFlashes,
-                WeaponLaunchBones = WeaponLaunchBones,
-                WeaponHideShowBones = WeaponHideShowBones,
-
-                ConditionAnimations = ConditionAnimations,
-                AnimationMode = AnimationMode,
-                AnimationSpeedFactorRange = AnimationSpeedFactorRange,
-                IdleAnimations = IdleAnimations,
-                TransitionKey = TransitionKey,
-                WaitForStateToFinishIfPossible = WaitForStateToFinishIfPossible,
-                Flags = Flags,
-
-                Turret = Turret,
-                TurretArtAngle = TurretArtAngle,
-                TurretPitch = TurretPitch,
-                AltTurret = AltTurret,
-                AltTurretPitch = AltTurretPitch,
-
-                HideSubObject = HideSubObject,
-                ShowSubObject = ShowSubObject,
-                ParticleSysBones = ParticleSysBones,
-            };
+            parser.ParseBlock(FieldParseTable, result);
         }
+
+        internal static readonly IniParseTable<ModelConditionStateGenerals> FieldParseTable = new IniParseTable<ModelConditionStateGenerals>
+        {
+            { "Model", (parser, x) => { x.Model = parser.ParseModelReference(); x.OnNonAnimationPropertySet(); } },
+
+            { "WeaponRecoilBone", (parser, x) => { x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+            { "WeaponFireFXBone", (parser, x) => { x.WeaponFireFXBones.Add(BoneAttachPoint.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+            { "WeaponMuzzleFlash", (parser, x) => { x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+            { "WeaponLaunchBone", (parser, x) => { x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+            { "WeaponHideShowBone", (parser, x) => { x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+
+            { "Turret", (parser, x) => { x.Turret = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
+            { "TurretArtAngle", (parser, x) => { x.TurretArtAngle = parser.ParseInteger(); x.OnNonAnimationPropertySet(); } },
+            { "TurretPitch", (parser, x) => { x.TurretPitch = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
+            { "AltTurret", (parser, x) => { x.AltTurret = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
+            { "AltTurretPitch", (parser, x) => { x.AltTurretPitch = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
+
+            { "HideSubObject", (parser, x) => { x.HideSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); } },
+            { "ShowSubObject", (parser, x) => { x.ShowSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); } },
+            { "ParticleSysBone", (parser, x) => { x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)); x.OnNonAnimationPropertySet(); } },
+
+            { "Animation", (parser, x) => { x.ParseAnimation(parser, false); x.OnAnimationPropertySet(); } },
+            { "AnimationMode", (parser, x) => { x.AnimationMode = parser.ParseEnum<AnimationMode>(); x.OnAnimationPropertySet(); } },
+            { "AnimationSpeedFactorRange", (parser, x) => { x.AnimationSpeedFactorRange = parser.ParseFloatRange(); x.OnAnimationPropertySet(); } },
+            { "IdleAnimation", (parser, x) => { x.ParseAnimation(parser, true); x.OnAnimationPropertySet(); } },
+            { "Flags", (parser, x) => { x.Flags = parser.ParseEnumFlags<AnimationFlags>(); x.OnAnimationPropertySet(); } },
+            { "TransitionKey", (parser, x) => { x.TransitionKey = parser.ParseIdentifier(); x.OnAnimationPropertySet(); } },
+            { "WaitForStateToFinishIfPossible", (parser, x) => { x.WaitForStateToFinishIfPossible = parser.ParseIdentifier(); x.OnAnimationPropertySet(); } },
+        };
+
+        internal bool NonAnimationPropertySet { get; private set; }
+        internal bool AnimationPropertySet { get; private set; }
+
+        private void OnNonAnimationPropertySet() => NonAnimationPropertySet = true;
+        private void OnAnimationPropertySet() => AnimationPropertySet = true;
+
+        private void ParseAnimation(IniParser parser, bool isIdle)
+        {
+            ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
+        }
+
+        internal ModelConditionStateGenerals Clone()
+        {
+            var result = (ModelConditionStateGenerals)MemberwiseClone();
+
+            result.NonAnimationPropertySet = false;
+            result.AnimationPropertySet = false;
+
+            result.ConditionFlags = new List<BitArray<ModelConditionFlag>>();
+            result.ConditionAnimations = new List<ObjectConditionAnimation>();
+            result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
+            result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
+            result.WeaponMuzzleFlashes = new List<BoneAttachPoint>(result.WeaponMuzzleFlashes);
+            result.WeaponLaunchBones = new List<BoneAttachPoint>(result.WeaponLaunchBones);
+            result.WeaponHideShowBones = new List<BoneAttachPoint>(result.WeaponHideShowBones);
+            result.ParticleSysBones = new List<ParticleSysBone>(result.ParticleSysBones);
+
+            return result;
+        }
+
+        public List<BitArray<ModelConditionFlag>> ConditionFlags { get; private set; } = new List<BitArray<ModelConditionFlag>>();
+
+        public LazyAssetReference<Model> Model { get; private set; }
+
+        // Weapon bone settings
+        public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponFireFXBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponMuzzleFlashes { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponLaunchBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponHideShowBones { get; private set; } = new List<BoneAttachPoint>();
+
+        // Model animation settings
+        public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
+        public AnimationMode AnimationMode { get; private set; }
+        public FloatRange AnimationSpeedFactorRange { get; private set; } = new FloatRange(1.0f, 1.0f);
+        public AnimationFlags Flags { get; private set; }
+        public string TransitionKey { get; private set; }
+        public string WaitForStateToFinishIfPossible { get; private set; }
+
+        // Turret settings
+        public string Turret { get; private set; }
+        public int TurretArtAngle { get; private set; }
+        public string TurretPitch { get; private set; }
+        public string AltTurret { get; private set; }
+        public string AltTurretPitch { get; private set; }
+
+        // Misc settings
+        public string[] HideSubObject { get; private set; } = Array.Empty<string>();
+        public string[] ShowSubObject { get; private set; } = Array.Empty<string>();
+        public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
+
+        public void CopyTo(ModelConditionState other)
+        {
+            other.ConditionFlags.AddRange(ConditionFlags);
+
+            other.Model = Model;
+
+            other.Turret = Turret;
+            other.TurretArtAngle = TurretArtAngle;
+            other.TurretPitch = TurretPitch;
+            other.AltTurret = AltTurret;
+            other.AltTurretPitch = AltTurretPitch;
+
+            other.WeaponRecoilBones.AddRange(WeaponRecoilBones);
+            other.WeaponFireFXBones.AddRange(WeaponFireFXBones);
+            other.WeaponMuzzleFlashes.AddRange(WeaponMuzzleFlashes);
+            other.WeaponLaunchBones.AddRange(WeaponLaunchBones);
+            other.WeaponHideShowBones.AddRange(WeaponHideShowBones);
+            other.ParticleSysBones.AddRange(ParticleSysBones);
+        }
+
+        public void CopyTo(AnimationState other)
+        {
+            other.ConditionFlags.AddRange(ConditionFlags);
+
+            other.Flags = Flags;
+
+            foreach (var animation in ConditionAnimations)
+            {
+                other.Animations.Add(new AnimationStateAnimation
+                {
+                    Animation = animation.Animation,
+                    Distance = animation.Distance,
+                    Priority = animation.Priority,
+                    AnimationMode = AnimationMode,
+                    AnimationSpeedFactorRange = AnimationSpeedFactorRange,
+                });
+            }
+        }
+    }
+
+    internal sealed class TransitionStateGenerals : ModelConditionStateGenerals
+    {
+        public string From;
+        public string To;
     }
 
     public sealed class ObjectConditionAnimation
@@ -254,17 +310,16 @@ namespace OpenSage.Logic.Object
                 Animation = parser.ParseAnimationReference()
             };
 
+            var distanceToken = parser.GetNextTokenOptional();
 
-            var unknown1Token = parser.GetNextTokenOptional();
-
-            if (unknown1Token != null)
+            if (distanceToken != null)
             {
-                result.Unknown1 = parser.ScanFloat(unknown1Token.Value);
+                result.Distance = parser.ScanFloat(distanceToken.Value);
 
-                var unknown2Token = parser.GetNextTokenOptional();
-                if (unknown2Token != null)
+                var priorityToken = parser.GetNextTokenOptional();
+                if (priorityToken != null)
                 {
-                    result.Unknown2 = parser.ScanInteger(unknown2Token.Value);
+                    result.Priority = parser.ScanInteger(priorityToken.Value);
                 }
             }
 
@@ -272,8 +327,8 @@ namespace OpenSage.Logic.Object
         }
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation> Animation { get; private set; }
-        public float Unknown1 { get; private set; }
-        public int Unknown2 { get; private set; }
+        public float Distance { get; private set; }
+        public int Priority { get; private set; }
     }
 
     public sealed class BoneAttachPoint

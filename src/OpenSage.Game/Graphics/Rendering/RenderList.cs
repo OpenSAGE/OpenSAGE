@@ -21,15 +21,11 @@
     {
         public readonly RenderBucket Opaque = new RenderBucket("Opaque");
         public readonly RenderBucket Transparent = new RenderBucket("Transparent");
-        public readonly RenderBucket Terrain = new RenderBucket("Terrain");
-        public readonly RenderBucket Road = new RenderBucket("Road");
         public readonly RenderBucket Shadow = new RenderBucket("Shadow");
         public readonly RenderBucket Water = new RenderBucket("Water");
 
         public void Clear()
         {
-            Terrain.Clear();
-            Road.Clear();
             Water.Clear();
             Opaque.Clear();
             Transparent.Clear();

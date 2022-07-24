@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -13,6 +14,8 @@ namespace OpenSage.Diagnostics
 {
     internal sealed class MainView : DisposableBase
     {
+        private const string IniFileName = "DeveloperMode.ini";
+
         private readonly DiagnosticViewContext _context;
         private readonly List<DiagnosticView> _views;
         private readonly IReadOnlyDictionary<MapCache, string> _maps;
@@ -45,6 +48,7 @@ namespace OpenSage.Diagnostics
             }
 
             AddView(new GameView(context) { IsVisible = true });
+
             AddView(new ObjectListView(context));
             AddView(new AssetListView(context));
             AddView(new MapSettingsView(context));
@@ -64,6 +68,22 @@ namespace OpenSage.Diagnostics
             AddView(new PreviewView(context));
             AddView(new CameraView(context));
             AddView(new PartitionView(context));
+
+            if (File.Exists(IniFileName))
+            {
+                foreach (var line in File.ReadAllText(IniFileName).Split(Environment.NewLine))
+                {
+                    var settings = line.Split(" = ");
+                    var displayName = settings[0];
+                    var visibility = bool.Parse(settings[1]);
+
+                    var view = _views.FirstOrDefault(x => x.DisplayName == displayName);
+                    if (view != null)
+                    {
+                        view.IsVisible = visibility;
+                    }
+                }
+            }
         }
 
         private void DrawTimingControls()
@@ -103,28 +123,11 @@ namespace OpenSage.Diagnostics
 
         public void Draw(ref bool isGameViewFocused)
         {
-            var viewport = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(viewport.WorkPos);
-            ImGui.SetNextWindowSize(viewport.WorkSize);
-            ImGui.SetNextWindowViewport(viewport.ID);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
-
-            var windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
-            windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
-            windowFlags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
-            //windowFlags |= ImGuiWindowFlags.NoBackground;
-
-            ImGui.Begin("Root", windowFlags);
-
-            ImGui.PopStyleVar(3);
-
-            ImGui.DockSpace(ImGui.GetID("DockSpace"), Vector2.Zero, ImGuiDockNodeFlags.None);
+            ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 
             float menuBarHeight = 0;
 
-            if (ImGui.BeginMenuBar())
+            if (ImGui.BeginMainMenuBar())
             {
                 menuBarHeight = ImGui.GetWindowHeight();
 
@@ -294,7 +297,7 @@ namespace OpenSage.Diagnostics
                 ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - fpsTextSize);
                 ImGui.Text(fpsText);
 
-                ImGui.EndMenuBar();
+                ImGui.EndMainMenuBar();
             }
 
             foreach (var view in _views)
@@ -330,8 +333,15 @@ namespace OpenSage.Diagnostics
                 ImGui.End();
                 ImGui.PopStyleVar();
             }
+        }
 
-            ImGui.End();
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            File.WriteAllText(
+                IniFileName,
+                string.Join(Environment.NewLine, _views.Select(x => $"{x.DisplayName} = {x.IsVisible}")));
+
+            base.Dispose(disposeManagedResources);
         }
     }
 }

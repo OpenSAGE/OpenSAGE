@@ -13,5 +13,7 @@
         {
             reader.PersistVersion(1);
         }
+
+        internal virtual void DrawInspector() { }
     }
 }

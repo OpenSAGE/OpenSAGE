@@ -4,12 +4,23 @@ using Veldrid;
 
 namespace OpenSage.Rendering;
 
-public sealed class RenderScene
+public sealed class RenderBucket
 {
     private readonly List<RenderObject> _renderObjects = new();
 
-    private readonly RenderList _forwardPassList = new();
-    private readonly RenderList _shadowPassList = new();
+    private readonly RenderList _forwardPassList = new("Forward Pass");
+    private readonly RenderList _shadowPassList = new("Shadow Pass");
+
+    public readonly string Name;
+    public readonly int Priority;
+
+    public bool Visible = true;
+
+    internal RenderBucket(string name, int priority)
+    {
+        Name = name;
+        Priority = priority;
+    }
 
     public void AddObject(RenderObject renderObject)
     {
@@ -37,22 +48,132 @@ public sealed class RenderScene
         }
     }
 
-    public void Render()
+    internal void DoRenderPass(
+        RenderPass renderPass,
+        CommandList commandList,
+        ResourceSet
+        globalResourceSet,
+        ResourceSet passResourceSet)
+    {
+        if (!Visible)
+        {
+            return;
+        }
+
+        var renderList = renderPass == RenderPass.Forward
+            ? _forwardPassList
+            : _shadowPassList;
+
+        commandList.PushDebugGroup(Name);
+
+        renderList.Cull();
+
+        foreach (var renderObject in renderList.CulledObjects)
+        {
+            commandList.PushDebugGroup(renderObject.Item1.DebugName);
+
+            commandList.SetPipeline(renderObject.Item2.Pipeline);
+
+            commandList.SetGraphicsResourceSet(0, globalResourceSet);
+
+            if (passResourceSet != null)
+            {
+                commandList.SetGraphicsResourceSet(1, passResourceSet);
+            }
+
+            if (renderObject.Item2.MaterialResourceSet != null)
+            {
+                commandList.SetGraphicsResourceSet(2, renderObject.Item2.MaterialResourceSet);
+            }
+
+            renderObject.Item1.Render(commandList);
+
+            commandList.PopDebugGroup();
+        }
+
+        commandList.PopDebugGroup();
+    }
+}
+
+public sealed class RenderScene
+{
+    private readonly List<RenderBucket> _renderBuckets = new();
+
+    public RenderBucket GetRenderBucket(string name)
+    {
+        var result = GetRenderBucketImpl(name);
+
+        if (result == null)
+        {
+            throw new System.InvalidOperationException();
+        }
+
+        return result;
+    }
+
+    private RenderBucket GetRenderBucketImpl(string name)
+    {
+        foreach (var renderBucket in _renderBuckets)
+        {
+            if (renderBucket.Name == name)
+            {
+                return renderBucket;
+            }
+        }
+
+        return null;
+    }
+
+    public RenderBucket CreateRenderBucket(string name, int priority)
+    {
+        var existingRenderBucket = GetRenderBucketImpl(name);
+        if (existingRenderBucket != null)
+        {
+            throw new System.InvalidOperationException();
+        }
+
+        var newRenderBucket = new RenderBucket(name, priority);
+        _renderBuckets.Add(newRenderBucket);
+
+        // TODO: Use something better like https://www.jacksondunstan.com/articles/3189
+        _renderBuckets.Sort((x, y) => x.Priority.CompareTo(y.Priority));
+
+        return newRenderBucket;
+    }
+
+    public void Render(CommandList commandList, ResourceSet globalResourceSet, ResourceSet passResourceSet)
     {
         // TODO: Draw shadow map using _shadowPassList.
         //DoShadowPass();
 
-        DoForwardPass();
+        DoRenderPass(RenderPass.Forward, commandList, globalResourceSet, passResourceSet);
     }
 
-    private void DoForwardPass()
+    private void DoRenderPass(
+        RenderPass renderPass,
+        CommandList commandList,
+        ResourceSet globalResourceSet,
+        ResourceSet passResourceSet)
     {
-        //_forwardPassList.Cull();
+        commandList.PushDebugGroup(renderPass.ToString());
+
+        foreach (var renderBucket in _renderBuckets)
+        {
+            renderBucket.DoRenderPass(
+                renderPass,
+                commandList,
+                globalResourceSet,
+                passResourceSet);
+        }
+
+        commandList.PopDebugGroup();
     }
 }
 
 public abstract class RenderObject : DisposableBase
 {
+    public abstract string DebugName { get; }
+
     public abstract MaterialPass MaterialPass { get; }
 
     //public readonly List<RenderableObject> ChildObjects = new();
@@ -69,30 +190,7 @@ public abstract class RenderObject : DisposableBase
 
     //public abstract bool CastsShadow { get; }
 
-    public abstract void Render();
-}
-
-public readonly struct RenderKey
-{
-    private readonly ulong _key;
-
-    // TODO: Also material constants?
-
-    public RenderKey(
-        SurfaceType surfaceType,
-        ShaderSet shaderSet,
-        Pipeline pipeline)
-        // TODO: Also material constants?
-    {
-        // TODO
-        _key = 0;
-    }
-}
-
-public enum SurfaceType
-{
-    Opaque,
-    Transparent,
+    public abstract void Render(CommandList commandList);
 }
 
 public enum RenderBucketType
@@ -106,9 +204,16 @@ public enum RenderBucketType
 
 internal sealed class RenderList
 {
+    public readonly string Name;
+
     public readonly List<(RenderObject, Material)> AllObjects = new();
 
     public readonly List<(RenderObject, Material)> CulledObjects = new();
+
+    public RenderList(string name)
+    {
+        Name = name;
+    }
 
     public void AddObject(RenderObject renderObject, Material material)
     {
@@ -125,4 +230,19 @@ internal sealed class RenderList
 
         AllObjects.RemoveAt(index);
     }
+
+    public void Cull()
+    {
+        // TODO
+
+        CulledObjects.Clear();
+
+        CulledObjects.AddRange(AllObjects);
+    }
+}
+
+internal enum RenderPass
+{
+    Forward,
+    Shadow,
 }

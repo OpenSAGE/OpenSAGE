@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.Data.StreamFS;
 
 namespace OpenSage.Logic
 {
@@ -30,33 +28,9 @@ namespace OpenSage.Logic
             Missions.Add(mission.Name, mission);
         }
 
-        internal static CampaignTemplate ParseAsset(BinaryReader reader, Asset asset, AssetImportCollection imports)
-        {
-            throw new System.NotImplementedException();
-
-            //var result = new CampaignTemplate
-            //{
-            //    DisplayName = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-            //    FinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-            //    AlternateFinalMovie = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-            //    ConsoleAutosaveFilename = reader.ReadUInt32PrefixedAsciiStringAtOffset(),
-            //    //TheatersOfWar = reader.ReadArrayAtOffset(() => imports.GetImportedData<TheaterOfWarTemplate>(reader)),
-            //};
-
-            //result.SetNameAndInstanceId(asset);
-
-            //return result;
-        }
-
         public string DisplayName { get; private set; }
         public string FirstMission { get; private set; }
         public string FinalMovie { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public string AlternateFinalMovie { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public string ConsoleAutosaveFilename { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool IsChallengeCampaign { get; private set; }

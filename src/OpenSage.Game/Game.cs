@@ -307,19 +307,6 @@ namespace OpenSage
         {
             get
             {
-                string GetUserDataLeafNameFromRegistry(string defaultValue)
-                {
-                    foreach (var key in Definition.RegistryKeys)
-                    {
-                        var value = RegistryUtility.GetRegistryValue(new RegistryKeyPath(key.Key, "UserDataLeafName"));
-                        if (value is not null)
-                        {
-                            return value;
-                        }
-                    }
-                    return defaultValue;
-                }
-
                 // TODO: Move this to IGameDefinition?
                 switch (SageGame)
                 {
@@ -328,9 +315,6 @@ namespace OpenSage
 
                     case SageGame.CncGeneralsZeroHour:
                         return "Command and Conquer Generals Zero Hour Data";
-
-                    case SageGame.Ra3:
-                        return GetUserDataLeafNameFromRegistry("Red Alert 3");
 
                     default:
                         return AssetStore.GameData.Current.UserDataLeafName;
@@ -848,6 +832,10 @@ namespace OpenSage
             if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)
             {
                 SkirmishManager?.Update();
+
+                // TODO: This is a hack just to get MapTime correct immediately after we start a game.
+                _mapTimer.Update();
+                MapTime = _mapTimer.CurrentGameTime;
             }
 
             // How close are we to the next logic frame?

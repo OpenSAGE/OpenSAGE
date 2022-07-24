@@ -31,13 +31,11 @@ namespace OpenSage.Diagnostics.AssetViews
 
             AddDisposeAction(() => game.Updating -= OnUpdating);
 
-            particleSystem.Activate();
-
             _renderedView = AddDisposable(new RenderedView(context));
 
             void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
-                particleSystem.BuildRenderList(e.RenderList);
+                //particleSystem.BuildRenderList(e.RenderList);
             }
 
             _renderedView.RenderPipeline.BuildingRenderList += onBuildingRenderList;

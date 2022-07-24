@@ -208,13 +208,38 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()) != null)
             {
-                if (!stringToValueMap.TryGetValue(token.Value.Text.ToUpperInvariant(), out var enumValue))
+                var stringValue = token.Value.Text.ToUpperInvariant();
+                switch (stringValue)
                 {
-                    throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Value.Text}'", token.Value.Position);
-                }
+                    case "NONE":
+                        result = (T)(object)0;
+                        break;
 
-                // Ugh.
-                result = (T) (object) ((int) (object) result | (int) (object) enumValue);
+                    default:
+                        var value = true;
+
+                        if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
+                        {
+                            value = stringValue[0] == '+';
+                            stringValue = stringValue.Substring(1);
+                        }
+                        if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
+                        {
+                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Value.Position);
+                        }
+
+                        // Ugh.
+                        if (value)
+                        {
+                            result = (T)(object)((int)(object)result | (int)(object)enumValue);
+                        }
+                        else
+                        {
+                            result = (T)(object)((int)(object)result & ~(int)(object)enumValue);
+                        }
+
+                        break;
+                }
             }
 
             return result;

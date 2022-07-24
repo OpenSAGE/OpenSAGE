@@ -38,7 +38,7 @@ namespace OpenSage.Data.Ini
 
         private TokenReader _tokenReader;
 
-        private readonly string _directory;
+        private readonly Stack<string> _directory;
         private readonly IniDataContext _dataContext;
         private readonly FileSystem _fileSystem;
 
@@ -48,6 +48,7 @@ namespace OpenSage.Data.Ini
 
         // Used for some things that need temporary storage, like AliasConditionState.
         public object Temp { get; set; }
+        public Stack<object> BlockStack { get; set; } = new Stack<object>();
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
@@ -71,7 +72,8 @@ namespace OpenSage.Data.Ini
                 }
             }
 
-            _directory = Path.GetDirectoryName(entry.FilePath);
+            _directory = new Stack<string>();
+            _directory.Push(Path.GetDirectoryName(entry.FilePath));
             _dataContext = dataContext;
             _fileSystem = entry.FileSystem;
             _assetStore = assetStore;
@@ -583,20 +585,6 @@ namespace OpenSage.Data.Ini
             return _assetStore.ModifierLists.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<Graphics.Animation.W3DAnimation>[] ParseAnimationReferenceArray()
-        {
-            var result = new List<LazyAssetReference<Graphics.Animation.W3DAnimation>>();
-            IniToken? token;
-            while ((token = GetNextTokenOptional()).HasValue)
-            {
-                var name = token.Value.Text;
-                if (!name.Contains('.')) name = ((ModelConditionState)Temp).Skeleton + "." + name;
-                result.Add(_assetStore.ModelAnimations.GetLazyAssetReferenceByName(name));
-            }
-
-            return result.ToArray();
-        }
-
         public LazyAssetReference<ModifierList>[] ParseModifierListReferenceArray()
         {
             var result = new List<LazyAssetReference<ModifierList>>();
@@ -711,9 +699,15 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation> ParseAnimationReference()
         {
-            var animationName = ParseAnimationName();
-            return (!string.Equals(animationName, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(animationName)
+            var token = GetNextToken();
+
+            return ScanAnimationReference(token);
+        }
+
+        public LazyAssetReference<Graphics.Animation.W3DAnimation> ScanAnimationReference(in IniToken token)
+        {
+            return (!string.Equals(token.Text, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Text)
                 : null;
         }
 
@@ -953,6 +947,8 @@ namespace OpenSage.Data.Ini
             IIniFieldParserProvider<T> fieldParserProviderFallback = null)
             where T : class, new()
         {
+            BlockStack.Push(result);
+
             var done = false;
             var reachedEndOfBlock = false;
             while (!done)
@@ -1008,13 +1004,20 @@ namespace OpenSage.Data.Ini
                 }
             }
 
+            BlockStack.Pop();
+
+            if (result is IParseCallbacks callbacks)
+            {
+                callbacks.OnParsed();
+            }
+
             return reachedEndOfBlock;
         }
 
         private bool ParseIncludedFile<T>(T result, IIniFieldParserProvider<T> fieldParserProvider) where T : class, new()
         {
             var includeFileName = ParseQuotedString();
-            var directory = _directory;
+            var directory = _directory.Peek();
             while (includeFileName.StartsWith(".."))
             {
                 includeFileName = includeFileName.Remove(0, 3);
@@ -1026,6 +1029,7 @@ namespace OpenSage.Data.Ini
             }
 
             var path = Path.Combine(directory, includeFileName);
+            _directory.Push(Path.GetDirectoryName(path));
             var includeEntry = _fileSystem.GetFile(path);
             // I doubt locale-specific-encoded files will ever include other files.
             // But if they do, it's reasonable to assume included files use the same encoding as the includer.
@@ -1041,6 +1045,7 @@ namespace OpenSage.Data.Ini
             finally
             {
                 _tokenReader = original;
+                _directory.Pop();
             }
 
             return reachedEndOfBlock;
@@ -1087,7 +1092,7 @@ namespace OpenSage.Data.Ini
                         includeFileName = includeFileName.Remove(0, 1);
                     }
 
-                    var includePath = Path.Combine(_directory, includeFileName);
+                    var includePath = Path.Combine(_directory.Peek(), includeFileName);
                     var includeEntry = _fileSystem.GetFile(includePath);
                     // I doubt locale-specific-encoded files will ever include other files.
                     // But if they do, it's reasonable to assume included files use the same encoding as the includer.
@@ -1106,6 +1111,11 @@ namespace OpenSage.Data.Ini
                 }
             }
         }
+    }
+
+    public interface IParseCallbacks
+    {
+        void OnParsed();
     }
 }
 

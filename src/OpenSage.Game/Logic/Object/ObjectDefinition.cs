@@ -904,8 +904,11 @@ namespace OpenSage.Logic.Object
 
         public Geometry Geometry { get; private set; } = new Geometry();
 
+        /// <summary>
+        /// For crushing / squishing detection.
+        /// </summary>
         [AddedIn(SageGame.Bfme)]
-        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
+        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>();
 
         [AddedIn(SageGame.Bfme2)]
         public float CamouflageDetectionMultiplier { get; private set; }
@@ -1274,7 +1277,7 @@ namespace OpenSage.Logic.Object
 
         internal void ParseAdditionalGeometry(IniParser parser)
         {
-            var geometryShape = new GeometryShape { Type = parser.ParseEnum<GeometryType>() };
+            var geometryShape = new GeometryShape { Geometry = Geometry, Type = parser.ParseEnum<GeometryType>() };
             Geometry.AddShape(geometryShape);
             _currentGeometryShape = geometryShape;
         }
@@ -1286,11 +1289,12 @@ namespace OpenSage.Logic.Object
 
             var geometry = new Geometry
             {
-                IsSmall = isSmall
+                IsSmall = isSmall,
             };
 
             var geometryShape = new GeometryShape
             {
+                Geometry = geometry,
                 Type = geometryType,
                 Height = parser.ParseAttributeInteger("Height"),
                 MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
