@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using SixLabors.Fonts;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -12,7 +14,7 @@ namespace OpenSage.Gui
 {
     public sealed class DrawingContext2D : DisposableBase
     {
-        private readonly ContentManager _contentManager;
+        private readonly FontManager _fontManager;
         private readonly Texture _solidWhiteTexture;
 
         private readonly SpriteBatch _spriteBatch;
@@ -28,19 +30,20 @@ namespace OpenSage.Gui
 
         private Texture _alphaMask;
 
-        internal DrawingContext2D(
-            ContentManager contentManager,
-            GraphicsLoadContext loadContext,
+        public DrawingContext2D(
+            FontManager fontManager,
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
-            _contentManager = contentManager;
+            _fontManager = fontManager;
 
-            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
+            _solidWhiteTexture = graphicsDeviceManager.SolidWhiteTexture;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(loadContext, blendStateDescription, outputDescription));
+            _spriteBatch = AddDisposable(new SpriteBatch(graphicsDeviceManager, shaderSetStore, blendStateDescription, outputDescription));
 
-            _textCache = AddDisposable(new TextCache(loadContext.GraphicsDevice));
+            _textCache = AddDisposable(new TextCache(graphicsDeviceManager.GraphicsDevice));
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);
@@ -120,15 +123,6 @@ namespace OpenSage.Gui
             DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), flipped, grayscale);
         }
 
-        public void DrawMappedImage(
-            MappedImage mappedImage,
-            in RectangleF destinationRect,
-            bool flipped = false,
-            bool grayscaled = false)
-        {
-            DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, flipped, grayscaled);
-        }
-
         public void DrawImage(
             Texture texture,
             in Rectangle? sourceRect,
@@ -163,12 +157,12 @@ namespace OpenSage.Gui
             return new SizeF(textSize.Width, textSize.Height);
         }
 
-        public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in Rectangle rect)
+        public void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in Rectangle rect)
         {
             DrawText(text, font, textAlignment, color, rect.ToRectangleF());
         }
 
-        public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in RectangleF rect)
+        public void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in RectangleF rect)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -180,7 +174,7 @@ namespace OpenSage.Gui
                 return;
             }
 
-            var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            var actualFont = _fontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
             var actualColor = GetModifiedColorWithCurrentOpacity(color);

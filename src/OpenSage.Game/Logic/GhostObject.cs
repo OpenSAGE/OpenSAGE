@@ -87,7 +87,7 @@ namespace OpenSage.Logic
                     if (reader.Mode == StatePersistMode.Read)
                     {
                         model = reader.AssetStore.W3dAssets.GetModelByName(modelName);
-                        modelInstance = model.CreateInstance(reader.AssetStore.LoadContext.GraphicsDevice, reader.AssetStore.LoadContext.StandardGraphicsResources);
+                        modelInstance = model.CreateInstance();
 
                         _modelsPerPlayer[i].Add(modelInstance);
                     }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -30,27 +31,28 @@ namespace OpenSage.Graphics
 
         private CommandList _commandList;
 
-        internal SpriteBatch(
-            GraphicsLoadContext loadContext,
+        public SpriteBatch(
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
             in BlendStateDescription blendStateDescription,
             in OutputDescription outputDescription)
         {
-            _spriteShaderResources = loadContext.ShaderResources.Sprite;
-            _solidWhiteTexture = loadContext.StandardGraphicsResources.SolidWhiteTexture;
-            _graphicsDevice = loadContext.GraphicsDevice;
+            _spriteShaderResources = shaderSetStore.GetShaderSet(() => new SpriteShaderResources(shaderSetStore));
+            _solidWhiteTexture = graphicsDeviceManager.SolidWhiteTexture;
+            _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
 
-            _pipeline = loadContext.ShaderResources.Sprite.GetCachedPipeline(
+            _pipeline = _spriteShaderResources.GetCachedPipeline(
                 blendStateDescription,
                 outputDescription);
 
-            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.MaterialConstantsVS>(loadContext.GraphicsDevice));
+            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.MaterialConstantsVS>(graphicsDeviceManager.GraphicsDevice));
 
-            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.SpriteConstantsPS>(loadContext.GraphicsDevice));
+            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.SpriteConstantsPS>(graphicsDeviceManager.GraphicsDevice));
 
             _spriteConstantsPSBuffer.Value.IgnoreAlpha = false;
             _spriteConstantsPSBuffer.Update(_graphicsDevice);
 
-            _spriteConstantsResourceSet = AddDisposable(loadContext.ShaderResources.Sprite.CreateSpriteConstantsResourceSet(
+            _spriteConstantsResourceSet = AddDisposable(_spriteShaderResources.CreateSpriteConstantsResourceSet(
                 _materialConstantsVSBuffer.Buffer,
                 _spriteConstantsPSBuffer.Buffer));
 

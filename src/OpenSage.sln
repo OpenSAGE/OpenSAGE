@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.Graphics.W3d"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core.IO", "OpenSage.Core.IO\OpenSage.Core.IO.csproj", "{14D3D1E4-900A-486C-9783-23266B7A5002}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core.Gui", "OpenSage.Core.Gui\OpenSage.Core.Gui.csproj", "{1E737B09-E000-4B37-8E6F-DA967F2389A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,10 @@ Global
 		{14D3D1E4-900A-486C-9783-23266B7A5002}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14D3D1E4-900A-486C-9783-23266B7A5002}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14D3D1E4-900A-486C-9783-23266B7A5002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E737B09-E000-4B37-8E6F-DA967F2389A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E737B09-E000-4B37-8E6F-DA967F2389A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E737B09-E000-4B37-8E6F-DA967F2389A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E737B09-E000-4B37-8E6F-DA967F2389A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

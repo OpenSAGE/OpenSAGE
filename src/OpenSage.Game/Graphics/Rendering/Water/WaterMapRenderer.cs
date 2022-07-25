@@ -70,7 +70,7 @@ namespace OpenSage.Graphics.Rendering.Water
                 _waterTransparentDiffuseColorSet.Add(waterSet.TimeOfDay, waterSet.TransparentDiffuseColor);
             }
 
-            _bumpTexture = graphicsLoadContext.StandardGraphicsResources.SolidWhiteTexture;
+            _bumpTexture = graphicsLoadContext.GraphicsDeviceManager.SolidWhiteTexture;
 
             _waterConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.WaterConstantsPS>(
                 graphicsDevice,

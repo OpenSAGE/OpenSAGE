@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -61,12 +62,11 @@ namespace OpenSage.Graphics
 
         internal ModelInstance(
             Model model,
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources)
+            GraphicsDeviceManager graphicsDeviceManager)
         {
             Model = model;
 
-            _graphicsDevice = graphicsDevice;
+            _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
 
             ModelBoneInstances = new ModelBoneInstance[model.BoneHierarchy.Bones.Length];
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
@@ -99,7 +99,7 @@ namespace OpenSage.Graphics
             }
             else
             {
-                SkinningBuffer = standardGraphicsResources.GetNullStructuredBuffer(64);
+                SkinningBuffer = graphicsDeviceManager.GetNullStructuredBuffer(64);
             }
 
             AnimationInstances = new List<AnimationInstance>();

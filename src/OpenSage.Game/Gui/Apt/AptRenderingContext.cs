@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -47,8 +45,9 @@ namespace OpenSage.Gui.Apt
 
             _clipMaskDrawingContext = AddDisposable(
                 new DrawingContext2D(
-                    contentManager,
-                    graphicsLoadContext,
+                    contentManager.FontManager,
+                    graphicsLoadContext.GraphicsDeviceManager,
+                    graphicsLoadContext.ShaderSetStore,
                     BlendStateDescription.SingleAlphaBlend,
                     RenderTarget.OutputDescription));
 
@@ -79,7 +78,7 @@ namespace OpenSage.Gui.Apt
 
                 _clipMaskDrawingContext.Begin(
                     _commandList,
-                    _graphicsLoadContext.StandardGraphicsResources.LinearClampSampler,
+                    _graphicsLoadContext.GraphicsDeviceManager.LinearClampSampler,
                     new SizeF(renderTarget.ColorTarget.Width, renderTarget.ColorTarget.Height));
 
                 _activeDrawingContext = _clipMaskDrawingContext;

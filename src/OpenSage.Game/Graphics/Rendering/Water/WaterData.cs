@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using Veldrid;
+﻿using Veldrid;
 
 namespace OpenSage.Graphics.Rendering.Water
 {

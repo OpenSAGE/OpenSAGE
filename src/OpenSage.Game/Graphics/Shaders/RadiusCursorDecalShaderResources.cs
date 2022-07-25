@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Core.Graphics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -11,15 +12,13 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly ResourceLayout RadiusCursorDecalsResourceLayout;
 
-        public RadiusCursorDecalShaderResources(
-            GraphicsDevice graphicsDevice,
-            Sampler aniso4xClampSampler)
+        public RadiusCursorDecalShaderResources(GraphicsDeviceManager graphicsDeviceManager)
         {
-            _graphicsDevice = graphicsDevice;
+            _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
 
-            _aniso4xClampSampler = aniso4xClampSampler;
+            _aniso4xClampSampler = graphicsDeviceManager.Aniso4xClampSampler;
 
-            RadiusCursorDecalsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            RadiusCursorDecalsResourceLayout = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("RadiusCursorDecalTextures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("RadiusCursorDecalSampler", ResourceKind.Sampler, ShaderStages.Fragment),

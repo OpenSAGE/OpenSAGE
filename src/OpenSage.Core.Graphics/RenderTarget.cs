@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics
 {
-    internal sealed class RenderTarget : DisposableBase
+    public sealed class RenderTarget : DisposableBase
     {
         public static readonly OutputDescription OutputDescription = new OutputDescription(
             null,

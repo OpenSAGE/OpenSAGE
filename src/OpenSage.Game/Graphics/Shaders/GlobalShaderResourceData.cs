@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -8,9 +9,8 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class GlobalShaderResourceData : DisposableBase
     {
-        private readonly GraphicsDevice _graphicsDevice;
+        private readonly GraphicsDeviceManager _graphicsDeviceManager;
         private readonly GlobalShaderResources _globalShaderResources;
-        private readonly StandardGraphicsResources _standardGraphicsResources;
 
         private readonly ConstantBuffer<GlobalShaderResources.GlobalConstants> _globalConstantBuffer;
 
@@ -26,25 +26,23 @@ namespace OpenSage.Graphics.Shaders
         private TimeOfDay? _cachedTimeOfDay;
 
         public GlobalShaderResourceData(
-            GraphicsDevice graphicsDevice,
-            GlobalShaderResources globalShaderResources,
-            StandardGraphicsResources standardGraphicsResources)
+            GraphicsDeviceManager graphicsDeviceManager,
+            GlobalShaderResources globalShaderResources)
         {
-            _graphicsDevice = graphicsDevice;
+            _graphicsDeviceManager = graphicsDeviceManager;
             _globalShaderResources = globalShaderResources;
-            _standardGraphicsResources = standardGraphicsResources;
 
-            _globalConstantBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstants>(graphicsDevice, "GlobalConstants"));
+            _globalConstantBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.GlobalConstants>(_graphicsDeviceManager.GraphicsDevice, "GlobalConstants"));
 
-            GlobalConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
+            GlobalConstantsResourceSet = AddDisposable(graphicsDeviceManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     globalShaderResources.GlobalConstantsResourceLayout,
                     _globalConstantBuffer.Buffer)));
 
-            _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS"));
-            SetGlobalLightingBufferVS(graphicsDevice);
+            _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsVS>(_graphicsDeviceManager.GraphicsDevice, "GlobalLightingConstantsVS"));
+            SetGlobalLightingBufferVS();
 
-            _globalLightingBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS"));
+            _globalLightingBufferPS = AddDisposable(new ConstantBuffer<GlobalShaderResources.LightingConstantsPS>(_graphicsDeviceManager.GraphicsDevice, "GlobalLightingConstantsPS"));
         }
 
         public ResourceSet GetForwardPassResourceSet(
@@ -59,18 +57,18 @@ namespace OpenSage.Graphics.Shaders
                 _cachedShadowMap = shadowMap;
 
                 _forwardPassResourceSet = AddDisposable(
-                    _graphicsDevice.ResourceFactory.CreateResourceSet(
+                    _graphicsDeviceManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
                         new ResourceSetDescription(
                             _globalShaderResources.ForwardPassResourceLayout,
                             _globalLightingBufferVS.Buffer,
                             _globalLightingBufferPS.Buffer,
                             cloudTexture,
-                            _graphicsDevice.Aniso4xSampler,
+                            _graphicsDeviceManager.GraphicsDevice.Aniso4xSampler,
                             shadowConstantsPSBuffer.Buffer,
                             shadowMap,
                             _globalShaderResources.ShadowSampler,
                             _globalShaderResources.RadiusCursorDecals.TextureArray,
-                            _standardGraphicsResources.Aniso4xClampSampler,
+                            _graphicsDeviceManager.Aniso4xClampSampler,
                             _globalShaderResources.RadiusCursorDecals.DecalConstants,
                             _globalShaderResources.RadiusCursorDecals.DecalsBuffer)));
             }
@@ -78,7 +76,7 @@ namespace OpenSage.Graphics.Shaders
             return _forwardPassResourceSet;
         }
 
-        private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
+        private void SetGlobalLightingBufferVS()
         {
             var cloudShadowView = Matrix4x4.CreateLookAt(
                 Vector3.Zero,
@@ -93,7 +91,7 @@ namespace OpenSage.Graphics.Shaders
             };
 
             _globalLightingBufferVS.Value = lightingConstantsVS;
-            _globalLightingBufferVS.Update(graphicsDevice);
+            _globalLightingBufferVS.Update(_graphicsDeviceManager.GraphicsDevice);
         }
 
         public void UpdateGlobalConstantBuffers(

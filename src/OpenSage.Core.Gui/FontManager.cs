@@ -49,10 +49,9 @@ namespace OpenSage.Content
                 .LoadLanguageSpecificFallbackSettings(languageName, fontNameComparer);
             _fallbackFonts = new FontCollection();
 
-
-            var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{FallbackEmbeddedFont}-Regular.ttf");
+            var fontStream = assembly.GetManifestResourceStream($"OpenSage.Core.Gui.Content.Fonts.{FallbackEmbeddedFont}-Regular.ttf");
             _fallbackFonts.Install(fontStream);
-            fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{FallbackEmbeddedFont}-Bold.ttf");
+            fontStream = assembly.GetManifestResourceStream($"OpenSage.Core.Gui.Content.Fonts.{FallbackEmbeddedFont}-Bold.ttf");
             _fallbackFonts.Install(fontStream);
         }
 

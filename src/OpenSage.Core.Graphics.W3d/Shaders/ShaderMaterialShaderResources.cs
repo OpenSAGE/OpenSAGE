@@ -41,7 +41,6 @@ namespace OpenSage.Graphics.Shaders
 
         public Material GetCachedMaterial(
             W3dShaderMaterial w3dShaderMaterial,
-            StandardGraphicsResources standardGraphicsResources,
             Func<string, Texture> loadTexture)
         {
             var key = GetCacheKey(w3dShaderMaterial);
@@ -50,7 +49,6 @@ namespace OpenSage.Graphics.Shaders
             {
                 var materialResourceSet = CreateMaterialResourceSet(
                     w3dShaderMaterial,
-                    standardGraphicsResources,
                     loadTexture);
 
                 result = AddDisposable(
@@ -98,7 +96,6 @@ namespace OpenSage.Graphics.Shaders
 
         private ResourceSet CreateMaterialResourceSet(
             W3dShaderMaterial w3dShaderMaterial,
-            StandardGraphicsResources standardGraphicsResources,
             Func<string, Texture> loadTexture)
         {
             var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
@@ -110,7 +107,7 @@ namespace OpenSage.Graphics.Shaders
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = loadTexture(w3dShaderProperty.StringValue) ?? standardGraphicsResources.PlaceholderTexture;
+                        var texture = loadTexture(w3dShaderProperty.StringValue) ?? GraphicsDeviceManager.PlaceholderTexture;
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 

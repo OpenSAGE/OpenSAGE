@@ -7,6 +7,7 @@ using System.Text;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Map;
@@ -59,12 +60,13 @@ namespace OpenSage
 
         internal readonly CursorManager Cursors;
 
-        internal GraphicsLoadContext GraphicsLoadContext { get; }
+        public GraphicsLoadContext GraphicsLoadContext { get; }
         public AssetStore AssetStore { get; }
 
         public ContentManager ContentManager { get; }
 
         public GraphicsDevice GraphicsDevice { get; }
+        public GraphicsDeviceManager GraphicsDeviceManager { get; }
 
         public InputMessageBuffer InputMessageBuffer { get; }
 
@@ -461,17 +463,16 @@ namespace OpenSage
 
                 _wndCallbackResolver = new WndCallbackResolver();
 
-                var standardGraphicsResources = AddDisposable(new StandardGraphicsResources(GraphicsDevice));
-                var shaderSetStore = AddDisposable(new ShaderSetStore(GraphicsDevice, RenderPipeline.GameOutputDescription));
-                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDevice, standardGraphicsResources, shaderSetStore));
-                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
+                GraphicsDeviceManager = AddDisposable(new GraphicsDeviceManager(GraphicsDevice));
+                var shaderSetStore = AddDisposable(new ShaderSetStore(GraphicsDeviceManager, RenderPipeline.GameOutputDescription));
+                var shaderResources = AddDisposable(new ShaderResourceManager(GraphicsDeviceManager, shaderSetStore));
+                GraphicsLoadContext = new GraphicsLoadContext(GraphicsDeviceManager, shaderResources, shaderSetStore);
 
                 AssetStore = AddDisposable(new AssetStore(
                     SageGame,
                     _fileSystem,
                     LanguageUtility.ReadCurrentLanguage(Definition, _fileSystem),
-                    GraphicsDevice,
-                    GraphicsLoadContext.StandardGraphicsResources,
+                    GraphicsDeviceManager,
                     GraphicsLoadContext.ShaderResources,
                     shaderSetStore,
                     Definition.CreateAssetLoadStrategy()));

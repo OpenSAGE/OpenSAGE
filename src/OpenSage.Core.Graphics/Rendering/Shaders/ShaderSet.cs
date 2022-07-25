@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using OpenSage.Core.Graphics;
 using Veldrid;
 
 namespace OpenSage.Rendering;
@@ -11,7 +12,9 @@ public abstract class ShaderSet : DisposableBase
     public readonly ShaderSetDescription Description;
     public readonly ResourceLayout[] ResourceLayouts;
 
-    public GraphicsDevice GraphicsDevice => Store.GraphicsDevice;
+    protected GraphicsDeviceManager GraphicsDeviceManager => Store.GraphicsDeviceManager;
+
+    public GraphicsDevice GraphicsDevice => GraphicsDeviceManager.GraphicsDevice;
 
     protected readonly ShaderSetStore Store;
 
@@ -27,7 +30,7 @@ public abstract class ShaderSet : DisposableBase
 
         Id = store.GetNextId();
 
-        var factory = store.GraphicsDevice.ResourceFactory;
+        var factory = GraphicsDevice.ResourceFactory;
 
         var cacheFile = ShaderCrossCompiler.GetOrCreateCachedShaders(factory, shaderAssembly, shaderName);
 

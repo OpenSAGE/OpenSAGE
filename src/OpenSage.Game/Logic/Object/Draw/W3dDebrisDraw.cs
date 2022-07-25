@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
         public void SetModelName(string modelName)
         {
             var model = _gameContext.AssetLoadContext.AssetStore.W3dAssets.GetModelByName(modelName);
-            _modelInstance = AddDisposable(model.CreateInstance(_gameContext.AssetLoadContext.GraphicsDevice, _gameContext.AssetLoadContext.StandardGraphicsResources));
+            _modelInstance = AddDisposable(model.CreateInstance());
             _modelInstance.Update(TimeInterval.Zero);
         }
 

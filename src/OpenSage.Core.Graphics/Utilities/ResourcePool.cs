@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSage.Utilities
 {
-    internal sealed class ResourcePool<T, TKey> : DisposableBase
+    public sealed class ResourcePool<T, TKey> : DisposableBase
         where T : class, IDisposable
         where TKey : struct
     {

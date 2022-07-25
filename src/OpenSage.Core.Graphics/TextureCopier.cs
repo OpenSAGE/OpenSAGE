@@ -1,4 +1,6 @@
-﻿using OpenSage.Mathematics;
+﻿using OpenSage.Core.Graphics;
+using OpenSage.Mathematics;
+using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -9,14 +11,18 @@ namespace OpenSage.Graphics
         private readonly CommandList _commandList;
         private readonly SpriteBatch _intermediateSpriteBatch;
 
-        public TextureCopier(Game game, in OutputDescription outputDescription)
+        public TextureCopier(
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
+            in OutputDescription outputDescription)
         {
-            _graphicsDevice = game.GraphicsDevice;
+            _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
 
             _commandList = AddDisposable(_graphicsDevice.ResourceFactory.CreateCommandList());
 
             _intermediateSpriteBatch = AddDisposable(new SpriteBatch(
-                game.GraphicsLoadContext,
+                graphicsDeviceManager,
+                shaderSetStore,
                 BlendStateDescription.SingleDisabled,
                 outputDescription));
         }

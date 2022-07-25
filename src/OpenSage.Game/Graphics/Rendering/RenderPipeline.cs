@@ -59,13 +59,14 @@ namespace OpenSage.Graphics.Rendering
             _loadContext = game.GraphicsLoadContext;
 
             _globalShaderResources = game.GraphicsLoadContext.ShaderResources.Global;
-            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources, game.GraphicsLoadContext.StandardGraphicsResources));
+            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDeviceManager, _globalShaderResources));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
             _drawingContext = AddDisposable(new DrawingContext2D(
-                game.ContentManager,
-                game.GraphicsLoadContext,
+                game.ContentManager.FontManager,
+                game.GraphicsLoadContext.GraphicsDeviceManager,
+                game.GraphicsLoadContext.ShaderSetStore,
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
@@ -73,7 +74,8 @@ namespace OpenSage.Graphics.Rendering
             _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
 
             _textureCopier = AddDisposable(new TextureCopier(
-                game,
+                game.GraphicsDeviceManager,
+                game.GraphicsLoadContext.ShaderSetStore,
                 game.Panel.OutputDescription));
         }
 
@@ -137,7 +139,7 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.Begin(
                     _commandList,
-                    _loadContext.StandardGraphicsResources.LinearClampSampler,
+                    _loadContext.GraphicsDeviceManager.LinearClampSampler,
                     new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
 
                 context.Scene3D?.Render(_drawingContext);
@@ -177,7 +179,7 @@ namespace OpenSage.Graphics.Rendering
             }
             else
             {
-                cloudTexture = _loadContext.StandardGraphicsResources.SolidWhiteTexture;
+                cloudTexture = _loadContext.GraphicsDeviceManager.SolidWhiteTexture;
             }
 
             // Shadow map passes.

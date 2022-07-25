@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Core.Graphics;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Graphics.W3d;
@@ -17,8 +18,7 @@ namespace OpenSage.Graphics
     {
         public ModelMesh(
             W3dMesh w3dMesh,
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             FixedFunctionShaderResources fixedFunctionShaderResources,
             MeshShaderResources meshShaderResources,
             MeshDepthShaderResources meshDepthShaderResources,
@@ -27,7 +27,7 @@ namespace OpenSage.Graphics
         {
             SetNameAndInstanceId("W3DMesh", w3dMesh.Header.MeshName);
 
-            _graphicsDevice = graphicsDevice;
+            _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
             _meshShaderResources = meshShaderResources;
 
             W3dShaderMaterial w3dShaderMaterial;
@@ -54,8 +54,7 @@ namespace OpenSage.Graphics
             if (w3dShaderMaterial != null)
             {
                 MeshParts.Add(CreateModelMeshPartShaderMaterial(
-                    graphicsDevice,
-                    standardGraphicsResources,
+                    graphicsDeviceManager,
                     meshDepthShaderResources,
                     loadTexture,
                     w3dMesh,
@@ -76,8 +75,7 @@ namespace OpenSage.Graphics
                 for (var i = 0; i < w3dMesh.MaterialPasses.Count; i++)
                 {
                     CreateModelMeshPartsFixedFunction(
-                        graphicsDevice,
-                        standardGraphicsResources,
+                        graphicsDeviceManager,
                         fixedFunctionShaderResources,
                         meshDepthShaderResources,
                         loadTexture,
@@ -97,11 +95,11 @@ namespace OpenSage.Graphics
             Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
             CameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
-            VertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            VertexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 MemoryMarshal.AsBytes(new ReadOnlySpan<MeshShaderResources.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 BufferUsage.VertexBuffer));
 
-            _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 CreateIndices(w3dMesh),
                 BufferUsage.IndexBuffer));
 
@@ -219,8 +217,7 @@ namespace OpenSage.Graphics
         }
 
         private ModelMeshPart CreateModelMeshPartShaderMaterial(
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             MeshDepthShaderResources meshDepthShaderResources,
             Func<string, Texture> loadTexture,
             W3dMesh w3dMesh,
@@ -240,11 +237,11 @@ namespace OpenSage.Graphics
 
             var blendEnabled = false;
 
-            var texCoordsVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            var texCoordsVertexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 texCoords,
                 BufferUsage.VertexBuffer));
 
-            var material = shaderResources.GetCachedMaterial(w3dShaderMaterial, standardGraphicsResources, loadTexture);
+            var material = shaderResources.GetCachedMaterial(w3dShaderMaterial, loadTexture);
 
             var materialPass = new MaterialPass(material, meshDepthShaderResources.Material);
 
@@ -260,8 +257,7 @@ namespace OpenSage.Graphics
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
         private void CreateModelMeshPartsFixedFunction(
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             FixedFunctionShaderResources fixedFunctionShaderResources,
             MeshDepthShaderResources meshDepthShaderResources,
             Func<string, Texture> loadTexture,
@@ -304,7 +300,7 @@ namespace OpenSage.Graphics
                 }
             }
 
-            var texCoordsVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            var texCoordsVertexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 texCoords,
                 BufferUsage.VertexBuffer));
 
@@ -315,7 +311,7 @@ namespace OpenSage.Graphics
                 && w3dMaterialPass.TextureStages[0].TextureIds.Items.Count == 1)
             {
                 meshParts.Add(CreateModelMeshPart(
-                    standardGraphicsResources,
+                    graphicsDeviceManager,
                     fixedFunctionShaderResources,
                     meshDepthShaderResources,
                     loadTexture,
@@ -429,7 +425,7 @@ namespace OpenSage.Graphics
                     if (combinedId != newCombinedId)
                     {
                         meshParts.Add(CreateModelMeshPart(
-                            standardGraphicsResources,
+                            graphicsDeviceManager,
                             fixedFunctionShaderResources,
                             meshDepthShaderResources,
                             loadTexture,
@@ -457,10 +453,10 @@ namespace OpenSage.Graphics
                 if (indexCount > 0)
                 {
                     meshParts.Add(CreateModelMeshPart(
-                        standardGraphicsResources,
-                            fixedFunctionShaderResources,
-                            meshDepthShaderResources,
-                            loadTexture,
+                        graphicsDeviceManager,
+                        fixedFunctionShaderResources,
+                        meshDepthShaderResources,
+                        loadTexture,
                         texCoordsVertexBuffer,
                         startIndex,
                         indexCount,
@@ -517,7 +513,7 @@ namespace OpenSage.Graphics
 
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private ModelMeshPart CreateModelMeshPart(
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             FixedFunctionShaderResources fixedFunctionShaderResources,
             MeshDepthShaderResources meshDepthShaderResources,
             Func<string, Texture> loadTexture,
@@ -554,8 +550,8 @@ namespace OpenSage.Graphics
                 NumTextureStages = (int)numTextureStages
             };
 
-            var texture0 = CreateTexture(loadTexture, w3dMesh, textureIndex0) ?? standardGraphicsResources.NullTexture;
-            var texture1 = CreateTexture(loadTexture, w3dMesh, textureIndex1) ?? standardGraphicsResources.NullTexture;
+            var texture0 = CreateTexture(loadTexture, w3dMesh, textureIndex0) ?? graphicsDeviceManager.NullTexture;
+            var texture1 = CreateTexture(loadTexture, w3dMesh, textureIndex1) ?? graphicsDeviceManager.NullTexture;
 
             var material = fixedFunctionShaderResources.GetCachedMaterial(
                 cullMode,

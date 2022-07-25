@@ -16,11 +16,10 @@ public sealed class W3dAssetCache : DisposableBase
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly GraphicsDeviceManager _graphicsDeviceManager;
     private readonly FileSystem _fileSystem;
     private readonly IW3dPathResolver _pathResolver;
     private readonly TextureAssetCache _textureAssetCache;
-    private readonly StandardGraphicsResources _standardGraphicsResources;
 
     private readonly MeshShaderResources _meshShaderResources;
     private readonly FixedFunctionShaderResources _fixedFunctionShaderResources;
@@ -32,20 +31,18 @@ public sealed class W3dAssetCache : DisposableBase
     private readonly Dictionary<uint, W3DAnimation> _animationCache;
 
     public W3dAssetCache(
-        GraphicsDevice graphicsDevice,
+        GraphicsDeviceManager graphicsDeviceManager,
         FileSystem fileSystem,
         IW3dPathResolver pathResolver,
         TextureAssetCache textureAssetCache,
-        StandardGraphicsResources standardGraphicsResources,
         ShaderSetStore shaderSetStore)
     {
-        _graphicsDevice = graphicsDevice;
+        _graphicsDeviceManager = graphicsDeviceManager;
         _fileSystem = fileSystem;
         _pathResolver = pathResolver;
         _textureAssetCache = textureAssetCache;
-        _standardGraphicsResources = standardGraphicsResources;
 
-        _meshShaderResources = AddDisposable(new MeshShaderResources(graphicsDevice));
+        _meshShaderResources = AddDisposable(new MeshShaderResources(graphicsDeviceManager.GraphicsDevice));
         _fixedFunctionShaderResources = AddDisposable(new FixedFunctionShaderResources(shaderSetStore));
         _meshDepthShaderResources = AddDisposable(new MeshDepthShaderResources(shaderSetStore));
 
@@ -143,7 +140,8 @@ public sealed class W3dAssetCache : DisposableBase
         return new Model(
             Path.GetFileNameWithoutExtension(w3dFile.FilePath),
             boneHierarchy,
-            subObjects.ToArray());
+            subObjects.ToArray(),
+            _graphicsDeviceManager);
     }
 
     private ModelSubObject CreateSubObject(
@@ -159,8 +157,7 @@ public sealed class W3dAssetCache : DisposableBase
                 bone,
                 new ModelMesh(
                     w3dMesh,
-                    _graphicsDevice,
-                    _standardGraphicsResources,
+                    _graphicsDeviceManager,
                     _fixedFunctionShaderResources,
                     _meshShaderResources,
                     _meshDepthShaderResources,

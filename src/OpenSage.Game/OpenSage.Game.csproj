@@ -14,8 +14,6 @@
     <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
     <PackageReference Include="protobuf-net" Version="3.0.101" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
     <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
     <PackageReference Include="SharpAudio.Codec" Version="1.0.27-beta" />
 
@@ -36,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Core.Gui\OpenSage.Core.Gui.csproj" />
     <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -46,10 +45,6 @@
 
   <ItemGroup>
     <Protobuf Include="Network\Protocol\lobby.proto" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Fonts\*.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,10 +63,6 @@
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\glslangValidator</GlslangValidatorPath>
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('linux'))">linux-x64\glslangValidator</GlslangValidatorPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Update="Content\Fonts\FontFallbackSettings.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />

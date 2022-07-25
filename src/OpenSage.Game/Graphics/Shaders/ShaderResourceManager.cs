@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using OpenSage.Core.Graphics;
 using OpenSage.Diagnostics;
 using OpenSage.Rendering;
-using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -13,24 +12,21 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly ParticleShaderResources Particle;
         public readonly RoadShaderResources Road;
-        public readonly SpriteShaderResources Sprite;
         public readonly TerrainShaderResources Terrain;
         public readonly WaterShaderResources Water;
 
         public ShaderResourceManager(
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             ShaderSetStore shaderSetStore)
         {
             using (GameTrace.TraceDurationEvent("ShaderResourceManager()"))
             {
-                Global = AddDisposable(new GlobalShaderResources(graphicsDevice));
+                Global = AddDisposable(new GlobalShaderResources(graphicsDeviceManager.GraphicsDevice));
                 
-                RadiusCursor = AddDisposable(new RadiusCursorDecalShaderResources(graphicsDevice, standardGraphicsResources.Aniso4xClampSampler));
+                RadiusCursor = AddDisposable(new RadiusCursorDecalShaderResources(graphicsDeviceManager));
 
                 Particle = AddDisposable(new ParticleShaderResources(shaderSetStore));
                 Road = AddDisposable(new RoadShaderResources(shaderSetStore));
-                Sprite = AddDisposable(new SpriteShaderResources(shaderSetStore));
                 Terrain = AddDisposable(new TerrainShaderResources(shaderSetStore));
                 Water = AddDisposable(new WaterShaderResources(shaderSetStore));
             }

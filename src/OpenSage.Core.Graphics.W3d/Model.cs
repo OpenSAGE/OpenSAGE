@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics.Shaders;
 using Veldrid;
 
@@ -7,6 +8,8 @@ namespace OpenSage.Graphics
     [DebuggerDisplay("Model '{Name}'")]
     public sealed class Model : BaseAsset
     {
+        private readonly GraphicsDeviceManager _graphicsDeviceManager;
+
         public readonly ModelBoneHierarchy BoneHierarchy;
         public readonly ModelSubObject[] SubObjects;
 
@@ -15,16 +18,13 @@ namespace OpenSage.Graphics
         public Model(
             string name,
             ModelBoneHierarchy boneHierarchy,
-            ModelSubObject[] subObjects)
-            : this(boneHierarchy, subObjects)
+            ModelSubObject[] subObjects,
+            GraphicsDeviceManager graphicsDeviceManager)
         {
             SetNameAndInstanceId("W3DContainer", name);
-        }
 
-        private Model(
-            ModelBoneHierarchy boneHierarchy,
-            ModelSubObject[] subObjects)
-        {
+            _graphicsDeviceManager = graphicsDeviceManager;
+
             BoneHierarchy = boneHierarchy;
             SubObjects = subObjects;
 
@@ -38,14 +38,9 @@ namespace OpenSage.Graphics
             }
         }
 
-        public ModelInstance CreateInstance(
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources)
+        public ModelInstance CreateInstance()
         {
-            return new ModelInstance(
-                this,
-                graphicsDevice,
-                standardGraphicsResources);
+            return new ModelInstance(this, _graphicsDeviceManager);
         }
     }
 }

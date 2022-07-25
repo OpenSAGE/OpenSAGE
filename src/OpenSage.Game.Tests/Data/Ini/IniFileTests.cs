@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -47,11 +48,11 @@ namespace OpenSage.Tests.Data.Ini
             };
 
             using var graphicsDevice = GraphicsDeviceUtility.CreateGraphicsDevice(null, null);
+            using var graphicsDeviceManager = new GraphicsDeviceManager(graphicsDevice);
 
-            using var standardGraphicsResources = new StandardGraphicsResources(graphicsDevice);
-            using var shaderSetStore = new ShaderSetStore(graphicsDevice, RenderPipeline.GameOutputDescription);
-            using var shaderResources = new ShaderResourceManager(graphicsDevice, standardGraphicsResources, shaderSetStore);
-            var graphicsLoadContext = new GraphicsLoadContext(graphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
+            using var shaderSetStore = new ShaderSetStore(graphicsDeviceManager, RenderPipeline.GameOutputDescription);
+            using var shaderResources = new ShaderResourceManager(graphicsDeviceManager, shaderSetStore);
+            var graphicsLoadContext = new GraphicsLoadContext(graphicsDeviceManager, shaderResources, shaderSetStore);
 
             foreach (var gameDefinition in gameDefinitions)
             {
@@ -63,8 +64,7 @@ namespace OpenSage.Tests.Data.Ini
                         gameDefinition.Game,
                         fileSystem,
                         LanguageUtility.ReadCurrentLanguage(gameDefinition, fileSystem),
-                        graphicsDevice,
-                        standardGraphicsResources,
+                        graphicsDeviceManager,
                         shaderResources,
                         shaderSetStore,
                         gameDefinition.CreateAssetLoadStrategy());

@@ -44,7 +44,7 @@ namespace OpenSage.Terrain
 
             _model = model;
 
-            _modelInstance = AddDisposable(_model.CreateInstance(gameContext.AssetLoadContext.GraphicsDevice, gameContext.AssetLoadContext.StandardGraphicsResources));
+            _modelInstance = AddDisposable(_model.CreateInstance());
 
             _modelInstance.Update(TimeInterval.Zero);
 

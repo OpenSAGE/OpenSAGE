@@ -176,8 +176,7 @@ namespace OpenSage.Content
             SageGame sageGame,
             FileSystem fileSystem,
             string language,
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             ShaderResourceManager shaderResources,
             ShaderSetStore shaderSetStore,
             OnDemandAssetLoadStrategy loadStrategy)
@@ -185,8 +184,7 @@ namespace OpenSage.Content
             LoadContext = new AssetLoadContext(
                 fileSystem,
                 language,
-                graphicsDevice,
-                standardGraphicsResources,
+                graphicsDeviceManager,
                 shaderResources,
                 shaderSetStore,
                 this);
@@ -336,8 +334,8 @@ namespace OpenSage.Content
             AddAssetCollection(WeatherDatas = new ScopedAssetCollection<WeatherData>(this));
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
 
-            Textures = AddDisposable(new TextureAssetCache(graphicsDevice, fileSystem, loadStrategy.GetTexturePathResolver()));
-            W3dAssets = AddDisposable(new W3dAssetCache(graphicsDevice, fileSystem, loadStrategy.GetW3dPathResolver(), Textures, standardGraphicsResources, shaderSetStore));
+            Textures = AddDisposable(new TextureAssetCache(graphicsDeviceManager.GraphicsDevice, fileSystem, loadStrategy.GetTexturePathResolver()));
+            W3dAssets = AddDisposable(new W3dAssetCache(graphicsDeviceManager, fileSystem, loadStrategy.GetW3dPathResolver(), Textures, shaderSetStore));
         }
 
         internal void PushScope()
