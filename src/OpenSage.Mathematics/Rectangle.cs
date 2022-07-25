@@ -2,12 +2,12 @@
 
 namespace OpenSage.Mathematics
 {
-    public class Rectangle
+    public readonly struct Rectangle
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public readonly int X;
+        public readonly int Y;
+        public readonly int Width;
+        public readonly int Height;
 
         public Point2D Location => new Point2D(X, Y);
         public Size Size => new Size(Width, Height);
@@ -21,14 +21,6 @@ namespace OpenSage.Mathematics
         public int Right => X + Width;
         public int Top => Y;
         public int Bottom => Y + Height;
-
-        public Rectangle()
-        {
-            X = 0;
-            Y = 0;
-            Height = 0;
-            Width = 0;
-        }
 
         public Rectangle(int x, int y, int width, int height)
         {
@@ -49,9 +41,9 @@ namespace OpenSage.Mathematics
         public Rectangle(in RectangleF rect)
         {
             X = (int)Math.Round(rect.X);
-            Y = (int) Math.Round(rect.Y);
-            Width = (int) Math.Round(rect.Width);
-            Height = (int) Math.Round(rect.Height);
+            Y = (int)Math.Round(rect.Y);
+            Width = (int)Math.Round(rect.Width);
+            Height = (int)Math.Round(rect.Height);
         }
 
         // TODO: remove this?
@@ -63,7 +55,7 @@ namespace OpenSage.Mathematics
         //        Top < value.Bottom;
         //}
 
-        
+
         //public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
         //{
         //    if (value1.Intersects(value2))
@@ -101,7 +93,7 @@ namespace OpenSage.Mathematics
                 return false;
             }
 
-            var rectangle = (Rectangle) obj;
+            var rectangle = (Rectangle)obj;
             return X == rectangle.X &&
                    Y == rectangle.Y &&
                    Width == rectangle.Width &&

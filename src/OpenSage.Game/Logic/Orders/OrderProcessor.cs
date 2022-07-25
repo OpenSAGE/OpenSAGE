@@ -235,7 +235,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.AttackObject:
                     case OrderType.ForceAttackObject:
                         {
-                            var objectId = order.Arguments[0].Value.Integer;
+                            var objectId = order.Arguments[0].Value.ObjectId;
 
                             foreach (var unit in player.SelectedUnits)
                             {

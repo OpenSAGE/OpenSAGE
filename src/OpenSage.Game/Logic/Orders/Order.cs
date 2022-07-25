@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Orders
         {
             Arguments.Add(new OrderArgument(
                 OrderArgumentType.ScreenRectangle,
-                new OrderArgumentValue { ScreenRectangle = value }));
+                new OrderArgumentValue { ScreenRectangle = new RectangleWrapper(value) }));
         }
 
         public override string ToString()

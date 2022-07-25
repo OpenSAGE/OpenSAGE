@@ -25,7 +25,7 @@ namespace OpenSage.Game.FunctionalTests
                 Map = "maps\\alpine assault\\alpine assault.map"
             };
 
-            string filepath = Constants.CacheDirectory + "2022-07-25-13-08-58.json";
+            string filepath = Constants.CacheDirectory + "2022-07-25-14-57-26.json";
             this.initComplete = new AutoResetEvent(false);
             GameWrapper game = new GameWrapper();
             game.InitializationComplete += Game_InitializationComplete;
@@ -48,7 +48,7 @@ namespace OpenSage.Game.FunctionalTests
             }
 
             // do I need this sleep here? The game should be able to receive orders immediately but I'm not sure
-            System.Threading.Thread.Sleep(10000);
+            System.Threading.Thread.Sleep(100000);
 
             // Get position of all objects: command center, bulldozen, supply stash
             // Create the first order here. Build a power plant

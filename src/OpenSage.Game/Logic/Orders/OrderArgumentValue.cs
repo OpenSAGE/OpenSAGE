@@ -19,6 +19,6 @@ namespace OpenSage.Logic.Orders
 
         public Point2D ScreenPosition { get; set; }
 
-        public Rectangle ScreenRectangle { get; set; }
+        public RectangleWrapper ScreenRectangle { get; set; }
     }
 }

@@ -9,14 +9,19 @@ namespace OpenSage.Mathematics
 {
     public class Vector3Wrapper
     {
+        private float x;
+        private float y;
+        private float z;
+
         public float X
         {
             get
             {
-                return X;
+                return x;
             }
             set
             {
+                this.x = value;
                 this.Vector = new Vector3(value, this.Y, this.Z);
             }
         }
@@ -25,10 +30,11 @@ namespace OpenSage.Mathematics
         {
             get
             {
-                return Y;
+                return y;
             }
             set
             {
+                this.y = value;
                 this.Vector = new Vector3(this.X, value, this.Z);
             }
         }
@@ -37,15 +43,16 @@ namespace OpenSage.Mathematics
         {
             get
             {
-                return Z;
+                return z;
             }
             set
             {
+                this.z = value;
                 this.Vector = new Vector3(this.X, this.Y, value);
             }
         }
 
-        public Vector3 Vector {get; set;}
+        public Vector3 Vector {get; private set;}
 
         public Vector3Wrapper()
         {
