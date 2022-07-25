@@ -2,12 +2,12 @@
 
 namespace OpenSage.Mathematics
 {
-    public readonly struct Rectangle
+    public class Rectangle
     {
-        public readonly int X;
-        public readonly int Y;
-        public readonly int Width;
-        public readonly int Height;
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         public Point2D Location => new Point2D(X, Y);
         public Size Size => new Size(Width, Height);
@@ -21,6 +21,14 @@ namespace OpenSage.Mathematics
         public int Right => X + Width;
         public int Top => Y;
         public int Bottom => Y + Height;
+
+        public Rectangle()
+        {
+            X = 0;
+            Y = 0;
+            Height = 0;
+            Width = 0;
+        }
 
         public Rectangle(int x, int y, int width, int height)
         {

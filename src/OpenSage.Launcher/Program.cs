@@ -186,7 +186,19 @@ namespace OpenSage.Launcher
 
                             if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F11)
                             {
-                                developerModeEnabled = !developerModeEnabled;
+                                // developerModeEnabled = !developerModeEnabled;
+                                // return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F11)
+                            {
+                                game.NetworkMessageBuffer.StartOrderRecording();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F12)
+                            {
+                                game.NetworkMessageBuffer.SaveOrderRecording();
                                 return InputMessageResult.Handled;
                             }
 

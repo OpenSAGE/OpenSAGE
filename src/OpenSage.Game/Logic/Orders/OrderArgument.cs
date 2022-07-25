@@ -3,12 +3,15 @@ using System.Text;
 
 namespace OpenSage.Logic.Orders
 {
-    public sealed class OrderArgument
+    /// <remarks/>
+    public class OrderArgument
     {
-        public OrderArgumentType ArgumentType { get; }
-        public readonly OrderArgumentValue Value;
+        public OrderArgumentType ArgumentType { get; set; }
+        public OrderArgumentValue Value { get; set; }
 
-        internal OrderArgument(
+        public OrderArgument() { }
+
+        public OrderArgument(
             OrderArgumentType argumentType,
             in OrderArgumentValue value)
         {

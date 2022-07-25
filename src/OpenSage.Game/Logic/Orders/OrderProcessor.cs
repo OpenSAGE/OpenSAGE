@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.Json;
+using System.Xml.Serialization;
 using OpenSage.Logic.Object;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Orders
 {
     public sealed class OrderProcessor
     {
         private readonly Game _game;
+        private IList<Order> _workingSequence;
+        private DateTime _lastOrder;
+        private bool _recording;
+        private object _recordingLock;
 
         public OrderProcessor(Game game)
         {
-            _game = game;
+            this._game = game;
+            this._workingSequence = new List<Order>();
+            this._recording = false;
+            this._recordingLock = new object();
         }
 
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -21,6 +32,14 @@ namespace OpenSage.Logic.Orders
         {
             foreach (var order in orders)
             {
+                lock (this._recordingLock)
+                {
+                    TimeSpan delta = DateTime.Now - this._lastOrder;
+                    order.DelayMSec = (int)Math.Round(delta.TotalMilliseconds);
+                    this._workingSequence.Add(order);
+                    this._lastOrder = DateTime.Now;
+                }
+
                 Player player = null;
 
                 if (order.PlayerIndex == -1)
@@ -32,7 +51,8 @@ namespace OpenSage.Logic.Orders
                     player = _game.Scene3D.Players[(int) order.PlayerIndex];
                 }
 
-                var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
+                var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Info;
+
                 Logger.Log(logLevel, $"Order for player {order.PlayerIndex}: {order.OrderType}");
 
                 switch (order.OrderType)
@@ -71,7 +91,7 @@ namespace OpenSage.Logic.Orders
                             var targetPosition = order.Arguments[0].Value.Position;
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.AIUpdate?.SetTargetPoint(targetPosition);
+                                unit.AIUpdate?.SetTargetPoint(targetPosition.Vector);
                             }
                         }
                         break;
@@ -85,7 +105,7 @@ namespace OpenSage.Logic.Orders
 
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                             gameObject.Owner = player;
-                            gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
+                            gameObject.UpdateTransform(position.Vector, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                             gameObject.StartConstruction();
                         }
                         break;
@@ -234,7 +254,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 if (unit.CanAttack)
                                 {
-                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(targetPosition));
+                                    unit.CurrentWeapon?.SetTarget(new WeaponTarget(targetPosition.Vector));
                                 }
                             }
                         }
@@ -249,7 +269,7 @@ namespace OpenSage.Logic.Orders
                                 var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
                                 var rallyPoint = order.Arguments[1].Value.Position;
-                                obj.RallyPoint = rallyPoint;
+                                obj.RallyPoint = rallyPoint.Vector;
                             }
                             else
                             {
@@ -273,7 +293,7 @@ namespace OpenSage.Logic.Orders
                             var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId(specialPowerDefinitionId);
                             foreach (var unit in player.SelectedUnits)
                             {
-                                unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
+                                unit.SpecialPowerAtLocation(specialPower, specialPowerLocation.Vector);
                             }
                         }
                         break;
@@ -325,6 +345,48 @@ namespace OpenSage.Logic.Orders
                         break;
                 }
             }
+        }
+
+        public void SetStartTime()
+        {
+            this._lastOrder = DateTime.Now;
+            Logger.Info($"Set start time to {this._lastOrder}");
+        }
+
+        public void StartRecording()
+        {
+            lock (this._recordingLock)
+            {
+                Logger.Info("Starting recording");
+                this._recording = true;
+            }
+        }
+
+        public void SaveRecording()
+        {
+            lock (this._recordingLock)
+            {
+                if (!this._recording)
+                {
+                    return;
+                }
+
+                Logger.Info("Saving recording");
+                this._recording = false;
+                this.SaveResults(DateTime.Now.ToString("yyyy-MM-d-HH-mm-ss"), this._workingSequence);
+                this._workingSequence = new List<Order>();
+            }
+        }
+
+        private void SaveResults(string fileName, IList<Order> sequence)
+        {
+            string path = Constants.CacheDirectory + fileName + Constants.FileExtension;
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            File.WriteAllText(path, JsonSerializer.Serialize(sequence));
         }
     }
 }

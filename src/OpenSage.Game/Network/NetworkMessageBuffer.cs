@@ -30,6 +30,21 @@ namespace OpenSage.Network
             _localOrders.Add(order);
         }
 
+        public void SetStartTime()
+        {
+            this._orderProcessor.SetStartTime();
+        }
+
+        public void StartOrderRecording()
+        {
+            this._orderProcessor.StartRecording();
+        }
+
+        public void SaveOrderRecording()
+        {
+            this._orderProcessor.SaveRecording();
+        }
+
         internal void Tick()
         {
             _connection.Send(_netFrameNumber, _localOrders);

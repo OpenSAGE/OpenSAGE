@@ -530,6 +530,7 @@ namespace OpenSage
                 Selection = AddDisposable(new SelectionSystem(this));
 
                 OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
+                Panel.EnsureFrame(window.ClientBounds);
 
                 Panel.ClientSizeChanged += OnPanelSizeChanged;
                 OnPanelSizeChanged(this, EventArgs.Empty);
@@ -786,6 +787,7 @@ namespace OpenSage
             var totalGameTime = MapTime.TotalTime;
             _nextLogicUpdate = totalGameTime;
             _nextScriptingUpdate = totalGameTime;
+            this.NetworkMessageBuffer.SetStartTime();
         }
 
         public void Update(IEnumerable<InputMessage> messages)

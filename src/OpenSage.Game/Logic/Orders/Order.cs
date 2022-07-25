@@ -2,73 +2,82 @@
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using Newtonsoft.Json;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Orders
 {
+    /// <remarks/>
     public sealed class Order
     {
-        private readonly List<OrderArgument> _arguments;
+        public int PlayerIndex { get; set; }
 
-        public int PlayerIndex { get; }
+        [JsonProperty("OrderType")]
+        public OrderType OrderType { get; set; }
 
-        public OrderType OrderType { get; }
+        public int DelayMSec {get; set;}
 
-        public IReadOnlyList<OrderArgument> Arguments => _arguments;
+        [JsonProperty("Arguments")]
+        public IList<OrderArgument> Arguments { get; set; }
+
+        public Order()
+        {
+            Arguments = new List<OrderArgument>();
+        }
 
         public Order(int playerIndex, OrderType orderType)
         {
             OrderType = orderType;
             PlayerIndex = playerIndex;
 
-            _arguments = new List<OrderArgument>();
+            Arguments = new List<OrderArgument>();
         }
 
         public void AddIntegerArgument(int value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.Integer,
                 new OrderArgumentValue { Integer = value }));
         }
 
         public void AddFloatArgument(float value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.Float,
                 new OrderArgumentValue { Float = value }));
         }
 
         public void AddBooleanArgument(bool value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.Boolean,
                 new OrderArgumentValue { Boolean = value }));
         }
 
         public void AddObjectIdArgument(uint value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.ObjectId,
                 new OrderArgumentValue { ObjectId = value }));
         }
 
         public void AddPositionArgument(in Vector3 value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.Position,
-                new OrderArgumentValue { Position = value }));
+                new OrderArgumentValue { Position = new Vector3Wrapper(value) }));
         }
 
         public void AddScreenPositionArgument(in Point2D value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.ScreenPosition,
                 new OrderArgumentValue { ScreenPosition = value }));
         }
 
         public void AddScreenRectangleArgument(in Rectangle value)
         {
-            _arguments.Add(new OrderArgument(
+            Arguments.Add(new OrderArgument(
                 OrderArgumentType.ScreenRectangle,
                 new OrderArgumentValue { ScreenRectangle = value }));
         }

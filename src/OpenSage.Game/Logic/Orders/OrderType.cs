@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.Orders
+﻿using System;
+
+namespace OpenSage.Logic.Orders
 {
     public enum OrderType
     {

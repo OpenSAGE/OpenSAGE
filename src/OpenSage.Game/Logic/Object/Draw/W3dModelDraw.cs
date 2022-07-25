@@ -99,7 +99,7 @@ namespace OpenSage.Logic.Object
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
 
-            NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
+            NLog.LogManager.GetCurrentClassLogger().Debug($"Set active condition state for {GameObject.Definition.Name}");
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish()
@@ -161,7 +161,7 @@ namespace OpenSage.Logic.Object
                 _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
 
-            NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {GameObject.Definition.Name}");
+            NLog.LogManager.GetCurrentClassLogger().Debug($"Set active animation state for {GameObject.Definition.Name}");
 
             return true;
         }

@@ -146,8 +146,8 @@ namespace OpenSage.Launcher
                         {
                             var pSettings = new PlayerSetting[]
                             {
-                                new PlayerSetting(2, "FactionChina", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
-                                new PlayerSetting(1, "FactionGLA", new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
+                                new(1, "FactionAmerica", new ColorRgb(255, 0, 0), 0, PlayerOwner.Player),
+                                new(2, "FactionGLA", new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
                             };
 
                             logger.Debug("Starting multiplayer game");
@@ -185,7 +185,13 @@ namespace OpenSage.Launcher
 
                             if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F11)
                             {
-                                developerModeEnabled = !developerModeEnabled;
+                                game.NetworkMessageBuffer.StartOrderRecording();
+                                return InputMessageResult.Handled;
+                            }
+
+                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F12)
+                            {
+                                game.NetworkMessageBuffer.SaveOrderRecording();
                                 return InputMessageResult.Handled;
                             }
 

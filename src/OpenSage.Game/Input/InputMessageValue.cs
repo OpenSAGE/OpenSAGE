@@ -4,19 +4,14 @@ using Veldrid;
 
 namespace OpenSage.Input
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public readonly struct InputMessageValue
+    public class InputMessageValue
     {
-        [FieldOffset(0)]
         public readonly Key Key;
 
-        [FieldOffset(0)]
         public readonly Point2D MousePosition;
 
-        [FieldOffset(0)]
         public readonly int ScrollWheel;
 
-        [FieldOffset(sizeof(Key))]
         public readonly ModifierKeys Modifiers;
 
         internal InputMessageValue(Key key, ModifierKeys modifiers)

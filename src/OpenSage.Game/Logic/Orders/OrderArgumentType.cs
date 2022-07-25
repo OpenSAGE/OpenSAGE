@@ -1,5 +1,6 @@
 ﻿namespace OpenSage.Logic.Orders
 {
+    /// <remarks/>
     public enum OrderArgumentType : byte
     {
         Integer = 0,

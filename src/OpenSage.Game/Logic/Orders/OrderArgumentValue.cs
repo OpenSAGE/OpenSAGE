@@ -4,28 +4,21 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Orders
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct OrderArgumentValue
+    /// <remarks/>
+    public class OrderArgumentValue
     {
-        [FieldOffset(0)]
-        public int Integer;
+        public int Integer { get; set; }
 
-        [FieldOffset(0)]
-        public float Float;
+        public float Float { get; set; }
 
-        [FieldOffset(0)]
-        public bool Boolean;
+        public bool Boolean { get; set; }
 
-        [FieldOffset(0)]
-        public uint ObjectId;
+        public uint ObjectId { get; set; }
 
-        [FieldOffset(0)]
-        public Vector3 Position;
+        public Vector3Wrapper Position { get; set; }
 
-        [FieldOffset(0)]
-        public Point2D ScreenPosition;
+        public Point2D ScreenPosition { get; set; }
 
-        [FieldOffset(0)]
-        public Rectangle ScreenRectangle;
+        public Rectangle ScreenRectangle { get; set; }
     }
 }
