@@ -217,5 +217,11 @@ namespace OpenSage.Graphics.Shaders
             public ColorRgbaF DiffuseColor;
             public ColorRgbaF TransparentDiffuseColor;
         }
+
+        public struct RadiusCursorDecalConstants
+        {
+            public Vector3 _Padding;
+            public uint NumRadiusCursorDecals;
+        }
     }
 }

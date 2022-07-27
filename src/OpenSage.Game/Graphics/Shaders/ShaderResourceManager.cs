@@ -8,8 +8,6 @@ namespace OpenSage.Graphics.Shaders
     {
         public readonly GlobalShaderResources Global;
 
-        public readonly RadiusCursorDecalShaderResources RadiusCursor;
-
         public readonly ParticleShaderResources Particle;
         public readonly RoadShaderResources Road;
         public readonly TerrainShaderResources Terrain;
@@ -22,8 +20,6 @@ namespace OpenSage.Graphics.Shaders
             {
                 Global = AddDisposable(new GlobalShaderResources(graphicsDeviceManager.GraphicsDevice));
                 
-                RadiusCursor = AddDisposable(new RadiusCursorDecalShaderResources(graphicsDeviceManager));
-
                 Particle = AddDisposable(new ParticleShaderResources(shaderSetStore));
                 Road = AddDisposable(new RoadShaderResources(shaderSetStore));
                 Terrain = AddDisposable(new TerrainShaderResources(shaderSetStore));
