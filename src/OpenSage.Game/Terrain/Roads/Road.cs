@@ -59,8 +59,10 @@ namespace OpenSage.Terrain.Roads
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
-            
-            _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
+
+            var roadShaderResources = loadContext.ShaderSetStore.GetShaderSet(() => new RoadShaderResources(loadContext.ShaderSetStore));
+
+            _material = roadShaderResources.GetMaterial(network.Template.Texture.Value);
 
             MaterialPass = new MaterialPass(_material, null);
 

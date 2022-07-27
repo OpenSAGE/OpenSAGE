@@ -99,7 +99,9 @@ namespace OpenSage.Terrain
 
             var casuticsTextures = BuildCausticsTextureArray(loadContext.AssetStore);
 
-            var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+            var terrainShaderResources = loadContext.ShaderSetStore.GetShaderSet(() => new TerrainShaderResources(loadContext.ShaderSetStore));
+
+            var materialResourceSet = AddDisposable(terrainShaderResources.CreateMaterialResourceSet(
                 _materialConstantsBuffer.Buffer,
                 tileDataTexture,
                 cliffDetailsBuffer ?? loadContext.GraphicsDeviceManager.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
@@ -110,8 +112,8 @@ namespace OpenSage.Terrain
 
             _material = AddDisposable(
                 new Material(
-                    loadContext.ShaderResources.Terrain,
-                    loadContext.ShaderResources.Terrain.Pipeline,
+                    terrainShaderResources,
+                    terrainShaderResources.Pipeline,
                     materialResourceSet,
                     SurfaceType.Opaque));
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.InGame;

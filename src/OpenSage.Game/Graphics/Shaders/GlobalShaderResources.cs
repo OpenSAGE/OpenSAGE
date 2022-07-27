@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Content;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Mathematics;

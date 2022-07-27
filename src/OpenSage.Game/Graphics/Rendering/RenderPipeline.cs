@@ -71,7 +71,7 @@ namespace OpenSage.Graphics.Rendering
                 GameOutputDescription));
 
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice));
-            _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
+            _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, _globalShaderResources));
 
             _textureCopier = AddDisposable(new TextureCopier(
                 game.GraphicsDeviceManager,
