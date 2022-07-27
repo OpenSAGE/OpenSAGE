@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
@@ -22,7 +24,7 @@ namespace OpenSage.Terrain
         private DeviceBuffer _indexBuffer;
         private uint _numIndices;
 
-        private readonly ShaderSet _shaderSet;
+        private readonly WaterShaderResources _shaderSet;
         private readonly Pipeline _pipeline;
 
         private readonly Material _material;
@@ -31,7 +33,8 @@ namespace OpenSage.Terrain
         private Matrix4x4 _world;
 
         internal static bool TryCreate(
-            AssetLoadContext loadContext,
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
             PolygonTrigger trigger,
             out WaterArea result)
         {
@@ -42,12 +45,13 @@ namespace OpenSage.Terrain
                 return false;
             }
 
-            result = new WaterArea(loadContext, trigger);
+            result = new WaterArea(graphicsDeviceManager, shaderSetStore, trigger);
             return true;
         }
 
         internal static bool TryCreate(
-            AssetLoadContext loadContext,
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
             StandingWaterArea area,
             out WaterArea result)
         {
@@ -58,12 +62,13 @@ namespace OpenSage.Terrain
                 return false;
             }
 
-            result = new WaterArea(loadContext, area);
+            result = new WaterArea(graphicsDeviceManager, shaderSetStore, area);
             return true;
         }
 
         internal static bool TryCreate(
-            AssetLoadContext loadContext,
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
             StandingWaveArea area,
             out WaterArea result)
         {
@@ -74,12 +79,14 @@ namespace OpenSage.Terrain
                 return false;
             }
 
-            result = new WaterArea(loadContext, area);
+            result = new WaterArea(graphicsDeviceManager, shaderSetStore, area);
             return true;
         }
 
-        private void CreateGeometry(AssetLoadContext loadContext,
-                                Vector2[] points, uint height)
+        private void CreateGeometry(
+            GraphicsDeviceManager graphicsDeviceManager,
+            Vector2[] points,
+            uint height)
         {
             Triangulator.Triangulate(
                 points,
@@ -97,13 +104,13 @@ namespace OpenSage.Terrain
 
             _boundingBox = AxisAlignedBoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
 
-            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
+            _vertexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 vertices,
                 BufferUsage.VertexBuffer));
 
             _numIndices = (uint)triangleIndices.Length;
 
-            _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(graphicsDeviceManager.GraphicsDevice.CreateStaticBuffer(
                 triangleIndices,
                 BufferUsage.IndexBuffer));
 
@@ -111,10 +118,12 @@ namespace OpenSage.Terrain
             _world.Translation = new Vector3(0, height, 0);
         }
 
-        private WaterArea(AssetLoadContext loadContext, string debugName)
+        private WaterArea(
+            ShaderSetStore shaderSetStore,
+            string debugName)
         {
-            _shaderSet = loadContext.ShaderResources.Water;
-            _pipeline = loadContext.ShaderResources.Water.Pipeline;
+            _shaderSet = shaderSetStore.GetWaterShaderResources();
+            _pipeline = _shaderSet.Pipeline;
 
             _material = AddDisposable(
                 new Material(
@@ -132,31 +141,34 @@ namespace OpenSage.Terrain
         }
 
         private WaterArea(
-            AssetLoadContext loadContext,
-            StandingWaveArea area) : this(loadContext, area.Name)
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
+            StandingWaveArea area) : this(shaderSetStore, area.Name)
         {
-            CreateGeometry(loadContext, area.Points, area.FinalHeight);
+            CreateGeometry(graphicsDeviceManager, area.Points, area.FinalHeight);
             //TODO: add waves
         }
 
         private WaterArea(
-            AssetLoadContext loadContext,
-            StandingWaterArea area) : this(loadContext, area.Name)
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
+            StandingWaterArea area) : this(shaderSetStore, area.Name)
         {
-            CreateGeometry(loadContext, area.Points, area.WaterHeight);
+            CreateGeometry(graphicsDeviceManager, area.Points, area.WaterHeight);
             // TODO: use depthcolors
             // TODO: use FXShader?
         }
 
         private WaterArea(
-            AssetLoadContext loadContext,
-            PolygonTrigger trigger) : this(loadContext, trigger.Name)
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore,
+            PolygonTrigger trigger) : this(shaderSetStore, trigger.Name)
         {
             var triggerPoints = trigger.Points
                 .Select(x => new Vector2(x.X, x.Y))
                 .ToArray();
 
-            CreateGeometry(loadContext, triggerPoints, (uint)trigger.Points[0].Z);
+            CreateGeometry(graphicsDeviceManager, triggerPoints, (uint)trigger.Points[0].Z);
         }
 
         internal void BuildRenderList(RenderList renderList)

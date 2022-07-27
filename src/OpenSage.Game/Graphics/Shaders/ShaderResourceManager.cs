@@ -13,7 +13,6 @@ namespace OpenSage.Graphics.Shaders
         public readonly ParticleShaderResources Particle;
         public readonly RoadShaderResources Road;
         public readonly TerrainShaderResources Terrain;
-        public readonly WaterShaderResources Water;
 
         public ShaderResourceManager(
             GraphicsDeviceManager graphicsDeviceManager,
@@ -28,7 +27,6 @@ namespace OpenSage.Graphics.Shaders
                 Particle = AddDisposable(new ParticleShaderResources(shaderSetStore));
                 Road = AddDisposable(new RoadShaderResources(shaderSetStore));
                 Terrain = AddDisposable(new TerrainShaderResources(shaderSetStore));
-                Water = AddDisposable(new WaterShaderResources(shaderSetStore));
             }
         }
     }
