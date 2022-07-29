@@ -243,7 +243,9 @@ namespace OpenSage.Graphics
 
             var material = shaderResources.GetCachedMaterial(w3dShaderMaterial, loadTexture);
 
-            var materialPass = new MaterialPass(material, meshDepthShaderResources.Material);
+            var materialPass = new MaterialPass(RenderBucketType.Opaque);
+            materialPass.Passes["Forward"] = material;
+            materialPass.Passes["Shadow"] = meshDepthShaderResources.Material;
 
             return new ModelMeshPart(
                 this,
@@ -577,9 +579,13 @@ namespace OpenSage.Graphics
                 texture0,
                 texture1);
 
-            var materialPass = new MaterialPass(material, meshDepthShaderResources.Material);
+            var materialPass = new MaterialPass(blendEnabled ? RenderBucketType.Transparent : RenderBucketType.Opaque);
+            materialPass.Passes["Forward"] = material;
+            materialPass.Passes["Shadow"] = meshDepthShaderResources.Material;
 
-            var materialPassBlend = new MaterialPass(materialBlend, meshDepthShaderResources.Material);
+            var materialPassBlend = new MaterialPass(RenderBucketType.Transparent);
+            materialPassBlend.Passes["Forward"] = materialBlend;
+            materialPassBlend.Passes["Shadow"] = meshDepthShaderResources.Material;
 
             return new ModelMeshPart(
                 this,

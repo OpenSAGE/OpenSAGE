@@ -4,71 +4,104 @@ using Veldrid;
 
 namespace OpenSage.Rendering;
 
-public sealed class RenderBucket
+public sealed class RenderScene
 {
-    private readonly List<RenderObject> _renderObjects = new();
+    public readonly List<RenderObject> Objects = new();
 
-    private readonly RenderList _forwardPassList = new("Forward Pass");
-    private readonly RenderList _shadowPassList = new("Shadow Pass");
+    private readonly List<RenderObject> _visibleObjects = new();
+    private readonly List<(RenderObject, Material)> _filteredObjects = new();
 
-    public readonly string Name;
-    public readonly int Priority;
+    public readonly HashSet<RenderBucketType> HiddenRenderBuckets = new();
 
-    public bool Visible = true;
-
-    internal RenderBucket(string name, int priority)
+    public void SetRenderBucketVisibility(RenderBucketType renderBucket, bool visible)
     {
-        Name = name;
-        Priority = priority;
-    }
-
-    public void AddObject(RenderObject renderObject)
-    {
-        _renderObjects.Add(renderObject);
-
-        _forwardPassList.AddObject(renderObject, renderObject.MaterialPass.ForwardPass);
-
-        if (renderObject.MaterialPass.ShadowPass != null)
+        if (visible)
         {
-            _shadowPassList.AddObject(renderObject, renderObject.MaterialPass.ShadowPass);
+            HiddenRenderBuckets.Remove(renderBucket);
         }
-
-        // TODO: Extract child objects and store in appropriate render buckets (opaque / transparent / etc.)
-    }
-
-    public void RemoveObject(RenderObject renderObject)
-    {
-        _renderObjects.Remove(renderObject);
-
-        _forwardPassList.RemoveObject(renderObject, renderObject.MaterialPass.ForwardPass);
-
-        if (renderObject.MaterialPass.ShadowPass != null)
+        else
         {
-            _shadowPassList.RemoveObject(renderObject, renderObject.MaterialPass.ShadowPass);
+            HiddenRenderBuckets.Add(renderBucket);
         }
     }
 
-    internal void DoRenderPass(
-        RenderPass renderPass,
+    public void Render(
         CommandList commandList,
-        ResourceSet
-        globalResourceSet,
+        ResourceSet globalResourceSet,
         ResourceSet passResourceSet)
     {
-        if (!Visible)
+        // TODO
+        //DoShadowPass();
+
+        // Draw opaque objects.
+        DoRenderPass(
+            "Forward",
+            new RenderBucketRange((int)RenderBucketType.Terrain, (int)RenderBucketType.Opaque),
+            commandList,
+            globalResourceSet,
+            passResourceSet);
+
+        // Draw transparent objects.
+        DoRenderPass(
+            "Forward",
+            new RenderBucketRange((int)RenderBucketType.Transparent, (int)RenderBucketType.Transparent),
+            commandList,
+            globalResourceSet,
+            passResourceSet);
+    }
+
+    private readonly record struct RenderBucketRange(int Min, int Max);
+
+    private void DoRenderPass(
+        string passName,
+        RenderBucketRange renderBucketRange,
+        CommandList commandList,
+        ResourceSet globalResourceSet,
+        ResourceSet passResourceSet)
+    {
+        commandList.PushDebugGroup(passName);
+
+        // Find objects that are visible to this camera.
+        // TODO
+        _visibleObjects.Clear();
+        _visibleObjects.AddRange(Objects);
+
+        // Filter to only the objects that have a material that participates in this pass.
+        _filteredObjects.Clear();
+        foreach (var renderObject in _visibleObjects)
         {
-            return;
+            if (!renderObject.MaterialPass.Passes.TryGetValue(passName, out var material))
+            {
+                continue;
+            }
+
+            if (HiddenRenderBuckets.Contains(renderObject.MaterialPass.RenderBucket))
+            {
+                continue;
+            }
+
+            if ((int)renderObject.MaterialPass.RenderBucket >= renderBucketRange.Min
+                && (int)renderObject.MaterialPass.RenderBucket <= renderBucketRange.Max)
+            {
+                _filteredObjects.Add((renderObject, material));
+            }
         }
 
-        var renderList = renderPass == RenderPass.Forward
-            ? _forwardPassList
-            : _shadowPassList;
+        // Sort based on render bucket and material.
+        _filteredObjects.Sort(static (x, y) =>
+        {
+            var result = ((int)x.Item1.MaterialPass.RenderBucket).CompareTo((int)y.Item1.MaterialPass.RenderBucket);
+            if (result != 0)
+            {
+                return result;
+            }
 
-        commandList.PushDebugGroup(Name);
+            return x.Item2.RenderKey.CompareTo(y.Item2.RenderKey);
 
-        renderList.Cull();
+            // TODO: Sort transparent objects back-to-front.
+        });
 
-        foreach (var renderObject in renderList.CulledObjects)
+        foreach (var renderObject in _filteredObjects)
         {
             commandList.PushDebugGroup(renderObject.Item1.DebugName);
 
@@ -89,81 +122,6 @@ public sealed class RenderBucket
             renderObject.Item1.Render(commandList);
 
             commandList.PopDebugGroup();
-        }
-
-        commandList.PopDebugGroup();
-    }
-}
-
-public sealed class RenderScene
-{
-    private readonly List<RenderBucket> _renderBuckets = new();
-
-    public RenderBucket GetRenderBucket(string name)
-    {
-        var result = GetRenderBucketImpl(name);
-
-        if (result == null)
-        {
-            throw new System.InvalidOperationException();
-        }
-
-        return result;
-    }
-
-    private RenderBucket GetRenderBucketImpl(string name)
-    {
-        foreach (var renderBucket in _renderBuckets)
-        {
-            if (renderBucket.Name == name)
-            {
-                return renderBucket;
-            }
-        }
-
-        return null;
-    }
-
-    public RenderBucket CreateRenderBucket(string name, int priority)
-    {
-        var existingRenderBucket = GetRenderBucketImpl(name);
-        if (existingRenderBucket != null)
-        {
-            throw new System.InvalidOperationException();
-        }
-
-        var newRenderBucket = new RenderBucket(name, priority);
-        _renderBuckets.Add(newRenderBucket);
-
-        // TODO: Use something better like https://www.jacksondunstan.com/articles/3189
-        _renderBuckets.Sort((x, y) => x.Priority.CompareTo(y.Priority));
-
-        return newRenderBucket;
-    }
-
-    public void Render(CommandList commandList, ResourceSet globalResourceSet, ResourceSet passResourceSet)
-    {
-        // TODO: Draw shadow map using _shadowPassList.
-        //DoShadowPass();
-
-        DoRenderPass(RenderPass.Forward, commandList, globalResourceSet, passResourceSet);
-    }
-
-    private void DoRenderPass(
-        RenderPass renderPass,
-        CommandList commandList,
-        ResourceSet globalResourceSet,
-        ResourceSet passResourceSet)
-    {
-        commandList.PushDebugGroup(renderPass.ToString());
-
-        foreach (var renderBucket in _renderBuckets)
-        {
-            renderBucket.DoRenderPass(
-                renderPass,
-                commandList,
-                globalResourceSet,
-                passResourceSet);
         }
 
         commandList.PopDebugGroup();
@@ -200,49 +158,4 @@ public enum RenderBucketType
     Opaque,
     Transparent,
     Water,
-}
-
-internal sealed class RenderList
-{
-    public readonly string Name;
-
-    public readonly List<(RenderObject, Material)> AllObjects = new();
-
-    public readonly List<(RenderObject, Material)> CulledObjects = new();
-
-    public RenderList(string name)
-    {
-        Name = name;
-    }
-
-    public void AddObject(RenderObject renderObject, Material material)
-    {
-        AllObjects.Add((renderObject, material));
-
-        // TODO: Use something better like https://www.jacksondunstan.com/articles/3189
-        AllObjects.Sort((x, y) => x.Item2.RenderKey.CompareTo(y.Item2.RenderKey));
-    }
-
-    public void RemoveObject(RenderObject renderObject, Material material)
-    {
-        // TODO: Do something faster.
-        var index = AllObjects.IndexOf((renderObject, material));
-
-        AllObjects.RemoveAt(index);
-    }
-
-    public void Cull()
-    {
-        // TODO
-
-        CulledObjects.Clear();
-
-        CulledObjects.AddRange(AllObjects);
-    }
-}
-
-internal enum RenderPass
-{
-    Forward,
-    Shadow,
 }

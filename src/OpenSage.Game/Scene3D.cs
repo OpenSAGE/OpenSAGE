@@ -57,8 +57,8 @@ namespace OpenSage
         public readonly Quadtree<GameObject> Quadtree;
         public bool ShowTerrain
         {
-            get => RenderScene.GetRenderBucket("Terrain").Visible;
-            set => RenderScene.GetRenderBucket("Terrain").Visible = value;
+            get => RenderScene.HiddenRenderBuckets.Contains(RenderBucketType.Terrain);
+            set => RenderScene.SetRenderBucketVisibility(RenderBucketType.Terrain, value);
         }
 
         public readonly WaterAreaCollection WaterAreas;
@@ -67,8 +67,8 @@ namespace OpenSage
         public readonly RoadCollection Roads;
         public bool ShowRoads
         {
-            get => RenderScene.GetRenderBucket("Roads").Visible;
-            set => RenderScene.GetRenderBucket("Roads").Visible = value;
+            get => RenderScene.HiddenRenderBuckets.Contains(RenderBucketType.Road);
+            set => RenderScene.SetRenderBucketVisibility(RenderBucketType.Road, value);
         }
 
         public readonly Bridge[] Bridges;

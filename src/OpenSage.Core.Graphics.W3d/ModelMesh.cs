@@ -123,7 +123,7 @@ namespace OpenSage.Graphics
                 {
                     renderList.Shadow.RenderItems.Add(new RenderItem(
                         Name,
-                        modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ShadowPass,
+                        modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.Passes["Shadow"],
                         meshBoundingBox,
                         world,
                         meshPart.StartIndex,
@@ -141,8 +141,8 @@ namespace OpenSage.Graphics
                 renderQueue.RenderItems.Add(new RenderItem(
                     FullName,
                     forceBlendEnabled
-                        ? modelMeshInstance.MeshPartInstances[i].ModelMeshPart.MaterialBlend.ForwardPass
-                        : modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.ForwardPass,
+                        ? modelMeshInstance.MeshPartInstances[i].ModelMeshPart.MaterialBlend.Passes["Forward"]
+                        : modelMeshInstance.MeshPartInstances[i].ModelMeshPart.Material.Passes["Forward"],
                     meshBoundingBox,
                     world,
                     meshPart.StartIndex,

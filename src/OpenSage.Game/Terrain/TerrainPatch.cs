@@ -53,7 +53,8 @@ namespace OpenSage.Terrain
             BoundingBox = boundingBox;
             Triangles = triangles;
 
-            MaterialPass = new MaterialPass(material, null);
+            MaterialPass = new MaterialPass(RenderBucketType.Terrain);
+            MaterialPass.Passes["Forward"] = material;
         }
 
         private static DeviceBuffer CreateVertexBuffer(

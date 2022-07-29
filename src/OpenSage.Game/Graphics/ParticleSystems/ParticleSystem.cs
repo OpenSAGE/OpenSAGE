@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
@@ -25,8 +24,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
-
-        private readonly Material _particleMaterial;
 
         private int _initialDelay;
 
@@ -133,9 +130,10 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var particleShaderSet = loadContext.ShaderSetStore.GetShaderSet(() => new ParticleShaderResources(loadContext.ShaderSetStore));
 
-            _particleMaterial = particleShaderSet.GetMaterial(Template);
+            var particleMaterial = particleShaderSet.GetMaterial(Template);
 
-            MaterialPass = new MaterialPass(_particleMaterial, null);
+            MaterialPass = new MaterialPass(RenderBucketType.Transparent);
+            MaterialPass.Passes["Forward"] = particleMaterial;
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;

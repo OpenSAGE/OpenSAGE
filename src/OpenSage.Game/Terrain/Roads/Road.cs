@@ -64,7 +64,8 @@ namespace OpenSage.Terrain.Roads
 
             _material = roadShaderResources.GetMaterial(network.Template.Texture.Value);
 
-            MaterialPass = new MaterialPass(_material, null);
+            MaterialPass = new MaterialPass(RenderBucketType.Road);
+            MaterialPass.Passes["Forward"] = _material;
 
 #if DEBUG
             _debugLines = new List<(Vector3 start, Vector3 end)>();

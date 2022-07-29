@@ -42,8 +42,6 @@ namespace OpenSage.Terrain.Roads
 
             var networks = RoadNetwork.BuildNetworks(topology, roadTemplateList);
 
-            var renderBucket = scene.CreateRenderBucket("Roads", 10);
-
             foreach (var network in networks)
             {
                 var road = AddDisposable(
@@ -52,7 +50,7 @@ namespace OpenSage.Terrain.Roads
                         heightMap,
                         network));
 
-                renderBucket.AddObject(road);
+                scene.Objects.Add(road);
 
                 _roads.Add(road);
             }

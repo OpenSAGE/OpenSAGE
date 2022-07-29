@@ -36,7 +36,7 @@ namespace OpenSage.Terrain
         private readonly Material _material;
         private readonly TerrainPatchIndexBufferCache _indexBufferCache;
 
-        private readonly RenderBucket _renderBucket;
+        private readonly RenderScene _renderScene;
 
         private readonly List<TerrainPatch> _patches = new();
 
@@ -60,10 +60,10 @@ namespace OpenSage.Terrain
 
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
-            _renderBucket = scene.CreateRenderBucket("Terrain", 0);
-
             _loadContext = loadContext;
             _graphicsDevice = loadContext.GraphicsDevice;
+
+            _renderScene = scene;
 
             _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
 
@@ -196,7 +196,7 @@ namespace OpenSage.Terrain
                 patch.Dispose();
                 RemoveToDispose(patch);
 
-                _renderBucket.RemoveObject(patch);
+                _renderScene.Objects.Remove(patch);
             }
 
             _patches.Clear();
@@ -243,7 +243,7 @@ namespace OpenSage.Terrain
                             _indexBufferCache,
                             _material));
 
-                    _renderBucket.AddObject(patch);
+                    _renderScene.Objects.Add(patch);
 
                     _patches.Add(patch);
                 }
