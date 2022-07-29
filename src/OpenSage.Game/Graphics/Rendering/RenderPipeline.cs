@@ -234,7 +234,11 @@ namespace OpenSage.Graphics.Rendering
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
-            scene.RenderScene.Render(commandList, _globalShaderResourceData.GlobalConstantsResourceSet, forwardPassResourceSet);
+            scene.RenderScene.Render(
+                commandList,
+                _globalShaderResourceData.GlobalConstantsResourceSet,
+                forwardPassResourceSet,
+                standardPassCameraFrustum);
 
             commandList.PushDebugGroup("Water");
             DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, forwardPassResourceSet);
