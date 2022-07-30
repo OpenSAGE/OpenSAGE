@@ -8,7 +8,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Rendering.Shadows
 {
-    internal sealed class ShadowMapRenderer : DisposableBase
+    public sealed class ShadowMapRenderer : DisposableBase
     {
         private readonly ShadowFrustumCalculator _shadowFrustumCalculator;
         private readonly BoundingFrustum _lightFrustum;
@@ -33,23 +33,22 @@ namespace OpenSage.Graphics.Rendering.Shadows
         }
 
         public void RenderShadowMap(
-            Scene3D scene,
+            in GlobalShaderResources.Light light,
+            ShadowSettings settings,
+            Cameras.Camera camera,
             GraphicsDevice graphicsDevice,
             CommandList commandList,
             Action<Framebuffer, BoundingFrustum> drawSceneCallback)
         {
-            // TODO: Use terrain light for terrain self-shadowing?
-            var light = scene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0;
-
             // Calculate size of shadow map.
-            var shadowMapSize = scene.Shadows.ShadowMapSize;
-            var numCascades = (uint) scene.Shadows.ShadowMapCascades;
+            var shadowMapSize = settings.ShadowMapSize;
+            var numCascades = (uint)settings.ShadowMapCascades;
 
             if (_shadowData != null && _shadowData.ShadowMap != null
                 && (_shadowData.ShadowMap.Width != shadowMapSize
                 || _shadowData.ShadowMap.Height != shadowMapSize
-                || _shadowData.NearPlaneDistance != scene.Camera.NearPlaneDistance
-                || _shadowData.FarPlaneDistance != scene.Camera.FarPlaneDistance
+                || _shadowData.NearPlaneDistance != camera.NearPlaneDistance
+                || _shadowData.FarPlaneDistance != camera.FarPlaneDistance
                 || _shadowData.NumSplits != numCascades))
             {
                 RemoveAndDispose(ref _shadowData);
@@ -59,21 +58,21 @@ namespace OpenSage.Graphics.Rendering.Shadows
             {
                 _shadowData = AddDisposable(new ShadowData(
                     numCascades,
-                    scene.Camera.NearPlaneDistance,
-                    scene.Camera.FarPlaneDistance,
+                    camera.NearPlaneDistance,
+                    camera.FarPlaneDistance,
                     shadowMapSize,
                     graphicsDevice));
             }
 
-            if (scene.Shadows.ShadowsType != ShadowsType.None)
+            if (settings.ShadowsType != ShadowsType.None)
             {
                 _shadowFrustumCalculator.CalculateShadowData(
                     light,
-                    scene.Camera,
+                    camera,
                     _shadowData,
-                    scene.Shadows);
+                    settings);
 
-                _shadowConstants.Set(numCascades, scene.Shadows, _shadowData);
+                _shadowConstants.Set(numCascades, settings, _shadowData);
 
                 // Render scene geometry to each split of the cascade.
                 for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
@@ -102,13 +101,10 @@ namespace OpenSage.Graphics.Rendering.Shadows
             new ColorRgbaF(1, 1, 1, 1),
         };
 
-        public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
+        public void DrawDebugOverlay(
+            Cameras.Camera camera,
+            DrawingContext2D drawingContext)
         {
-            if (scene?.Shadows.VisualizeShadowFrustums is not true)
-            {
-                return;
-            }
-
             for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
             {
                 _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
@@ -118,7 +114,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
                 void DrawLine(int start, int end)
                 {
-                    DebugDrawingUtils.DrawLine(drawingContext, scene.Camera, corners[start], corners[end], color);
+                    DebugDrawingUtils.DrawLine(drawingContext, camera, corners[start], corners[end], color);
                 }
 
                 DrawLine(0, 1);

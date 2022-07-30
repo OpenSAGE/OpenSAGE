@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Content\Fonts\*.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.Core.Mathematics\OpenSage.Core.Mathematics.csproj" />
@@ -17,6 +21,12 @@
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
     <PackageReference Include="ImGui.NET" Version="1.87.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\Fonts\FontFallbackSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

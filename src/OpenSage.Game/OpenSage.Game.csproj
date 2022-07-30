@@ -34,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenSage.Core.Gui\OpenSage.Core.Gui.csproj" />
     <ProjectReference Include="..\OpenSage.Core.IO\OpenSage.Core.IO.csproj" />
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.Game.CodeGen\OpenSage.Game.CodeGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

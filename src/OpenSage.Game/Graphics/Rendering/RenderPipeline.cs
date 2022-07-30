@@ -147,9 +147,12 @@ namespace OpenSage.Graphics.Rendering
                 context.Scene3D?.Render(_drawingContext);
                 context.Scene2D?.Render(_drawingContext);
 
-                _shadowMapRenderer.DrawDebugOverlay(
-                    context.Scene3D,
-                    _drawingContext);
+                if (context.Scene3D?.Shadows.VisualizeShadowFrustums ?? false)
+                {
+                    _shadowMapRenderer.DrawDebugOverlay(
+                        context.Scene3D.Camera,
+                        _drawingContext);
+                }
 
                 Rendering2D?.Invoke(this, new Rendering2DEventArgs(_drawingContext));
 
@@ -198,7 +201,10 @@ namespace OpenSage.Graphics.Rendering
             commandList.PushDebugGroup("Shadow pass");
 
             _shadowMapRenderer.RenderShadowMap(
-                scene,
+                // TODO: Use terrain light for terrain self-shadowing?
+                scene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0,
+                scene.Shadows,
+                scene.Camera,
                 context.GraphicsDevice,
                 commandList,
                 (framebuffer, lightBoundingFrustum) =>
