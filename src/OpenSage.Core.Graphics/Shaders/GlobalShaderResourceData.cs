@@ -1,13 +1,10 @@
 ﻿using System.Numerics;
 using OpenSage.Core.Graphics;
-using OpenSage.Data.Map;
-using OpenSage.Graphics.Rendering;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class GlobalShaderResourceData : DisposableBase
+    public sealed class GlobalShaderResourceData : DisposableBase
     {
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
         private readonly GlobalShaderResources _globalShaderResources;
@@ -22,8 +19,6 @@ namespace OpenSage.Graphics.Shaders
         private ResourceSet _forwardPassResourceSet;
         private Texture _cachedCloudTexture;
         private Texture _cachedShadowMap;
-
-        private TimeOfDay? _cachedTimeOfDay;
 
         public GlobalShaderResourceData(
             GraphicsDeviceManager graphicsDeviceManager,
@@ -94,17 +89,26 @@ namespace OpenSage.Graphics.Shaders
             _globalLightingBufferVS.Update(_graphicsDeviceManager.GraphicsDevice);
         }
 
+        public void UpdateLighting(
+            in GlobalShaderResources.LightingConstantsPS value,
+            CommandList commandList)
+        {
+            _globalLightingBufferPS.Value = value;
+            _globalLightingBufferPS.Update(commandList);
+        }
+
         public void UpdateGlobalConstantBuffers(
             CommandList commandList,
-            RenderContext context,
+            in Vector3 cameraPosition,
+            float timeInSeconds,
+            Vector2 viewportSize,
             in Matrix4x4 viewProjection,
             in Vector4? clippingPlane1,
             in Vector4? clippingPlane2)
         {
-            var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
             _globalConstantBuffer.Value.CameraPosition = cameraPosition;
 
-            _globalConstantBuffer.Value.TimeInSeconds = (float)context.GameTime.TotalTime.TotalSeconds;
+            _globalConstantBuffer.Value.TimeInSeconds = timeInSeconds;
 
             _globalConstantBuffer.Value.ViewProjection = viewProjection;
 
@@ -114,17 +118,9 @@ namespace OpenSage.Graphics.Shaders
             _globalConstantBuffer.Value.HasClippingPlane1 = clippingPlane1 != null;
             _globalConstantBuffer.Value.HasClippingPlane2 = clippingPlane2 != null;
 
-            _globalConstantBuffer.Value.ViewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
+            _globalConstantBuffer.Value.ViewportSize = viewportSize;
 
             _globalConstantBuffer.Update(commandList);
-
-            if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
-            {
-                _globalLightingBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.LightsPS;
-                _globalLightingBufferPS.Update(commandList);
-
-                _cachedTimeOfDay = context.Scene3D.Lighting.TimeOfDay;
-            }
         }
     }
 }

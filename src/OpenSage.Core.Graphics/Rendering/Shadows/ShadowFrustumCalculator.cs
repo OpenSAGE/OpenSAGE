@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Rendering.Shadows
 {
-    internal sealed class ShadowFrustumCalculator
+    public sealed class ShadowFrustumCalculator
     {
         private readonly Vector3[] _frustumCorners = new Vector3[8];
         private readonly float[] _cascadeSplits = new float[4];

@@ -30,7 +30,22 @@ public sealed class RenderScene
         }
     }
 
-    public void Render(
+    public void DoShadowPass(
+        CommandList commandList,
+        ResourceSet globalResourceSet,
+        BoundingFrustum cameraFrustum)
+    {
+        // Draw opaque objects into shadow map.
+        DoRenderPass(
+            "Shadow",
+            new RenderBucketRange((int)RenderBucketType.Terrain, (int)RenderBucketType.Opaque),
+            commandList,
+            globalResourceSet,
+            null,
+            cameraFrustum);
+    }
+
+    public void DoForwardPass(
         CommandList commandList,
         ResourceSet globalResourceSet,
         ResourceSet passResourceSet,

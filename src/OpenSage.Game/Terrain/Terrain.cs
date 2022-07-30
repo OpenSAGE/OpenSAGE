@@ -52,7 +52,7 @@ namespace OpenSage.Terrain
 
         internal readonly Texture CloudTexture;
 
-        internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
+        internal readonly RadiusCursorDecals RadiusCursorDecals;
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext, RenderScene scene)
         {
@@ -64,6 +64,8 @@ namespace OpenSage.Terrain
             _graphicsDevice = loadContext.GraphicsDevice;
 
             _renderScene = scene;
+
+            RadiusCursorDecals = new RadiusCursorDecals(_loadContext.ShaderResources.Global.RadiusCursorDecals);
 
             _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
 

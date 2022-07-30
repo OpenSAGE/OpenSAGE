@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Graphics.Shaders
 {
-    internal struct RadiusCursorDecal
+    public struct RadiusCursorDecal
     {
         public const uint SizeInBytes = 32;
 

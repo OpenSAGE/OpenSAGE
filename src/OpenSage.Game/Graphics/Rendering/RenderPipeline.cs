@@ -41,6 +41,8 @@ namespace OpenSage.Graphics.Rendering
         private Texture _intermediateTexture;
         private Framebuffer _intermediateFramebuffer;
 
+        private TimeOfDay? _cachedTimeOfDay;
+
         private readonly TextureCopier _textureCopier;
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
@@ -170,6 +172,15 @@ namespace OpenSage.Graphics.Rendering
             Scene3D scene,
             RenderContext context)
         {
+            if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
+            {
+                _globalShaderResourceData.UpdateLighting(
+                    context.Scene3D.Lighting.CurrentLightingConfiguration.LightsPS,
+                    commandList);
+
+                _cachedTimeOfDay = context.Scene3D.Lighting.TimeOfDay;
+            }
+
             Texture cloudTexture;
             if (scene.Lighting.TimeOfDay != TimeOfDay.Night
                 && scene.Lighting.EnableCloudShadows
@@ -199,7 +210,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, shadowViewProjection, null, null);
+                    UpdateGlobalConstantBuffers(commandList, context, shadowViewProjection, null, null);
 
                     DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -217,7 +228,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, scene.Camera.ViewProjection, null, null);
+            UpdateGlobalConstantBuffers(commandList, context, scene.Camera.ViewProjection, null, null);
 
             commandList.ClearColorTarget(0, ClearColor);
             commandList.ClearDepthStencil(1);
@@ -234,7 +245,7 @@ namespace OpenSage.Graphics.Rendering
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
-            scene.RenderScene.Render(
+            scene.RenderScene.DoForwardPass(
                 commandList,
                 _globalShaderResourceData.GlobalConstantsResourceSet,
                 forwardPassResourceSet,
@@ -249,6 +260,23 @@ namespace OpenSage.Graphics.Rendering
             scene.Game.Scripting.CameraFadeOverlay.Render(
                 commandList,
                 new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
+        }
+
+        private void UpdateGlobalConstantBuffers(
+            CommandList commandList,
+            RenderContext context,
+            in Matrix4x4 viewProjection,
+            in Vector4? clippingPlane1,
+            in Vector4? clippingPlane2)
+        {
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(
+                commandList,
+                Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation,
+                (float)context.GameTime.TotalTime.TotalSeconds,
+                new Vector2(context.RenderTarget.Width, context.RenderTarget.Height),
+                viewProjection,
+                clippingPlane1,
+                clippingPlane2);
         }
 
         private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
@@ -275,7 +303,7 @@ namespace OpenSage.Graphics.Rendering
                         var clippingPlaneBottom = new Plane(Vector3.UnitZ, -pivot + transparentWaterDepth);
 
                         // Render normal scene for water refraction shader
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlaneTop.AsVector4(), clippingPlaneBottom.AsVector4());
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlaneTop.AsVector4(), clippingPlaneBottom.AsVector4());
 
                         commandList.SetFramebuffer(refractionFramebuffer);
 
@@ -296,7 +324,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // TODO: Improve rendering speed somehow?
                         // ------------------- Used for creating stencil mask -------------------
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -306,7 +334,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // Render inverted scene for water reflection shader
                         camera.SetMirrorX(pivot);
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         //commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -323,7 +351,7 @@ namespace OpenSage.Graphics.Rendering
                     if (reflectionFramebuffer != null || refractionFramebuffer != null)
                     {
                         camera.FarPlaneDistance = originalFarPlaneDistance;
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, null, null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, null, null);
 
                         // Reset the render item pipeline
                         commandList.SetFramebuffer(_intermediateFramebuffer);

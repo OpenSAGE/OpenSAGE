@@ -1,20 +1,23 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class GlobalShaderResources : DisposableBase
+    public sealed class GlobalShaderResources : DisposableBase
     {
         public readonly ResourceLayout GlobalConstantsResourceLayout;
         public readonly ResourceLayout ForwardPassResourceLayout;
 
         public readonly Sampler ShadowSampler;
 
-        internal readonly Terrain.RadiusCursorDecals RadiusCursorDecals;
+        public readonly RadiusCursorDecalResourceData RadiusCursorDecals;
 
         public GlobalShaderResources(GraphicsDevice graphicsDevice)
         {
@@ -50,7 +53,7 @@ namespace OpenSage.Graphics.Shaders
                     SamplerBorderColor.OpaqueBlack)));
             ShadowSampler.Name = "Shadow Sampler";
 
-            RadiusCursorDecals = AddDisposable(new Terrain.RadiusCursorDecals(graphicsDevice));
+            RadiusCursorDecals = AddDisposable(new RadiusCursorDecalResourceData(graphicsDevice));
         }
 
         public struct GlobalConstants
@@ -221,6 +224,129 @@ namespace OpenSage.Graphics.Shaders
         {
             public Vector3 _Padding;
             public uint NumRadiusCursorDecals;
+        }
+    }
+
+    public sealed class RadiusCursorDecalResourceData : DisposableBase
+    {
+        private readonly GraphicsDevice _graphicsDevice;
+
+        private readonly ConstantBuffer<GlobalShaderResources.RadiusCursorDecalConstants> _decalConstantBuffer;
+
+        private readonly Dictionary<Texture, uint> _nameToTextureIndex;
+
+        // TODO: Support non-512px texture sizes.
+        private const uint TextureSize = 512;
+        private static readonly uint TextureMipLevels = TextureMipMapData.CalculateMipMapCount(TextureSize, TextureSize);
+
+        private const uint MaxTextures = 20; // This can be increased if necessary.
+        private uint _nextTextureIndex;
+
+        public const uint MaxDecals = 8;
+        private readonly RadiusCursorDecal[] _decals;
+
+        public readonly DeviceBuffer DecalConstants;
+
+        public readonly DeviceBuffer DecalsBuffer;
+
+        public readonly Texture TextureArray;
+
+        public RadiusCursorDecalResourceData(GraphicsDevice graphicsDevice)
+        {
+            _graphicsDevice = graphicsDevice;
+
+            _decalConstantBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.RadiusCursorDecalConstants>(
+                graphicsDevice,
+                "RadiusCursorDecalConstants"));
+
+            DecalConstants = _decalConstantBuffer.Buffer;
+
+            DecalsBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(
+                    RadiusCursorDecal.SizeInBytes * MaxDecals,
+                    BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
+                    RadiusCursorDecal.SizeInBytes,
+                    true)));
+
+            _decals = new RadiusCursorDecal[MaxDecals];
+
+            _nameToTextureIndex = new Dictionary<Texture, uint>();
+
+            TextureArray = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    TextureSize,
+                    TextureSize,
+                    TextureMipLevels,
+                    MaxTextures,
+                    PixelFormat.BC3_UNorm, // TODO: Allow other types
+                    TextureUsage.Sampled)));
+        }
+
+        public void SetNumRadiusCursorDecals(uint value)
+        {
+            _decalConstantBuffer.Value.NumRadiusCursorDecals = value;
+            _decalConstantBuffer.Update(_graphicsDevice);
+        }
+
+        public void SetDecal(int index, in RadiusCursorDecal decal)
+        {
+            _decals[index] = decal;
+        }
+
+        public void UpdateDecalsBuffer()
+        {
+            _graphicsDevice.UpdateBuffer(DecalsBuffer, 0, _decals);
+        }
+
+        public uint GetTextureIndex(Texture texture)
+        {
+            if (!_nameToTextureIndex.TryGetValue(texture, out var result))
+            {
+                if (_nextTextureIndex == MaxTextures ||
+                    texture.Width != texture.Height ||
+                    texture.Width != TextureSize)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                result = _nextTextureIndex;
+
+                _nameToTextureIndex.Add(texture, _nextTextureIndex);
+
+                var commandList = _graphicsDevice.ResourceFactory.CreateCommandList();
+                commandList.Begin();
+
+                for (var mipLevel = 0u; mipLevel < TextureMipLevels; mipLevel++)
+                {
+                    var mipSize = TextureMipMapData.CalculateMipSize(mipLevel, TextureSize);
+
+                    commandList.CopyTexture(
+                        texture,
+                        0, 0, 0,
+                        mipLevel,
+                        0,
+                        TextureArray,
+                        0, 0, 0,
+                        mipLevel,
+                        _nextTextureIndex,
+                        mipSize,
+                        mipSize,
+                        1,
+                        1);
+                }
+
+                commandList.End();
+
+                _graphicsDevice.SubmitCommands(commandList);
+
+                _graphicsDevice.DisposeWhenIdle(commandList);
+
+                _graphicsDevice.WaitForIdle();
+
+                _nextTextureIndex++;
+            }
+
+            return result;
         }
     }
 }
