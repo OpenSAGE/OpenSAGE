@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using OpenSage.Mathematics;
+using OpenSage.Settings;
 using Veldrid;
 
 namespace OpenSage.Rendering;
@@ -11,6 +12,8 @@ namespace OpenSage.Rendering;
 public sealed class RenderScene
 {
     public readonly List<RenderObject> Objects = new();
+
+    public readonly WorldLighting Lighting = WorldLighting.CreateDefault();
 
     private readonly List<(RenderObject, Material)> _filteredObjects = new();
 

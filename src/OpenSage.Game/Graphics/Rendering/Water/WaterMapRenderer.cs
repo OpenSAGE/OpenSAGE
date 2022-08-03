@@ -148,8 +148,8 @@ namespace OpenSage.Graphics.Rendering.Water
             _isRenderRefraction = scene.Waters.IsRenderRefraction;
 
             UpdateTimer();
-            CalculateUVOffset(scene.Lighting.TimeOfDay);
-            UpdateVariableBuffers(scene.Lighting.TimeOfDay);
+            CalculateUVOffset(scene.RenderScene.Lighting.TimeOfDay);
+            UpdateVariableBuffers(scene.RenderScene.Lighting.TimeOfDay);
 
             _waterConstantsPSBuffer.Update(commandList);
 
@@ -169,7 +169,7 @@ namespace OpenSage.Graphics.Rendering.Water
                     refractionMapSize,
                     graphicsDevice));
 
-                var texture = _waterTextureSet[scene.Lighting.TimeOfDay];
+                var texture = _waterTextureSet[scene.RenderScene.Lighting.TimeOfDay];
 
                 _resourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(

@@ -7,13 +7,13 @@ namespace OpenSage.Settings
 {
     public sealed class WorldLighting
     {
-        public IReadOnlyDictionary<TimeOfDay, LightSettings> LightingConfigurations { get; }
+        public IReadOnlyDictionary<TimeOfDay, LightSettings> LightingConfigurations { get; set; }
 
         public TimeOfDay TimeOfDay { get; set; }
 
-        public bool EnableCloudShadows { get; set; } = true;
-
         public LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
+
+        public bool EnableCloudShadows { get; set; } = true;
 
         public static WorldLighting CreateDefault()
         {
@@ -44,35 +44,6 @@ namespace OpenSage.Settings
         {
             LightingConfigurations = lightingConfigurations;
             TimeOfDay = timeOfDay;
-        }
-    }
-
-    public sealed class CameraCollection
-    {
-        private readonly Dictionary<string, NamedCamera> _camerasByName;
-
-        public NamedCamera this[string name] => _camerasByName[name];
-
-        public CameraCollection()
-        {
-            _camerasByName = new Dictionary<string, NamedCamera>();
-        }
-
-        public CameraCollection(IEnumerable<NamedCamera> cameras)
-            : this()
-        {
-            if (cameras != null)
-            {
-                foreach (var camera in cameras)
-                {
-                    _camerasByName[camera.Name] = camera;
-                }
-            }
-        }
-
-        public bool Exists(string camera)
-        {
-            return _camerasByName.ContainsKey(camera);
         }
     }
 }

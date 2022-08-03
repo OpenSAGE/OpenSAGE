@@ -41,8 +41,6 @@ namespace OpenSage.Graphics.Rendering
         private Texture _intermediateTexture;
         private Framebuffer _intermediateFramebuffer;
 
-        private TimeOfDay? _cachedTimeOfDay;
-
         private readonly TextureCopier _textureCopier;
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
@@ -175,18 +173,13 @@ namespace OpenSage.Graphics.Rendering
             Scene3D scene,
             RenderContext context)
         {
-            if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
-            {
-                _globalShaderResourceData.UpdateLighting(
-                    context.Scene3D.Lighting.CurrentLightingConfiguration.LightsPS,
-                    commandList);
-
-                _cachedTimeOfDay = context.Scene3D.Lighting.TimeOfDay;
-            }
+            _globalShaderResourceData.UpdateLighting(
+                context.Scene3D.RenderScene.Lighting.CurrentLightingConfiguration.LightsPS,
+                commandList);
 
             Texture cloudTexture;
-            if (scene.Lighting.TimeOfDay != TimeOfDay.Night
-                && scene.Lighting.EnableCloudShadows
+            if (scene.RenderScene.Lighting.TimeOfDay != TimeOfDay.Night
+                && scene.RenderScene.Lighting.EnableCloudShadows
                 && scene.Terrain != null)
             {
                 cloudTexture = scene.Terrain.CloudTexture;
@@ -202,7 +195,7 @@ namespace OpenSage.Graphics.Rendering
 
             _shadowMapRenderer.RenderShadowMap(
                 // TODO: Use terrain light for terrain self-shadowing?
-                scene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0,
+                scene.RenderScene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0,
                 scene.Shadows,
                 scene.Camera,
                 context.GraphicsDevice,

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
@@ -110,20 +109,5 @@ namespace OpenSage.Data.Map
                 }
             });
         }
-    }
-
-    public enum TimeOfDay : uint
-    {
-        [IniEnum("MORNING")]
-        Morning = 1,
-
-        [IniEnum("AFTERNOON")]
-        Afternoon,
-
-        [IniEnum("EVENING")]
-        Evening,
-
-        [IniEnum("NIGHT")]
-        Night
     }
 }

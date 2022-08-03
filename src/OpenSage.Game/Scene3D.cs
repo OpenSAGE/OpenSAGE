@@ -83,8 +83,6 @@ namespace OpenSage
         public readonly CameraCollection Cameras;
         public readonly WaypointCollection Waypoints;
 
-        public readonly WorldLighting Lighting;
-
         public readonly ShadowSettings Shadows = new ShadowSettings();
 
         public WaterSettings Waters { get; } = new WaterSettings();
@@ -125,9 +123,8 @@ namespace OpenSage
 
             game.TeamFactory.Initialize(mapTeams);
 
-            Lighting = new WorldLighting(
-                mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
-                mapFile.GlobalLighting.Time);
+            RenderScene.Lighting.LightingConfigurations = mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary();
+            RenderScene.Lighting.TimeOfDay = mapFile.GlobalLighting.Time;
 
             LoadObjects(
                 game.AssetStore.LoadContext,
@@ -260,13 +257,11 @@ namespace OpenSage
             InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
-            WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             WaterAreas = AddDisposable(new WaterAreaCollection());
-            Lighting = lighting;
 
             Roads = AddDisposable(new RoadCollection());
             Bridges = Array.Empty<Bridge>();
