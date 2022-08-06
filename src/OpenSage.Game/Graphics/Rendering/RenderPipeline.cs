@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Graphics.Rendering.Water;
@@ -186,7 +187,7 @@ namespace OpenSage.Graphics.Rendering
             }
             else
             {
-                cloudTexture = _loadContext.GraphicsDeviceManager.SolidWhiteTexture;
+                cloudTexture = _loadContext.GraphicsDeviceManager.GetDefaultTextureWhite();
             }
 
             // Shadow map passes.

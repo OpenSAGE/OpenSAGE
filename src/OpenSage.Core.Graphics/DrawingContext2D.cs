@@ -39,7 +39,7 @@ namespace OpenSage.Gui
         {
             _fontManager = fontManager;
 
-            _solidWhiteTexture = graphicsDeviceManager.SolidWhiteTexture;
+            _solidWhiteTexture = graphicsDeviceManager.GetDefaultTextureWhite();
 
             _spriteBatch = AddDisposable(new SpriteBatch(graphicsDeviceManager, shaderSetStore, blendStateDescription, outputDescription));
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenSage.Utilities
+namespace OpenSage.Core.Graphics
 {
     public readonly struct TextureMipMapData
     {

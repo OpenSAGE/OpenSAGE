@@ -552,8 +552,8 @@ namespace OpenSage.Graphics
                 NumTextureStages = (int)numTextureStages
             };
 
-            var texture0 = CreateTexture(loadTexture, w3dMesh, textureIndex0) ?? graphicsDeviceManager.NullTexture;
-            var texture1 = CreateTexture(loadTexture, w3dMesh, textureIndex1) ?? graphicsDeviceManager.NullTexture;
+            var texture0 = CreateTexture(loadTexture, w3dMesh, textureIndex0) ?? graphicsDeviceManager.GetDefaultTexturePlaceholder();
+            var texture1 = CreateTexture(loadTexture, w3dMesh, textureIndex1) ?? graphicsDeviceManager.GetDefaultTexturePlaceholder();
 
             var material = fixedFunctionShaderResources.GetCachedMaterial(
                 cullMode,

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics;

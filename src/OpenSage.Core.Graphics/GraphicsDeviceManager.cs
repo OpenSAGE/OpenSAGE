@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
@@ -15,10 +16,7 @@ public sealed class GraphicsDeviceManager : DisposableBase
     public Sampler LinearClampSampler { get; }
     public Sampler PointClampSampler { get; }
 
-    public Texture NullTexture { get; }
-    public Texture SolidWhiteTexture { get; }
-    public Texture SolidBlackTexture { get; }
-    public Texture PlaceholderTexture { get; }
+    public readonly Dictionary<string, object> Data = new();
 
     public GraphicsDeviceManager(GraphicsDevice graphicsDevice)
     {
@@ -48,33 +46,6 @@ public sealed class GraphicsDeviceManager : DisposableBase
             graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
         PointClampSampler.Name = "PointClamp Sampler";
 
-        NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
-        NullTexture.Name = "Null Texture";
-
-        SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-            1, 1, 1,
-            new TextureMipMapData(
-                new byte[] { 255, 255, 255, 255 },
-                4, 4, 1, 1),
-            PixelFormat.R8_G8_B8_A8_UNorm));
-        SolidWhiteTexture.Name = "Solid White Texture";
-
-        SolidBlackTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-            1, 1, 1,
-            new TextureMipMapData(
-                new byte[] { 0, 0, 0, 255 },
-                4, 4, 1, 1),
-            PixelFormat.R8_G8_B8_A8_UNorm));
-        SolidBlackTexture.Name = "Solid Black Texture";
-
-        PlaceholderTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-            1, 1, 1,
-            new TextureMipMapData(
-                new byte[] { 255, 105, 180, 255 },
-                4, 4, 1, 1),
-            PixelFormat.R8_G8_B8_A8_UNorm));
-        PlaceholderTexture.Name = "Placeholder Texture";
-
         _nullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
     }
 
@@ -92,5 +63,18 @@ public sealed class GraphicsDeviceManager : DisposableBase
             result.Name = $"NullStructuredBuffer_Size{size}";
         }
         return result;
+    }
+
+    protected override void Dispose(bool disposeManagedResources)
+    {
+        base.Dispose(disposeManagedResources);
+
+        foreach (var value in Data.Values)
+        {
+            if (value is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 }

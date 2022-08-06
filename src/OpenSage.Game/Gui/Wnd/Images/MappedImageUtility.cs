@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -91,7 +92,7 @@ namespace OpenSage.Gui.Wnd.Images
                 new SizeF(imageTexture.Width, imageTexture.Height));
 
             spriteBatch.DrawImage(
-                loadContext.GraphicsDeviceManager.SolidWhiteTexture,
+                loadContext.GraphicsDeviceManager.GetDefaultTextureWhite(),
                 null,
                 new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
                 ColorRgbaF.Transparent);

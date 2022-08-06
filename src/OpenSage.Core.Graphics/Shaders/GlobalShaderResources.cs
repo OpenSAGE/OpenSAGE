@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Mathematics;

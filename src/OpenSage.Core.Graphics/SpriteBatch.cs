@@ -38,7 +38,7 @@ namespace OpenSage.Graphics
             in OutputDescription outputDescription)
         {
             _spriteShaderResources = shaderSetStore.GetShaderSet(() => new SpriteShaderResources(shaderSetStore));
-            _solidWhiteTexture = graphicsDeviceManager.SolidWhiteTexture;
+            _solidWhiteTexture = graphicsDeviceManager.GetDefaultTextureWhite();
             _graphicsDevice = graphicsDeviceManager.GraphicsDevice;
 
             _pipeline = _spriteShaderResources.GetCachedPipeline(

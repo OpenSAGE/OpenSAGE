@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -70,7 +71,7 @@ namespace OpenSage.Graphics.Rendering.Water
                 _waterTransparentDiffuseColorSet.Add(waterSet.TimeOfDay, waterSet.TransparentDiffuseColor);
             }
 
-            _bumpTexture = graphicsLoadContext.GraphicsDeviceManager.SolidWhiteTexture;
+            _bumpTexture = graphicsLoadContext.GraphicsDeviceManager.GetDefaultTextureWhite();
 
             _waterConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.WaterConstantsPS>(
                 graphicsDevice,

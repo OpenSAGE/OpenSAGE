@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using OpenSage.Core.Graphics;
 using OpenSage.FileFormats.W3d;
 using OpenSage.Rendering;
 using Veldrid;
@@ -107,7 +108,7 @@ namespace OpenSage.Graphics.Shaders
                 switch (w3dShaderProperty.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        var texture = loadTexture(w3dShaderProperty.StringValue) ?? GraphicsDeviceManager.PlaceholderTexture;
+                        var texture = loadTexture(w3dShaderProperty.StringValue) ?? GraphicsDeviceManager.GetDefaultTexturePlaceholder();
                         materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 
