@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics.Animation;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 

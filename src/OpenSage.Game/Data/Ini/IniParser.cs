@@ -680,7 +680,8 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<TextureAsset> ParseTextureReference()
         {
             var fileName = ParseFileName();
-            return _assetStore.Textures.GetLazyAssetReferenceByName(fileName);
+
+            return new LazyAssetReference<TextureAsset>(() => _assetStore.Textures.GetByName(fileName));
         }
 
         public LazyAssetReference<GuiTextureAsset> ParseGuiTextureReference()
@@ -692,8 +693,9 @@ namespace OpenSage.Data.Ini
         public LazyAssetReference<Model> ParseModelReference()
         {
             var fileName = ParseFileName();
+
             return (!string.Equals(fileName, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.Models.GetLazyAssetReferenceByName(fileName)
+                ? new LazyAssetReference<Model>(() => _assetStore.W3dAssets.GetModelByName(fileName))
                 : null;
         }
 
@@ -706,8 +708,10 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation> ScanAnimationReference(in IniToken token)
         {
+            var name = token.Text;
+
             return (!string.Equals(token.Text, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Text)
+                ? new LazyAssetReference<Graphics.Animation.W3DAnimation>(() => _assetStore.W3dAssets.GetAnimationByName(name))
                 : null;
         }
 

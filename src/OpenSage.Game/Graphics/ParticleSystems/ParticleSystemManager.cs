@@ -12,8 +12,6 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly AssetLoadContext _loadContext;
         private readonly int _maxParticleCount;
 
-        private readonly RenderBucket _renderBucket;
-
         private readonly List<ParticleSystem> _particleSystems;
 
         private uint _previousParticleSystemId;
@@ -25,8 +23,6 @@ namespace OpenSage.Graphics.ParticleSystems
             _maxParticleCount = assetLoadContext.AssetStore.GameData.Current.MaxParticleCount;
 
             _particleSystems = new List<ParticleSystem>();
-
-            _renderBucket = scene.RenderScene.CreateRenderBucket("Particles", 15);
         }
 
         public ParticleSystem Create(
@@ -42,7 +38,7 @@ namespace OpenSage.Graphics.ParticleSystems
                         _loadContext,
                         getWorldMatrix)));
 
-            _renderBucket.AddObject(result);
+            _scene.RenderScene.Objects.Add(result);
 
             return result;
         }
@@ -60,7 +56,7 @@ namespace OpenSage.Graphics.ParticleSystems
                         _loadContext,
                         worldMatrix)));
 
-            _renderBucket.AddObject(result);
+            _scene.RenderScene.Objects.Add(result);
 
             return result;
         }
@@ -69,7 +65,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             if (_particleSystems.Remove(particleSystem))
             {
-                _renderBucket.RemoveObject(particleSystem);
+                _scene.RenderScene.Objects.Remove(particleSystem);
                 RemoveAndDispose(ref particleSystem);
             }
         }
@@ -93,7 +89,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
-                    _renderBucket.RemoveObject(particleSystem);
+                    _scene.RenderScene.Objects.Remove(particleSystem);
                     particleSystem.Dispose();
                     RemoveToDispose(particleSystem);
                     _particleSystems.RemoveAt(i);

@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -75,7 +76,8 @@ namespace OpenSage.Gui.Wnd.Images
 
             var framebuffer = graphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription(null, imageTexture));
             var spriteBatch = new SpriteBatch(
-                loadContext,
+                loadContext.GraphicsDeviceManager,
+                loadContext.ShaderSetStore,
                 BlendStateDescription.SingleDisabled,
                 framebuffer.OutputDescription);
             var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
@@ -86,11 +88,11 @@ namespace OpenSage.Gui.Wnd.Images
 
             spriteBatch.Begin(
                 commandList,
-                loadContext.StandardGraphicsResources.PointClampSampler,
+                loadContext.GraphicsDeviceManager.PointClampSampler,
                 new SizeF(imageTexture.Width, imageTexture.Height));
 
             spriteBatch.DrawImage(
-                loadContext.StandardGraphicsResources.SolidWhiteTexture,
+                loadContext.GraphicsDeviceManager.GetDefaultTextureWhite(),
                 null,
                 new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
                 ColorRgbaF.Transparent);

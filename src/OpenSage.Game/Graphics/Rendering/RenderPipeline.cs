@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Graphics.Rendering.Water;
@@ -59,21 +60,23 @@ namespace OpenSage.Graphics.Rendering
             _loadContext = game.GraphicsLoadContext;
 
             _globalShaderResources = game.GraphicsLoadContext.ShaderResources.Global;
-            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources, game.GraphicsLoadContext.StandardGraphicsResources));
+            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDeviceManager, _globalShaderResources));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
             _drawingContext = AddDisposable(new DrawingContext2D(
-                game.ContentManager,
-                game.GraphicsLoadContext,
+                game.ContentManager.FontManager,
+                game.GraphicsLoadContext.GraphicsDeviceManager,
+                game.GraphicsLoadContext.ShaderSetStore,
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice));
-            _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, game.GraphicsLoadContext.ShaderResources.Global));
+            _waterMapRenderer = AddDisposable(new WaterMapRenderer(game.AssetStore, _loadContext, game.GraphicsDevice, _globalShaderResources));
 
             _textureCopier = AddDisposable(new TextureCopier(
-                game,
+                game.GraphicsDeviceManager,
+                game.GraphicsLoadContext.ShaderSetStore,
                 game.Panel.OutputDescription));
         }
 
@@ -137,15 +140,18 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.Begin(
                     _commandList,
-                    _loadContext.StandardGraphicsResources.LinearClampSampler,
+                    _loadContext.GraphicsDeviceManager.LinearClampSampler,
                     new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
 
                 context.Scene3D?.Render(_drawingContext);
                 context.Scene2D?.Render(_drawingContext);
 
-                _shadowMapRenderer.DrawDebugOverlay(
-                    context.Scene3D,
-                    _drawingContext);
+                if (context.Scene3D?.Shadows.VisualizeShadowFrustums ?? false)
+                {
+                    _shadowMapRenderer.DrawDebugOverlay(
+                        context.Scene3D.Camera,
+                        _drawingContext);
+                }
 
                 Rendering2D?.Invoke(this, new Rendering2DEventArgs(_drawingContext));
 
@@ -168,16 +174,20 @@ namespace OpenSage.Graphics.Rendering
             Scene3D scene,
             RenderContext context)
         {
+            _globalShaderResourceData.UpdateLighting(
+                context.Scene3D.RenderScene.Lighting.CurrentLightingConfiguration.LightsPS,
+                commandList);
+
             Texture cloudTexture;
-            if (scene.Lighting.TimeOfDay != TimeOfDay.Night
-                && scene.Lighting.EnableCloudShadows
+            if (scene.RenderScene.Lighting.TimeOfDay != TimeOfDay.Night
+                && scene.RenderScene.Lighting.EnableCloudShadows
                 && scene.Terrain != null)
             {
                 cloudTexture = scene.Terrain.CloudTexture;
             }
             else
             {
-                cloudTexture = _loadContext.StandardGraphicsResources.SolidWhiteTexture;
+                cloudTexture = _loadContext.GraphicsDeviceManager.GetDefaultTextureWhite();
             }
 
             // Shadow map passes.
@@ -185,7 +195,10 @@ namespace OpenSage.Graphics.Rendering
             commandList.PushDebugGroup("Shadow pass");
 
             _shadowMapRenderer.RenderShadowMap(
-                scene,
+                // TODO: Use terrain light for terrain self-shadowing?
+                scene.RenderScene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0,
+                scene.Shadows,
+                scene.Camera,
                 context.GraphicsDevice,
                 commandList,
                 (framebuffer, lightBoundingFrustum) =>
@@ -197,7 +210,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, shadowViewProjection, null, null);
+                    UpdateGlobalConstantBuffers(commandList, context, shadowViewProjection, null, null);
 
                     DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -215,7 +228,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, scene.Camera.ViewProjection, null, null);
+            UpdateGlobalConstantBuffers(commandList, context, scene.Camera.ViewProjection, null, null);
 
             commandList.ClearColorTarget(0, ClearColor);
             commandList.ClearDepthStencil(1);
@@ -232,7 +245,11 @@ namespace OpenSage.Graphics.Rendering
             RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, forwardPassResourceSet);
             commandList.PopDebugGroup();
 
-            scene.RenderScene.Render(commandList, _globalShaderResourceData.GlobalConstantsResourceSet, forwardPassResourceSet);
+            scene.RenderScene.DoForwardPass(
+                commandList,
+                _globalShaderResourceData.GlobalConstantsResourceSet,
+                forwardPassResourceSet,
+                standardPassCameraFrustum);
 
             commandList.PushDebugGroup("Water");
             DoRenderPass(context, commandList, _renderList.Water, standardPassCameraFrustum, forwardPassResourceSet);
@@ -243,6 +260,23 @@ namespace OpenSage.Graphics.Rendering
             scene.Game.Scripting.CameraFadeOverlay.Render(
                 commandList,
                 new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
+        }
+
+        private void UpdateGlobalConstantBuffers(
+            CommandList commandList,
+            RenderContext context,
+            in Matrix4x4 viewProjection,
+            in Vector4? clippingPlane1,
+            in Vector4? clippingPlane2)
+        {
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(
+                commandList,
+                Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation,
+                (float)context.GameTime.TotalTime.TotalSeconds,
+                new Vector2(context.RenderTarget.Width, context.RenderTarget.Height),
+                viewProjection,
+                clippingPlane1,
+                clippingPlane2);
         }
 
         private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
@@ -269,7 +303,7 @@ namespace OpenSage.Graphics.Rendering
                         var clippingPlaneBottom = new Plane(Vector3.UnitZ, -pivot + transparentWaterDepth);
 
                         // Render normal scene for water refraction shader
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlaneTop.AsVector4(), clippingPlaneBottom.AsVector4());
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlaneTop.AsVector4(), clippingPlaneBottom.AsVector4());
 
                         commandList.SetFramebuffer(refractionFramebuffer);
 
@@ -290,7 +324,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // TODO: Improve rendering speed somehow?
                         // ------------------- Used for creating stencil mask -------------------
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -300,7 +334,7 @@ namespace OpenSage.Graphics.Rendering
 
                         // Render inverted scene for water reflection shader
                         camera.SetMirrorX(pivot);
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, clippingPlane.AsVector4(), null);
 
                         //commandList.SetFramebuffer(reflectionFramebuffer);
                         commandList.ClearColorTarget(0, ClearColor);
@@ -317,7 +351,7 @@ namespace OpenSage.Graphics.Rendering
                     if (reflectionFramebuffer != null || refractionFramebuffer != null)
                     {
                         camera.FarPlaneDistance = originalFarPlaneDistance;
-                        _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, null, null);
+                        UpdateGlobalConstantBuffers(commandList, context, camera.ViewProjection, null, null);
 
                         // Reset the render item pipeline
                         commandList.SetFramebuffer(_intermediateFramebuffer);

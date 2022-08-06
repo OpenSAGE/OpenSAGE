@@ -59,10 +59,13 @@ namespace OpenSage.Terrain.Roads
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
-            
-            _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
 
-            MaterialPass = new MaterialPass(_material, null);
+            var roadShaderResources = loadContext.ShaderSetStore.GetShaderSet(() => new RoadShaderResources(loadContext.ShaderSetStore));
+
+            _material = roadShaderResources.GetMaterial(network.Template.Texture.Value);
+
+            MaterialPass = new MaterialPass(RenderBucketType.Road);
+            MaterialPass.Passes["Forward"] = _material;
 
 #if DEBUG
             _debugLines = new List<(Vector3 start, Vector3 end)>();

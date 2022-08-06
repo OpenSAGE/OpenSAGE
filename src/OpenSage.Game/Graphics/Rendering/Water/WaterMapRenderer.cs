@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -54,7 +55,7 @@ namespace OpenSage.Graphics.Rendering.Water
             GraphicsDevice graphicsDevice,
             GlobalShaderResources globalShaderResources)
         {
-            _waterShaderResources = graphicsLoadContext.ShaderResources.Water;
+            _waterShaderResources = graphicsLoadContext.ShaderSetStore.GetWaterShaderResources();
 
             var _waterSets = assetStore.WaterSets;
             _waterTextureSet = new Dictionary<TimeOfDay, Texture>();
@@ -70,7 +71,7 @@ namespace OpenSage.Graphics.Rendering.Water
                 _waterTransparentDiffuseColorSet.Add(waterSet.TimeOfDay, waterSet.TransparentDiffuseColor);
             }
 
-            _bumpTexture = graphicsLoadContext.StandardGraphicsResources.SolidWhiteTexture;
+            _bumpTexture = graphicsLoadContext.GraphicsDeviceManager.GetDefaultTextureWhite();
 
             _waterConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.WaterConstantsPS>(
                 graphicsDevice,
@@ -148,8 +149,8 @@ namespace OpenSage.Graphics.Rendering.Water
             _isRenderRefraction = scene.Waters.IsRenderRefraction;
 
             UpdateTimer();
-            CalculateUVOffset(scene.Lighting.TimeOfDay);
-            UpdateVariableBuffers(scene.Lighting.TimeOfDay);
+            CalculateUVOffset(scene.RenderScene.Lighting.TimeOfDay);
+            UpdateVariableBuffers(scene.RenderScene.Lighting.TimeOfDay);
 
             _waterConstantsPSBuffer.Update(commandList);
 
@@ -169,7 +170,7 @@ namespace OpenSage.Graphics.Rendering.Water
                     refractionMapSize,
                     graphicsDevice));
 
-                var texture = _waterTextureSet[scene.Lighting.TimeOfDay];
+                var texture = _waterTextureSet[scene.RenderScene.Lighting.TimeOfDay];
 
                 _resourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(

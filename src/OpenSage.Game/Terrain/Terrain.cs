@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics;
@@ -36,7 +37,7 @@ namespace OpenSage.Terrain
         private readonly Material _material;
         private readonly TerrainPatchIndexBufferCache _indexBufferCache;
 
-        private readonly RenderBucket _renderBucket;
+        private readonly RenderScene _renderScene;
 
         private readonly List<TerrainPatch> _patches = new();
 
@@ -52,7 +53,7 @@ namespace OpenSage.Terrain
 
         internal readonly Texture CloudTexture;
 
-        internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
+        internal readonly RadiusCursorDecals RadiusCursorDecals;
 
         internal Terrain(MapFile mapFile, AssetLoadContext loadContext, RenderScene scene)
         {
@@ -60,10 +61,12 @@ namespace OpenSage.Terrain
 
             HeightMap = new HeightMap(mapFile.HeightMapData);
 
-            _renderBucket = scene.CreateRenderBucket("Terrain", 0);
-
             _loadContext = loadContext;
             _graphicsDevice = loadContext.GraphicsDevice;
+
+            _renderScene = scene;
+
+            RadiusCursorDecals = new RadiusCursorDecals(_loadContext.ShaderResources.Global.RadiusCursorDecals);
 
             _indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(loadContext.GraphicsDevice));
 
@@ -99,10 +102,12 @@ namespace OpenSage.Terrain
 
             var casuticsTextures = BuildCausticsTextureArray(loadContext.AssetStore);
 
-            var materialResourceSet = AddDisposable(loadContext.ShaderResources.Terrain.CreateMaterialResourceSet(
+            var terrainShaderResources = loadContext.ShaderSetStore.GetShaderSet(() => new TerrainShaderResources(loadContext.ShaderSetStore));
+
+            var materialResourceSet = AddDisposable(terrainShaderResources.CreateMaterialResourceSet(
                 _materialConstantsBuffer.Buffer,
                 tileDataTexture,
-                cliffDetailsBuffer ?? loadContext.StandardGraphicsResources.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                cliffDetailsBuffer ?? loadContext.GraphicsDeviceManager.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
                 textureDetailsBuffer,
                 textureArray,
                 macroTexture,
@@ -110,8 +115,8 @@ namespace OpenSage.Terrain
 
             _material = AddDisposable(
                 new Material(
-                    loadContext.ShaderResources.Terrain,
-                    loadContext.ShaderResources.Terrain.Pipeline,
+                    terrainShaderResources,
+                    terrainShaderResources.Pipeline,
                     materialResourceSet,
                     SurfaceType.Opaque));
 
@@ -194,7 +199,7 @@ namespace OpenSage.Terrain
                 patch.Dispose();
                 RemoveToDispose(patch);
 
-                _renderBucket.RemoveObject(patch);
+                _renderScene.Objects.Remove(patch);
             }
 
             _patches.Clear();
@@ -241,7 +246,7 @@ namespace OpenSage.Terrain
                             _indexBufferCache,
                             _material));
 
-                    _renderBucket.AddObject(patch);
+                    _renderScene.Objects.Add(patch);
 
                     _patches.Add(patch);
                 }

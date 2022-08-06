@@ -43,7 +43,7 @@ namespace OpenSage.Diagnostics
                 return;
             }
 
-            var lighting = Game.Scene3D.Lighting;
+            var lighting = Game.Scene3D.RenderScene.Lighting;
 
             ImGui.Text("Time of day");
             {

@@ -57,8 +57,8 @@ namespace OpenSage
         public readonly Quadtree<GameObject> Quadtree;
         public bool ShowTerrain
         {
-            get => RenderScene.GetRenderBucket("Terrain").Visible;
-            set => RenderScene.GetRenderBucket("Terrain").Visible = value;
+            get => RenderScene.HiddenRenderBuckets.Contains(RenderBucketType.Terrain);
+            set => RenderScene.SetRenderBucketVisibility(RenderBucketType.Terrain, value);
         }
 
         public readonly WaterAreaCollection WaterAreas;
@@ -67,8 +67,8 @@ namespace OpenSage
         public readonly RoadCollection Roads;
         public bool ShowRoads
         {
-            get => RenderScene.GetRenderBucket("Roads").Visible;
-            set => RenderScene.GetRenderBucket("Roads").Visible = value;
+            get => RenderScene.HiddenRenderBuckets.Contains(RenderBucketType.Road);
+            set => RenderScene.SetRenderBucketVisibility(RenderBucketType.Road, value);
         }
 
         public readonly Bridge[] Bridges;
@@ -82,8 +82,6 @@ namespace OpenSage
         public bool ShowObjects { get; set; } = true;
         public readonly CameraCollection Cameras;
         public readonly WaypointCollection Waypoints;
-
-        public readonly WorldLighting Lighting;
 
         public readonly ShadowSettings Shadows = new ShadowSettings();
 
@@ -125,9 +123,8 @@ namespace OpenSage
 
             game.TeamFactory.Initialize(mapTeams);
 
-            Lighting = new WorldLighting(
-                mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
-                mapFile.GlobalLighting.Time);
+            RenderScene.Lighting.LightingConfigurations = mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary();
+            RenderScene.Lighting.TimeOfDay = mapFile.GlobalLighting.Time;
 
             LoadObjects(
                 game.AssetStore.LoadContext,
@@ -260,13 +257,11 @@ namespace OpenSage
             InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
-            WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
             : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             WaterAreas = AddDisposable(new WaterAreaCollection());
-            Lighting = lighting;
 
             Roads = AddDisposable(new RoadCollection());
             Bridges = Array.Empty<Bridge>();
@@ -294,7 +289,7 @@ namespace OpenSage
             {
                 MapFile = mapFile;
                 Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext, RenderScene));
-                WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
+                WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.GraphicsDeviceManager, game.GraphicsLoadContext.ShaderSetStore));
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 

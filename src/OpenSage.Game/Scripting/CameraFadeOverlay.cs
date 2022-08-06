@@ -31,8 +31,9 @@ namespace OpenSage.Scripting
             _game = game;
 
             _drawingContext = AddDisposable(new DrawingContext2D(
-                game.ContentManager,
-                game.GraphicsLoadContext,
+                game.ContentManager.FontManager,
+                game.GraphicsLoadContext.GraphicsDeviceManager,
+                game.GraphicsLoadContext.ShaderSetStore,
                 BlendStateDescription.SingleAdditiveBlend,
                 RenderPipeline.GameOutputDescription));
         }
@@ -92,7 +93,7 @@ namespace OpenSage.Scripting
 
             _drawingContext.Begin(
                 commandList,
-                _game.AssetStore.LoadContext.StandardGraphicsResources.LinearClampSampler,
+                _game.AssetStore.LoadContext.GraphicsDeviceManager.LinearClampSampler,
                 outputSize);
 
             switch (FadeType)

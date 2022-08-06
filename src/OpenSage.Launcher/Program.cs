@@ -146,7 +146,7 @@ namespace OpenSage.Launcher
 
             using (var window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen))
             using (var game = new Game(installation, opts.Renderer, config, window))
-            using (var textureCopier = new TextureCopier(game, window.Swapchain.Framebuffer.OutputDescription))
+            using (var textureCopier = new TextureCopier(game.GraphicsDeviceManager, game.GraphicsLoadContext.ShaderSetStore, window.Swapchain.Framebuffer.OutputDescription))
             using (var developerModeView = new DeveloperModeView(game, window))
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;

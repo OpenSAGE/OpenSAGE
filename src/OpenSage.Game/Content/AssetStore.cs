@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
+using OpenSage.Core.Graphics.W3d;
 using OpenSage.Eva;
 using OpenSage.FX;
 using OpenSage.Graphics;
@@ -28,7 +30,7 @@ using Veldrid;
 
 namespace OpenSage.Content
 {
-    public sealed class AssetStore
+    public sealed class AssetStore : DisposableBase
     {
         private readonly List<IScopedSingleAssetStorage> _scopedSingleAssetStorage;
 
@@ -134,10 +136,6 @@ namespace OpenSage.Content
         public ScopedAssetCollection<MapCache> MapCaches { get; }
         public ScopedAssetCollection<MappedImage> MappedImages { get; }
         public ScopedAssetCollection<MeshNameMatches> MeshNameMatches { get; }
-        public ScopedAssetCollection<Model> Models { get; }
-        public ScopedAssetCollection<Graphics.Animation.W3DAnimation> ModelAnimations { get; }
-        public ScopedAssetCollection<ModelBoneHierarchy> ModelBoneHierarchies { get; }
-        public ScopedAssetCollection<ModelMesh> ModelMeshes { get; }
         public ScopedAssetCollection<ModifierList> ModifierLists { get; }
         public ScopedAssetCollection<MouseCursor> MouseCursors { get; }
         public ScopedAssetCollection<MultiplayerColor> MultiplayerColors { get; }
@@ -162,7 +160,6 @@ namespace OpenSage.Content
         public ScopedAssetCollection<StreamedSound> StreamedSounds { get; }
         public ScopedAssetCollection<LoadSubsystem> Subsystems { get; }
         public ScopedAssetCollection<TerrainTexture> TerrainTextures { get; }
-        public ScopedAssetCollection<TextureAsset> Textures { get; }
         public ScopedAssetCollection<UpgradeTemplate> Upgrades { get; }
         public ScopedAssetCollection<VictorySystemData> VictorySystemDatas { get; }
         public ScopedAssetCollection<Video> Videos { get; }
@@ -172,12 +169,14 @@ namespace OpenSage.Content
         public ScopedAssetCollection<WeatherData> WeatherDatas { get; }
         public ScopedAssetCollection<WindowTransition> WindowTransitions { get; }
 
+        public TextureAssetCache Textures { get; }
+        public W3dAssetCache W3dAssets { get; }
+
         internal AssetStore(
             SageGame sageGame,
             FileSystem fileSystem,
             string language,
-            GraphicsDevice graphicsDevice,
-            StandardGraphicsResources standardGraphicsResources,
+            GraphicsDeviceManager graphicsDeviceManager,
             ShaderResourceManager shaderResources,
             ShaderSetStore shaderSetStore,
             OnDemandAssetLoadStrategy loadStrategy)
@@ -185,8 +184,7 @@ namespace OpenSage.Content
             LoadContext = new AssetLoadContext(
                 fileSystem,
                 language,
-                graphicsDevice,
-                standardGraphicsResources,
+                graphicsDeviceManager,
                 shaderResources,
                 shaderSetStore,
                 this);
@@ -303,10 +301,6 @@ namespace OpenSage.Content
             AddAssetCollection(MapCaches = new ScopedAssetCollection<MapCache>(this));
             AddAssetCollection(MappedImages = new ScopedAssetCollection<MappedImage>(this));
             AddAssetCollection(MeshNameMatches = new ScopedAssetCollection<MeshNameMatches>(this));
-            AddAssetCollection(Models = new ScopedAssetCollection<Model>(this, loadStrategy.CreateModelLoader()));
-            AddAssetCollection(ModelAnimations = new ScopedAssetCollection<Graphics.Animation.W3DAnimation>(this, loadStrategy.CreateAnimationLoader()));
-            AddAssetCollection(ModelBoneHierarchies = new ScopedAssetCollection<ModelBoneHierarchy>(this, loadStrategy.CreateModelBoneHierarchyLoader()));
-            AddAssetCollection(ModelMeshes = new ScopedAssetCollection<ModelMesh>(this)); // TODO: ModelMesh loader?
             AddAssetCollection(ModifierLists = new ScopedAssetCollection<ModifierList>(this));
             AddAssetCollection(MouseCursors = new ScopedAssetCollection<MouseCursor>(this));
             AddAssetCollection(MultiplayerColors = new ScopedAssetCollection<MultiplayerColor>(this));
@@ -331,7 +325,6 @@ namespace OpenSage.Content
             AddAssetCollection(StreamedSounds = new ScopedAssetCollection<StreamedSound>(this));
             AddAssetCollection(Subsystems = new ScopedAssetCollection<LoadSubsystem>(this));
             AddAssetCollection(TerrainTextures = new ScopedAssetCollection<TerrainTexture>(this));
-            AddAssetCollection(Textures = new ScopedAssetCollection<TextureAsset>(this, loadStrategy.CreateTextureLoader()));
             AddAssetCollection(Upgrades = new ScopedAssetCollection<UpgradeTemplate>(this));
             AddAssetCollection(VictorySystemDatas = new ScopedAssetCollection<VictorySystemData>(this));
             AddAssetCollection(Videos = new ScopedAssetCollection<Video>(this));
@@ -340,6 +333,9 @@ namespace OpenSage.Content
             AddAssetCollection(WeaponTemplates = new ScopedAssetCollection<WeaponTemplate>(this));
             AddAssetCollection(WeatherDatas = new ScopedAssetCollection<WeatherData>(this));
             AddAssetCollection(WindowTransitions = new ScopedAssetCollection<WindowTransition>(this));
+
+            Textures = AddDisposable(new TextureAssetCache(graphicsDeviceManager.GraphicsDevice, fileSystem, loadStrategy.GetTexturePathResolver()));
+            W3dAssets = AddDisposable(new W3dAssetCache(graphicsDeviceManager, fileSystem, loadStrategy.GetW3dPathResolver(), Textures, shaderSetStore));
         }
 
         internal void PushScope()
@@ -378,6 +374,14 @@ namespace OpenSage.Content
                 {
                     yield return asset;
                 }
+            }
+            foreach (var asset in Textures.GetAssets())
+            {
+                yield return asset;
+            }
+            foreach (var asset in W3dAssets.GetAssets())
+            {
+                yield return asset;
             }
         }
     }

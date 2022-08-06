@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
 using OpenSage.Gui;

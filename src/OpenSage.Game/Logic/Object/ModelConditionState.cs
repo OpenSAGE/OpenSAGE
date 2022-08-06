@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 

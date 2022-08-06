@@ -7,6 +7,8 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Mods.Bfme.Gui;
 using System.IO;
+using OpenSage.Core.Graphics;
+using OpenSage.Core.Graphics.W3d;
 
 namespace OpenSage.Mods.Bfme
 {
@@ -41,7 +43,7 @@ namespace OpenSage.Mods.Bfme
 
         public OnDemandAssetLoadStrategy CreateAssetLoadStrategy()
         {
-            return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.BfmeTexture);
+            return new OnDemandAssetLoadStrategy(W3dPathResolvers.Standard, TexturePathResolvers.Generals, PathResolvers.BfmeTexture);
         }
 
         public static BfmeDefinition Instance { get; } = new BfmeDefinition();

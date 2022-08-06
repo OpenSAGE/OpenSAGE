@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Rep
 {

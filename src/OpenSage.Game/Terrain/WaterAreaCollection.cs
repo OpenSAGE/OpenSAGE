@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
-using OpenSage.Content.Loaders;
+using OpenSage.Core.Graphics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Rendering;
 
 namespace OpenSage.Terrain
 {
@@ -15,8 +15,12 @@ namespace OpenSage.Terrain
             _waterAreas = new List<WaterArea>();
         }
 
-        internal WaterAreaCollection(PolygonTriggers polygonTriggers, StandingWaterAreas standingWaterAreas,
-                                    StandingWaveAreas standingWaveAreas, AssetLoadContext loadContext)
+        internal WaterAreaCollection(
+            PolygonTriggers polygonTriggers,
+            StandingWaterAreas standingWaterAreas,
+            StandingWaveAreas standingWaveAreas,
+            GraphicsDeviceManager graphicsDeviceManager,
+            ShaderSetStore shaderSetStore)
             : this()
         {
             if (polygonTriggers != null)
@@ -28,7 +32,7 @@ namespace OpenSage.Terrain
                         case PolygonTriggerType.Water:
                         case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
                         case PolygonTriggerType.WaterAndRiver:
-                            if (WaterArea.TryCreate(loadContext, polygonTrigger, out var waterArea))
+                            if (WaterArea.TryCreate(graphicsDeviceManager, shaderSetStore, polygonTrigger, out var waterArea))
                             {
                                 _waterAreas.Add(AddDisposable(waterArea));
                             }
@@ -41,7 +45,7 @@ namespace OpenSage.Terrain
             {
                 foreach (var standingWaterArea in standingWaterAreas.Areas)
                 {
-                    if (WaterArea.TryCreate(loadContext, standingWaterArea, out var waterArea))
+                    if (WaterArea.TryCreate(graphicsDeviceManager, shaderSetStore, standingWaterArea, out var waterArea))
                     {
                         _waterAreas.Add(AddDisposable(waterArea));
                     }
@@ -52,7 +56,7 @@ namespace OpenSage.Terrain
             {
                 foreach (var standingWaveArea in standingWaveAreas.Areas)
                 {
-                    if (WaterArea.TryCreate(loadContext, standingWaveArea, out var waterArea))
+                    if (WaterArea.TryCreate(graphicsDeviceManager, shaderSetStore, standingWaveArea, out var waterArea))
                     {
                         _waterAreas.Add(AddDisposable(waterArea));
                     }
