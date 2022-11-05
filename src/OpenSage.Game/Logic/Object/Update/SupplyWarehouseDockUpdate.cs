@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            if (_currentBoxes <= 0)
+            if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
             {
                 _gameObject.Die(DeathType.Normal);
             }
