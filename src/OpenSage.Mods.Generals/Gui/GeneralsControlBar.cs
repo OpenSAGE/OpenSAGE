@@ -279,7 +279,13 @@ namespace OpenSage.Mods.Generals.Gui
                 var commandSet = player.Template.SpecialPowerShortcutCommandSet.Value;
                 for (int i = 0; i < player.Template.SpecialPowerShortcutButtonCount; i++)
                 {
-                    var commandButton = commandSet.Buttons[i + 1].Value;
+                    if (!commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
+                    {
+                        continue;
+                    }
+
+                    var commandButton = commandButtonReference.Value;
+
                     bool specialPowerAvailable = player.SpecialPowerAvailable(commandButton.SpecialPower.Value);
 
                     var parentControl = controlBar.SpecialPowerBar.Controls[i];

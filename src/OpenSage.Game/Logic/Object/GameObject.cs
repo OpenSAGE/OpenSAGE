@@ -44,14 +44,15 @@ namespace OpenSage.Logic.Object
 
             var gameObjectDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
 
+            // TODO: Is there any valid case where we'd want to allow a game object to be null?
+            if (gameObjectDefinition is null)
+            {
+                return null;
+            }
+
             var gameObject = gameContext.GameObjects.Add(gameObjectDefinition, teamTemplate?.Owner);
             gameObject.TeamTemplate = teamTemplate;
-
-            // TODO: Is there any valid case where we'd want to allow a game object to be null?
-            if (gameObject != null)
-            {
-                gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
-            }
+            gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
 
             return gameObject;
         }
