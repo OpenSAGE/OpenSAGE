@@ -117,6 +117,11 @@ namespace OpenSage.Logic.Object
             return new LogicFrameSpan(left.Value + right.Value);
         }
 
+        public static LogicFrameSpan operator ++(LogicFrameSpan left)
+        {
+            return new LogicFrameSpan(left.Value + 1);
+        }
+
         public static LogicFrameSpan operator *(LogicFrameSpan left, Percentage right)
         {
             return new LogicFrameSpan((uint)MathF.Ceiling(left.Value * (float)right));
@@ -130,6 +135,11 @@ namespace OpenSage.Logic.Object
         public static LogicFrameSpan operator /(LogicFrameSpan left, float right)
         {
             return new LogicFrameSpan((uint)MathF.Ceiling(left.Value / right));
+        }
+
+        public static float operator /(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Value / (float)right.Value;
         }
 
         public static LogicFrameSpan operator /(LogicFrameSpan left, Percentage right)
