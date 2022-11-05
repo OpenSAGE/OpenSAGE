@@ -1023,10 +1023,13 @@ namespace OpenSage.Logic.Object
 
         public bool CanAttackObject(GameObject obj)
         {
-            if (!CanAttack) return false;
+            if (!CanAttack)
+            {
+                return false;
+            }
 
             var combinedWeaponCapabilities = Definition.WeaponSets.Values
-                .SelectMany(x => x.Slots.Values.Select(s => s.Weapon.Value?.AntiMask))
+                .SelectMany(x => x.Slots.Select(s => s?.Weapon.Value?.AntiMask))
                 .Where(f => f.HasValue).Select(f => f.Value).Aggregate((s, t) => s | t);
 
             return combinedWeaponCapabilities.CanAttackObject(obj);

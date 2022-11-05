@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.DataStructures;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
-using OpenSage.Mathematics;
 using FixedMath.NET;
 
 namespace OpenSage.Logic.OrderGenerators
@@ -119,7 +116,7 @@ namespace OpenSage.Logic.OrderGenerators
             if (_worldObject is null)
             {
                 // TODO: should this be floor or ceiling?
-                // TODO: index out of range exception on x coordinate
+                // TODO: index out of range exceptions
                 var terrainImpassable = false; // _game.Scene3D.Terrain.Map.BlendTileData.Impassability[(int) _worldPosition.X, (int) _worldPosition.Y];
                 if (!terrainImpassable)
                 {
@@ -127,8 +124,8 @@ namespace OpenSage.Logic.OrderGenerators
                 }
 
                 if (SelectedUnits.All(u => !u.IsAirborne() &&
-                                           !u.Definition.LocomotorSets.Select(l => l.Locomotor.Value)
-                                               .Any(l => l.Surfaces.Get(Surface.Cliff))))
+                                           !u.Definition.LocomotorSets.Values.SelectMany(t => t.Locomotors).Select(l => l.Value)
+                                               .Any(l => l.Surfaces.HasFlag(Surfaces.Cliff))))
                 {
                     return "GenericInvalid";
                 }
@@ -160,18 +157,21 @@ namespace OpenSage.Logic.OrderGenerators
                 !LocalPlayer.Enemies.Contains(_worldObject.Owner) &&
                 _worldObject.Definition.KindOf.Get(ObjectKinds.Capturable) &&
                 SelectedUnits.Any(u => u.Definition.Behaviors.Values.Any(b =>
-                    b is SpecialAbilityModuleData s && s.SpecialPowerTemplate.EndsWith("CaptureBuilding"))) && captureIsReady)
+                    b.Data.ModuleKinds.HasFlag(ModuleKinds.SpecialPower) && b.Data is SpecialAbilityUpdateModuleData s &&
+                    s.SpecialPowerTemplate.EndsWith("CaptureBuilding"))) && captureIsReady) // todo: who knows if this is right
             {
 
                 return "CaptureBuilding";
             }
 
             if (_worldObject.Definition.Behaviors.Values.FirstOrDefault(b =>
-                b is GarrisonContainModuleData || b is TransportContainModuleData) is OpenContainModuleData g)
+                    b.Data.ModuleKinds.HasFlag(ModuleKinds.Contain) &&
+                b.Data is GarrisonContainModuleData || b.Data is TransportContainModuleData).Data is OpenContainModuleData g)
+                // todo: who knows if this is right
             {
                 // TODO: prevent garrison if object is full
                 const bool garrisonIsFull = false;
-                if (!garrisonIsFull && !_worldObject.Destroyed &&
+                if (!garrisonIsFull && // !_worldObject.Destroyed && // todo: is this not a thing?
                     SelectedUnits.Select(u => u.Definition.KindOf).Any(k => g.AllowInsideKindOf?.Intersects(k) ?? true))
                 {
                     // TODO: this is being returned for the barracks, even when a unit doesn't need to be healed
@@ -270,7 +270,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         public void UpdateDrag(Vector3 position)
         {
-            
+
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
