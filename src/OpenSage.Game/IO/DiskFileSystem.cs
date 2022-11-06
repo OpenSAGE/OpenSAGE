@@ -17,7 +17,7 @@ namespace OpenSage.IO
             string searchPattern,
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var childDirectory = Path.Combine(RootDirectory, directoryPath);
+            var childDirectory = Path.Combine(RootDirectory, NormalizeFilePath(directoryPath));
 
             var childDirectoryInfo = new DirectoryInfo(childDirectory);
             if (!childDirectoryInfo.Exists)
@@ -39,7 +39,7 @@ namespace OpenSage.IO
 
         public override FileSystemEntry GetFile(string filePath)
         {
-            var fullFilePath = Path.Combine(RootDirectory, filePath);
+            var fullFilePath = Path.Combine(RootDirectory, NormalizeFilePath(filePath));
             var fileInfo = new FileInfo(fullFilePath);
             if (!fileInfo.Exists)
             {
