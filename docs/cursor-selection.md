@@ -28,7 +28,7 @@ This is written under the assumption that no special ability is selected, which 
       - Show the **GenericInvalid** cursor
     - Show the **Select** cursor
   - If `structure` has a rally point ability
-    - Show the **RallyPoint** cursor
+    - Show the **SetRallyPoint** cursor
   - Show the **GenericInvalid** cursor
 
 #### `object` is a player-owned `unit`
@@ -36,9 +36,11 @@ This is written under the assumption that no special ability is selected, which 
 - If `target` is terrain (i.e. null)
   - If `terrain` is hidden under the fog of war _or_ if `terrain` is passable (not marked impassable, not water)
     - Show the **Move** cursor (note - no exception for disabled battlebuses)
-  - If `unit` is on the ground (presumably: the active locomotor is a standard locomotor - this includes Raptors at an airfield) _and_ `unit` does _not_ have a cliff locomotor
+  - In Generals: Show the **GenericInvalid** cursor
+  - In Zero Hour:
+    - If any `unit` has cliff locomotor
+      - Show the **Move** cursor (there is a caveat here where GenericInvalid is always shown at the _edge_ of impassable terrain, but I'd speculate that's a bug) 
     - Show the **GenericInvalid** cursor
-  - Show the **Move** cursor (there is a caveat here where GenericInvalid is always shown at the _edge_ of impassable terrain, but I'd speculate that's a bug) (note - no exception for disabled battlebuses)
 
 #### `target` is a game object
 
@@ -55,11 +57,16 @@ This is written under the assumption that no special ability is selected, which 
   - Show the **CaptureBuilding** cursor
 - If `target` supports garrisons _and_ `target` is garrisonable by `unit`
   - If `target` is not full (e.g. barracks/airfield)
-    - Show the **EnterFriendly** cursor
+    - Show the **EnterFriendly** cursor 
 - If `target` is non-enemy structure 
   - If `target` can heal unit
     - If `target` is not full (e.g. barracks) _or_ heal doesn't require garrison (e.g. airfield?)
       - Show the **EnterFriendly** cursor
+    - If `unit` is `supplyCarrier`
+      - if `unit` has supplies _and_ `target` accepts supplies
+        - Show the **EnterFriendly** cursor
+      - If `target`  contains supplies _and_ `unit` is not full of supplies
+        - Show the **EnterFriendly** cursor
   - If `unit` is `dozer` 
     - If `target` is incomplete player structure _and_ `target` is not currently being built by another dozer
       - Show the **ResumeConstruction** cursor
