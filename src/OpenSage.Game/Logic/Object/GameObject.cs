@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -1021,18 +1022,21 @@ namespace OpenSage.Logic.Object
             // TODO: Set _triggered to false for all affected upgrade modules
         }
 
-        public bool CanAttackObject(GameObject obj)
+        public bool CanAttackObject(GameObject obj, [NotNullWhen(true)] out List<WeaponTemplate> validWeapons)
         {
+            validWeapons = null;
+
             if (!CanAttack)
             {
                 return false;
             }
 
-            var combinedWeaponCapabilities = Definition.WeaponSets.Values
-                .SelectMany(x => x.Slots.Select(s => s?.Weapon.Value?.AntiMask))
-                .Where(f => f.HasValue).Select(f => f.Value).Aggregate((s, t) => s | t);
+            validWeapons = Definition.WeaponSets.Values
+                .SelectMany(t => t.Slots.Select(s => s?.Weapon.Value))
+                .Where(w => w?.AntiMask.CanAttackObject(obj) == true)
+                .ToList();
 
-            return combinedWeaponCapabilities.CanAttackObject(obj);
+            return validWeapons.Any();
         }
 
         public bool IsAirborne(float groundDelta = 0.1f)

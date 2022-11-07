@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
@@ -29,21 +30,21 @@ namespace OpenSage.Logic.OrderGenerators
 
         public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime) { }
 
-        private static string GetCursorForForceFire(IReadOnlyCollection<GameObject> selectedUnits, GameObject target)
+        private string GetCursorForForceFire()
         {
-            if (selectedUnits.All(u => u.Definition.KindOf.Get(ObjectKinds.Structure) && u.CanAttack))
+            if (SelectedUnitsIsStructure(out var s) && s.CanAttack)
             {
                 // TODO: check range of target, or range to ground position if target is null
                 const bool targetIsInRange = true;
-                return targetIsInRange ? target is null ? "ForceAttackGround" : "ForceAttackObj" : "GenericInvalid";
+                return targetIsInRange ? _worldObject is null ? "ForceAttackGround" : "ForceAttackObj" : "GenericInvalid";
             }
 
-            if (target is null)
+            if (_worldObject is null)
             {
                 return "ForceAttackGround";
             }
 
-            return selectedUnits.Any(u => u.CanAttackObject(target)) ? "AttackObj" : "GenericInvalid";
+            return AnyUnitCanAttackTarget(_worldObject) ? "AttackObj" : "GenericInvalid";
         }
 
         private static string GetCursorForWaypointModifier()
@@ -72,138 +73,277 @@ namespace OpenSage.Logic.OrderGenerators
 
             if (keyModifiers.HasFlag(KeyModifiers.Ctrl))
             {
-                return GetCursorForForceFire(SelectedUnits, _worldObject);
+                return GetCursorForForceFire();
             }
 
             // no modifier key has been applied
+            // SelectedUnits is player-owned
 
             // TODO: verify a garrisoned civilian structure is in fact player-owned
-            if (SelectedUnits.All(u => u.Definition.KindOf.Get(ObjectKinds.Structure)))
+            if (SelectedUnitsIsStructure(out var s))
             {
-                // the selected object is a player-owned structure
-                if (_worldObject != null)
-                {
-                    if (LocalPlayer.Enemies.Contains(_worldObject.Owner))
-                    {
-                        // TODO: determine if target is in range
-                        const bool targetIsInRange = true;
-                        // TODO: what about a garrisoned palace?
-                        if (targetIsInRange && SelectedUnits.Any(u => u.CanAttackObject(_worldObject)))
-                        {
-                            return "AttackObj";
-                        }
-
-                        return "GenericInvalid";
-                    }
-
-                    return "Select";
-                }
-
-                return "GenericInvalid";
+                return GetCursorForStructureSelected(s);
             }
 
             // the selected object is a player-owned unit (not structure)
-
-            // TODO: check if terrain is under fog of war.
-            const bool terrainIsRevealed = true;
-            if (!terrainIsRevealed)
+            if (!TerrainUnderTargetIsRevealed())
             {
                 // In Zero Hour, if terrain is under fog of war we always return the Move cursor, no matter what
                 // arguably we could improve upon this by looking at the terrain under the cursor, and ignoring any world objects
                 return "Move";
             }
 
-            if (_worldObject is null)
+            // area is not under fog of war
+            if (!TryGetTarget(out var target))
             {
-                // TODO: should this be floor or ceiling?
-                // TODO: index out of range exceptions
-                var terrainImpassable = false; // _game.Scene3D.Terrain.Map.BlendTileData.Impassability[(int) _worldPosition.X, (int) _worldPosition.Y];
-                if (!terrainImpassable)
-                {
-                    return "Move";
-                }
-
-                if (SelectedUnits.All(u => !u.IsAirborne() &&
-                                           !u.Definition.LocomotorSets.Values.SelectMany(t => t.Locomotors).Select(l => l.Value)
-                                               .Any(l => l.Surfaces.HasFlag(Surfaces.Cliff))))
-                {
-                    return "GenericInvalid";
-                }
-
-                return "Move";
+                return GetCursorForTerrainTarget();
             }
 
             // target is some game object
-
-            if (LocalPlayer.Enemies.Contains(_worldObject.Owner))
+            if (TargetIsEnemy(target))
             {
-                // target is enemy
-                // TODO: black lotus hack? check if behaviors contains lotus hack?
-                if (SelectedUnits.Any(u => u.CanAttackObject(_worldObject)))
-                {
-                    return "AttackObj";
-                }
-
-                return "GenericInvalid";
+                return GetCursorForEnemyTarget(target);
             }
 
             // target is not enemy
-
-            // TODO: check if capture ability is ready
-            const bool captureIsReady = true;
-            // TODO: There's probably a much easier way to figure out if a structure is neutral, but c'est la vie
-            if (_worldObject.Owner != LocalPlayer &&
-                !LocalPlayer.Allies.Contains(_worldObject.Owner) &&
-                !LocalPlayer.Enemies.Contains(_worldObject.Owner) &&
-                _worldObject.Definition.KindOf.Get(ObjectKinds.Capturable) &&
-                SelectedUnits.Any(u => u.Definition.Behaviors.Values.Any(b =>
-                    b.Data.ModuleKinds.HasFlag(ModuleKinds.SpecialPower) && b.Data is SpecialAbilityUpdateModuleData s &&
-                    s.SpecialPowerTemplate.EndsWith("CaptureBuilding"))) && captureIsReady) // todo: who knows if this is right
+            if (AnySelectedUnitCanCaptureTarget(target))
             {
-
                 return "CaptureBuilding";
             }
 
-            if (_worldObject.Definition.Behaviors.Values.FirstOrDefault(b =>
-                    b.Data.ModuleKinds.HasFlag(ModuleKinds.Contain) &&
-                b.Data is GarrisonContainModuleData || b.Data is TransportContainModuleData).Data is OpenContainModuleData g)
-                // todo: who knows if this is right
+            if (TargetIsGarrisonable(target, out var containModuleData))
             {
-                // TODO: prevent garrison if object is full
-                const bool garrisonIsFull = false;
-                if (!garrisonIsFull && // !_worldObject.Destroyed && // todo: is this not a thing?
-                    SelectedUnits.Select(u => u.Definition.KindOf).Any(k => g.AllowInsideKindOf?.Intersects(k) ?? true))
-                {
-                    // TODO: this is being returned for the barracks, even when a unit doesn't need to be healed
-                    return "EnterFriendly";
-                }
-
-                return "Select";
-            }
-
-            if (_worldObject.Definition.KindOf.Get(ObjectKinds.Structure))
-            {
-                // TODO: if target can heal unit and isn't full (e.g. barracks, airfield, war factory) show **EnterFriendly**
-                return "Select";
+                return GetCursorForGarrisonableTarget(target, containModuleData);
             }
 
             if (SelectedUnits.Any(u => u.Definition.KindOf.Get(ObjectKinds.Dozer)))
             {
-                if (_worldObject.Definition.KindOf.Get(ObjectKinds.Structure))
+                if (GameObjectIsStructure(target))
                 {
-                    if (_worldObject.BuildProgress < 1f && !_worldObject.IsBeingConstructed())
+                    // todo: command centers that spawn at the beginning of the game spawn with BuildProgress = 0
+                    if (TargetIsPlayerOwned(target) && target.BuildProgress < 1f && !target.IsBeingConstructed())
                     {
                         return "ResumeConstruction";
                     }
 
-                    if (_worldObject.HealthPercentage < Fix64.One)
+                    if (target.HealthPercentage < Fix64.One)
                     {
                         return "GetRepaired";
                     }
                 }
             }
 
+            // TODO: if target can heal unit and isn't full (e.g. barracks, airfield, war factory) show **EnterFriendly**
+
             return "Select";
+        }
+
+        private string GetCursorForStructureSelected(GameObject structure)
+        {
+            // the selected object is a player-owned structure
+            if (!TryGetTarget(out var structureTarget))
+            {
+                if (StructureHasRallyPointAbility(structure))
+                {
+                    return "SetRallyPoint";
+                }
+
+                return "GenericInvalid";
+            }
+
+            // target exists
+            if (!TargetIsEnemy(structureTarget))
+            {
+                return "Select";
+            }
+
+            // target is enemy
+            if (StructureCanAttackTarget(structureTarget))
+            {
+                return "AttackObj";
+            }
+
+            return "GenericInvalid";
+        }
+
+        private string GetCursorForTerrainTarget()
+        {
+            if (!TerrainUnderTargetIsImpassable())
+            {
+                return "Move";
+            }
+
+            // note that in Generals, we always show the Invalid cursor at this point
+            // in Zero hour, we show Move if any unit has a cliff locomotor
+            // terrain is impassable
+            if (AnySelectedUnitCanTraverseCliffs())
+            {
+                return "Move";
+            }
+
+            return "GenericInvalid";
+        }
+
+        private string GetCursorForEnemyTarget(GameObject target)
+        {
+            // target is enemy
+            if (AnyUnitCanAttackTarget(target))
+            {
+                return "AttackObj";
+            }
+
+            // TODO: black lotus/hacker abilities?
+
+            return "GenericInvalid";
+        }
+
+        private string GetCursorForGarrisonableTarget(GameObject target, OpenContainModuleData containModuleData)
+        {
+            if (AnySelectedUnitCanGarrisonTarget(target, containModuleData))
+            {
+                return "EnterFriendly";
+            }
+
+            return "Select";
+        }
+
+        private bool SelectedUnitsIsStructure([NotNullWhen(true)] out GameObject structure)
+        {
+            structure = default;
+
+            if (SelectedUnits.Count > 1)
+            {
+                return false;
+            }
+
+            structure = SelectedUnits.SingleOrDefault(GameObjectIsStructure);
+
+            return structure is not null;
+        }
+
+        private static bool GameObjectIsStructure(GameObject obj)
+        {
+            return obj.Definition.KindOf.Get(ObjectKinds.Structure);
+        }
+
+        // todo
+        private static bool StructureHasRallyPointAbility(GameObject structure)
+        {
+            return true;
+        }
+
+        private bool TryGetTarget(out GameObject target)
+        {
+            target = _worldObject;
+            return target is not null;
+        }
+
+        private bool StructureCanAttackTarget(GameObject target)
+        {
+            // TODO: determine if target is in range
+            const bool targetIsInRange = true; // only matters for structures
+
+            // todo: consider the abilities of the units inside the structure
+            return targetIsInRange && AnyUnitCanAttackTarget(target);
+        }
+
+        private bool AnyUnitCanAttackTarget(GameObject target)
+        {
+            return SelectedUnits.Any(unit => unit.CanAttackObject(target, out _));
+        }
+
+        private bool TargetIsEnemy(GameObject target)
+        {
+            return LocalPlayer.Enemies.Contains(target.Owner);
+        }
+
+        private bool TargetIsFriendly(GameObject target)
+        {
+            return LocalPlayer.Allies.Contains(target.Owner);
+        }
+
+        private bool TargetIsPlayerOwned(GameObject target)
+        {
+            return target.Owner == LocalPlayer;
+        }
+
+        private bool TargetIsNeutral(GameObject target)
+        {
+            return !TargetIsPlayerOwned(target) &&
+                   !TargetIsFriendly(target) &&
+                   !TargetIsEnemy(target);
+        }
+
+        // todo: update when fog of war is added
+        private bool TerrainUnderTargetIsRevealed()
+        {
+            return true;
+        }
+
+        // todo
+        private bool TerrainUnderTargetIsImpassable()
+        {
+            // this throws index out of range exceptions
+            // _game.Scene3D.Terrain.Map.BlendTileData.Impassability[(int) _worldPosition.X, (int) _worldPosition.Y];
+            return false;
+        }
+
+        private bool AnySelectedUnitCanTraverseCliffs()
+        {
+            return SelectedUnits.Any(u =>
+                u.Definition.LocomotorSets.Values
+                    .SelectMany(t => t.Locomotors)
+                    .Select(l => l.Value)
+                    .Any(l => l.Surfaces.HasFlag(Surfaces.Cliff)));
+        }
+
+        private bool AnySelectedUnitCanCapture()
+        {
+            // todo: check if unit capture ability is ready
+            return SelectedUnits.Any(u =>
+                u.Definition.Behaviors.Values.Any(b =>
+                    b.Data.ModuleKinds.HasFlag(ModuleKinds.SpecialPower) &&
+                    b.Data is SpecialAbilityUpdateModuleData s &&
+                    s.SpecialPowerTemplate.EndsWith("CaptureBuilding")));
+        }
+
+        private bool TargetIsCapturable(GameObject target)
+        {
+            return target.Definition.KindOf.Get(ObjectKinds.Capturable) && (TargetIsEnemy(target) || TargetIsNeutral(target));
+        }
+
+        private bool AnySelectedUnitCanCaptureTarget(GameObject target)
+        {
+            return TargetIsCapturable(target) && AnySelectedUnitCanCapture();
+        }
+
+        // todo: what about upgrades like helix or overlord bunker?
+        private static bool TargetIsGarrisonable(GameObject target, [NotNullWhen(true)] out OpenContainModuleData containModuleData)
+        {
+            containModuleData = default;
+            if (target.Definition.Behaviors.Values.FirstOrDefault(b =>
+                        b.Data.ModuleKinds.HasFlag(ModuleKinds.Contain) &&
+                        b.Data is GarrisonContainModuleData || b.Data is TransportContainModuleData)
+                    .Data is OpenContainModuleData data)
+            {
+                containModuleData = data;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool AnySelectedUnitCanGarrisonTarget(GameObject target, OpenContainModuleData garrisonData)
+        {
+            return TargetGarrisonIsNotFull(target) &&
+                   SelectedUnits.Select(u => u.Definition.KindOf)
+                       .Any(k => garrisonData.AllowInsideKindOf?.Intersects(k) ?? true);
+        }
+
+        // todo
+        private bool TargetGarrisonIsNotFull(GameObject target)
+        {
+            return true;
         }
 
         public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
