@@ -44,6 +44,11 @@ namespace OpenSage.Logic.OrderGenerators
                 return "ForceAttackGround";
             }
 
+            if (SelectedUnits.Count == 1 && SelectedUnits.Single() == _worldObject)
+            {
+                return "Select";
+            }
+
             return AnyUnitCanAttackTarget(_worldObject) ? "AttackObj" : "GenericInvalid";
         }
 
@@ -249,7 +254,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         private bool AnyUnitCanAttackTarget(GameObject target)
         {
-            return SelectedUnits.Any(unit => unit.CanAttackObject(target, out _));
+            return SelectedUnits.Any(unit => unit != target && unit.CanAttackObject(target, out _));
         }
 
         private bool TargetIsEnemy(GameObject target)

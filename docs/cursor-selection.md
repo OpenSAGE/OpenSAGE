@@ -84,10 +84,16 @@ This section assumes `object` is player-owned. If not, the standard cursor selec
 
 ### Ctrl
 
+- If `target` is self
+  - Show the **Select** cursor
+- If `target` is in `unit` group
+  - Process rules for all other units in `unit` group
 - If `target` is airborne
-  - If `object` (or garrisons) can attack airborne targets
+  - _From testing, the real rules here are complex and obtuse, with many exceptions with units like stealth bombers, comanches, or ambulances selected. It seems best to just ignore them._
+  - If any of `object` (or garrisons) can attack airborne targets
     - Show the **AttackObj** cursor
   - Show the **GenericInvalid** cursor
+- Show the **AttackObj** cursor
 
 #### `Target` is (on) the ground
 
