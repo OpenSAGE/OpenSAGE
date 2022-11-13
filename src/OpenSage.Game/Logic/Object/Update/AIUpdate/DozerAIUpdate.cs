@@ -1,12 +1,14 @@
-﻿using System.Numerics;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DozerAIUpdate : AIUpdate
+    public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
     {
         private readonly DozerAndWorkerState _state = new();
+
+        private GameObject _buildTarget;
 
         internal DozerAIUpdate(GameObject gameObject, DozerAIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
@@ -22,6 +24,49 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             _state.Persist(reader);
+        }
+
+        public void SetBuildTarget(GameObject gameObject)
+        {
+            // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
+            // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
+            SetTargetPoint(gameObject.Translation);
+            _buildTarget = gameObject;
+        }
+
+        protected override void ArrivedAtDestination()
+        {
+            base.ArrivedAtDestination();
+
+            if (_buildTarget is not null)
+            {
+                _buildTarget.Construct();
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, true);
+            }
+        }
+
+        internal override void SetTargetPoint(Vector3 targetPoint)
+        {
+            base.SetTargetPoint(targetPoint);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
+            _buildTarget?.PauseConstruction();
+            ClearBuildTarget();
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            base.Update(context);
+
+            if (_buildTarget is { BuildProgress: >= 1 })
+            {
+                ClearBuildTarget();
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
+            }
+        }
+
+        private void ClearBuildTarget()
+        {
+            _buildTarget = null;
         }
     }
 
@@ -88,7 +133,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceNoBuild and VoiceTaskComplete 
+    /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceNoBuild and VoiceTaskComplete
     /// within UnitSpecificSounds section of the object.
     /// Requires Kindof = DOZER.
     /// </summary>

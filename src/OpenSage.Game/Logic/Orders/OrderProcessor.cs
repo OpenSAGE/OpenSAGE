@@ -86,7 +86,11 @@ namespace OpenSage.Logic.Orders
                             var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                             gameObject.Owner = player;
                             gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                            gameObject.StartConstruction();
+
+                            gameObject.PrepareConstruction();
+
+                            var dozer = player.SelectedUnits.SingleOrDefault(u => u.Definition.KindOf.Get(ObjectKinds.Dozer));
+                            (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(gameObject); // todo: I don't love this cast; it would be nice to get rid of it
                         }
                         break;
                     case OrderType.CancelBuild:
