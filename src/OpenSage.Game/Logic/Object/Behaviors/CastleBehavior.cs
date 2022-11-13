@@ -71,7 +71,8 @@ namespace OpenSage.Logic.Object
 
                     if (!instant)
                     {
-                        baseObject.StartConstruction();
+                        baseObject.PrepareConstruction();
+                        baseObject.Construct();
                         baseObject.BuildProgress = 0.0f;
                     }
 

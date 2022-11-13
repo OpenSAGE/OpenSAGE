@@ -54,6 +54,13 @@ namespace OpenSage.Input.Cursors
                 var cursorFilePath = Path.Combine(cursorDirectory, cursorFileName);
                 var cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
 
+                // a few cursors are in all lowercase instead of their normal PascalCase naming
+                if (cursorEntry is null)
+                {
+                    cursorFilePath = Path.Combine(cursorDirectory, cursorFileName.ToLower());
+                    cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
+                }
+
                 _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window?.WindowScale ?? 1.0f));
             }
 

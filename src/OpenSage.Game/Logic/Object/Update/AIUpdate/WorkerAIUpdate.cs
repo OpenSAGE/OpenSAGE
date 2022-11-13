@@ -1,3 +1,4 @@
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -5,9 +6,10 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class WorkerAIUpdate : SupplyAIUpdate
+    public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
-        private readonly WorkerAIUpdateModuleData _moduleData;
+        private WorkerAIUpdateModuleData _moduleData;
+        private GameObject _buildTarget;
 
         private readonly DozerAndWorkerState _state = new();
 
@@ -20,6 +22,44 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
         }
+
+        #region Dozer stuff
+
+        public void SetBuildTarget(GameObject gameObject)
+        {
+            // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
+            // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
+            SetTargetPoint(gameObject.Translation);
+            CurrentSupplyTarget = null;
+            SupplyGatherState = SupplyGatherStates.Default;
+            _buildTarget = gameObject;
+        }
+
+        internal override void SetTargetPoint(Vector3 targetPoint)
+        {
+            base.SetTargetPoint(targetPoint);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
+            _buildTarget?.PauseConstruction();
+            ClearBuildTarget();
+        }
+
+        protected override void ArrivedAtDestination()
+        {
+            base.ArrivedAtDestination();
+
+            if (_buildTarget is not null)
+            {
+                _buildTarget.Construct();
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, true);
+            }
+        }
+
+        private void ClearBuildTarget()
+        {
+            _buildTarget = null;
+        }
+
+        #endregion
 
         internal override void ClearConditionFlags()
         {
@@ -126,18 +166,26 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-
-            switch (SupplyGatherState)
+            if (_buildTarget != null && _buildTarget.BuildProgress >= 1)
             {
-                case SupplyGatherStates.Default:
-                    if (!isMoving)
-                    {
-                        SupplyGatherState = SupplyGatherStateToResume;
+                ClearBuildTarget();
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
+            }
+            else
+            {
+                var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+
+                switch (SupplyGatherState)
+                {
+                    case SupplyGatherStates.Default:
+                        if (!isMoving)
+                        {
+                            SupplyGatherState = SupplyGatherStateToResume;
+                            break;
+                        }
+                        _waitUntil = context.LogicFrame + _moduleData.BoredTime;
                         break;
-                    }
-                    _waitUntil = context.LogicFrame + _moduleData.BoredTime;
-                    break;
+                }
             }
         }
 
@@ -270,7 +318,7 @@ namespace OpenSage.Logic.Object
         {
             public override void Persist(StatePersister reader)
             {
-                
+
             }
         }
 
@@ -278,7 +326,7 @@ namespace OpenSage.Logic.Object
         {
             public override void Persist(StatePersister reader)
             {
-                
+
             }
         }
 
@@ -292,7 +340,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceSupply, VoiceNoBuild, and 
+    /// Allows the use of VoiceRepair, VoiceBuildResponse, VoiceSupply, VoiceNoBuild, and
     /// VoiceTaskComplete within UnitSpecificSounds section of the object.
     /// Requires Kindof = DOZER.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
@@ -120,7 +120,10 @@ namespace OpenSage.Logic.OrderGenerators
                 _previewObject.Geometry.BoundingSphereRadius,
                 new PartitionQueries.CollidesWithObjectQuery(_previewObject));
 
-            return !existingObjects.Any();
+            // as long as the items in our way are not structures and not owned by our enemy, we can build here
+            return !_scene.Quadtree.FindIntersecting(_previewObject).Any(u =>
+                u.Definition.KindOf.Get(ObjectKinds.Structure) ||
+                _scene.LocalPlayer.Enemies.Contains(u.Owner));
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)

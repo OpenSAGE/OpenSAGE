@@ -1,4 +1,3 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
@@ -183,6 +182,10 @@ namespace OpenSage.Logic.Object
             MoveToNextWaypointOrStop();
         }
 
+        protected virtual void ArrivedAtDestination()
+        {
+        }
+
         internal void Stop()
         {
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
@@ -212,6 +215,7 @@ namespace OpenSage.Logic.Object
             }
             else
             {
+                ArrivedAtDestination();
                 Stop();
             }
         }
@@ -439,7 +443,7 @@ namespace OpenSage.Logic.Object
         };
 
         /// <summary>
-        /// Allows the use of TurretMoveStart and TurretMoveLoop within the UnitSpecificSounds 
+        /// Allows the use of TurretMoveStart and TurretMoveLoop within the UnitSpecificSounds
         /// section of the object.
         /// </summary>
         public TurretAIUpdateModuleData Turret { get; private set; }
