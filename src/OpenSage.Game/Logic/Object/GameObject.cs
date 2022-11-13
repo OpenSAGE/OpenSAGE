@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -321,7 +321,7 @@ namespace OpenSage.Logic.Object
 
         internal Weapon CurrentWeapon => _weaponSet.CurrentWeapon;
 
-        private LogicFrame ConstructionStart { get; set; }
+        private LogicFrameSpan ConstructionProgress { get; set; }
 
         public LogicFrame? LifeTime { get; set; }
 
@@ -602,6 +602,8 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(in TimeInterval time)
         {
+            HandleConstruction();
+
             if (_objectMoved)
             {
                 UpdateColliders();
@@ -720,10 +722,9 @@ namespace OpenSage.Logic.Object
         private void HandleConstruction()
         {
             // Check if the unit is being constructed
-            if (IsBeingConstructed())
+            if (IsUnderActiveConstruction())
             {
-                var passed = GameContext.GameLogic.CurrentFrame - ConstructionStart;
-                BuildProgress = Math.Clamp(passed.Value / (float)Definition.BuildTime.Value, 0.0f, 1.0f);
+                BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -768,16 +769,34 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        internal void StartConstruction()
+        /// <summary>
+        /// Called when a foundation has been placed, but construction has not yet begun
+        /// </summary>
+        internal void PrepareConstruction()
         {
             if (IsStructure)
             {
-                ModelConditionFlags.SetAll(false);
-                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+                ClearModelConditionFlags();
+
+                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
-                ConstructionStart = GameContext.GameLogic.CurrentFrame;
             }
+        }
+
+        /// <summary>
+        /// Called when construction has <i>actually</i> begun
+        /// </summary>
+        internal void Construct()
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, false);
+        }
+
+        internal void PauseConstruction()
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
+            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
         }
 
         internal void FinishConstruction()
@@ -799,6 +818,11 @@ namespace OpenSage.Logic.Object
             return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed) ||
                    ModelConditionFlags.Get(ModelConditionFlag.AwaitingConstruction) ||
                    ModelConditionFlags.Get(ModelConditionFlag.PartiallyConstructed);
+        }
+
+        public bool IsUnderActiveConstruction()
+        {
+            return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed);
         }
 
         internal void UpdateDamageFlags(Fix64 healthPercentage)
@@ -845,8 +869,6 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            HandleConstruction();
-
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
         }
 
