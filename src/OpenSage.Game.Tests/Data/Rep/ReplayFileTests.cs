@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.IO;
 using Xunit;
@@ -170,6 +169,18 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
             Assert.Equal(207, replayFile.Header.NumTimecodes);
             Assert.Equal(273, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_014_GatherDumpSupplies()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(2806, replayFile.Header.NumTimecodes);
+            Assert.Equal(3320, replayFile.Chunks.Count);
 
             WriteOrders(replayFile);
         }
