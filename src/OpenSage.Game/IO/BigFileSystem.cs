@@ -49,7 +49,7 @@ namespace OpenSage.IO
 
             if (directoryPath != "")
             {
-                var directoryParts = directoryPath.Split(Path.DirectorySeparatorChar);
+                var directoryParts = NormalizeFilePath(directoryPath).Split(Path.DirectorySeparatorChar);
                 for (var i = 0; i < directoryParts.Length; i++)
                 {
                     if (!bigDirectory.Directories.TryGetValue(directoryParts[i], out bigDirectory))
@@ -91,7 +91,7 @@ namespace OpenSage.IO
 
         public override FileSystemEntry GetFile(string filePath)
         {
-            var directoryParts = filePath.Split(Path.DirectorySeparatorChar);
+            var directoryParts = NormalizeFilePath(filePath).Split(Path.DirectorySeparatorChar);
 
             var bigDirectory = _rootDirectory;
             for (var i = 0; i < directoryParts.Length - 1; i++)
