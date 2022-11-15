@@ -181,8 +181,8 @@ namespace OpenSage.Logic.Object
             { "AltTurret", (parser, x) => { x.AltTurret = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
             { "AltTurretPitch", (parser, x) => { x.AltTurretPitch = parser.ParseAssetReference(); x.OnNonAnimationPropertySet(); } },
 
-            { "HideSubObject", (parser, x) => { x.HideSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); } },
-            { "ShowSubObject", (parser, x) => { x.ShowSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); } },
+            { "HideSubObject", (parser, x) => { x.HideSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); x.OnAnimationPropertySet(); } },
+            { "ShowSubObject", (parser, x) => { x.ShowSubObject = parser.ParseAssetReferenceArray(); x.OnNonAnimationPropertySet(); x.OnAnimationPropertySet(); } },
             { "ParticleSysBone", (parser, x) => { x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)); x.OnNonAnimationPropertySet(); } },
 
             { "Animation", (parser, x) => { x.ParseAnimation(parser, false); x.OnAnimationPropertySet(); } },
