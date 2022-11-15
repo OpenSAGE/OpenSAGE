@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
 
         private SupplyAIUpdateModuleData _moduleData;
 
-        protected GameObject _currentSupplySource;
+        public GameObject CurrentSupplySource { get; set; }
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
         protected LogicFrame _waitUntil;
         protected int _numBoxes;
@@ -117,22 +117,22 @@ namespace OpenSage.Logic.Object
                         break;
                     }
 
-                    if (_currentSupplySource == null
+                    if (CurrentSupplySource == null
                         || (_currentSourceDockUpdate != null && !_currentSourceDockUpdate.HasBoxes()))
                     {
-                        _currentSupplySource = FindClosestSupplyWarehouse(context);
+                        CurrentSupplySource = FindClosestSupplyWarehouse(context);
                     }
 
-                    if (_currentSupplySource == null)
+                    if (CurrentSupplySource == null)
                     {
                         break;
                     }
 
-                    _currentSourceDockUpdate = _currentSupplySource.FindBehavior<SupplyWarehouseDockUpdate>();
+                    _currentSourceDockUpdate = CurrentSupplySource.FindBehavior<SupplyWarehouseDockUpdate>();
 
-                    var direction = Vector3.Normalize(_currentSupplySource.Translation - GameObject.Translation);
+                    var direction = Vector3.Normalize(CurrentSupplySource.Translation - GameObject.Translation);
 
-                    SetTargetPoint(_currentSupplySource.Translation - direction * GetHarvestActivationRange());
+                    SetTargetPoint(CurrentSupplySource.Translation - direction * GetHarvestActivationRange());
                     SupplyGatherState = SupplyGatherStates.ApproachingSupplySource;
                     break;
 
@@ -145,11 +145,11 @@ namespace OpenSage.Logic.Object
                     break;
 
                 case SupplyGatherStates.RequestingSupplies:
-                    var boxesAvailable = SupplySourceHasBoxes(context, _currentSourceDockUpdate, _currentSupplySource);
+                    var boxesAvailable = SupplySourceHasBoxes(context, _currentSourceDockUpdate, CurrentSupplySource);
 
                     if (!boxesAvailable)
                     {
-                        _currentSupplySource = null;
+                        CurrentSupplySource = null;
                         if (_numBoxes == 0)
                         {
                             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
@@ -168,7 +168,6 @@ namespace OpenSage.Logic.Object
                     }
 
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
                     SetActionConditionFlags();
                     _waitUntil = context.LogicFrame + GetPickingUpTime();
                     SupplyGatherState = SupplyGatherStates.PickingUpSupplies;
@@ -178,6 +177,8 @@ namespace OpenSage.Logic.Object
                     if (context.LogicFrame >= _waitUntil)
                     {
                         _numBoxes++;
+                        GameObject.Supply = _numBoxes;
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, true);
                         SupplyGatherState = SupplyGatherStates.RequestingSupplies;
                     }
                     break;
@@ -226,7 +227,8 @@ namespace OpenSage.Logic.Object
                 case SupplyGatherStates.StartDumpingSupplies:
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                     SupplyGatherState = SupplyGatherStates.DumpingSupplies;
-                    _waitUntil = context.LogicFrame + _moduleData.SupplyCenterActionDelay;
+                    // todo: this might not be entirely accurate since partial loads can be deposited if unloading is manually aborted early
+                    _waitUntil = context.LogicFrame + _moduleData.SupplyCenterActionDelay * _numBoxes;
                     break;
 
                 case SupplyGatherStates.DumpingSupplies:
@@ -238,6 +240,7 @@ namespace OpenSage.Logic.Object
                         var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
                         _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
 
+                        GameObject.Supply = _numBoxes;
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Carrying, false);
                     }

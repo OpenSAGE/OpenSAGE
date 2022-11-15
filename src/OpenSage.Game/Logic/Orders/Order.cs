@@ -219,5 +219,14 @@ namespace OpenSage.Logic.Orders
 
             return order;
         }
+
+        public static Order CreateSupplyGatherDump(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.GatherDumpSupplies);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
     }
 }

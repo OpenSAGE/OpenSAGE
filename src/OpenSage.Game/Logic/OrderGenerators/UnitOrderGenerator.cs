@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -45,12 +45,26 @@ namespace OpenSage.Logic.OrderGenerators
                 // TODO: Should take allies into account.
                 if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                 {
+                    if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Definition.KindOf.Get(ObjectKinds.Harvester)) &&
+                        _worldObject.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                    {
+                        // always take this order, even if the harvester is full
+                        return "EnterFriendly";
+                    }
+
                     return "AttackObj";
                 }
 
                 if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
                 {
                     // TODO: Check if transport is full.
+                    return "EnterFriendly";
+                }
+
+                if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Definition.KindOf.Get(ObjectKinds.Harvester)) &&
+                         _game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Supply > 0) &&
+                         _game.Scene3D.LocalPlayer.SupplyManager.Contains(_worldObject))
+                {
                     return "EnterFriendly";
                 }
 
@@ -94,9 +108,17 @@ namespace OpenSage.Logic.OrderGenerators
                     // TODO: Should take allies into account.
                     if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                     {
-                        // TODO: handle hordes properly
-                        unit.OnLocalAttack(_game.Audio);
-                        order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, false);
+                        if (unit.Definition.KindOf.Get(ObjectKinds.Harvester) && _worldObject.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                        {
+                            // always take this order, even if the harvester is full
+                            order = Order.CreateSupplyGatherDump(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
+                        }
+                        else
+                        {
+                            // TODO: handle hordes properly
+                            unit.OnLocalAttack(_game.Audio);
+                            order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, false);
+                        }
                     }
                     else if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
                     {
@@ -104,6 +126,10 @@ namespace OpenSage.Logic.OrderGenerators
                         // VoiceEnter
                         // TODO: Also need to check TransportSlotCount, Slots, etc.
                         order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
+                    }
+                    else if (unit.Definition.KindOf.Get(ObjectKinds.Harvester) && unit.Supply > 0 && scene.LocalPlayer.SupplyManager.Contains(_worldObject))
+                    {
+                        order = Order.CreateSupplyGatherDump(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
                     }
                     else
                     {

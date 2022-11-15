@@ -318,7 +318,31 @@ namespace OpenSage.Logic.Orders
 
                             break;
                         }
+                    case OrderType.GatherDumpSupplies:
+                        var supplyPointId = order.Arguments[0].Value.Integer;
+                        var supplyPoint = _game.Scene3D.GameObjects.GetObjectById((uint) supplyPointId);
 
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            var behavior = unit.FindBehavior<SupplyAIUpdate>();
+
+                            if (behavior is null)
+                            {
+                                continue;
+                            }
+
+                            if (supplyPoint.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                            {
+                                behavior.CurrentSupplySource = supplyPoint;
+                                behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
+                            }
+                            else // if it's not a supply source, it's a supply center
+                            {
+                                behavior.CurrentSupplyTarget = supplyPoint;
+                                behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplyTarget;
+                            }
+                        }
+                        break;
                     case OrderType.Checksum:
                         break;
 

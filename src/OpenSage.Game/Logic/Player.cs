@@ -725,6 +725,11 @@ namespace OpenSage.Logic
             _supplyWarehouses.Remove(supplyWarehouse.ID);
         }
 
+        public bool Contains(GameObject supplyCenter)
+        {
+            return _supplyCenters.Contains(supplyCenter.ID);
+        }
+
         public GameObject FindClosestSupplyCenter(GameObject supplyGatherer)
         {
             GameObject closestSupplyCenter = null;
