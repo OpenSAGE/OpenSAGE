@@ -59,7 +59,21 @@ This is written under the assumption that no special ability is selected, which 
   - If `target` is not full (e.g. barracks/airfield)
     - Show the **EnterFriendly** cursor 
 - If `target` is non-enemy structure 
-  - If `target` can heal unit
+  - If `unit` is `dozer` 
+    - If `target` is incomplete player structure _and_ `target` is not currently being built by another dozer
+      - Show the **ResumeConstruction** cursor
+    - If `target` needs healing
+      - Show the **GetRepaired** cursor
+  - If `unit` is damaged _and_ `target` can heal `unit`
+    - If `unit` is infantry _and_ `target` is player-owned _and_ not full barracks
+      - Show the **EnterFriendly** cursor
+    - If `unit` is vehicle _and_ `target` is friendly
+      - Show the **EnterFriendly** cursor
+    - If `unit` is aircraft _and_ `unit` is airborne
+      - If `unit` is plane _and_ `target` has open hangars
+        - Show the **EnterFriendly** cursor
+      - If `unit` is helicopter
+        - Show the **EnterFriendly** cursor
     - If `target` is not full (e.g. barracks) _or_ heal doesn't require garrison (e.g. airfield?)
       - Show the **EnterFriendly** cursor
     - If `unit` is `supplyCarrier`
@@ -67,11 +81,7 @@ This is written under the assumption that no special ability is selected, which 
         - Show the **EnterFriendly** cursor
       - If `target`  contains supplies _and_ `unit` is not full of supplies
         - Show the **EnterFriendly** cursor
-  - If `unit` is `dozer` 
-    - If `target` is incomplete player structure _and_ `target` is not currently being built by another dozer
-      - Show the **ResumeConstruction** cursor
-    - If `target` needs healing
-      - Show the **GetRepaired** cursor
+
 - Show the **Select** cursor
 
 ## Modifier keys
