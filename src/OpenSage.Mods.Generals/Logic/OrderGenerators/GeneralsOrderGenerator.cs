@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,6 +10,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Generals.Logic.OrderGenerators;
 
@@ -138,7 +138,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
                 }
             }
 
-            if (TargetCanHealAnySelectedUnit())
+            if (StructureCanHealAnySelectedUnit(target))
             {
                 return Cursors.EnterFriendly;
             }
@@ -147,20 +147,21 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return Cursors.Select;
     }
 
-    private bool TargetCanHealAnySelectedUnit()
+    private bool StructureCanHealAnySelectedUnit(GameObject structure)
     {
-        // todo
-        return false;
-    }
+        var allKinds = SelectedUnits
+            .Where(u => u.Health < Fix64.One)
+            .Select(u => u.Definition.KindOf)
+            .Aggregate(new BitArray<ObjectKinds>(), (s, t) => s | t);
 
-    private bool AnySelectedUnitNeedsHealing()
-    {
-        return SelectedUnits.Any(u => u.Health < Fix64.One);
+        return StructureCanHealVehicles(structure) && allKinds.Get(ObjectKinds.Vehicle) ||
+               StructureCanHealInfantry(structure) && allKinds.Get(ObjectKinds.Infantry) ||
+               StructureCanHealAircraft(structure) && allKinds.Get(ObjectKinds.Aircraft);
     }
 
     private bool StructureCanHealVehicles(GameObject structure)
     {
-        return structure.FindBehavior<RepairDockUpdate>() is not null;
+        return TargetIsFriendly(structure) && structure.FindBehavior<RepairDockUpdate>() is not null;
     }
 
     private bool StructureCanHealInfantry(GameObject structure)
@@ -169,10 +170,10 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
                TargetGarrisonIsNotFull(structure);
     }
 
-    private bool StructureCanHealAircraft()
+    private bool StructureCanHealAircraft(GameObject structure)
     {
-        // todo: not sure how this worked
-        throw new NotImplementedException();
+        // todo: doesn't account for parking slots for fixed-wings and I'm not sure this is even correct for rotary-wings either
+        return TargetIsFriendly(structure) && structure.Definition.KindOf.Get(ObjectKinds.FSAirfield);
     }
 
     private string GetCursorForAttackingStructure(GameObject structure)
@@ -276,10 +277,9 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return obj.Definition.KindOf.Get(ObjectKinds.Structure);
     }
 
-    // todo
     private static bool StructureHasRallyPointAbility(GameObject structure)
     {
-        return true;
+        return structure.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint);
     }
 
     private bool TryGetTarget(out GameObject target)

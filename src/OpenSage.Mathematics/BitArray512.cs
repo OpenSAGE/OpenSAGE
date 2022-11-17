@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Numerics;
@@ -225,6 +225,21 @@ namespace OpenSage.Mathematics
                 _a6 = _a6 & other._a6,
                 _a7 = _a7 & other._a7,
                 _setBits = -1
+            };
+        }
+
+        public static BitArray512 operator |(in BitArray512 left, in BitArray512 right)
+        {
+            return new BitArray512(Math.Max(left.Length, right.Length)) {
+                _a0 = left._a0 | right._a0,
+                _a1 = left._a1 | right._a1,
+                _a2 = left._a2 | right._a2,
+                _a3 = left._a3 | right._a3,
+                _a4 = left._a4 | right._a4,
+                _a5 = left._a5 | right._a5,
+                _a6 = left._a6 | right._a6,
+                _a7 = left._a7 | right._a7,
+                _setBits = -1,
             };
         }
 
