@@ -119,9 +119,9 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
             return Cursors.CaptureBuilding;
         }
 
-        if (TargetIsGarrisonable(target, out var containModuleData))
+        if (TargetIsGarrisonable(target))
         {
-            return GetCursorForGarrisonableTarget(target, containModuleData);
+            return GetCursorForGarrisonableTarget(target);
         }
 
         if (GameObjectIsStructure(target))
@@ -250,14 +250,9 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return Cursors.GenericInvalid;
     }
 
-    private string GetCursorForGarrisonableTarget(GameObject target, OpenContainModuleData containModuleData)
+    private string GetCursorForGarrisonableTarget(GameObject target)
     {
-        if (AnySelectedUnitCanGarrisonTarget(target))
-        {
-            return Cursors.EnterFriendly;
-        }
-
-        return Cursors.Select;
+        return AnySelectedUnitCanGarrisonTarget(target) ? Cursors.EnterFriendly : Cursors.Select;
     }
 
     private bool SelectedUnitsIsStructure([NotNullWhen(true)] out GameObject structure)
@@ -372,19 +367,9 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
     }
 
     // todo: what about upgrades like helix or overlord bunker?
-    private static bool TargetIsGarrisonable(GameObject target, [NotNullWhen(true)] out OpenContainModuleData containModuleData)
+    private static bool TargetIsGarrisonable(GameObject target)
     {
-        containModuleData = default;
-        if (target.Definition.Behaviors.Values.FirstOrDefault(b =>
-                    b.Data.ModuleKinds.HasFlag(ModuleKinds.Contain) &&
-                    b.Data is GarrisonContainModuleData || b.Data is TransportContainModuleData)
-                .Data is OpenContainModuleData data)
-        {
-            containModuleData = data;
-            return true;
-        }
-
-        return false;
+        return target.FindBehavior<OpenContainModule>() is not null;
     }
 
     private bool AnySelectedUnitCanGarrisonTarget(GameObject target)
@@ -432,11 +417,11 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
                     unit.OnLocalAttack(_game.Audio);
                     order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, false);
                 }
-                else if (_worldObject.Definition.KindOf.Get(ObjectKinds.Transport))
+                else if (AnySelectedUnitCanGarrisonTarget(_worldObject))
                 {
                     // SoundEnter
                     // VoiceEnter
-                    // TODO: Also need to check TransportSlotCount, Slots, etc.
+                    // todo: limit order to only those which can enter
                     order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
                 }
                 else
