@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,6 +12,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
 
 namespace OpenSage.Mods.Generals.Logic.OrderGenerators;
 
@@ -330,12 +332,14 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return true;
     }
 
-    // todo
     private bool TerrainUnderTargetIsImpassable()
     {
-        // this throws index out of range exceptions
-        // _game.Scene3D.Terrain.Map.BlendTileData.Impassability[(int) _worldPosition.X, (int) _worldPosition.Y];
-        return false;
+        var borderWidth = _game.Scene3D.Terrain.Map.HeightMapData.BorderWidth;
+        var xSize = _game.Scene3D.Terrain.Map.BlendTileData.Impassability.GetLength(0) - 1;
+        var ySize = _game.Scene3D.Terrain.Map.BlendTileData.Impassability.GetLength(1) - 1;
+        var xCoord = (int)Math.Max(_worldPosition.X / HeightMap.HorizontalScale + borderWidth, 0);
+        var yCoord = (int)Math.Max(_worldPosition.Y / HeightMap.HorizontalScale + borderWidth, 0);
+        return _game.Scene3D.Terrain.Map.BlendTileData.Impassability[Math.Min(xCoord, xSize), Math.Min(yCoord, ySize)];
     }
 
     private bool AnySelectedUnitCanTraverseCliffs()

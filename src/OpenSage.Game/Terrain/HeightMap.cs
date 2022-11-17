@@ -8,7 +8,7 @@ namespace OpenSage.Terrain
 {
     public sealed class HeightMap
     {
-        internal const int HorizontalScale = 10;
+        public const int HorizontalScale = 10;
 
         private readonly float _verticalScale;
 
