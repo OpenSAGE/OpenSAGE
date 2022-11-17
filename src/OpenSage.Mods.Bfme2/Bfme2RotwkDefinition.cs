@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
@@ -6,6 +7,7 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using System.IO;
+using OpenSage.Logic.OrderGenerators;
 
 namespace OpenSage.Mods.Bfme2
 {
@@ -46,6 +48,8 @@ namespace OpenSage.Mods.Bfme2
         }
 
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
+
+        public IOrderGenerator CreateNewOrderGenerator(Game game) => new UnitOrderGenerator(game); // todo: bfme2rotwkordergenerator
 
         public string LauncherExecutable => "lotrbfme2ep1.exe";
     }

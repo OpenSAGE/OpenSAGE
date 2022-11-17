@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
@@ -143,7 +143,7 @@ namespace OpenSage.Logic
                 }
                 else
                 {
-                    Game.OrderGenerator.ActiveGenerator = new UnitOrderGenerator(Game);
+                    Game.OrderGenerator.ActiveGenerator = Game.Definition.CreateNewOrderGenerator(Game);
                 }
 
                 if (playAudio)
@@ -185,7 +185,7 @@ namespace OpenSage.Logic
             player.DeselectUnits();
         }
 
-        internal GameObject FindClosestObject(Vector2 point)
+        public GameObject FindClosestObject(Vector2 point)
         {
             var ray = Game.Scene3D.Camera.ScreenPointToRay(point);
 

@@ -5,6 +5,7 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Logic.OrderGenerators;
 
 namespace OpenSage
 {
@@ -20,7 +21,7 @@ namespace OpenSage
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
-        
+
         IMainMenuSource MainMenu { get; }
         IControlBarSource ControlBar { get; }
         ICommandListOverlaySource CommandListOverlay { get; }
@@ -34,5 +35,7 @@ namespace OpenSage
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
 
         bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
+
+        public IOrderGenerator CreateNewOrderGenerator(Game game);
     }
 }

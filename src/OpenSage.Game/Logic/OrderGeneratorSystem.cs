@@ -32,7 +32,7 @@ namespace OpenSage.Logic
         public OrderGeneratorSystem(Game game)
             : base(game)
         {
-            _activeGenerator = new UnitOrderGenerator(game);
+            _activeGenerator = game.Definition.CreateNewOrderGenerator(game);
         }
 
         private Vector3? _worldPosition;
@@ -77,7 +77,7 @@ namespace OpenSage.Logic
 
                         if (success.Exit)
                         {
-                            ActiveGenerator = new UnitOrderGenerator(Game);
+                            ActiveGenerator = Game.Definition.CreateNewOrderGenerator(Game);
                         }
 
                         return true;
@@ -168,7 +168,7 @@ namespace OpenSage.Logic
 
         public void CancelOrderGenerator()
         {
-            ActiveGenerator = new UnitOrderGenerator(Game);
+            ActiveGenerator = Game.Definition.CreateNewOrderGenerator(Game);
         }
     }
 }

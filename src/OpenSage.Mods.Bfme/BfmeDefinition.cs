@@ -7,6 +7,7 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Mods.Bfme.Gui;
 using System.IO;
+using OpenSage.Logic.OrderGenerators;
 
 namespace OpenSage.Mods.Bfme
 {
@@ -45,6 +46,8 @@ namespace OpenSage.Mods.Bfme
         }
 
         public static BfmeDefinition Instance { get; } = new BfmeDefinition();
+
+        public IOrderGenerator CreateNewOrderGenerator(Game game) => new UnitOrderGenerator(game); // todo: bfmeordergenerator
 
         public string LauncherExecutable => "lotrbfme.exe";
     }

@@ -6,7 +6,9 @@ using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Gui.Wnd;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Mods.Generals.Gui;
+using OpenSage.Mods.Generals.Logic.OrderGenerators;
 
 namespace OpenSage.Mods.Generals
 {
@@ -54,6 +56,9 @@ namespace OpenSage.Mods.Generals
         }
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();
+
+        public IOrderGenerator CreateNewOrderGenerator(Game game) => new GeneralsOrderGenerator(game); // todo: zerohourordergenerator?
+
         public string LauncherExecutable => "generals.exe";
     }
 }
