@@ -39,7 +39,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
     {
         if (SelectedUnitsIsStructure(out var s) && s.CanAttack)
         {
-            return GetCursorForAttackingStructure(s);
+            return GetCursorForForceAttackingStructure(s);
         }
 
         if (_worldObject is null)
@@ -178,7 +178,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return TargetIsFriendly(structure) && structure.Definition.KindOf.Get(ObjectKinds.FSAirfield);
     }
 
-    private string GetCursorForAttackingStructure(GameObject structure)
+    private string GetCursorForForceAttackingStructure(GameObject structure)
     {
         return TargetIsInRangeOfStructure(structure)
             ? _worldObject is null ? Cursors.ForceAttackGround : Cursors.ForceAttackObj
@@ -287,11 +287,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
 
     private bool StructureCanAttackTarget(GameObject target)
     {
-        // TODO: determine if target is in range
-        const bool targetIsInRange = true; // only matters for structures
-
-        // todo: consider the abilities of the units inside the structure
-        return targetIsInRange && AnyUnitCanAttackTarget(target);
+        return TargetIsInRangeOfStructure(target) && AnyUnitCanAttackTarget(target);
     }
 
     private bool AnyUnitCanAttackTarget(GameObject target)
