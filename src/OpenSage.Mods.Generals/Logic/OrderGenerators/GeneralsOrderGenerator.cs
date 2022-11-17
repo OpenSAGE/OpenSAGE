@@ -44,21 +44,21 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
 
         if (_worldObject is null)
         {
-            return Cursors.ForceAttackGround;
+            return GeneralsCursors.ForceAttackGround;
         }
 
         if (SelectedUnits.Count == 1 && SelectedUnits.Single() == _worldObject)
         {
-            return Cursors.Select;
+            return GeneralsCursors.Select;
         }
 
-        return AnyUnitCanAttackTarget(_worldObject) ? Cursors.AttackObj : Cursors.GenericInvalid;
+        return AnyUnitCanAttackTarget(_worldObject) ? GeneralsCursors.AttackObj : GeneralsCursors.GenericInvalid;
     }
 
     private static string GetCursorForWaypointModifier()
     {
         // pretty much just always return waypoint as long as we own the unit selected
-        return Cursors.Waypoint;
+        return GeneralsCursors.Waypoint;
     }
 
     public string GetCursor(KeyModifiers keyModifiers)
@@ -68,8 +68,8 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
                                           selectedUnits.All(u => u.Owner != LocalPlayer)))
         {
             return _worldObject != null
-                ? Cursors.Select // TODO: Maybe shouldn't have this here.
-                : Cursors.Arrow;
+                ? GeneralsCursors.Select // TODO: Maybe shouldn't have this here.
+                : GeneralsCursors.Arrow;
         }
 
         // the local player has selected unit(s), and they are the owner of those unit(s)
@@ -98,7 +98,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         {
             // In Zero Hour, if terrain is under fog of war we always return the Move cursor, no matter what
             // arguably we could improve upon this by looking at the terrain under the cursor, and ignoring any world objects
-            return Cursors.Move;
+            return GeneralsCursors.Move;
         }
 
         // area is not under fog of war
@@ -116,7 +116,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         // target is not enemy
         if (AnySelectedUnitCanCaptureTarget(target))
         {
-            return Cursors.CaptureBuilding;
+            return GeneralsCursors.CaptureBuilding;
         }
 
         if (TargetIsGarrisonable(target))
@@ -131,22 +131,22 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
                 // todo: command centers that spawn at the beginning of the game spawn with BuildProgress = 0
                 if (TargetIsPlayerOwned(target) && target.BuildProgress < 1f && !target.IsBeingConstructed())
                 {
-                    return Cursors.ResumeConstruction;
+                    return GeneralsCursors.ResumeConstruction;
                 }
 
                 if (target.HealthPercentage < Fix64.One)
                 {
-                    return Cursors.GetRepaired; // has priority over units garrisoning structure
+                    return GeneralsCursors.GetRepaired; // has priority over units garrisoning structure
                 }
             }
 
             if (StructureCanHealAnySelectedUnit(target))
             {
-                return Cursors.EnterFriendly;
+                return GeneralsCursors.EnterFriendly;
             }
         }
 
-        return Cursors.Select;
+        return GeneralsCursors.Select;
     }
 
     private bool StructureCanHealAnySelectedUnit(GameObject structure)
@@ -181,8 +181,8 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
     private string GetCursorForForceAttackingStructure(GameObject structure)
     {
         return TargetIsInRangeOfStructure(structure)
-            ? _worldObject is null ? Cursors.ForceAttackGround : Cursors.ForceAttackObj
-            : Cursors.GenericInvalid;
+            ? _worldObject is null ? GeneralsCursors.ForceAttackGround : GeneralsCursors.ForceAttackObj
+            : GeneralsCursors.GenericInvalid;
     }
 
     private bool TargetIsInRangeOfStructure(GameObject structure)
@@ -198,32 +198,32 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         {
             if (StructureHasRallyPointAbility(structure))
             {
-                return Cursors.SetRallyPoint;
+                return GeneralsCursors.SetRallyPoint;
             }
 
-            return Cursors.GenericInvalid;
+            return GeneralsCursors.GenericInvalid;
         }
 
         // target exists
         if (!TargetIsEnemy(structureTarget))
         {
-            return Cursors.Select;
+            return GeneralsCursors.Select;
         }
 
         // target is enemy
         if (StructureCanAttackTarget(structureTarget))
         {
-            return Cursors.AttackObj;
+            return GeneralsCursors.AttackObj;
         }
 
-        return Cursors.GenericInvalid;
+        return GeneralsCursors.GenericInvalid;
     }
 
     private string GetCursorForTerrainTarget()
     {
         if (!TerrainUnderTargetIsImpassable())
         {
-            return Cursors.Move;
+            return GeneralsCursors.Move;
         }
 
         // note that in Generals, we always show the Invalid cursor at this point
@@ -231,10 +231,10 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         // terrain is impassable
         if (AnySelectedUnitCanTraverseCliffs())
         {
-            return Cursors.Move;
+            return GeneralsCursors.Move;
         }
 
-        return Cursors.GenericInvalid;
+        return GeneralsCursors.GenericInvalid;
     }
 
     private string GetCursorForEnemyTarget(GameObject target)
@@ -242,17 +242,17 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         // target is enemy
         if (AnyUnitCanAttackTarget(target))
         {
-            return Cursors.AttackObj;
+            return GeneralsCursors.AttackObj;
         }
 
         // TODO: black lotus/hacker abilities?
 
-        return Cursors.GenericInvalid;
+        return GeneralsCursors.GenericInvalid;
     }
 
     private string GetCursorForGarrisonableTarget(GameObject target)
     {
-        return AnySelectedUnitCanGarrisonTarget(target) ? Cursors.EnterFriendly : Cursors.Select;
+        return AnySelectedUnitCanGarrisonTarget(target) ? GeneralsCursors.EnterFriendly : GeneralsCursors.Select;
     }
 
     private bool SelectedUnitsIsStructure([NotNullWhen(true)] out GameObject structure)
@@ -450,7 +450,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
 }
 
 // these are all of the cursors that were loaded into MouseCursors when launching Generals
-internal static class Cursors
+internal static class GeneralsCursors
 {
     public const string Normal = "Normal";
     public const string Arrow = "Arrow";
