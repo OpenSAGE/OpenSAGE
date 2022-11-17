@@ -10,6 +10,10 @@ namespace OpenSage.Logic.Object
         private readonly Vector3[] _positions = new Vector3[120];
         private bool _unknown3;
 
+        public GarrisonContain(GarrisonContainModuleData moduleData) : base(moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -45,8 +49,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object 
-    /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
+    /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object
+    /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use
     /// of the GARRISONED Model ModelConditionState.
     /// </summary>
     public class GarrisonContainModuleData : OpenContainModuleData
@@ -63,7 +67,7 @@ namespace OpenSage.Logic.Object
                 { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
                 { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) }
             });
-        
+
         public bool MobileGarrison { get; private set; }
         public InitialRoster InitialRoster { get; private set; }
         public bool ImmuneToClearBuildingAttacks { get; private set; }
@@ -79,7 +83,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new GarrisonContain();
+            return new GarrisonContain(this);
         }
     }
 

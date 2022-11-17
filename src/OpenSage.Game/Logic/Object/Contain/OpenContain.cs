@@ -17,6 +17,40 @@ namespace OpenSage.Logic.Object
         private readonly List<OpenContainSomething> _unknownList = new();
         private int _unknownInt;
 
+        private readonly OpenContainModuleData _moduleData;
+        private readonly List<GameObject> _contained;
+        private int _availableSlots;
+
+        protected OpenContainModule(OpenContainModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            _contained = new List<GameObject>();
+            _availableSlots = _moduleData.TotalSlots;
+        }
+
+        public bool CanAddContained(GameObject toBeContained)
+        {
+            var neededSlots = toBeContained.Definition.TransportSlotCount;
+            var allowedInside = (toBeContained.Definition.KindOf & (_moduleData.AllowInsideKindOf ?? new BitArray<ObjectKinds>())).AnyBitSet;
+            var forbiddenInside = (toBeContained.Definition.KindOf & (_moduleData.ForbidInsideKindOf ?? new BitArray<ObjectKinds>())).AnyBitSet;
+
+            return allowedInside && !forbiddenInside && _availableSlots >= neededSlots;
+        }
+
+        public void AddContained(GameObject contained)
+        {
+            if (!CanAddContained(contained))
+            {
+                return;
+            }
+
+            _contained.Add(contained);
+            _availableSlots -= contained.Definition.TransportSlotCount;
+
+            contained.Hidden = true;
+            contained.IsSelectable = false;
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -103,6 +137,7 @@ namespace OpenSage.Logic.Object
             { "ShouldDrawPips", (parser, x) => x.ShouldDrawPips = parser.ParseBoolean() },
         };
 
+        public virtual int TotalSlots => ContainMax;
         public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
         public BitArray<ObjectKinds> ForbidInsideKindOf { get; private set; }
         public int ContainMax { get; private set; }

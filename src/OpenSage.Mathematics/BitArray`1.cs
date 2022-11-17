@@ -117,6 +117,11 @@ namespace OpenSage.Mathematics
             return new BitArray<TEnum>(left._data | right._data);
         }
 
+        public static BitArray<TEnum> operator &(BitArray<TEnum> left, BitArray<TEnum> right)
+        {
+            return new BitArray<TEnum>(left._data.And(right._data));
+        }
+
         public string DisplayName
         {
             get

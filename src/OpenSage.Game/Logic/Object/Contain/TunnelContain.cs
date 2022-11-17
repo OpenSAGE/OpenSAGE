@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -7,6 +8,10 @@ namespace OpenSage.Logic.Object
     {
         private bool _unknown1;
         private bool _unknown2;
+
+        public TunnelContain(TunnelContainModuleData moduleData) : base(moduleData)
+        {
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -20,8 +25,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Tunnel contain limit is special case global logic defined by 
-    /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of 
+    /// Tunnel contain limit is special case global logic defined by
+    /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of
     /// <see cref="ObjectDefinition.SoundEnter"/> and <see cref="ObjectDefinition.SoundExit"/>.
     /// </summary>
     public sealed class TunnelContainModuleData : GarrisonContainModuleData
@@ -41,6 +46,9 @@ namespace OpenSage.Logic.Object
                 { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
                 { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
             });
+
+        // todo: per above, this should come from GameData.MaxTunnelCapacity
+        public override int TotalSlots => throw new NotImplementedException();
 
         public int TimeForFullHeal { get; private set; }
 
@@ -70,7 +78,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TunnelContain();
+            return new TunnelContain(this);
         }
     }
 }

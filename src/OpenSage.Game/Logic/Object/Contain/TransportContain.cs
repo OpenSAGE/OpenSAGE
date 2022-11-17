@@ -8,31 +8,10 @@ namespace OpenSage.Logic.Object
 {
     public class TransportContain : OpenContainModule
     {
-        private readonly TransportContainModuleData _moduleData;
-        private readonly List<GameObject> _contained;
-
         private uint _unknownFrame;
 
-        internal TransportContain(TransportContainModuleData moduleData)
+        internal TransportContain(TransportContainModuleData moduleData) : base(moduleData)
         {
-            _moduleData = moduleData;
-            _contained = new List<GameObject>();
-        }
-
-        public void AddContained(GameObject contained)
-        {
-            if (_contained.Count >= _moduleData.Slots)
-            {
-                return;
-            }
-
-            // TODO: Check AllowInsideKindOf
-            // TODO: Check contained.Definition.TransportSlotCount
-
-            _contained.Add(contained);
-
-            contained.Hidden = true;
-            contained.IsSelectable = false;
         }
 
         internal override void Load(StatePersister reader)
@@ -112,6 +91,8 @@ namespace OpenSage.Logic.Object
                 { "ConditionForEntry", (parser, x) => x.ConditionForEntry = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") }
             });
 
+        public override int TotalSlots => Slots;
+
         public bool PassengersAllowedToFire { get; private set; }
         public int Slots { get; private set; }
         public int HealthRegenPercentPerSecond { get; private set; }
@@ -120,7 +101,7 @@ namespace OpenSage.Logic.Object
         public bool BurnedDeathToUnits { get; private set; }
 
         public int ExitDelay { get; private set; }
-        
+
         public bool GoAggressiveOnExit { get; private set; }
         public int DoorOpenTime { get; private set; }
         public bool ScatterNearbyOnExit { get; private set; }

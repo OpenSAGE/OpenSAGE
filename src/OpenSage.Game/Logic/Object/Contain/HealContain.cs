@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object
 {
     public sealed class HealContain : OpenContainModule
     {
+        public HealContain(HealContainModuleData moduleData) : base(moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -31,7 +35,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new HealContain();
+            return new HealContain(this);
         }
     }
 }

@@ -167,7 +167,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
     private bool StructureCanHealInfantry(GameObject structure)
     {
         return TargetIsPlayerOwned(structure) && structure.FindBehavior<HealContain>() is not null &&
-               TargetGarrisonIsNotFull(structure);
+               AnySelectedUnitCanGarrisonTarget(structure);
     }
 
     private bool StructureCanHealAircraft(GameObject structure)
@@ -250,7 +250,7 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
 
     private string GetCursorForGarrisonableTarget(GameObject target, OpenContainModuleData containModuleData)
     {
-        if (AnySelectedUnitCanGarrisonTarget(target, containModuleData))
+        if (AnySelectedUnitCanGarrisonTarget(target))
         {
             return Cursors.EnterFriendly;
         }
@@ -383,17 +383,11 @@ internal sealed class GeneralsOrderGenerator : IOrderGenerator
         return false;
     }
 
-    private bool AnySelectedUnitCanGarrisonTarget(GameObject target, OpenContainModuleData garrisonData)
+    private bool AnySelectedUnitCanGarrisonTarget(GameObject target)
     {
-        return TargetGarrisonIsNotFull(target) &&
-               SelectedUnits.Select(u => u.Definition.KindOf)
-                   .Any(k => garrisonData.AllowInsideKindOf?.Intersects(k) ?? true);
-    }
+        var behavior = target.FindBehavior<OpenContainModule>();
 
-    // todo
-    private bool TargetGarrisonIsNotFull(GameObject target)
-    {
-        return true;
+        return behavior is not null && SelectedUnits.Any(behavior.CanAddContained);
     }
 
     public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
