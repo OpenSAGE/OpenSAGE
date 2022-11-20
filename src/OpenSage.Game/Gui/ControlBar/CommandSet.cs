@@ -21,11 +21,12 @@ namespace OpenSage.Gui.ControlBar
         };
 
         // These are laid out like this:
-        // -------------------------------
-        // | 01 | 03 | 05 | 07 | 09 | 11 |
-        // -------------------------------
-        // | 02 | 04 | 06 | 08 | 10 | 12 |
-        // -------------------------------
+        //  [         generals          ] [zh]
+        // ------------------------------------
+        // | 01 | 03 | 05 | 07 | 09 | 11 | 13 |
+        // ------------------------------------
+        // | 02 | 04 | 06 | 08 | 10 | 12 | 14 |
+        // ------------------------------------
         public Dictionary<int, LazyAssetReference<CommandButton>> Buttons { get; } = new Dictionary<int, LazyAssetReference<CommandButton>>();
 
         [AddedIn(SageGame.Bfme2)]

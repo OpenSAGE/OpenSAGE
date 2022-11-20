@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -142,21 +142,18 @@ namespace OpenSage.Logic.Object
             _activeAnimationState = animationState;
 
             var animationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
-            if (animationBlock != null)
+            var anim = animationBlock?.Animation?.Value;
+            //Check if the animation does really exist
+            if (anim != null)
             {
-                var anim = animationBlock.Animation.Value;
-                //Check if the animation does really exist
-                if (anim != null)
-                {
-                    var flags = animationState.Flags;
-                    var mode = animationBlock.AnimationMode;
-                    var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
-                    modelInstance.AnimationInstances.Add(animationInstance);
-                    animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
-                }
+                var flags = animationState.Flags;
+                var mode = animationBlock.AnimationMode;
+                var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
+                modelInstance.AnimationInstances.Add(animationInstance);
+                animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
             }
 
-            if (animationState != null && animationState.Script != null)
+            if (animationState.Script != null)
             {
                 _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
