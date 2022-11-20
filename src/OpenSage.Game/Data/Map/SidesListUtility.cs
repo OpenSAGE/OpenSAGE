@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Scb;
@@ -132,12 +132,12 @@ namespace OpenSage.Data.Map
             }
 
             // Setup player relationships.
-            var playerAllies = new string[playerSettings.Length];
-            var playerEnemies = new string[playerSettings.Length];
+            var playerAllies = new List<string>[playerSettings.Length];
+            var playerEnemies = new List<string>[playerSettings.Length];
             for (var i = 0; i < playerSettings.Length; i++)
             {
-                playerAllies[i] = "";
-                playerEnemies[i] = "";
+                playerAllies[i] = new List<string>();
+                playerEnemies[i] = new List<string>();
             }
             for (var i = 0; i < playerSettings.Length; i++)
             {
@@ -146,22 +146,22 @@ namespace OpenSage.Data.Map
                 for (var j = i + 1; j < playerSettings.Length; j++)
                 {
                     var innerPlayer = playerSettings[j];
-                    if (outerPlayer.Team == innerPlayer.Team && outerPlayer.Team != 0)
+                    if (outerPlayer.Team == innerPlayer.Team && outerPlayer.Team != -1) // -1 is team None
                     {
-                        playerAllies[i] += mapPlayers[j + 2].Properties["playerName"].Value + " ";
-                        playerAllies[j] += mapPlayers[i + 2].Properties["playerName"].Value + " ";
+                        playerAllies[i].Add(mapPlayers[j + 2].Properties["playerName"].Value.ToString());
+                        playerAllies[j].Add(mapPlayers[i + 2].Properties["playerName"].Value.ToString());
                     }
                     else
                     {
-                        playerEnemies[i] += mapPlayers[j + 2].Properties["playerName"].Value + " ";
-                        playerEnemies[j] += mapPlayers[i + 2].Properties["playerName"].Value + " ";
+                        playerEnemies[i].Add(mapPlayers[j + 2].Properties["playerName"].Value.ToString());
+                        playerEnemies[j].Add(mapPlayers[i + 2].Properties["playerName"].Value.ToString());
                     }
                 }
             }
             for (var i = 0; i < playerSettings.Length; i++)
             {
-                mapPlayers[i + 2].Properties.AddAsciiString("playerAllies", playerAllies[i]);
-                mapPlayers[i + 2].Properties.AddAsciiString("playerEnemies", playerEnemies[i]);
+                mapPlayers[i + 2].Properties.AddAsciiString("playerAllies", string.Join(' ', playerAllies[i]));
+                mapPlayers[i + 2].Properties.AddAsciiString("playerEnemies", string.Join(' ', playerEnemies[i]));
             }
 
             var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
