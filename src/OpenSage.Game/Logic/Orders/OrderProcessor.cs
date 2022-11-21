@@ -331,7 +331,7 @@ namespace OpenSage.Logic.Orders
                                 continue;
                             }
 
-                            if (supplyPoint.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                            if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
                             {
                                 behavior.CurrentSupplySource = supplyPoint;
                                 behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;

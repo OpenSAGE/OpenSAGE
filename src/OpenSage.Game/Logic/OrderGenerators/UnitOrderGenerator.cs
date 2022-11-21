@@ -45,8 +45,8 @@ namespace OpenSage.Logic.OrderGenerators
                 // TODO: Should take allies into account.
                 if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                 {
-                    if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Definition.KindOf.Get(ObjectKinds.Harvester)) &&
-                        _worldObject.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                    if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.IsKindOf(ObjectKinds.Harvester)) &&
+                        _worldObject.IsKindOf(ObjectKinds.SupplySource))
                     {
                         // always take this order, even if the harvester is full
                         return "EnterFriendly";
@@ -61,7 +61,7 @@ namespace OpenSage.Logic.OrderGenerators
                     return "EnterFriendly";
                 }
 
-                if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Definition.KindOf.Get(ObjectKinds.Harvester)) &&
+                if (_game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.IsKindOf(ObjectKinds.Harvester)) &&
                          _game.Scene3D.LocalPlayer.SelectedUnits.Any(u => u.Supply > 0) &&
                          _game.Scene3D.LocalPlayer.SupplyManager.Contains(_worldObject))
                 {
@@ -108,7 +108,7 @@ namespace OpenSage.Logic.OrderGenerators
                     // TODO: Should take allies into account.
                     if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                     {
-                        if (unit.Definition.KindOf.Get(ObjectKinds.Harvester) && _worldObject.Definition.KindOf.Get(ObjectKinds.SupplySource))
+                        if (unit.IsKindOf(ObjectKinds.Harvester) && _worldObject.IsKindOf(ObjectKinds.SupplySource))
                         {
                             // always take this order, even if the harvester is full
                             order = Order.CreateSupplyGatherDump(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
@@ -127,7 +127,7 @@ namespace OpenSage.Logic.OrderGenerators
                         // TODO: Also need to check TransportSlotCount, Slots, etc.
                         order = Order.CreateEnter(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
                     }
-                    else if (unit.Definition.KindOf.Get(ObjectKinds.Harvester) && unit.Supply > 0 && scene.LocalPlayer.SupplyManager.Contains(_worldObject))
+                    else if (unit.IsKindOf(ObjectKinds.Harvester) && unit.Supply > 0 && scene.LocalPlayer.SupplyManager.Contains(_worldObject))
                     {
                         order = Order.CreateSupplyGatherDump(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID);
                     }
