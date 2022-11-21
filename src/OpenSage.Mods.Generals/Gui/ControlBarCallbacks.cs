@@ -10,6 +10,8 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     public static class ControlBarCallbacks
     {
+        private const string GeneralsExpPointsWnd = "GeneralsExpPoints.wnd";
+
         public static void W3DCommandBarBackgroundDraw(Control control, DrawingContext2D drawingContext)
         {
 
@@ -29,8 +31,15 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.PushWindow(Path.Combine("Menus", "QuitMenu.wnd"));
                             break;
                         case "ControlBar.wnd:ButtonGeneral":
-                            var window = context.WindowManager.PushWindow("GeneralsExpPoints.wnd");
-                            GeneralsExpPointsCallbacks.SetWindow(window);
+                            if (context.WindowManager.TopWindow?.Name == GeneralsExpPointsWnd) {
+                                GeneralsExpPointsCallbacks.SetWindow(null);
+                                context.WindowManager.PopWindow();
+                            } else {
+                                var window = context.WindowManager.PushWindow(GeneralsExpPointsWnd);
+                                window.Name = GeneralsExpPointsWnd;
+                                GeneralsExpPointsCallbacks.SetWindow(window);
+                            }
+
                             break;
                     }
                     break;

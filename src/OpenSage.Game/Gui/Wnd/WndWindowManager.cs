@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
@@ -18,6 +17,8 @@ namespace OpenSage.Gui.Wnd
 
         public WindowTransitionManager TransitionManager { get; }
         public Control FocussedControl { get; private set; }
+
+        public Window TopWindow => WindowStack.Count > 0 ? WindowStack.Peek() : null;
 
         public WndWindowManager(Game game)
         {
