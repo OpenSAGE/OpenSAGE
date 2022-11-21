@@ -195,7 +195,6 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     case OrderType.SetSelection:
-                        // TODO: First argument is an unknown boolean.
                         try
                         {
                             var objectIds = order.Arguments.Skip(1)
@@ -203,7 +202,7 @@ namespace OpenSage.Logic.Orders
                                 .Select(_game.Scene3D.GameObjects.GetObjectById)
                                 .ToArray();
 
-                            _game.Selection.SetSelectedObjects(player, objectIds);
+                            _game.Selection.SetSelectedObjects(player, objectIds, order.Arguments[0].Value.Boolean);
                         }
                         catch (Exception e)
                         {
