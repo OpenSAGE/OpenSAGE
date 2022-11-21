@@ -27,6 +27,10 @@ namespace OpenSage.Tools.BigEditor.UI
         private string _searchText;
         private float _scrollY;
 
+        private BigArchiveMode? _openMode;
+
+        private bool CanModify => _openMode == BigArchiveMode.Update || _openMode == BigArchiveMode.Create;
+
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public MainForm(GraphicsDevice gd, ImGuiRenderer ren)
@@ -104,10 +108,18 @@ namespace OpenSage.Tools.BigEditor.UI
                 {
                     if (ImGui.MenuItem("Open...", "Ctrl+O", false, true))
                     {
+                        _openMode = BigArchiveMode.Update;
                         wasOpenClicked = true;
                     }
+
+                    if (ImGui.MenuItem("Open (read only)...")) {
+                        _openMode = BigArchiveMode.Read;
+                        wasOpenClicked = true;
+                    }
+
                     if (ImGui.MenuItem("Close", null, false, _bigArchive != null))
                     {
+                        _openMode = null;
                         Reset();
                     }
 
@@ -129,12 +141,12 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.Separator();
 
-                    if (ImGui.MenuItem("Import Directory", "Ctrl+Shift+I", false, _bigArchive != null))
+                    if (ImGui.MenuItem("Import Directory", "Ctrl+Shift+I", false, _bigArchive != null && CanModify))
                     {
                         wasImportDirectoryClicked = true;
                     }
 
-                    if (ImGui.MenuItem("Import File...", "Ctrl+I", false, _bigArchive != null))
+                    if (ImGui.MenuItem("Import File...", "Ctrl+I", false, _bigArchive != null && CanModify))
                     {
                         wasImportFileClicked = true;
                     }
@@ -218,7 +230,7 @@ namespace OpenSage.Tools.BigEditor.UI
             {
                 try
                 {
-                    _bigArchive = AddDisposable(new BigArchive(result.FileName, BigArchiveMode.Update));
+                    _bigArchive = AddDisposable(new BigArchive(result.FileName, _openMode.Value));
                 }
                 catch (Exception e)
                 {
@@ -317,13 +329,16 @@ namespace OpenSage.Tools.BigEditor.UI
                         shouldOpenSaveDialog = true;
                     }
 
-                    if (ImGui.Selectable("Delete"))
+                    if (CanModify)
                     {
-                        entry.Delete();
-                        UpdateFilesList();
-                        _currentFile = -1;
-                        _currentFileName = "";
-                        _currentView = null;
+                        if (ImGui.Selectable("Delete", false))
+                        {
+                            entry.Delete();
+                            UpdateFilesList();
+                            _currentFile = -1;
+                            _currentFileName = "";
+                            _currentView = null;
+                        }
                     }
 
                     ImGui.EndPopup();
