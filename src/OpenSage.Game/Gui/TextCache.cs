@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using ImGuiNET;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Veldrid;
-using Veldrid.ImageSharp;
 using SizeF = OpenSage.Mathematics.SizeF;
 
 namespace OpenSage.Gui
@@ -36,7 +37,7 @@ namespace OpenSage.Gui
 
             public override bool Equals(object obj)
             {
-                return obj is TextKey && Equals((TextKey) obj);
+                return obj is TextKey key && Equals(key);
             }
 
             public bool Equals(TextKey other)
@@ -65,8 +66,36 @@ namespace OpenSage.Gui
             }
         }
 
+        private class TextCacheEntry : IDisposable
+        {
+            public readonly Texture Texture;
+            public TimeSpan LastUsed { get; private set;}
+
+            public TextCacheEntry(Texture texture, TimeSpan now)
+            {
+                Texture = texture;
+                LastUsed = now;
+            }
+
+            public bool IsExpired(TimeSpan now)
+            {
+                // TODO: Make this configurable.
+                return now - LastUsed > TimeSpan.FromSeconds(5);
+            }
+
+            public void MarkUsed(TimeSpan now)
+            {
+                LastUsed = now;
+            }
+
+            public void Dispose()
+            {
+                Texture.Dispose();
+            }
+        }
+
         private readonly GraphicsDevice _graphicsDevice;
-        private readonly Dictionary<TextKey, Texture> _cache;
+        private readonly Dictionary<TextKey, TextCacheEntry> _cache;
 
         private struct ImageKey
         {
@@ -80,7 +109,7 @@ namespace OpenSage.Gui
         {
             _graphicsDevice = graphicsDevice;
 
-            _cache = new Dictionary<TextKey, Texture>();
+            _cache = new Dictionary<TextKey, TextCacheEntry>();
 
             _textImagePool = AddDisposable(new ResourcePool<Image<Bgra32>, ImageKey>(key =>
                 new Image<Bgra32>(key.Width, key.Height)));
@@ -91,16 +120,43 @@ namespace OpenSage.Gui
             Font font,
             TextAlignment textAlignment,
             in ColorRgbaF color,
-            in SizeF size)
+            in SizeF size,
+            in TimeInterval now)
         {
             var key = new TextKey(text, font, textAlignment, color, size);
 
-            if (!_cache.TryGetValue(key, out var result))
+            if (_cache.TryGetValue(key, out var result))
             {
-                _cache.Add(key, result = AddDisposable(CreateTexture(key)));
+                result.MarkUsed(now.TotalTime);
+                return result.Texture;
             }
 
-            return result;
+            var texture = CreateTexture(key);
+            var cacheEntry = AddDisposable(new TextCacheEntry(texture, now.TotalTime));
+            _cache.Add(key, cacheEntry);
+            return texture;
+        }
+
+        public void ClearExpiredEntries(in TimeInterval now)
+        {
+            var removedEntries = new List<TextKey>();
+
+            foreach (var (key, value) in _cache)
+            {
+                if (value.IsExpired(now.TotalTime))
+                {
+                    // We need to copy the value into a local variable because
+                    // we can't pass a foreach iteration variable as a ref
+                    var cacheValue = value;
+                    RemoveAndDispose(ref cacheValue);
+                    removedEntries.Add(key);
+                }
+            }
+
+            foreach (var key in removedEntries)
+            {
+                _cache.Remove(key);
+            }
         }
 
         private unsafe Texture CreateTexture(TextKey key)
@@ -195,6 +251,18 @@ namespace OpenSage.Gui
             return texture;
         }
 
-        // TODO: Remove textures that haven't been used for a few frames.
+        internal void DrawDiagnostic(ref object selectedObject)
+        {
+            ImGui.BeginChild("text cache", Vector2.Zero, true, 0);
+
+            foreach (var ((key, entry), index) in _cache.WithIndex())
+            {
+                if (ImGui.Selectable($"{key.Text} {entry.Texture.Width}x{entry.Texture.Height}##{index}", selectedObject == entry.Texture)) {
+                    selectedObject = entry.Texture;
+                }
+            }
+
+            ImGui.EndChild();
+        }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Numerics;
-using OpenSage.Data.Sav;
-using OpenSage.FileFormats;
+﻿using System.Numerics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
@@ -93,7 +90,9 @@ namespace OpenSage.Scripting
             _drawingContext.Begin(
                 commandList,
                 _game.AssetStore.LoadContext.StandardGraphicsResources.LinearClampSampler,
-                outputSize);
+                outputSize,
+                // TODO: Pass correct time here
+                TimeInterval.Zero);
 
             switch (FadeType)
             {

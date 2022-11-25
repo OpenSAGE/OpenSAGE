@@ -68,6 +68,7 @@ namespace OpenSage.Diagnostics
             AddView(new PreviewView(context));
             AddView(new CameraView(context));
             AddView(new PartitionView(context));
+            AddView(new TextCacheView(context));
 
             if (File.Exists(IniFileName))
             {
