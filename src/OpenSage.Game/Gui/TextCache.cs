@@ -139,7 +139,7 @@ namespace OpenSage.Gui
 
         public void ClearExpiredEntries(in TimeInterval now)
         {
-            var removedEntries = new List<TextKey>();
+            var removedEntries = new List<TextKey>(0);
 
             foreach (var (key, value) in _cache)
             {
@@ -164,11 +164,14 @@ namespace OpenSage.Gui
             var size = key.Size;
             var actualFont = key.Font;
 
-            var image = _textImagePool.Acquire(new ImageKey
-            {
-                Width = (int) MathF.Ceiling(size.Width),
-                Height = (int) MathF.Ceiling(size.Height)
-            });
+            var image = _textImagePool.Acquire(
+                new ImageKey
+                {
+                    Width = (int) MathF.Ceiling(size.Width),
+                    Height = (int) MathF.Ceiling(size.Height)
+                },
+                out var isNew
+            );
 
             image.Mutate(x =>
             {
@@ -179,9 +182,11 @@ namespace OpenSage.Gui
 
                 var color = key.Color;
 
-                // Clear image to transparent.
-                // TODO: Don't need to do this for a newly created image.
-                x.Clear(Color.Transparent);
+                // Clear re-used image buffers
+                if (!isNew)
+                {
+                    x.Clear(Color.Transparent);
+                }
 
                 try
                 {

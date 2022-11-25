@@ -185,6 +185,11 @@ namespace OpenSage.Gui
                 return;
             }
 
+            if (color.A == 0)
+            {
+                return;
+            }
+
             var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 

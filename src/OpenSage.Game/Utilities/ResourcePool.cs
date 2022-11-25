@@ -20,7 +20,7 @@ namespace OpenSage.Utilities
             _leased = new Dictionary<TKey, List<T>>();
         }
 
-        public T Acquire(in TKey key)
+        public T Acquire(in TKey key, out bool isNew)
         {
             if (!_available.TryGetValue(key, out var available))
             {
@@ -31,11 +31,13 @@ namespace OpenSage.Utilities
             if (available.Count == 0)
             {
                 result = AddDisposable(_creator(key));
+                isNew = true;
             }
             else
             {
                 result = available[available.Count - 1];
                 available.RemoveAt(available.Count - 1);
+                isNew = false;
             }
 
             if (!_leased.TryGetValue(key, out var leased))
