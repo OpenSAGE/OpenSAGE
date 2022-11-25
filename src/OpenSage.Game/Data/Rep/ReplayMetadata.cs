@@ -82,7 +82,7 @@ namespace OpenSage.Data.Rep
                         {
                             result.Slots[i] = ReplaySlot.Parse(slots[i]);
                         }
-                        
+
                         break;
 
                     default:
@@ -127,6 +127,7 @@ namespace OpenSage.Data.Rep
                     case 'C':
                         return ReplaySlotType.Computer;
                     case 'X':
+                    case 'O': // slot is open, but still empty (multiplayer online)
                         return ReplaySlotType.Empty;
                     default:
                         throw new InvalidDataException();

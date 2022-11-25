@@ -5,7 +5,8 @@
         EndGame = 27,
 
         // Selection
-        SetSelection = 1001,
+        SetSelection = 1001, // Boolean:True, ObjectId:658 // first parameter is whether to clear existing selection (false in case of shift+click)
+        SelectAcrossScreen = 1002, // Boolean:false, ObjectId:671, ... (more ids if more objects are selected) // occurs when selecting a unit and then pressing 'e'
         ClearSelection = 1003,
 
         // Group management
@@ -33,7 +34,7 @@
 
         SpecialPower = 1040,
         SpecialPowerAtLocation = 1041,
-        SpecialPowerAtObject = 1042,
+        SpecialPowerAtObject = 1042, // Integer:29, ObjectId:199, Integer:323, ObjectId:0
         SetRallyPoint = 1043,
         PurchaseScience = 1044,
         BeginUpgrade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593), also for flashbangs in the barracks (ObjectId:678,Integer:1594)
@@ -67,7 +68,6 @@
         Unknown9 = 9,
 
 
-        Unknown1002 = 1002,
 
         Unknown1004 = 1004,
         Unknown1005 = 1005,
@@ -83,7 +83,7 @@
         Unknown1035 = 1035,
         Unknown1036 = 1036,
         Unknown1037 = 1037,
-        Unknown1038 = 1038,
+        UseClearMines = 1038, // Integer:0, Position:<1154.5593, 505.26968, 18.75003>, Integer:2147483647, ObjectId:0
         Unknown1039 = 1039,
         Unknown1040 = 1040,
         Unknown1042 = 1042,
@@ -95,21 +95,21 @@
         Unknown1056 = 1056,
         Unknown1057 = 1057,
 
-        Unknown1062 = 1062,
+        RepairVehicle = 1062, // ObjectId:3 includes vehicles returning to war factory for repair and helicopters landing and airfields for repair
         Unknown1063 = 1063,
         Unknown1064 = 1064,
         Enter = 1066,
         Unknown1067 = 1067,
 
-        Unknown1069 = 1069,//AttackMove?
+        AttackMove = 1069, // Position:<1343.561, 378.53568, 18.75>
         Unknown1070 = 1070,
-        Unknown1071 = 1071,
-        Unknown1072 = 1072,
+        AddWaypoint = 1071, // Position:<1147.202, 214.9476, 18.75>
+        GuardMode = 1072, // Position:<1256.29822, 505.26968, 18.75>, Integer:0
         Unknown1073 = 1073,
         StopMoving = 1074,
-        Unknown1075 = 1075,
+        Scatter = 1075, // no arguments
         Unknown1076 = 1076,
-        Unknown1077 = 1077,
+        Cheer = 1077, // no arguments
 
         Unknown1079 = 1079,
         Unknown1080 = 1080,
@@ -126,9 +126,9 @@
         Unknown1091 = 1091,
 
         Unknown1093 = 1093,
-        Unknown1094 = 1094,
+        ToggleFormationMode = 1094, // no arguments
 
-        Unknown1096 = 1096,
+        SelectClearMines = 1096, // no arguments
 
         Unknown1098 = 1098,
         Unknown1099 = 1099,

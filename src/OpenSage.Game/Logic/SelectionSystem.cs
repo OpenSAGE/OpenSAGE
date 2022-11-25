@@ -131,9 +131,9 @@ namespace OpenSage.Logic
             Status = SelectionStatus.NotSelecting;
         }
 
-        public void SetSelectedObjects(Player player, GameObject[] objects, bool playAudio = true)
+        public void SetSelectedObjects(Player player, GameObject[] objects, bool playAudio = true, bool clearExistingSelection = true)
         {
-            player.SelectUnits(objects);
+            player.SelectUnits(objects, !clearExistingSelection);
 
             if (player == Game.Scene3D.LocalPlayer)
             {
@@ -285,7 +285,7 @@ namespace OpenSage.Logic
         {
             var viewport = Game.Viewport;
             var viewportSize = new Vector2(viewport.Width, viewport.Height);
- 
+
             var rectSize = new Vector2(rect.Width, rect.Height);
             var rectSizeHalf = rectSize / 2f;
             var rectCenter = new Vector2(rect.Left, rect.Top) + rectSizeHalf;
