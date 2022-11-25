@@ -176,10 +176,6 @@ namespace OpenSage.Gui
             image.Mutate(x =>
             {
                 var location = new PointF(0, size.Height / 2.0f);
-
-                // TODO: Vertical centering is not working properly.
-                location.Y *= 0.8f;
-
                 var color = key.Color;
 
                 // Clear re-used image buffers
