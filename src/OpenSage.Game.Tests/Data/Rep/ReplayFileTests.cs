@@ -185,6 +185,114 @@ namespace OpenSage.Tests.Data.Rep
             WriteOrders(replayFile);
         }
 
+        [Fact]
+        public void Test_015_AttackMove()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(2508, replayFile.Header.NumTimecodes);
+            Assert.Equal(2653, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_016_ClearMines()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(216, replayFile.Header.NumTimecodes);
+            Assert.Equal(306, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_017_Waypoint()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(987, replayFile.Header.NumTimecodes);
+            Assert.Equal(1095, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_018_SelectAcrossScreen()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(835, replayFile.Header.NumTimecodes);
+            Assert.Equal(937, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_019_RepairVehicle()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(3220, replayFile.Header.NumTimecodes);
+            Assert.Equal(3571, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_020_ToggleFormationMode()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(594, replayFile.Header.NumTimecodes);
+            Assert.Equal(855, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_021_GuardMode()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1878, replayFile.Header.NumTimecodes);
+            Assert.Equal(2092, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_022_Scatter()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(421, replayFile.Header.NumTimecodes);
+            Assert.Equal(544, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_023_Cheer()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1287, replayFile.Header.NumTimecodes);
+            Assert.Equal(25, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))
