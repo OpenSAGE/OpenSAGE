@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -37,6 +38,16 @@ namespace OpenSage.Mathematics
         public Size(int value)
         {
             Width = Height = value;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Size"/>.
+        /// </summary>
+        /// <param name="vector">Value for the width and height components.</param>
+        public Size(Vector2 vector)
+        {
+            Width = (int) vector.X;
+            Height = (int) vector.Y;
         }
 
         /// <summary>
@@ -80,5 +91,7 @@ namespace OpenSage.Mathematics
         }
 
         public SizeF ToSizeF() => new SizeF(Width, Height);
+
+        public Vector2 ToVector2() => new Vector2(Width, Height);
     }
 }

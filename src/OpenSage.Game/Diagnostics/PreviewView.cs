@@ -35,7 +35,7 @@ namespace OpenSage.Diagnostics
         public PreviewView(DiagnosticViewContext context)
             : base(context)
         {
-            
+
         }
 
         public override string DisplayName { get; } = "Preview";
@@ -46,7 +46,18 @@ namespace OpenSage.Diagnostics
             {
                 RemoveAndDispose(ref _currentAssetView);
 
-                if (AssetViewConstructors.TryGetValue(Context.SelectedObject.GetType(), out var assetViewConstructor))
+                var assetViewConstructor = AssetViewConstructors.GetValueOrDefault(Context.SelectedObject.GetType());
+
+                // If there's no AssetView for this type, search with the base type.
+                if (assetViewConstructor == null) {
+                    var baseType = Context.SelectedObject.GetType().BaseType;
+                    while (baseType != null && assetViewConstructor == null) {
+                        assetViewConstructor = AssetViewConstructors.GetValueOrDefault(baseType);
+                        baseType = baseType.BaseType;
+                    }
+                }
+
+                if (assetViewConstructor != null)
                 {
                     AssetView createAssetView() => (AssetView) assetViewConstructor.Invoke(new object[] { Context, Context.SelectedObject });
 
