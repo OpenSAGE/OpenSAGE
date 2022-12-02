@@ -15,6 +15,17 @@
             ]
         },
         {
+          "name": "Generals (Alpine Assault)",
+          "type": "coreclr",
+          "request": "launch",
+          "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
+          "args": [
+              "--developermode", "true",
+              "--game", "0",
+              "--map", "maps\\Alpine Assault\\Alpine Assault.map"
+          ]
+        },
+        {
             "name": "Zero Hour",
             "type": "coreclr",
             "request": "launch",

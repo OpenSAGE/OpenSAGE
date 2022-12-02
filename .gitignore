@@ -297,3 +297,5 @@ __pycache__/
 
 imgui.ini
 
+ShaderCache
+DeveloperMode.ini

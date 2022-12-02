@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
@@ -70,6 +71,10 @@ namespace OpenSage
             // Divide by minimap texture size.
             position2D.X /= _miniMapTexture.Width;
             position2D.Y /= _miniMapTexture.Height;
+
+            // Clamp coordinates to [0, 1] to avoid out of bounds errors.
+            position2D.X = Math.Clamp(position2D.X, 0f, 1f);
+            position2D.Y = Math.Clamp(position2D.Y, 0f, 1f);
 
             // Multiply position by map size.
             position2D.X *= _scene.Terrain.HeightMap.Width;

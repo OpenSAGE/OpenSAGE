@@ -179,7 +179,7 @@ namespace OpenSage.Launcher
                         var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
                         if (mapCache == null)
                         {
-                            logger.Debug("Could not find MapCache entry for map " + opts.Map);
+                            logger.Warn("Could not find MapCache entry for map " + opts.Map);
                             game.ShowMainMenu();
                         }
                         else if (mapCache.IsMultiplayer)
