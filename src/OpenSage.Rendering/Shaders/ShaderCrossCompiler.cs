@@ -118,21 +118,17 @@ internal static class ShaderCrossCompiler
     private static byte[] CompileHlsl(string hlsl, string profile)
     {
         var flags = UseDebugCompilation
-            ? SharpDX.D3DCompiler.ShaderFlags.Debug
-            : SharpDX.D3DCompiler.ShaderFlags.OptimizationLevel3;
+            ? Vortice.D3DCompiler.ShaderFlags.Debug
+            : Vortice.D3DCompiler.ShaderFlags.OptimizationLevel3;
 
-        var compilationResult = SharpDX.D3DCompiler.ShaderBytecode.Compile(
+        var compilationResult = Vortice.D3DCompiler.Compiler.Compile(
             hlsl,
             EntryPoint,
+            null,
             profile,
             flags);
 
-        if (compilationResult.HasErrors)
-        {
-            throw new Exception(compilationResult.Message);
-        }
-
-        return compilationResult.Bytecode.Data;
+        return compilationResult.ToArray();
     }
 
     private static string GetShaderHash(byte[] vsBytes, byte[] fsBytes)
