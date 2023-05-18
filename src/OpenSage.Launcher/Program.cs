@@ -253,6 +253,7 @@ namespace OpenSage.Launcher
                     else
                     {
                         game.Update(window.MessageQueue);
+                        game.CursorLogicTick();
 
                         game.Panel.EnsureFrame(window.ClientBounds);
 

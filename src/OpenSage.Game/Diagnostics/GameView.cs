@@ -42,6 +42,7 @@ namespace OpenSage.Diagnostics
                 : Array.Empty<InputMessage>();
 
             Game.Update(inputMessages);
+            if (isGameViewFocused) Game.CursorLogicTick();
             Game.Render();
 
             var imagePointer = ImGuiRenderer.GetOrCreateImGuiBinding(

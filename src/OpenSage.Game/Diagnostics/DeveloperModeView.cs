@@ -47,6 +47,7 @@ namespace OpenSage.Diagnostics
                     if (_isGameViewFocused && message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Escape)
                     {
                         _isGameViewFocused = false;
+                        game.Cursors.SetCursor("Arrow", game.RenderTime);
                         return InputMessageResult.Handled;
                     }
 

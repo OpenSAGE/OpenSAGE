@@ -788,6 +788,11 @@ namespace OpenSage
             _nextScriptingUpdate = totalGameTime;
         }
 
+        public void CursorLogicTick()
+        {
+            Scene3D.CursorLogicTick(MapTime);
+        }
+
         public void Update(IEnumerable<InputMessage> messages)
         {
             // Update timers, input and UI state

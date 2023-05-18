@@ -361,6 +361,13 @@ namespace OpenSage
             GameObjects.DeleteDestroyed();
         }
 
+        internal void CursorLogicTick(in TimeInterval gameTime)
+        {
+            if (_orderGeneratorInputHandler != null)
+            {
+                _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
+            }
+        }
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT)
         {
             _orderGeneratorInputHandler?.Update();
@@ -374,11 +381,6 @@ namespace OpenSage
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
             DebugOverlay.Update(gameTime);
-
-            if (_orderGeneratorInputHandler != null)
-            {
-                _orderGeneratorSystem.Update(gameTime, _orderGeneratorInputHandler.KeyModifiers);
-            }
 
             Terrain?.Update(Waters, gameTime);
 
