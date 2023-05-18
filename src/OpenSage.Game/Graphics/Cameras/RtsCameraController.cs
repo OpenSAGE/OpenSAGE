@@ -14,6 +14,7 @@ namespace OpenSage.Graphics.Cameras
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.0005f;
         private const float PanSpeed = 3f;
+        private const float MousePanSpeed = 0.1f;
 
         private readonly Camera _camera;
         private readonly HeightMap _heightMap;
@@ -172,8 +173,8 @@ namespace OpenSage.Graphics.Cameras
                 float forwards, right;
                 if (inputState.RightMouseDown)
                 {
-                    forwards = -inputState.DeltaY;
-                    right = inputState.DeltaX;
+                    forwards = -MousePanSpeed * inputState.DeltaY;
+                    right = MousePanSpeed * inputState.DeltaX;
                 }
                 else
                 {
