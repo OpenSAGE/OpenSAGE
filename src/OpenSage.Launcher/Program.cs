@@ -217,13 +217,16 @@ namespace OpenSage.Launcher
                         HandlingPriority.Window,
                         message =>
                         {
-                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Enter && (message.Value.Modifiers & ModifierKeys.Alt) != 0)
+                            if (message.MessageType != InputMessageType.KeyDown)
+                                return InputMessageResult.NotHandled;
+
+                            if (message.Value.Key == Key.Enter && (message.Value.Modifiers & ModifierKeys.Alt) != 0)
                             {
                                 window.Fullscreen = !window.Fullscreen;
                                 return InputMessageResult.Handled;
                             }
 
-                            if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.F11)
+                            if (message.Value.Key == Key.D && (message.Value.Modifiers & ModifierKeys.Alt) != 0)
                             {
                                 developerModeEnabled = !developerModeEnabled;
                                 return InputMessageResult.Handled;

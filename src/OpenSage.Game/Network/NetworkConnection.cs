@@ -124,7 +124,7 @@ namespace OpenSage.Network
 
             _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
             _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
-            _listener.NetworkReceiveEvent += (NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod) => _processor.ReadAllPackets(reader, peer);
+            _listener.NetworkReceiveEvent += (NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod) => _processor.ReadAllPackets(reader, peer);
 
             _writer = new NetDataWriter();
             _processor = new NetPacketProcessor();            

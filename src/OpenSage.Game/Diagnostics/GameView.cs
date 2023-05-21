@@ -49,11 +49,11 @@ namespace OpenSage.Diagnostics
                 Game.Panel.Framebuffer.ColorTargets[0].Target);
 
             if (ImGui.ImageButton(
+                "GameView",
                 imagePointer,
                 availableSize,
                 Vector2.Zero,
                 Vector2.One,
-                0,
                 Vector4.Zero,
                 Vector4.One))
             {
