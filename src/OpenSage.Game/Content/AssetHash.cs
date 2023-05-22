@@ -4,16 +4,18 @@ namespace OpenSage.Content
 {
     internal static class AssetHash
     {
-        public static uint GetHash(string input) => GetHashCaseSensitive(input.ToLowerInvariant());
+        public static uint GetHash(ReadOnlySpan<char> input) {
+            Span<char> lower = stackalloc char[input.Length];
+            input.ToLowerInvariant(lower);
+            return GetHashCaseSensitive(lower);
+        } 
 
-        public static uint GetHashCaseSensitive(string input)
+        public static uint GetHashCaseSensitive(ReadOnlySpan<char> buffer)
         {
-            if (input.Length == 0)
+            if (buffer.Length == 0)
             {
                 return 0u;
             }
-
-            var buffer = input.AsSpan();
 
             static byte GetByte(ReadOnlySpan<char> span, int index)
             {

@@ -34,8 +34,8 @@ namespace OpenSage.Mods.Bfme.Gui
 
             // there is a note in commandbuttons.ini that this is also hardcoded in original SAGE engine
             _gettingBuildCommandSet = new CommandSet();
-            var commandButton = game.AssetStore.CommandButtons.GetLazyAssetReferenceByName("Command_CancelUnitCreate");
-            commandButton.Value.ButtonImage = game.AssetStore.MappedImages.GetLazyAssetReferenceByName("BCSell");
+            var commandButton = game.AssetStore.CommandButtons.GetLazyAssetReferenceByName("Command_CancelUnitCreate".AsMemory());
+            commandButton.Value.ButtonImage = game.AssetStore.MappedImages.GetLazyAssetReferenceByName("BCSell".AsMemory());
             commandButton.Value.Radial = true;
             commandButton.Value.InPalantir = true;
             _gettingBuildCommandSet.Buttons[0] = commandButton;

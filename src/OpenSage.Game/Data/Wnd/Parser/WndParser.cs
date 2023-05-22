@@ -708,7 +708,7 @@ namespace OpenSage.Data.Wnd.Parser
             var borderColor = ParseAttribute("BORDERCOLOR", ParseColor);
 
             var imageReference = (!string.IsNullOrEmpty(image) && image != "NoImage")
-                ? _assetStore.MappedImages.GetLazyAssetReferenceByName(image)
+                ? _assetStore.MappedImages.GetLazyAssetReferenceByName(image.AsMemory())
                 : null;
 
             return new WndDrawDataItem

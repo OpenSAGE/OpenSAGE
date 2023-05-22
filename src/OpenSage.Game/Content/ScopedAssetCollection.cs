@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using OpenSage.Content.Loaders;
 
@@ -58,7 +59,7 @@ namespace OpenSage.Content
             }
         }
 
-        public TAsset GetByName(string name)
+        public TAsset GetByName(ReadOnlySpan<char> name)
         {
             var instanceId = AssetHash.GetHash(name);
 
@@ -74,7 +75,7 @@ namespace OpenSage.Content
             // If we can, create new item and cache it.
             if (_loader != null)
             {
-                var newValue = _loader.Load(name, _assetStore.LoadContext);
+                var newValue = _loader.Load(name.ToString(), _assetStore.LoadContext);
                 //TODO: should this happen?
                 if(newValue == null)
                 {
@@ -102,9 +103,9 @@ namespace OpenSage.Content
             return null;
         }
 
-        public LazyAssetReference<TAsset> GetLazyAssetReferenceByName(string name)
+        public LazyAssetReference<TAsset> GetLazyAssetReferenceByName(ReadOnlyMemory<char> name)
         {
-            return new LazyAssetReference<TAsset>(() => GetByName(name));
+            return new LazyAssetReference<TAsset>(() => GetByName(name.Span));
         }
 
         public TAsset GetByInternalId(int internalId)

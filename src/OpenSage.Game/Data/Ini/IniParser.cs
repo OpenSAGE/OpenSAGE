@@ -226,13 +226,13 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<FXParticleSystemTemplate> ScanFXParticleSystemTemplateReference(in IniToken token)
         {
-            var name = token.Text;
+            var name = token.Memory;
             return _assetStore.FXParticleSystemTemplates.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<FXList> ScanFXListReference(in IniToken token)
         {
-            var name = token.Text;
+            var name = token.Memory;
             return _assetStore.FXLists.GetLazyAssetReferenceByName(name);
         }
 
@@ -241,7 +241,13 @@ namespace OpenSage.Data.Ini
         public string ParseAssetReference()
         {
             var token = GetNextTokenOptional();
-            return token.HasValue ? token.Value.Text : "";
+            return token.HasValue ? token.Value.Text : string.Empty;
+        }
+
+        public ReadOnlyMemory<char> ParseAssetReferenceSpan()
+        {
+            var token = GetNextTokenOptional();
+            return token.HasValue ? token.Value.Memory : string.Empty.AsMemory();
         }
 
         public string[] ParseAssetReferenceArray()
@@ -252,6 +258,19 @@ namespace OpenSage.Data.Ini
             while ((token = GetNextTokenOptional()).HasValue)
             {
                 result.Add(token.Value.Text);
+            }
+
+            return result.ToArray();
+        }
+
+        public ReadOnlyMemory<char>[] ParseAssetReferenceSpanArray()
+        {
+            var result = new List<ReadOnlyMemory<char>>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()).HasValue)
+            {
+                result.Add(token.Value.Memory);
             }
 
             return result.ToArray();
@@ -430,6 +449,11 @@ namespace OpenSage.Data.Ini
             return GetNextToken().Text;
         }
 
+        public ReadOnlyMemory<char> ParseIdentifierSpan()
+        {
+            return GetNextToken().Memory;
+        }
+
         public string ParseLocalizedStringKey()
         {
             return ParseIdentifier();
@@ -443,6 +467,9 @@ namespace OpenSage.Data.Ini
         }
 
         public string ParseFileName() => ParseIdentifier();
+
+        public ReadOnlyMemory<char> ParseFileNameSpan() => ParseIdentifierSpan();
+
 
         public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
         public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
@@ -463,31 +490,31 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<CommandButton> ParseCommandButtonReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.CommandButtons.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<CommandSet> ParseCommandSetReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.CommandSets.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<SpecialPower> ParseSpecialPowerReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.SpecialPowers.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<CrateData> ParseCrateReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.CrateDatas.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<UpgradeTemplate> ParseUpgradeReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.Upgrades.GetLazyAssetReferenceByName(name);
         }
 
@@ -498,7 +525,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.Upgrades.GetLazyAssetReferenceByName(token.Value.Text));
+                result.Add(_assetStore.Upgrades.GetLazyAssetReferenceByName(token.Value.Memory));
             }
 
             return result.ToArray();
@@ -506,25 +533,25 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<MappedImage> ParseMappedImageReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.MappedImages.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<FXParticleSystemTemplate> ParseFXParticleSystemTemplateReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.FXParticleSystemTemplates.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<LocomotorTemplate> ParseLocomotorTemplateReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<Science> ParseScienceReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.Sciences.GetLazyAssetReferenceByName(name);
         }
 
@@ -532,10 +559,10 @@ namespace OpenSage.Data.Ini
         {
             var result = new List<LazyAssetReference<Science>>();
 
-            var names = ParseAssetReferenceArray();
+            var names = ParseAssetReferenceSpanArray();
             foreach (var name in names)
             {
-                if (string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                if (MemoryExtensions.Equals(name.Span, "NONE", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -547,13 +574,13 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<WeaponTemplate> ParseWeaponTemplateReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.WeaponTemplates.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<ArmorTemplate> ParseArmorTemplateReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.ArmorTemplates.GetLazyAssetReferenceByName(name);
         }
 
@@ -561,27 +588,27 @@ namespace OpenSage.Data.Ini
         {
             var name = ParseAssetReference().Replace("FX:", "");
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.FXLists.GetLazyAssetReferenceByName(name)
+                ? _assetStore.FXLists.GetLazyAssetReferenceByName(name.AsMemory())
                 : null;
         }
 
         public LazyAssetReference<DamageFX> ParseDamageFXReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.DamageFXs.GetLazyAssetReferenceByName(name);
         }
 
         public LazyAssetReference<ObjectCreationList> ParseObjectCreationListReference()
         {
-            var name = ParseAssetReference();
-            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+            var name = ParseAssetReferenceSpan();
+            return MemoryExtensions.Equals(name.Span, "NONE", StringComparison.OrdinalIgnoreCase)
                 ? _assetStore.ObjectCreationLists.GetLazyAssetReferenceByName(name)
                 : null;
         }
 
         public LazyAssetReference<ModifierList> ParseModifierListReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.ModifierLists.GetLazyAssetReferenceByName(name);
         }
 
@@ -591,7 +618,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.ModifierLists.GetLazyAssetReferenceByName(token.Value.Text));
+                result.Add(_assetStore.ModifierLists.GetLazyAssetReferenceByName(token.Value.Memory));
             }
 
             return result.ToArray();
@@ -604,12 +631,12 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                if (string.Equals(token.Value.Text, "None", StringComparison.InvariantCultureIgnoreCase))
+                if (MemoryExtensions.Equals(token.Value.Memory.Span, "None", StringComparison.InvariantCultureIgnoreCase))
                 {
                     continue;
                 }
 
-                result.Add(_assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(token.Value.Text));
+                result.Add(_assetStore.LocomotorTemplates.GetLazyAssetReferenceByName(token.Value.Memory));
             }
 
             return result.ToArray();
@@ -630,7 +657,7 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<AudioFile> ParseAudioFileReference()
         {
-            var name = ParseAssetReference();
+            var name = ParseAssetReferenceSpan();
             return _assetStore.AudioFiles.GetLazyAssetReferenceByName(name);
         }
 
@@ -643,7 +670,7 @@ namespace OpenSage.Data.Ini
             {
                 result.Add(new AudioFileWithWeight
                 {
-                       AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
+                       AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Memory)
                 });
             }
 
@@ -659,8 +686,8 @@ namespace OpenSage.Data.Ini
         {
             var name = label ?? ParseAssetReference();
 
-            return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name)
+            return (!MemoryExtensions.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(name.AsMemory())
                 : null;
         }
 
@@ -671,7 +698,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             while ((token = GetNextTokenOptional()).HasValue)
             {
-                result.Add(_assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(token.Value.Text));
+                result.Add(_assetStore.ObjectDefinitions.GetLazyAssetReferenceByName(token.Value.Memory));
             }
 
             return result.ToArray();
@@ -679,20 +706,20 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<TextureAsset> ParseTextureReference()
         {
-            var fileName = ParseFileName();
+            var fileName = ParseFileNameSpan();
             return _assetStore.Textures.GetLazyAssetReferenceByName(fileName);
         }
 
         public LazyAssetReference<GuiTextureAsset> ParseGuiTextureReference()
         {
-            var fileName = ParseFileName();
+            var fileName = ParseFileNameSpan();
             return _assetStore.GuiTextures.GetLazyAssetReferenceByName(fileName);
         }
 
         public LazyAssetReference<Model> ParseModelReference()
         {
-            var fileName = ParseFileName();
-            return (!string.Equals(fileName, "NONE", StringComparison.OrdinalIgnoreCase))
+            var fileName = ParseFileNameSpan();
+            return (!MemoryExtensions.Equals(fileName.Span, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.Models.GetLazyAssetReferenceByName(fileName)
                 : null;
         }
@@ -706,8 +733,8 @@ namespace OpenSage.Data.Ini
 
         public LazyAssetReference<Graphics.Animation.W3DAnimation> ScanAnimationReference(in IniToken token)
         {
-            return (!string.Equals(token.Text, "NONE", StringComparison.OrdinalIgnoreCase))
-                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Text)
+            return (!MemoryExtensions.Equals(token.Memory.Span, "NONE", StringComparison.OrdinalIgnoreCase))
+                ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Memory)
                 : null;
         }
 
@@ -972,7 +999,7 @@ namespace OpenSage.Data.Ini
                     continue;
                 }
 
-                if (string.Equals(token.Value.Text, EndToken, StringComparison.InvariantCultureIgnoreCase))
+                if (MemoryExtensions.Equals(token.Value.Memory.Span, EndToken, StringComparison.InvariantCultureIgnoreCase))
                 {
                     reachedEndOfBlock = true;
                     done = true;
