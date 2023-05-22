@@ -408,7 +408,7 @@ namespace OpenSage.Data.Ini
 
         private bool ScanBoolean(in IniToken token)
         {
-            switch (token.Text.ToUpperInvariant())
+            switch (token.Text.ToString().ToUpperInvariant())
             {
                 case "YES":
                 case "1":
@@ -847,7 +847,7 @@ namespace OpenSage.Data.Ini
         private IniToken Func(float value)
         {
             GetNextToken(); //read the ')'
-            return new IniToken(ParseUtility.ToInvariant(value), _tokenReader.CurrentPosition);
+            return new IniToken(ParseUtility.ToInvariant(value).AsMemory(), _tokenReader.CurrentPosition);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)

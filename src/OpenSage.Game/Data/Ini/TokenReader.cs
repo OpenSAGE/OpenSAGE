@@ -9,7 +9,7 @@ namespace OpenSage.Data.Ini
         private readonly string _fileName;
 
         private int _sourceTextIndex;
-        private string _currentLineText;
+        private ReadOnlyMemory<char> _currentLineText;
         private int _currentLine;
         private int _currentLineCharIndex;
 
@@ -32,7 +32,7 @@ namespace OpenSage.Data.Ini
             _currentLine = -1;
         }
 
-        private void SetCurrentLine(string text)
+        private void SetCurrentLine(ReadOnlyMemory<char> text)
         {
             _currentLineText = text;
             _currentLineCharIndex = 0;
@@ -43,7 +43,7 @@ namespace OpenSage.Data.Ini
         {
             if (EndOfFile)
             {
-                SetCurrentLine(string.Empty);
+                SetCurrentLine(string.Empty.AsMemory());
                 return;
             }
 
@@ -79,7 +79,7 @@ namespace OpenSage.Data.Ini
                 }
             }
 
-            SetCurrentLine(_source.AsSpan(startIndex, length).ToString());
+            SetCurrentLine(_source.AsMemory(startIndex, length));
 
             _currentLine++;
         }
@@ -95,7 +95,7 @@ namespace OpenSage.Data.Ini
 
             // Skip leading trivia.
             while (nextCharIndex < _currentLineText.Length
-                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
+                   && Array.IndexOf(separators, _currentLineText.Span[nextCharIndex]) != -1)
             {
                 nextCharIndex++;
             }
@@ -106,7 +106,7 @@ namespace OpenSage.Data.Ini
             var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
 
             while (nextCharIndex < _currentLineText.Length
-                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) == -1)
+                   && Array.IndexOf(separators, _currentLineText.Span[nextCharIndex]) == -1)
             {
                 length++;
                 nextCharIndex++;
@@ -114,12 +114,12 @@ namespace OpenSage.Data.Ini
 
             // Skip trailing separator.
             if (nextCharIndex < _currentLineText.Length
-                && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
+                && Array.IndexOf(separators, _currentLineText.Span[nextCharIndex]) != -1)
             {
                 nextCharIndex++;
             }
 
-            var result = _currentLineText.AsSpan(startIndex, length).ToString();
+            var result = _currentLineText.Slice(startIndex, length);
 
             if (result.Length == 0)
             {

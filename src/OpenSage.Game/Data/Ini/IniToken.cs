@@ -1,13 +1,16 @@
-﻿namespace OpenSage.Data.Ini
+﻿using System;
+
+namespace OpenSage.Data.Ini
 {
     internal readonly struct IniToken
     {
-        public readonly string Text;
+        public readonly ReadOnlyMemory<char> Memory;
+        public readonly string Text => Memory.ToString();
         public readonly IniTokenPosition Position;
 
-        public IniToken(string text, in IniTokenPosition position)
+        public IniToken(ReadOnlyMemory<char> text, in IniTokenPosition position)
         {
-            Text = text;
+            Memory = text;
             Position = position;
         }
     }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Content;
+﻿using System;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
@@ -14,7 +15,7 @@ namespace OpenSage.Terrain
                 (x, name) =>
                 {
                     x.SetNameAndInstanceId("WaterSet", name);
-                    x.TimeOfDay = IniParser.ScanEnum<TimeOfDay>(new IniToken(name, default));
+                    x.TimeOfDay = IniParser.ScanEnum<TimeOfDay>(new IniToken(name.AsMemory(), default));
                 },
                 FieldParseTable);
         }
