@@ -110,5 +110,15 @@ namespace OpenSage.Utilities.Extensions
 
             return minMax;
         }
+
+        public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable)
+        {
+            var index = 0;
+            foreach (var item in enumerable)
+            {
+                yield return (item, index);
+                index++;
+            }
+        }
     }
 }
