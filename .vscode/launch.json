@@ -8,7 +8,7 @@
             "name": "Generals",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
+            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net7.0/OpenSage.Launcher.dll",
             "args": [
                 "--developermode", "true",
                 "--game", "0"
@@ -18,7 +18,7 @@
           "name": "Generals (Alpine Assault)",
           "type": "coreclr",
           "request": "launch",
-          "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
+          "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net7.0/OpenSage.Launcher.dll",
           "args": [
               "--developermode", "true",
               "--game", "0",
@@ -29,7 +29,7 @@
             "name": "Zero Hour",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
+            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net7.0/OpenSage.Launcher.dll",
             "args": [
                 "--developermode", "true",
                 "--game", "1"
@@ -39,7 +39,7 @@
             "name": "Generals Zero Hour (Alpine Assault)",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net6.0/OpenSage.Launcher.dll",
+            "program": "${workspaceFolder}/src/OpenSage.Launcher/bin/Debug/net7.0/OpenSage.Launcher.dll",
             "args": [
                 "--developermode", "true",
                 "--game", "1",
