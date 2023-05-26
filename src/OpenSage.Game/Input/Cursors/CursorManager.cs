@@ -6,7 +6,7 @@ namespace OpenSage.Input.Cursors
 {
     internal sealed class CursorManager : DisposableBase
     {
-        private readonly Dictionary<string, Cursor> _cachedCursors;
+        private readonly Dictionary<(string, uint), Cursor> _cachedCursors;
         private Cursor _currentCursor;
 
         private readonly AssetStore _assetStore;
@@ -26,7 +26,7 @@ namespace OpenSage.Input.Cursors
 
         public CursorManager(AssetStore assetStore, ContentManager contentManager, GameWindow window)
         {
-            _cachedCursors = new Dictionary<string, Cursor>();
+            _cachedCursors = new Dictionary<(string, uint), Cursor>();
 
             _assetStore = assetStore;
             _contentManager = contentManager;
@@ -35,7 +35,13 @@ namespace OpenSage.Input.Cursors
 
         public void SetCursor(string cursorName, in TimeInterval time)
         {
-            if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
+            SetCursor(cursorName, 0, time);
+        }
+
+        public void SetCursor(string cursorName, uint direction, in TimeInterval time)
+        {
+            (string, uint)key = (cursorName, direction);
+            if (!_cachedCursors.TryGetValue(key, out var cursor))
             {
                 var mouseCursor = _assetStore.MouseCursors.GetByName(cursorName);
                 if (mouseCursor == null)
@@ -44,6 +50,10 @@ namespace OpenSage.Input.Cursors
                 }
 
                 var cursorFileName = mouseCursor.Image;
+                if (mouseCursor.Directions != 0)
+                {
+                    cursorFileName += direction;
+                }
                 if (string.IsNullOrEmpty(Path.GetExtension(cursorFileName)))
                 {
                     cursorFileName += ".ani";
@@ -61,7 +71,7 @@ namespace OpenSage.Input.Cursors
                     cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
                 }
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window?.WindowScale ?? 1.0f));
+                _cachedCursors[key] = cursor = AddDisposable(new Cursor(cursorEntry, _window?.WindowScale ?? 1.0f));
             }
 
             if (_currentCursor == cursor)

@@ -5,6 +5,18 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Graphics.Cameras
 {
+    public enum CameraPanDirection
+    {
+        Right,
+        RightDown,
+        Down,
+        LeftDown,
+        Left,
+        LeftUp,
+        Up,
+        RightUp,
+        None
+    }
     public interface ICameraController
     {
         float Zoom { get; set; }
@@ -19,6 +31,8 @@ namespace OpenSage.Graphics.Cameras
         void ModSetFinalZoom(float finalZoom);
         void ModFinalLookToward(in Vector3 position);
         void ModLookToward(in Vector3 position);
+
+        CameraPanDirection PanDirection { get; }
 
         CameraAnimation StartAnimation(
             IReadOnlyList<Vector3> points,

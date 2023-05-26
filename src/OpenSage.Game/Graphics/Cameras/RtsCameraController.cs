@@ -27,7 +27,10 @@ namespace OpenSage.Graphics.Cameras
         private CameraAnimation _animation;
 
         public bool CanPlayerInputChangePitch { get; set; }
-        
+
+        private CameraPanDirection _panDirection = CameraPanDirection.None;
+        CameraPanDirection ICameraController.PanDirection { get => _panDirection; }
+
         private float _yaw;
         public void SetLookDirection(Vector3 lookDirection)
         {
@@ -166,22 +169,48 @@ namespace OpenSage.Graphics.Cameras
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
                 RotateCamera(inputState.DeltaX, inputState.DeltaY);
+                _panDirection = CameraPanDirection.None;
             }
             else
             {
                 // tested in Zero Hour - rotation always takes precedence, and all panning is halted when rotating.
-                float forwards, right;
+                float up, right;
                 if (inputState.RightMouseDown)
                 {
-                    forwards = -MousePanSpeed * inputState.DeltaY;
+                    up = -MousePanSpeed * inputState.DeltaY;
                     right = MousePanSpeed * inputState.DeltaX;
                 }
                 else
                 {
-                    forwards = GetKeyMovement(inputState, Key.Up, Key.Down);
+                    up = GetKeyMovement(inputState, Key.Up, Key.Down);
                     right = GetKeyMovement(inputState, Key.Right, Key.Left);
                 }
-                PanCamera(forwards, right);
+                if (up != 0 || right != 0)
+                {
+                    const float thresh = 0.5f;
+                    if (up > thresh)
+                    {
+                        if (right > thresh) _panDirection = CameraPanDirection.RightUp;
+                        else if (right < -thresh) _panDirection = CameraPanDirection.LeftUp;
+                        else _panDirection = CameraPanDirection.Up;
+                    }
+                    else if (up < -thresh)
+                    {
+                        if (right > thresh) _panDirection = CameraPanDirection.RightDown;
+                        else if (right < -thresh) _panDirection = CameraPanDirection.LeftDown;
+                        else _panDirection = CameraPanDirection.Down;
+                    }
+                    else
+                    {
+                        if (right >= 0) _panDirection = CameraPanDirection.Right;
+                        else _panDirection = CameraPanDirection.Left;
+                    }
+                    PanCamera(up, right);
+                }
+                else
+                {
+                    _panDirection = CameraPanDirection.None;
+                }
             }
 
             ZoomCamera(-inputState.ScrollWheelValue);

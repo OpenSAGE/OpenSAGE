@@ -790,7 +790,15 @@ namespace OpenSage
 
         public void CursorLogicTick()
         {
-            Scene3D.CursorLogicTick(MapTime);
+            CameraPanDirection panDirection = Scene3D.CameraController.PanDirection;
+            if (panDirection != CameraPanDirection.None)
+            {
+                Cursors.SetCursor("Scroll", (uint)panDirection, RenderTime);
+            }
+            else
+            {
+                Scene3D.CursorLogicTick(MapTime);
+            }
         }
 
         public void Update(IEnumerable<InputMessage> messages)
