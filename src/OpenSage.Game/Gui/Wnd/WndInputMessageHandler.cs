@@ -76,9 +76,10 @@ namespace OpenSage.Gui.Wnd
                                 new WndWindowMessage(WndWindowMessageType.MouseMove, control, mousePosition),
                                 context);
                         }
-                        return mouseOverControls.Count > 0
+                        /*return mouseOverControls.Count > 0
                             ? InputMessageResult.Handled
-                            : InputMessageResult.NotHandled;
+                            : InputMessageResult.NotHandled;*/
+                        return InputMessageResult.NotHandled;
                     }
 
                 case InputMessageType.MouseLeftButtonDown:

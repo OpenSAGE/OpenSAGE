@@ -15,9 +15,11 @@ namespace OpenSage.Graphics.Cameras
         private const float ZoomSpeed = 0.0005f;
         private const float PanSpeed = 3f;
         private const float MousePanSpeed = 0.1f;
+        private const float PanBorderWith = 10f;
 
         private readonly Camera _camera;
         private readonly HeightMap _heightMap;
+        private IPanel _panel;
 
         private readonly float _defaultHeight;
         private readonly float _defaultPitchAngle;
@@ -82,10 +84,11 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap)
+        public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap, IPanel panel)
         {
             _camera = camera;
             _heightMap = heightMap;
+            _panel = panel;
 
             _defaultHeight = gameData.DefaultCameraMaxHeight > 0
                 ? gameData.DefaultCameraMaxHeight
@@ -182,8 +185,15 @@ namespace OpenSage.Graphics.Cameras
                 }
                 else
                 {
-                    up = GetKeyMovement(inputState, Key.Up, Key.Down);
-                    right = GetKeyMovement(inputState, Key.Right, Key.Left);
+                    OpenSage.Mathematics.Rectangle bounds = _panel.Frame;
+
+                    if (inputState.LastX < PanBorderWith) right = -1;
+                    else if (inputState.LastX > bounds.Width - PanBorderWith) right = 1;
+                    else right = GetKeyMovement(inputState, Key.Right, Key.Left);
+
+                    if (inputState.LastY < PanBorderWith) up = 1;
+                    else if (inputState.LastY > bounds.Height - PanBorderWith) up = -1;
+                    else up = GetKeyMovement(inputState, Key.Up, Key.Down);
                 }
                 if (up != 0 || right != 0)
                 {

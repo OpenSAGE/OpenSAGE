@@ -33,10 +33,9 @@ namespace OpenSage.Graphics.Cameras
                         {
                             _deltaX += position.X - _lastX;
                             _deltaY += position.Y - _lastY;
-
-                            _lastX = position.X;
-                            _lastY = position.Y;
                         }
+                        _lastX = position.X;
+                        _lastY = position.Y;
                         break;
                     }
 
@@ -111,6 +110,8 @@ namespace OpenSage.Graphics.Cameras
 
             state.DeltaX = _deltaX;
             state.DeltaY = _deltaY;
+            state.LastX = _lastX;
+            state.LastY = _lastY;
 
             state.ScrollWheelValue = _scrollWheelValue;
 

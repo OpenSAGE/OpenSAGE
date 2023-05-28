@@ -149,7 +149,8 @@ namespace OpenSage
                 ScriptLists = mapScriptLists
             };
 
-            CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
+            CameraController = new RtsCameraController(
+                game.AssetStore.GameData.Current, Camera, Terrain.HeightMap, Game.Panel)
             {
                 TerrainPosition = Terrain.HeightMap.GetPosition(
                     Terrain.HeightMap.Width / 2,

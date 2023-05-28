@@ -5,7 +5,7 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage
 {
-    public sealed class GamePanel : DisposableBase
+    public sealed class GamePanel : DisposableBase, IPanel
     {
         private readonly RenderTarget _renderTarget;
 

@@ -11,6 +11,8 @@ namespace OpenSage.Graphics.Cameras
 
         public int DeltaX;
         public int DeltaY;
+        public int LastX;
+        public int LastY;
 
         public int ScrollWheelValue;
 
