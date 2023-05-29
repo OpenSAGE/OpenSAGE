@@ -22,6 +22,15 @@ namespace OpenSage.Graphics.Cameras
                 ? HandlingPriority.MoveCameraPriority
                 : HandlingPriority.CameraPriority;
 
+        public void ResetMouse(IPanel panel)
+        {
+            _leftMouseDown = false;
+            _middleMouseDown = false;
+            _rightMouseDown = false;
+            _lastX = panel.Frame.Width / 2;
+            _lastY = panel.Frame.Height / 2;
+        }
+
         public override InputMessageResult HandleMessage(InputMessage message)
         {
             switch (message.MessageType)

@@ -44,6 +44,7 @@ namespace OpenSage.Diagnostics
                 WorldLighting.CreateDefault(),
                 Environment.TickCount,
                 isDiagnosticScene: true));
+            _scene3D.CameraEnableInput = true;
 
             createGameObjects?.Invoke(_scene3D.GameObjects);
 

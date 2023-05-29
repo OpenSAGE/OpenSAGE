@@ -252,6 +252,7 @@ namespace OpenSage.Launcher
                     }
                     else
                     {
+                        game.Scene3D.CameraEnableInput = true;
                         game.Update(window.MessageQueue);
                         game.CursorLogicTick();
 

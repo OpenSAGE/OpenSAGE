@@ -88,6 +88,7 @@ namespace OpenSage.Diagnostics
             _commandList.End();
 
             _game.GraphicsDevice.SubmitCommands(_commandList);
+            _game.Scene3D.CameraEnableInput = _isGameViewFocused;
         }
 
         private sealed class EmptyInputSnapshot : InputSnapshot

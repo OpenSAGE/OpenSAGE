@@ -110,7 +110,7 @@ namespace OpenSage.Graphics.Cameras
             throw new NotImplementedException();
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+        void ICameraController.UpdateCameraInput(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
         {
             if (inputState.LeftMouseDown)
             {
@@ -123,7 +123,10 @@ namespace OpenSage.Graphics.Cameras
             }
 
             ZoomCamera(-inputState.ScrollWheelValue);
+        }
 
+        void ICameraController.UpdateCamera(Camera camera, in TimeInterval gameTime)
+        {
             var position = Vector3.Transform(
                 -Vector3.UnitY,
                 QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, _pitch, 0));

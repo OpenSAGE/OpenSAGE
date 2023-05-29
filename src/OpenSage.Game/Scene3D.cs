@@ -108,6 +108,20 @@ namespace OpenSage
 
         public readonly RenderScene RenderScene;
 
+        private bool _cameraEnableInput;
+        public bool CameraEnableInput
+        { 
+            get => _cameraEnableInput;
+            set
+            {
+                if (value && !_cameraEnableInput)
+                {
+                    _cameraInputMessageHandler.ResetMouse(Game.Panel);
+                }
+                _cameraEnableInput = value;
+            }
+        }
+
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -379,7 +393,13 @@ namespace OpenSage
             }
 
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
-            CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
+
+            if (CameraEnableInput)
+            {
+                CameraController.UpdateCameraInput(Camera, _cameraInputState, gameTime);
+            }
+            CameraController.UpdateCamera(Camera, gameTime);
+            
 
             DebugOverlay.Update(gameTime);
 

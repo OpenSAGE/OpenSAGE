@@ -167,7 +167,7 @@ namespace OpenSage.Graphics.Cameras
             return 0;
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+        void ICameraController.UpdateCameraInput(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
         {
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
@@ -222,9 +222,11 @@ namespace OpenSage.Graphics.Cameras
                     _panDirection = CameraPanDirection.None;
                 }
             }
-
             ZoomCamera(-inputState.ScrollWheelValue);
+        }
 
+        void ICameraController.UpdateCamera(Camera camera, in TimeInterval gameTime)
+        {
             if (_animation != null)
             {
                 _animation.Update(this, gameTime);
