@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -110,7 +110,7 @@ namespace OpenSage.Graphics.Cameras
             throw new NotImplementedException();
         }
 
-        void ICameraController.UpdateCameraInput(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+        void ICameraController.UpdateInput(in CameraInputState inputState, in TimeInterval gameTime)
         {
             if (inputState.LeftMouseDown)
             {

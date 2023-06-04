@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -396,7 +396,7 @@ namespace OpenSage
 
             if (CameraEnableInput)
             {
-                CameraController.UpdateCameraInput(Camera, _cameraInputState, gameTime);
+                CameraController.UpdateInput(_cameraInputState, gameTime);
             }
             CameraController.UpdateCamera(Camera, gameTime);
             

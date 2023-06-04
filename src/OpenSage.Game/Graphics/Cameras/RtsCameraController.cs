@@ -11,11 +11,14 @@ namespace OpenSage.Graphics.Cameras
 {
     public sealed class RtsCameraController : ICameraController, IPersistableObject
     {
-        private const float RotationSpeed = 0.003f;
-        private const float ZoomSpeed = 0.0005f;
-        private const float PanSpeed = 3f;
-        private const float MousePanSpeed = 0.1f;
-        private const float PanBorderWith = 10f;
+        public const float RotationSpeed = 0.003f;
+        public const float ZoomSpeed = 0.0005f;
+        public const float PanSpeed = 3f;
+        public const float MousePanSpeed = 0.3f;
+        public const float PanBorderWith = 10f;
+        public const float MinZoom = 0.01f;
+        public const int PanDirectionThreshold = 10;
+
 
         private readonly Camera _camera;
         private readonly HeightMap _heightMap;
@@ -156,7 +159,7 @@ namespace OpenSage.Graphics.Cameras
             CurrentAnimation.SetLookToward(position);
         }
 
-        private static float GetKeyMovement(in CameraInputState inputState, Key positive, Key negative)
+        private static int GetKeyMovement(in CameraInputState inputState, Key positive, Key negative)
         {
             if (inputState.PressedKeys.Contains(positive))
                 return 1;
@@ -167,7 +170,39 @@ namespace OpenSage.Graphics.Cameras
             return 0;
         }
 
-        void ICameraController.UpdateCameraInput(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+        static CameraPanDirection CalculatePanDirection(int up, int right, bool rmb)
+        {
+            int thresh = rmb ? PanDirectionThreshold : 0;
+            if (up > thresh)
+            {
+                if (right > thresh) return CameraPanDirection.RightUp;
+                else if (right < -thresh) return CameraPanDirection.LeftUp;
+                else return CameraPanDirection.Up;
+            }
+            else if (up < -thresh)
+            {
+                if (right > thresh) return CameraPanDirection.RightDown;
+                else if (right < -thresh) return CameraPanDirection.LeftDown;
+                else return CameraPanDirection.Down;
+            }
+            else
+            {
+                if (rmb)
+                {
+                    if (right >= 0) return CameraPanDirection.Right;
+                    else return CameraPanDirection.Left;
+                }
+                else
+                {
+                    if (right > 0) return CameraPanDirection.Right;
+                    else if (right < 0) return CameraPanDirection.Left;
+                    else return CameraPanDirection.None;
+                }
+                
+            }
+        }
+
+        void ICameraController.UpdateInput(in CameraInputState inputState, in TimeInterval gameTime)
         {
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
@@ -177,15 +212,17 @@ namespace OpenSage.Graphics.Cameras
             else
             {
                 // tested in Zero Hour - rotation always takes precedence, and all panning is halted when rotating.
-                float up, right;
                 if (inputState.RightMouseDown)
                 {
-                    up = -MousePanSpeed * inputState.DeltaY;
-                    right = MousePanSpeed * inputState.DeltaX;
+                    int up = -inputState.DeltaY;
+                    int right = inputState.DeltaX;
+                    _panDirection = CalculatePanDirection(up, right, true);
+                    PanCamera(up, right, MousePanSpeed);
                 }
                 else
                 {
                     OpenSage.Mathematics.Rectangle bounds = _panel.Frame;
+                    int right, up;
 
                     if (inputState.LastX < PanBorderWith) right = -1;
                     else if (inputState.LastX > bounds.Width - PanBorderWith) right = 1;
@@ -194,32 +231,12 @@ namespace OpenSage.Graphics.Cameras
                     if (inputState.LastY < PanBorderWith) up = 1;
                     else if (inputState.LastY > bounds.Height - PanBorderWith) up = -1;
                     else up = GetKeyMovement(inputState, Key.Up, Key.Down);
-                }
-                if (up != 0 || right != 0)
-                {
-                    const float thresh = 0.5f;
-                    if (up > thresh)
+
+                    _panDirection = CalculatePanDirection(up, right, false);
+                    if (_panDirection != CameraPanDirection.None)
                     {
-                        if (right > thresh) _panDirection = CameraPanDirection.RightUp;
-                        else if (right < -thresh) _panDirection = CameraPanDirection.LeftUp;
-                        else _panDirection = CameraPanDirection.Up;
+                        PanCamera(up, right, PanSpeed);
                     }
-                    else if (up < -thresh)
-                    {
-                        if (right > thresh) _panDirection = CameraPanDirection.RightDown;
-                        else if (right < -thresh) _panDirection = CameraPanDirection.LeftDown;
-                        else _panDirection = CameraPanDirection.Down;
-                    }
-                    else
-                    {
-                        if (right >= 0) _panDirection = CameraPanDirection.Right;
-                        else _panDirection = CameraPanDirection.Left;
-                    }
-                    PanCamera(up, right);
-                }
-                else
-                {
-                    _panDirection = CameraPanDirection.None;
                 }
             }
             ZoomCamera(-inputState.ScrollWheelValue);
@@ -318,9 +335,9 @@ namespace OpenSage.Graphics.Cameras
             Zoom = _zoom + deltaY * ZoomSpeed;
         }
 
-        private void PanCamera(float forwards, float right)
+        private void PanCamera(int forwards, int right, float speed)
         {
-            var panSpeed = PanSpeed * _zoom;
+            var panSpeed = speed * _zoom;
 
             var lookDirection = GetLookDirection();
 

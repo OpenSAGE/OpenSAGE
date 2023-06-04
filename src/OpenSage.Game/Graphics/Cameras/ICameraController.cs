@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -41,7 +41,7 @@ namespace OpenSage.Graphics.Cameras
 
         void EndAnimation();
 
-        void UpdateCameraInput(Camera camera, in CameraInputState inputState, in TimeInterval gameTime);
+        void UpdateInput(in CameraInputState inputState, in TimeInterval gameTime);
 
         void UpdateCamera(Camera camera, in TimeInterval gameTime);
 
