@@ -125,7 +125,7 @@ namespace OpenSage.Graphics.Cameras
             ZoomCamera(-inputState.ScrollWheelValue);
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in TimeInterval gameTime)
+        void ICameraController.UpdateCamera(ICamera camera, in TimeInterval gameTime)
         {
             var position = Vector3.Transform(
                 -Vector3.UnitY,

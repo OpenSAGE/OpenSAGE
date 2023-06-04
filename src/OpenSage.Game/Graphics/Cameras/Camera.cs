@@ -5,7 +5,7 @@ using Viewport = Veldrid.Viewport;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class Camera
+    public sealed class Camera : ICamera
     {
         private readonly Func<Viewport> _getViewport;
         private Viewport _viewport;

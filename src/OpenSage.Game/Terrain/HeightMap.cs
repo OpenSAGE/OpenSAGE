@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
-    public sealed class HeightMap
+    public sealed class HeightMap : IHeightMap
     {
         internal const int HorizontalScale = 10;
 

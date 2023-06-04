@@ -20,8 +20,8 @@ namespace OpenSage.Graphics.Cameras
         public const int PanDirectionThreshold = 10;
 
 
-        private readonly Camera _camera;
-        private readonly HeightMap _heightMap;
+        private readonly ICamera _camera;
+        private readonly IHeightMap _heightMap;
         private IPanel _panel;
 
         private readonly float _defaultHeight;
@@ -87,7 +87,24 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap, IPanel panel)
+        public RtsCameraController(
+            float defaultHeight,
+            float defaultPitchAngle,
+            float defaultYaw,
+            ICamera camera,
+            IHeightMap heightMap,
+            IPanel panel)
+        {
+            _camera = camera;
+            _heightMap = heightMap;
+            _panel = panel;
+            _defaultHeight = defaultHeight;
+            _defaultPitchAngle = defaultPitchAngle;
+            _currentPitchAngle = -_defaultPitchAngle;
+            _yaw = defaultYaw;
+        }
+
+        public RtsCameraController(GameData gameData, ICamera camera, IHeightMap heightMap, IPanel panel)
         {
             _camera = camera;
             _heightMap = heightMap;
@@ -242,7 +259,7 @@ namespace OpenSage.Graphics.Cameras
             ZoomCamera(-inputState.ScrollWheelValue);
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in TimeInterval gameTime)
+        void ICameraController.UpdateCamera(ICamera camera, in TimeInterval gameTime)
         {
             if (_animation != null)
             {
