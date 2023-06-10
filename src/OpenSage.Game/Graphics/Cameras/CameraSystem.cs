@@ -15,6 +15,7 @@ namespace OpenSage.Graphics.Cameras
     {
         private CameraInputState _cameraInputState;
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
+        private readonly CameraHoverMessageHandler _cameraHoverMessageHandler;
         private readonly GamePanel Panel;
         public readonly Camera Camera;
         public readonly ICameraController Controller;
@@ -29,6 +30,7 @@ namespace OpenSage.Graphics.Cameras
                 if (value && !_cameraEnableInput)
                 {
                     _cameraInputMessageHandler.ResetMouse(Panel);
+                    _cameraHoverMessageHandler.ResetMouse(Panel);
                 }
                 _cameraEnableInput = value;
             }
@@ -45,7 +47,9 @@ namespace OpenSage.Graphics.Cameras
             Camera = new Camera(getViewport);
             Panel = game.Panel;
             _cameraInputMessageHandler = new CameraInputMessageHandler();
+            _cameraHoverMessageHandler = new CameraHoverMessageHandler();
             RegisterInputHandler(_cameraInputMessageHandler, inputMessageBuffer);
+            RegisterInputHandler(_cameraHoverMessageHandler, inputMessageBuffer);
         }
 
         public CameraSystem(
@@ -77,6 +81,7 @@ namespace OpenSage.Graphics.Cameras
         public void LogicTick(in TimeInterval gameTime)
         {
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
+            _cameraHoverMessageHandler?.UpdateInputState(ref _cameraInputState);
 
             if (EnableInput)
             {

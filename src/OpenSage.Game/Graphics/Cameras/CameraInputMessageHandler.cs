@@ -119,8 +119,6 @@ namespace OpenSage.Graphics.Cameras
 
             state.DeltaX = _deltaX;
             state.DeltaY = _deltaY;
-            state.LastX = _lastX;
-            state.LastY = _lastY;
 
             state.ScrollWheelValue = _scrollWheelValue;
 
