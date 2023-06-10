@@ -537,7 +537,7 @@ namespace OpenSage
                 GameSystems.ForEach(gs => gs.Initialize());
 
                 Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager, window));
-                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
+                Cursors.SetArrowCursor(_renderTimer.CurrentGameTime);
 
                 LauncherImage = LoadLauncherImage();
 
@@ -793,7 +793,7 @@ namespace OpenSage
             CursorDirection? panDirection = Scene3D.CameraController.PanDirection;
             if (panDirection != null)
             {
-                Cursors.SetCursor("Scroll", panDirection.Value, RenderTime);
+                Cursors.SetScrollCursor(panDirection.Value, RenderTime);
             }
             else
             {

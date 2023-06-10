@@ -150,12 +150,7 @@ namespace OpenSage.Input.Cursors
             DirectionLayout5, DirectionLayout6, DirectionLayout7, DirectionLayout8
         };
 
-        public void SetCursor(string cursorName, in TimeInterval time)
-        {
-            SetCursor(cursorName, CursorDirection.Right, time);
-        }
-
-        public void SetCursor(string cursorName, CursorDirection direction, in TimeInterval time)
+        private void SetCursor(string cursorName, CursorDirection direction, in TimeInterval time)
         {
             (string, CursorDirection)key = (cursorName, direction);
             if (!_cachedCursors.TryGetValue(key, out var cursor))
@@ -199,6 +194,21 @@ namespace OpenSage.Input.Cursors
 
             _currentCursor = cursor;
             _currentCursor.Apply(time);
+        }
+
+        public void SetArrowCursor(in TimeInterval time)
+        {
+            SetCursor("Arrow", time);
+        }
+
+        public void SetScrollCursor(CursorDirection direction, in TimeInterval time)
+        {
+            SetCursor("Scroll", direction, time);
+        }
+
+        public void SetCursor(string cursorName, in TimeInterval time)
+        {
+            SetCursor(cursorName, CursorDirection.Right, time);
         }
 
         public void Update(in TimeInterval time)
