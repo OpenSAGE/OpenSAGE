@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Sav;
+using OpenSage.Input.Cursors;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 using Veldrid;
@@ -33,8 +34,8 @@ namespace OpenSage.Graphics.Cameras
 
         public bool CanPlayerInputChangePitch { get; set; }
 
-        private CameraPanDirection _panDirection = CameraPanDirection.None;
-        CameraPanDirection ICameraController.PanDirection { get => _panDirection; }
+        private CursorDirection? _panDirection = null;
+        CursorDirection? ICameraController.PanDirection { get => _panDirection; }
 
         private float _yaw;
         public void SetLookDirection(Vector3 lookDirection)
@@ -187,33 +188,33 @@ namespace OpenSage.Graphics.Cameras
             return 0;
         }
 
-        static CameraPanDirection CalculatePanDirection(int up, int right, bool rmb)
+        private static CursorDirection? CalculatePanDirection(int up, int right, bool rmb)
         {
             int thresh = rmb ? PanDirectionThreshold : 0;
             if (up > thresh)
             {
-                if (right > thresh) return CameraPanDirection.RightUp;
-                else if (right < -thresh) return CameraPanDirection.LeftUp;
-                else return CameraPanDirection.Up;
+                if (right > thresh) return CursorDirection.RightUp;
+                else if (right < -thresh) return CursorDirection.LeftUp;
+                else return CursorDirection.Up;
             }
             else if (up < -thresh)
             {
-                if (right > thresh) return CameraPanDirection.RightDown;
-                else if (right < -thresh) return CameraPanDirection.LeftDown;
-                else return CameraPanDirection.Down;
+                if (right > thresh) return CursorDirection.RightDown;
+                else if (right < -thresh) return CursorDirection.LeftDown;
+                else return CursorDirection.Down;
             }
             else
             {
                 if (rmb)
                 {
-                    if (right >= 0) return CameraPanDirection.Right;
-                    else return CameraPanDirection.Left;
+                    if (right >= 0) return CursorDirection.Right;
+                    else return CursorDirection.Left;
                 }
                 else
                 {
-                    if (right > 0) return CameraPanDirection.Right;
-                    else if (right < 0) return CameraPanDirection.Left;
-                    else return CameraPanDirection.None;
+                    if (right > 0) return CursorDirection.Right;
+                    else if (right < 0) return CursorDirection.Left;
+                    else return null;
                 }
                 
             }
@@ -224,7 +225,7 @@ namespace OpenSage.Graphics.Cameras
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
                 RotateCamera(inputState.DeltaX, inputState.DeltaY);
-                _panDirection = CameraPanDirection.None;
+                _panDirection = null;
             }
             else
             {
@@ -250,7 +251,7 @@ namespace OpenSage.Graphics.Cameras
                     else up = GetKeyMovement(inputState, Key.Up, Key.Down);
 
                     _panDirection = CalculatePanDirection(up, right, false);
-                    if (_panDirection != CameraPanDirection.None)
+                    if (_panDirection != null)
                     {
                         PanCamera(up, right, PanSpeed);
                     }

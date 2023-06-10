@@ -790,10 +790,10 @@ namespace OpenSage
 
         public void CursorLogicTick()
         {
-            CameraPanDirection panDirection = Scene3D.CameraController.PanDirection;
-            if (panDirection != CameraPanDirection.None)
+            CursorDirection? panDirection = Scene3D.CameraController.PanDirection;
+            if (panDirection != null)
             {
-                Cursors.SetCursor("Scroll", (uint)panDirection, RenderTime);
+                Cursors.SetCursor("Scroll", panDirection.Value, RenderTime);
             }
             else
             {

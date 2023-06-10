@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Input.Cursors;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -26,7 +27,7 @@ namespace OpenSage.Graphics.Cameras
         void ICameraController.SetPitch(float pitch) => throw new NotImplementedException();
         float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        CameraPanDirection ICameraController.PanDirection { get => throw new NotImplementedException(); }
+        CursorDirection? ICameraController.PanDirection { get => throw new NotImplementedException(); }
 
         public ArcballCameraController(Vector3 target, float radius)
         {

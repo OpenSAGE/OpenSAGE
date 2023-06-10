@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Input.Cursors;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 using Xunit;
@@ -108,26 +109,29 @@ namespace OpenSage.Tests.Graphics.Cameras
 
         public static IEnumerable<object[]> PanningData()
         {
-            foreach (var dir in Enum.GetValues(typeof(CameraPanDirection)))
+            for (int i = -1; i <= 1; i++)
             {
-                yield return new object[] { dir };
+                for (int j = -1; j <= 1; j++)
+                {
+                    yield return new object[] { i, j };
+                }
             }
         }
 
-        static (int, int) DirectionTuple(CameraPanDirection panDirection)
+        static CursorDirection? PanDirection(int x, int y)
         {
-            return panDirection switch
+            return (x, y) switch
             {
-                CameraPanDirection.None => (0, 0),
-                CameraPanDirection.Right => (1, 0),
-                CameraPanDirection.Down => (0, 1),
-                CameraPanDirection.RightDown => (1, 1),
-                CameraPanDirection.LeftDown => (-1, 1),
-                CameraPanDirection.Left => (-1, 0),
-                CameraPanDirection.LeftUp => (-1, -1),
-                CameraPanDirection.Up => (0, -1),
-                CameraPanDirection.RightUp => (1, -1),
-                _ => throw new NotImplementedException()
+                (0, 0) => null,
+                (1, 0) => CursorDirection.Right,
+                (0, 1) => CursorDirection.Down,
+                (1, 1) => CursorDirection.RightDown,
+                (-1, 1) => CursorDirection.LeftDown,
+                (-1, 0) => CursorDirection.Left,
+                (-1, -1) => CursorDirection.LeftUp,
+                (0, -1) => CursorDirection.Up,
+                (1, -1) => CursorDirection.RightUp,
+                _ => throw new ArgumentOutOfRangeException()
             };
         }
 
@@ -138,7 +142,7 @@ namespace OpenSage.Tests.Graphics.Cameras
 
         void DoPanningTest(
             CameraInputState inputState, int x, int y, 
-            CameraPanDirection panDirection,
+            CursorDirection? panDirection,
             float speed = RtsCameraController.PanSpeed)
         {
             Vector3 delta = ClaculatePanDelta(x, y, speed);
@@ -153,10 +157,10 @@ namespace OpenSage.Tests.Graphics.Cameras
         // Assume lookup direction is (1, 0, 0)
         [Theory]
         [MemberData(nameof(PanningData))]
-        public void TestHoverPanning(CameraPanDirection panDirection)
+        public void TestHoverPanning(int x, int y)
         {
             CameraInputState inputState = CreateInputState();
-            (int x, int y) = DirectionTuple(panDirection);
+            CursorDirection? panDirection = PanDirection(x, y);
             inputState.LastX = (1 + x) * WindowSize / 2;
             inputState.LastY = (1 + y) * WindowSize / 2;
             DoPanningTest(inputState, -y, -x, panDirection);
@@ -165,10 +169,10 @@ namespace OpenSage.Tests.Graphics.Cameras
         // Assume lookup direction is (1, 0, 0)
         [Theory]
         [MemberData(nameof(PanningData))]
-        public void TestKeyboardPanning(CameraPanDirection panDirection)
+        public void TestKeyboardPanning(int x, int y)
         {
             CameraInputState inputState = CreateInputState();
-            (int x, int y) = DirectionTuple(panDirection);
+            CursorDirection? panDirection = PanDirection(x, y);
             if (x > 0) inputState.PressedKeys.Add(Veldrid.Key.Right);
             else if (x < 0) inputState.PressedKeys.Add(Veldrid.Key.Left);
             if (y > 0) inputState.PressedKeys.Add(Veldrid.Key.Down);
@@ -179,20 +183,20 @@ namespace OpenSage.Tests.Graphics.Cameras
         // Assume lookup direction is (1, 0, 0)
         [Theory]
         [MemberData(nameof(PanningData))]
-        public void TestRightMousePanning(CameraPanDirection panDirection)
+        public void TestRightMousePanning(int x, int y)
         {
             CameraInputState inputState = CreateInputState();
-            (int x, int y) = DirectionTuple(panDirection);
             float speed = RtsCameraController.MousePanSpeed;
             int movement = (int)Math.Ceiling(RtsCameraController.PanDirectionThreshold / speed);
+            CursorDirection? panDirection = PanDirection(x, y);
             x *= movement;
             y *= movement;
             inputState.RightMouseDown = true;
             inputState.DeltaX = x;
             inputState.DeltaY = y;
-            if (panDirection == CameraPanDirection.None)
+            if (panDirection == null)
             {
-                panDirection = CameraPanDirection.Right;
+                panDirection = CursorDirection.Right;
             }
             DoPanningTest(inputState, -y, -x, panDirection, speed);
         }
