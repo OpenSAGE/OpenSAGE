@@ -10,7 +10,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class RtsCameraController : ICameraController, IPersistableObject
+    public sealed class RtsCameraController : ICameraController
     {
         public const float RotationSpeed = 0.003f;
         public const float ZoomSpeed = 0.0005f;
@@ -398,7 +398,7 @@ namespace OpenSage.Graphics.Cameras
             reader.PersistVector3(ref _terrainPosition);
         }
 
-        internal void DrawInspector()
+        public void DrawInspector()
         {
             var pitchDegrees = MathUtility.ToDegrees(_currentPitchAngle);
             if (ImGui.DragFloat("Pitch", ref pitchDegrees, 1, -90, 90))

@@ -7,11 +7,13 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public interface ICameraController
+    public interface ICameraController : IPersistableObject
     {
         float Zoom { get; set; }
 
         Vector3 TerrainPosition { get; set; }
+
+        bool CanPlayerInputChangePitch { get; set; }
 
         void SetPitch(float pitch);
 
@@ -35,8 +37,8 @@ namespace OpenSage.Graphics.Cameras
 
         void UpdateCamera(ICamera camera, in TimeInterval gameTime);
 
-
         void GoToObject(GameObject gameObject);
 
+        void DrawInspector();
     }
 }

@@ -441,7 +441,7 @@ namespace OpenSage
 
                             if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Comma)
                             {
-                                var rtsCam = Scene3D.CameraController as RtsCameraController;
+                                var rtsCam = Scene3D.CameraController;
                                 rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
                                 return InputMessageResult.Handled;
                             }

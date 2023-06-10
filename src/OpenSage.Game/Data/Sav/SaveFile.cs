@@ -63,7 +63,7 @@ namespace OpenSage.Data.Sav
             new ChunkDefinition("CHUNK_Radar", game => game.Scene3D.Radar),
             new ChunkDefinition("CHUNK_ScriptEngine", game => game.Scripting),
             new ChunkDefinition("CHUNK_SidesList", game => game.Scene3D.PlayerScripts),
-            new ChunkDefinition("CHUNK_TacticalView", game => ((RtsCameraController) game.Scene3D.CameraController)),
+            new ChunkDefinition("CHUNK_TacticalView", game => game.Scene3D.CameraController),
             new ChunkDefinition("CHUNK_GameClient", game => game.GameClient),
             new ChunkDefinition("CHUNK_InGameUI", game => game.AssetStore.InGameUI.Current),
             new ChunkDefinition("CHUNK_Partition", game => game.PartitionCellManager),

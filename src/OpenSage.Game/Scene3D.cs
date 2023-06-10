@@ -32,10 +32,18 @@ namespace OpenSage
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly CameraInputMessageHandler _cameraInputMessageHandler;
-        private CameraInputState _cameraInputState;
-
         internal readonly GameContext GameContext;
+
+        public readonly CameraSystem CameraSystem;
+
+        public Camera Camera
+        { 
+            get => CameraSystem.Camera;
+        }
+        public ICameraController CameraController
+        { 
+            get => CameraSystem.Controller;
+        }
 
         public SelectionGui SelectionGui { get; }
 
@@ -45,10 +53,6 @@ namespace OpenSage
         internal readonly ParticleSystemManager ParticleSystemManager;
 
         private readonly OrderGeneratorSystem _orderGeneratorSystem;
-
-        public readonly Camera Camera;
-
-        public readonly ICameraController CameraController;
 
         public readonly MapFile MapFile;
 
@@ -108,20 +112,6 @@ namespace OpenSage
 
         public readonly RenderScene RenderScene;
 
-        private bool _cameraEnableInput;
-        public bool CameraEnableInput
-        { 
-            get => _cameraEnableInput;
-            set
-            {
-                if (value && !_cameraEnableInput)
-                {
-                    _cameraInputMessageHandler.ResetMouse(Game.Panel);
-                }
-                _cameraEnableInput = value;
-            }
-        }
-
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -131,7 +121,7 @@ namespace OpenSage
             Data.Map.Team[] mapTeams,
             ScriptList[] mapScriptLists,
             GameType gameType)
-            : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
+            : this(game, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
         {
             game.Scene3D = this;
 
@@ -163,14 +153,7 @@ namespace OpenSage
                 ScriptLists = mapScriptLists
             };
 
-            CameraController = new RtsCameraController(
-                game.AssetStore.GameData.Current, Camera, Terrain.HeightMap, Game.Panel)
-            {
-                TerrainPosition = Terrain.HeightMap.GetPosition(
-                    Terrain.HeightMap.Width / 2,
-                    Terrain.HeightMap.Height / 2)
-            };
-
+            CameraSystem = AddDisposable(new CameraSystem(game, Terrain, () => game.Viewport, game.InputMessageBuffer));
             game.ContentManager.GraphicsDevice.WaitForIdle();
         }
 
@@ -278,7 +261,7 @@ namespace OpenSage
             WorldLighting lighting,
             int randomSeed,
             bool isDiagnosticScene = false)
-            : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
+            : this(game, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
         {
             WaterAreas = AddDisposable(new WaterAreaCollection());
             Lighting = lighting;
@@ -288,14 +271,18 @@ namespace OpenSage
             Waypoints = new WaypointCollection();
             Cameras = new CameraCollection();
 
-            CameraController = cameraController;
+            CameraSystem = AddDisposable(new CameraSystem(game, cameraController, getViewport, inputMessageBuffer));
         }
 
-        private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
+        private Scene3D(
+            Game game,
+            InputMessageBuffer inputMessageBuffer,
+            int randomSeed,
+            bool isDiagnosticScene,
+            MapFile mapFile,
+            string mapPath)
         {
             Game = game;
-
-            Camera = new Camera(getViewport);
 
             SelectionGui = new SelectionGui();
 
@@ -313,7 +300,7 @@ namespace OpenSage
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
 
-            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
+            
 
             if (!isDiagnosticScene)
             {
@@ -392,14 +379,7 @@ namespace OpenSage
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
             }
 
-            _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
-
-            if (CameraEnableInput)
-            {
-                CameraController.UpdateInput(_cameraInputState, gameTime);
-            }
-            CameraController.UpdateCamera(Camera, gameTime);
-            
+            CameraSystem.LogicTick(gameTime);
 
             DebugOverlay.Update(gameTime);
 

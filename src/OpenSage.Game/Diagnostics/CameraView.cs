@@ -15,8 +15,7 @@ namespace OpenSage.Diagnostics
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            var cameraController = (RtsCameraController) Context.Game.Scene3D.CameraController;
-            cameraController.DrawInspector();
+            Context.Game.Scene3D.CameraController.DrawInspector();
         }
     }
 }

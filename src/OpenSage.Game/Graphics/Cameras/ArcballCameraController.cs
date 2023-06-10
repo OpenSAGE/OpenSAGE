@@ -24,6 +24,12 @@ namespace OpenSage.Graphics.Cameras
         private float _zoom;
         private Vector3 _translation;
 
+        public bool CanPlayerInputChangePitch
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         void ICameraController.SetPitch(float pitch) => throw new NotImplementedException();
         float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -141,5 +147,10 @@ namespace OpenSage.Graphics.Cameras
         }
 
         public void GoToObject(GameObject gameObject) { }
+
+        public void Persist(StatePersister reader) { }
+
+        public void DrawInspector() { }
+
     }
 }
