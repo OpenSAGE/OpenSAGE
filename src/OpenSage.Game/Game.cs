@@ -793,6 +793,7 @@ namespace OpenSage
             CursorDirection? panDirection = Scene3D.CameraController.PanDirection;
             if (panDirection != null)
             {
+                Scene3D.CursorUpdatePosition();
                 Cursors.IsCursorVisible = true;
                 Cursors.SetScrollCursor(panDirection.Value, RenderTime);
             }

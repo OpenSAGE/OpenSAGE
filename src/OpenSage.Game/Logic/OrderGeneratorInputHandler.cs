@@ -18,6 +18,8 @@ namespace OpenSage.Logic
 
         internal KeyModifiers KeyModifiers => _keyModifiers;
 
+        internal Point2D LastMousePosition { get => _mousePosition; }
+
         public OrderGeneratorInputHandler(OrderGeneratorSystem orderGeneratorSystem)
         {
             _orderGeneratorSystem = orderGeneratorSystem;

@@ -363,6 +363,12 @@ namespace OpenSage
             GameObjects.DeleteDestroyed();
         }
 
+        internal void CursorUpdatePosition()
+        {
+            Vector2 pos = _orderGeneratorInputHandler.LastMousePosition.ToVector2();
+            _orderGeneratorSystem.UpdatePosition(pos);
+        }
+
         internal void CursorLogicTick(in TimeInterval gameTime)
         {
             if (_orderGeneratorInputHandler != null)
