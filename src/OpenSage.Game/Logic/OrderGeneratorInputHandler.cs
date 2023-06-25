@@ -68,7 +68,7 @@ namespace OpenSage.Logic
                     }
                     break;
 
-                case InputMessageType.MouseRightButtonDown:
+                case InputMessageType.MouseRightButtonUp:
                     // TODO: is this desirable if we don't actually deselect the unit, but simply pan the camera?
                     _orderGeneratorSystem.CancelOrderGenerator();
                     break;

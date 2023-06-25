@@ -17,6 +17,24 @@ namespace OpenSage.Graphics.Cameras
 
         private int _scrollWheelValue;
 
+        private void SetPosition(InputMessage message)
+        {
+            var position = message.Value.MousePosition;
+            _lastX = position.X;
+            _lastY = position.Y;
+        }
+
+        private InputMessageResult ResetDelta()
+        {
+            InputMessageResult result = InputMessageResult.NotHandled;
+            if (_deltaX != 0 || _deltaY != 0)
+            {
+                result = InputMessageResult.Handled;
+            }
+            _deltaX = _deltaY = 0;
+            return result;
+        }
+
         public override HandlingPriority Priority =>
             _rightMouseDown || _middleMouseDown || _pressedKeys.Contains(Key.AltLeft)
                 ? HandlingPriority.MoveCameraPriority
@@ -49,29 +67,19 @@ namespace OpenSage.Graphics.Cameras
                     }
 
                 case InputMessageType.MouseLeftButtonDown:
+                    SetPosition(message);
+                    _leftMouseDown = true;
+                    break;
+
                 case InputMessageType.MouseMiddleButtonDown:
+                    SetPosition(message);
+                    _middleMouseDown = true;
+                    break;
+
                 case InputMessageType.MouseRightButtonDown:
-                    {
-                        var position = message.Value.MousePosition;
-                        _lastX = position.X;
-                        _lastY = position.Y;
-
-                        switch (message.MessageType)
-                        {
-                            case InputMessageType.MouseLeftButtonDown:
-                                _leftMouseDown = true;
-                                break;
-
-                            case InputMessageType.MouseMiddleButtonDown:
-                                _middleMouseDown = true;
-                                break;
-
-                            case InputMessageType.MouseRightButtonDown:
-                                _rightMouseDown = true;
-                                break;
-                        }
-                        break;
-                    }
+                    SetPosition(message);
+                    _rightMouseDown = true;
+                    break;
 
                 case InputMessageType.MouseLeftButtonUp:
                     _leftMouseDown = false;
@@ -83,8 +91,7 @@ namespace OpenSage.Graphics.Cameras
 
                 case InputMessageType.MouseRightButtonUp:
                     _rightMouseDown = false;
-                    _deltaX = _deltaY = 0;
-                    return InputMessageResult.NotHandled;
+                    return ResetDelta();
 
                 case InputMessageType.MouseWheel:
                     _scrollWheelValue += message.Value.ScrollWheel;
