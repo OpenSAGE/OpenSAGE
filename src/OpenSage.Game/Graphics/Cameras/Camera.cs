@@ -18,7 +18,7 @@ namespace OpenSage.Graphics.Cameras
         private float _fieldOfView = MathUtility.ToRadians(50);
 
         /// <summary>
-        /// Gets or sets a value that represents the camera's field of view in radians. 
+        /// Gets or sets a value that represents the camera's field of view in radians.
         /// </summary>
         public float FieldOfView
         {
@@ -131,8 +131,10 @@ namespace OpenSage.Graphics.Cameras
 
         private void CreateProjection(out Matrix4x4 projection)
         {
+            var fov = GetVerticalFieldOfView();
+            fov = float.IsNaN(fov) ? 1 : fov; // .NET 8 no longer allows CreatePerspectiveFieldOfView to be called with NaN FOV
             projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                GetVerticalFieldOfView(), _viewport.Width / _viewport.Height,
+                fov, _viewport.Width / _viewport.Height,
                 NearPlaneDistance, FarPlaneDistance);
         }
 
