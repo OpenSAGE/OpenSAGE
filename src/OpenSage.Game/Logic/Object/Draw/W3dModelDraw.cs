@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            if (animationState?.Script is not null)
+            if (animationState?.Script != null)
             {
                 _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
