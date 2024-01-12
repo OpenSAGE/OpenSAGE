@@ -105,7 +105,7 @@ namespace OpenSage.Logic.OrderGenerators
             {
                 if (_worldObject != null)
                 {
-                    // TODO: Should take allies into account.
+                    // TODO: Should take allies and neutrals (like supply depots) into account.
                     if (_worldObject.Owner != _game.Scene3D.LocalPlayer)
                     {
                         if (unit.IsKindOf(ObjectKinds.Harvester) && _worldObject.IsKindOf(ObjectKinds.SupplySource))
