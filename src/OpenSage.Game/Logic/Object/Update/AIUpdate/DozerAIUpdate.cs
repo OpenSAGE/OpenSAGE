@@ -6,6 +6,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
     {
+        public bool HasBuildTarget => _buildTarget != null;
+
         private readonly DozerAndWorkerState _state = new();
 
         private GameObject _buildTarget;

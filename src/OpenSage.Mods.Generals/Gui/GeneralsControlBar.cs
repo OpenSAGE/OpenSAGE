@@ -318,6 +318,10 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             // Disable the button when the unit is not produceable
                             case CommandType.DozerConstruct:
+                                var isBuilding = selectedUnit.IsKindOf(ObjectKinds.Dozer) && (selectedUnit.AIUpdate as IBuilderAIUpdate)?.HasBuildTarget == true; // todo: can we remove this cast in the future?
+                                buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition) && !isBuilding;
+                                buttonControl.Show();
+                                break;
                             case CommandType.UnitBuild:
                                 buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition);
                                 buttonControl.Show();
