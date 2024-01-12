@@ -332,28 +332,31 @@ namespace OpenSage.Logic.Object
 
             foreach (var objectName in ObjectNames)
             {
-                var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
-                // TODO: Count
-                // TODO: Disposition
-                // TODO: DispositionIntensity
-                // TODO: IgnorePrimaryObstacle
-                if (position.HasValue)
+                for (var i = 0; i < Count; i++)
                 {
-                    newGameObject.UpdateTransform(position.Value);
-                }
-                else
-                {
-                    newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
-                }
+                    var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
+                    // TODO: Count
+                    // TODO: Disposition
+                    // TODO: DispositionIntensity
+                    // TODO: IgnorePrimaryObstacle
+                    if (position.HasValue)
+                    {
+                        newGameObject.UpdateTransform(position.Value);
+                    }
+                    else
+                    {
+                        newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
+                    }
 
-                var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
-                if (lifetimeUpdate != null)
-                {
-                    var lifetime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
-                    lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
-                }
+                    var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
+                    if (lifetimeUpdate != null)
+                    {
+                        var lifetime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+                        lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
+                    }
 
-                result.Add(newGameObject);
+                    result.Add(newGameObject);
+                }
             }
 
             return result;

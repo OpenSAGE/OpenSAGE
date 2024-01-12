@@ -80,7 +80,10 @@ namespace OpenSage.Gui.Apt
                 _clipMaskDrawingContext.Begin(
                     _commandList,
                     _graphicsLoadContext.StandardGraphicsResources.LinearClampSampler,
-                    new SizeF(renderTarget.ColorTarget.Width, renderTarget.ColorTarget.Height));
+                    new SizeF(renderTarget.ColorTarget.Width, renderTarget.ColorTarget.Height),
+                    // TODO: Pass correct time here
+                    TimeInterval.Zero
+                );
 
                 _activeDrawingContext = _clipMaskDrawingContext;
             }

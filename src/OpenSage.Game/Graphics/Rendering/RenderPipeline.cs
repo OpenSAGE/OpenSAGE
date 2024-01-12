@@ -32,7 +32,7 @@ namespace OpenSage.Graphics.Rendering
         private readonly GlobalShaderResources _globalShaderResources;
         private readonly GlobalShaderResourceData _globalShaderResourceData;
 
-        private readonly DrawingContext2D _drawingContext;
+        internal readonly DrawingContext2D DrawingContext;
 
         private readonly ShadowMapRenderer _shadowMapRenderer;
         private readonly WaterMapRenderer _waterMapRenderer;
@@ -63,7 +63,7 @@ namespace OpenSage.Graphics.Rendering
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
-            _drawingContext = AddDisposable(new DrawingContext2D(
+            DrawingContext = AddDisposable(new DrawingContext2D(
                 game.ContentManager,
                 game.GraphicsLoadContext,
                 BlendStateDescription.SingleAlphaBlend,
@@ -135,21 +135,22 @@ namespace OpenSage.Graphics.Rendering
             {
                 _commandList.PushDebugGroup("2D Scene");
 
-                _drawingContext.Begin(
+                DrawingContext.Begin(
                     _commandList,
                     _loadContext.StandardGraphicsResources.LinearClampSampler,
-                    new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
+                    new SizeF(context.RenderTarget.Width, context.RenderTarget.Height),
+                    context.GameTime);
 
-                context.Scene3D?.Render(_drawingContext);
-                context.Scene2D?.Render(_drawingContext);
+                context.Scene3D?.Render(DrawingContext);
+                context.Scene2D?.Render(DrawingContext);
 
                 _shadowMapRenderer.DrawDebugOverlay(
                     context.Scene3D,
-                    _drawingContext);
+                    DrawingContext);
 
-                Rendering2D?.Invoke(this, new Rendering2DEventArgs(_drawingContext));
+                Rendering2D?.Invoke(this, new Rendering2DEventArgs(DrawingContext));
 
-                _drawingContext.End();
+                DrawingContext.End();
 
                 _commandList.PopDebugGroup();
             }

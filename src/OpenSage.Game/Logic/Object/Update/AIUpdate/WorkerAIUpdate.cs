@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
                 CurrentSupplySource.Supply -= context.GameContext.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
                 if (CurrentSupplySource.Supply <= 0)
                 {
-                    CurrentSupplySource.Die(DeathType.Normal);
+                    CurrentSupplySource.Update();
                     CurrentSupplySource = null;
                 }
                 return;

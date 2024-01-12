@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
   </ItemGroup>
 
   <ItemGroup>

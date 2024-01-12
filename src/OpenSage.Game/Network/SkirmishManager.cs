@@ -226,7 +226,7 @@ namespace OpenSage.Network
             _processor.SubscribeReusable<SkirmishStartGamePacket>(SkirmishStartGamePacketReceived);
             _processor.SubscribeReusable<SkirmishClientReadyPacket>(SkirmishClientReadyPacketReceived);
 
-            _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
+            _listener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
             {
                 var type = (PacketType) dataReader.GetByte();
                 Logger.Trace($"Received packet with type {type}");
@@ -451,7 +451,7 @@ namespace OpenSage.Network
                 }
             };
 
-            _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
+            _listener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
             {
                 var type = (PacketType) dataReader.GetByte();
                 var slot = _slotLookup[fromPeer.Id];
