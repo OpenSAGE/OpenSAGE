@@ -2,24 +2,21 @@
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class InstantDeathBehavior : DieModule
+    public sealed class InstantDeathBehavior : DieModule<InstantDeathBehaviorModuleData>
     {
         private readonly GameObject _gameObject;
-        private readonly InstantDeathBehaviorModuleData _moduleData;
 
-        internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData)
+        internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData) : base(moduleData)
         {
             _gameObject = gameObject;
-            _moduleData = moduleData;
         }
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            if (!_moduleData.DeathTypes.Get(deathType))
+            if (!ModuleData.DeathTypes.Get(deathType))
             {
                 return;
             }
@@ -28,7 +25,7 @@ namespace OpenSage.Logic.Object
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
-            _moduleData.FX?.Value?.Execute(new FXListExecutionContext(
+            ModuleData.FX?.Value?.Execute(new FXListExecutionContext(
                 rotation,
                 translation,
                 context.GameContext));
@@ -44,20 +41,17 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public sealed class InstantDeathBehaviorModuleData : BehaviorModuleData
+    public sealed class InstantDeathBehaviorModuleData : DieModuleData
     {
         internal static InstantDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<InstantDeathBehaviorModuleData> FieldParseTable = new IniParseTable<InstantDeathBehaviorModuleData>
-        {
-            { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() },
-            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
-            { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
-        };
+        private static readonly IniParseTable<InstantDeathBehaviorModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<InstantDeathBehaviorModuleData>
+            {
+                { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
+                { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
+            });
 
-        public ObjectStatus RequiredStatus { get; private set; }
-        public BitArray<DeathType> DeathTypes { get; private set; }
         public LazyAssetReference<FXList> FX { get; private set; }
         public string OCL { get; private set; }
 

@@ -4,18 +4,15 @@ using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FXListDie : DieModule
+    public sealed class FXListDie : DieModule<FXListDieModuleData>
     {
-        private readonly FXListDieModuleData _moduleData;
-
-        internal FXListDie(FXListDieModuleData moduleData)
+        internal FXListDie(FXListDieModuleData moduleData) : base(moduleData)
         {
-            _moduleData = moduleData;
         }
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
+            ModuleData.DeathFX.Value.Execute(new FXListExecutionContext(
                 context.GameObject.Rotation,
                 context.GameObject.Translation,
                 context.GameContext));

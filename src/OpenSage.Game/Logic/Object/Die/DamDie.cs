@@ -2,9 +2,12 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DamDie : DieModule
+    public sealed class DamDie : DieModule<DamDieModuleData>
     {
         // TODO
+        public DamDie(DamDieModuleData moduleData) : base(moduleData)
+        {
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -17,7 +20,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Allows object to continue to exist as an obstacle but allowing water terrain to move 
+    /// Allows object to continue to exist as an obstacle but allowing water terrain to move
     /// through. The module must be applied after any other death modules.
     /// </summary>
     public sealed class DamDieModuleData : DieModuleData
@@ -26,10 +29,5 @@ namespace OpenSage.Logic.Object
 
         private static new readonly IniParseTable<DamDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
             .Concat(new IniParseTable<DamDieModuleData>());
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new DamDie();
-        }
     }
 }

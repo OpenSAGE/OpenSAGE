@@ -193,6 +193,9 @@ namespace OpenSage.Logic.Object
         private byte _weaponSomethingTertiary;
         private BitArray<SpecialPowerType> _specialPowers = new();
 
+        // todo: is this one of the unknown fields above?
+        private ObjectStatus? _status;
+
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
         public Vector3 EulerAngles => _transform.EulerAngles;
@@ -852,6 +855,8 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
                 ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
+
+                _status = ObjectStatus.UnderConstruction;
             }
         }
 
@@ -882,6 +887,12 @@ namespace OpenSage.Logic.Object
         internal void FinishConstruction()
         {
             ClearModelConditionFlags();
+
+            if (_status == ObjectStatus.UnderConstruction)
+            {
+                _status = null;
+            }
+
             EnergyProduction += Definition.EnergyProduction;
 
             foreach (var module in FindBehaviors<ICreateModule>())
@@ -1159,7 +1170,7 @@ namespace OpenSage.Logic.Object
                 // If there are multiple SlowDeathBehavior modules,
                 // we need to use ProbabilityModifier to choose between them.
                 var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-                    .Where(x => x.IsApplicable(deathType))
+                    .Where(x => x.IsApplicable(deathType, _status))
                     .ToList();
                 if (slowDeathBehaviors.Count > 1)
                 {
@@ -1171,7 +1182,7 @@ namespace OpenSage.Logic.Object
                         cumulative += deathBehavior.ProbabilityModifier;
                         if (random < cumulative)
                         {
-                            deathBehavior.OnDie(_behaviorUpdateContext, deathType);
+                            deathBehavior.OnDie(_behaviorUpdateContext, deathType, _status);
                             return;
                         }
                     }
@@ -1183,7 +1194,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var module in _behaviorModules)
             {
-                module.OnDie(_behaviorUpdateContext, deathType);
+                module.OnDie(_behaviorUpdateContext, deathType, _status);
             }
         }
 

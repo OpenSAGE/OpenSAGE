@@ -2,8 +2,12 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class RebuildHoleExposeDie : DieModule
+    public sealed class RebuildHoleExposeDie : DieModule<RebuildHoleExposeDieModuleData>
     {
+        public RebuildHoleExposeDie(RebuildHoleExposeDieModuleData moduleData) : base(moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -15,7 +19,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Requires the object specified in <see cref="HoleName"/> to have the REBUILD_HOLE KindOf and 
+    /// Requires the object specified in <see cref="HoleName"/> to have the REBUILD_HOLE KindOf and
     /// <see cref="RebuildHoleBehaviorModuleData"/> module in order to work.
     /// </summary>
     public sealed class RebuildHoleExposeDieModuleData : DieModuleData
@@ -39,10 +43,5 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool TransferAttackers { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new RebuildHoleExposeDie();
-        }
     }
 }
