@@ -61,6 +61,7 @@ namespace OpenSage.Logic.Object
             {
                 ClearBuildTarget();
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
+                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.VoiceTaskComplete.Value);
             }
         }
 
