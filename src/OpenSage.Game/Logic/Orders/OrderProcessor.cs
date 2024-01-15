@@ -99,7 +99,9 @@ namespace OpenSage.Logic.Orders
                             {
                                 // This probably shouldn't trigger a Die
                                 unit.Die(DeathType.Normal);
+                                player.BankAccount.Deposit((uint) unit.Definition.BuildCost);
                             }
+                            player.DeselectUnits();
                         }
                         break;
                     case OrderType.ResumeBuild:
