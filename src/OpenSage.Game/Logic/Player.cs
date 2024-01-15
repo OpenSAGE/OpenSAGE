@@ -355,6 +355,27 @@ namespace OpenSage.Logic
                 }
             }
 
+            // Prerequisites are AND'd.
+            foreach (var sciencePrerequisiteList in objectToProduce.Prerequisites.Sciences)
+            {
+                // The list within each prerequisite is OR'd.
+
+                var hasPrerequisite = false;
+                foreach (var science in sciencePrerequisiteList)
+                {
+                    if (HasScience(science.Value))
+                    {
+                        hasPrerequisite = true;
+                        break;
+                    }
+                }
+
+                if (!hasPrerequisite)
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
