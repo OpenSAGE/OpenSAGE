@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
@@ -22,7 +23,7 @@ namespace OpenSage.Logic.Object
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseTimeSecondsToLogicFrames() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseMappedImageReference() },
-            { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAssetReference() },
+            { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAudioEventReference() },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() },
             { "Cursor", (parser, x) => x.Cursor = parser.ParseAssetReference() },
@@ -66,7 +67,7 @@ namespace OpenSage.Logic.Object
         public LogicFrameSpan BuildTime { get; private set; }
         public float BuildCost { get; private set; }
         public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
-        public string ResearchSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo>? ResearchSound { get; private set; }
         public string UnitSpecificSound { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]

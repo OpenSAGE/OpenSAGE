@@ -113,6 +113,11 @@ namespace OpenSage.Logic.Object
                     else if (front.Type == ProductionJobType.Upgrade)
                     {
                         front.UpgradeDefinition.GrantUpgrade(_gameObject);
+                        if (front.UpgradeDefinition.ResearchSound != null)
+                        {
+                            // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
+                            context.GameContext.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
+                        }
                         _productionQueue.RemoveAt(0);
                     }
                 }
