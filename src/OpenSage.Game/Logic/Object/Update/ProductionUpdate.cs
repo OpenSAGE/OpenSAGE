@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
                     _currentDoorState = DoorState.Open;
 
                     GetDoorConditionFlags(out var doorOpening, out var doorWaitingOpen, out var _);
-                   
+
                     _gameObject.ModelConditionFlags.Set(doorOpening, false);
                     _gameObject.ModelConditionFlags.Set(doorWaitingOpen, true);
                     MoveProducedObjectOut();
@@ -416,6 +416,11 @@ namespace OpenSage.Logic.Object
         {
             var job = new ProductionJob(upgradeDefinition);
             _productionQueue.Add(job);
+
+            if (upgradeDefinition.Type == UpgradeType.Player)
+            {
+                _gameObject.Owner.AddUpgrade(upgradeDefinition, UpgradeStatus.Queued);
+            }
         }
 
         internal void CancelUpgrade(UpgradeTemplate upgradeDefinition)
@@ -435,6 +440,11 @@ namespace OpenSage.Logic.Object
             }
 
             _productionQueue.RemoveAt(index);
+
+            if (upgradeDefinition.Type == UpgradeType.Player)
+            {
+                _gameObject.Owner.CancelUpgrade(upgradeDefinition);
+            }
         }
 
         public bool CanEnqueue() => _moduleData.MaxQueueEntries == 0 || _productionQueue.Count < _moduleData.MaxQueueEntries;
@@ -518,7 +528,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for 
+    /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for
     /// units/structures with object upgrades.
     /// </summary>
     public sealed class ProductionUpdateModuleData : UpdateModuleData

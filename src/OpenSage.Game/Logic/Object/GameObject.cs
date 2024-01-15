@@ -769,6 +769,13 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
+        private bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
+        {
+            return upgrade.Type == UpgradeType.Player
+                ? Owner.HasEnqueuedUpgrade(upgrade)
+                : ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+        }
+
         /// <summary>
         /// Called when a foundation has been placed, but construction has not yet begun
         /// </summary>
@@ -989,7 +996,7 @@ namespace OpenSage.Logic.Object
             }
 
             var userHasEnoughMoney = HasEnoughMoney(upgrade.BuildCost);
-            var hasQueuedUpgrade = ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+            var hasQueuedUpgrade = HasEnqueuedUpgrade(upgrade);
             var canEnqueue = ProductionUpdate.CanEnqueue();
             var hasUpgrade = HasUpgrade(upgrade);
 
@@ -997,8 +1004,10 @@ namespace OpenSage.Logic.Object
             existingUpgrades.Add(upgrade);
 
             var upgradeModuleCanUpgrade = false;
+            var hasUpgradeBehaviors = false; // some objects don't have upgrade modules
             foreach (var upgradeModule in FindBehaviors<UpgradeModule>())
             {
+                hasUpgradeBehaviors = true;
                 if (upgradeModule.CanUpgrade(existingUpgrades))
                 {
                     upgradeModuleCanUpgrade = true;
@@ -1006,7 +1015,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && upgradeModuleCanUpgrade;
+            return userHasEnoughMoney && canEnqueue && !hasQueuedUpgrade && !hasUpgrade && (!hasUpgradeBehaviors || upgradeModuleCanUpgrade);
         }
 
         private UpgradeSet GetUpgradesCompleted()

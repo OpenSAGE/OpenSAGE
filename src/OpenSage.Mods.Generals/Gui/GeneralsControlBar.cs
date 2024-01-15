@@ -325,6 +325,7 @@ namespace OpenSage.Mods.Generals.Gui
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
+                                // todo: button should still have some color (not full color), but be disabled in the event it has already been purchased
                                 buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
                                 buttonControl.Show();
                                 break;
