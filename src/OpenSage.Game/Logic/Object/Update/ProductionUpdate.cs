@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
                     _currentDoorState = DoorState.Open;
 
                     GetDoorConditionFlags(out var doorOpening, out var doorWaitingOpen, out var _);
-                   
+
                     _gameObject.ModelConditionFlags.Set(doorOpening, false);
                     _gameObject.ModelConditionFlags.Set(doorWaitingOpen, true);
                     MoveProducedObjectOut();
@@ -281,6 +281,8 @@ namespace OpenSage.Logic.Object
             _producedUnit = _gameObject.GameContext.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
             _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
+
+            _producedUnit.GameContext.Scene3D.Audio.PlayAudioEvent(_producedUnit, _producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
 
             if (!_moduleData.GiveNoXP)
             {
@@ -518,7 +520,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for 
+    /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for
     /// units/structures with object upgrades.
     /// </summary>
     public sealed class ProductionUpdateModuleData : UpdateModuleData
