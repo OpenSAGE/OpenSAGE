@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <VeldridVersion>4.9.0</VeldridVersion>
     <ImGuiVersion>5.72</ImGuiVersion>
