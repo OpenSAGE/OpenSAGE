@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -406,7 +406,7 @@ namespace OpenSage.Logic
             }
         }
 
-        internal bool HasUpgrade(UpgradeTemplate template)
+        public bool HasUpgrade(UpgradeTemplate template)
         {
             foreach (var upgrade in _upgrades)
             {
