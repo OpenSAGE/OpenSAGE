@@ -317,7 +317,7 @@ namespace OpenSage.Logic
             {
                 foreach (var gameObject in _game.GameLogic.Objects)
                 {
-                    if (gameObject.Owner == this && gameObject.Definition == prerequisite)
+                    if (gameObject.Owner == this && gameObject.Definition == prerequisite && gameObject.BuildProgress >= 1.0)
                     {
                         return true;
                     }
