@@ -57,6 +57,13 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
+            if (_buildTarget?.ModelConditionFlags.Get(ModelConditionFlag.DestroyedWhilstBeingConstructed) == true)
+            {
+                ClearBuildTarget();
+                Stop();
+                return;
+            }
+
             if (_buildTarget is { BuildProgress: >= 1 })
             {
                 ClearBuildTarget();

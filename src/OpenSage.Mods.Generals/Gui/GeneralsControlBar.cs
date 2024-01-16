@@ -337,6 +337,11 @@ namespace OpenSage.Mods.Generals.Gui
                                 buttonControl.Show();
                                 break;
                         }
+
+                        if (commandButton.Options?.Get(CommandButtonOption.NeedUpgrade) == true && buttonControl.Enabled)
+                        {
+                            buttonControl.Enabled = selectedUnit.HasUpgrade(commandButton.Upgrade.Value);
+                        }
                     }
                     else
                     {

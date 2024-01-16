@@ -532,7 +532,7 @@ namespace OpenSage
                 OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
 
                 Panel.ClientSizeChanged += OnPanelSizeChanged;
-                OnPanelSizeChanged(this, EventArgs.Empty);
+                Panel.EnsureFrame(window.ClientBounds);
 
                 GameSystems.ForEach(gs => gs.Initialize());
 

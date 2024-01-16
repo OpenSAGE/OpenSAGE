@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -317,7 +317,7 @@ namespace OpenSage.Logic
             {
                 foreach (var gameObject in _game.GameLogic.Objects)
                 {
-                    if (gameObject.Owner == this && gameObject.Definition == prerequisite)
+                    if (gameObject.Owner == this && gameObject.Definition == prerequisite && gameObject.BuildProgress >= 1.0)
                     {
                         return true;
                     }
@@ -411,7 +411,7 @@ namespace OpenSage.Logic
             _upgradesInProgress.Remove(template);
         }
 
-        internal bool HasUpgrade(UpgradeTemplate template)
+        public bool HasUpgrade(UpgradeTemplate template)
         {
             return UpgradesCompleted.Contains(template);
         }
