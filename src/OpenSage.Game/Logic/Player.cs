@@ -414,17 +414,19 @@ namespace OpenSage.Logic
             }
         }
 
+        internal void CancelUpgrade(UpgradeTemplate template)
+        {
+            _upgradesInProgress.Remove(template);
+        }
+
         public bool HasUpgrade(UpgradeTemplate template)
         {
-            foreach (var upgrade in _upgrades)
-            {
-                if (upgrade.Template == template)
-                {
-                    return true;
-                }
-            }
+            return UpgradesCompleted.Contains(template);
+        }
 
-            return false;
+        internal bool HasEnqueuedUpgrade(UpgradeTemplate template)
+        {
+            return _upgradesInProgress.Contains(template);
         }
 
         public void Persist(StatePersister reader)
