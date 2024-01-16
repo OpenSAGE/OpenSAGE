@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -281,6 +281,14 @@ namespace OpenSage.Logic
             }
 
             return science.SciencePurchasePointCost <= SciencePurchasePoints;
+        }
+
+        /// <summary>
+        /// Awards a science to a user without any additional checks or point deductions (e.g. if directly granted by a map, or by being a faction or rank)
+        /// </summary>
+        public void DirectlyAssignScience(Science science)
+        {
+            _sciences.Add(science);
         }
 
         public void PurchaseScience(Science science)

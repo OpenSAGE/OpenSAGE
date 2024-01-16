@@ -25,7 +25,7 @@ namespace OpenSage.Logic
             {
                 foreach (var science in _currentRank.SciencesGranted)
                 {
-                    _player.PurchaseScience(science.Value);
+                    _player.DirectlyAssignScience(science.Value);
                     _player.SciencePurchasePoints += (uint) _currentRank.SciencePurchasePointsGranted;
                 }
             }
