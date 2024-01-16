@@ -98,7 +98,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return OrderGeneratorResult.Failure("Not enough cash for construction");
             }
 
-            scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceCreate"]?.Value);
+            scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceBuildResponse"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
             var moveOrder = Order.CreateMoveOrder(playerIdx, _position);

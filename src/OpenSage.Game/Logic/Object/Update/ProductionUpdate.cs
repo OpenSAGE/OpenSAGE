@@ -282,6 +282,8 @@ namespace OpenSage.Logic.Object
             _producedUnit.Owner = _gameObject.Owner;
             _producedUnit.ParentHorde = ParentHorde;
 
+            _producedUnit.GameContext.Scene3D.Audio.PlayAudioEvent(_producedUnit, _producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
+
             if (!_moduleData.GiveNoXP)
             {
                 _gameObject.GainExperience((int)_producedUnit.Definition.BuildCost);

@@ -19,6 +19,11 @@ namespace OpenSage.Logic.Object
 
     public sealed class UnitSpecificSounds : Dictionary<string, LazyAssetReference<BaseAudioEventInfo>>
     {
+        /// <summary>
+        /// The sound played when a unit is produced
+        /// </summary>
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceCreate => TryGetValue("VoiceCreate", out var sound) ? sound : null;
+
         internal static UnitSpecificSounds Parse(IniParser parser)
         {
             return parser.ParseBlock(new IniArbitraryFieldParserProvider<UnitSpecificSounds>(
