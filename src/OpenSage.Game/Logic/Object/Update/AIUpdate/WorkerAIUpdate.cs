@@ -8,6 +8,8 @@ namespace OpenSage.Logic.Object
 {
     public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
+        public bool HasBuildTarget => _buildTarget != null;
+
         private WorkerAIUpdateModuleData _moduleData;
         private GameObject _buildTarget;
 
