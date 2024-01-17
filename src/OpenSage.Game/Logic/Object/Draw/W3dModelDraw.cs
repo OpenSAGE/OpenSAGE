@@ -120,6 +120,11 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
+            if (animationState?.Script != null)
+            {
+                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
+            }
+
             if (animationState == null
                 || animationState.Animations.Count == 0
                 || _activeModelDrawConditionState == null)
@@ -151,11 +156,6 @@ namespace OpenSage.Logic.Object
                 var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
                 modelInstance.AnimationInstances.Add(animationInstance);
                 animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
-            }
-
-            if (animationState.Script != null)
-            {
-                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
             }
 
             NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {GameObject.Definition.Name}");

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics;
@@ -113,8 +114,9 @@ namespace OpenSage.Client
 
             ModelConditionFlags = new BitArray<ModelConditionFlag>();
 
-            _hiddenSubObjects = new Dictionary<string, bool>();
-            _shownSubObjects = new Dictionary<string, bool>();
+            // the casing on the object names doesn't always match
+            _hiddenSubObjects = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+            _shownSubObjects = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
             _drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
