@@ -37,12 +37,12 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Contains an OR'd list of prequisite sciences.
     /// </summary>
-    public sealed class SciencePrerequisiteList : List<string>
+    public sealed class SciencePrerequisiteList : List<LazyAssetReference<Science>>
     {
         internal static SciencePrerequisiteList Parse(IniParser parser)
         {
             var result = new SciencePrerequisiteList();
-            result.AddRange(parser.ParseAssetReferenceArray());
+            result.AddRange(parser.ParseScienceReferenceArray());
             return result;
         }
     }
