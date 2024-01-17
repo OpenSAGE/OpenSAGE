@@ -6,6 +6,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -345,6 +346,8 @@ namespace OpenSage.Logic.Object
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
+
+            _gameObject.GameContext.AudioSystem.PlayAudioEvent(_producedUnit, _producedUnit.Definition.SoundMoveStart.Value);
 
             HandleHordeCreation();
             HandleHarvesterUnitCreation(_gameObject, _producedUnit);
