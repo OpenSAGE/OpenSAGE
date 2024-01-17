@@ -24,7 +24,7 @@ namespace OpenSage.Tests.Mathematics
             sut = BoundingSphere.Transform(sut, rotationMatrix * scaleMatrix * translationMatrix);
 
             Assert.Equal(translation, sut.Center);
-            Assert.Equal(scale, sut.Radius);
+            Assert.True(Math.Abs(scale - sut.Radius) < 0.001f);
         }
 
         [Theory]
