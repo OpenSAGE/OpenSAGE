@@ -15,6 +15,7 @@ namespace OpenSage.Mods.Generals.Gui
         public static void SetCommandButton(Button buttonControl, CommandButton commandButton, GeneralsControlBar controlBar)
         {
             buttonControl.BackgroundImage = buttonControl.Window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
+            buttonControl.OverlayImage = null;
 
             buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Core;
@@ -74,6 +74,13 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly Image _commandButtonHover;
         private readonly Image _commandButtonPushed;
+
+        public Image Rank1OverlayLarge { get; }
+        public Image Rank2OverlayLarge { get; }
+        public Image Rank3OverlayLarge { get; }
+        public Image Rank1OverlaySmall { get; }
+        public Image Rank2OverlaySmall { get; }
+        public Image Rank3OverlaySmall { get; }
 
         public Image CommandButtonHover => _commandButtonHover;
         public Image CommandButtonPush => _commandButtonPushed;
@@ -155,6 +162,14 @@ namespace OpenSage.Mods.Generals.Gui
 
             _commandButtonHover = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_hilited"));
             _commandButtonPushed = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("Cameo_push"));
+
+            Rank1OverlayLarge = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron1L"));
+            Rank2OverlayLarge = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron2L"));
+            Rank3OverlayLarge = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron3L"));
+
+            Rank1OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron1S"));
+            Rank2OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron2S"));
+            Rank3OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron3S"));
 
             UpdateResizeButtonStyle();
 
@@ -250,6 +265,28 @@ namespace OpenSage.Mods.Generals.Gui
 
             private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+            protected Image? RankOverlayLarge(GeneralsControlBar controlBar, int rank)
+            {
+                return rank switch
+                {
+                    1 => controlBar.Rank1OverlayLarge,
+                    2 => controlBar.Rank2OverlayLarge,
+                    3 => controlBar.Rank3OverlayLarge,
+                    _ => null,
+                };
+            }
+
+            protected Image? RankOverlaySmall(GeneralsControlBar controlBar, int rank)
+            {
+                return rank switch
+                {
+                    1 => controlBar.Rank1OverlaySmall,
+                    2 => controlBar.Rank2OverlaySmall,
+                    3 => controlBar.Rank3OverlaySmall,
+                    _ => null,
+                };
+            }
+
             protected void ClearControls(GeneralsControlBar controlBar)
             {
                 foreach (var control in controlBar._center.Controls.AsList())
@@ -296,6 +333,30 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
+            protected Image? OverlayImageForObjectDefinition(ObjectDefinition? objectDefinition, Player player, GeneralsControlBar controlBar)
+            {
+                if (objectDefinition == null)
+                {
+                    return null;
+                }
+
+                if (!objectDefinition.IsTrainable && objectDefinition.BuildVariations?.All(v => !v.Value.IsTrainable) != false)
+                {
+                    // In generals, the bomb truck starts as veteran, but are not trainable, so no veterancy icon is ever displayed (this is commented out in the zh inis)
+                    // build variations must be checked for trainable as the technical trainability is not set on the base object, only on the sub objects
+                    return null;
+                }
+
+                //  this determines the veterancy of the unit on creation
+                var startingVeterancy = objectDefinition.Behaviors.Values.Select(v => v.Data)
+                    .OfType<VeterancyGainCreateModuleData>()
+                    .OrderByDescending(d => d.StartingLevel) // start with the highest rank
+                    .FirstOrDefault(d => d.ScienceRequired == null || player.HasScience(d.ScienceRequired.Value)) // take the first one that actively applies
+                    ?.StartingLevel ?? VeterancyLevel.Regular; // or default to regular if there isn't one
+
+                return RankOverlaySmall(controlBar, (int) startingVeterancy);
+            }
+
             protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 for (var i = 1; i < 100; i++) // Generals has 12 buttons and Zero Hour has 14, but there's no need to set those values as the limit in the code
@@ -330,6 +391,8 @@ namespace OpenSage.Mods.Generals.Gui
                                 break;
                             case CommandType.UnitBuild:
                                 buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition);
+                                buttonControl.OverlayImage = OverlayImageForObjectDefinition(objectDefinition, selectedUnit.Owner, controlBar);
+
                                 buttonControl.Show();
                                 break;
                             // Disable the button when the object already has it etc.
@@ -421,6 +484,7 @@ namespace OpenSage.Mods.Generals.Gui
                         }
 
                         Image img = null;
+                        Image overlayImage = null;
                         if (queue.Count > pos)
                         {
                             var job = queue[pos];
@@ -440,6 +504,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 if (job.Type == ProductionJobType.Unit)
                                 {
                                     img = controlBar._window.ImageLoader.CreateFromMappedImageReference(job.ObjectDefinition.SelectPortrait);
+                                    overlayImage = OverlayImageForObjectDefinition(job.ObjectDefinition, unit.Owner, controlBar);
                                 }
                                 else if (job.Type == ProductionJobType.Upgrade)
                                 {
@@ -466,6 +531,7 @@ namespace OpenSage.Mods.Generals.Gui
                             }
                         }
                         queueButton.BackgroundImage = img;
+                        queueButton.OverlayImage = overlayImage;
 
                         if (img == null)
                         {
@@ -479,6 +545,9 @@ namespace OpenSage.Mods.Generals.Gui
                 var cameoImg = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.SelectPortrait);
                 iconControl.BackgroundImage = cameoImg;
                 iconControl.Visible = !isProducing;
+
+                // apply veterancy overlay
+                iconControl.OverlayImage = RankOverlayLarge(controlBar, unit.Rank);
 
                 void ApplyUpgradeImage(GameObject unit, string upgradeControlName, LazyAssetReference<UpgradeTemplate> upgradeReference)
                 {
