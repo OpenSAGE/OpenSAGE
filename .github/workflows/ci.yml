@@ -37,7 +37,7 @@ jobs:
       run: dotnet test src --configuration Release --filter Category!=Interactive --collect:"XPlat Code Coverage"
 
     - name: Upload coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
 
     - name: Publish
       run: dotnet publish src/OpenSage.Launcher --configuration Release --runtime ${{ matrix.runtime }} --self-contained --output build/artifacts/${{ matrix.runtime }}
