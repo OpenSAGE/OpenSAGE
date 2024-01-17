@@ -133,13 +133,13 @@ namespace OpenSage.Logic.Object
 
         internal override void GetBox(BehaviorUpdateContext context)
         {
-            if (_moduleData.HarvestTrees && _currentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree))
+            if (_moduleData.HarvestTrees && CurrentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree))
             {
-                _currentSupplySource.Supply -= context.GameContext.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
-                if (_currentSupplySource.Supply <= 0)
+                CurrentSupplySource.Supply -= context.GameContext.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
+                if (CurrentSupplySource.Supply <= 0)
                 {
-                    _currentSupplySource.Update();
-                    _currentSupplySource = null;
+                    CurrentSupplySource.Update();
+                    CurrentSupplySource = null;
                 }
                 return;
             }
