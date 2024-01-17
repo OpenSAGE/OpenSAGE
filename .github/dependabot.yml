@@ -7,3 +7,8 @@ updates:
     # Check the nuget registry for updates every day (weekdays) schedule: 
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows/"
+    schedule:
+      interval: "weekly"
