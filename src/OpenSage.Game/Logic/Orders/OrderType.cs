@@ -99,7 +99,7 @@
         Unknown1063 = 1063,
         Unknown1064 = 1064,
         Enter = 1066,
-        Unknown1067 = 1067,
+        GatherDumpSupplies = 1067, // used for both gathering from a supply source and dumping supplies
 
         AttackMove = 1069, // Position:<1343.561, 378.53568, 18.75>
         Unknown1070 = 1070,

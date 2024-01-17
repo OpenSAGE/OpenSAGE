@@ -2,7 +2,7 @@
 {
     public abstract class CreateModule : BehaviorModule, ICreateModule
     {
-        private bool _shouldCallOnBuildComplete;
+        private bool _shouldCallOnBuildComplete = true;
 
         public virtual void OnCreate() { }
 
