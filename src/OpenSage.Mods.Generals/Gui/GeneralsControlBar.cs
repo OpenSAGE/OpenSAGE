@@ -309,7 +309,7 @@ namespace OpenSage.Mods.Generals.Gui
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
                     {
                         var commandButton = commandButtonReference.Value;
-                        if (commandButtonReference.Value.ButtonImage != null)
+                        if (commandButtonReference.Value.ButtonImage == null)
                         {
                             // in generals, the biohazard tech is only different from every other buildable command button in that there is no button image
                             // I suspect this could be the case for other units that didn't make the cut as well
