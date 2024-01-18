@@ -44,7 +44,7 @@ namespace OpenSage.FileFormats.Big
             }
             else
             {
-                result = _entry.OutstandingWriteStream.Read(buffer, offset, count);
+                result = _entry.OutstandingWriteStream!.Read(buffer, offset, count); // set when _write is set to true
                 Position += result;
             }
             _archive.ReleaseLock();
@@ -90,7 +90,7 @@ namespace OpenSage.FileFormats.Big
             EnsureWriteMode();
 
             _entry.OnDisk = false;
-            _entry.OutstandingWriteStream.SetLength(value);
+            _entry.OutstandingWriteStream?.SetLength(value); // set in EnsureWriteMode()
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -98,7 +98,7 @@ namespace OpenSage.FileFormats.Big
             EnsureWriteMode();
 
             _entry.OnDisk = false;
-            _entry.OutstandingWriteStream.Position = Position;
+            _entry.OutstandingWriteStream!.Position = Position; // set in EnsureWriteMode()
             _entry.OutstandingWriteStream.Write(buffer, offset, count);
         }
 
@@ -108,7 +108,7 @@ namespace OpenSage.FileFormats.Big
 
         public override bool CanWrite => true;
 
-        public override long Length => _write ? _entry.OutstandingWriteStream.Length : _entry.Length;
+        public override long Length => _write ? _entry.OutstandingWriteStream!.Length : _entry.Length; // set when _write is set to true
 
         public override long Position { get; set; }
 

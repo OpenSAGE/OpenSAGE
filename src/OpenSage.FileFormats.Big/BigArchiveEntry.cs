@@ -18,7 +18,7 @@ namespace OpenSage.FileFormats.Big
 
         // Internal members
         internal bool OnDisk { get; set; }
-        internal MemoryStream OutstandingWriteStream { get; set; }
+        internal MemoryStream? OutstandingWriteStream { get; set; }
         internal uint OutstandingOffset { get; set; }
         internal bool CurrentlyOpenForWrite { get; set; }
 
