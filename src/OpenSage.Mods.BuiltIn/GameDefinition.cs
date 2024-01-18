@@ -14,7 +14,7 @@ namespace OpenSage.Mods.BuiltIn
         public static IEnumerable<IGameDefinition> All => Games.Values;
         public static IGameDefinition FromGame(SageGame game) => Games[game];
 
-        public static bool TryGetByName(string name, out IGameDefinition definition)
+        public static bool TryGetByName(string name, out IGameDefinition? definition)
         {
             // TODO: Use a short identifier defined in IGameDefinition instead of stringified SageGame
             definition = All.FirstOrDefault(def =>
