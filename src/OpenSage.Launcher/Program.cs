@@ -30,7 +30,7 @@ namespace OpenSage.Launcher
             public SageGame Game { get; set; }
 
             [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.")]
-            public string Map { get; set; }
+            public string? Map { get; set; }
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
             public bool DisableVsync { get; set; }
@@ -45,13 +45,13 @@ namespace OpenSage.Launcher
             public bool DeveloperMode { get; set; }
 
             [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
-            public string TraceFile { get; set; }
+            public string? TraceFile { get; set; }
 
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
-            public string ReplayFile { get; set; }
+            public string? ReplayFile { get; set; }
 
             [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
-            public string GamePath { get; set; }
+            public string? GamePath { get; set; }
 
             [Option('u', "uniqueports", Default = false, Required = false, HelpText = "Use a unique port for each client in a multiplayer game. Normally, port 8088 is used, but when we want to run multiple game instances on the same machine (for debugging purposes), each client needs a different port.")]
             public bool UseUniquePorts { get; set; }
@@ -92,7 +92,7 @@ namespace OpenSage.Launcher
             }
 
             var definition = GameDefinition.FromGame(DetectedGame);
-            GameInstallation installation;
+            GameInstallation? installation;
             if (UseLocators)
             {
                 installation = GameInstallation
