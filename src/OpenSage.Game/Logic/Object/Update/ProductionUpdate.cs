@@ -6,7 +6,6 @@ using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
-using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
