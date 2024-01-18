@@ -17,6 +17,7 @@ using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using FixedMath.NET;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Terrain;
 using OpenSage.FileFormats;
 
@@ -1342,8 +1343,18 @@ namespace OpenSage.Logic.Object
                     _transform.Translation = translation;
                 }
 
-                // TODO: Make this editable
                 ImGui.LabelText("ModelConditionFlags", ModelConditionFlags.DisplayName);
+                if (ImGui.TreeNodeEx("Select ModelConditionFlags"))
+                {
+                    foreach (var flag in Enum.GetValues<ModelConditionFlag>())
+                    {
+                        if (ImGui.Selectable(flag.ToString(), ModelConditionFlags.Get(flag)))
+                        {
+                            ModelConditionFlags.Set(flag, !ModelConditionFlags.Get(flag));
+                        }
+                    }
+                    ImGui.TreePop();
+                }
 
                 var speed = Speed;
                 if (ImGui.InputFloat("Speed", ref speed))

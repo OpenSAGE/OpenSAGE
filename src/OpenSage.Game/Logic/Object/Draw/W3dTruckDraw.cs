@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -64,6 +65,23 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
+        {
+            base.UpdateConditionState(flags, random);
+
+            if (flags.BitsChanged)
+            {
+                for (var i = 0; i < ActiveModelInstance.ModelBoneInstances.Length; i++)
+                {
+                    var bone = ActiveModelInstance.ModelBoneInstances[i];
+                    if (bone.Name.StartsWith("HEADLIGHT", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ActiveModelInstance.BoneVisibilities[i] = flags.Get(ModelConditionFlag.Night);
+                    }
+                }
+            }
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -75,11 +93,11 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Hardcoded to call for the TreadDebrisRight and TreadDebrisLeft (unless overriden) particle 
-    /// system definitions and allows use of TruckPowerslideSound and TruckLandingSound within the 
+    /// Hardcoded to call for the TreadDebrisRight and TreadDebrisLeft (unless overriden) particle
+    /// system definitions and allows use of TruckPowerslideSound and TruckLandingSound within the
     /// UnitSpecificSounds section of the object.
-    /// 
-    /// This module also includes automatic logic for showing and hiding of HEADLIGHT bones in and 
+    ///
+    /// This module also includes automatic logic for showing and hiding of HEADLIGHT bones in and
     /// out of the NIGHT ModelConditionState.
     /// </summary>
     public class W3dTruckDrawModuleData : W3dModelDrawModuleData
