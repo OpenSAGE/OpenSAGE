@@ -102,7 +102,7 @@ namespace OpenSage.Mathematics
             var newX = (int) MathF.Round(rect.X * ratio);
             var newY = (int) MathF.Round(rect.Y * ratio);
 
-            // Now calculate the X,Y position of the upper-left corner 
+            // Now calculate the X,Y position of the upper-left corner
             // (one of these will always be zero for the top level window)
             var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
             var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
@@ -125,7 +125,7 @@ namespace OpenSage.Mathematics
             var newX = (int) MathF.Round(rect.X * ratio);
             var newY = (int) MathF.Round(rect.Y * ratio);
 
-            // Now calculate the X,Y position of the upper-left corner 
+            // Now calculate the X,Y position of the upper-left corner
             // (one of these will always be zero for the top level window)
             var posX = (int) MathF.Round((viewportSize.Width - (boundsSize.Width * ratio)) / 2.0f) + newX;
             var posY = (int) MathF.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0f) + newY;
@@ -224,7 +224,7 @@ namespace OpenSage.Mathematics
             return X.Equals(other.X) && Y.Equals(other.Y) && Width.Equals(other.Width) && Height.Equals(other.Height);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {

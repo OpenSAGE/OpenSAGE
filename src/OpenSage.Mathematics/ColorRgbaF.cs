@@ -63,7 +63,7 @@ namespace OpenSage.Mathematics
             return new ColorRgbaF(r, g, b, A);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ColorRgbaF && Equals((ColorRgbaF) obj);
         }
