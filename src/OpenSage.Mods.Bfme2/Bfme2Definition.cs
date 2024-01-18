@@ -15,7 +15,7 @@ namespace OpenSage.Mods.Bfme2
     {
         public SageGame Game => SageGame.Bfme2;
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm) II";
-        public IGameDefinition BaseGame => null;
+        public IGameDefinition? BaseGame => null;
 
         public bool LauncherImagePrefixLang => true;
         public string LauncherImagePath => "Splash.jpg";
