@@ -17,6 +17,7 @@ using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using FixedMath.NET;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Terrain;
 using OpenSage.FileFormats;
 
@@ -359,7 +360,12 @@ namespace OpenSage.Logic.Object
         // to allocate a new object every time.
         private readonly UpgradeSet _upgradesAll = new();
 
-        public int Rank { get; set; }
+        private VeterancyLevel _rank;
+        public int Rank
+        {
+            get => (int) _rank;
+            set => _rank = (VeterancyLevel) value;
+        }
         public int ExperienceValue { get; set; }
         public int ExperienceRequiredForNextLevel { get; set; }
         internal float ExperienceMultiplier { get; set; }
@@ -1330,6 +1336,12 @@ namespace OpenSage.Logic.Object
             if (ImGui.Button("Kill"))
             {
                 Kill(DeathType.Exploded);
+            }
+
+            if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
+                ImGui.CollapsingHeader("Veterancy"))
+            {
+                ImGuiUtility.ComboEnum("Current Rank", ref _rank);
             }
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))

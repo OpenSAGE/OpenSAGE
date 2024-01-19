@@ -159,6 +159,20 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
+        private Image _overlayImage;
+        /// <summary>
+        /// Drawn on top of <see cref="BackgroundImage"/>
+        /// </summary>
+        public Image OverlayImage
+        {
+            get => _overlayImage;
+            set
+            {
+                _overlayImage = value;
+                InvalidateLayout();
+            }
+        }
+
         private Image _hoverBackgroundImage;
         public Image HoverBackgroundImage
         {
@@ -305,6 +319,7 @@ namespace OpenSage.Gui.Wnd.Controls
             if (_needsLayout)
             {
                 BackgroundImage?.SetSize(ClientSize);
+                OverlayImage?.SetSize(ClientSize);
                 HoverBackgroundImage?.SetSize(ClientSize);
                 DisabledBackgroundImage?.SetSize(ClientSize);
 
@@ -334,6 +349,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             DrawBackground(drawingContext);
             DrawBackgroundImage(drawingContext);
+            DrawOverlayImage(drawingContext);
             DrawOverride(drawingContext);
             DrawBorder(drawingContext);
             DrawOverlay(drawingContext);
@@ -382,6 +398,11 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 image.Draw(drawingContext, ClientRectangle);
             }
+        }
+
+        protected virtual void DrawOverlayImage(DrawingContext2D drawingContext)
+        {
+            OverlayImage?.Draw(drawingContext, ClientRectangle);
         }
 
         private void DrawBorder(DrawingContext2D drawingContext)
