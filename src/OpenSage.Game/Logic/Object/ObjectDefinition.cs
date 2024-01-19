@@ -211,8 +211,8 @@ namespace OpenSage.Logic.Object
             { "VoiceEnterStateMoveToCamp2", (parser, x) => x.VoiceEnterStateMoveToCamp2 = parser.ParseAudioEventReference() },
             { "VoiceEnterStateMoveWhileAttacking2", (parser, x) => x.VoiceEnterStateMoveWhileAttacking2 = parser.ParseAudioEventReference() },
 
-            { "SoundMoveStart", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
-            { "SoundMoveStartDamaged", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
+            { "SoundMoveStart", (parser, x) => x.SoundMoveStart = parser.ParseAudioEventReference() },
+            { "SoundMoveStartDamaged", (parser, x) => x.SoundMoveStartDamaged = parser.ParseAudioEventReference() },
             { "SoundMoveLoop", (parser, x) => x.SoundMoveLoop = parser.ParseAssetReference() },
             { "SoundMoveLoopDamaged", (parser, x) => x.SoundMoveLoopDamaged = parser.ParseAssetReference() },
             { "SoundOnDamaged", (parser, x) => x.SoundOnDamaged = parser.ParseAudioEventReference() },
@@ -656,10 +656,10 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveWhileAttacking { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveToHigherGround { get; private set; } 
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveToHigherGround { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveOverWalls { get; private set; } 
+        public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveOverWalls { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public LazyAssetReference<BaseAudioEventInfo> VoiceSelect2 { get; private set; }
@@ -784,8 +784,8 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public LazyAssetReference<BaseAudioEventInfo> VoiceEnterStateMoveWhileAttacking2 { get; private set; }
 
-        public string SoundMoveStart { get; private set; }
-        public string SoundMoveStartDamaged { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundMoveStart { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundMoveStartDamaged { get; private set; }
         public string SoundMoveLoop { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -1000,7 +1000,7 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public Vector3 LiveCameraOffset { get; private set; }
-        
+
         [AddedIn(SageGame.Bfme)]
         public float LiveCameraPitch { get; private set; }
 

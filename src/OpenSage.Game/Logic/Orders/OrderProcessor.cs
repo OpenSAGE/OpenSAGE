@@ -72,6 +72,13 @@ namespace OpenSage.Logic.Orders
                             foreach (var unit in player.SelectedUnits)
                             {
                                 unit.AIUpdate?.SetTargetPoint(targetPosition);
+                                var sound = unit.IsDamaged ? unit.Definition.SoundMoveStartDamaged?.Value : null;
+                                sound ??= unit.Definition.SoundMoveStart?.Value;
+
+                                if (sound != null)
+                                {
+                                    _game.Audio.PlayAudioEvent(unit, sound);
+                                }
                             }
                         }
                         break;
