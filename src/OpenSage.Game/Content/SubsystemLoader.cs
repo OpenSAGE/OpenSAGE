@@ -153,7 +153,7 @@ namespace OpenSage.Content
                     break;
             }
 
-            
+
             _subsystems = game.AssetStore.Subsystems;
         }
 
@@ -217,6 +217,7 @@ namespace OpenSage.Content
                     _contentManager.LoadIniFile(@"Data\INI\MiscAudio.ini");
                     _contentManager.LoadIniFile(@"Data\INI\Voice.ini");
                     _contentManager.LoadIniFile(@"Data\INI\Music.ini");
+                    _contentManager.LoadIniFile(@"Data\INI\Speech.ini");
                     break;
 
                 case Subsystem.Wnd:

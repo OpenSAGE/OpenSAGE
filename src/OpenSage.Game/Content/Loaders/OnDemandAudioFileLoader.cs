@@ -30,9 +30,11 @@ namespace OpenSage.Content.Loaders
                     }
                 }
             }
-            else // music tracks
+            else
             {
-                entry = context.FileSystem.GetFile(Path.Combine(@"Data\Audio\Tracks", key));
+                entry = context.FileSystem.GetFile(Path.Combine(@"Data\Audio\Tracks", key)) ?? // music tracks
+                        context.FileSystem.GetFile(Path.Combine(@"Data\Audio\Speech", context.Language, key)) ?? // language-specific dialog events
+                        context.FileSystem.GetFile(Path.Combine(@"Data\Audio\Speech", key)); // generic dialog events
             }
 
             if (entry == null)
