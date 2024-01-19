@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace OpenSage.Network
 {
@@ -77,7 +78,7 @@ namespace OpenSage.Network
         public SkirmishSlot[] Slots { get; internal set; }
         public int LocalSlotIndex { get; set; } = -1;
         public SkirmishSlot LocalSlot { get { return (LocalSlotIndex < 0 || LocalSlotIndex >= Slots.Length) ? null : Slots[LocalSlotIndex]; } }
-        public int Seed { get; internal set; }
+        public int Seed { get; internal set; } = Random.Shared.Next();
 
         public void Persist(StatePersister reader)
         {
