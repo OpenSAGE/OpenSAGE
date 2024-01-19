@@ -1116,9 +1116,26 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            PlayDieSound(deathType);
+
             foreach (var module in _behaviorModules)
             {
                 module.OnDie(_behaviorUpdateContext, deathType);
+            }
+        }
+
+        private void PlayDieSound(DeathType deathType)
+        {
+            var voiceDie = deathType switch
+            {
+                DeathType.Burned => Definition.SoundDieFire?.Value,
+                DeathType.Poisoned or DeathType.PoisonedGamma or DeathType.PoisonedBeta => Definition.SoundDieToxin?.Value,
+                _ => null,
+            } ?? Definition.SoundDie?.Value;
+
+            if (voiceDie != null)
+            {
+                GameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
             }
         }
 
@@ -1402,8 +1419,6 @@ namespace OpenSage.Logic.Object
             {
                 DrawInspector(drawModule);
             }
-
-            DrawInspector(_body);
 
             if (CurrentWeapon != null)
             {
