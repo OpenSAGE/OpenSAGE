@@ -236,6 +236,17 @@ namespace OpenSage.Logic.Orders
                                     unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, (uint)objectId));
                                 }
                             }
+
+                            var firstUnit = player.SelectedUnits.FirstOrDefault();
+
+                            // TODO: use the target to figure out which sound triggers
+                            // TODO: handle hordes properly
+                            var voiceAttack = firstUnit?.Definition.VoiceAttack?.Value;
+                            if (voiceAttack != null)
+                            {
+                                // only the first unit says their attack line (and only for attacking objects, not ground)
+                                _game.Audio.PlayAudioEvent(firstUnit, voiceAttack);
+                            }
                         }
                         break;
 

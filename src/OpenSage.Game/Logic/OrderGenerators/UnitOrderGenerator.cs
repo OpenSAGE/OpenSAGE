@@ -89,9 +89,6 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: Use ini files for this, don't hardcode it.
             if (keyModifiers.HasFlag(KeyModifiers.Ctrl))
             {
-                // TODO: Check whether clicked point is an object, or empty ground.
-                // TODO: handle hordes properly
-                unit.OnLocalAttack(_game.Audio);
                 if (_worldObject != null)
                 {
                     order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, true);
@@ -115,8 +112,6 @@ namespace OpenSage.Logic.OrderGenerators
                         }
                         else
                         {
-                            // TODO: handle hordes properly
-                            unit.OnLocalAttack(_game.Audio);
                             order = Order.CreateAttackObject(scene.GetPlayerIndex(scene.LocalPlayer), _worldObject.ID, false);
                         }
                     }
@@ -150,7 +145,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         public void UpdateDrag(Vector3 position)
         {
-            
+
         }
 
         public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)

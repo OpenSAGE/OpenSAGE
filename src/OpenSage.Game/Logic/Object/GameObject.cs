@@ -938,16 +938,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        //TODO: use the target to figure out which sound triggers
-        public void OnLocalAttack(AudioSystem gameAudio)
-        {
-            var audioEvent = Definition.VoiceAttack?.Value;
-            if (audioEvent != null && ParentHorde == null)
-            {
-                gameAudio.PlayAudioEvent(this, audioEvent);
-            }
-        }
-
         internal void SetWeaponSetCondition(WeaponSetConditions condition, bool value)
         {
             WeaponSetConditions.Set(condition, value);
