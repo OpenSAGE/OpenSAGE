@@ -186,30 +186,87 @@ namespace OpenSage.Gui
 
                 try
                 {
-                    x.DrawText(
-                        new DrawingOptions
+                    // '&' is used to bold the single character following it
+                    var hotkeyIndex = key.Text.IndexOf('&');
+                    var hotkeyFont = new Font(actualFont, FontStyle.Bold);
+                    var text1 = hotkeyIndex < 0 ? key.Text : key.Text[..hotkeyIndex];
+
+                    var drawOptions = new DrawingOptions
+                    {
+                        GraphicsOptions = new GraphicsOptions { Antialias = true, },
+                        TextOptions = new TextOptions
                         {
-                            GraphicsOptions = new GraphicsOptions
-                            {
-                                Antialias = true,
-                            },
-                            TextOptions = new TextOptions
-                            {
-                                WrapTextWidth = size.Width,
-                                HorizontalAlignment = key.Alignment == TextAlignment.Center
+                            WrapTextWidth = size.Width,
+                            HorizontalAlignment = key.Alignment == TextAlignment.Center
                                 ? HorizontalAlignment.Center
                                 : HorizontalAlignment.Left,
-                                VerticalAlignment = VerticalAlignment.Center
-                            }
+                            VerticalAlignment = VerticalAlignment.Center,
                         },
-                        key.Text,
+                    };
+
+                    var drawColor = new Bgra32(
+                        (byte)(color.R * 255.0f),
+                        (byte)(color.G * 255.0f),
+                        (byte)(color.B * 255.0f),
+                        (byte)(color.A * 255.0f));
+
+                    var ctx = x.DrawText(
+                        drawOptions,
+                        text1,
                         actualFont,
-                        new Bgra32(
-                            (byte) (color.R * 255.0f),
-                            (byte) (color.G * 255.0f),
-                            (byte) (color.B * 255.0f),
-                            (byte) (color.A * 255.0f)),
+                        drawColor,
                         location);
+
+                    if (hotkeyIndex > -1)
+                    {
+                        var continuedDrawOptions = new DrawingOptions
+                        {
+                            GraphicsOptions = drawOptions.GraphicsOptions,
+                            TextOptions = new TextOptions
+                            {
+                                WrapTextWidth = drawOptions.TextOptions.WrapTextWidth,
+                                HorizontalAlignment = HorizontalAlignment.Left,
+                                VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
+                            },
+                        };
+
+                        var regularRenderOptions = new RendererOptions(actualFont)
+                        {
+                            WrappingWidth = drawOptions.TextOptions.WrapTextWidth,
+                            HorizontalAlignment = drawOptions.TextOptions.HorizontalAlignment,
+                            VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
+                            Origin = location,
+                        };
+
+                        var ogSize = TextMeasurer.MeasureBounds(text1, regularRenderOptions);
+
+                        var boldRenderOptions = new RendererOptions(hotkeyFont)
+                        {
+                            WrappingWidth = drawOptions.TextOptions.WrapTextWidth,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
+                            Origin = location with { X = ogSize.Right },
+                        };
+
+                        var boldChar = key.Text[hotkeyIndex + 1].ToString();
+                        var boldSize = TextMeasurer.MeasureBounds(boldChar, boldRenderOptions);
+                        ctx.DrawText(
+                                continuedDrawOptions,
+                                boldChar,
+                                hotkeyFont,
+                                new Bgra32(
+                                    255, // hotkey text is yellow
+                                    255,
+                                    0,
+                                    (byte)(color.A * 255.0f)),
+                                boldRenderOptions.Origin)
+                            .DrawText(
+                                continuedDrawOptions,
+                                key.Text[(hotkeyIndex + 2)..],
+                                actualFont,
+                                drawColor,
+                                location with { X = boldSize.Right });
+                    }
                 }
                 catch
                 {
