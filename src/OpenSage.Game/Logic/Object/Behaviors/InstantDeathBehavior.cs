@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
     {
         internal static InstantDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<InstantDeathBehaviorModuleData> FieldParseTable = DieModuleData.FieldParseTable
+        private static new readonly IniParseTable<InstantDeathBehaviorModuleData> FieldParseTable = DieModuleData.FieldParseTable
             .Concat(new IniParseTable<InstantDeathBehaviorModuleData>
             {
                 { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
