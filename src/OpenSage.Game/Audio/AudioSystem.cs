@@ -139,6 +139,11 @@ namespace OpenSage.Audio
             return sound.AudioFile.Value?.Entry;
         }
 
+        private FileSystemEntry ResolveDialogEventEntry(DialogEvent ev)
+        {
+            return ev.File.Value.Entry;
+        }
+
         /// <summary>
         /// Open a a music/audio file that gets streamed.
         /// </summary>
@@ -175,31 +180,19 @@ namespace OpenSage.Audio
             _sources.Remove(source);
         }
 
-        private bool ValidateAudioEvent(BaseAudioEventInfo baseAudioEvent)
-        {
-            if (baseAudioEvent == null)
-            {
-                return false;
-            }
-
-            if (!(baseAudioEvent is AudioEvent))
-            {
-                // TODO
-                return false;
-            }
-
-            return true;
-        }
-
         private AudioSource PlayAudioEventBase(BaseAudioEventInfo baseAudioEvent, bool looping = false)
         {
-            if (!ValidateAudioEvent(baseAudioEvent))
+            if (baseAudioEvent is not BaseSingleSound audioEvent)
             {
                 return null;
             }
 
-            var audioEvent = baseAudioEvent as AudioEvent;
-            var entry = ResolveAudioEventEntry(audioEvent);
+            var entry = baseAudioEvent switch
+            {
+                AudioEvent ae => ResolveAudioEventEntry(ae),
+                DialogEvent de => ResolveDialogEventEntry(de),
+                _ => null, // todo
+            };
 
             if (entry == null)
             {
