@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
 
         public override void OnCreate()
         {
-            if (!_gameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
+            if (_moduleData.ScienceRequired != null && !_gameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
             {
                 return;
             }
