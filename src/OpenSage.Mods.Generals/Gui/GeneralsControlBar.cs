@@ -537,6 +537,11 @@ namespace OpenSage.Mods.Generals.Gui
                         {
                             queueButton.DrawCallback = queueButton.DefaultDraw;
                             queueButton.SystemCallback = null;
+                            queueButton.Hide();
+                        }
+                        else
+                        {
+                            queueButton.Show();
                         }
                     }
                 }
