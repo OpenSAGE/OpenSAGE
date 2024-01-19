@@ -12,7 +12,7 @@ namespace OpenSage
     {
         SageGame Game { get; }
         string DisplayName { get; }
-        IGameDefinition BaseGame { get; }
+        IGameDefinition? BaseGame { get; }
 
         bool LauncherImagePrefixLang { get; }
         string LauncherImagePath { get; }
@@ -20,10 +20,10 @@ namespace OpenSage
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
-        
+
         IMainMenuSource MainMenu { get; }
-        IControlBarSource ControlBar { get; }
-        ICommandListOverlaySource CommandListOverlay { get; }
+        IControlBarSource? ControlBar { get; }
+        ICommandListOverlaySource? CommandListOverlay { get; }
 
         string Identifier { get; }
 

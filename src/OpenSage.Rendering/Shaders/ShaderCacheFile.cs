@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Veldrid;
 
 namespace OpenSage.Rendering;
@@ -12,7 +13,7 @@ internal sealed class ShaderCacheFile
 
     public readonly ResourceLayoutDescription[] ResourceLayoutDescriptions;
 
-    public static bool TryLoad(string filePath, out ShaderCacheFile result)
+    public static bool TryLoad(string filePath, [NotNullWhen(true)] out ShaderCacheFile? result)
     {
         if (!File.Exists(filePath))
         {

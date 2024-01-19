@@ -5,6 +5,7 @@
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

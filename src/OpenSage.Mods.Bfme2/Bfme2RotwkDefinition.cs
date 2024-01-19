@@ -31,8 +31,8 @@ namespace OpenSage.Mods.Bfme2
         public string Identifier { get; } = "bfme2_rotwk";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
-        public IControlBarSource ControlBar { get; }
-        public ICommandListOverlaySource CommandListOverlay => null;
+        public IControlBarSource? ControlBar { get; }
+        public ICommandListOverlaySource? CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 

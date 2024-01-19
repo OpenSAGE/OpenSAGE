@@ -61,7 +61,7 @@ namespace OpenSage.Mathematics
         {
             return new DFloat(a._value * b._value);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(DFloat a, DFloat b)
         {
@@ -79,7 +79,7 @@ namespace OpenSage.Mathematics
             return _value.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is DFloat f && _value == f._value;
         }

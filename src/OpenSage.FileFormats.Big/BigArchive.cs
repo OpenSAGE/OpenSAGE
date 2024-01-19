@@ -128,7 +128,7 @@ namespace OpenSage.FileFormats.Big
             return entry;
         }
 
-        public BigArchiveEntry GetEntry(string entryName)
+        public BigArchiveEntry? GetEntry(string entryName)
         {
             if (entryName == null)
             {

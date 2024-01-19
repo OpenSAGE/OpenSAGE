@@ -111,7 +111,7 @@ public sealed class RenderScene
         return result;
     }
 
-    private RenderBucket GetRenderBucketImpl(string name)
+    private RenderBucket? GetRenderBucketImpl(string name)
     {
         foreach (var renderBucket in _renderBuckets)
         {

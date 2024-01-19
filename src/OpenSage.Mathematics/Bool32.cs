@@ -11,7 +11,7 @@ namespace OpenSage.Graphics.Mathematics
             _value = val ? 1 : 0;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Bool32 @bool && Equals(@bool);
         }
