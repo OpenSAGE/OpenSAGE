@@ -80,7 +80,10 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            if (_productionQueue.Count > 0)
+            var isProducing = _productionQueue.Count > 0;
+            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, isProducing);
+
+            if (isProducing)
             {
                 var front = _productionQueue[0];
                 var result = front.Produce();
@@ -100,6 +103,7 @@ namespace OpenSage.Logic.Object
 
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
+                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, true);
 
                             ProduceObject(front.ObjectDefinition);
                         }
@@ -128,6 +132,7 @@ namespace OpenSage.Logic.Object
                 case DoorState.Open:
                     if (context.LogicFrame >= _currentStepEnd)
                     {
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, false);
                         _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
                         if (_productionExit is ParkingPlaceBehaviour)
                         {
