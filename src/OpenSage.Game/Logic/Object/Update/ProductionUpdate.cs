@@ -65,6 +65,8 @@ namespace OpenSage.Logic.Object
             {
                 if (context.LogicFrame >= _currentStepEnd)
                 {
+                    var newObject = _productionQueue[0];
+                    ProduceObject(newObject.ObjectDefinition);
                     _productionQueue.RemoveAt(0);
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = context.LogicFrame + _moduleData.DoorWaitOpenTime;
@@ -100,8 +102,6 @@ namespace OpenSage.Logic.Object
 
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
-
-                            ProduceObject(front.ObjectDefinition);
                         }
                         else
                         {
