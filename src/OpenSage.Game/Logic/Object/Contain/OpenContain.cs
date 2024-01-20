@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         private readonly List<uint> _containedObjectIds = new();
         private uint _unknownFrame1;
         private uint _unknownFrame2;
-        private BitArray<ModelConditionFlag> _modelConditionFlags = new();
+        protected BitArray<ModelConditionFlag> ModelConditionFlags = new();
         private readonly Matrix4x3[] _unknownTransforms = new Matrix4x3[32];
         private uint _nextFirePointIndex;
         private uint _numFirePoints;
@@ -39,7 +39,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistBitArray(ref _modelConditionFlags);
+            reader.PersistBitArray(ref ModelConditionFlags);
 
             // Where does the 32 come from?
             reader.PersistArray(

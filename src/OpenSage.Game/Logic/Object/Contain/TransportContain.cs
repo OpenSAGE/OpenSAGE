@@ -30,6 +30,7 @@ namespace OpenSage.Logic.Object
             // TODO: Check contained.Definition.TransportSlotCount
 
             _contained.Add(contained);
+            ModelConditionFlags.Set(ModelConditionFlag.Loaded, true);
 
             contained.Hidden = true;
             contained.IsSelectable = false;
@@ -120,7 +121,7 @@ namespace OpenSage.Logic.Object
         public bool BurnedDeathToUnits { get; private set; }
 
         public int ExitDelay { get; private set; }
-        
+
         public bool GoAggressiveOnExit { get; private set; }
         public int DoorOpenTime { get; private set; }
         public bool ScatterNearbyOnExit { get; private set; }
