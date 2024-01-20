@@ -403,8 +403,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt1); // 0, 4
             reader.PersistSingle(ref _unknownFloat8); // 0, 100
 
-            reader.PersistSingle(ref _unknownFloat9);
-            if (_unknownFloat9 != 1.0f)
+            reader.PersistSingle(ref _unknownFloat9); // 1, 0 mid humvee evac (unsure if related)
+            if (_unknownFloat9 != 0f && _unknownFloat9 != 1.0f)
             {
                 throw new InvalidStateException();
             }
