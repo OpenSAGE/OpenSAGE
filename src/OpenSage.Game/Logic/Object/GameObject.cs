@@ -775,7 +775,7 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        private bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
+        public bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
         {
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasEnqueuedUpgrade(upgrade)

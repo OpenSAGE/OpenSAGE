@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
@@ -204,6 +204,10 @@ namespace OpenSage.Gui.Wnd.Controls
         // TODO: Move these into better Animation classes.
         public ColorRgbaF? BackgroundColorOverride { get; set; }
         public ColorRgbaF? OverlayColor { get; set; }
+        /// <summary>
+        /// Used for construction in progress overlay.
+        /// </summary>
+        public float OverlayRadialPercentage { get; set; }
 
         public float Opacity { get; set; } = 1;
 
@@ -387,7 +391,10 @@ namespace OpenSage.Gui.Wnd.Controls
 
             if (!Enabled)
             {
-                image = DisabledBackgroundImage ?? image;
+                if (OverlayColor == null)
+                {
+                    image = DisabledBackgroundImage ?? image;
+                }
             }
             else if (IsMouseOver)
             {
@@ -439,9 +446,11 @@ namespace OpenSage.Gui.Wnd.Controls
             var overlayColor = OverlayColor.Value;
             overlayColor = overlayColor.WithA(overlayColor.A * TextOpacity);
 
-            drawingContext.FillRectangle(
+            // Draw radial progress indicator.
+            drawingContext.FillRectangleRadial360(
                 ClientRectangle,
-                overlayColor);
+                overlayColor,
+                OverlayRadialPercentage);
         }
 
         protected void DrawText(DrawingContext2D drawingContext, TextAlignment textAlignment)
@@ -479,7 +488,12 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public void DefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            if (!Enabled) return;
+            if (!Enabled)
+            {
+                IsMouseOver = false;
+                IsMouseDown = false;
+                return;
+            }
 
             switch (message.MessageType)
             {

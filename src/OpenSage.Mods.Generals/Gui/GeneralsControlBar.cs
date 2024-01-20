@@ -381,6 +381,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                         var objectDefinition = commandButton.Object?.Value;
 
+                        buttonControl.OverlayColor = null;
                         switch (commandButton.Command)
                         {
                             // Disable the button when the unit is not produceable
@@ -398,8 +399,16 @@ namespace OpenSage.Mods.Generals.Gui
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
-                                // todo: button should still have some color (not full color), but be disabled in the event it has already been purchased
-                                buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                var canEnqueueUpgrade = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                buttonControl.Enabled = canEnqueueUpgrade;
+
+                                if (!canEnqueueUpgrade)
+                                {
+                                    var hasPurchasedUpgrade = selectedUnit.HasUpgrade(commandButton.Upgrade.Value) ||
+                                                              selectedUnit.HasEnqueuedUpgrade(commandButton.Upgrade.Value);
+                                    buttonControl.OverlayColor = hasPurchasedUpgrade ? controlBar._scheme.BuildUpClockColor.ToColorRgbaF() : null;
+                                }
+
                                 buttonControl.Show();
                                 break;
                             case CommandType.SpecialPower:
@@ -492,13 +501,9 @@ namespace OpenSage.Mods.Generals.Gui
                             {
                                 queueButton.DrawCallback = (control, drawingContext) =>
                                 {
+                                    queueButton.OverlayColor = controlBar._scheme.BuildUpClockColor.ToColorRgbaF();
+                                    queueButton.OverlayRadialPercentage = job.Progress;
                                     queueButton.DefaultDraw(control, drawingContext);
-
-                                    // Draw radial progress indicator.
-                                    drawingContext.FillRectangleRadial360(
-                                        control.ClientRectangle,
-                                        controlBar._scheme.BuildUpClockColor.ToColorRgbaF(),
-                                        job.Progress);
                                 };
 
                                 if (job.Type == ProductionJobType.Unit)
