@@ -362,6 +362,23 @@ namespace OpenSage.Logic.Orders
                             }
                         }
                         break;
+                    case OrderType.ToggleOvercharge:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            foreach (var overchargeBehavior in unit.FindBehaviors<OverchargeBehavior>())
+                            {
+                                if (overchargeBehavior.Enabled)
+                                {
+                                    overchargeBehavior.Deactivate();
+                                }
+                                else
+                                {
+                                    overchargeBehavior.Activate();
+                                }
+                            }
+                        }
+
+                        break;
                     case OrderType.Checksum:
                         break;
 
