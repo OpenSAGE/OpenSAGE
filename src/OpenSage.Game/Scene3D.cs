@@ -473,23 +473,30 @@ namespace OpenSage
                 // TODO: Not sure what to draw for InactiveBody?
                 if (gameObject.HasActiveBody())
                 {
+                    var red = 0f;
+                    float green;
+                    var blue = 0f;
+
+                    if (gameObject.IsBeingConstructed())
+                    {
+                        green = (float)gameObject.HealthPercentage;
+                        blue = 1;
+                    }
+                    else
+                    {
+                        red = Math.Clamp((1 - (float)gameObject.HealthPercentage) * 2, 0, 1);
+                        green = Math.Clamp((float)gameObject.HealthPercentage * 2, 0, 1);
+                    }
+
                     DrawBar(
                         healthBoxRect.Value,
-                        new ColorRgbaF(0, 1, 0, 1),
+                        new ColorRgbaF(red, green, blue, 1),
                         (float)gameObject.HealthPercentage);
                 }
 
                 var yOffset = 0;
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.IsBeingConstructed())
-                {
-                    yOffset += 4;
-                    var constructionProgressBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
-                    DrawBar(
-                        constructionProgressBoxRect,
-                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
-                        gameObject.BuildProgress);
-                }
-                else if (gameObject.ProductionUpdate != null)
+                // todo: this isn't shown in generals/zero hour
+                if (gameObject.ProductionUpdate != null)
                 {
                     yOffset += 4;
                     var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
