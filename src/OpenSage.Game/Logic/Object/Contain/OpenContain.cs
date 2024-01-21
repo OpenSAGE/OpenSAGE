@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Audio;
@@ -87,6 +88,11 @@ namespace OpenSage.Logic.Object
 
         public void Remove(uint unitId)
         {
+            if (_evacQueue.Any(u => u.ObjectId == unitId))
+            {
+                return; // this unit is already queued for evac, nothing to do here
+            }
+
             _evacQueue.Add(new QueuedForEvac { ObjectId = unitId });
         }
 
