@@ -31,6 +31,31 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.Set(ModelConditionFlag.Loaded, ContainedObjectIds.Count > 0);
         }
 
+        protected override bool TryAssignExitPath(GameObject unit)
+        {
+            if (_moduleData.NumberOfExitPaths > 0)
+            {
+                // ExitStart01-nn/ExitEnd01-nn
+                // is this just random?
+                var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                var startBoneName = $"ExitStart{pathToChoose:00}";
+                var endBoneName = $"ExitEnd{pathToChoose:00}";
+                var (_, startBone) = GameObject.Drawable.FindBone(startBoneName);
+                var (_, endBone) = GameObject.Drawable.FindBone(endBoneName);
+
+                if (startBone != null && endBone != null)
+                {
+                    var startPoint = GameObject.ToWorldspace(startBone.Transform);
+                    unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
+                    var exitPoint = GameObject.ToWorldspace(endBone.Transform);
+                    unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         protected override bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
         {
             if (_nextEvacAllowedAfter < currentFrame)
@@ -94,6 +119,7 @@ namespace OpenSage.Logic.Object
                 { "ExitBone", (parser, x) => x.ExitBone = parser.ParseBoneName() },
                 { "DestroyRidersWhoAreNotFreeToExit", (parser, x) => x.DestroyRidersWhoAreNotFreeToExit = parser.ParseBoolean() },
                 { "InitialPayload", (parser, x) => x.InitialPayload = Payload.Parse(parser) },
+                { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
                 { "ArmedRidersUpgradeMyWeaponSet", (parser, x) => x.ArmedRidersUpgradeMyWeaponSet = parser.ParseBoolean() },
                 { "WeaponBonusPassedToPassengers", (parser, x) => x.WeaponBonusPassedToPassengers = parser.ParseBoolean() },
                 { "DelayExitInAir", (parser, x) => x.DelayExitInAir = parser.ParseBoolean() },
@@ -151,6 +177,11 @@ namespace OpenSage.Logic.Object
         public string ExitBone { get; private set; }
         public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
         public Payload InitialPayload { get; private set; }
+
+        /// <summary>
+        /// Defaults to 1.  Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn
+        /// </summary>
+        public int NumberOfExitPaths { get; private set; } = 1;
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ArmedRidersUpgradeMyWeaponSet { get; private set; }

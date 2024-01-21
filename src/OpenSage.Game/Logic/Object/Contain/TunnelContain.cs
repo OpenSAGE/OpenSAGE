@@ -24,6 +24,23 @@ namespace OpenSage.Logic.Object
             HealUnits(_moduleData.TimeForFullHeal);
         }
 
+        protected override bool TryAssignExitPath(GameObject unit)
+        {
+            if (!GameObject.RallyPoint.HasValue)
+            {
+                // todo: natural rally point?
+                return false;
+            }
+
+            unit.UpdateTransform(GameObject.Transform.Translation, GameObject.Transform.Rotation);
+            var startPoint = GameObject.Transform;
+            unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
+            var exitPoint = GameObject.RallyPoint.Value;
+            unit.AIUpdate.AddTargetPoint(exitPoint);
+
+            return true;
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

@@ -136,35 +136,18 @@ namespace OpenSage.Logic.Object
             return true;
         }
 
+        protected virtual bool TryAssignExitPath(GameObject unit)
+        {
+            return false;
+        }
+
         protected void RemoveUnit(uint unitId, bool exitDueToParentDeath = false)
         {
             var unit = GameObjectForId(unitId);
 
             _containedObjectIds.Remove(unitId);
 
-            var assignedExitPath = false;
-            if (_moduleData.NumberOfExitPaths > 0 && !exitDueToParentDeath)
-            {
-                // ExitStart01-nn/ExitEnd01-nn
-                // is this just random?
-                var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
-                var startBoneName = $"ExitStart{pathToChoose:00}";
-                var endBoneName = $"ExitEnd{pathToChoose:00}";
-                // todo: this throws for USA barracks due to drawModule._activeModelDrawConditionState being null
-                var (_, startBone) = GameObject.Drawable.FindBone(startBoneName);
-                var (_, endBone) = GameObject.Drawable.FindBone(endBoneName);
-
-                if (startBone != null && endBone != null)
-                {
-                    var startPoint = GameObject.ToWorldspace(startBone.Transform);
-                    unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
-                    var exitPoint = GameObject.ToWorldspace(endBone.Transform);
-                    unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
-                    assignedExitPath = true;
-                }
-            }
-
-            if (!assignedExitPath)
+            if (exitDueToParentDeath || !TryAssignExitPath(unit))
             {
                 unit.UpdateTransform(GameObject.Transform.Translation, GameObject.Transform.Rotation);
             }
@@ -292,7 +275,6 @@ namespace OpenSage.Logic.Object
             { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "PassengersInTurret", (parser, x) => x.PassengersInTurret = parser.ParseBoolean() },
-            { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
             { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
             { "AllowNeutralInside", (parser, x) => x.AllowNeutralInside = parser.ParseBoolean() },
             { "AllowEnemiesInside", (parser, x) => x.AllowEnemiesInside = parser.ParseBoolean() },
@@ -306,10 +288,6 @@ namespace OpenSage.Logic.Object
         public string ExitSound { get; private set; }
         public Percentage DamagePercentToUnits { get; private set; }
         public bool PassengersInTurret { get; private set; }
-        /// <summary>
-        /// Defaults to 1.  Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn
-        /// </summary>
-        public int NumberOfExitPaths { get; private set; } = 1;
         public bool AllowAlliesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
