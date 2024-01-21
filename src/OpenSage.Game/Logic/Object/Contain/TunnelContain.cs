@@ -6,9 +6,13 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TunnelContain : OpenContainModule
     {
+        public override int TotalSlots => GameObject.GameContext.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
+
         private readonly TunnelContainModuleData _moduleData;
         private bool _unknown1;
         private bool _unknown2;
+
+        // todo: containedObjectIds should be shared
 
         public TunnelContain(GameObject gameObject, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
         {
