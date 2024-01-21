@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        protected override int SlotValueForUnit(GameObject unit)
+        public override int SlotValueForUnit(GameObject unit)
         {
             return unit.Definition.TransportSlotCount;
         }

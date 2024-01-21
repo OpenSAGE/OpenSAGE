@@ -61,7 +61,7 @@ namespace OpenSage.Logic.Object
         /// <returns></returns>
         protected virtual bool CanUnitEnter(GameObject unit) => true;
 
-        protected virtual int SlotValueForUnit(GameObject unit)
+        public virtual int SlotValueForUnit(GameObject unit)
         {
             return 1;
         }
