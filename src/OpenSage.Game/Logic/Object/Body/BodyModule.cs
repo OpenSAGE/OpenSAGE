@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Logic.Object
 {
@@ -34,6 +35,10 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        private DamageType _inspectorDamageType = DamageType.Explosion;
+        private float _inspectorDamageAmount;
+        private DeathType _inspectorDeathType = DeathType.Normal;
+
         internal override void DrawInspector()
         {
             var maxHealth = (float) MaxHealth;
@@ -46,6 +51,16 @@ namespace OpenSage.Logic.Object
             if (ImGui.InputFloat("Health", ref health))
             {
                 Health = (Fix64) health;
+            }
+
+            ImGui.Separator();
+
+            ImGuiUtility.ComboEnum("Damage Type", ref _inspectorDamageType);
+            ImGui.InputFloat("Damage Amount", ref _inspectorDamageAmount);
+            ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
+            if (ImGui.Button("Apply Damage"))
+            {
+                DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType);
             }
         }
     }
