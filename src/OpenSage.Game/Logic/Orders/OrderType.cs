@@ -44,6 +44,8 @@
         BuildObject = 1049,
         CancelBuild = 1051,
         Sell = 1052,
+        ExitContainer = 1053, // ObjectId:683 the objectid to remove from the container
+        Evacuate = 1054,
         DrawBoxSelection = 1058,
         AttackObject = 1059,
         ForceAttackObject = 1060,
@@ -89,8 +91,6 @@
         Unknown1042 = 1042,
         Unknown1050 = 1050,
 
-        Unknown1053 = 1053,
-        Unknown1054 = 1054,
         Unknown1055 = 1055,
         Unknown1056 = 1056,
         Unknown1057 = 1057,
