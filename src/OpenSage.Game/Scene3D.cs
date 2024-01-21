@@ -547,6 +547,78 @@ namespace OpenSage
                 }
             }
 
+            void DrawContainerPips(GameObject gameObject, OpenContainModule containerBehavior)
+            {
+                // SCPPipFull (colored by type - infantry green, vehicle blue)
+                // SCPPipEmpty
+
+                var totalPips = containerBehavior.TotalSlots;
+                var infantryPips = 0; // infantry pips render first
+                var vehiclePips = 0;
+                foreach (var unitId in containerBehavior.ContainedObjectIds)
+                {
+                    var definition = GameObjects.GetObjectById(unitId).Definition;
+                    var toAdd = definition.TransportSlotCount;
+                    if (definition.KindOf.Get(ObjectKinds.Infantry))
+                    {
+                        infantryPips += toAdd;
+                    }
+                    else
+                    {
+                        vehiclePips += toAdd;
+                    }
+                }
+
+                const string fullImageName = "SCPPipFull";
+                var fullPipMappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(fullImageName);
+                const string emptyImageName = "SCPPipEmpty";
+                var emptyPipMappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(emptyImageName);
+
+                var pipSize = fullPipMappedImage.Value.Coords.Size;
+
+                var pipWidth = pipSize.Width + 1;
+
+                var boundingSphere = GetBoundingSphere(gameObject);
+                var xOffset = Camera.GetScreenSize(boundingSphere) / -2; // these just start where the health bar starts
+
+                var rankWorldSpacePos = gameObject.Translation with
+                {
+                    Z = gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height - pipSize.Height / 2f,
+                };
+
+                var pipRect = Camera.WorldToScreenRectangle(
+                    rankWorldSpacePos,
+                    fullPipMappedImage.Value.Coords.Size.ToSizeF());
+
+                if (!pipRect.HasValue)
+                {
+                    return;
+                }
+
+                for (var i = 0; i < infantryPips; i++)
+                {
+                    var rect = pipRect.Value;
+                    // todo: these should be green
+                    drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                    xOffset += pipWidth;
+                }
+
+                for (var i = 0; i < vehiclePips; i++)
+                {
+                    var rect = pipRect.Value;
+                    // todo: these should be blue (can we color mask an image?)
+                    drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                    xOffset += pipWidth;
+                }
+
+                for (var i = vehiclePips + infantryPips; i < totalPips; i++)
+                {
+                    var rect = pipRect.Value;
+                    drawingContext.DrawMappedImage(emptyPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                    xOffset += pipWidth;
+                }
+            }
+
             // The AssetViewer has no LocalPlayer
             if (LocalPlayer != null)
             {
@@ -555,6 +627,12 @@ namespace OpenSage
                     if (obj.IsSelected || LocalPlayer.HoveredUnit == obj)
                     {
                         DrawHealthBox(obj);
+
+                        var containerBehavior = obj.FindBehavior<OpenContainModule>();
+                        if (containerBehavior is { DrawPips: true } && containerBehavior.ContainedObjectIds.Count > 0)
+                        {
+                            DrawContainerPips(obj, containerBehavior);
+                        }
                     }
 
                     if (obj.Rank > 0)
