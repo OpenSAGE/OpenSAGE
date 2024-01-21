@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
         {
             if (_nextEvacAllowedAfter < currentFrame)
             {
-                RemoveUnit(unitId, false);
+                RemoveUnit(unitId);
                 if (_moduleData.ExitDelay > 0)
                 {
                     // todo: humvee had DOOR_1_CLOSING ModelConditionFlag when between exits and DOOR_1_OPENING before first exit

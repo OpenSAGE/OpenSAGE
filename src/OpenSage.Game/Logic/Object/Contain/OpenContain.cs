@@ -110,14 +110,13 @@ namespace OpenSage.Logic.Object
         {
             UpdateModuleSpecific(context);
 
-            if (GameObject.HealthPercentage == Fix64.Zero && !_moduleData.DamagePercentToUnits.IsZero)
+            if (GameObject.HealthPercentage == Fix64.Zero)
             {
-                foreach (var unitId in ContainedObjectIds)
+                foreach (var unitId in ContainedObjectIds.ToArray()) // we're modifying the collection, so we need a copy of it
                 {
                     RemoveUnit(unitId, true);
                 }
 
-                _containedObjectIds.Clear();
                 _evacQueue.Clear();
             }
             else
@@ -133,18 +132,18 @@ namespace OpenSage.Logic.Object
 
         protected virtual bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
         {
-            RemoveUnit(unitId, false);
+            RemoveUnit(unitId);
             return true;
         }
 
-        protected void RemoveUnit(uint unitId, bool dealDamageOnExit)
+        protected void RemoveUnit(uint unitId, bool exitDueToParentDeath = false)
         {
             var unit = GameObjectForId(unitId);
 
             _containedObjectIds.Remove(unitId);
 
             var assignedExitPath = false;
-            if (_moduleData.NumberOfExitPaths > 0)
+            if (_moduleData.NumberOfExitPaths > 0 && !exitDueToParentDeath)
             {
                 // ExitStart01-nn/ExitEnd01-nn
                 // is this just random?
@@ -170,11 +169,14 @@ namespace OpenSage.Logic.Object
                 unit.UpdateTransform(GameObject.Transform.Translation, GameObject.Transform.Rotation);
             }
 
-            if (dealDamageOnExit)
+            if (exitDueToParentDeath)
             {
-                // this is dealt when the parent dies
-                var damageToDeal = unit.MaxHealth * (Fix64)(float)_moduleData.DamagePercentToUnits;
-                unit.DoDamage(DamageType.Penalty, damageToDeal, DeathType.Normal); // todo: is this the right damage/death type?
+                if (!_moduleData.DamagePercentToUnits.IsZero)
+                {
+                    // this is dealt when the parent dies
+                    var damageToDeal = unit.MaxHealth * (Fix64)(float)_moduleData.DamagePercentToUnits;
+                    unit.DoDamage(DamageType.Penalty, damageToDeal, DeathType.Normal); // todo: is this the right damage/death type?
+                }
             }
             else
             {
