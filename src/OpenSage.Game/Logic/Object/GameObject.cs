@@ -730,7 +730,16 @@ namespace OpenSage.Logic.Object
             // Check if the unit is being constructed
             if (IsUnderActiveConstruction())
             {
+                var lastBuildProgress = BuildProgress;
                 BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
+                // structures can be attacked while under construction, and their health is a factor of their build progress;
+                Health += (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+
+                if (Health > MaxHealth)
+                {
+                    // just in case we end up over somehow
+                    Health = MaxHealth;
+                }
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -789,6 +798,7 @@ namespace OpenSage.Logic.Object
         {
             if (IsStructure)
             {
+                Health = Fix64.Zero;
                 ClearModelConditionFlags();
 
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
