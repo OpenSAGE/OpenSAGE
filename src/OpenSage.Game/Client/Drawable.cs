@@ -196,7 +196,7 @@ namespace OpenSage.Client
             return null;
         }
 
-        public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
+        public (ModelInstance? modelInstance, ModelBone? bone) FindBone(string boneName)
         {
             foreach (var drawModule in _drawModules)
             {

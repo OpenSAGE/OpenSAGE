@@ -143,6 +143,7 @@ namespace OpenSage.Logic.Object
 
             _containedObjectIds.Remove(unitId);
 
+            var assignedExitPath = false;
             if (_moduleData.NumberOfExitPaths > 0)
             {
                 // ExitStart01-nn/ExitEnd01-nn
@@ -151,15 +152,20 @@ namespace OpenSage.Logic.Object
                 var startBoneName = $"ExitStart{pathToChoose:00}";
                 var endBoneName = $"ExitEnd{pathToChoose:00}";
                 // todo: this throws for USA barracks due to drawModule._activeModelDrawConditionState being null
-                var startBone = GameObject.Drawable.FindBone(startBoneName);
-                var endBone = GameObject.Drawable.FindBone(endBoneName);
+                var (_, startBone) = GameObject.Drawable.FindBone(startBoneName);
+                var (_, endBone) = GameObject.Drawable.FindBone(endBoneName);
 
-                var startPoint = GameObject.ToWorldspace(startBone.bone.Transform);
-                unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
-                var exitPoint = GameObject.ToWorldspace(endBone.bone.Transform);
-                unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
+                if (startBone != null && endBone != null)
+                {
+                    var startPoint = GameObject.ToWorldspace(startBone.Transform);
+                    unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
+                    var exitPoint = GameObject.ToWorldspace(endBone.Transform);
+                    unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
+                    assignedExitPath = true;
+                }
             }
-            else
+
+            if (!assignedExitPath)
             {
                 unit.UpdateTransform(GameObject.Transform.Translation, GameObject.Transform.Rotation);
             }
