@@ -361,10 +361,8 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 for (var i = 1; i < 100; i++) // Generals has 12 buttons and Zero Hour has 14, but there's no need to set those values as the limit in the code
                 {
-                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
-
                     // the amount of ButtonCommand children in ControlBar.wnd defines how many buttons the game will have in-game
-                    if (controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") == null)
+                    if (controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") is not Button buttonControl)
                         break;
 
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
@@ -475,13 +473,14 @@ namespace OpenSage.Mods.Generals.Gui
 
                     for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                     {
-                        var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
-
-                        if (queueButton == null)
+                        if (productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}") is not Button queueButton)
                         {
                             _logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
                             continue;
                         }
+
+                        queueButton.HoverOverlayImage = controlBar.CommandButtonHover;
+                        queueButton.PushedOverlayImage = controlBar.CommandButtonPush;
 
                         Image img = null;
                         Image overlayImage = null;
