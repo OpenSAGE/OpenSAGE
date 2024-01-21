@@ -215,6 +215,8 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public bool IsMouseOver { get; private set; }
         public bool IsMouseDown { get; private set; }
+        // used for various behaviors
+        public bool IsSelected { get; set; }
 
         /// <summary>
         /// Used to pass arbitrary data items between callbacks.

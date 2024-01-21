@@ -1,4 +1,5 @@
 ﻿using System;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -27,6 +28,16 @@ namespace OpenSage.Logic.Object
             _rodsExtendedEndFrame = _gameObject.GameContext.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
         }
 
+        // China powerplant overcharge needs to be able to turn off
+        internal void RetractRods()
+        {
+            _rodsExtended = false;
+            _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
+            _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, false);
+
+            _rodsExtendedEndFrame = LogicFrame.MaxValue;
+        }
+
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
@@ -49,11 +60,27 @@ namespace OpenSage.Logic.Object
 
             reader.PersistBoolean(ref _rodsExtended);
         }
+
+        internal override void DrawInspector()
+        {
+            ImGui.LabelText("Rods extended", _rodsExtended.ToString());
+            if (ImGui.Button("Extend Rods"))
+            {
+                ExtendRods();
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Retract Rods"))
+            {
+                RetractRods();
+            }
+        }
     }
 
     /// <summary>
-    /// Allows this object to act as an (upgradeable) power supply, and allows this object to use 
-    /// the <see cref="ModelConditionFlag.PowerPlantUpgrading"/> and 
+    /// Allows this object to act as an (upgradeable) power supply, and allows this object to use
+    /// the <see cref="ModelConditionFlag.PowerPlantUpgrading"/> and
     /// <see cref="ModelConditionFlag.PowerPlantUpgraded"/> model condition states.
     /// </summary>
     public sealed class PowerPlantUpdateModuleData : UpdateModuleData

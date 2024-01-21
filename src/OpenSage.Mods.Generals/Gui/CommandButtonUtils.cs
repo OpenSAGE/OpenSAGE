@@ -25,6 +25,8 @@ namespace OpenSage.Mods.Generals.Gui
             buttonControl.HoverOverlayImage = controlBar.CommandButtonHover;
             buttonControl.PushedOverlayImage = controlBar.CommandButtonPush;
 
+            buttonControl.IsSelected = false;
+
             var objectDefinition = commandButton.Object?.Value;
             buttonControl.SystemCallback = (control, message, context) =>
             {

@@ -412,6 +412,10 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.SpecialPower:
                                 buttonControl.Visible = selectedUnit.Owner.SpecialPowerAvailable(commandButton.SpecialPower.Value);
                                 break;
+                            case CommandType.ToggleOvercharge:
+                                buttonControl.IsSelected = selectedUnit.FindBehavior<OverchargeBehavior>().Enabled;
+                                buttonControl.Show();
+                                break;
                             default:
                                 buttonControl.Enabled = true;
                                 buttonControl.Show();

@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             DrawText(drawingContext, TextAlignment.Center);
 
-            if (IsMouseDown && PushedOverlayImage != null)
+            if ((IsMouseDown || IsSelected) && PushedOverlayImage != null)
             {
                 PushedOverlayImage.Draw(drawingContext, ClientRectangle);
             }

@@ -2,7 +2,8 @@
 {
     public abstract class UpdateModule : BehaviorModule
     {
-        private UpdateFrame _updateFrame;
+        // it's also possible this is _last_ update, not next update
+        protected UpdateFrame NextUpdateFrame;
 
         internal override void Load(StatePersister reader)
         {
@@ -12,10 +13,10 @@
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref _updateFrame.RawValue, "UpdateFrame");
+            reader.PersistFrame(ref NextUpdateFrame.RawValue, "UpdateFrame");
         }
 
-        private struct UpdateFrame
+        protected struct UpdateFrame
         {
             public uint RawValue;
 
