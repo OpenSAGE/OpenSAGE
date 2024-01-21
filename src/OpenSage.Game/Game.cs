@@ -532,7 +532,7 @@ namespace OpenSage
                 OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
 
                 Panel.ClientSizeChanged += OnPanelSizeChanged;
-                Panel.EnsureFrame(window.ClientBounds);
+                Panel.EnsureFrame(window?.ClientBounds ?? new Mathematics.Rectangle(0, 0, 1, 1)); // fallback set for sav2json tool
 
                 GameSystems.ForEach(gs => gs.Initialize());
 

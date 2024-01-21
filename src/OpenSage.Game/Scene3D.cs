@@ -427,13 +427,8 @@ namespace OpenSage
 
         private void DrawHealthBoxes(DrawingContext2D drawingContext)
         {
-            void DrawHealthBox(GameObject gameObject)
+            BoundingSphere GetBoundingSphere(GameObject gameObject)
             {
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
-                {
-                    return;
-                }
-
                 var geometrySize = gameObject.Definition.Geometry.Shapes[0].MajorRadius;
 
                 // Not sure if this is what IsSmall is actually for.
@@ -442,7 +437,18 @@ namespace OpenSage
                     geometrySize = Math.Max(geometrySize, 15);
                 }
 
-                var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
+                return new BoundingSphere(gameObject.Translation, geometrySize);
+            }
+
+            void DrawHealthBox(GameObject gameObject)
+            {
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+                {
+                    return;
+                }
+
+                var boundingSphere = GetBoundingSphere(gameObject);
+
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
                 var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height);
@@ -467,23 +473,30 @@ namespace OpenSage
                 // TODO: Not sure what to draw for InactiveBody?
                 if (gameObject.HasActiveBody())
                 {
+                    var red = 0f;
+                    float green;
+                    var blue = 0f;
+
+                    if (gameObject.IsBeingConstructed())
+                    {
+                        green = (float)gameObject.HealthPercentage;
+                        blue = 1;
+                    }
+                    else
+                    {
+                        red = Math.Clamp((1 - (float)gameObject.HealthPercentage) * 2, 0, 1);
+                        green = Math.Clamp((float)gameObject.HealthPercentage * 2, 0, 1);
+                    }
+
                     DrawBar(
                         healthBoxRect.Value,
-                        new ColorRgbaF(0, 1, 0, 1),
+                        new ColorRgbaF(red, green, blue, 1),
                         (float)gameObject.HealthPercentage);
                 }
 
                 var yOffset = 0;
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.IsBeingConstructed())
-                {
-                    yOffset += 4;
-                    var constructionProgressBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
-                    DrawBar(
-                        constructionProgressBoxRect,
-                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
-                        gameObject.BuildProgress);
-                }
-                else if (gameObject.ProductionUpdate != null)
+                // todo: this isn't shown in generals/zero hour
+                if (gameObject.ProductionUpdate != null)
                 {
                     yOffset += 4;
                     var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
@@ -509,17 +522,45 @@ namespace OpenSage
                 }
             }
 
+            void DrawRank(GameObject gameObject)
+            {
+                var imageName = $"SCVETER{gameObject.Rank}";
+                var mappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(imageName);
+
+                var boundingSphere = GetBoundingSphere(gameObject);
+
+                var xOffset = Camera.GetScreenSize(boundingSphere) / 1.5f; // 1.5 seems to give us a good offset from where the health bar would be
+
+                var rankWorldSpacePos = gameObject.Translation with
+                {
+                    Z = gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height,
+                };
+
+                var rankRect = Camera.WorldToScreenRectangle(
+                    rankWorldSpacePos,
+                    mappedImage.Value.Coords.Size.ToSizeF());
+
+                if (rankRect.HasValue)
+                {
+                    var rect = rankRect.Value;
+                    drawingContext.DrawMappedImage(mappedImage.Value, rect.WithX(rect.X + xOffset));
+                }
+            }
+
             // The AssetViewer has no LocalPlayer
             if (LocalPlayer != null)
             {
-                foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+                foreach (var obj in GameObjects.Items)
                 {
-                    DrawHealthBox(selectedUnit);
-                }
+                    if (obj.IsSelected || LocalPlayer.HoveredUnit == obj)
+                    {
+                        DrawHealthBox(obj);
+                    }
 
-                if (LocalPlayer.HoveredUnit != null)
-                {
-                    DrawHealthBox(LocalPlayer.HoveredUnit);
+                    if (obj.Rank > 0)
+                    {
+                        DrawRank(obj);
+                    }
                 }
             }
         }

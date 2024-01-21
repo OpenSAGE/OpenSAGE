@@ -60,7 +60,7 @@ namespace OpenSage.Logic.Object
         private PathfindingPath _path;
         private uint _unknownInt16;
         private Vector3 _unknownPosition1;
-        private uint _unknownObjectId;
+        private uint _objectToEnter;
         private float _unknownFloat2;
         private Point2D _unknownPos2D1;
         private Point2D _unknownPos2D2;
@@ -347,7 +347,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(12);
 
-            reader.PersistObjectID(ref _unknownObjectId);
+            reader.PersistObjectID(ref _objectToEnter);
             reader.PersistSingle(ref _unknownFloat2);
             reader.PersistPoint2D(ref _unknownPos2D1);
             reader.PersistPoint2D(ref _unknownPos2D2);

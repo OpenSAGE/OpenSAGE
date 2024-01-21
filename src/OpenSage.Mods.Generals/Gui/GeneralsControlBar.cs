@@ -361,10 +361,8 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 for (var i = 1; i < 100; i++) // Generals has 12 buttons and Zero Hour has 14, but there's no need to set those values as the limit in the code
                 {
-                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
-
                     // the amount of ButtonCommand children in ControlBar.wnd defines how many buttons the game will have in-game
-                    if (controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") == null)
+                    if (controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") is not Button buttonControl)
                         break;
 
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonReference))
@@ -381,6 +379,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                         var objectDefinition = commandButton.Object?.Value;
 
+                        buttonControl.OverlayColor = null;
                         switch (commandButton.Command)
                         {
                             // Disable the button when the unit is not produceable
@@ -398,12 +397,24 @@ namespace OpenSage.Mods.Generals.Gui
                             // Disable the button when the object already has it etc.
                             case CommandType.PlayerUpgrade:
                             case CommandType.ObjectUpgrade:
-                                // todo: button should still have some color (not full color), but be disabled in the event it has already been purchased
-                                buttonControl.Enabled = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                var canEnqueueUpgrade = selectedUnit.CanEnqueueUpgrade(commandButton.Upgrade.Value);
+                                buttonControl.Enabled = canEnqueueUpgrade;
+
+                                if (!canEnqueueUpgrade)
+                                {
+                                    var hasPurchasedUpgrade = selectedUnit.HasUpgrade(commandButton.Upgrade.Value) ||
+                                                              selectedUnit.HasEnqueuedUpgrade(commandButton.Upgrade.Value);
+                                    buttonControl.OverlayColor = hasPurchasedUpgrade ? controlBar._scheme.BuildUpClockColor.ToColorRgbaF() : null;
+                                }
+
                                 buttonControl.Show();
                                 break;
                             case CommandType.SpecialPower:
                                 buttonControl.Visible = selectedUnit.Owner.SpecialPowerAvailable(commandButton.SpecialPower.Value);
+                                break;
+                            case CommandType.ToggleOvercharge:
+                                buttonControl.IsSelected = selectedUnit.FindBehavior<OverchargeBehavior>().Enabled;
+                                buttonControl.Show();
                                 break;
                             default:
                                 buttonControl.Enabled = true;
@@ -475,13 +486,14 @@ namespace OpenSage.Mods.Generals.Gui
 
                     for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                     {
-                        var queueButton = productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}");
-
-                        if (queueButton == null)
+                        if (productionQueueWindow.Controls.FindControl($"ControlBar.wnd:ButtonQueue0{pos + 1}") is not Button queueButton)
                         {
                             _logger.Warn($"Could not find the right control (ControlBar.wnd:ButtonQueue0{pos + 1})");
                             continue;
                         }
+
+                        queueButton.HoverOverlayImage = controlBar.CommandButtonHover;
+                        queueButton.PushedOverlayImage = controlBar.CommandButtonPush;
 
                         Image img = null;
                         Image overlayImage = null;
@@ -492,13 +504,9 @@ namespace OpenSage.Mods.Generals.Gui
                             {
                                 queueButton.DrawCallback = (control, drawingContext) =>
                                 {
+                                    queueButton.OverlayColor = controlBar._scheme.BuildUpClockColor.ToColorRgbaF();
+                                    queueButton.OverlayRadialPercentage = job.Progress;
                                     queueButton.DefaultDraw(control, drawingContext);
-
-                                    // Draw radial progress indicator.
-                                    drawingContext.FillRectangleRadial360(
-                                        control.ClientRectangle,
-                                        controlBar._scheme.BuildUpClockColor.ToColorRgbaF(),
-                                        job.Progress);
                                 };
 
                                 if (job.Type == ProductionJobType.Unit)

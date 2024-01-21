@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -46,6 +43,7 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             SupplyGatherState = SupplyGatherStates.Default;
+            // todo: this is not always the case - workers produced from a command center do not go looking for supplies
             SupplyGatherStateToResume = SupplyGatherStates.SearchingForSupplySource;
             _numBoxes = 0;
         }
@@ -73,7 +71,10 @@ namespace OpenSage.Logic.Object
 
         internal virtual void GetBox(BehaviorUpdateContext context)
         {
-            _currentSourceDockUpdate?.GetBox();
+            if (_currentSourceDockUpdate?.GetBox() == true && !_currentSourceDockUpdate.HasBoxes())
+            {
+                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject, _moduleData.SuppliesDepletedVoice.Value);
+            }
         }
 
         internal virtual void SetGatheringConditionFlags()
@@ -264,7 +265,7 @@ namespace OpenSage.Logic.Object
                 { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
-                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() }
+                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAudioEventReference() }
             });
 
         public int MaxBoxes { get; private set; }
@@ -274,6 +275,6 @@ namespace OpenSage.Logic.Object
         public LogicFrameSpan SupplyWarehouseActionDelay { get; private set; }
         // Max distance to look for a warehouse, or we go home.  (Direct dock command on warehouse overrides, and no max on Center Scan)
         public int SupplyWarehouseScanDistance { get; private set; }
-        public string SuppliesDepletedVoice { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SuppliesDepletedVoice { get; private set; }
     }
 }

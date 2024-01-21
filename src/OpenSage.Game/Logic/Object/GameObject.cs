@@ -730,7 +730,16 @@ namespace OpenSage.Logic.Object
             // Check if the unit is being constructed
             if (IsUnderActiveConstruction())
             {
+                var lastBuildProgress = BuildProgress;
                 BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
+                // structures can be attacked while under construction, and their health is a factor of their build progress;
+                Health += (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+
+                if (Health > MaxHealth)
+                {
+                    // just in case we end up over somehow
+                    Health = MaxHealth;
+                }
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -775,7 +784,7 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        private bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
+        public bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
         {
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasEnqueuedUpgrade(upgrade)
@@ -789,6 +798,7 @@ namespace OpenSage.Logic.Object
         {
             if (IsStructure)
             {
+                Health = Fix64.Zero;
                 ClearModelConditionFlags();
 
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
@@ -849,12 +859,22 @@ namespace OpenSage.Logic.Object
 
             if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
+                if (!ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
                 _bodyDamageType = BodyDamageType.ReallyDamaged;
             }
             else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
+                if (!ModelConditionFlags.Get(ModelConditionFlag.Damaged) && Definition.SoundOnDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged.Value);
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
                 _bodyDamageType = BodyDamageType.Damaged;
@@ -1096,9 +1116,26 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            PlayDieSound(deathType);
+
             foreach (var module in _behaviorModules)
             {
                 module.OnDie(_behaviorUpdateContext, deathType);
+            }
+        }
+
+        private void PlayDieSound(DeathType deathType)
+        {
+            var voiceDie = deathType switch
+            {
+                DeathType.Burned => Definition.SoundDieFire?.Value,
+                DeathType.Poisoned or DeathType.PoisonedGamma or DeathType.PoisonedBeta => Definition.SoundDieToxin?.Value,
+                _ => null,
+            } ?? Definition.SoundDie?.Value;
+
+            if (voiceDie != null)
+            {
+                GameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
             }
         }
 
@@ -1382,8 +1419,6 @@ namespace OpenSage.Logic.Object
             {
                 DrawInspector(drawModule);
             }
-
-            DrawInspector(_body);
 
             if (CurrentWeapon != null)
             {

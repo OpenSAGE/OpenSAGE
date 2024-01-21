@@ -218,8 +218,8 @@ namespace OpenSage.Logic.Object
             { "SoundOnDamaged", (parser, x) => x.SoundOnDamaged = parser.ParseAudioEventReference() },
             { "SoundOnReallyDamaged", (parser, x) => x.SoundOnReallyDamaged = parser.ParseAudioEventReference() },
             { "SoundDie", (parser, x) => x.SoundDie = parser.ParseAudioEventReference() },
-            { "SoundDieFire", (parser, x) => x.SoundDieFire = parser.ParseAssetReference() },
-            { "SoundDieToxin", (parser, x) => x.SoundDieToxin = parser.ParseAssetReference() },
+            { "SoundDieFire", (parser, x) => x.SoundDieFire = parser.ParseAudioEventReference() },
+            { "SoundDieToxin", (parser, x) => x.SoundDieToxin = parser.ParseAudioEventReference() },
             { "SoundStealthOn", (parser, x) => x.SoundStealthOn = parser.ParseAssetReference() },
             { "SoundStealthOff", (parser, x) => x.SoundStealthOff = parser.ParseAssetReference() },
             { "SoundCrush", (parser, x) => x.SoundCrush = parser.ParseAssetReference() },
@@ -793,9 +793,9 @@ namespace OpenSage.Logic.Object
 
         public LazyAssetReference<BaseAudioEventInfo> SoundOnDamaged { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> SoundOnReallyDamaged { get; private set; }
-        public LazyAssetReference<BaseAudioEventInfo> SoundDie { get; private set; }
-        public string SoundDieFire { get; private set; }
-        public string SoundDieToxin { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo>? SoundDie { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo>? SoundDieFire { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo>? SoundDieToxin { get; private set; }
         public string SoundStealthOn { get; private set; }
         public string SoundStealthOff { get; private set; }
         public string SoundCrush { get; private set; }
