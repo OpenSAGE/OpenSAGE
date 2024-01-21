@@ -356,6 +356,7 @@ namespace OpenSage.Logic.Orders
 
                                 // TODO: Don't put it in container right now. Tell it to move towards container.
                                 //  use AIStateMachine EnterContainerState?
+                                //  deselect unit upon entry
                                 //unit.AIUpdate.SetTargetObject(gameObject);
                                 container.Add(unit);
                             }

@@ -1437,7 +1437,7 @@ namespace OpenSage.Logic.Object
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                ImGui.LabelText("DisplayName", Definition.DisplayName);
+                ImGui.LabelText("DisplayName", Definition.DisplayName ?? string.Empty);
 
                 var translation = _transform.Translation;
                 if (ImGui.DragFloat3("Position", ref translation))
