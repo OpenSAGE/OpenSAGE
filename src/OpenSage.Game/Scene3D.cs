@@ -427,13 +427,8 @@ namespace OpenSage
 
         private void DrawHealthBoxes(DrawingContext2D drawingContext)
         {
-            void DrawHealthBox(GameObject gameObject)
+            BoundingSphere GetBoundingSphere(GameObject gameObject)
             {
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
-                {
-                    return;
-                }
-
                 var geometrySize = gameObject.Definition.Geometry.Shapes[0].MajorRadius;
 
                 // Not sure if this is what IsSmall is actually for.
@@ -442,7 +437,18 @@ namespace OpenSage
                     geometrySize = Math.Max(geometrySize, 15);
                 }
 
-                var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
+                return new BoundingSphere(gameObject.Translation, geometrySize);
+            }
+
+            void DrawHealthBox(GameObject gameObject)
+            {
+                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+                {
+                    return;
+                }
+
+                var boundingSphere = GetBoundingSphere(gameObject);
+
                 var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
                 var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height);
@@ -509,17 +515,45 @@ namespace OpenSage
                 }
             }
 
+            void DrawRank(GameObject gameObject)
+            {
+                var imageName = $"SCVETER{gameObject.Rank}";
+                var mappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(imageName);
+
+                var boundingSphere = GetBoundingSphere(gameObject);
+
+                var xOffset = Camera.GetScreenSize(boundingSphere) / 1.5f; // 1.5 seems to give us a good offset from where the health bar would be
+
+                var rankWorldSpacePos = gameObject.Translation with
+                {
+                    Z = gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height,
+                };
+
+                var rankRect = Camera.WorldToScreenRectangle(
+                    rankWorldSpacePos,
+                    mappedImage.Value.Coords.Size.ToSizeF());
+
+                if (rankRect.HasValue)
+                {
+                    var rect = rankRect.Value;
+                    drawingContext.DrawMappedImage(mappedImage.Value, rect.WithX(rect.X + xOffset));
+                }
+            }
+
             // The AssetViewer has no LocalPlayer
             if (LocalPlayer != null)
             {
-                foreach (var selectedUnit in LocalPlayer.SelectedUnits)
+                foreach (var obj in GameObjects.Items)
                 {
-                    DrawHealthBox(selectedUnit);
-                }
+                    if (obj.IsSelected || LocalPlayer.HoveredUnit == obj)
+                    {
+                        DrawHealthBox(obj);
+                    }
 
-                if (LocalPlayer.HoveredUnit != null)
-                {
-                    DrawHealthBox(LocalPlayer.HoveredUnit);
+                    if (obj.Rank > 0)
+                    {
+                        DrawRank(obj);
+                    }
                 }
             }
         }
