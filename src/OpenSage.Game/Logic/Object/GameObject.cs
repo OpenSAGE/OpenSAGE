@@ -849,12 +849,22 @@ namespace OpenSage.Logic.Object
 
             if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
+                if (!ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
                 _bodyDamageType = BodyDamageType.ReallyDamaged;
             }
             else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
+                if (!ModelConditionFlags.Get(ModelConditionFlag.Damaged) && Definition.SoundOnDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged.Value);
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
                 _bodyDamageType = BodyDamageType.Damaged;
