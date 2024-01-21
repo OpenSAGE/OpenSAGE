@@ -402,7 +402,7 @@ namespace OpenSage.Mods.Generals.Gui
                             continue;
                         }
 
-                        CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
+                        CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar, i);
 
                         var objectDefinition = commandButton.Object?.Value;
 

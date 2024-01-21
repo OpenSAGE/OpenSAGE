@@ -148,17 +148,13 @@ namespace OpenSage.Gui
                     break;
 
                 case CommandType.ExitContainer:
-                    // this hack is because the humvee's enter/exit slots start at 3, not 1
-                    // var firstExitIndex = selectedObject.Definition.CommandSet.Value.Buttons
-                    //     .Where(kvp => kvp.Value.Value.Command == CommandType.ExitContainer).MinBy(kvp => kvp.Key).Key;
+                    // this hack is because:
+                    // a) the humvee's enter/exit slots start at 3, not 1
+                    // b) these exit buttons could theoretically not even be sequential (picture them only on the top or bottom)
+                    var orderedExits = selectedObject.Definition.CommandSet.Value.Buttons
+                        .Where(kvp => kvp.Value.Value.Command == CommandType.ExitContainer).OrderBy(kvp => kvp.Key);
 
-                    // this hack is because we don't actually know which button index triggered this command
-                    // however, all these command buttons are technically identical, so this will only ever remove the first unit
-                    // var currentIndex =
-                    //     selectedObject.Definition.CommandSet.Value.Buttons.First(kvp => kvp.Value.Value == commandButton).Key;
-
-                    // todo: remove selected unit, not just first unit
-                    var objectToRemoveIndex = 0;
+                    var objectToRemoveIndex = orderedExits.Select((kvp, i) => (kvp.Key, i)).First(t => t.Key == index).i;
                     var objectIdToRemove = selectedObject.FindBehavior<OpenContainModule>().ContainedObjectIds[objectToRemoveIndex];
 
                     order = CreateOrder(OrderType.ExitContainer);
