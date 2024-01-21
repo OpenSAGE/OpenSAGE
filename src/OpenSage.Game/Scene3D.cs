@@ -624,6 +624,11 @@ namespace OpenSage
             {
                 foreach (var obj in GameObjects.Items)
                 {
+                    if (obj.Hidden)
+                    {
+                        continue;
+                    }
+
                     if (obj.IsSelected || LocalPlayer.HoveredUnit == obj)
                     {
                         DrawHealthBox(obj);
