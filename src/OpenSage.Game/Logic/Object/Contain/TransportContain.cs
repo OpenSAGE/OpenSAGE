@@ -43,17 +43,33 @@ namespace OpenSage.Logic.Object
                 var (_, startBone) = GameObject.Drawable.FindBone(startBoneName);
                 var (_, endBone) = GameObject.Drawable.FindBone(endBoneName);
 
-                if (startBone != null && endBone != null)
+                if (startBone == null || endBone == null)
                 {
-                    var startPoint = GameObject.ToWorldspace(startBone.Transform);
-                    unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
-                    var exitPoint = GameObject.ToWorldspace(endBone.Transform);
-                    unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
-                    return true;
+                    return false;
                 }
+
+                var startPoint = GameObject.ToWorldspace(startBone.Transform);
+                unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
+                var exitPoint = GameObject.ToWorldspace(endBone.Transform);
+                unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
+                return true;
             }
 
-            return false;
+            if (_moduleData.ExitBone == null)
+            {
+                return false;
+            }
+
+            var (_, bone) = GameObject.Drawable.FindBone(_moduleData.ExitBone);
+            if (bone == null)
+            {
+                return false;
+            }
+
+            var spawnPoint = GameObject.ToWorldspace(bone.Transform);
+            unit.UpdateTransform(spawnPoint.Translation, spawnPoint.Rotation);
+
+            return true;
         }
 
         protected override bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
@@ -174,7 +190,7 @@ namespace OpenSage.Logic.Object
         public bool OrientLikeContainerOnExit { get; private set; }
         public bool KeepContainerVelocityOnExit { get; private set; }
         public int ExitPitchRate { get; private set; }
-        public string ExitBone { get; private set; }
+        public string? ExitBone { get; private set; }
         public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
         public Payload InitialPayload { get; private set; }
 
