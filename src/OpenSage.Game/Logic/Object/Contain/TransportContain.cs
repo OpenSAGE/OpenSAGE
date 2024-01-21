@@ -1,39 +1,51 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public class TransportContain : OpenContainModule
     {
+        public override int TotalSlots => _moduleData.Slots;
+
         private readonly TransportContainModuleData _moduleData;
-        private readonly List<GameObject> _contained;
 
-        private uint _unknownFrame;
+        private LogicFrame _nextEvacAllowedAfter; // unsure if this is correct, but seems plausible from testing?
 
-        internal TransportContain(TransportContainModuleData moduleData)
+        internal TransportContain(GameObject gameObject, TransportContainModuleData moduleData): base(gameObject, moduleData)
         {
             _moduleData = moduleData;
-            _contained = new List<GameObject>();
         }
 
-        public void AddContained(GameObject contained)
+        protected override int SlotValueForUnit(GameObject unit)
         {
-            if (_contained.Count >= _moduleData.Slots)
+            return unit.Definition.TransportSlotCount;
+        }
+
+        private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+        {
+            if (_moduleData.HealthRegenPercentPerSecond != 0)
             {
-                return;
+                HealUnits(100_000 / _moduleData.HealthRegenPercentPerSecond); // (100% / regenpercentpersecond) * 1000ms
+            }
+            ModelConditionFlags.Set(ModelConditionFlag.Loaded, ContainedObjectIds.Count > 0);
+        }
+
+        protected override bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
+        {
+            if (_nextEvacAllowedAfter < currentFrame)
+            {
+                RemoveUnit(unitId, false);
+                if (_moduleData.ExitDelay > 0)
+                {
+                    // todo: humvee had DOOR_1_CLOSING ModelConditionFlag when between exits and DOOR_1_OPENING before first exit
+                    var exitDelayFrames = _moduleData.ExitDelay / 1000f * Game.LogicFramesPerSecond;
+                    _nextEvacAllowedAfter = currentFrame + new LogicFrameSpan((uint)exitDelayFrames);
+                }
+                return true;
             }
 
-            // TODO: Check AllowInsideKindOf
-            // TODO: Check contained.Definition.TransportSlotCount
-
-            _contained.Add(contained);
-            ModelConditionFlags.Set(ModelConditionFlag.Loaded, true);
-
-            contained.Hidden = true;
-            contained.IsSelectable = false;
+            return false;
         }
 
         internal override void Load(StatePersister reader)
@@ -53,7 +65,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistLogicFrame(ref _nextEvacAllowedAfter);
         }
     }
 
@@ -120,9 +132,17 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool BurnedDeathToUnits { get; private set; }
 
+        /// <summary>
+        /// Delay between successive exits
+        /// </summary>
         public int ExitDelay { get; private set; }
 
         public bool GoAggressiveOnExit { get; private set; }
+        /// <remarks>
+        /// it seems like there's some default value for DoorOpenTime because
+        /// 1) I was able to pause after starting an evac of a humvee and before anybody left
+        /// 2) the inis have comments about how setting DoorOpenTime to 0 stops the DOOR_1_OPENING/CLOSING flags from being set
+        /// </remarks>
         public int DoorOpenTime { get; private set; }
         public bool ScatterNearbyOnExit { get; private set; }
         public bool OrientLikeContainerOnExit { get; private set; }
@@ -221,7 +241,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TransportContain(this);
+            return new TransportContain(gameObject, this);
         }
     }
 

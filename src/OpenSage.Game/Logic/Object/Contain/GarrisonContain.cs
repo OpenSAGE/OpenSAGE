@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -9,6 +10,20 @@ namespace OpenSage.Logic.Object
         private uint _unknown1;
         private readonly Vector3[] _positions = new Vector3[120];
         private bool _unknown3;
+
+        public GarrisonContain(GameObject gameObject, OpenContainModuleData moduleData) : base(gameObject, moduleData)
+        {
+        }
+
+        private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, ContainedObjectIds.Count > 0);
+        }
+
+        protected override BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
+        {
+            return sounds.VoiceGarrison?.Value;
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -45,8 +60,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object 
-    /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
+    /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object
+    /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use
     /// of the GARRISONED Model ModelConditionState.
     /// </summary>
     public class GarrisonContainModuleData : OpenContainModuleData
@@ -63,7 +78,12 @@ namespace OpenSage.Logic.Object
                 { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
                 { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) }
             });
-        
+
+        /// <summary>
+        /// AllowInsideKindOf is never explicitly set for GarrisonContain, but it seems to only be for infantry.
+        /// </summary>
+        public override BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; } = new(ObjectKinds.Infantry);
+
         public bool MobileGarrison { get; private set; }
         public InitialRoster InitialRoster { get; private set; }
         public bool ImmuneToClearBuildingAttacks { get; private set; }
@@ -79,7 +99,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new GarrisonContain();
+            return new GarrisonContain(gameObject, this);
         }
     }
 

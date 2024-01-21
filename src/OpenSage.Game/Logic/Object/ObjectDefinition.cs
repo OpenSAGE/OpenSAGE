@@ -233,8 +233,8 @@ namespace OpenSage.Logic.Object
             { "SoundAmbientRubble2", (parser, x) => x.SoundAmbientRubble2 = parser.ParseAssetReference() },
             { "SoundAmbientBattle", (parser, x) => x.SoundAmbientBattle = parser.ParseAssetReference() },
             { "SoundCreated", (parser, x) => x.SoundCreated = parser.ParseAssetReference() },
-            { "SoundEnter", (parser, x) => x.SoundEnter = parser.ParseAssetReference() },
-            { "SoundExit", (parser, x) => x.SoundExit = parser.ParseAssetReference() },
+            { "SoundEnter", (parser, x) => x.SoundEnter = parser.ParseAudioEventReference() },
+            { "SoundExit", (parser, x) => x.SoundExit = parser.ParseAudioEventReference() },
             { "SoundPromotedVeteran", (parser, x) => x.SoundPromotedVeteran = parser.ParseAssetReference() },
             { "SoundPromotedElite", (parser, x) => x.SoundPromotedElite = parser.ParseAssetReference() },
             { "SoundPromotedHero", (parser, x) => x.SoundPromotedHero = parser.ParseAssetReference() },
@@ -820,8 +820,8 @@ namespace OpenSage.Logic.Object
         public string SoundAmbientBattle { get; private set; }
 
         public string SoundCreated { get; private set; }
-        public string SoundEnter { get; private set; }
-        public string SoundExit { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundEnter { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundExit { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string SoundPromotedVeteran { get; private set; }

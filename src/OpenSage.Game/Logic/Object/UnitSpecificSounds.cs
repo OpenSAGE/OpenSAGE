@@ -23,6 +23,11 @@ namespace OpenSage.Logic.Object
         /// The sound played when a unit is produced
         /// </summary>
         public LazyAssetReference<BaseAudioEventInfo>? VoiceCreate => TryGetValue("VoiceCreate", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceUnload => TryGetValue("VoiceUnload", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceEnter => TryGetValue("VoiceEnter", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceEnterHostile => TryGetValue("VoiceEnterHostile", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceGarrison => TryGetValue("VoiceGarrison", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceGetHealed => TryGetValue("VoiceGetHealed", out var sound) ? sound : null;
 
         internal static UnitSpecificSounds Parse(IniParser parser)
         {

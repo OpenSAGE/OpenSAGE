@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using FixedMath.NET;
+using ImGuiNET;
+using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -6,6 +9,9 @@ namespace OpenSage.Logic.Object
 {
     public abstract class OpenContainModule : UpdateModule
     {
+        private readonly OpenContainModuleData _moduleData;
+        protected GameObject GameObject { get; }
+
         private readonly List<uint> _containedObjectIds = new();
         private uint _unknownFrame1;
         private uint _unknownFrame2;
@@ -14,8 +20,176 @@ namespace OpenSage.Logic.Object
         private uint _nextFirePointIndex;
         private uint _numFirePoints;
         private bool _hasNoFirePoints;
-        private readonly List<OpenContainSomething> _unknownList = new();
+        private readonly List<QueuedForEvac> _evacQueue = new();
         private int _unknownInt;
+
+        public IReadOnlyList<uint> ContainedObjectIds => _containedObjectIds;
+        public bool DrawPips => _moduleData.ShouldDrawPips;
+        public virtual int TotalSlots => _moduleData.ContainMax;
+
+        protected OpenContainModule(GameObject gameObject, OpenContainModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            GameObject = gameObject;
+        }
+
+        public bool IsFull()
+        {
+            var total = 0;
+            foreach (var unitId in ContainedObjectIds)
+            {
+                var unit = GameObjectForId(unitId);
+                total += SlotValueForUnit(unit);
+            }
+
+            return total >= TotalSlots;
+        }
+
+        public bool CanAddUnit(GameObject unit)
+        {
+            return unit != GameObject &&
+                   _moduleData.ForbidInsideKindOf?.Intersects(unit.Definition.KindOf) != true &&
+                   _moduleData.AllowInsideKindOf?.Intersects(unit.Definition.KindOf) == true &&
+                   !GameObject.IsBeingConstructed() &&
+                   CanUnitEnter(unit);
+        }
+
+        /// <summary>
+        /// Used to allow containers to define additional restrictions.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        protected virtual bool CanUnitEnter(GameObject unit) => true;
+
+        protected virtual int SlotValueForUnit(GameObject unit)
+        {
+            return 1;
+        }
+
+        public void Add(GameObject unit)
+        {
+            if (!CanAddUnit(unit))
+            {
+                return;
+            }
+
+            _containedObjectIds.Add(unit.ID);
+            GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+
+            unit.Hidden = true;
+            unit.IsSelectable = false;
+        }
+
+        protected virtual BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
+        {
+            return sounds.VoiceEnter?.Value;
+        }
+
+        public void Remove(uint unitId)
+        {
+            _evacQueue.Add(new QueuedForEvac { ObjectId = unitId });
+        }
+
+        public void Evacuate()
+        {
+            GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject,
+                GameObject.Definition.UnitSpecificSounds.VoiceUnload?.Value);
+            foreach (var id in ContainedObjectIds)
+            {
+                Remove(id);
+            }
+        }
+
+        internal sealed override void Update(BehaviorUpdateContext context)
+        {
+            UpdateModuleSpecific(context);
+
+            if (GameObject.HealthPercentage == Fix64.Zero && !_moduleData.DamagePercentToUnits.IsZero)
+            {
+                foreach (var unitId in ContainedObjectIds)
+                {
+                    RemoveUnit(unitId, true);
+                }
+
+                _containedObjectIds.Clear();
+                _evacQueue.Clear();
+            }
+            else
+            {
+                while (_evacQueue.Count > 0 && TryEvacUnit(context.LogicFrame, _evacQueue[0].ObjectId))
+                {
+                    _evacQueue.RemoveAt(0);
+                }
+            }
+        }
+
+        private protected virtual void UpdateModuleSpecific(BehaviorUpdateContext context) { }
+
+        protected virtual bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
+        {
+            RemoveUnit(unitId, false);
+            return true;
+        }
+
+        protected void RemoveUnit(uint unitId, bool dealDamageOnExit)
+        {
+            var unit = GameObjectForId(unitId);
+
+            _containedObjectIds.Remove(unitId);
+
+            if (_moduleData.NumberOfExitPaths > 0)
+            {
+                // ExitStart01-nn/ExitEnd01-nn
+                // is this just random?
+                var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                var startBoneName = $"ExitStart{pathToChoose:00}";
+                var endBoneName = $"ExitEnd{pathToChoose:00}";
+                // todo: this throws for USA barracks due to drawModule._activeModelDrawConditionState being null
+                var startBone = GameObject.Drawable.FindBone(startBoneName);
+                var endBone = GameObject.Drawable.FindBone(endBoneName);
+
+                var startPoint = GameObject.ToWorldspace(startBone.bone.Transform);
+                unit.UpdateTransform(startPoint.Translation, startPoint.Rotation);
+                var exitPoint = GameObject.ToWorldspace(endBone.bone.Transform);
+                unit.AIUpdate.AddTargetPoint(exitPoint.Translation);
+            }
+            else
+            {
+                unit.UpdateTransform(GameObject.Transform.Translation, GameObject.Transform.Rotation);
+            }
+
+            if (dealDamageOnExit)
+            {
+                // this is dealt when the parent dies
+                var damageToDeal = unit.MaxHealth * (Fix64)(float)_moduleData.DamagePercentToUnits;
+                unit.DoDamage(DamageType.Penalty, damageToDeal, DeathType.Normal); // todo: is this the right damage/death type?
+            }
+            else
+            {
+                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
+            }
+
+            unit.Hidden = false;
+            unit.IsSelectable = true;
+        }
+
+        protected void HealUnits(int fullHealTimeMs)
+        {
+            var percentToHeal = 1 / (Game.LogicFramesPerSecond * (fullHealTimeMs / 1000f));
+            foreach (var unitId in ContainedObjectIds)
+            {
+                var unit = GameObjectForId(unitId);
+                if (unit.HealthPercentage < Fix64.One)
+                {
+                    unit.Health += unit.MaxHealth * (Fix64)percentToHeal;
+                }
+            }
+        }
+
+        protected GameObject GameObjectForId(uint unitId)
+        {
+            return GameObject.GameContext.GameObjects.GetObjectById(unitId);
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -63,8 +237,8 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(13);
 
             reader.PersistList(
-                _unknownList,
-                static (StatePersister persister, ref OpenContainSomething item) =>
+                _evacQueue,
+                static (StatePersister persister, ref QueuedForEvac item) =>
                 {
                     persister.PersistObjectValue(ref item);
                 });
@@ -72,7 +246,15 @@ namespace OpenSage.Logic.Object
             reader.PersistInt32(ref _unknownInt);
         }
 
-        private struct OpenContainSomething : IPersistableObject
+        internal override void DrawInspector()
+        {
+            if (ImGui.Button("Evacuate"))
+            {
+                Evacuate();
+            }
+        }
+
+        private struct QueuedForEvac : IPersistableObject
         {
             public uint ObjectId;
             public int Unknown;
@@ -80,7 +262,7 @@ namespace OpenSage.Logic.Object
             public void Persist(StatePersister persister)
             {
                 persister.PersistObjectID(ref ObjectId);
-                persister.PersistInt32(ref Unknown);
+                persister.PersistInt32(ref Unknown); // todo: is this version?
             }
         }
     }
@@ -103,17 +285,20 @@ namespace OpenSage.Logic.Object
             { "ShouldDrawPips", (parser, x) => x.ShouldDrawPips = parser.ParseBoolean() },
         };
 
-        public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
-        public BitArray<ObjectKinds> ForbidInsideKindOf { get; private set; }
+        public virtual BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; }
+        public BitArray<ObjectKinds>? ForbidInsideKindOf { get; private set; }
         public int ContainMax { get; private set; }
         public string EnterSound { get; private set; }
         public string ExitSound { get; private set; }
         public Percentage DamagePercentToUnits { get; private set; }
         public bool PassengersInTurret { get; private set; }
-        public int NumberOfExitPaths { get; private set; }
+        /// <summary>
+        /// Defaults to 1.  Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn
+        /// </summary>
+        public int NumberOfExitPaths { get; private set; } = 1;
         public bool AllowAlliesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
-        public bool ShouldDrawPips { get; private set; }
+        public bool ShouldDrawPips { get; private set; } = true;
     }
 }

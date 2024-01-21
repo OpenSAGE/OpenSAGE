@@ -1,12 +1,24 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class TunnelContain : OpenContainModule
     {
+        private readonly TunnelContainModuleData _moduleData;
         private bool _unknown1;
         private bool _unknown2;
+
+        public TunnelContain(GameObject gameObject, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+        {
+            HealUnits(_moduleData.TimeForFullHeal);
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -20,8 +32,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Tunnel contain limit is special case global logic defined by 
-    /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of 
+    /// Tunnel contain limit is special case global logic defined by
+    /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of
     /// <see cref="ObjectDefinition.SoundEnter"/> and <see cref="ObjectDefinition.SoundExit"/>.
     /// </summary>
     public sealed class TunnelContainModuleData : GarrisonContainModuleData
@@ -41,6 +53,11 @@ namespace OpenSage.Logic.Object
                 { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
                 { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
             });
+
+        /// <summary>
+        /// AllowInsideKindOf is never explicitly set for TunnelContain, but it seems to only be for infantry and vehicles?
+        /// </summary>
+        public override BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; } = new(ObjectKinds.Infantry, ObjectKinds.Vehicle);
 
         public int TimeForFullHeal { get; private set; }
 
@@ -70,7 +87,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TunnelContain();
+            return new TunnelContain(gameObject, this);
         }
     }
 }
