@@ -15,6 +15,16 @@ namespace OpenSage.Logic.Object
         internal TransportContain(GameObject gameObject, TransportContainModuleData moduleData): base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+
+            var payload = moduleData.InitialPayload;
+            if (payload != null)
+            {
+                for (var i = 0; i < payload.Count; i++)
+                {
+                    var unit = gameObject.GameContext.GameLogic.CreateObject(payload.Object.Value, gameObject.Owner);
+                    Add(unit, true);
+                }
+            }
         }
 
         public override int SlotValueForUnit(GameObject unit)
@@ -192,7 +202,7 @@ namespace OpenSage.Logic.Object
         public int ExitPitchRate { get; private set; }
         public string? ExitBone { get; private set; }
         public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
-        public Payload InitialPayload { get; private set; }
+        public Payload? InitialPayload { get; private set; }
 
         /// <summary>
         /// Defaults to 1.  Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn

@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
             return 1;
         }
 
-        public void Add(GameObject unit)
+        public void Add(GameObject unit, bool initial = false)
         {
             if (!CanAddUnit(unit))
             {
@@ -75,7 +75,10 @@ namespace OpenSage.Logic.Object
             }
 
             _containedObjectIds.Add(unit.ID);
-            GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+            if (!initial)
+            {
+                GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+            }
 
             unit.Hidden = true;
             unit.IsSelectable = false;
