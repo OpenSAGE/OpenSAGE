@@ -312,6 +312,8 @@ namespace OpenSage.Logic.Object
         {
             AddState(0, new WorkerUnknown0State());
             AddState(1, new WorkerUnknown1State());
+            AddState(2, new WorkerUnknown2State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
+            AddState(3, new WorkerUnknown3State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
             AddState(4, new WorkerUnknown4State());
         }
 
@@ -337,6 +339,22 @@ namespace OpenSage.Logic.Object
             public override void Persist(StatePersister reader)
             {
 
+            }
+        }
+
+        private sealed class WorkerUnknown2State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+            }
+        }
+
+        private sealed class WorkerUnknown3State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
             }
         }
 
