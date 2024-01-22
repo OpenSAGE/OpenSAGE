@@ -275,7 +275,6 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
-            FindBehavior<AutoHealBehavior>()?.RegisterDamage();
         }
 
         public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
