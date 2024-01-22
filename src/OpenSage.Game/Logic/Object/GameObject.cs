@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -249,7 +250,11 @@ namespace OpenSage.Logic.Object
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
         // while simultaneously supporting fast (non-allocating) iteration when accessing the list within the class.
         public IReadOnlyList<BehaviorModule> BehaviorModules => _behaviorModules;
-        private readonly List<BehaviorModule> _behaviorModules;
+        private readonly IReadOnlyList<BehaviorModule> _behaviorModules;
+
+        // this allows us to avoid allocating and casting a new list when we just want a single object
+        private FrozenDictionary<Type, object>? _firstBehaviorCache;
+        private FrozenDictionary<Type, List<object>>? _behaviorCache;
 
         private readonly BodyModule _body;
         public bool HasActiveBody() => _body is ActiveBody;
@@ -762,14 +767,66 @@ namespace OpenSage.Logic.Object
 
         public T FindBehavior<T>()
         {
-            // TODO: Cache this?
-            return _behaviorModules.OfType<T>().FirstOrDefault();
+            if (_firstBehaviorCache == null)
+            {
+                InstantiateBehaviorCache();
+            }
+
+            return _firstBehaviorCache!.TryGetValue(typeof(T), out var behavior) ? (T)behavior : default;
         }
 
         internal IEnumerable<T> FindBehaviors<T>()
         {
-            // TODO: Cache this?
-            return _behaviorModules.OfType<T>();
+            if (_behaviorCache == null)
+            {
+                InstantiateBehaviorCache();
+            }
+
+            return _behaviorCache!.TryGetValue(typeof(T), out var behaviors) ? behaviors.Cast<T>() : [];
+        }
+
+        private void InstantiateBehaviorCache()
+        {
+            var cache = new Dictionary<Type, List<object>>();
+            var firstCache = new Dictionary<Type, object>();
+            foreach (var module in _behaviorModules)
+            {
+                var type = module.GetType();
+                foreach (var parent in GetParentTypes(type))
+                {
+                    if (!cache.TryGetValue(parent, out var value))
+                    {
+                        value = [];
+                        cache[parent] = value;
+                        firstCache[parent] = module;
+                    }
+
+                    value.Add(module);
+                }
+            }
+
+            _firstBehaviorCache = firstCache.ToFrozenDictionary();
+            _behaviorCache = cache.ToFrozenDictionary();
+        }
+
+        // modified https://stackoverflow.com/a/18375526
+        private static IEnumerable<Type> GetParentTypes(Type type)
+        {
+            yield return type;
+
+            // return all implemented or inherited interfaces
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            while (currentBaseType != null)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
         }
 
         public bool HasUpgrade(UpgradeTemplate upgrade)
