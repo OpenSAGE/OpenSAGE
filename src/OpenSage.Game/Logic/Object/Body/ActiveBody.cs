@@ -36,18 +36,18 @@ namespace OpenSage.Logic.Object
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
 
-            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
+            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth), false);
         }
 
-        private void SetHealth(Fix64 value)
+        private void SetHealth(Fix64 value, bool takingDamage)
         {
             Health = value;
-            GameObject.UpdateDamageFlags(HealthPercentage);
+            GameObject.UpdateDamageFlags(HealthPercentage, takingDamage);
         }
 
         public override void SetInitialHealth(float multiplier)
         {
-            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
+            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier), false);
         }
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
             var armor = armorSet.Armor.Value;
             var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
             var actualDamage = amount * (Fix64) (float) damagePercent;
-            SetHealth(Health - actualDamage);
+            SetHealth(Health - actualDamage, true);
 
             // TODO: DamageFX
             if (armorSet.DamageFX?.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
@@ -92,7 +92,7 @@ namespace OpenSage.Logic.Object
             {
                 newHealth = MaxHealth;
             }
-            SetHealth(newHealth);
+            SetHealth(newHealth, false);
         }
 
         internal override void Load(StatePersister reader)
