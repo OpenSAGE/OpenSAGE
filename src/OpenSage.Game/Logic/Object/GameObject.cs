@@ -262,14 +262,7 @@ namespace OpenSage.Logic.Object
         public Fix64 Health
         {
             get => _body?.Health ?? Fix64.Zero;
-            set
-            {
-                _body.Health = value;
-                if (_body.Health > MaxHealth)
-                {
-                    _body.Health = MaxHealth;
-                }
-            }
+            set => _body.Health = value;
         }
 
         public Fix64 MaxHealth
@@ -282,6 +275,13 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
+        }
+
+        public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
+
+        public void Heal(Fix64 amount)
+        {
+            _body.Heal(amount);
         }
 
         public Collider RoughCollider { get; set; }
@@ -745,13 +745,8 @@ namespace OpenSage.Logic.Object
                 var lastBuildProgress = BuildProgress;
                 BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
                 // structures can be attacked while under construction, and their health is a factor of their build progress;
-                Health += (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
-
-                if (Health > MaxHealth)
-                {
-                    // just in case we end up over somehow
-                    Health = MaxHealth;
-                }
+                var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+                Heal(newHealth);
 
                 if (BuildProgress >= 1.0f)
                 {

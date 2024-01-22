@@ -175,14 +175,11 @@ namespace OpenSage.Logic.Object
 
         protected void HealUnits(int fullHealTimeMs)
         {
-            var percentToHeal = 1 / (Game.LogicFramesPerSecond * (fullHealTimeMs / 1000f));
+            var percentToHeal = new Percentage(1 / (Game.LogicFramesPerSecond * (fullHealTimeMs / 1000f)));
             foreach (var unitId in ContainedObjectIds)
             {
                 var unit = GameObjectForId(unitId);
-                if (unit.HealthPercentage < Fix64.One)
-                {
-                    unit.Health += unit.MaxHealth * (Fix64)percentToHeal;
-                }
+                unit.Heal(percentToHeal);
             }
         }
 

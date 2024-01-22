@@ -85,6 +85,16 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public override void Heal(Fix64 amount)
+        {
+            var newHealth = Health + amount;
+            if (newHealth > MaxHealth)
+            {
+                newHealth = MaxHealth;
+            }
+            SetHealth(newHealth);
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -164,7 +174,7 @@ namespace OpenSage.Logic.Object
 
         public float MaxHealth { get; private set; }
         public float? InitialHealth { get; private set; }
-       
+
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }
 
@@ -191,7 +201,7 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float MaxHealthReallyDamaged { get; private set; }
-        
+
         [AddedIn(SageGame.Bfme)]
         public string GrabFX { get; private set; }
 
