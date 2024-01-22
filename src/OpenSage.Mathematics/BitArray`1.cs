@@ -74,7 +74,7 @@ namespace OpenSage.Mathematics
 
         public void Set(int bit, bool value)
         {
-            BitsChanged = _data.Get(bit) != value;
+            BitsChanged |= _data.Get(bit) != value;
             _data.Set(bit, value);
         }
 
