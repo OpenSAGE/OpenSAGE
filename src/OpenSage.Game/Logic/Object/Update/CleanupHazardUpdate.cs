@@ -2,6 +2,23 @@
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class CleanupHazardUpdate : UpdateModule
+    {
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.SkipUnknownBytes(5);
+            byte unknown = 0;
+            reader.PersistByte(ref unknown); // I have no idea what this is for
+            reader.SkipUnknownBytes(23);
+        }
+    }
+
     public sealed class CleanupHazardUpdateModuleData : UpdateModuleData
     {
         internal static CleanupHazardUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -16,5 +33,10 @@ namespace OpenSage.Logic.Object
         public WeaponSlot WeaponSlot { get; private set; }
         public int ScanRate { get; private set; }
         public float ScanRange { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CleanupHazardUpdate();
+        }
     }
 }
