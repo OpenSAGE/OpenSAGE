@@ -48,6 +48,7 @@ namespace OpenSage.Logic.Object
                             else
                             {
                                 _moduleData.BounceFX?.Value.Execute(context);
+                                _toppleState = ToppleState.Toppled;
                                 //_toppleState = ToppleState.Bouncing1Up;
                                 // TODO
                             }
