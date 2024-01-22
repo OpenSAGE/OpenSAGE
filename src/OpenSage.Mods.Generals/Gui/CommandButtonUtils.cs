@@ -12,7 +12,7 @@ namespace OpenSage.Mods.Generals.Gui
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void SetCommandButton(Button buttonControl, CommandButton commandButton, GeneralsControlBar controlBar)
+        public static void SetCommandButton(Button buttonControl, CommandButton commandButton, GeneralsControlBar controlBar, int index = 0)
         {
             buttonControl.BackgroundImage = buttonControl.Window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
             buttonControl.OverlayImage = null;
@@ -33,7 +33,7 @@ namespace OpenSage.Mods.Generals.Gui
                 Logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
                 Logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
-                CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
+                CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false, index);
             };
 
             buttonControl.InputCallback = (control, message, context) =>

@@ -24,6 +24,18 @@ namespace OpenSage.Mathematics
             _data = new BitArray512(maxBits);
         }
 
+        /// <summary>
+        /// Constructs a new bit array with the provided values set to true.
+        /// </summary>
+        /// <param name="values"></param>
+        public BitArray(params TEnum[] values): this()
+        {
+            foreach (var value in values)
+            {
+                Set(value, true);
+            }
+        }
+
         public BitArray(System.Collections.BitArray bitArray)
         {
             if (bitArray.Length >= 512)

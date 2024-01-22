@@ -146,6 +146,25 @@ namespace OpenSage.Gui
                     order = CreateOrder(OrderType.PurchaseScience);
                     order.AddIntegerArgument(science.Value.InternalId);
                     break;
+
+                case CommandType.ExitContainer:
+                    // this hack is because:
+                    // a) the humvee's enter/exit slots start at 3, not 1
+                    // b) these exit buttons could theoretically not even be sequential (picture them only on the top or bottom)
+                    var orderedExits = selectedObject.Definition.CommandSet.Value.Buttons
+                        .Where(kvp => kvp.Value.Value.Command == CommandType.ExitContainer).OrderBy(kvp => kvp.Key);
+
+                    var objectToRemoveIndex = orderedExits.Select((kvp, i) => (kvp.Key, i)).First(t => t.Key == index).i;
+                    var objectIdToRemove = selectedObject.FindBehavior<OpenContainModule>().ContainedObjectIds[objectToRemoveIndex];
+
+                    order = CreateOrder(OrderType.ExitContainer);
+                    order.AddObjectIdArgument(objectIdToRemove);
+                    break;
+
+                case CommandType.Evacuate:
+                    order = CreateOrder(OrderType.Evacuate);
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }

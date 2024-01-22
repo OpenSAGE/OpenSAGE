@@ -315,6 +315,21 @@ namespace OpenSage.Logic.Orders
                         //TODO: implement
                         break;
 
+                    case OrderType.ExitContainer:
+                        var objectIdToExit = order.Arguments[0].Value.ObjectId;
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.FindBehavior<OpenContainModule>().Remove(objectIdToExit);
+                        }
+                        break;
+
+                    case OrderType.Evacuate:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.FindBehavior<OpenContainModule>().Evacuate();
+                        }
+                        break;
+
                     case OrderType.Enter:
                         {
                             if (order.Arguments[0].ArgumentType != OrderArgumentType.ObjectId ||
@@ -326,13 +341,24 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[1].Value.Integer;
                             var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
 
+                            var container = gameObject.FindBehavior<OpenContainModule>();
                             foreach (var unit in player.SelectedUnits)
                             {
-                                gameObject.FindBehavior<TransportContain>().AddContained(unit);
+                                if (container.IsFull())
+                                {
+                                    break; // don't try to add anything else
+                                }
+
+                                if (!container.CanAddUnit(unit))
+                                {
+                                    continue; // this unit can't enter the container (kindof doesn't match, or there aren't enough slots)
+                                }
 
                                 // TODO: Don't put it in container right now. Tell it to move towards container.
+                                //  use AIStateMachine EnterContainerState?
+                                //  deselect unit upon entry
                                 //unit.AIUpdate.SetTargetObject(gameObject);
-
+                                container.Add(unit);
                             }
 
                             break;

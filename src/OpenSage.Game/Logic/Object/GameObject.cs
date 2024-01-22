@@ -185,7 +185,7 @@ namespace OpenSage.Logic.Object
         private PolygonTriggerState[] _polygonTriggersState;
         private int _unknown5;
         private uint _unknownFrame;
-        private uint _healedByObjectId;
+        public uint HealedByObjectId;
         private uint _healedEndFrame;
         private uint _weaponBonusTypes;
         private byte _weaponSomethingPrimary;
@@ -275,6 +275,13 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
+        }
+
+        public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
+
+        public void Heal(Fix64 amount)
+        {
+            _body.Heal(amount);
         }
 
         public Collider RoughCollider { get; set; }
@@ -738,13 +745,8 @@ namespace OpenSage.Logic.Object
                 var lastBuildProgress = BuildProgress;
                 BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
                 // structures can be attacked while under construction, and their health is a factor of their build progress;
-                Health += (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
-
-                if (Health > MaxHealth)
-                {
-                    // just in case we end up over somehow
-                    Health = MaxHealth;
-                }
+                var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+                Heal(newHealth);
 
                 if (BuildProgress >= 1.0f)
                 {
@@ -905,7 +907,7 @@ namespace OpenSage.Logic.Object
             return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed);
         }
 
-        internal void UpdateDamageFlags(Fix64 healthPercentage)
+        internal void UpdateDamageFlags(Fix64 healthPercentage, bool takingDamage)
         {
             // TODO: SoundOnDamaged
             // TODO: SoundOnReallyDamaged
@@ -916,7 +918,7 @@ namespace OpenSage.Logic.Object
 
             if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
-                if (!ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
+                if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
                 {
                     _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
                 }
@@ -925,7 +927,7 @@ namespace OpenSage.Logic.Object
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
                 _bodyDamageType = BodyDamageType.ReallyDamaged;
             }
-            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            else if (takingDamage && healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
                 if (!ModelConditionFlags.Get(ModelConditionFlag.Damaged) && Definition.SoundOnDamaged != null)
                 {
@@ -1365,7 +1367,7 @@ namespace OpenSage.Logic.Object
             }
             reader.EndArray();
 
-            reader.PersistObjectID(ref _healedByObjectId);
+            reader.PersistObjectID(ref HealedByObjectId);
             reader.PersistFrame(ref _healedEndFrame);
             reader.PersistBitArray(ref WeaponSetConditions);
             reader.PersistUInt32(ref _weaponBonusTypes);
@@ -1430,7 +1432,7 @@ namespace OpenSage.Logic.Object
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                ImGui.LabelText("DisplayName", Definition.DisplayName);
+                ImGui.LabelText("DisplayName", Definition.DisplayName ?? string.Empty);
 
                 var translation = _transform.Translation;
                 if (ImGui.DragFloat3("Position", ref translation))

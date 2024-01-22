@@ -75,12 +75,18 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Image _commandButtonHover;
         private readonly Image _commandButtonPushed;
 
+        internal Game Game { get; }
+
         public Image Rank1OverlayLarge { get; }
         public Image Rank2OverlayLarge { get; }
         public Image Rank3OverlayLarge { get; }
         public Image Rank1OverlaySmall { get; }
         public Image Rank2OverlaySmall { get; }
         public Image Rank3OverlaySmall { get; }
+
+        public Image ChinaEmptyContainer { get; }
+        public Image UsaEmptyContainer { get; }
+        public Image GlaEmptyContainer { get; }
 
         public Image CommandButtonHover => _commandButtonHover;
         public Image CommandButtonPush => _commandButtonPushed;
@@ -132,6 +138,7 @@ namespace OpenSage.Mods.Generals.Gui
             _descriptionWindow.Hide();
             _powerShortcutWindow = powerShortcutWindow;
             _scheme = scheme;
+            Game = window.Game;
 
             // Disable all specialpower buttons
             var buttonRoot = _powerShortcutWindow.Controls[0];
@@ -170,6 +177,10 @@ namespace OpenSage.Mods.Generals.Gui
             Rank1OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron1S"));
             Rank2OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron2S"));
             Rank3OverlaySmall = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SSChevron3S"));
+
+            ChinaEmptyContainer = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SNEmptyFrame"));
+            UsaEmptyContainer = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SAEmptyFrame"));
+            GlaEmptyContainer = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SUEmptyFrame"));
 
             UpdateResizeButtonStyle();
 
@@ -287,6 +298,17 @@ namespace OpenSage.Mods.Generals.Gui
                 };
             }
 
+            private Image? EmptySlotImage(GeneralsControlBar controlBar, Player player)
+            {
+                return player.Side switch
+                {
+                    "FactionChina" => controlBar.ChinaEmptyContainer,
+                    "FactionAmerica" => controlBar.UsaEmptyContainer,
+                    "FactionGLA" => controlBar.GlaEmptyContainer,
+                    _ => null,
+                };
+            }
+
             protected void ClearControls(GeneralsControlBar controlBar)
             {
                 foreach (var control in controlBar._center.Controls.AsList())
@@ -359,6 +381,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
+                // these are some properties stored for the specific behavior of EXIT_CONTAINER slots, which are dynamic based on the units in the container
+                var firstExitCommand = 0;
+                var exitCommandCount = 0;
+                var slotsUsed = 0;
+
                 for (var i = 1; i < 100; i++) // Generals has 12 buttons and Zero Hour has 14, but there's no need to set those values as the limit in the code
                 {
                     // the amount of ButtonCommand children in ControlBar.wnd defines how many buttons the game will have in-game
@@ -375,7 +402,7 @@ namespace OpenSage.Mods.Generals.Gui
                             continue;
                         }
 
-                        CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
+                        CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar, i);
 
                         var objectDefinition = commandButton.Object?.Value;
 
@@ -386,6 +413,43 @@ namespace OpenSage.Mods.Generals.Gui
                             case CommandType.DozerConstruct:
                                 var isBuilding = selectedUnit.IsKindOf(ObjectKinds.Dozer) && (selectedUnit.AIUpdate as IBuilderAIUpdate)?.HasBuildTarget == true; // todo: can we remove this cast in the future?
                                 buttonControl.Enabled = selectedUnit.CanConstructUnit(objectDefinition) && !isBuilding;
+                                buttonControl.Show();
+                                break;
+                            case CommandType.ExitContainer:
+                                if (firstExitCommand == 0)
+                                {
+                                    // this is some really hacky behavior to account for the fact that humvee exitcontainer buttons start at slot 3
+                                    // as far as I can tell there's no real way to figure that out other than just monitoring for the first one
+                                    firstExitCommand = i;
+                                }
+                                var container = selectedUnit.FindBehavior<OpenContainModule>();
+
+                                if (slotsUsed >= container.TotalSlots)
+                                {
+                                    buttonControl.Enabled = false;
+                                    buttonControl.Hide();
+                                    break;
+                                }
+
+                                if (exitCommandCount < container.ContainedObjectIds.Count)
+                                {
+                                    var unitId = container.ContainedObjectIds[exitCommandCount++];
+                                    var unit = controlBar.Game.Scene3D.GameObjects.GetObjectById(unitId);
+                                    slotsUsed += container.SlotValueForUnit(unit);
+                                    buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.ButtonImage);
+                                    buttonControl.OverlayImage = RankOverlaySmall(controlBar, unit.Rank);
+                                    buttonControl.Enabled = true;
+                                }
+                                else
+                                {
+                                    buttonControl.DisabledBackgroundImage = EmptySlotImage(controlBar, selectedUnit.Owner);
+                                    buttonControl.Enabled = false;
+                                    slotsUsed += 1;
+                                }
+                                buttonControl.Show();
+                                break;
+                            case CommandType.Evacuate:
+                                buttonControl.Enabled = selectedUnit.FindBehavior<OpenContainModule>()?.ContainedObjectIds.Count > 0;
                                 buttonControl.Show();
                                 break;
                             case CommandType.UnitBuild:

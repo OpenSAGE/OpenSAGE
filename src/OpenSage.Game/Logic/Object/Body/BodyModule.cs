@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
 
         public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
 
+        public virtual void Heal(Fix64 amount) { }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
