@@ -186,7 +186,18 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        internal void Stop()
+        /// <summary>
+        /// Ceases all behavior by the unit, like when the stop button is pressed.
+        /// </summary>
+        internal virtual void Stop()
+        {
+            StopMovingOnly();
+        }
+
+        /// <summary>
+        /// Stops moving, but does not clear any additional state machine behavior that might be running (e.g. construction, supply gathering, etc)
+        /// </summary>
+        private void StopMovingOnly()
         {
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, false);
             _waypointEnumerator?.Dispose();
@@ -216,7 +227,7 @@ namespace OpenSage.Logic.Object
             else
             {
                 ArrivedAtDestination();
-                Stop();
+                StopMovingOnly();
             }
         }
 
