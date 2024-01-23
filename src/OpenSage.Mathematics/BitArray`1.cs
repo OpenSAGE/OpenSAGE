@@ -69,21 +69,20 @@ namespace OpenSage.Mathematics
         {
             // This avoids an object allocation.
             var bitI = Unsafe.As<TEnum, int>(ref bit);
-            return _data.Get(bitI);
+            return Get(bitI);
         }
 
         public void Set(int bit, bool value)
         {
+            BitsChanged |= _data.Get(bit) != value;
             _data.Set(bit, value);
-            BitsChanged = true;
         }
 
         public void Set(TEnum bit, bool value)
         {
             // This avoids an object allocation.
             var bitI = Unsafe.As<TEnum, int>(ref bit);
-            _data.Set(bitI, value);
-            BitsChanged = true;
+            Set(bitI, value);
         }
 
         public void SetAll(bool value)
