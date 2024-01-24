@@ -164,8 +164,8 @@ namespace OpenSage.Logic.Object
 
         private bool _objectMoved;
 
-        private uint _createdByObjectID;
-        private uint _builtByObjectID;
+        public uint CreatedByObjectID;
+        public uint BuiltByObjectID;
 
         private uint _unknown1;
         private byte _unknown2;
@@ -186,7 +186,7 @@ namespace OpenSage.Logic.Object
         private int _unknown5;
         private uint _unknownFrame;
         public uint HealedByObjectId;
-        private uint _healedEndFrame;
+        public uint HealedEndFrame;
         private uint _weaponBonusTypes;
         private byte _weaponSomethingPrimary;
         private byte _weaponSomethingSecondary;
@@ -272,6 +272,8 @@ namespace OpenSage.Logic.Object
         }
         public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
+        public bool IsFullHealth => Health >= MaxHealth;
+
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
@@ -338,7 +340,14 @@ namespace OpenSage.Logic.Object
 
         public LogicFrame? LifeTime { get; set; }
 
-        public float BuildProgress;
+        private float _buildProgress100;
+
+        // todo: this is a bit convoluted, but the save file uses 0-100 whereas we use 0-1 for everything
+        public float BuildProgress
+        {
+            get => _buildProgress100 / 100;
+            set => _buildProgress100 = value * 100;
+        }
 
         public bool Hidden { get; set; }
 
@@ -620,8 +629,6 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(in TimeInterval time)
         {
-            HandleConstruction();
-
             if (_objectMoved)
             {
                 UpdateColliders();
@@ -737,24 +744,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void HandleConstruction()
-        {
-            // Check if the unit is being constructed
-            if (IsUnderActiveConstruction())
-            {
-                var lastBuildProgress = BuildProgress;
-                BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
-                // structures can be attacked while under construction, and their health is a factor of their build progress;
-                var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
-                Heal(newHealth);
-
-                if (BuildProgress >= 1.0f)
-                {
-                    FinishConstruction();
-                }
-            }
-        }
-
         internal Vector3 ToWorldspace(in Vector3 localPos)
         {
             var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), _transform.Matrix);
@@ -862,23 +851,32 @@ namespace OpenSage.Logic.Object
 
                 ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
                 ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
-                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
+                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
             }
         }
 
         /// <summary>
-        /// Called when construction has <i>actually</i> begun
+        /// Called when the dozer gets within the bounding sphere of the object in generals
         /// </summary>
-        internal void Construct()
+        internal void SetIsBeingConstructed()
         {
             ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+            ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
             ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, false);
         }
 
-        internal void PauseConstruction()
+        internal void AdvanceConstruction()
         {
-            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
-            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+            var lastBuildProgress = BuildProgress;
+            BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
+            // structures can be attacked while under construction, and their health is a factor of their build progress;
+            var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+            Heal(newHealth);
+
+            if (BuildProgress >= 1.0f)
+            {
+                FinishConstruction();
+            }
         }
 
         internal void FinishConstruction()
@@ -886,12 +884,9 @@ namespace OpenSage.Logic.Object
             ClearModelConditionFlags();
             EnergyProduction += Definition.EnergyProduction;
 
-            foreach (var module in _behaviorModules)
+            foreach (var module in FindBehaviors<ICreateModule>())
             {
-                if (module is ICreateModule createModule)
-                {
-                    createModule.OnBuildComplete();
-                }
+                module.OnBuildComplete();
             }
         }
 
@@ -996,6 +991,7 @@ namespace OpenSage.Logic.Object
         public void ClearModelConditionFlags()
         {
             ModelConditionFlags.SetAll(false);
+            // todo: maintain map-based flags, such as NIGHT, SNOW, etc
         }
 
         public void OnLocalSelect(AudioSystem gameAudio)
@@ -1141,6 +1137,14 @@ namespace OpenSage.Logic.Object
             if (construction)
             {
                 ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
+
+                var mostRecentConstructor = GameContext.GameObjects.GetObjectById(BuiltByObjectID);
+                // mostRecentConstructor is set to the unit currently or most recently building us
+                if (mostRecentConstructor.AIUpdate is IBuilderAIUpdate builderAiUpdate && builderAiUpdate.BuildTarget == this)
+                {
+                    // mostRecentConstructor is still trying to build us
+                    mostRecentConstructor.AIUpdate.Stop();
+                }
             }
             else
             {
@@ -1241,8 +1245,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref teamId);
             Team = GameContext.Game.TeamFactory.FindTeamById(teamId);
 
-            reader.PersistObjectID(ref _createdByObjectID);
-            reader.PersistUInt32(ref _builtByObjectID);
+            reader.PersistObjectID(ref CreatedByObjectID);
+            reader.PersistUInt32(ref BuiltByObjectID);
 
             var drawableId = Drawable.ID;
             reader.PersistUInt32(ref drawableId);
@@ -1283,7 +1287,7 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame(ref _containedFrame);
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
-            reader.PersistSingle(ref BuildProgress);
+            reader.PersistSingle(ref _buildProgress100);
 
             reader.PersistObject(_upgrades);
 
@@ -1368,7 +1372,7 @@ namespace OpenSage.Logic.Object
             reader.EndArray();
 
             reader.PersistObjectID(ref HealedByObjectId);
-            reader.PersistFrame(ref _healedEndFrame);
+            reader.PersistFrame(ref HealedEndFrame);
             reader.PersistBitArray(ref WeaponSetConditions);
             reader.PersistUInt32(ref _weaponBonusTypes);
 

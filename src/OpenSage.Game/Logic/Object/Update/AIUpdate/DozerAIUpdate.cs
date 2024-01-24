@@ -6,15 +6,24 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
     {
-        public bool HasBuildTarget => _buildTarget != null;
+        public GameObject? BuildTarget => _state.BuildTarget;
+        public GameObject? RepairTarget => _state.RepairTarget;
 
-        private readonly DozerAndWorkerState _state = new();
+        private readonly GameContext _context;
 
-        private GameObject _buildTarget;
+        private readonly DozerAndWorkerState _state;
 
-        internal DozerAIUpdate(GameObject gameObject, DozerAIUpdateModuleData moduleData)
+        internal DozerAIUpdate(GameObject gameObject, GameContext context, DozerAIUpdateModuleData moduleData)
             : base(gameObject, moduleData)
         {
+            _context = context;
+            _state = new DozerAndWorkerState(gameObject, context, moduleData);
+        }
+
+        internal override void Stop()
+        {
+            _state.ClearDozerTasks();
+            base.Stop();
         }
 
         internal override void Load(StatePersister reader)
@@ -33,112 +42,31 @@ namespace OpenSage.Logic.Object
             // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
             // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
             SetTargetPoint(gameObject.Translation);
-            _buildTarget = gameObject;
+            _state.SetBuildTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
         }
 
-        protected override void ArrivedAtDestination()
+        public void SetRepairTarget(GameObject gameObject)
         {
-            base.ArrivedAtDestination();
-
-            if (_buildTarget is not null)
-            {
-                _buildTarget.Construct();
-                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, true);
-            }
+            // note that the order here is important, as SetTargetPoint will clear any existing repairTarget
+            SetTargetPoint(gameObject.Translation);
+            _state.SetRepairTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
+            _state.ClearDozerTasks();
             base.SetTargetPoint(targetPoint);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
-            _buildTarget?.PauseConstruction();
-            ClearBuildTarget();
+        }
+
+        protected override void ArrivedAtDestination()
+        {
+            _state.ArrivedAtDestination();
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
-
-            if (_buildTarget?.ModelConditionFlags.Get(ModelConditionFlag.DestroyedWhilstBeingConstructed) == true)
-            {
-                ClearBuildTarget();
-                Stop();
-                return;
-            }
-
-            if (_buildTarget is { BuildProgress: >= 1 })
-            {
-                ClearBuildTarget();
-                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
-                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.VoiceTaskComplete.Value);
-            }
-        }
-
-        private void ClearBuildTarget()
-        {
-            _buildTarget = null;
-        }
-    }
-
-    internal sealed class DozerAndWorkerState
-    {
-        private readonly DozerSomething1[] _unknownList1 = new DozerSomething1[3];
-        private readonly WorkerAIUpdateStateMachine1 _stateMachine = new();
-        private int _unknown2;
-        private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9];
-        private int _unknown4;
-
-        public void Persist(StatePersister reader)
-        {
-            reader.PersistArrayWithUInt32Length(
-                _unknownList1,
-                static (StatePersister persister, ref DozerSomething1 item) =>
-                {
-                    persister.PersistObjectValue(ref item);
-                });
-
-            reader.PersistObject(_stateMachine);
-            reader.PersistInt32(ref _unknown2);
-
-            var unknown3 = 3;
-            reader.PersistInt32(ref unknown3);
-            if (unknown3 != 3)
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.PersistArray(
-                _unknownList2,
-                static (StatePersister persister, ref DozerSomething2 item) =>
-                {
-                    persister.PersistObjectValue(ref item);
-                });
-
-            reader.PersistInt32(ref _unknown4);
-        }
-    }
-
-    internal struct DozerSomething1 : IPersistableObject
-    {
-        public uint ObjectId;
-        public int Unknown;
-
-        public void Persist(StatePersister persister)
-        {
-            persister.PersistObjectID(ref ObjectId);
-            persister.PersistInt32(ref Unknown);
-        }
-    }
-
-    internal struct DozerSomething2 : IPersistableObject
-    {
-        public bool UnknownBool;
-        public Vector3 UnknownPos;
-
-        public void Persist(StatePersister persister)
-        {
-            persister.PersistBoolean(ref UnknownBool);
-            persister.PersistVector3(ref UnknownPos);
+            _state.Update(context);
         }
     }
 
@@ -147,7 +75,7 @@ namespace OpenSage.Logic.Object
     /// within UnitSpecificSounds section of the object.
     /// Requires Kindof = DOZER.
     /// </summary>
-    public sealed class DozerAIUpdateModuleData : AIUpdateModuleData
+    public sealed class DozerAIUpdateModuleData : AIUpdateModuleData, IBuilderAIUpdateData
     {
         internal new static DozerAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
@@ -155,17 +83,17 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<DozerAIUpdateModuleData>
             {
                 { "RepairHealthPercentPerSecond", (parser, x) => x.RepairHealthPercentPerSecond = parser.ParsePercentage() },
-                { "BoredTime", (parser, x) => x.BoredTime = parser.ParseInteger() },
+                { "BoredTime", (parser, x) => x.BoredTime = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
             });
 
         public Percentage RepairHealthPercentPerSecond { get; private set; }
-        public int BoredTime { get; private set; }
+        public LogicFrameSpan BoredTime { get; private set; }
         public int BoredRange { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new DozerAIUpdate(gameObject, this);
+            return new DozerAIUpdate(gameObject, context, this);
         }
     }
 }
