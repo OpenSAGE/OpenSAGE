@@ -278,6 +278,11 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
+            // units can have multiple autohealbehaviors, as the default object has an inheritable autohealbehavior provided by veterancy
+            foreach (var autoHealBehavior in FindBehaviors<AutoHealBehavior>())
+            {
+                autoHealBehavior.RegisterDamage();
+            }
         }
 
         public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
@@ -672,6 +677,7 @@ namespace OpenSage.Logic.Object
 
         internal void Update()
         {
+            VerifyHealer();
             foreach (var behavior in _behaviorModules)
             {
                 behavior.Update(_behaviorUpdateContext);
@@ -1206,6 +1212,21 @@ namespace OpenSage.Logic.Object
         internal void GainExperience(int experience)
         {
             ExperienceValue += (int) (ExperienceMultiplier * experience);
+        }
+
+        internal void SetBeingHealed(GameObject healer, uint endFrame)
+        {
+            HealedByObjectId = healer.ID;
+            HealedEndFrame = endFrame;
+        }
+
+        private void VerifyHealer()
+        {
+            if (HealedByObjectId != 0 && (IsFullHealth || _gameContext.GameLogic.CurrentFrame.Value >= HealedEndFrame))
+            {
+                HealedByObjectId = 0;
+                HealedEndFrame = 0; // todo: is this reset?
+            }
         }
 
         internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)

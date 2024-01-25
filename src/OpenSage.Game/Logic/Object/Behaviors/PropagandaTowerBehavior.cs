@@ -77,7 +77,18 @@ namespace OpenSage.Logic.Object
         {
             return _allowedKinds.Intersects(gameObject.Definition.KindOf) &&
                    ObjectIsOnSameTeam(gameObject) && // todo: does propagandatowerbehavior affect teammates?
-                   gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+                   ObjectNotInContainer(gameObject) &&
+                   ObjectNotBeingHealedByAnybodyElse(gameObject);
+        }
+
+        private bool ObjectNotInContainer(GameObject gameObject)
+        {
+            return gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+        }
+
+        private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
+        {
+            return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == _gameObject.ID;
         }
 
         private bool ObjectIsOnSameTeam(GameObject gameObject)

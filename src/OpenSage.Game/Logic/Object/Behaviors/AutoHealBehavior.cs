@@ -22,8 +22,8 @@ namespace OpenSage.Logic.Object
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
-            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
             NextUpdateFrame.Frame = uint.MaxValue;
+            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
         public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
 
         private void OnUpgrade()
         {
-            // todo: if unit is max health and is healing itself, even if upgrade was triggered, nextupdateframe is still maxvalue
+            // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
             NextUpdateFrame.Frame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
         }
 
@@ -42,7 +42,12 @@ namespace OpenSage.Logic.Object
         public void RegisterDamage()
         {
             // this seems to only apply if the unit is capable of healing itself
-            _endOfStartHealingDelay = _gameObject.GameContext.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.StartHealingDelay);
+            if (_moduleData.StartHealingDelay > 0)
+            {
+                var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
+                _endOfStartHealingDelay = currentFrame + FramesForMs(_moduleData.StartHealingDelay);
+                NextUpdateFrame.Frame = _endOfStartHealingDelay;
+            }
         }
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
@@ -68,6 +73,7 @@ namespace OpenSage.Logic.Object
                 else
                 {
                     // we only heal ourselves - china mines and GLA junk repair have this behavior
+                    // todo: unclear how to show healing icon for this behavior
                     HealUnit(_gameObject);
                 }
 
@@ -83,12 +89,24 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        // todo: lots of duplicated logic between this and propagandatowerbehavior
         private bool CanHealUnit(GameObject gameObject)
         {
             return _moduleData.ForbiddenKindOf?.Intersects(gameObject.Definition.KindOf) != true &&
                    _moduleData.KindOf?.Intersects(gameObject.Definition.KindOf) != false &&
                    ObjectIsOnSameTeam(gameObject) && // todo: does autohealbehavior affect teammates?
-                   gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+                   ObjectNotInContainer(gameObject) &&
+                   ObjectNotBeingHealedByAnybodyElse(gameObject); // don't heal units that are being healed by something else
+        }
+
+        private bool ObjectNotInContainer(GameObject gameObject)
+        {
+            return gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+        }
+
+        private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
+        {
+            return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == _gameObject.ID;
         }
 
         private bool ObjectIsOnSameTeam(GameObject gameObject)
@@ -107,8 +125,10 @@ namespace OpenSage.Logic.Object
             if (gameObject.HealthPercentage < Fix64.One)
             {
                 gameObject.Heal((Fix64)_moduleData.HealingAmount);
-                // gameObject.HealedByObjectId = _gameObject.ID;
-                // todo: we don't have any way of clearing this, but this needs to be set so we don't double-heal
+                if (gameObject != _gameObject)
+                {
+                    gameObject.SetBeingHealed(_gameObject, NextUpdateFrame.Frame);
+                }
             }
         }
 
