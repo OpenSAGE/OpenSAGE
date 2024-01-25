@@ -1202,6 +1202,22 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal void AddToContainer(uint containerId)
+        {
+            _containerId = containerId;
+            _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
+            Hidden = true;
+            IsSelectable = false;
+        }
+
+        internal void RemoveFromContainer()
+        {
+            _containerId = 0;
+            _containedFrame = 0;
+            Hidden = false;
+            IsSelectable = true;
+        }
+
         internal void GainExperience(int experience)
         {
             ExperienceValue += (int) (ExperienceMultiplier * experience);
