@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -8,6 +8,7 @@ namespace OpenSage.Logic.Object
     {
         private uint _unknownFrame;
         private readonly List<uint> _objectIds = new();
+        public IReadOnlyList<uint> ObjectsInRange => _objectIds;
 
         internal override void Load(StatePersister reader)
         {
