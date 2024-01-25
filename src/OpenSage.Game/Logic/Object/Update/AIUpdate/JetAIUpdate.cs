@@ -92,7 +92,7 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref _unknownBool2);
 
             reader.PersistUInt32(ref _unknownInt4);
-            if (_unknownInt4 != 0x7FFFFFFF)
+            if (_unknownInt4 != 0x7FFFFFFF && _unknownInt4 != 0) // 0 for idle reloading comanche with no airfield
             {
                 throw new InvalidStateException();
             }
