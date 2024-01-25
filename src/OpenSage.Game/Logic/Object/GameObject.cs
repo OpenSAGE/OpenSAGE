@@ -387,12 +387,32 @@ namespace OpenSage.Logic.Object
         // to allocate a new object every time.
         private readonly UpgradeSet _upgradesAll = new();
 
+        private const string VeterancyUpgradeNameVeteran = "Upgrade_Veterancy_VETERAN"; // doesn't seem to be used in any of the inis, but is present in the sav file
+        private const string VeterancyUpgradeNameElite = "Upgrade_Veterancy_ELITE";
+        private const string VeterancyUpgradeNameHeroic = "Upgrade_Veterancy_HEROIC";
+
         private VeterancyLevel _rank;
         public int Rank
         {
             get => (int) _rank;
-            set => _rank = (VeterancyLevel) value;
+            set
+            {
+                _rank = (VeterancyLevel)value;
+                var upgradeToApply = _rank switch
+                {
+                    VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
+                    VeterancyLevel.Elite => VeterancyUpgradeNameElite,
+                    VeterancyLevel.Heroic => VeterancyUpgradeNameHeroic,
+                    _ => null,
+                };
+                // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
+                if (upgradeToApply != null)
+                {
+                    Upgrade(GameContext.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
+                }
+            }
         }
+
         public int ExperienceValue { get; set; }
         public int ExperienceRequiredForNextLevel { get; set; }
         internal float ExperienceMultiplier { get; set; }
@@ -1481,7 +1501,9 @@ namespace OpenSage.Logic.Object
             if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
                 ImGui.CollapsingHeader("Veterancy"))
             {
-                ImGuiUtility.ComboEnum("Current Rank", ref _rank);
+                var rank = _rank;
+                ImGuiUtility.ComboEnum("Current Rank", ref rank);
+                Rank = (int)rank;
             }
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
