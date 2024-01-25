@@ -5,6 +5,27 @@
         // it's also possible this is _last_ update, not next update
         protected UpdateFrame NextUpdateFrame;
 
+        protected virtual uint FramesBetweenUpdates => 1;
+
+        protected uint FramesForMs(int ms)
+        {
+            return (uint)(Game.LogicFramesPerSecond * (ms / 1000f));
+        }
+
+        private protected virtual void RunUpdate(BehaviorUpdateContext context) { }
+
+        // todo: seal this method?
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (context.LogicFrame.Value < NextUpdateFrame.Frame)
+            {
+                return;
+            }
+
+            NextUpdateFrame.Frame = context.LogicFrame.Value + FramesBetweenUpdates;
+            RunUpdate(context);
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

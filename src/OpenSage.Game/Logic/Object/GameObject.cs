@@ -178,6 +178,7 @@ namespace OpenSage.Logic.Object
         private readonly uint[] _disabledTypesFrames = new uint[9];
         private readonly ObjectVeterancyHelper _veterancyHelper = new();
         private uint _containerId;
+        public uint ContainerId => _containerId;
         private uint _containedFrame;
         private string _teamName;
         private uint _enteredOrExitedPolygonTriggerFrame;
