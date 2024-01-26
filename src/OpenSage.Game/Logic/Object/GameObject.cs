@@ -1546,6 +1546,7 @@ namespace OpenSage.Logic.Object
     {
         public PolygonTrigger PolygonTrigger;
         public bool EnteredThisFrame;
+        private byte _unknown1;
         public bool IsInside;
 
         public void Persist(StatePersister reader)
@@ -1560,7 +1561,11 @@ namespace OpenSage.Logic.Object
 
             reader.PersistBoolean(ref EnteredThisFrame);
 
-            reader.SkipUnknownBytes(1);
+            reader.PersistByte(ref _unknown1); // encountered 1 for TrainCoal on Alpine Assault, not every time
+            if (_unknown1 != 0 && _unknown1 != 1)
+            {
+                throw new InvalidStateException();
+            }
 
             reader.PersistBoolean(ref IsInside);
         }
