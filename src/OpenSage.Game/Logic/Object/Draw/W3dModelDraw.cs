@@ -169,31 +169,41 @@ namespace OpenSage.Logic.Object
             SetActiveAnimationState(transitionState, _context.Random);
         }
 
-        private static T FindBestFittingConditionState<T>(List<T> conditionStates, BitArray<ModelConditionFlag> flags)
+        internal static T FindBestFittingConditionState<T>(List<T> conditionStates, BitArray<ModelConditionFlag> flags)
             where T : IConditionState
         {
+            // prefer exact match
+            // if not, find the first one with the most number of matching bits
             T bestConditionState = default;
             var bestIntersections = 0;
+            T defaultConditionState = default;
 
             foreach (var conditionState in conditionStates)
             {
                 foreach (var conditionStateFlags in conditionState.ConditionFlags)
                 {
-                    var numStateBits = conditionStateFlags.NumBitsSet;
-                    var numIntersectionBits = conditionStateFlags.CountIntersectionBits(flags);
-
-                    if (numIntersectionBits < bestIntersections
-                        || numStateBits > numIntersectionBits)
+                    // the default condition state has no bits set
+                    if (!conditionStateFlags.AnyBitSet)
                     {
-                        continue;
+                        defaultConditionState = conditionState;
                     }
 
-                    bestConditionState = conditionState;
-                    bestIntersections = numIntersectionBits;
+                    var intersections = conditionStateFlags.CountIntersectionBits(flags);
+                    if (intersections == flags.NumBitsSet)
+                    {
+                        // if we have an exact match, great! doesn't matter what else we've found
+                        return conditionState;
+                    }
+                    if (intersections > bestIntersections)
+                    {
+                        // not an exact match, but save this if we can't find an exact match
+                        bestIntersections = conditionStateFlags.NumBitsSet;
+                        bestConditionState = conditionState;
+                    }
                 }
             }
 
-            return bestConditionState;
+            return bestConditionState ?? defaultConditionState;
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
@@ -581,18 +591,18 @@ namespace OpenSage.Logic.Object
         /// In Generals, transition states were defined like this:
         ///
         /// ```
-        /// ConditionState = FIRING_A 
+        /// ConditionState = FIRING_A
         ///         Animation         = NICNSC_SKL.NICNSC_ATA
         ///         AnimationMode = LOOP
         ///     TransitionKey     = TRANS_Firing
         /// End
-        /// 
+        ///
         /// ConditionState = FIRING_A REALLYDAMAGED
         ///     Animation         = NICNSC_SKL.NICNSC_ATC
         ///     AnimationMode = LOOP
         ///     TransitionKey     = TRANS_FiringDamaged
         /// End
-        /// 
+        ///
         /// TransitionState = TRANS_Firing TRANS_FiringDamaged
         ///     Animation       = NICNSC_SKL.NICNSC_AA2AC
         ///     AnimationMode = ONCE
@@ -609,7 +619,7 @@ namespace OpenSage.Logic.Object
         ///         AnimationMode = LOOP
         ///     End
         /// End
-        /// 
+        ///
         /// AnimationState = FIRING_A REALLYDAMAGED
         ///     StateName = FIRING_A_REALLYDAMAGED
         ///     Animation = ATC
@@ -621,7 +631,7 @@ namespace OpenSage.Logic.Object
         ///         if Prev == "FIRING_A" then CurDrawableSetTransitionAnimState("TransitionFiringToFiringDamaged") end
         ///     EndScript
         /// End
-        /// 
+        ///
         /// TransitionState = TRANS_Firing_TRANS_FiringDamaged
         ///     Animation = AA2AC
         ///         AnimationName = NICNSC_SKL.NICNSC_AA2AC

@@ -918,9 +918,14 @@ namespace OpenSage.Logic.Object
                     _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
                 }
 
-                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                if (!IsBeingConstructed())
+                {
+                    // prevents damaged flags from being set while the building is being constructed - generals has models for this it seems, but they're not implemented as far as I can tell?
+                    ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                    _bodyDamageType = BodyDamageType.ReallyDamaged;
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
-                _bodyDamageType = BodyDamageType.ReallyDamaged;
             }
             else if (takingDamage && healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
@@ -929,9 +934,12 @@ namespace OpenSage.Logic.Object
                     _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged.Value);
                 }
 
+                if (!IsBeingConstructed())
+                {
+                    ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
+                    _bodyDamageType = BodyDamageType.Damaged;
+                }
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
-                ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
-                _bodyDamageType = BodyDamageType.Damaged;
             }
             else
             {
