@@ -28,7 +28,7 @@ public sealed class RenderBucket
 
         _forwardPassList.AddObject(renderObject, renderObject.MaterialPass.ForwardPass);
 
-        if (renderObject.MaterialPass.ShadowPass != null)
+        if (renderObject.MaterialPass?.ShadowPass != null)
         {
             _shadowPassList.AddObject(renderObject, renderObject.MaterialPass.ShadowPass);
         }

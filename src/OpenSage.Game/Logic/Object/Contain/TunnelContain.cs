@@ -72,6 +72,7 @@ namespace OpenSage.Logic.Object
                 { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
                 { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
                 { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
+                { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
                 { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
             });
 
@@ -102,6 +103,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int ExitDelay { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public int NumberOfExitPaths { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool AllowOwnPlayerInsideOverride { get; private set; }
