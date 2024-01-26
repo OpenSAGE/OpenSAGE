@@ -5,13 +5,15 @@ using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class InstantDeathBehavior : DieModule<InstantDeathBehaviorModuleData>
+    public sealed class InstantDeathBehavior : DieModule
     {
         private readonly GameObject _gameObject;
+        private new InstantDeathBehaviorModuleData ModuleData { get; }
 
         internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData) : base(moduleData)
         {
             _gameObject = gameObject;
+            ModuleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)

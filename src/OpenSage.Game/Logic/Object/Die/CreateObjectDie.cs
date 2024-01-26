@@ -1,12 +1,15 @@
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CreateObjectDie : DieModule<CreateObjectDieModuleData>
+    public sealed class CreateObjectDie : DieModule
     {
+        private new CreateObjectDieModuleData ModuleData { get; }
+
         internal CreateObjectDie(CreateObjectDieModuleData moduleData) : base(moduleData)
         {
+            ModuleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)

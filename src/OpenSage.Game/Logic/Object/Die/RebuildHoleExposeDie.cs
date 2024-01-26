@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class RebuildHoleExposeDie : DieModule<RebuildHoleExposeDieModuleData>
+    public sealed class RebuildHoleExposeDie : DieModule
     {
         public RebuildHoleExposeDie(RebuildHoleExposeDieModuleData moduleData) : base(moduleData)
         {

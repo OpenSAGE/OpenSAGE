@@ -3,7 +3,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class EjectPilotDie : DieModule<EjectPilotDieModuleData>
+    public sealed class EjectPilotDie : DieModule
     {
         // TODO
         public EjectPilotDie(EjectPilotDieModuleData moduleData) : base(moduleData)

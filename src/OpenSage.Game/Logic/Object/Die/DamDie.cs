@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DamDie : DieModule<DamDieModuleData>
+    public sealed class DamDie : DieModule
     {
         // TODO
         public DamDie(DamDieModuleData moduleData) : base(moduleData)

@@ -3,7 +3,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CreateCrateDie : DieModule<CreateCrateDieModuleData>
+    public sealed class CreateCrateDie : DieModule
     {
         // TODO
         public CreateCrateDie(CreateCrateDieModuleData moduleData) : base(moduleData)

@@ -3,11 +3,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class DieModule<T> : BehaviorModule where T : DieModuleData
+    public abstract class DieModule : BehaviorModule
     {
-        protected T ModuleData { get; }
+        protected DieModuleData ModuleData { get; }
 
-        protected DieModule(T moduleData)
+        protected DieModule(DieModuleData moduleData)
         {
             ModuleData = moduleData;
         }

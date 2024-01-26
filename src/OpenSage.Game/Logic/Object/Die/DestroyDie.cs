@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DestroyDie : DieModule<DestroyDieModuleData>
+    public sealed class DestroyDie : DieModule
     {
         private readonly GameObject _gameObject;
 

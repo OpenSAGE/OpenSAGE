@@ -4,10 +4,13 @@ using OpenSage.FX;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FXListDie : DieModule<FXListDieModuleData>
+    public sealed class FXListDie : DieModule
     {
+        private new FXListDieModuleData ModuleData { get; }
+
         internal FXListDie(FXListDieModuleData moduleData) : base(moduleData)
         {
+            ModuleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)

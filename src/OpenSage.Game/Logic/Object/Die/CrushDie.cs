@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CrushDie : DieModule<CrushDieModuleData>
+    public sealed class CrushDie : DieModule
     {
         public CrushDie(CrushDieModuleData moduleData) : base(moduleData)
         {

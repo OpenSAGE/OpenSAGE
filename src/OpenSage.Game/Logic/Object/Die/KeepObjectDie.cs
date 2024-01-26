@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class KeepObjectDie : DieModule<KeepObjectDieModuleData>
+    public sealed class KeepObjectDie : DieModule
     {
         public KeepObjectDie(KeepObjectDieModuleData moduleData) : base(moduleData)
         {
