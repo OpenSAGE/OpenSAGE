@@ -1217,6 +1217,26 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        internal void AddToContainer(uint containerId)
+        {
+            _containerId = containerId;
+            _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
+            _disabledTypes.Set(DisabledType.Held, true);
+            _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
+            Hidden = true;
+            IsSelectable = false;
+        }
+
+        internal void RemoveFromContainer()
+        {
+            _containerId = 0;
+            _containedFrame = 0;
+            _disabledTypes.Set(DisabledType.Held, false);
+            _disabledTypesFrames[(int)DisabledType.Held] = 0;
+            Hidden = false;
+            IsSelectable = true;
+        }
+
         internal void GainExperience(int experience)
         {
             ExperienceValue += (int) (ExperienceMultiplier * experience);

@@ -75,13 +75,11 @@ namespace OpenSage.Logic.Object
             }
 
             _containedObjectIds.Add(unit.ID);
+            unit.AddToContainer(GameObject.ID);
             if (!initial)
             {
                 GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
             }
-
-            unit.Hidden = true;
-            unit.IsSelectable = false;
         }
 
         protected virtual BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
@@ -169,8 +167,7 @@ namespace OpenSage.Logic.Object
                 GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
             }
 
-            unit.Hidden = false;
-            unit.IsSelectable = true;
+            unit.RemoveFromContainer();
         }
 
         protected void HealUnits(int fullHealTimeMs)

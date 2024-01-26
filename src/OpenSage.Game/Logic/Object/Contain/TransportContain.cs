@@ -45,11 +45,21 @@ namespace OpenSage.Logic.Object
         {
             if (_moduleData.NumberOfExitPaths > 0)
             {
-                // ExitStart01-nn/ExitEnd01-nn
-                // is this just random?
-                var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
-                var startBoneName = $"ExitStart{pathToChoose:00}";
-                var endBoneName = $"ExitEnd{pathToChoose:00}";
+                var startBoneName = "ExitStart";
+                var endBoneName = "ExitEnd";
+
+                // from the inis:
+                // Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn
+                if (_moduleData.NumberOfExitPaths > 1)
+                {
+                    // testing with a humvee, evacuating individually, the units never use the same exit path
+                    // using the evac command, two pairs of rangers will share an exit path, and the 5th ranger will use a 3rd exit path
+                    // todo: this doesn't seem to be strictly random, but it's unclear how this works at the moment
+                    var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                    startBoneName = $"{startBoneName}{pathToChoose:00}";
+                    endBoneName = $"{endBoneName}{pathToChoose:00}";
+                }
+
                 var (_, startBone) = GameObject.Drawable.FindBone(startBoneName);
                 var (_, endBone) = GameObject.Drawable.FindBone(endBoneName);
 
