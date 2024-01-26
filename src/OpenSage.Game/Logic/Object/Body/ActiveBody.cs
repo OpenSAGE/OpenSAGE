@@ -25,13 +25,10 @@ namespace OpenSage.Logic.Object
         private bool _indestructible;
         private BitArray<ArmorSetCondition> _armorSetConditions = new();
 
-        protected readonly GameObject GameObject;
-
         public override Fix64 MaxHealth { get; internal set; }
 
-        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
+        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData) : base(gameObject)
         {
-            GameObject = gameObject;
             _moduleData = moduleData;
 
             MaxHealth = (Fix64) moduleData.MaxHealth;

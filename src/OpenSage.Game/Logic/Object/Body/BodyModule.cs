@@ -9,6 +9,13 @@ namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
+        protected GameObject GameObject { get; }
+
+        protected BodyModule(GameObject gameObject)
+        {
+            GameObject = gameObject;
+        }
+
         public Fix64 Health { get; internal set; }
 
         public abstract Fix64 MaxHealth { get; internal set; }
@@ -62,7 +69,7 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
             if (ImGui.Button("Apply Damage"))
             {
-                DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType);
+                GameObject.DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType);
             }
         }
     }

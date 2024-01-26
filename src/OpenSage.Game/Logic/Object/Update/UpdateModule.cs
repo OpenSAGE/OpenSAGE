@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.Object
+﻿using ImGuiNET;
+
+namespace OpenSage.Logic.Object
 {
     public abstract class UpdateModule : BehaviorModule
     {
@@ -52,6 +54,11 @@
                 get => (byte)(RawValue & 0x3);
                 set => RawValue = (RawValue & 0xFFFFFFFC) | (value);
             }
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGui.LabelText("Next update frame", NextUpdateFrame.Frame.ToString());
         }
     }
 
