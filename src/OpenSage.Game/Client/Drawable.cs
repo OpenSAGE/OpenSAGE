@@ -104,7 +104,9 @@ namespace OpenSage.Client
         private bool _someMatrixIsIdentity;
         private Matrix4x3 _someMatrix;
 
-        private Animation _animation;
+        private List<Animation> _animations = [];
+        public IReadOnlyList<Animation> Animations => _animations;
+        private readonly Dictionary<AnimationType, Animation> _animationMap = [];
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
@@ -148,6 +150,28 @@ namespace OpenSage.Client
                     // TODO: This will never be null once we've implemented all the draw modules.
                     AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
+            }
+        }
+
+        public void AddAnimation(AnimationType animationName)
+        {
+            if (_animationMap.ContainsKey(animationName))
+            {
+                return;
+            }
+
+            var animationTemplate = _gameContext.Game.AssetStore.Animations.GetByName(Animation.AnimationTypeToName(animationName));
+            var animation = new Animation(animationTemplate);
+
+            _animations.Add(animation);
+            _animationMap[animationName] = animation;
+        }
+
+        public void RemoveAnimation(AnimationType animationType)
+        {
+            if (_animationMap.Remove(animationType))
+            {
+                _animations = _animations.Where(a => a.AnimationType != animationType).ToList();
             }
         }
 
@@ -419,14 +443,25 @@ namespace OpenSage.Client
             var unknownInt8 = 0u;
             reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
 
-            var hasAnimation2D = _animation != null;
-            reader.PersistBoolean(ref hasAnimation2D);
-            if (hasAnimation2D)
+            var animation2DCount = (byte) _animations.Count;
+            reader.PersistByte(ref animation2DCount);
+
+            reader.BeginArray("Animations");
+
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var animation2DName = _animation?.Template.Name;
+                _animations = [];
+            }
+
+            for (var i = 0; i < animation2DCount; i++)
+            {
+                reader.BeginObject();
+                var animation = reader.Mode == StatePersistMode.Read ? null : _animations[i];
+                var animation2DName = animation?.Template.Name;
                 reader.PersistAsciiString(ref animation2DName);
 
-                reader.SkipUnknownBytes(4);
+                var unknownInt = 0;
+                reader.PersistInt32(ref unknownInt); // was non-zero for bombtimed - potentially a frame?
 
                 var animation2DName2 = animation2DName;
                 reader.PersistAsciiString(ref animation2DName2);
@@ -438,11 +473,16 @@ namespace OpenSage.Client
                 if (reader.Mode == StatePersistMode.Read)
                 {
                     var animationTemplate = reader.AssetStore.Animations.GetByName(animation2DName);
-                    _animation = new Animation(animationTemplate);
+                    animation = new Animation(animationTemplate);
+                    _animations.Add(animation);
                 }
 
-                reader.PersistObject(_animation);
+                reader.PersistObject(animation);
+
+                reader.EndObject();
             }
+
+            reader.EndArray();
 
             var unknownBool3 = true;
             reader.PersistBoolean(ref unknownBool3);
