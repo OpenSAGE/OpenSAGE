@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
         private readonly List<QueuedForEvac> _evacQueue = new();
         private int _unknownInt;
 
-        public IReadOnlyList<uint> ContainedObjectIds => _containedObjectIds;
+        public virtual IList<uint> ContainedObjectIds => _containedObjectIds;
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
 
@@ -74,7 +74,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _containedObjectIds.Add(unit.ID);
+            ContainedObjectIds.Add(unit.ID);
             unit.AddToContainer(GameObject.ID);
             if (!initial)
             {
@@ -146,7 +146,7 @@ namespace OpenSage.Logic.Object
         {
             var unit = GameObjectForId(unitId);
 
-            _containedObjectIds.Remove(unitId);
+            ContainedObjectIds.Remove(unitId);
 
             if (exitDueToParentDeath || !TryAssignExitPath(unit))
             {

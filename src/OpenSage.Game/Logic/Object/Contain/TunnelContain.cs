@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -7,6 +8,7 @@ namespace OpenSage.Logic.Object
     public sealed class TunnelContain : OpenContainModule
     {
         public override int TotalSlots => GameObject.GameContext.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
+        public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
 
         private readonly TunnelContainModuleData _moduleData;
         private bool _unknown1;
@@ -17,6 +19,13 @@ namespace OpenSage.Logic.Object
         public TunnelContain(GameObject gameObject, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+            gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
+        }
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        {
+            // todo: if this is the last tunnel, everything inside should die?
+            GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);
         }
 
         private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)

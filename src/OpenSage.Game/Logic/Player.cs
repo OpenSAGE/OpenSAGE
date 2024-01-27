@@ -40,7 +40,8 @@ namespace OpenSage.Logic
         private uint _unknown3;
         private bool _hasInsufficientPower;
         private readonly List<BuildListItem> _buildListItems = new();
-        private TunnelManager _tunnelManager;
+        private TunnelManager? _tunnelManager;
+        public TunnelManager? TunnelManager => _tunnelManager;
         private uint _unknown4;
         private uint _unknown5;
         private bool _unknown6;
@@ -149,6 +150,8 @@ namespace OpenSage.Logic
             _sciencesHidden = new ScienceSet();
 
             _teamTemplates = new List<TeamTemplate>();
+
+            _tunnelManager = new TunnelManager(); // todo: one of the map factions in generals doesn't have this - probably ok?
 
             Rank = new Rank(this, game.AssetStore.Ranks);
 
@@ -990,25 +993,25 @@ namespace OpenSage.Logic
 
     public sealed class TunnelManager : IPersistableObject
     {
-        private readonly ObjectIdSet _tunnelIds = new();
-        private readonly List<uint> _containedObjectIds = new();
+        public ObjectIdSet TunnelIds { get; } = [];
+        public List<uint> ContainedObjectIds { get; } = [];
 
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject(_tunnelIds);
+            reader.PersistObject(TunnelIds);
 
             reader.PersistListWithUInt32Count(
-                _containedObjectIds,
+                ContainedObjectIds,
                 static (StatePersister persister, ref uint item) =>
                 {
                     persister.PersistObjectIDValue(ref item);
                 });
 
-            var tunnelCount = (uint)_tunnelIds.Count;
+            var tunnelCount = (uint)TunnelIds.Count;
             reader.PersistUInt32(ref tunnelCount);
-            if (tunnelCount != _tunnelIds.Count)
+            if (tunnelCount != TunnelIds.Count)
             {
                 throw new InvalidStateException();
             }
