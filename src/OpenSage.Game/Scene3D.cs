@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -657,7 +657,7 @@ namespace OpenSage
             if (propRect.HasValue)
             {
                 var rect = propRect.Value;
-                xOffset += rect.Width/2;
+                xOffset += rect.Width / 2;
                 drawingContext.DrawMappedImage(image, rect.WithX(rect.X + xOffset));
             }
         }
@@ -730,16 +730,14 @@ namespace OpenSage
             for (var i = 0; i < infantryPips; i++)
             {
                 var rect = pipRect.Value;
-                // todo: these should be green
-                drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset), ColorRgbaF.Green);
                 xOffset += pipWidth;
             }
 
             for (var i = 0; i < vehiclePips; i++)
             {
                 var rect = pipRect.Value;
-                // todo: these should be blue (can we color mask an image?)
-                drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset), ColorRgbaF.Blue);
                 xOffset += pipWidth;
             }
 
@@ -834,7 +832,7 @@ namespace OpenSage
                             break;
                         case AnimationType.BombTimed:
                         case AnimationType.BombRemote:
-                            // todo: the above animations appear centered above the health bar for vehicles, and offset to the side for structures
+                        // todo: the above animations appear centered above the health bar for vehicles, and offset to the side for structures
                         case AnimationType.MoneyPickUp: // unknown how this animation works yet
                             throw new NotImplementedException("animation not yet implemented");
                         case AnimationType.AmmoFull:
