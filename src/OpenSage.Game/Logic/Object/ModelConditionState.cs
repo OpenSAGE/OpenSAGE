@@ -58,21 +58,21 @@ namespace OpenSage.Logic.Object
 
         internal ModelConditionState Clone()
         {
-            var result = (ModelConditionState) MemberwiseClone();
+            var result = (ModelConditionState)MemberwiseClone();
 
-            result.ConditionFlags.AddRange(result.ConditionFlags);
-            result.WeaponRecoilBones.AddRange(result.WeaponRecoilBones);
-            result.WeaponFireFXBones.AddRange(result.WeaponFireFXBones);
-            result.WeaponMuzzleFlashes.AddRange(result.WeaponMuzzleFlashes);
-            result.WeaponLaunchBones.AddRange(result.WeaponLaunchBones);
-            result.WeaponHideShowBones.AddRange(result.WeaponHideShowBones);
-            result.ParticleSysBones.AddRange(result.ParticleSysBones);
+            result.ConditionFlags = new List<BitArray<ModelConditionFlag>>(result.ConditionFlags);
+            result.WeaponRecoilBones = new List<BoneAttachPoint>(result.WeaponRecoilBones);
+            result.WeaponFireFXBones = new List<BoneAttachPoint>(result.WeaponFireFXBones);
+            result.WeaponMuzzleFlashes = new List<BoneAttachPoint>(result.WeaponMuzzleFlashes);
+            result.WeaponLaunchBones = new List<BoneAttachPoint>(result.WeaponLaunchBones);
+            result.WeaponHideShowBones = new List<BoneAttachPoint>(result.WeaponHideShowBones);
+            result.ParticleSysBones = new List<ParticleSysBone>(result.ParticleSysBones);
             result.FXEvents = new List<FXEvent>(result.FXEvents);
 
             return result;
         }
 
-        public List<BitArray<ModelConditionFlag>> ConditionFlags { get; } = new();
+        public List<BitArray<ModelConditionFlag>> ConditionFlags { get; private set; } = new();
 
         public LazyAssetReference<Model> Model;
 
@@ -80,11 +80,11 @@ namespace OpenSage.Logic.Object
         public string Skeleton { get; private set; }
 
         // Weapon bone settings
-        public readonly List<BoneAttachPoint> WeaponRecoilBones = new List<BoneAttachPoint>();
-        public readonly List<BoneAttachPoint> WeaponFireFXBones = new List<BoneAttachPoint>();
-        public readonly List<BoneAttachPoint> WeaponMuzzleFlashes = new List<BoneAttachPoint>();
-        public readonly List<BoneAttachPoint> WeaponLaunchBones = new List<BoneAttachPoint>();
-        public readonly List<BoneAttachPoint> WeaponHideShowBones = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponFireFXBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponMuzzleFlashes { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponLaunchBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponHideShowBones { get; private set; } = new List<BoneAttachPoint>();
 
         // Turret settings
         public string Turret;
@@ -94,7 +94,7 @@ namespace OpenSage.Logic.Object
         public string AltTurretPitch;
 
         // Misc settings
-        public readonly List<ParticleSysBone> ParticleSysBones = new List<ParticleSysBone>();
+        public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
 
         [AddedIn(SageGame.Bfme)]
         public string OverrideTooltip { get; private set; }
@@ -127,7 +127,7 @@ namespace OpenSage.Logic.Object
         public int ShadowOpacityPeak { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int ShadowOpacityFadeOutTime	{ get; private set; }
+        public int ShadowOpacityFadeOutTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int ShadowOpacityEnd { get; private set; }

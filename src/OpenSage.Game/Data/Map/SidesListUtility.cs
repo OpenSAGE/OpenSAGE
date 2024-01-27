@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Scb;
@@ -102,7 +102,7 @@ namespace OpenSage.Data.Map
             {
                 var playerSetting = playerSettings[i];
 
-                var factionPlayer = originalMapPlayers.First(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
+                var factionPlayer = originalMapPlayers.FirstOrDefault(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
 
                 var isHuman = playerSetting.Owner == PlayerOwner.Player;
 
