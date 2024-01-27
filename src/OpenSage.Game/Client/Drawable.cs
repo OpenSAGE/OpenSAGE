@@ -171,6 +171,7 @@ namespace OpenSage.Client
         {
             if (_animationMap.Remove(animationType))
             {
+                // todo: this can result in a lot of allocations
                 _animations = _animations.Where(a => a.AnimationType != animationType).ToList();
             }
         }

@@ -152,6 +152,7 @@ namespace OpenSage.Logic.Object
 
         internal BitArray<WeaponSetConditions> WeaponSetConditions;
         private readonly WeaponSet _weaponSet;
+        public WeaponSet ActiveWeaponSet => _weaponSet;
 
         public readonly ObjectDefinition Definition;
 
