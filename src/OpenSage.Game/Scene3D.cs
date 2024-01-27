@@ -460,6 +460,14 @@ namespace OpenSage
                         {
                             DrawContainerPips(drawingContext, obj, containerBehavior);
                         }
+
+                        foreach (var weapon in obj.ActiveWeaponSet.Weapons)
+                        {
+                            if (weapon?.Template.ShowsAmmoPips == true)
+                            {
+                                DrawAmmoPips(drawingContext, obj, weapon.CurrentRounds, weapon.Template.ClipSize);
+                            }
+                        }
                     }
 
                     if (obj.Rank > 0)
@@ -533,6 +541,7 @@ namespace OpenSage
 
             var healthBoxSize = Camera.GetScreenSize(boundingSphere);
 
+            // todo: there should be some additional height being added here, but it's unclear what the logic should be
             var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height);
             var healthBoxRect = Camera.WorldToScreenRectangle(
                 healthBoxWorldSpacePos,
@@ -698,20 +707,19 @@ namespace OpenSage
             const string emptyImageName = "SCPPipEmpty";
             var emptyPipMappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(emptyImageName);
 
-            var pipSize = fullPipMappedImage.Value.Coords.Size;
+            var gameData = AssetLoadContext.AssetStore.GameData.Current;
 
-            var pipWidth = pipSize.Width + 1;
+            var pipSize = fullPipMappedImage.Value.Coords.Size.ToSizeF() * gameData.ContainerPipScaleFactor;
+
+            var pipWidth = pipSize.Width;
 
             var boundingSphere = GetBoundingSphere(gameObject);
             var xOffset = Camera.GetScreenSize(boundingSphere) / -2; // these just start where the health bar starts
 
-            var rankWorldSpacePos = gameObject.Translation with
-            {
-                Z = gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height - pipSize.Height / 2f,
-            };
+            var pipWorldSpacePos = gameObject.Translation + gameData.ContainerPipWorldOffset;
 
             var pipRect = Camera.WorldToScreenRectangle(
-                rankWorldSpacePos,
+                pipWorldSpacePos,
                 fullPipMappedImage.Value.Coords.Size.ToSizeF());
 
             if (!pipRect.HasValue)
@@ -743,6 +751,53 @@ namespace OpenSage
             }
         }
 
+        private void DrawAmmoPips(DrawingContext2D drawingContext, GameObject gameObject, int currentRounds, int clipSize)
+        {
+            var emptyRoundsToDraw = clipSize - currentRounds;
+
+            // while there are single-image animations for this in the generals game files, they don't appear to ever be used in the game
+            const string fullImageName = "SCPAmmoFull";
+            var fullPipMappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(fullImageName);
+            const string emptyImageName = "SCPAmmoEmpty";
+            var emptyPipMappedImage = Game.AssetStore.MappedImages.GetLazyAssetReferenceByName(emptyImageName);
+
+            var gameData = AssetLoadContext.AssetStore.GameData.Current;
+
+            var pipSize = fullPipMappedImage.Value.Coords.Size.ToSizeF() * gameData.AmmoPipScaleFactor;
+
+            var pipWidth = pipSize.Width;
+
+            var boundingSphere = GetBoundingSphere(gameObject);
+            var xOffset = Camera.GetScreenSize(boundingSphere) / -2; // these just start where the health bar starts - same position as garrison pips (guess a unit shouldn't have both?)
+
+            var pipWorldSpacePos = gameObject.Translation + gameData.AmmoPipWorldOffset;
+
+            var pipRect = Camera.WorldToScreenRectangle(
+                pipWorldSpacePos,
+                fullPipMappedImage.Value.Coords.Size.ToSizeF());
+
+            if (!pipRect.HasValue)
+            {
+                return;
+            }
+
+            // todo: ammopipscreenoffset?
+
+            for (var i = 0; i < currentRounds; i++)
+            {
+                var rect = pipRect.Value;
+                drawingContext.DrawMappedImage(fullPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                xOffset += pipWidth;
+            }
+
+            for (var i = 0; i < emptyRoundsToDraw; i++)
+            {
+                var rect = pipRect.Value;
+                drawingContext.DrawMappedImage(emptyPipMappedImage.Value, rect.WithX(rect.X + xOffset));
+                xOffset += pipWidth;
+            }
+        }
+
         private static void AddAnimationToDrawable(GameObject gameObject, AnimationType animationType)
         {
             gameObject.Drawable.AddAnimation(animationType);
@@ -753,9 +808,11 @@ namespace OpenSage
             gameObject.Drawable.RemoveAnimation(animationType);
         }
 
+        private readonly List<AnimationType> _animationsToRemove = []; // instantiating this here instead of in-scope prevents allocations
+
         private void DrawAnimations(DrawingContext2D context, GameObject gameObject, uint currentFrame)
         {
-            List<AnimationType> animationsToRemove = [];
+            _animationsToRemove.Clear();
             foreach (var animation in gameObject.Drawable.Animations)
             {
                 if (animation.SetFrame(currentFrame))
@@ -792,13 +849,13 @@ namespace OpenSage
                 }
                 else
                 {
-                    animationsToRemove.Add(animation.AnimationType);
+                    _animationsToRemove.Add(animation.AnimationType);
                 }
             }
 
-            foreach (var animation in animationsToRemove)
+            foreach (var animation in _animationsToRemove)
             {
-                gameObject.Drawable.RemoveAnimation(animation);
+                RemoveAnimationFromDrawable(gameObject, animation);
             }
         }
 

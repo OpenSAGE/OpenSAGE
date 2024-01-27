@@ -59,5 +59,10 @@ namespace OpenSage.Mathematics
         {
             return !(f1 == f2);
         }
+
+        public static SizeF operator *(SizeF size, float multiplier)
+        {
+            return new SizeF(size.Width * multiplier, size.Height * multiplier);
+        }
     }
 }

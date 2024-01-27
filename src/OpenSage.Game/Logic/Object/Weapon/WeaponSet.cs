@@ -1,4 +1,5 @@
-﻿using OpenSage.Mathematics;
+﻿using System.Collections.Generic;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,6 +17,7 @@ namespace OpenSage.Logic.Object
         private bool _unknown4;
 
         internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
+        public IEnumerable<Weapon> Weapons => _weapons;
 
         internal WeaponSet(GameObject gameObject)
         {
