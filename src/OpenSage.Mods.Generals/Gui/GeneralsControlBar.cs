@@ -91,6 +91,11 @@ namespace OpenSage.Mods.Generals.Gui
         public Image CommandButtonHover => _commandButtonHover;
         public Image CommandButtonPush => _commandButtonPushed;
 
+        // when no commandset is defined for a structure and it has a garrisoncontain module, buttons are generated automagically
+        private LazyAssetReference<CommandButton> StructureExit { get; }
+        private LazyAssetReference<CommandButton> Stop { get; }
+        private LazyAssetReference<CommandButton> Evacuate { get; }
+
         private ControlBarSize _size = ControlBarSize.Maximized;
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
@@ -182,6 +187,10 @@ namespace OpenSage.Mods.Generals.Gui
             UsaEmptyContainer = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SAEmptyFrame"));
             GlaEmptyContainer = window.ImageLoader.CreateFromMappedImageReference(assetStore.MappedImages.GetLazyAssetReferenceByName("SUEmptyFrame"));
 
+            StructureExit = assetStore.CommandButtons.GetLazyAssetReferenceByName("Command_StructureExit");
+            Stop = assetStore.CommandButtons.GetLazyAssetReferenceByName("Command_Stop");
+            Evacuate = assetStore.CommandButtons.GetLazyAssetReferenceByName("Command_Evacuate");
+
             UpdateResizeButtonStyle();
 
             State = ControlBarState.Default;
@@ -201,7 +210,9 @@ namespace OpenSage.Mods.Generals.Gui
             var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
             ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
-            if (player.SelectedUnits.Count > 0 && player.SelectedUnits.First().Owner == player)
+            var owner = player.SelectedUnits.FirstOrDefault()?.Owner;
+            // todo: this probably isn't the best way to test for garrisonable buildings, and will still fail if an enemy has garrisoned it
+            if (player.SelectedUnits.Count > 0 && (owner == player || owner?.Side == "FactionCivilian"))
             {
                 var unit = player.SelectedUnits.First();
                 if (player.SelectedUnits.Count == 1 && unit.IsBeingConstructed())
@@ -215,6 +226,7 @@ namespace OpenSage.Mods.Generals.Gui
             }
             else
             {
+                // todo: we still show cameo window even if the object is not owned by the player
                 State = ControlBarState.Default;
             }
 
@@ -379,7 +391,7 @@ namespace OpenSage.Mods.Generals.Gui
                 return RankOverlaySmall(controlBar, (int) startingVeterancy);
             }
 
-            protected void ApplyCommandSet(GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
+            protected void ApplyCommandSet(Player player, GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
             {
                 // these are some properties stored for the specific behavior of EXIT_CONTAINER slots, which are dynamic based on the units in the container
                 var firstExitCommand = 0;
@@ -442,7 +454,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 }
                                 else
                                 {
-                                    buttonControl.DisabledBackgroundImage = EmptySlotImage(controlBar, selectedUnit.Owner);
+                                    buttonControl.DisabledBackgroundImage = EmptySlotImage(controlBar, player);
                                     buttonControl.Enabled = false;
                                     slotsUsed += 1;
                                 }
@@ -527,13 +539,15 @@ namespace OpenSage.Mods.Generals.Gui
                 // TODO: Handle multiple selection.
                 var unit = player.SelectedUnits.First();
 
+                // garrisonable civilian buildings have no commandset defined, but autogenerate one
+                unit.Definition.CommandSet ??= GenerateDefaultGarrisonableCommandSet(unit, controlBar);
                 if (unit.Definition.CommandSet == null) return;
 
                 var commandSet = unit.Definition.CommandSet.Value;
                 ApplySpecialPowers(player, controlBar);
 
                 // TODO: Only do this when command set changes.
-                ApplyCommandSet(unit, controlBar, commandSet);
+                ApplyCommandSet(player, unit, controlBar, commandSet);
 
                 var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
 
@@ -644,6 +658,38 @@ namespace OpenSage.Mods.Generals.Gui
                 ApplyUpgradeImage(unit, "UnitUpgrade3", unit.Definition.UpgradeCameo3);
                 ApplyUpgradeImage(unit, "UnitUpgrade4", unit.Definition.UpgradeCameo4);
                 ApplyUpgradeImage(unit, "UnitUpgrade5", unit.Definition.UpgradeCameo5);
+            }
+
+            /// <summary>
+            /// Creates a default CommandSet for garrisonable structures without one present.
+            /// </summary>
+            /// <remarks>
+            /// It's bizarre to me that Generals does this in the first place, but as far as I can tell this is correct.
+            /// </remarks>
+            /// <returns></returns>
+            private LazyAssetReference<CommandSet>? GenerateDefaultGarrisonableCommandSet(GameObject gameObject, GeneralsControlBar controlBar)
+            {
+                if (gameObject.Definition.CommandSet != null)
+                {
+                    return gameObject.Definition.CommandSet;
+                }
+
+                if (gameObject.FindBehavior<GarrisonContain>() is not { } container)
+                {
+                    return null;
+                }
+
+                var commandSet = new CommandSet();
+                for (var i = 1; i <= container.TotalSlots; i++)
+                {
+                    commandSet.Buttons[i] = controlBar.StructureExit;
+                }
+
+                // even though zero hour has 14 buttons, this is still correct
+                commandSet.Buttons[11] = controlBar.Stop;
+                commandSet.Buttons[12] = controlBar.Evacuate;
+
+                return new LazyAssetReference<CommandSet>(commandSet);
             }
         }
 
