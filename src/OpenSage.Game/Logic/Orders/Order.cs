@@ -166,6 +166,15 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
+        public static Order CreateResumeBuild(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.ResumeBuild);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
         public static Order CreateAttackGround(int playerId, in Vector3 position)
         {
             var order = new Order(playerId, OrderType.ForceAttackGround);
@@ -214,6 +223,24 @@ namespace OpenSage.Logic.Orders
 
             // TODO: Figure this out.
             order.AddObjectIdArgument(0);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateRepairVehicle(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.RepairVehicle);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateRepairStructure(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.RepairStructure);
 
             order.AddObjectIdArgument(objectId);
 

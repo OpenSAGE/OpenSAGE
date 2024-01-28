@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data.Rep;
@@ -314,6 +314,18 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
             Assert.Equal(1201, replayFile.Header.NumTimecodes);
             Assert.Equal(1966, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_026_DozerRepair()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(3498, replayFile.Header.NumTimecodes);
+            Assert.Equal(4136, replayFile.Chunks.Count);
 
             WriteOrders(replayFile);
         }

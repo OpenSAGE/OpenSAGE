@@ -97,7 +97,7 @@
 
         RepairVehicle = 1062, // ObjectId:3 includes vehicles returning to war factory for repair and helicopters landing and airfields for repair
         Unknown1063 = 1063,
-        Unknown1064 = 1064,
+        RepairStructure = 1064, // ObjectId:4 when a dozer is ordered to repair a structure
         Enter = 1066,
         GatherDumpSupplies = 1067, // used for both gathering from a supply source and dumping supplies
 
