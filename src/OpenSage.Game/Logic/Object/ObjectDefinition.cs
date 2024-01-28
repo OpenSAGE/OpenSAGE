@@ -488,7 +488,7 @@ namespace OpenSage.Logic.Object
         public float BuildCost { get; private set; } //TODO: should this really be a float?
 
         public LogicFrameSpan BuildTime { get; private set; }
-        public int RefundValue { get; private set; }
+        public int? RefundValue { get; private set; }
         public int EnergyProduction { get; private set; }
         public int EnergyBonus { get; private set; }
         public bool IsForbidden { get; private set; }
