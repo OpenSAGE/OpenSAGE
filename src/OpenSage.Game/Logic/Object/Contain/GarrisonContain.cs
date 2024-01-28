@@ -20,6 +20,13 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, ContainedObjectIds.Count > 0);
         }
 
+        protected override bool HealthTooLowToHoldUnits()
+        {
+            return GameObject.IsKindOf(ObjectKinds.GarrisonableUntilDestroyed)
+                ? base.HealthTooLowToHoldUnits()
+                : GameObject.ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged);
+        }
+
         protected override BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
         {
             return sounds.VoiceGarrison?.Value;

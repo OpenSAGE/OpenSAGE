@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using FixedMath.NET;
 using ImGuiNET;
@@ -49,6 +49,7 @@ namespace OpenSage.Logic.Object
         public bool CanAddUnit(GameObject unit)
         {
             return unit != GameObject &&
+                   !HealthTooLowToHoldUnits() &&
                    _moduleData.ForbidInsideKindOf?.Intersects(unit.Definition.KindOf) != true &&
                    _moduleData.AllowInsideKindOf?.Intersects(unit.Definition.KindOf) == true &&
                    !GameObject.IsBeingConstructed() &&
@@ -107,11 +108,16 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        protected virtual bool HealthTooLowToHoldUnits()
+        {
+            return GameObject.HealthPercentage <= Fix64.Zero;
+        }
+
         internal sealed override void Update(BehaviorUpdateContext context)
         {
             UpdateModuleSpecific(context);
 
-            if (GameObject.HealthPercentage == Fix64.Zero)
+            if (HealthTooLowToHoldUnits())
             {
                 foreach (var unitId in ContainedObjectIds.ToArray()) // we're modifying the collection, so we need a copy of it
                 {
