@@ -356,11 +356,6 @@ namespace OpenSage.Logic.Orders
                             var container = gameObject.FindBehavior<OpenContainModule>();
                             foreach (var unit in player.SelectedUnits)
                             {
-                                if (container.IsFull())
-                                {
-                                    break; // don't try to add anything else
-                                }
-
                                 if (!container.CanAddUnit(unit))
                                 {
                                     continue; // this unit can't enter the container (kindof doesn't match, or there aren't enough slots)

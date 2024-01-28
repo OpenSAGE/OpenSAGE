@@ -27,23 +27,12 @@ namespace OpenSage.Logic.Object
         public virtual IList<uint> ContainedObjectIds => _containedObjectIds;
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
+        public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
 
         protected OpenContainModule(GameObject gameObject, OpenContainModuleData moduleData)
         {
             _moduleData = moduleData;
             GameObject = gameObject;
-        }
-
-        public bool IsFull()
-        {
-            var total = 0;
-            foreach (var unitId in ContainedObjectIds)
-            {
-                var unit = GameObjectForId(unitId);
-                total += SlotValueForUnit(unit);
-            }
-
-            return total >= TotalSlots;
         }
 
         public bool CanAddUnit(GameObject unit)
@@ -52,6 +41,7 @@ namespace OpenSage.Logic.Object
                    !HealthTooLowToHoldUnits() &&
                    _moduleData.ForbidInsideKindOf?.Intersects(unit.Definition.KindOf) != true &&
                    _moduleData.AllowInsideKindOf?.Intersects(unit.Definition.KindOf) == true &&
+                   SlotValueForUnit(unit) <= TotalSlots - OccupiedSlots &&
                    !GameObject.IsBeingConstructed() &&
                    CanUnitEnter(unit);
         }
