@@ -17,7 +17,9 @@ namespace OpenSage.Logic.Object
 
         private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
         {
-            ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, ContainedObjectIds.Count > 0);
+            var isGarrisoned = ContainedObjectIds.Count > 0;
+            ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
         }
 
         protected override BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
