@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using FixedMath.NET;
 using ImGuiNET;
@@ -27,6 +27,7 @@ namespace OpenSage.Logic.Object
         public virtual IList<uint> ContainedObjectIds => _containedObjectIds;
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
+        public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
 
         protected OpenContainModule(GameObject gameObject, OpenContainModuleData moduleData)
         {
@@ -34,23 +35,12 @@ namespace OpenSage.Logic.Object
             GameObject = gameObject;
         }
 
-        public bool IsFull()
-        {
-            var total = 0;
-            foreach (var unitId in ContainedObjectIds)
-            {
-                var unit = GameObjectForId(unitId);
-                total += SlotValueForUnit(unit);
-            }
-
-            return total >= TotalSlots;
-        }
-
         public bool CanAddUnit(GameObject unit)
         {
             return unit != GameObject &&
                    _moduleData.ForbidInsideKindOf?.Intersects(unit.Definition.KindOf) != true &&
                    _moduleData.AllowInsideKindOf?.Intersects(unit.Definition.KindOf) == true &&
+                   SlotValueForUnit(unit) <= TotalSlots - OccupiedSlots &&
                    !GameObject.IsBeingConstructed() &&
                    CanUnitEnter(unit);
         }
