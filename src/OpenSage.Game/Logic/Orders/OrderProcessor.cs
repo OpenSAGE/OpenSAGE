@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -113,11 +113,11 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.ResumeBuild:
                         {
-                            var objId = order.Arguments[0].Value.ObjectId;
-                            var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
+                            var buildTargetId = order.Arguments[0].Value.ObjectId;
+                            var buildTarget = _game.Scene3D.GameObjects.GetObjectById(buildTargetId);
 
-                            // TODO: move selected unit (Dozer) to destination object
-
+                            var dozer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
+                            (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
                         }
                         break;
                     case OrderType.BeginUpgrade:
@@ -197,6 +197,16 @@ namespace OpenSage.Logic.Orders
                             player.BankAccount.Deposit((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
                         }
                         _game.Selection.ClearSelectedObjects(player);
+                        break;
+
+                    case OrderType.RepairStructure:
+                        {
+                            var repairer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
+                            var repairTargetId = order.Arguments[0].Value.ObjectId;
+                            var repairTarget =  _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
+
+                            (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
+                        }
                         break;
 
                     case OrderType.SetCameraPosition:
