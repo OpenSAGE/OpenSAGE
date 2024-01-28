@@ -38,7 +38,10 @@ namespace OpenSage.Logic.Object
             {
                 HealUnits(100_000 / _moduleData.HealthRegenPercentPerSecond); // (100% / regenpercentpersecond) * 1000ms
             }
-            ModelConditionFlags.Set(ModelConditionFlag.Loaded, ContainedObjectIds.Count > 0);
+
+            var isLoaded = ContainedObjectIds.Count > 0;
+            ModelConditionFlags.Set(ModelConditionFlag.Loaded, isLoaded);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Loaded, isLoaded);
         }
 
         protected override bool TryAssignExitPath(GameObject unit)
