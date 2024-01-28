@@ -194,7 +194,9 @@ namespace OpenSage.Logic.Orders
                             unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
                             // TODO: is there any logic for ModelConditionFlag.Sold ?
                             _game.Scene3D.GameObjects.DestroyObject(unit);
-                            player.BankAccount.Deposit((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
+                            // items which award free units, like a tunnel network or supply center, have refund value set which overrides SellPercentage
+                            var sellAmount = unit.Definition.RefundValue ?? unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage;
+                            player.BankAccount.Deposit((uint) sellAmount);
                         }
                         _game.Selection.ClearSelectedObjects(player);
                         break;
