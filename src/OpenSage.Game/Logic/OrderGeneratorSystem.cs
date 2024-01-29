@@ -5,6 +5,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -120,21 +121,20 @@ namespace OpenSage.Logic
             return Game.Scene3D.Terrain.Intersect(ray);
         }
 
-        public void StartSpecialPowerAtLocation(SpecialPower specialPower)
+        public void StartSpecialPowerAtLocation(SpecialPowerCursorInformation cursorInformation)
         {
             var gameData = Game.AssetStore.GameData.Current;
 
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D, Game.MapTime);
+            ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTargetType.Location, Game.Scene3D, Game.MapTime);
         }
 
-        public void StartSpecialPowerAtObject(SpecialPower specialPower)
+        public void StartSpecialPowerAtObject(SpecialPowerCursorInformation cursorInformation)
         {
             var gameData = Game.AssetStore.GameData.Current;
 
-            //TODO: pass the right target type
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D, Game.MapTime);
+            ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
+                    Game.Scene3D.GameContext, SpecialPowerTargetType.Object, Game.Scene3D, Game.MapTime);
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)

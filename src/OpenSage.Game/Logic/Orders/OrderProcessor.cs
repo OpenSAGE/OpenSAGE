@@ -306,10 +306,13 @@ namespace OpenSage.Logic.Orders
                             var specialPowerLocation = order.Arguments[1].Value.Position;
 
                             var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId(specialPowerDefinitionId);
-                            foreach (var unit in player.SelectedUnits)
+                            foreach (var unit in player.SelectedUnits) // todo: usa spy satellite is special power at location, but has nothing to do with selected objects
                             {
                                 unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
                             }
+
+                            _game.Audio.PlayAudioEvent(specialPower.InitiateSound?.Value);
+                            _game.Audio.PlayAudioEvent(specialPower.InitiateAtLocationSound?.Value); // todo: play this at location
                         }
                         break;
                     case OrderType.SpecialPower:

@@ -18,32 +18,51 @@ namespace OpenSage.Logic.OrderGenerators
         NeutralObject,
     };
 
+    public enum SpecialPowerTargetType
+    {
+        Location,
+        Object,
+    }
+
+    public record struct SpecialPowerCursorInformation(
+        SpecialPower SpecialPower,
+        BitArray<SpecialPowerTarget> AllowedTargets,
+        string CursorName,
+        string InvalidCursorName);
+
     public sealed class SpecialPowerOrderGenerator : IOrderGenerator, IDisposable
     {
         private readonly SpecialPower _specialPower;
+        private readonly SpecialPowerCursorInformation _cursorInformation;
         private readonly GameData _config;
-        private readonly SpecialPowerTarget _target;
+        private readonly Player _player;
+        private readonly GameContext _gameContext;
+        private readonly SpecialPowerTargetType _targetType;
         private readonly Scene3D _scene;
 
         private readonly DecalHandle _decalHandle;
 
         private Vector3 _position;
+        private SpecialPowerTarget _target = SpecialPowerTarget.Location;
 
         public bool CanDrag => false;
 
         internal SpecialPowerOrderGenerator(
-           SpecialPower specialPower,
+           SpecialPowerCursorInformation cursorInformation,
            GameData config,
            Player player,
            GameContext gameContext,
-           SpecialPowerTarget target,
+           SpecialPowerTargetType targetType,
            Scene3D scene,
            in TimeInterval time)
         {
-            _specialPower = specialPower;
-            _target = target;
+            _specialPower = cursorInformation.SpecialPower;
+            _cursorInformation = cursorInformation;
+            _targetType = targetType;
             _scene = scene;
             _config = config;
+            _player = player;
+            _gameContext = gameContext;
 
             // TODO: Improve this check.
             var radiusCursors = _scene.GameContext.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;
@@ -64,7 +83,7 @@ namespace OpenSage.Logic.OrderGenerators
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
             Order specialPowerOrder;
-            if (_target == SpecialPowerTarget.Location)
+            if (_targetType == SpecialPowerTargetType.Location)
             {
                 specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, _position);
             }
@@ -87,9 +106,42 @@ namespace OpenSage.Logic.OrderGenerators
             {
                 _scene.Terrain.RadiusCursorDecals.SetDecalPosition(_decalHandle, worldPosition.Vector2XY());
             }
+
+            if (_targetType == SpecialPowerTargetType.Location)
+            {
+                return;
+            }
+
+            _target = TargetForGameObject(_gameContext.Game.Selection.FindClosestObject(mousePosition));
         }
 
-        public string GetCursor(KeyModifiers keyModifiers) => "Target";
+        private SpecialPowerTarget TargetForGameObject(GameObject? target)
+        {
+
+            if (target == null)
+            {
+                return SpecialPowerTarget.Location;
+            }
+
+            var owner = target.Owner;
+            if (_player.Enemies.Contains(owner))
+            {
+                return SpecialPowerTarget.EnemyObject;
+            }
+
+            if (_player == owner || _player.Allies.Contains(owner))
+            {
+                return SpecialPowerTarget.AllyObject;
+            }
+
+            return SpecialPowerTarget.NeutralObject;
+        }
+
+        public string GetCursor(KeyModifiers keyModifiers)
+        {
+            // todo: this should ultimately probably be decided by the individual special power, as some are specific to specific target types but don't mention it in the inis
+            return _cursorInformation.AllowedTargets.Get(_target) ? _cursorInformation.CursorName : _cursorInformation.InvalidCursorName;
+        }
 
         public void Dispose()
         {

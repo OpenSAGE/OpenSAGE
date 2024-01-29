@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
@@ -112,17 +114,27 @@ namespace OpenSage.Gui
                         if (commandButton.Options != null)
                         {
                             var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
-                            var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
-                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
-                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+                            var needAlly = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject);
+                            var needEnemy = commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject);
+                            var needNeutral = commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+                            var needsObject = needAlly || needEnemy || needNeutral;
+
+                            var targetOptions = new BitArray<SpecialPowerTarget>();
+                            targetOptions.Set(SpecialPowerTarget.Location, needsPos);
+                            targetOptions.Set(SpecialPowerTarget.AllyObject, needAlly);
+                            targetOptions.Set(SpecialPowerTarget.EnemyObject, needEnemy);
+                            targetOptions.Set(SpecialPowerTarget.NeutralObject, needNeutral);
+
+                            var cursorInformation = new SpecialPowerCursorInformation(specialPower,
+                                targetOptions, commandButton.CursorName, commandButton.InvalidCursorName);
 
                             if (needsPos)
                             {
-                                game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
+                                game.OrderGenerator.StartSpecialPowerAtLocation(cursorInformation);
                             }
                             else if (needsObject)
                             {
-                                game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                game.OrderGenerator.StartSpecialPowerAtObject(cursorInformation);
                             }
                         }
                         else

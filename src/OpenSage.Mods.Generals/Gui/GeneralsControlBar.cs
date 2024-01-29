@@ -487,6 +487,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 break;
                             case CommandType.SpecialPower:
                                 buttonControl.Visible = selectedUnit.Owner.SpecialPowerAvailable(commandButton.SpecialPower.Value);
+                                buttonControl.Enabled = true; // TODO: timer
                                 break;
                             case CommandType.ToggleOvercharge:
                                 buttonControl.IsSelected = selectedUnit.FindBehavior<OverchargeBehavior>().Enabled;
