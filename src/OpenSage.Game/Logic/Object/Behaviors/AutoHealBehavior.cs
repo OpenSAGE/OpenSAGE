@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
 {
     // It looks from the .sav files that this actually inherits from UpdateModule,
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
-    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule
+    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, ISelfHealable
     {
         protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.HealingDelay);
 
