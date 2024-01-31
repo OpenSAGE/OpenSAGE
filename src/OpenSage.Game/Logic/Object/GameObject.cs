@@ -1292,6 +1292,16 @@ namespace OpenSage.Logic.Object
             _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
+        public void AddWeaponBonusType(WeaponBonusType bonusType)
+        {
+            _weaponBonusTypes |= (uint)bonusType;
+        }
+
+        public void RemoveWeaponBonusType(WeaponBonusType bonusType)
+        {
+            _weaponBonusTypes &= ~(uint)bonusType;
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(7);

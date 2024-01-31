@@ -76,7 +76,7 @@ namespace OpenSage.Client
         private ColorFlashHelper _selectionFlashHelper;
         private ColorFlashHelper _scriptedFlashHelper;
 
-        private ObjectDecalType _objectDecalType;
+        public ObjectDecalType ObjectDecalType;
 
         private float _unknownFloat2;
         private float _unknownFloat3;
@@ -376,7 +376,7 @@ namespace OpenSage.Client
                 reader.PersistObject(_scriptedFlashHelper);
             }
 
-            reader.PersistEnum(ref _objectDecalType);
+            reader.PersistEnum(ref ObjectDecalType);
 
             var unknownFloat1 = 1.0f;
             reader.PersistSingle(ref unknownFloat1);
@@ -556,9 +556,11 @@ namespace OpenSage.Client
 
     public enum ObjectDecalType
     {
-        HordeInfantry = 1,
-        HordeVehicle = 3,
-        Crate = 5,
+        HordeInfantry = 1, // exhorde.dds
+        NationalismInfantry = 2, // exhorde_up.dds
+        HordeVehicle = 3, // exhordeb.dds
+        NationalismVehicle = 4, // exhordeb_up.dds
+        Crate = 5, // exjunkcrate.dds
         None = 6,
     }
 }
