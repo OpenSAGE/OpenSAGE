@@ -151,10 +151,10 @@ namespace OpenSage.Logic.Object
         CashHack,
 
         [IniEnum("SPECIAL_SPY_SATELLITE")]
-        SpySatellite,
+        SpySatellite = 15,
 
         [IniEnum("SPECIAL_SPY_DRONE")]
-        SpyDrone,
+        SpyDrone = 16,
 
         [IniEnum("SPECIAL_RADAR_VAN_SCAN")]
         RadarVanScan,
@@ -181,10 +181,10 @@ namespace OpenSage.Logic.Object
         TankHunterTntAttack,
 
         [IniEnum("SPECIAL_REMOTE_CHARGES")]
-        RemoteCharges,
+        RemoteCharges = 25,
 
         [IniEnum("SPECIAL_TIMED_CHARGES")]
-        TimedCharges,
+        TimedCharges = 26,
 
         [IniEnum("SPECIAL_HACKER_DISABLE_BUILDING")]
         HackerDisableBuilding,
@@ -202,7 +202,7 @@ namespace OpenSage.Logic.Object
         BlackLotusStealCashHack,
 
         [IniEnum("SPECIAL_CIA_INTELLIGENCE")]
-        CiaIntelligence,
+        CiaIntelligence = 34,
 
         [IniEnum("SPECIAL_REPAIR_VEHICLES")]
         RepairVehicles,
@@ -211,16 +211,16 @@ namespace OpenSage.Logic.Object
         DisguiseAsVehicle,
 
         [IniEnum("SPECIAL_PARTICLE_UPLINK_CANNON")]
-        ParticleUplinkCannon,
+        ParticleUplinkCannon = 37,
 
         [IniEnum("SPECIAL_CASH_BOUNTY")]
         CashBounty,
 
         [IniEnum("SPECIAL_CHANGE_BATTLE_PLANS")]
-        ChangeBattlePlans,
+        ChangeBattlePlans = 41,
 
         [IniEnum("SPECIAL_CLEANUP_AREA")]
-        CleanupArea,
+        CleanupArea = 42,
 
         [IniEnum("SPECIAL_LAUNCH_BAIKONUR_ROCKET")]
         LaunchBaikonurRocket,
