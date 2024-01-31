@@ -42,7 +42,8 @@ namespace OpenSage.Logic.Object
         public void RegisterDamage()
         {
             // this seems to only apply if the unit is capable of healing itself
-            if (_moduleData.StartHealingDelay > 0)
+            // make sure the upgrade is triggered before resetting any frames
+            if (_moduleData.StartHealingDelay > 0 && _upgradeLogic.Triggered)
             {
                 var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
                 _endOfStartHealingDelay = currentFrame + FramesForMs(_moduleData.StartHealingDelay);
