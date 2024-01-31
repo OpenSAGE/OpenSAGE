@@ -279,8 +279,8 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
-            // units can have multiple autohealbehaviors, as the default object has an inheritable autohealbehavior provided by veterancy
-            foreach (var autoHealBehavior in FindBehaviors<AutoHealBehavior>())
+            // units can have multiple delayed heal behaviors, as the default object has an inheritable autohealbehavior provided by veterancy
+            foreach (var autoHealBehavior in FindBehaviors<ISelfHealable>())
             {
                 autoHealBehavior.RegisterDamage();
             }
