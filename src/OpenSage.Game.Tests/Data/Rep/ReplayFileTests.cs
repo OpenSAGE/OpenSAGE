@@ -330,6 +330,30 @@ namespace OpenSage.Tests.Data.Rep
             WriteOrders(replayFile);
         }
 
+        [Fact]
+        public void Test_027_DeselectUnit()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(2327, replayFile.Header.NumTimecodes);
+            Assert.Equal(3094, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_028_FlashbangCombatDrop()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(7929, replayFile.Header.NumTimecodes);
+            Assert.Equal(8404, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))
