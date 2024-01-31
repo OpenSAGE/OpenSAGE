@@ -1246,6 +1246,7 @@ namespace OpenSage.Logic.Object
             _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
             Hidden = true;
             IsSelectable = false;
+            Owner.DeselectUnit(this);
         }
 
         internal void RemoveFromContainer()

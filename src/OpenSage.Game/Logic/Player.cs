@@ -212,21 +212,28 @@ namespace OpenSage.Logic
             foreach (var unit in _selectedUnits)
             {
                 unit.IsSelected = false;
-
-                if (unit.ParentHorde != null && unit.ParentHorde.IsSelected)
-                {
-                    unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
-                }
-                else
-                {
-                    var hordeContain = unit.FindBehavior<HordeContainBehavior>();
-                    if (hordeContain != null)
-                    {
-                        hordeContain.SelectAll(false);
-                    }
-                }
+                HandleHordeDeselect(unit);
             }
             _selectedUnits.Clear();
+        }
+
+        public void DeselectUnit(GameObject unit)
+        {
+            unit.IsSelected = false;
+            HandleHordeDeselect(unit);
+            _selectedUnits.Remove(unit);
+        }
+
+        private static void HandleHordeDeselect(GameObject unit)
+        {
+            if (unit.ParentHorde is { IsSelected: true })
+            {
+                unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
+            }
+            else
+            {
+                unit.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
+            }
         }
 
         public void CreateSelectionGroup(int idx)
