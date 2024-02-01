@@ -6,6 +6,9 @@ namespace OpenSage.Logic.Object
     public sealed class CreateCrateDie : DieModule
     {
         // TODO
+        public CreateCrateDie(CreateCrateDieModuleData moduleData) : base(moduleData)
+        {
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -28,10 +31,5 @@ namespace OpenSage.Logic.Object
             });
 
         public LazyAssetReference<CrateData> CrateData { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new CreateCrateDie();
-        }
     }
 }

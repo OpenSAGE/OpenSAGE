@@ -6,6 +6,9 @@ namespace OpenSage.Logic.Object
     public sealed class EjectPilotDie : DieModule
     {
         // TODO
+        public EjectPilotDie(EjectPilotDieModuleData moduleData) : base(moduleData)
+        {
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -33,10 +36,5 @@ namespace OpenSage.Logic.Object
 
         public LazyAssetReference<ObjectCreationList> GroundCreationList { get; private set; }
         public LazyAssetReference<ObjectCreationList> AirCreationList { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new EjectPilotDie();
-        }
     }
 }

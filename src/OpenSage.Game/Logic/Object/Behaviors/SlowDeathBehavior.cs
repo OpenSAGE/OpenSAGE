@@ -33,11 +33,22 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal bool IsApplicable(DeathType deathType) => _moduleData.DeathTypes?.Get(deathType) ?? true;
+        internal bool IsApplicable(DeathType deathType, ObjectStatus? status) =>
+            (_moduleData.DeathTypes?.Get(deathType) ?? true) && IsCorrectStatus(status);
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        private bool IsCorrectStatus(ObjectStatus? status)
         {
-            if (!IsApplicable(deathType))
+            var required = !_moduleData.RequiredStatus.AnyBitSet || // if nothing is required, we pass
+                                (status.HasValue && _moduleData.RequiredStatus.Get(status.Value)); // or if we are the one of the required statuses, we pass
+            var notExempt = !_moduleData.ExemptStatus.AnyBitSet || // if nothing is exempt, we pass
+                                !status.HasValue || // if we don't have a status, we can't be exempt, so we pass
+                                !_moduleData.ExemptStatus.Get(status.Value); // or if we are not one of the exempt statuses, we pass
+            return required && notExempt;
+        }
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, ObjectStatus? status)
+        {
+            if (!IsApplicable(deathType, status))
             {
                 return;
             }
