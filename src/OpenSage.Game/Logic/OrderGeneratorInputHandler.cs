@@ -26,6 +26,8 @@ namespace OpenSage.Logic
         public void Update()
         {
             _priority = HandlingPriority.OrderGeneratorPriority;
+
+            _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
         }
 
         public override InputMessageResult HandleMessage(InputMessage message)
@@ -41,7 +43,6 @@ namespace OpenSage.Logic
                     else
                     {
                         _mousePosition = message.Value.MousePosition;
-                        _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
                     }
                     break;
 
