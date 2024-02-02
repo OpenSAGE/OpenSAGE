@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Audio;
@@ -28,6 +29,9 @@ namespace OpenSage.Logic.Object
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
         public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
+
+        protected const string ExitBoneStartName = "ExitStart";
+        protected const string ExitBoneEndName = "ExitEnd";
 
         protected OpenContainModule(GameObject gameObject, OpenContainModuleData moduleData)
         {
@@ -72,6 +76,10 @@ namespace OpenSage.Logic.Object
                 GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
             }
         }
+
+        public (Vector3? Start, Vector3? End) DefaultExitPath => (
+            GameObject.Drawable.FindBone(ExitBoneStartName).bone?.Transform.Translation,
+            GameObject.Drawable.FindBone(ExitBoneEndName).bone?.Transform.Translation);
 
         protected virtual BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)
         {
