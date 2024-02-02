@@ -48,8 +48,8 @@ namespace OpenSage.Logic.Object
         {
             if (_moduleData.NumberOfExitPaths > 0)
             {
-                var startBoneName = "ExitStart";
-                var endBoneName = "ExitEnd";
+                var startBoneName = ExitBoneStartName;
+                var endBoneName = ExitBoneEndName;
 
                 // from the inis:
                 // Set 0 to not use ExitStart/ExitEnd, set higher than 1 to use ExitStart01-nn/ExitEnd01-nn

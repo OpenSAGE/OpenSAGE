@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
             gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
         }
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, ObjectStatus? status)
         {
             // todo: if this is the last tunnel, everything inside should die?
             GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);
