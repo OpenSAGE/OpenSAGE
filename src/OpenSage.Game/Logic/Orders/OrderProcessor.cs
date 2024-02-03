@@ -302,10 +302,13 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.SpecialPowerAtLocation:
                         {
-                            var specialPowerDefinitionId = order.Arguments[0].Value.Integer;
+                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
                             var specialPowerLocation = order.Arguments[1].Value.Position;
+                            var unknownObjectId = order.Arguments[2].Value.ObjectId;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[3].Value.Integer;
+                            var commandCenterSource = order.Arguments[4].Value.ObjectId;
 
-                            var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId(specialPowerDefinitionId);
+                            var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId((int)specialPowerDefinitionId); // todo: using the internal id is likely incorrect - these items have specific values that don't line up with how they are loaded
                             foreach (var unit in player.SelectedUnits) // todo: usa spy satellite is special power at location, but has nothing to do with selected objects
                             {
                                 unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
@@ -315,8 +318,22 @@ namespace OpenSage.Logic.Orders
                             _game.Audio.PlayAudioEvent(specialPower.InitiateAtLocationSound?.Value); // todo: play this at location
                         }
                         break;
+
                     case OrderType.SpecialPower:
+                        {
+                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[1].Value.Integer;
+                            var commandCenterSource = order.Arguments[2].Value.ObjectId;
+                        }
+                        throw new NotImplementedException();
+
                     case OrderType.SpecialPowerAtObject:
+                        {
+                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var targetId = order.Arguments[1].Value.ObjectId;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[2].Value.Integer;
+                            var commandCenterSource = order.Arguments[3].Value.ObjectId;
+                        }
                         throw new NotImplementedException();
 
                     case OrderType.EndGame:
