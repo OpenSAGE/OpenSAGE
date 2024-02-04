@@ -797,7 +797,7 @@ namespace OpenSage.Logic.Object
             return _firstBehaviorCache!.TryGetValue(typeof(T), out var behavior) ? (T)behavior : default;
         }
 
-        internal IEnumerable<T> FindBehaviors<T>()
+        public IEnumerable<T> FindBehaviors<T>()
         {
             if (_behaviorCache == null)
             {
@@ -1155,12 +1155,9 @@ namespace OpenSage.Logic.Object
         {
             var completedUpgrades = GetUpgradesCompleted();
 
-            foreach (var module in _modules)
+            foreach (var upgradeableModule in FindBehaviors<IUpgradeableModule>())
             {
-                if (module is IUpgradeableModule upgradeableModule)
-                {
-                    upgradeableModule.TryUpgrade(completedUpgrades);
-                }
+                upgradeableModule.TryUpgrade(completedUpgrades);
             }
         }
 

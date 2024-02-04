@@ -9,23 +9,19 @@ namespace OpenSage.Logic.Object
     public class OCLSpecialPowerModule : SpecialPowerModule
     {
         private readonly OCLSpecialPowerModuleData _moduleData;
-        private readonly GameObject _gameObject;
-        private readonly GameContext _context;
         private bool _activated = false;
         private Vector3 _position;
 
-        internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData)
+        internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
-            _gameObject = gameObject;
-            _context = context;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
             if (_activated)
             {
-                _context.ObjectCreationLists.CreateAtPosition(_moduleData.OCL.Value, context, _position);
+                Context.ObjectCreationLists.CreateAtPosition(_moduleData.OCL.Value, context, _position);
                 _activated = false;
             }
         }
@@ -34,11 +30,8 @@ namespace OpenSage.Logic.Object
         {
             _position = position;
             _activated = true;
-        }
 
-        internal bool Matches(SpecialPower specialPower)
-        {
-            return _moduleData.SpecialPower.Value == specialPower;
+            base.Activate(position);
         }
 
         internal override void Load(StatePersister reader)
@@ -99,7 +92,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public WeatherType ChangeWeather { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override OCLSpecialPowerModule CreateModule(GameObject gameObject, GameContext context)
         {
             return new OCLSpecialPowerModule(gameObject, context, this);
         }
