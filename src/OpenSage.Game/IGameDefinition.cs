@@ -33,6 +33,8 @@ namespace OpenSage
 
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
 
+        Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore);
+
         bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
     }
 }

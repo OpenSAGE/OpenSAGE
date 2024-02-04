@@ -44,6 +44,8 @@ namespace OpenSage.Mods.Generals
             return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
         }
 
+        public Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore) => new GeneralsScene25D(scene3D, assetStore);
+
         public bool Probe(string directory)
         {
             return File.Exists(Path.Combine(directory, LauncherExecutable)) && File.Exists(Path.Combine(directory, "INI.big"));
