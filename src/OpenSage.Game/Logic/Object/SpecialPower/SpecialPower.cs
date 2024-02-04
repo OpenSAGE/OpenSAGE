@@ -105,7 +105,12 @@ namespace OpenSage.Logic.Object
         private void Unlock()
         {
             _unlocked = true;
-            // todo: superweapons should not have their available frame set to now, nor should infantry, but powers from other buildings should?
+
+            if (_moduleData.SpecialPower.Value.PublicTimer)
+            {
+                return; // this is handled by SpecialPowerCreate
+            }
+
             _availableAtFrame = Context.GameLogic.CurrentFrame.Value;
             if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
             {
@@ -120,7 +125,7 @@ namespace OpenSage.Logic.Object
             ResetCountdown();
         }
 
-        private void ResetCountdown()
+        public void ResetCountdown()
         {
             _availableAtFrame = Context.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
             _ready = false;
