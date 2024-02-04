@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
             gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
         }
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, ObjectStatus? status)
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
         {
             // todo: if this is the last tunnel, everything inside should die?
             GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);

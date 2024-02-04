@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -617,6 +617,49 @@ namespace OpenSage
             persister.EndArray();
 
             persister.EndObject();
+        }
+
+        /// <summary>
+        /// Used to persist a bit array of an enum as a uint as if it were a flags enum.
+        /// </summary>
+        /// <example>
+        /// Persisting a bitarray with values of 2 and 5 set to true would result in a uint of 36 (2^2 + 2^5).
+        /// </example>
+        public static void PersistBitArrayAsUInt32<TEnum>(this StatePersister persister, ref BitArray<TEnum> result, [CallerArgumentExpression("result")] string name = "")
+            where TEnum : Enum
+        {
+            persister.PersistFieldName(name);
+
+            var value = 0u;
+
+            if (persister.Mode is StatePersistMode.Read)
+            {
+                result.SetAll(false);
+            }
+            else
+            {
+                for (var i = 0; i < 32; i++)
+                {
+                    if (result.Get(i))
+                    {
+                        value += (uint)Math.Pow(2, i);
+                    }
+                }
+            }
+
+            persister.PersistUInt32Value(ref value);
+
+            if (persister.Mode is StatePersistMode.Read)
+            {
+                for (var i = 31; i >= 0; i--)
+                {
+                    var comparator = (uint)Math.Pow(2, i);
+                    if ((value & comparator) > 0)
+                    {
+                        result.Set(i, true);
+                    }
+                }
+            }
         }
 
         public static void PersistVector3(this StatePersister persister, ref Vector3 value, [CallerArgumentExpression("value")] string name = "")
