@@ -174,8 +174,12 @@ namespace OpenSage.Logic.Object
         {
             // prefer exact match
             // if not, find the first one with the most number of matching bits
+            // this may be convoluted, but the unit tests pass!
             T bestConditionState = default;
             var bestIntersections = 0;
+            T bestContainedConditionState = default;
+            var leastMissing = int.MaxValue;
+            var leastMissingBestIntersections = 0;
             T defaultConditionState = default;
 
             foreach (var conditionState in conditionStates)
@@ -189,12 +193,26 @@ namespace OpenSage.Logic.Object
                     }
 
                     var intersections = conditionStateFlags.CountIntersectionBits(flags);
+                    // we've found a state that matches everything we have, but it may have extra things we don't have that we don't want
+                    // the order of the condition states in the ini files is not guaranteed to be ideal
                     if (intersections == flags.NumBitsSet)
                     {
-                        // if we have an exact match, great! doesn't matter what else we've found
-                        return conditionState;
-                    }
-                    if (intersections > bestIntersections)
+                        var missing = conditionStateFlags.NumBitsSet - intersections;
+                        if (missing == 0)
+                        {
+                            // if we have an exact match, great! doesn't matter what else we've found
+                            return conditionState;
+                        }
+
+                        // otherwise, this state may have extra things we don't have. Cool, but less than ideal... let's keep searching?
+                        // this ensures we don't store the first least missing as better, even if a subsequent one has better best intersections (which should be a better "score")
+                        if (missing < leastMissing || missing == leastMissing && intersections > leastMissingBestIntersections)
+                        {
+                            bestContainedConditionState = conditionState;
+                            leastMissing = missing;
+                            leastMissingBestIntersections = intersections;
+                        }
+                    } else if (intersections > bestIntersections)
                     {
                         // not an exact match, but save this if we can't find an exact match
                         bestIntersections = conditionStateFlags.NumBitsSet;
@@ -203,7 +221,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            return bestConditionState ?? defaultConditionState;
+            return bestContainedConditionState ?? bestConditionState ?? defaultConditionState;
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
