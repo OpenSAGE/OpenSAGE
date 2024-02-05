@@ -5,7 +5,6 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.OrderGenerators;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -163,7 +162,7 @@ namespace OpenSage.Logic
 
         public void SetRallyPoint()
         {
-            ActiveGenerator = new RallyPointOrderGenerator();
+            ActiveGenerator = new RallyPointOrderGenerator(Game);
         }
 
         public void CancelOrderGenerator()

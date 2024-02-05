@@ -69,6 +69,7 @@ namespace OpenSage.Logic.Orders
                     case OrderType.MoveTo:
                         {
                             var targetPosition = order.Arguments[0].Value.Position;
+                            GameObject? lastUnit = null;
                             foreach (var unit in player.SelectedUnits)
                             {
                                 unit.AIUpdate?.SetTargetPoint(targetPosition);
@@ -79,7 +80,11 @@ namespace OpenSage.Logic.Orders
                                 {
                                     _game.Audio.PlayAudioEvent(unit, sound);
                                 }
+
+                                lastUnit = unit;
                             }
+
+                            lastUnit?.OnLocalMove(_game.Audio);
                         }
                         break;
                     case OrderType.BuildObject:
@@ -294,6 +299,8 @@ namespace OpenSage.Logic.Orders
                                     .ToArray();
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
                             }
+
+                            _game.Audio.PlayAudioEvent("RallyPointSet");
                         }
                         catch (Exception e)
                         {
