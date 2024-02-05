@@ -163,7 +163,7 @@ namespace OpenSage.Logic.Object
                     maxRange = _moduleData.AttackRange;
                 }
 
-                if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToMaster > maxRange)
+                if (_gameObject.AIUpdate?.TargetPoints.Count == 0 && distanceToMaster > maxRange)
                 {
                     _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
                 }
