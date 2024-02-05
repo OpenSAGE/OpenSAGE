@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         private uint _unknown5;
         private uint _unknown6;
         private uint _unknown7;
+        private float _unknown9;
         private float _unknownFloat;
 
         internal override void Load(StatePersister reader)
@@ -37,9 +38,8 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            var unknown9 = 300.0f;
-            reader.PersistSingle(ref unknown9);
-            if (unknown9 != 300.0f)
+            reader.PersistSingle(ref _unknown9);
+            if (_unknown9 != 300.0f && _unknown9 != 0f)
             {
                 throw new InvalidStateException();
             }

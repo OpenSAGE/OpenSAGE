@@ -31,5 +31,10 @@ namespace OpenSage.Logic.Object
             });
 
         public LazyAssetReference<CrateData> CrateData { get; private set; }
+
+        internal override CreateCrateDie CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CreateCrateDie(this);
+        }
     }
 }

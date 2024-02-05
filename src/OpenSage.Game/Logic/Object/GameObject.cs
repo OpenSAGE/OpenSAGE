@@ -1200,34 +1200,42 @@ namespace OpenSage.Logic.Object
 
             if (!construction)
             {
-                // If there are multiple SlowDeathBehavior modules,
-                // we need to use ProbabilityModifier to choose between them.
-                var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-                    .Where(x => x.IsApplicable(deathType, _status))
-                    .ToList();
-                if (slowDeathBehaviors.Count > 1)
-                {
-                    var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-                    var random = _gameContext.Random.Next(sumProbabilityModifiers);
-                    var cumulative = 0;
-                    foreach (var deathBehavior in slowDeathBehaviors)
-                    {
-                        cumulative += deathBehavior.ProbabilityModifier;
-                        if (random < cumulative)
-                        {
-                            deathBehavior.OnDie(_behaviorUpdateContext, deathType, _status);
-                            return;
-                        }
-                    }
-                    throw new InvalidOperationException();
-                }
+                ExecuteRandomSlowDeathBehavior(deathType);
             }
-
-            PlayDieSound(deathType);
 
             foreach (var module in _behaviorModules)
             {
+                if (module is SlowDeathBehavior)
+                {
+                    // this is handled above
+                    continue;
+                }
+
                 module.OnDie(_behaviorUpdateContext, deathType, _status);
+            }
+
+            PlayDieSound(deathType);
+        }
+
+        private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
+        {
+            // If there are multiple SlowDeathBehavior modules,
+            // we need to use ProbabilityModifier to choose between them.
+            var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
+                .Where(x => x.IsApplicable(deathType, _status))
+                .ToList();
+
+            var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
+            var random = _gameContext.Random.Next(sumProbabilityModifiers);
+            var cumulative = 0;
+            foreach (var deathBehavior in slowDeathBehaviors)
+            {
+                cumulative += deathBehavior.ProbabilityModifier;
+                if (random < cumulative)
+                {
+                    deathBehavior.OnDie(_behaviorUpdateContext, deathType, _status);
+                    return;
+                }
             }
         }
 

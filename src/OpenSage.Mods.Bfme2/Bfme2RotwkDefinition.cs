@@ -45,6 +45,8 @@ namespace OpenSage.Mods.Bfme2
             return new OnDemandAssetLoadStrategy(PathResolvers.Bfme2W3d, PathResolvers.Bfme2Texture);
         }
 
+        public Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore) => new(scene3D, assetStore);
+
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
 
         public string LauncherExecutable => "lotrbfme2ep1.exe";

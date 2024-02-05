@@ -42,5 +42,10 @@ namespace OpenSage.Logic.Object
         public int TotalCrushSoundPercent { get; private set; }
         public int BackEndCrushSoundPercent { get; private set; }
         public int FrontEndCrushSoundPercent { get; private set; }
+
+        internal override CrushDie CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new CrushDie(this);
+        }
     }
 }

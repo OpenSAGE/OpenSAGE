@@ -32,21 +32,9 @@
         SelectGroup8 = 1024,
         SelectGroup9 = 1025,
 
-        // the leading integer for these special power arguments seems to correspond to SpecialPowerType
-        // burton detonate demo charge      SpecialPower(Integer:25, Integer:256, ObjectId:0)
-        // detention center intelligence    SpecialPower(Integer:34, Integer:0, ObjectId:0)
-        // strategy center bombardment      SpecialPower(Integer:41, Integer:9216, ObjectId:0)
-        // strategy center hold the line    SpecialPower(Integer:41, Integer:17408, ObjectId:0)
-        // strategy center search & destroy SpecialPower(Integer:41, Integer:33792, ObjectId:0)
-        SpecialPower = 1040,
-        // spy satellite             SpecialPowerAtLocation(Integer:15, Position:<304.26398, 409.33313, 10>, ObjectId:0, Integer:544, ObjectId:0)
-        // spy drone                 SpecialPowerAtLocation(Integer:16, Position:<825.8123, 606.12665, 10>, ObjectId:0, Integer:928, ObjectId:4) // last object id could be command center source?
-        // particle cannon           SpecialPowerAtLocation(Integer:37, Position:<442.46735, 318.8226, 10>, ObjectId:0, Integer:672, ObjectId:0)
-        // ambulance cleanup area    SpecialPowerAtLocation(Integer:42, Position:<443.1347, 219.59857, 10>, ObjectId:0, Integer:288, ObjectId:0)
-        SpecialPowerAtLocation = 1041,
-        // burton remote demo charge SpecialPowerAtObject(Integer:25, ObjectId:2, Integer:771, ObjectId:0) // first object id is target
-        // burton timed demo charge  SpecialPowerAtObject(Integer:26, ObjectId:3, Integer:259, ObjectId:0) // first object id is target
-        SpecialPowerAtObject = 1042, // Integer:29, ObjectId:199, Integer:323, ObjectId:0
+        SpecialPower = 1040, // Integer:25, Integer:256, ObjectId:0 // SpecialPowerType, SpecialPowerOrderFlags, source command center?
+        SpecialPowerAtLocation = 1041, // Integer:35, Position:<1105.9589, 728.7699, 18.75>, ObjectId:2816, Integer:672, ObjectId:657 // SpecialPowerType, location, unknown, SpecialPowerOrderFlags, source command center?
+        SpecialPowerAtObject = 1042, // Integer:14, ObjectId:674, Integer:643, ObjectId:657 // SpecialPowerType, target object, SpecialPowerOrderFlags, source command center?
         SetRallyPoint = 1043,
         PurchaseScience = 1044,
         BeginUpgrade = 1045, //encountered while adding landmines to power plant: ObjectId:671,Integer:1604 (mines is Upgrades[13]), also when upgrading usa power plant (ObjectId:673,Integer:1593), (ObjectId:671,Integer:1593), also for flashbangs in the barracks (ObjectId:678,Integer:1594)
@@ -100,7 +88,7 @@
         // dragon tank fire wall Integer:1, Position:<530.40765, 607.319, 9.9999695>, Integer:2147483647, ObjectId:0  // secondary weapon is fire wall
         // comanche rocket pods  Integer:2, Position:<373.81445, 256.29944, 10>, Integer:2147483647, ObjectId:0       // tertiary weapon is rocket pods
         UseWeapon = 1038,
-        Unknown1039 = 1039,
+        SnipeVehicle = 1039, // Integer:1, ObjectId:6, Integer:2147483647 // first integer argument could be because sniper is secondary weapon (similar to useweapon above)
         Unknown1050 = 1050,
 
         Unknown1055 = 1055,
@@ -110,7 +98,7 @@
         RepairVehicle = 1062, // ObjectId:3 includes vehicles returning to war factory for repair and helicopters landing and airfields for repair
         Unknown1063 = 1063,
         RepairStructure = 1064, // ObjectId:4 when a dozer is ordered to repair a structure
-        Enter = 1066,
+        Enter = 1066, // used for entering friendly vehicles and for hijacking vehicles
         GatherDumpSupplies = 1067, // used for both gathering from a supply source and dumping supplies
 
         AttackMove = 1069, // Position:<1343.561, 378.53568, 18.75>
@@ -120,7 +108,7 @@
         Unknown1073 = 1073,
         StopMoving = 1074,
         Scatter = 1075, // no arguments
-        Unknown1076 = 1076,
+        HackInternet = 1076, // no arguments
         Cheer = 1077, // no arguments
 
         SelectWeapon = 1079, // Integer:1 // e.g. USA Ranger, 1 for flashbang 0 for machine gun

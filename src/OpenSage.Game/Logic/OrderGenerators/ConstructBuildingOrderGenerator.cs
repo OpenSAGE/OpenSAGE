@@ -14,7 +14,7 @@ namespace OpenSage.Logic.OrderGenerators
     // 1. Builder dies
     // 2. We lose access to the building
     // 3. Player right-clicks
-    public sealed class ConstructBuildingOrderGenerator : IOrderGenerator, IDisposable
+    public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposable
     {
         private readonly ObjectDefinition _buildingDefinition;
         private readonly int _definitionIndex;
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.OrderGenerators
         private float _angle;
         private Vector3 _position;
 
-        public bool CanDrag { get; } = true;
+        public override bool CanDrag => true;
 
         internal ConstructBuildingOrderGenerator(
             ObjectDefinition buildingDefinition,
@@ -34,7 +34,7 @@ namespace OpenSage.Logic.OrderGenerators
             GameData config,
             Player player,
             GameContext gameContext,
-            Scene3D scene)
+            Scene3D scene) : base(gameContext.Game)
         {
             _buildingDefinition = buildingDefinition;
             _definitionIndex = definitionIndex;
@@ -59,7 +59,7 @@ namespace OpenSage.Logic.OrderGenerators
             UpdateValidity();
         }
 
-        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+        public override void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
             // TODO: Draw arrow (locater02.w3d) to visualise rotation angle.
 
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject.BuildRenderList(renderList, camera, gameTime);
         }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+        public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             if (scene.Game.SageGame == SageGame.Bfme)
             {
@@ -126,9 +126,9 @@ namespace OpenSage.Logic.OrderGenerators
                 _scene.LocalPlayer.Enemies.Contains(u.Owner));
         }
 
-        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
+        public override void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-            _position = worldPosition;
+            base.UpdatePosition(mousePosition, worldPosition);
 
             UpdatePreviewObjectPosition();
             UpdateValidity();
@@ -141,7 +141,7 @@ namespace OpenSage.Logic.OrderGenerators
             _previewObject.BuildProgress = 1.0f;
         }
 
-        public void UpdateDrag(Vector3 position)
+        public override void UpdateDrag(Vector3 position)
         {
             // Calculate angle from building position to current unprojected mouse position.
             var direction = position.Vector2XY() - _position.Vector2XY();
@@ -162,7 +162,7 @@ namespace OpenSage.Logic.OrderGenerators
         }
 
         // Use radial cursor.
-        public string GetCursor(KeyModifiers keyModifiers) => null;
+        public override string GetCursor(KeyModifiers keyModifiers) => null;
 
         public void Dispose()
         {
