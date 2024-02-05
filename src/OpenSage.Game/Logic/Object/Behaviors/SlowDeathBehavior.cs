@@ -38,9 +38,9 @@ namespace OpenSage.Logic.Object
 
         private bool IsCorrectStatus(ObjectStatus? status)
         {
-            var required = !_moduleData.RequiredStatus.AnyBitSet || // if nothing is required, we pass
+            var required = _moduleData.RequiredStatus == null || // if nothing is required, we pass
                                 (status.HasValue && _moduleData.RequiredStatus.Get(status.Value)); // or if we are the one of the required statuses, we pass
-            var notExempt = !_moduleData.ExemptStatus.AnyBitSet || // if nothing is exempt, we pass
+            var notExempt = _moduleData.ExemptStatus == null || // if nothing is exempt, we pass
                                 !status.HasValue || // if we don't have a status, we can't be exempt, so we pass
                                 !_moduleData.ExemptStatus.Get(status.Value); // or if we are not one of the exempt statuses, we pass
             return required && notExempt;
@@ -204,10 +204,10 @@ namespace OpenSage.Logic.Object
             { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
         };
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
-        public BitArray<ObjectStatus> RequiredStatus { get; private set; }
-        public BitArray<ObjectStatus> ExemptStatus { get; private set; }
-        public int ProbabilityModifier { get; private set; }
+        public BitArray<DeathType>? DeathTypes { get; private set; }
+        public BitArray<ObjectStatus>? RequiredStatus { get; private set; }
+        public BitArray<ObjectStatus>? ExemptStatus { get; private set; }
+        public int ProbabilityModifier { get; private set; } = 100;
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
         public LogicFrameSpan SinkDelay { get; private set; }
