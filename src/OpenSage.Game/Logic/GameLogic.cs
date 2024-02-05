@@ -28,12 +28,18 @@ namespace OpenSage.Logic
 
         internal uint NextObjectId = 1;
 
+        // as _objectsToIterate is already a copy in case the collection is updated, this persists the copy in case we iterate mid-update
+        private uint _objectsToIterateFrameCache;
         private readonly List<GameObject> _objectsToIterate = new();
         // TODO: This allocates memory. Don't do this.
         public IEnumerable<GameObject> Objects
         {
             get
             {
+                if (_objectsToIterateFrameCache == CurrentFrame.Value)
+                {
+                    return _objectsToIterate;
+                }
                 // TODO: We can't return _objects directly because it's possible for new objects to be added
                 // during iteration. We should instead create new objects in a pending list, like we do for
                 // removed objects.
@@ -45,6 +51,8 @@ namespace OpenSage.Logic
                         _objectsToIterate.Add(gameObject);
                     }
                 }
+
+                _objectsToIterateFrameCache = _currentFrame.Value;
                 return _objectsToIterate;
             }
         }
