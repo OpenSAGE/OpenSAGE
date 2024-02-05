@@ -26,11 +26,18 @@ public sealed class RenderBucket
     {
         _renderObjects.Add(renderObject);
 
-        _forwardPassList.AddObject(renderObject, renderObject.MaterialPass.ForwardPass);
-
-        if (renderObject.MaterialPass?.ShadowPass != null)
+        if (renderObject.MaterialPass != null)
         {
-            _shadowPassList.AddObject(renderObject, renderObject.MaterialPass.ShadowPass);
+            var (forwardPass, shadowPass) = renderObject.MaterialPass;
+            if (forwardPass != null)
+            {
+                _forwardPassList.AddObject(renderObject, forwardPass);
+            }
+
+            if (shadowPass != null)
+            {
+                _shadowPassList.AddObject(renderObject, shadowPass);
+            }
         }
 
         // TODO: Extract child objects and store in appropriate render buckets (opaque / transparent / etc.)
@@ -40,11 +47,18 @@ public sealed class RenderBucket
     {
         _renderObjects.Remove(renderObject);
 
-        _forwardPassList.RemoveObject(renderObject, renderObject.MaterialPass.ForwardPass);
-
-        if (renderObject.MaterialPass.ShadowPass != null)
+        if (renderObject.MaterialPass != null)
         {
-            _shadowPassList.RemoveObject(renderObject, renderObject.MaterialPass.ShadowPass);
+            var (forwardPass, shadowPass) = renderObject.MaterialPass;
+            if (forwardPass != null)
+            {
+                _forwardPassList.RemoveObject(renderObject, forwardPass);
+            }
+
+            if (shadowPass != null)
+            {
+                _shadowPassList.RemoveObject(renderObject, shadowPass);
+            }
         }
     }
 
@@ -174,7 +188,7 @@ public abstract class RenderObject : DisposableBase
 {
     public abstract string DebugName { get; }
 
-    public abstract MaterialPass MaterialPass { get; }
+    public abstract MaterialPass? MaterialPass { get; }
 
     //public readonly List<RenderableObject> ChildObjects = new();
 
