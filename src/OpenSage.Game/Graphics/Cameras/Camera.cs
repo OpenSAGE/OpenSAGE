@@ -18,7 +18,7 @@ namespace OpenSage.Graphics.Cameras
         private float _fieldOfView = MathUtility.ToRadians(50);
 
         /// <summary>
-        /// Gets or sets a value that represents the camera's field of view in radians. 
+        /// Gets or sets a value that represents the camera's field of view in radians.
         /// </summary>
         public float FieldOfView
         {
@@ -155,7 +155,7 @@ namespace OpenSage.Graphics.Cameras
             return _viewport.Project(position, Projection, View, Matrix4x4.Identity);
         }
 
-        internal RectangleF? WorldToScreenRectangle(in Vector3 position, in SizeF screenSize)
+        public RectangleF? WorldToScreenRectangle(in Vector3 position, in SizeF screenSize)
         {
             var screenPosition = WorldToScreenPoint(position);
 
