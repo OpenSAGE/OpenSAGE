@@ -5,6 +5,10 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CashHackSpecialPower : SpecialPowerModule
     {
+        internal CashHackSpecialPower(GameObject gameObject, GameContext context, CashHackSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -37,9 +41,9 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int MoneyAmount { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override CashHackSpecialPower CreateModule(GameObject gameObject, GameContext context)
         {
-            return new CashHackSpecialPower();
+            return new CashHackSpecialPower(gameObject, context, this);
         }
     }
 

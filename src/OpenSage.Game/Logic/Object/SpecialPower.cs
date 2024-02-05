@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<SpecialPower> FieldParseTable = new()
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
-            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
+            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseInteger() },
             { "RequiredScience", (parser, x) => x.RequiredSciences = new[] { parser.ParseScienceReference() } },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
@@ -45,7 +45,10 @@ namespace OpenSage.Logic.Object
         };
 
         public SpecialPowerType Type { get; private set; }
-        public long ReloadTime { get; private set; }
+        /// <summary>
+        /// The time for the special power to reload, in ms.
+        /// </summary>
+        public int ReloadTime { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }
@@ -79,7 +82,7 @@ namespace OpenSage.Logic.Object
         public int ForbiddenObjectRange { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public LazyAssetReference<Science>[] RequiredSciences { get; private set; }
+        public LazyAssetReference<Science>[] RequiredSciences { get; private set; } = [];
 
         [AddedIn(SageGame.Bfme2)]
         public string UnitSpecificSoundToUseAsInitiateIntendToDoVoice { get; private set; }

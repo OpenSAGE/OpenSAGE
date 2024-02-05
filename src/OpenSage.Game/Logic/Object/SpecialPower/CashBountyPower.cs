@@ -5,6 +5,10 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CashBountyPower : SpecialPowerModule
     {
+        internal CashBountyPower(GameObject gameObject, GameContext context, CashBountyPowerModuleData moduleData) : base(gameObject, context, moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -25,9 +29,9 @@ namespace OpenSage.Logic.Object
 
         public Percentage Bounty { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override CashBountyPower CreateModule(GameObject gameObject, GameContext context)
         {
-            return new CashBountyPower();
+            return new CashBountyPower(gameObject, context, this);
         }
     }
 }

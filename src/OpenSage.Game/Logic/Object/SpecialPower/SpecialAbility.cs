@@ -6,6 +6,10 @@ namespace OpenSage.Logic.Object
     {
         // TODO
 
+        internal SpecialAbilityModule(GameObject gameObject, GameContext context, SpecialAbilityModuleData moduleData) : base(gameObject, context, moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -23,9 +27,9 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<SpecialAbilityModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<SpecialAbilityModuleData>());
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override SpecialAbilityModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new SpecialAbilityModule();
+            return new SpecialAbilityModule(gameObject, context, this);
         }
     }
 }

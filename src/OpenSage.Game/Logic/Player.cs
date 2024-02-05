@@ -47,6 +47,7 @@ namespace OpenSage.Logic
         private bool _unknown6;
         private readonly bool[] _attackedByPlayerIds = new bool[MaxPlayers];
         private readonly PlayerScoreManager _scoreManager = new();
+        internal readonly SyncedSpecialPowerTimerCollection SyncedSpecialPowerTimers = [];
         private readonly List<ObjectIdSet> _controlGroups = new();
         private readonly ObjectIdSet _destroyedObjects = new();
 
@@ -96,14 +97,11 @@ namespace OpenSage.Logic
 
         public bool SpecialPowerAvailable(SpecialPower specialPower)
         {
-            if (specialPower.RequiredSciences != null)
+            foreach (var requirement in specialPower.RequiredSciences)
             {
-                foreach (var requirement in specialPower.RequiredSciences)
+                if (!HasScience(requirement.Value))
                 {
-                    if (!HasScience(requirement.Value))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -638,8 +636,9 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(70);
 
             reader.PersistObject(_scoreManager);
+            reader.SkipUnknownBytes(2);
 
-            reader.SkipUnknownBytes(4);
+            reader.PersistObject(SyncedSpecialPowerTimers);
 
             reader.PersistList(
                 _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
@@ -942,6 +941,19 @@ namespace OpenSage.Logic
                     persister.PersistUInt32Value(ref item);
                 },
                 "Values");
+        }
+    }
+
+    public sealed class SyncedSpecialPowerTimerCollection : Dictionary<SpecialPowerType, uint>, IPersistableObject
+    {
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistDictionary(this,
+                static (StatePersister statePersister, ref SpecialPowerType specialPowerType, ref uint availableAtFrame) =>
+                {
+                    statePersister.PersistEnum(ref specialPowerType);
+                    statePersister.PersistUInt32(ref availableAtFrame);
+                }, "Dictionary");
         }
     }
 
