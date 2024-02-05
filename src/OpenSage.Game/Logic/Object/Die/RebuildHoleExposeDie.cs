@@ -43,5 +43,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool TransferAttackers { get; private set; }
+
+        internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new RebuildHoleExposeDie(this);
+        }
     }
 }
