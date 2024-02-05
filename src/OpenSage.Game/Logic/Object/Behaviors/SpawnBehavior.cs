@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Object
 
             if (_productionExit != null)
             {
-                spawnedObject.SetTranslation(_productionExit.GetUnitCreatePoint());
+                spawnedObject.SetTranslation(_gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint()));
 
                 var rallyPoint = _productionExit.GetNaturalRallyPoint();
                 if (rallyPoint.HasValue)
