@@ -13,6 +13,11 @@ namespace OpenSage.Logic.Object
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
 
+        protected static uint FramesForMs(int ms)
+        {
+            return (uint)(Game.LogicFramesPerSecond * (ms / 1000f));
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

@@ -26,14 +26,23 @@ namespace OpenSage.Logic
 
         private uint _rankLevelLimit;
 
+        // object id -> some frame? unsure if order matters for this collection
+        private readonly Dictionary<uint, uint> _structuresBeingSold = [];
+
         internal uint NextObjectId = 1;
 
+        // as _objectsToIterate is already a copy in case the collection is updated, this persists the copy in case we iterate mid-update
+        private uint _objectsToIterateFrameCache;
         private readonly List<GameObject> _objectsToIterate = new();
         // TODO: This allocates memory. Don't do this.
         public IEnumerable<GameObject> Objects
         {
             get
             {
+                if (_objectsToIterateFrameCache == CurrentFrame.Value)
+                {
+                    return _objectsToIterate;
+                }
                 // TODO: We can't return _objects directly because it's possible for new objects to be added
                 // during iteration. We should instead create new objects in a pending list, like we do for
                 // removed objects.
@@ -45,6 +54,8 @@ namespace OpenSage.Logic
                         _objectsToIterate.Add(gameObject);
                     }
                 }
+
+                _objectsToIterateFrameCache = _currentFrame.Value;
                 return _objectsToIterate;
             }
         }
@@ -284,7 +295,12 @@ namespace OpenSage.Logic
 
             reader.PersistUInt32(ref _rankLevelLimit);
 
-            reader.SkipUnknownBytes(4);
+            reader.PersistDictionaryWithUInt32Count(_structuresBeingSold,
+                (StatePersister persister, ref uint objectId, ref uint saleFinishedFrameMaybe) =>
+                {
+                    persister.PersistUInt32(ref objectId);
+                    persister.PersistUInt32(ref saleFinishedFrameMaybe);
+                });
 
             reader.BeginArray("TechTreeOverrides");
             if (reader.Mode == StatePersistMode.Read)

@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
 
         internal sealed override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
         {
-            if (!IsCorrectStatus(status))
+            if (!IsCorrectStatus(status) || !IsCorrectDeathType(deathType))
             {
                 return;
             }
@@ -40,6 +40,11 @@ namespace OpenSage.Logic.Object
             return required && notExempt;
         }
 
+        private bool IsCorrectDeathType(DeathType deathType)
+        {
+            return ModuleData.DeathTypes == null || ModuleData.DeathTypes.Get(deathType);
+        }
+
         private protected virtual void Die(BehaviorUpdateContext context, DeathType deathType) { }
     }
 
@@ -49,14 +54,12 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<DieModuleData> FieldParseTable = new IniParseTable<DieModuleData>
         {
-            { "VeterancyLevels", (parser, x) => x.VeterancyLevels = parser.ParseEnumBitArray<VeterancyLevel>() },
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
             { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
             { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() }
         };
 
-        public BitArray<VeterancyLevel> VeterancyLevels { get; private set; }
-        public BitArray<DeathType> DeathTypes { get; private set; }
+        public BitArray<DeathType>? DeathTypes { get; private set; }
         public ObjectStatus? ExemptStatus { get; private set; }
         public ObjectStatus? RequiredStatus { get; private set; }
     }

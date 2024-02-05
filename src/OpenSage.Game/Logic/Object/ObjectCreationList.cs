@@ -10,12 +10,16 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class ObjectCreationListManager
     {
-        public void Create(ObjectCreationList list, BehaviorUpdateContext context)
+        public IEnumerable<GameObject> Create(ObjectCreationList list, BehaviorUpdateContext context)
         {
+            var objects = new List<GameObject>();
+
             foreach (var item in list.Nuggets)
             {
-                item.Execute(context);
+                objects.AddRange(item.Execute(context));
             }
+
+            return objects;
         }
 
         public void CreateAtPosition(ObjectCreationList list, BehaviorUpdateContext context, Vector3 position)
@@ -225,7 +229,7 @@ namespace OpenSage.Logic.Object
 
         public LazyAssetReference<ObjectDefinition>[] ObjectNames { get; private set; }
         public Vector3 Offset { get; private set; }
-        public int Count { get; private set; }
+        public int Count { get; private set; } = 1;
         public bool SpreadFormation { get; private set; }
         public float MinDistanceAFormation { get; private set; }
         public float MinDistanceBFormation { get; private set; }

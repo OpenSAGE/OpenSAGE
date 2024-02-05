@@ -361,7 +361,9 @@ namespace OpenSage.Mods.Generals.Gui
 
                     var parentControl = controlBar.SpecialPowerBar.Controls[i];
                     parentControl.Visible = specialPowerAvailable;
-
+                    // todo: countdown timer + enabled for special power, based on soonest-available instance for non-shared powers
+                    //  in generals, we just look at the latest-built command center
+                    //  in zero hour all sciences have a shared timer, but superweapons and radar van scans pull the soonest-available instance
                     var buttonControl = parentControl.Controls[0] as Button;
                     CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
                 }
@@ -487,7 +489,10 @@ namespace OpenSage.Mods.Generals.Gui
                                 break;
                             case CommandType.SpecialPower:
                                 buttonControl.Visible = selectedUnit.Owner.SpecialPowerAvailable(commandButton.SpecialPower.Value);
-                                buttonControl.Enabled = true; // TODO: timer
+                                var specialPowerModule = selectedUnit.FindBehaviors<SpecialPowerModule>().First(p => p.Matches(commandButton.SpecialPower.Value));
+                                buttonControl.OverlayColor = controlBar._scheme.BuildUpClockColor.ToColorRgbaF();
+                                buttonControl.OverlayRadialPercentage = specialPowerModule.ReadyProgress();
+                                buttonControl.Enabled = specialPowerModule.Ready;
                                 break;
                             case CommandType.ToggleOvercharge:
                                 buttonControl.IsSelected = selectedUnit.FindBehavior<OverchargeBehavior>().Enabled;

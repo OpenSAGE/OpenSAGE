@@ -203,10 +203,10 @@ namespace OpenSage.Logic.Object
             { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
         };
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
-        public BitArray<ObjectStatus> RequiredStatus { get; private set; }
-        public BitArray<ObjectStatus> ExemptStatus { get; private set; }
-        public int ProbabilityModifier { get; private set; }
+        public BitArray<DeathType>? DeathTypes { get; private set; }
+        public BitArray<ObjectStatus> RequiredStatus { get; private set; } = new();
+        public BitArray<ObjectStatus> ExemptStatus { get; private set; } = new();
+        public int ProbabilityModifier { get; private set; } = 100;
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
         public LogicFrameSpan SinkDelay { get; private set; }

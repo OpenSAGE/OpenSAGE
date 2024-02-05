@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
@@ -30,7 +28,7 @@ namespace OpenSage.Logic.OrderGenerators
         string CursorName,
         string InvalidCursorName);
 
-    public sealed class SpecialPowerOrderGenerator : IOrderGenerator, IDisposable
+    public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
     {
         private readonly SpecialPower _specialPower;
         private readonly SpecialPowerCursorInformation _cursorInformation;
@@ -42,10 +40,9 @@ namespace OpenSage.Logic.OrderGenerators
 
         private readonly DecalHandle _decalHandle;
 
-        private Vector3 _position;
-        private SpecialPowerTarget _target = SpecialPowerTarget.Location;
+        private SpecialPowerTarget Target => TargetForGameObject(WorldObject);
 
-        public bool CanDrag => false;
+        public override bool CanDrag => false;
 
         internal SpecialPowerOrderGenerator(
            SpecialPowerCursorInformation cursorInformation,
@@ -54,7 +51,7 @@ namespace OpenSage.Logic.OrderGenerators
            GameContext gameContext,
            SpecialPowerTargetType targetType,
            Scene3D scene,
-           in TimeInterval time)
+           in TimeInterval time) : base(gameContext.Game)
         {
             _specialPower = cursorInformation.SpecialPower;
             _cursorInformation = cursorInformation;
@@ -76,16 +73,14 @@ namespace OpenSage.Logic.OrderGenerators
             }
         }
 
-        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime) { }
-
-        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+        public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
             Order specialPowerOrder;
             if (_targetType == SpecialPowerTargetType.Location)
             {
-                specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, _position);
+                specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, WorldPosition);
             }
             else
             {
@@ -94,25 +89,14 @@ namespace OpenSage.Logic.OrderGenerators
             return OrderGeneratorResult.SuccessAndExit(new[] { specialPowerOrder });
         }
 
-        public void UpdateDrag(Vector3 position)
+        public override void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
         {
-        }
-
-        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
-        {
-            _position = worldPosition;
+            base.UpdatePosition(mousePosition, worldPosition);
 
             if (_decalHandle != null)
             {
                 _scene.Terrain.RadiusCursorDecals.SetDecalPosition(_decalHandle, worldPosition.Vector2XY());
             }
-
-            if (_targetType == SpecialPowerTargetType.Location)
-            {
-                return;
-            }
-
-            _target = TargetForGameObject(_gameContext.Game.Selection.FindClosestObject(mousePosition));
         }
 
         private SpecialPowerTarget TargetForGameObject(GameObject? target)
@@ -137,10 +121,10 @@ namespace OpenSage.Logic.OrderGenerators
             return SpecialPowerTarget.NeutralObject;
         }
 
-        public string GetCursor(KeyModifiers keyModifiers)
+        public override string GetCursor(KeyModifiers keyModifiers)
         {
             // todo: this should ultimately probably be decided by the individual special power, as some are specific to specific target types but don't mention it in the inis
-            return _cursorInformation.AllowedTargets.Get(_target) ? _cursorInformation.CursorName : _cursorInformation.InvalidCursorName;
+            return _cursorInformation.AllowedTargets.Get(Target) ? _cursorInformation.CursorName : _cursorInformation.InvalidCursorName;
         }
 
         public void Dispose()

@@ -34,5 +34,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool StayOnRadar { get; private set; }
+
+        internal override KeepObjectDie CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new KeepObjectDie(this);
+        }
     }
 }

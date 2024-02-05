@@ -9,11 +9,6 @@ namespace OpenSage.Logic.Object
 
         protected virtual uint FramesBetweenUpdates => 1;
 
-        protected uint FramesForMs(int ms)
-        {
-            return (uint)(Game.LogicFramesPerSecond * (ms / 1000f));
-        }
-
         private protected virtual void RunUpdate(BehaviorUpdateContext context) { }
 
         // todo: seal this method?

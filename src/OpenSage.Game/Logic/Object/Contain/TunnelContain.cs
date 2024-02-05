@@ -10,22 +10,31 @@ namespace OpenSage.Logic.Object
         public override int TotalSlots => GameObject.GameContext.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
         public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
 
+        private readonly GameContext _context;
         private readonly TunnelContainModuleData _moduleData;
         private bool _unknown1;
         private bool _unknown2;
 
-        // todo: containedObjectIds should be shared
-
-        public TunnelContain(GameObject gameObject, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
+        internal TunnelContain(GameObject gameObject, GameContext context, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
         {
+            _context = context;
             _moduleData = moduleData;
             gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
         }
 
         internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
         {
-            // todo: if this is the last tunnel, everything inside should die?
             GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);
+
+            if (GameObject.Owner.TunnelManager?.TunnelIds.Count == 0)
+            {
+                foreach (var objectId in ContainedObjectIds)
+                {
+                    _context.GameObjects.GetObjectById(objectId).Kill(DeathType.Crushed);
+                }
+
+                ContainedObjectIds.Clear();
+            }
         }
 
         private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
@@ -120,7 +129,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TunnelContain(gameObject, this);
+            return new TunnelContain(gameObject, context, this);
         }
     }
 }

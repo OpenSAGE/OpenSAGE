@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 
@@ -6,12 +8,137 @@ namespace OpenSage.Logic.Object
 {
     public class SpecialPowerModule : BehaviorModule
     {
-        private uint _countdownStartFrame;
-        private uint _unknown;
-        private uint _countdownEndFrame;
+        /// <summary>
+        /// The next frame when this special power can be used
+        /// </summary>
+        private uint _availableAtFrame;
+        private bool _paused;
+        private uint _countdownEndFrame; // unclear what this is
+
+        private readonly float _reloadFrames;
+
+        /// <summary>
+        /// Whether the special power is ready to be used.
+        /// </summary>
+        /// <remarks>
+        /// This intentionally doesn't call <see cref="_ready"/>, as that is used to short-circuit and is lazily set by <see cref="ReadyProgress"/>.
+        /// </remarks>
+        public bool Ready => ReadyProgress() >= 1;
+        private bool _ready;
+
+        protected readonly GameObject GameObject;
+        private protected readonly GameContext Context;
+        private readonly SpecialPowerModuleData _moduleData;
+
+        private bool _unlocked;
+
+        internal SpecialPowerModule(GameObject gameObject, GameContext context, SpecialPowerModuleData moduleData)
+        {
+            GameObject = gameObject;
+            Context = context;
+            _moduleData = moduleData;
+            _reloadFrames = FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
+            _paused = moduleData.StartsPaused;
+            if (!moduleData.SpecialPower.Value.SharedSyncedTimer)
+            {
+                // items with a sharedsyncedtimer have their countdown set to 0 when not unlocked
+                ResetCountdown();
+            }
+        }
+
+        /// <summary>
+        /// How close the special power is to being ready, from 0 (not ready at all) to 1 (fully ready).
+        /// </summary>
+        public float ReadyProgress()
+        {
+            if (_paused)
+            {
+                return 0;
+            }
+
+            // quick short-circuit
+            if (_ready)
+            {
+                return 1;
+            }
+
+            var availableAtFrame = _availableAtFrame;
+            if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
+            {
+                if (GameObject.Owner.SyncedSpecialPowerTimers.TryGetValue(_moduleData.SpecialPower.Value.Type, out var frame))
+                {
+                    availableAtFrame = frame;
+                }
+                else
+                {
+                    return 0; // if it's shared and not in our dictionary, then we probably don't have it unlocked and therefore it's not ready
+                }
+            }
+
+            var progress = 1 - Math.Clamp((availableAtFrame - Math.Min(availableAtFrame, Context.GameLogic.CurrentFrame.Value)) / _reloadFrames, 0, 1);
+            _ready = progress >= 1;
+            return progress;
+        }
+
+        internal override void Update(BehaviorUpdateContext context)
+        {
+            if (!_unlocked)
+            {
+                // the GLA cash bounty is actually awarded immediately upon a CC scaffold being placed - I suspect this is due to the reload time being zero
+                if (GameObject.IsBeingConstructed() && _moduleData.SpecialPower.Value.ReloadTime > 0)
+                {
+                    return; // nothing for us to do if we're not even built yet
+                }
+
+                foreach (var requiredScience in _moduleData.SpecialPower.Value.RequiredSciences)
+                {
+                    if (!GameObject.Owner.HasScience(requiredScience.Value))
+                    {
+                        return;
+                    }
+                }
+
+                Unlock();
+            }
+        }
+
+        private void Unlock()
+        {
+            _unlocked = true;
+
+            if (_moduleData.SpecialPower.Value.PublicTimer)
+            {
+                return; // this is handled by SpecialPowerCreate
+            }
+
+            _availableAtFrame = Context.GameLogic.CurrentFrame.Value;
+            if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
+            {
+                var player = GameObject.Owner;
+                player.SyncedSpecialPowerTimers.TryAdd(_moduleData.SpecialPower.Value.Type, _availableAtFrame); // it shouldn't already be added, but this way we don't worry about it
+            }
+        }
+
+        public void Unpause()
+        {
+            _paused = false;
+            ResetCountdown();
+        }
+
+        public void ResetCountdown()
+        {
+            _availableAtFrame = Context.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
+            _ready = false;
+        }
 
         internal virtual void Activate(Vector3 position)
         {
+            ResetCountdown();
+        }
+
+        public bool Matches(SpecialPower specialPower)
+        {
+            return _moduleData.SpecialPower.Value == specialPower;
         }
 
         internal override void Load(StatePersister reader)
@@ -22,17 +149,21 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref _countdownStartFrame);
+            reader.PersistFrame(ref _availableAtFrame);
 
-            reader.PersistUInt32(ref _unknown);
-            if (_unknown != 1 && _unknown != 0)
-            {
-                throw new InvalidStateException();
-            }
+            reader.PersistBoolean(ref _paused);
+            reader.SkipUnknownBytes(3);
 
             reader.PersistFrame(ref _countdownEndFrame);
 
             reader.SkipUnknownBytes(4);
+        }
+
+        internal override void DrawInspector()
+        {
+            base.DrawInspector();
+            ImGui.LabelText("Available at frame", _availableAtFrame.ToString());
+            ImGui.LabelText("Progress", $"{ReadyProgress():P2}%");
         }
     }
 
@@ -138,5 +269,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public ObjectFilter RequirementsFilterStrategic { get; private set; }
+
+        internal override SpecialPowerModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new SpecialPowerModule(gameObject, context, this);
+        }
     }
 }
