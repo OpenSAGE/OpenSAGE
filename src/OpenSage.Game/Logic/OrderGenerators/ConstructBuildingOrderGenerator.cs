@@ -24,7 +24,6 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly GameObject _previewObject;
 
         private float _angle;
-        private Vector3 _position;
 
         public override bool CanDrag => true;
 
@@ -101,8 +100,8 @@ namespace OpenSage.Logic.OrderGenerators
             scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?["VoiceBuildResponse"]?.Value);
 
             var playerIdx = scene.GetPlayerIndex(player);
-            var moveOrder = Order.CreateMoveOrder(playerIdx, _position);
-            var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, _position, _angle);
+            var moveOrder = Order.CreateMoveOrder(playerIdx, WorldPosition);
+            var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, WorldPosition, _angle);
 
             // TODO: Also send an order to builder to start building.
             return OrderGeneratorResult.SuccessAndExit(new[] { moveOrder, buildOrder });
@@ -136,7 +135,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         private void UpdatePreviewObjectPosition()
         {
-            _previewObject.SetTranslation(_position);
+            _previewObject.SetTranslation(WorldPosition);
             _previewObject.UpdateColliders();
             _previewObject.BuildProgress = 1.0f;
         }
@@ -144,7 +143,7 @@ namespace OpenSage.Logic.OrderGenerators
         public override void UpdateDrag(Vector3 position)
         {
             // Calculate angle from building position to current unprojected mouse position.
-            var direction = position.Vector2XY() - _position.Vector2XY();
+            var direction = position.Vector2XY() - WorldPosition.Vector2XY();
             _angle = MathUtility.GetYawFromDirection(direction);
 
             UpdatePreviewObjectAngle();
