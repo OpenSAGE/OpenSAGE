@@ -196,14 +196,13 @@ namespace OpenSage.Logic.Orders
                     case OrderType.Sell:
                         foreach (var unit in player.SelectedUnits)
                         {
-                            unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
-                            // TODO: is there any logic for ModelConditionFlag.Sold ?
+                            unit.Sell();
+                            // todo: do not destroy or award money until sell teardown is complete
                             _game.Scene3D.GameObjects.DestroyObject(unit);
                             // items which award free units, like a tunnel network or supply center, have refund value set which overrides SellPercentage
                             var sellAmount = unit.Definition.RefundValue ?? unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage;
                             player.BankAccount.Deposit((uint) sellAmount);
                         }
-                        _game.Selection.ClearSelectedObjects(player);
                         break;
 
                     case OrderType.RepairStructure:
