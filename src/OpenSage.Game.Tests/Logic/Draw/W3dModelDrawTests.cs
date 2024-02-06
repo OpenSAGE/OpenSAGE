@@ -12,10 +12,10 @@ public class W3dModelDrawTests
     [InlineData(new[] { ModelConditionFlag.Sold, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.ReallyDamaged })]
     [InlineData(new[] { ModelConditionFlag.Damaged, ModelConditionFlag.Snow })]
     [InlineData(new[] { ModelConditionFlag.AwaitingConstruction, ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.ReallyDamaged })]
-    public void FindBestFittingConditionState_TestExactMatch(ModelConditionFlag[] providedFlags)
+    public void FindBestFittingConditionState_AmericaBarracks_TestExactMatch(ModelConditionFlag[] providedFlags)
     {
         var flags = new BitArray<ModelConditionFlag>(providedFlags);
-        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(ModelConditionStates(), flags);
+        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(AmericaBarracksModelConditionStates(), flags);
         Assert.Contains(bestConditionState.ConditionFlags, f => f.CountIntersectionBits(flags) == flags.NumBitsSet); // .equals wasn't working?
     }
 
@@ -24,11 +24,32 @@ public class W3dModelDrawTests
     [InlineData(new[] { ModelConditionFlag.AwaitingConstruction, ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed }, new[] { ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed })]
     [InlineData(new[] { ModelConditionFlag.AwaitingConstruction, ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.Damaged }, new[] { ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.Damaged })]
     [InlineData(new[] { ModelConditionFlag.AwaitingConstruction, ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed, ModelConditionFlag.Night }, new[] { ModelConditionFlag.PartiallyConstructed, ModelConditionFlag.ActivelyBeingConstructed, ModelConditionFlag.Night })]
-    public void FindBestFittingConditionState_TestPartialMatch(ModelConditionFlag[] expectedFlags, ModelConditionFlag[] providedFlags)
+    public void FindBestFittingConditionState_AmericaBarracks_TestPartialMatch(ModelConditionFlag[] expectedFlags, ModelConditionFlag[] providedFlags)
     {
         var flags = new BitArray<ModelConditionFlag>(providedFlags);
         var expected = new BitArray<ModelConditionFlag>(expectedFlags);
-        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(ModelConditionStates(), flags);
+        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(AmericaBarracksModelConditionStates(), flags);
+        Assert.Contains(bestConditionState.ConditionFlags, f => f.CountIntersectionBits(expected) == expected.NumBitsSet); // .equals wasn't working?
+    }
+
+    [Theory]
+    [InlineData(new[] { ModelConditionFlag.Moving })]
+    [InlineData(new[] { ModelConditionFlag.ActivelyConstructing })]
+    [InlineData(new[] { ModelConditionFlag.Moving, ModelConditionFlag.Carrying })]
+    public void FindBestFittingConditionState_GlaWorker_TestExactMatch(ModelConditionFlag[] providedFlags)
+    {
+        var flags = new BitArray<ModelConditionFlag>(providedFlags);
+        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(GlaWorkerConditionStates(), flags);
+        Assert.Contains(bestConditionState.ConditionFlags, f => f.CountIntersectionBits(flags) == flags.NumBitsSet); // .equals wasn't working?
+    }
+
+    [Theory]
+    [InlineData(new[] { ModelConditionFlag.Carrying }, new[] { ModelConditionFlag.Carrying, ModelConditionFlag.ReallyDamaged })]
+    public void FindBestFittingConditionState_GlaWorker_TestPartialMatch(ModelConditionFlag[] expectedFlags, ModelConditionFlag[] providedFlags)
+    {
+        var flags = new BitArray<ModelConditionFlag>(providedFlags);
+        var expected = new BitArray<ModelConditionFlag>(expectedFlags);
+        var bestConditionState = W3dModelDraw.FindBestFittingConditionState(GlaWorkerConditionStates(), flags);
         Assert.Contains(bestConditionState.ConditionFlags, f => f.CountIntersectionBits(expected) == expected.NumBitsSet); // .equals wasn't working?
     }
 
@@ -36,7 +57,7 @@ public class W3dModelDrawTests
     /// Example model condition states take from usa AmericaBarracks ModuleTag_01
     /// </summary>
     /// <returns></returns>
-    private static List<ModelConditionState> ModelConditionStates()
+    private static List<ModelConditionState> AmericaBarracksModelConditionStates()
     {
         return [
             CreateModelConditionState(ModelConditionFlag.None),
@@ -89,6 +110,23 @@ public class W3dModelDrawTests
                 [ModelConditionFlag.Sold, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.Damaged],
                 [ModelConditionFlag.Sold, ModelConditionFlag.Night, ModelConditionFlag.Snow, ModelConditionFlag.ReallyDamaged]
             ),
+        ];
+    }
+
+    private static List<ModelConditionState> GlaWorkerConditionStates()
+    {
+        return
+        [
+            CreateModelConditionState([ModelConditionFlag.Moving], [ModelConditionFlag.ActivelyConstructing, ModelConditionFlag.Moving]),
+            CreateModelConditionState(ModelConditionFlag.Attacking),
+            CreateModelConditionState(ModelConditionFlag.Moving, ModelConditionFlag.Attacking),
+            CreateModelConditionState([ModelConditionFlag.Moving, ModelConditionFlag.Carrying], [ModelConditionFlag.ActivelyConstructing, ModelConditionFlag.Moving, ModelConditionFlag.Carrying]),
+            CreateModelConditionState(ModelConditionFlag.Carrying),
+            CreateModelConditionState([ModelConditionFlag.Dying], [ModelConditionFlag.Dying, ModelConditionFlag.Carrying]),
+            CreateModelConditionState(ModelConditionFlag.Dying, ModelConditionFlag.ExplodedFlailing),
+            CreateModelConditionState(ModelConditionFlag.Dying, ModelConditionFlag.ExplodedBouncing),
+            CreateModelConditionState(ModelConditionFlag.SpecialCheering),
+            CreateModelConditionState([ModelConditionFlag.ActivelyConstructing], [ModelConditionFlag.ActivelyConstructing, ModelConditionFlag.Carrying]),
         ];
     }
 
