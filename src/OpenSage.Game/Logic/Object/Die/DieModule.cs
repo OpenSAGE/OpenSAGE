@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
         }
 
-        internal sealed override void OnDie(BehaviorUpdateContext context, DeathType deathType, ObjectStatus? status)
+        internal sealed override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
         {
             if (!IsCorrectStatus(status) || !IsCorrectDeathType(deathType))
             {
@@ -31,13 +31,12 @@ namespace OpenSage.Logic.Object
             Die(context, deathType);
         }
 
-        private bool IsCorrectStatus(ObjectStatus? status)
+        private bool IsCorrectStatus(BitArray<ObjectStatus> status)
         {
             var required = !ModuleData.RequiredStatus.HasValue || // if nothing is required, we pass
-                                (status.HasValue && ModuleData.RequiredStatus == status); // or if we are the one of the required statuses, we pass
+                                status.Get(ModuleData.RequiredStatus.Value); // or if we are the one of the required statuses, we pass
             var notExempt = !ModuleData.ExemptStatus.HasValue || // if nothing is exempt, we pass
-                                !status.HasValue || // if we don't have a status, we can't be exempt, so we pass
-                                ModuleData.ExemptStatus != status.Value; // or if we are not one of the exempt statuses, we pass
+                                !status.Get(ModuleData.ExemptStatus.Value); // or if we are not one of the exempt statuses, we pass
             return required && notExempt;
         }
 

@@ -168,7 +168,7 @@ namespace OpenSage.Logic.Object
         public uint CreatedByObjectID;
         public uint BuiltByObjectID;
 
-        private uint _unknown1;
+        private BitArray<ObjectStatus> _status = new();
         private byte _unknown2;
         private GameObjectUnknownFlags _unknownFlags;
         private readonly ShroudReveal _shroudRevealSomething1 = new();
@@ -194,9 +194,6 @@ namespace OpenSage.Logic.Object
         private byte _weaponSomethingSecondary;
         private byte _weaponSomethingTertiary;
         private BitArray<SpecialPowerType> _specialPowers = new();
-
-        // todo: is this one of the unknown fields above?
-        private ObjectStatus? _status;
 
         public Transform Transform => _transform;
         public float Yaw => _transform.Yaw;
@@ -888,7 +885,7 @@ namespace OpenSage.Logic.Object
             ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
             ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
 
-            _status = ObjectStatus.UnderConstruction;
+            _status.Set(ObjectStatus.UnderConstruction, true);
 
             // flatten terrain around object
             var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(_transform.Translation);
@@ -944,10 +941,7 @@ namespace OpenSage.Logic.Object
         {
             ClearModelConditionFlags();
 
-            if (_status == ObjectStatus.UnderConstruction)
-            {
-                _status = null;
-            }
+            _status.Set(ObjectStatus.UnderConstruction, false);
 
             EnergyProduction += Definition.EnergyProduction;
 
@@ -1290,6 +1284,8 @@ namespace OpenSage.Logic.Object
             _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
             Hidden = true;
             IsSelectable = false;
+            _status.Set(ObjectStatus.Unselectable, true);
+            _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
             Owner.DeselectUnit(this);
         }
 
@@ -1301,6 +1297,16 @@ namespace OpenSage.Logic.Object
             _disabledTypesFrames[(int)DisabledType.Held] = 0;
             Hidden = false;
             IsSelectable = true;
+            _status.Set(ObjectStatus.Unselectable, false);
+            _status.Set(ObjectStatus.InsideGarrison, false);
+        }
+
+        internal void Sell()
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
+            _status.Set(ObjectStatus.Unselectable, true);
+            _status.Set(ObjectStatus.Sold, true);
+            Owner.DeselectUnit(this);
         }
 
         internal void GainExperience(int experience)
@@ -1382,7 +1388,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistAsciiString(ref _name);
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistBitArrayAsUInt32(ref _status); // this is stored as a uint in the sav file
             reader.PersistByte(ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
@@ -1570,6 +1576,19 @@ namespace OpenSage.Logic.Object
                 if (ImGui.DragFloat3("Position", ref translation))
                 {
                     _transform.Translation = translation;
+                }
+
+                ImGui.LabelText("ObjectStatus", _status.DisplayName);
+                if (ImGui.TreeNodeEx("Select ObjectStatus"))
+                {
+                    foreach (var flag in Enum.GetValues<ObjectStatus>())
+                    {
+                        if (ImGui.Selectable(flag.ToString(), _status.Get(flag)))
+                        {
+                            _status.Set(flag, !_status.Get(flag));
+                        }
+                    }
+                    ImGui.TreePop();
                 }
 
                 ImGui.LabelText("ModelConditionFlags", ModelConditionFlags.DisplayName);

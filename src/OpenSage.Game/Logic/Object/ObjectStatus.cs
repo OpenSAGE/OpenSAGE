@@ -1,14 +1,40 @@
-﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    // we use this in BitArrays everywhere, but there are cases where this is persisted as a uint
+    // objects without an explicit ordinal may not be confirmed
     public enum ObjectStatus
     {
+        [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
+        Unattackable,
+
+        [IniEnum("TOPPLED")]
+        Toppled,
+
         [IniEnum("UNDER_CONSTRUCTION")]
-        UnderConstruction,
+        UnderConstruction = 2, // 4 in sav file
+
+        [IniEnum("UNSELECTABLE")]
+        Unselectable = 3, // 8 in sav file
+
+        [IniEnum("DESTROYED")]
+        Destroyed = 4, // destroyed civilian building was 16 in sav file
+
+        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+        Death1,
+
+        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+        Death2,
+
+        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+        Death3,
+
+        [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+        Death4,
 
         [IniEnum("HIJACKED")]
-        Hijacked,
+        Hijacked = 9, // 512 in sav file
 
         [IniEnum("STATUS_RIDER1")]
         StatusRider1,
@@ -31,29 +57,11 @@ namespace OpenSage.Logic.Object
         [IniEnum("STATUS_RIDER7")]
         StatusRider7,
 
-        [IniEnum("TOPPLED")]
-        Toppled,
-
-        [IniEnum("INSIDE_GARRISON"), AddedIn(SageGame.Bfme)]
-        InsideGarrison,
-
-        [IniEnum("UNSELECTABLE"), AddedIn(SageGame.Bfme)]
-        Unselectable,
-
-        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
-        Death1,
-
-        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
-        Death2,
-
-        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
-        Death3,
-        
-        [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
-        Death4,
-
         [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
         CanAttack,
+
+        [IniEnum("SOLD")]
+        Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
 
         [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         BloodThirsty,
@@ -61,8 +69,8 @@ namespace OpenSage.Logic.Object
         [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
         Enclosed,
 
-        [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
-        Unattackable,
+        [IniEnum("INSIDE_GARRISON")]
+        InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
 
         [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
         Deployed,
@@ -79,17 +87,11 @@ namespace OpenSage.Logic.Object
         [IniEnum("HOLDING_THE_RING"), AddedIn(SageGame.Bfme2)]
         HoldingTheRing,
 
-        [IniEnum("SOLD"), AddedIn(SageGame.Bfme2)]
-        Sold,
-
         [IniEnum("IGNORE_AI_COMMAND"), AddedIn(SageGame.Bfme2Rotwk)]
         IgnoreAICommand,
 
         [IniEnum("SUMMONING_REPLACEMENT"), AddedIn(SageGame.Bfme2Rotwk)]
         SummoningReplacement,
-
-        [IniEnum("DESTROYED"), AddedIn(SageGame.Bfme2Rotwk)]
-        Destroyed,
 
         [IniEnum("USER_DEFINED_1"), AddedIn(SageGame.Bfme2Rotwk)]
         UserDefined1,
