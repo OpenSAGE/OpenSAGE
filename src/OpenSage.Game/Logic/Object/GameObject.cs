@@ -297,6 +297,7 @@ namespace OpenSage.Logic.Object
         }
 
         public Collider RoughCollider { get; set; }
+        public Collider ShapedCollider => Collider.Create(Definition.CurrentGeometryShape, Transform);
         public List<Collider> Colliders { get; }
 
         public float VerticalOffset;
@@ -875,17 +876,44 @@ namespace OpenSage.Logic.Object
         /// </summary>
         internal void PrepareConstruction()
         {
-            if (IsStructure)
+            if (!IsStructure)
             {
-                Health = Fix64.Zero;
-                ClearModelConditionFlags();
-
-                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
-                ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
-                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
-
-                _status = ObjectStatus.UnderConstruction;
+                return;
             }
+
+            Health = Fix64.Zero;
+            ClearModelConditionFlags();
+
+            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
+            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+            ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
+
+            _status = ObjectStatus.UnderConstruction;
+
+            // flatten terrain around object
+            var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(_transform.Translation);
+
+            if (centerPosition == null)
+            {
+                throw new InvalidStateException("object built outside of map bounds");
+            }
+
+            var (centerX, centerY) = centerPosition.Value;
+            var maxHeight = _gameContext.Terrain.HeightMap.GetHeight(centerX, centerY);
+            // on slopes, the height map isn't always exactly where our cursor is (our cursor is a float, and the heightmap is always a ushort), so snap the building to the nearest heightmap value
+            UpdateTransform(_transform.Translation with { Z = maxHeight }, _transform.Rotation);
+
+            // clear anything applicable in the build area (trees, rubble, etc)
+            var toDelete = new BitArray<ObjectKinds>(ObjectKinds.Shrubbery, ObjectKinds.ClearedByBuild); // this may not be completely accurate
+            foreach (var intersecting in _gameContext.Quadtree.FindIntersecting(ShapedCollider))
+            {
+                if (intersecting.Definition.KindOf.Intersects(toDelete))
+                {
+                    GameContext.GameObjects.DestroyObject(intersecting);
+                }
+            }
+
+            _gameContext.Terrain.SetMaxHeight(ShapedCollider, maxHeight);
         }
 
         /// <summary>
