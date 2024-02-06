@@ -417,15 +417,7 @@ namespace OpenSage.Logic
                 case UpgradeStatus.Completed:
                     _upgradesInProgress.Remove(template);
                     UpgradesCompleted.Add(template);
-                    // TODO: make this more efficient?
-                    foreach (var gameObject in _game.Scene3D.GameContext.GameObjects.Items)
-                    {
-                        if (gameObject.Owner != this)
-                        {
-                            continue;
-                        }
-                        gameObject.UpdateUpgradeableModules();
-                    }
+                    // TODO: Iterate all game objects owned by this player and call their UpdateUpgradeableModules methods.
                     break;
             }
 
