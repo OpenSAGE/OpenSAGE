@@ -10,7 +10,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Mods.Bfme.Gui
+namespace OpenSage.Mods.Bfme2Rotwk.Gui
 {
     public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
     {

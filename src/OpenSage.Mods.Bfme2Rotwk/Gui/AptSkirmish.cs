@@ -1,14 +1,11 @@
-﻿using OpenSage.Content;
-using OpenSage.Gui.Apt;
+﻿using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 
-namespace OpenSage.Mods.Bfme.Gui
+namespace OpenSage.Mods.Bfme2Rotwk.Gui
 {
-    [AptCallbacks(SageGame.Bfme)]
-    public class AptSkirmish
+    [AptCallbacks(SageGame.Bfme2Rotwk)]
+    static class AptSkirmish
     {
-        public MapCache CurrentMap { get; private set; }
-
         // Called after the initialization has been performed
         public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
         {

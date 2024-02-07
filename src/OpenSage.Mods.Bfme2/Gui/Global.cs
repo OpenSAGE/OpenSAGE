@@ -1,9 +1,9 @@
 ﻿using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 
-namespace OpenSage.Mods.Bfme.Gui
+namespace OpenSage.Mods.Bfme2.Gui
 {
-    [AptCallbacks(SageGame.Bfme)]
+    [AptCallbacks(SageGame.Bfme2)]
     static class Global
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

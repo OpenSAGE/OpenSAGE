@@ -4,8 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
-    <ProjectReference Include="..\OpenSage.Mods.Bfme2\OpenSage.Mods.Bfme2.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Bfme2\OpenSage.Mods.Bfme2.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Bfme2Rotwk\OpenSage.Mods.Bfme2Rotwk.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Generals\OpenSage.Mods.Generals.csproj" />
   </ItemGroup>
 </Project>

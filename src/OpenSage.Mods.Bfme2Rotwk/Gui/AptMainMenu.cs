@@ -3,9 +3,9 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
 
-namespace OpenSage.Mods.Bfme.Gui
+namespace OpenSage.Mods.Bfme2Rotwk.Gui
 {
-    [AptCallbacks(SageGame.Bfme)]
+    [AptCallbacks(SageGame.Bfme2Rotwk)]
     static class AptMainMenu
     {
         // Called after the initialization has been performed
@@ -63,17 +63,15 @@ namespace OpenSage.Mods.Bfme.Gui
 
         public static void Credits(string param, ActionContext context, AptWindow window, Game game)
         {
-
         }
 
         public static void OnTutorial(string param, ActionContext context, AptWindow window, Game game)
         {
-
         }
 
         public static void MultiplayerButtonPressed(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("OnlineLogin.apt");
+            var aptWindow = game.LoadAptWindow("MPGameSetup.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
@@ -90,28 +88,6 @@ namespace OpenSage.Mods.Bfme.Gui
         public static void EvilCampaign(string param, ActionContext context, AptWindow window, Game game)
         {
 
-        }
-
-        public static void LevelSelect(string param, ActionContext context, AptWindow window, Game game)
-        {
-
-        }
-
-        public static void DisableComponents(string param, ActionContext context, AptWindow window, Game game)
-        {
-            // do we need to hide the buttons from MainMenu here?
-        }
-
-        public static void BlinkVar(string param, ActionContext context, AptWindow window, Game game)
-        {
-            // Todo:
-            // Disable BlinkVar for every Button except the Battle School at first Start || if 'FlashTutorial = 0'!
-        }
-
-        public static void BlinkBattleSchoolOff(string param, ActionContext context, AptWindow window, Game game)
-        {
-            // Todo:
-            // After opening the game for the first time, Button "Battle School" will blink, this gets disabled with the option.ini entry -> 'FlashTutorial = 0'!
         }
     }
 }

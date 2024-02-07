@@ -5,9 +5,10 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Mods.Bfme2;
 using System.IO;
 
-namespace OpenSage.Mods.Bfme2
+namespace OpenSage.Mods.Bfme2Rotwk
 {
     public class Bfme2RotwkDefinition : IGameDefinition
     {
@@ -28,7 +29,7 @@ namespace OpenSage.Mods.Bfme2
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "Language")
         };
 
-        public string Identifier { get; } = "bfme2_rotwk";
+        public string Identifier { get; } = "bfme2";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource? ControlBar { get; }

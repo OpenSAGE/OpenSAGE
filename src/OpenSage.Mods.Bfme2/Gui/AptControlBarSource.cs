@@ -10,14 +10,14 @@ using OpenSage.Gui.ControlBar;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Mods.Bfme.Gui;
+using OpenSage.Mods.Bfme2.Gui;
 using SixLabors.Fonts;
 using Veldrid;
 using Geometry = OpenSage.Data.Apt.Geometry;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 using ValueType = OpenSage.Gui.Apt.ActionScript.ValueType;
 
-namespace OpenSage.Mods.Bfme
+namespace OpenSage.Mods.Bfme2
 {
     class AptControlBar : IControlBar
     {
@@ -118,7 +118,7 @@ namespace OpenSage.Mods.Bfme
             for (var i = 1; i <= 6; i++)
             {
                 // we do not know how bfme handles this yet
-                if (_game.SageGame is SageGame.Bfme) continue;
+                if (_game.SageGame is SageGame.Bfme or SageGame.Bfme2 or SageGame.Bfme2Rotwk) continue;
 
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
@@ -153,7 +153,7 @@ namespace OpenSage.Mods.Bfme
             for (var i = 1; i <= 6; i++)
             {
                 // we do not know how bfme handles this yet
-                if (_game.SageGame == SageGame.Bfme) continue;
+                if (_game.SageGame == SageGame.Bfme2) continue;
 
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();
