@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Numerics;
@@ -85,7 +85,7 @@ namespace OpenSage.Mathematics
                 else
                 {
                     *(pointer + offset) &= ~mask;
-                } 
+                }
             }
 
             // Mark cache as invalid.
@@ -225,6 +225,21 @@ namespace OpenSage.Mathematics
                 _a6 = _a6 & other._a6,
                 _a7 = _a7 & other._a7,
                 _setBits = -1
+            };
+        }
+
+        public BitArray512 Or(in BitArray512 other)
+        {
+            return new BitArray512(Math.Max(Length, other.Length)) {
+                _a0 = _a0 | other._a0,
+                _a1 = _a1 | other._a1,
+                _a2 = _a2 | other._a2,
+                _a3 = _a3 | other._a3,
+                _a4 = _a4 | other._a4,
+                _a5 = _a5 | other._a5,
+                _a6 = _a6 | other._a6,
+                _a7 = _a7 | other._a7,
+                _setBits = -1,
             };
         }
 

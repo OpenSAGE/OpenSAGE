@@ -34,6 +34,7 @@ namespace OpenSage.Logic.Object
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
         protected LogicFrame _waitUntil;
         protected int _numBoxes;
+        public bool CarryingSupplies => _numBoxes > 0;
 
         public int SupplyWarehouseScanDistance => _moduleData.SupplyWarehouseScanDistance;
 

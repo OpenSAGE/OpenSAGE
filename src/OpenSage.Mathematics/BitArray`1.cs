@@ -60,6 +60,11 @@ namespace OpenSage.Mathematics
             }
         }
 
+        public BitArray(in BitArray512 bitArray)
+        {
+            _data = bitArray;
+        }
+
         public bool Get(int bit)
         {
             return _data.Get(bit);
@@ -116,6 +121,16 @@ namespace OpenSage.Mathematics
                     yield return (TEnum) (object) i;
                 }
             }
+        }
+
+        public static BitArray<TEnum> operator |(BitArray<TEnum> left, BitArray<TEnum> right)
+        {
+            return new BitArray<TEnum>(left._data.Or(right._data));
+        }
+
+        public static BitArray<TEnum> operator &(BitArray<TEnum> left, BitArray<TEnum> right)
+        {
+            return new BitArray<TEnum>(left._data.And(right._data));
         }
 
         public string DisplayName

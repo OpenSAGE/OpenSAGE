@@ -64,7 +64,7 @@ internal static class Cursors
     /// <summary>
     /// Gets the cursor that should be used for a given order. This does not work for special powers, which have their own cursors.
     /// </summary>
-    public static string? CursorForOrder(OrderType orderType)
+    public static string? CursorForOrder(OrderType? orderType)
     {
         return orderType switch
         {

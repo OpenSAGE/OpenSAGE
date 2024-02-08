@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -585,7 +585,7 @@ namespace OpenSage.Logic.Object
         PerShot,
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [IniEnum("PER_POSITION"), AddedIn(SageGame.Bfme)]
         PerPosition
@@ -676,7 +676,7 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("STRUCTURES")]
         Structures = 1 << 0,
-        
+
         [IniEnum("WALLS")]
         Walls = 1 << 1,
 
@@ -735,5 +735,32 @@ namespace OpenSage.Logic.Object
         AntiParachute        = 1 << 7,
         AntiStructure        = 1 << 8,
         AntiAirborneMonster  = 1 << 9,
+    }
+
+    public static class WeaponAntiFlagsExtensions
+    {
+        public static bool CanAttackObject(this WeaponAntiFlags weapon, GameObject obj)
+        {
+            var kinds = obj.Definition.KindOf;
+
+            if ((weapon.HasFlag(WeaponAntiFlags.AntiProjectile) && obj.IsKindOf(ObjectKinds.Projectile)) ||
+                (weapon.HasFlag(WeaponAntiFlags.AntiSmallMissile) && obj.IsKindOf(ObjectKinds.SmallMissile)) ||
+                (weapon.HasFlag(WeaponAntiFlags.AntiBallisticMissile) && obj.IsKindOf(ObjectKinds.BallisticMissile)))
+            {
+                return true;
+            }
+
+            if (obj.IsAirborne())
+            {
+                return (weapon.HasFlag(WeaponAntiFlags.AntiAirborneVehicle) && obj.IsKindOf(ObjectKinds.Vehicle)) ||
+                       // unclear if this is correct
+                       (weapon.HasFlag(WeaponAntiFlags.AntiAirborneInfantry) && obj.IsKindOf(ObjectKinds.Infantry));
+            }
+
+            // this should handle when an aircraft is on the ground, since we previously checked if it was airborne
+            return (weapon.HasFlag(WeaponAntiFlags.AntiGround)) ||
+                   (weapon.HasFlag(WeaponAntiFlags.AntiMine) && obj.IsKindOf(ObjectKinds.Mine)) ||
+                   (weapon.HasFlag(WeaponAntiFlags.AntiStructure) && obj.IsKindOf(ObjectKinds.Structure));
+        }
     }
 }
