@@ -108,6 +108,15 @@ namespace OpenSage.Client
         public IReadOnlyList<Animation> Animations => _animations;
         private readonly Dictionary<AnimationType, Animation> _animationMap = [];
 
+        private Vector3? _selectionFlashColor;
+        private Vector3 SelectionFlashColor => _selectionFlashColor ??=
+            _gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashHouseColor
+                ? GameObject.Owner.Color.ToVector3()
+                : new Vector3( // the ini comments say "zero leaves color unaffected, 4.0 is purely saturated", however the value in the ini is 0.5 and value in sav files is 0.25, so either it's hardcoded or the comments are wrong and I choose configurability
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1));
+
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
             Definition = objectDefinition;
@@ -151,6 +160,25 @@ namespace OpenSage.Client
                     AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
             }
+        }
+
+        // as far as I can tell nothing like this is stored in the actual game, so I'm not sure how this was handled for network games where logic ticks weren't linked to fps (if at all - you can't save a network game, after all)
+        private LogicFrame _lastSelectionFlashFrame;
+
+        public void LogicTick()
+        {
+            var currentFrame = _gameContext.GameLogic.CurrentFrame;
+            if (currentFrame > _lastSelectionFlashFrame)
+            {
+                _lastSelectionFlashFrame = currentFrame;
+                _selectionFlashHelper?.StepFrame();
+            }
+        }
+
+        public void TriggerSelection()
+        {
+            _selectionFlashHelper ??= new ColorFlashHelper(); // this is dynamically created in generals - units don't get one until they have been selected
+            _selectionFlashHelper.StartSelection(SelectionFlashColor);
         }
 
         public void AddAnimation(AnimationType animationName)
@@ -254,6 +282,15 @@ namespace OpenSage.Client
                     continue;
                 }
 
+                var pitchShift = renderItemConstantsPS;
+                if (_selectionFlashHelper?.IsActive == true)
+                {
+                    pitchShift = pitchShift with
+                    {
+                        TintColor = pitchShift.TintColor + _selectionFlashHelper.CurrentColor,
+                    };
+                }
+
                 drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
                 drawModule.Update(gameTime);
                 drawModule.SetWorldMatrix(worldMatrix);
@@ -261,7 +298,7 @@ namespace OpenSage.Client
                     renderList,
                     camera,
                     castsShadow,
-                    renderItemConstantsPS,
+                    pitchShift,
                     _shownSubObjects,
                     _hiddenSubObjects);
             }
