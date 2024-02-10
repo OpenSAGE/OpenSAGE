@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly HealContainModuleData _moduleData;
 
-        public HealContain(GameObject gameObject, HealContainModuleData moduleData) : base(gameObject, moduleData)
+        internal HealContain(GameObject gameObject, GameContext gameContext, HealContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
         {
             _moduleData = moduleData;
         }
@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new HealContain(gameObject, this);
+            return new HealContain(gameObject, context, this);
         }
     }
 }

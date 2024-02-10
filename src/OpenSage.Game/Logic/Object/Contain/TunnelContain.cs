@@ -7,17 +7,15 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TunnelContain : OpenContainModule
     {
-        public override int TotalSlots => GameObject.GameContext.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
+        public override int TotalSlots => GameContext.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
         public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
 
-        private readonly GameContext _context;
         private readonly TunnelContainModuleData _moduleData;
         private bool _unknown1;
         private bool _unknown2;
 
-        internal TunnelContain(GameObject gameObject, GameContext context, TunnelContainModuleData moduleData) : base(gameObject, moduleData)
+        internal TunnelContain(GameObject gameObject, GameContext gameContext, TunnelContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
         {
-            _context = context;
             _moduleData = moduleData;
             gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
         }
@@ -30,7 +28,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var objectId in ContainedObjectIds)
                 {
-                    _context.GameObjects.GetObjectById(objectId).Kill(DeathType.Crushed);
+                    GameObjectForId(objectId).Kill(DeathType.Crushed);
                 }
 
                 ContainedObjectIds.Clear();
