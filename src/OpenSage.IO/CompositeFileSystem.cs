@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace OpenSage.IO
+﻿namespace OpenSage.IO
 {
     public sealed class CompositeFileSystem : FileSystem
     {
@@ -17,7 +14,7 @@ namespace OpenSage.IO
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             foreach (var fileSystem in _fileSystems)
             {
@@ -33,8 +30,8 @@ namespace OpenSage.IO
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
-            SearchOption searchOption)
+            string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var paths = new HashSet<string>();
 
