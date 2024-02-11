@@ -29,6 +29,7 @@ namespace OpenSage.Logic.Object
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
         public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
+        public bool Full => OccupiedSlots >= TotalSlots;
 
         protected const string ExitBoneStartName = "ExitStart";
         protected const string ExitBoneEndName = "ExitEnd";

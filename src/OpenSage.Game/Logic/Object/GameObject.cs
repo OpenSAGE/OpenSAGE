@@ -804,6 +804,11 @@ namespace OpenSage.Logic.Object
             return _behaviorCache!.TryGetValue(typeof(T), out var behaviors) ? behaviors.Cast<T>() : [];
         }
 
+        public bool HasBehavior<T>()
+        {
+            return FindBehavior<T>() != null;
+        }
+
         private void InstantiateBehaviorCache()
         {
             var cache = new Dictionary<Type, List<object>>();
@@ -1160,6 +1165,18 @@ namespace OpenSage.Logic.Object
             _upgrades.Remove(upgrade);
 
             // TODO: Set _triggered to false for all affected upgrade modules
+        }
+
+        public bool CanAttackObject(GameObject target)
+        {
+            return CanAttack && Definition.WeaponSets.Values.Any(t =>
+                t.Slots.Any(s => s?.Weapon.Value?.AntiMask.CanAttackObject(target) == true));
+        }
+
+        // todo: this probably is not correct
+        public bool IsAirborne(float groundDelta = 0.1f)
+        {
+            return Translation.Z - GameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
         }
 
         internal void Kill(DeathType deathType)
