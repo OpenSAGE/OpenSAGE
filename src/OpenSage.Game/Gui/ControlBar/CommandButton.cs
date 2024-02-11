@@ -88,9 +88,9 @@ namespace OpenSage.Gui.ControlBar
         public LazyAssetReference<SpecialPower> SpecialPower { get; private set; }
         public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
         public LazyAssetReference<Science>[] Science { get; private set; }
-        public BitArray<CommandButtonOption> Options { get; private set; }
+        public BitArray<CommandButtonOption> Options { get; private set; } = new();
         public string TextLabel { get; private set; }
-        
+
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string ConflictingLabel { get; private set; }
 
