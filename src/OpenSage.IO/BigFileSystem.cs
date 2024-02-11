@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.Data;
 using OpenSage.FileFormats.Big;
 
 namespace OpenSage.IO

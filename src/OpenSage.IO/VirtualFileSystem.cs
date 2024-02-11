@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace OpenSage.IO
+﻿namespace OpenSage.IO
 {
     public sealed class VirtualFileSystem : FileSystem
     {

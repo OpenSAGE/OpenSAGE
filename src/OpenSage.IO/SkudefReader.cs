@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.IO;
-
-namespace OpenSage.Data
+namespace OpenSage.IO
 {
     internal static class SkudefReader
     {
