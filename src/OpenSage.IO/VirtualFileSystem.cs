@@ -1,4 +1,6 @@
-﻿namespace OpenSage.IO
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace OpenSage.IO
 {
     public sealed class VirtualFileSystem : FileSystem
     {
@@ -11,7 +13,7 @@
             _targetFileSystem = targetFileSystem;
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             if (!TryGetRelativePath(filePath, out var relativePath))
             {
@@ -37,7 +39,7 @@
                 searchOption);
         }
 
-        private bool TryGetRelativePath(string path, out string relativePath)
+        private bool TryGetRelativePath(string path, [NotNullWhen(true)] out string? relativePath)
         {
             if (!path.StartsWith(_virtualDirectory))
             {

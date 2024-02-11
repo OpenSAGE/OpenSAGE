@@ -34,7 +34,7 @@
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             var fullFilePath = Path.Combine(RootDirectory, NormalizeFilePath(filePath));
             var fileInfo = new FileInfo(fullFilePath);

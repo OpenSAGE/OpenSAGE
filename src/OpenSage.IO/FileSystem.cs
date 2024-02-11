@@ -9,7 +9,7 @@
                 .Replace('\\', Path.DirectorySeparatorChar);
         }
 
-        public abstract FileSystemEntry GetFile(string filePath);
+        public abstract FileSystemEntry? GetFile(string filePath);
 
         public abstract IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,

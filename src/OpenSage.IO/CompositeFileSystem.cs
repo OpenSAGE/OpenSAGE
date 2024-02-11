@@ -14,7 +14,7 @@
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             foreach (var fileSystem in _fileSystems)
             {

@@ -1,4 +1,4 @@
-using OpenSage.FileFormats.Big;
+﻿using OpenSage.FileFormats.Big;
 
 namespace OpenSage.IO
 {
@@ -84,7 +84,7 @@ namespace OpenSage.IO
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             var directoryParts = NormalizeFilePath(filePath).Split(Path.DirectorySeparatorChar);
 
