@@ -25,8 +25,8 @@ namespace OpenSage.IO
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
-            SearchOption searchOption)
+            string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             if (!TryGetRelativePath(directoryPath, out var relativePath))
             {

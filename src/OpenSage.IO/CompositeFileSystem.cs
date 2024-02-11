@@ -30,8 +30,8 @@
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
-            SearchOption searchOption)
+            string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var paths = new HashSet<string>();
 

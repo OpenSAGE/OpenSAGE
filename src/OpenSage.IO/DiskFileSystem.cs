@@ -11,7 +11,7 @@
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
+            string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var childDirectory = Path.Combine(RootDirectory, NormalizeFilePath(directoryPath));
