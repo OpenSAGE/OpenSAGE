@@ -1267,6 +1267,7 @@ namespace OpenSage.Logic.Object
         }
 
         private GeometryShape _currentGeometryShape;
+        public GeometryShape CurrentGeometryShape => _currentGeometryShape;
 
         internal void ParseGeometry(IniParser parser)
         {

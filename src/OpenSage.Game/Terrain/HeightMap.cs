@@ -22,6 +22,21 @@ namespace OpenSage.Terrain
 
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
 
+        // I suspect Generals only lowers terrain, never raises it, so it doesn't have to worry about objects like roads getting hidden.
+        // Buildings always have render priority over roads which can lead to a weird parallax when rotating the camera around a building, but otherwise it looks good.
+        // In the future, we may opt to consider improving this method (perhaps by adjusting items like roads to the new terrain mesh).
+        /// <summary>
+        /// Lowers the height of terrain to the given elevation in the event it is currently higher.
+        /// </summary>
+        /// <remarks>
+        /// Consider calling <see cref="Terrain.OnHeightMapChanged(AxisAlignedBoundingBox bounds)"/> for the affected area once finished setting all necessary heights.
+        /// </remarks>
+        public void LowerHeight(int x, int y, float elevation)
+        {
+            _heightMapData.Elevations[x, y] = Math.Min(_heightMapData.Elevations[x, y], (ushort)(elevation / _verticalScale));
+            RefreshNormalsInArea(x, y);
+        }
+
         public float GetUpperHeight(float x, float y)
         {
             var (nIntX0, nIntX1, _) = ConvertWorldCoordinates(x, Width);
@@ -93,12 +108,26 @@ namespace OpenSage.Terrain
             (y - _heightMapData.BorderWidth) * HorizontalScale,
             GetHeight(x, y));
 
+        public (int X, int Y)? GetTilePosition(in Vector2 worldPosition)
+        {
+            var scaledPosition = worldPosition / HorizontalScale;
+            return GetTilePositionOrNull(scaledPosition.X, scaledPosition.Y);
+        }
+
         public (int X, int Y)? GetTilePosition(in Vector3 worldPosition)
         {
-            var tilePosition = (worldPosition / HorizontalScale) 
-                + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0);
+            var scaledPosition = worldPosition / HorizontalScale;
+            return GetTilePositionOrNull(scaledPosition.X, scaledPosition.Y);
+        }
 
-            var result = (X: (int) tilePosition.X, Y: (int) tilePosition.Y);
+        /// <summary>
+        /// Returns the input position as a tile position if it is within the map bounds, otherwise null.
+        /// </summary>
+        private (int X, int Y)? GetTilePositionOrNull(float x, float y)
+        {
+            x += _heightMapData.BorderWidth;
+            y += _heightMapData.BorderWidth;
+            var result = (X: (int) x, Y: (int) y);
 
             if (result.X < 0 || result.X >= _heightMapData.Width
                 || result.Y < 0 || result.Y >= _heightMapData.Height)
@@ -128,20 +157,30 @@ namespace OpenSage.Terrain
             Height = (int) heightMapData.Height - 1;//last row is not rendered (in worldbuilder)
 
             Normals = new Vector3[Width, Height];
+            RefreshNormals();
+        }
+
+        private void RefreshNormals()
+        {
             for (var x = 0; x < Width; ++x)
             {
                 for (var y = 0; y < Height; ++y)
                 {
-                    Normals[x, y] = CalculateNormal(x, y);
+                    RefreshNormalsInArea(x, y);
                 }
             }
+        }
+
+        private void RefreshNormalsInArea(int x, int y)
+        {
+            Normals[x, y] = CalculateNormal(x, y);
         }
 
         /// <summary>
 		/// Function computes the normal for the xy'th quad.
 		/// We take the quad normal as the average of the two
 		/// triangles that make up the quad.
-		/// 
+		///
 		///       u
 		/// h0*-------*h1
 		///   |      /|
