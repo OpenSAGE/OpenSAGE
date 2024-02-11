@@ -1003,6 +1003,7 @@ namespace OpenSage.Logic.Object
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
+            Drawable.LogicTick();
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)

@@ -172,7 +172,7 @@ namespace OpenSage.Logic
             BankAccount = new BankAccount();
         }
 
-        internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)
+        internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
         {
             if (additive)
             {
@@ -181,6 +181,11 @@ namespace OpenSage.Logic
             else
             {
                 _selectedUnits = units.ToSet();
+            }
+
+            foreach (var unit in units)
+            {
+                unit.Drawable.TriggerSelection();
             }
 
             var unitsFromHordeSelection = new List<GameObject>();
