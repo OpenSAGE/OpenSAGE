@@ -59,9 +59,11 @@ namespace OpenSage.Logic
                 var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
                 players[player.Name] = player;
                 allies[player.Name] =
-                    (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
+                    (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ')
+                    .Where(s => !string.IsNullOrEmpty(s)).ToArray(); // Neutral has a player name of "", so it's important not to add empty strings
                 enemies[player.Name] =
-                    (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ');
+                    (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ')
+                    .Where(s => !string.IsNullOrEmpty(s)).ToArray(); // Neutral has a player name of "", so it's important not to add empty strings
             }
 
             foreach (var (name, player) in players)
