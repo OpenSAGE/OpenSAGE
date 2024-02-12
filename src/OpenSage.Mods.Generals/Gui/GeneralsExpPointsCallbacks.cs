@@ -32,9 +32,15 @@ namespace OpenSage.Mods.Generals.Gui
             for (int i = 0; i < commandSet.Buttons.Count; i++)
             {
                 var buttonControl = _window.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i) as Button;
-                if (commandSet != null && commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
+                if (commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                 {
                     var commandButton = commandButtonReference.Value;
+
+                    if (commandButton.Options.Get(CommandButtonOption.ScriptOnly))
+                    {
+                        buttonControl.Hide();
+                        continue;
+                    }
 
                     CommandButtonUtils.SetCommandButton(buttonControl, commandButton, controlBar);
 
