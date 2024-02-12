@@ -5,34 +5,24 @@ namespace OpenSage.Content.Translation
     public sealed class LocalizedString
     {
         public string Original { get; }
-        public string Localized { get; }
+        private string? _localized;
 
-        public LocalizedString(string original, string localized)
+        public LocalizedString(string original)
         {
             Original = original;
-            Localized = localized;
         }
 
-        public static LocalizedString Create(string original)
+        public string Localize(params object[] args)
         {
-            if (original is null)
-            {
-                return new LocalizedString(null, string.Empty);
-            }
-            var localized = original.Translate();
-            return new LocalizedString(original, localized);
+            _localized ??= Original?.Translate() ?? string.Empty;
+            return args.Length > 0 ? SprintfNET.StringFormatter.PrintF(_localized, args) : _localized;
         }
-
         public static LocalizedString CreateApt(string original)
         {
-            if (original is null)
-            {
-                return new LocalizedString(null, string.Empty);
-            }
-            var localized = original.Replace("$", "APT:") // All string values begin with $
-                .Split('&').First() // Query strings after ampersand
-                .Translate();
-            return new LocalizedString(original, localized);
+            var trimmed = original?.Replace("$", "APT:") // All string values begin with $
+                .Split('&').First(); // Query strings after ampersand
+
+            return new LocalizedString(trimmed);
         }
     }
 }
