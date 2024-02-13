@@ -66,6 +66,10 @@ namespace OpenSage.Mods.Generals.Gui
             ApplyRankCommandSet(rank8.Value, 8, player, controlBar);
         }
 
+        private static int CurrentRankStringRank = int.MinValue;
+        private static LocalizedString? BaseRankText;
+        private static readonly LocalizedString BaseStaticLevelText = new("SCIENCE:Rank");
+
         public static void Update(Player player, GeneralsControlBar controlBar)
         {
             if (_window == null)
@@ -76,10 +80,20 @@ namespace OpenSage.Mods.Generals.Gui
             var currentRank = player.Rank.CurrentRank;
             //Update title
             var lblTitle = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextTitle") as Label;
-            lblTitle.Text = ("SCIENCE:Rank" + currentRank).Translate();
+
+            if (CurrentRankStringRank != currentRank)
+            {
+                BaseRankText = new LocalizedString($"SCIENCE:Rank{currentRank}");
+                CurrentRankStringRank = currentRank;
+            }
+
+            lblTitle!.Text = BaseRankText!.Localize();
+
+            var lblPoints = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextRankPointsAvailable") as Label;
+            lblPoints!.Text = player.SciencePurchasePoints.ToString();
 
             var lblLevel = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextLevel") as Label;
-            lblLevel.Text = ("SCIENCE:Rank").TranslateFormatted(currentRank); // TODO: this doesn't replace %d correctly yet
+            lblLevel!.Text = BaseStaticLevelText.Localize(currentRank);
 
             ApplyCommandSets(player, controlBar);
         }
