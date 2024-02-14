@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using OpenSage.Content;
-using OpenSage.Core;
+using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd.Controls;
@@ -97,6 +97,8 @@ namespace OpenSage.Mods.Generals.Gui
         private LazyAssetReference<CommandButton> Evacuate { get; }
 
         private ControlBarSize _size = ControlBarSize.Maximized;
+
+        private readonly LocalizedString _moneyString = new("GUI:ControlBarMoneyDisplay");
 
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
 
@@ -205,14 +207,13 @@ namespace OpenSage.Mods.Generals.Gui
                 return;
             }
 
-            _moneyDisplay.Text = $"$ {player.BankAccount.Money}";
+            _moneyDisplay.Text = _moneyString.Localize(player.BankAccount.Money);
 
             var powerBarProgress = player.GetEnergy(this._window.Game.Scene3D.GameObjects) / 100.0f;
             ApplyProgress("PowerWindow", "PowerBar", Math.Clamp(powerBarProgress, 0.0f, 1.0f));
 
             var owner = player.SelectedUnits.FirstOrDefault()?.Owner;
-            // todo: this probably isn't the best way to test for garrisonable buildings, and will still fail if an enemy has garrisoned it
-            if (player.SelectedUnits.Count > 0 && (owner == player || owner?.Side == "FactionCivilian"))
+            if (player.SelectedUnits.Count > 0 && (owner == player || owner == _window.Game.PlayerManager.GetCivilianPlayer()))
             {
                 var unit = player.SelectedUnits.First();
                 if (player.SelectedUnits.Count == 1 && unit.IsBeingConstructed())
@@ -704,7 +705,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             Control _window;
             Control _progressText;
-            string _baseText;
+            string? _baseText;
 
 
             public override void OnEnterState(GeneralsControlBar controlBar)
@@ -715,10 +716,7 @@ namespace OpenSage.Mods.Generals.Gui
                 _window.Show();
                 _progressText = _window.Controls.FindControl("ControlBar.wnd:UnderConstructionDesc");
 
-                if (string.IsNullOrEmpty(_baseText))
-                {
-                    _baseText = StringConverter.FromPrintf(_progressText.Text);
-                }
+                _baseText ??= _progressText.Text;
 
                 Button cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction") as Button;
                 // Is that CommandButton hardcoded or defined somewhere?
@@ -730,9 +728,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var unit = player.SelectedUnits.First();
                 var percent = unit.BuildProgress * 100.0f;
-                //TODO: the formatting should be taken from the printf string
-                var text = string.Format(_baseText, percent.ToString("0.00"));
-                _progressText.Text = text;
+                _progressText.Text = _baseText != null ? SprintfNET.StringFormatter.PrintF(_baseText, percent) : string.Empty;
             }
         }
     }
