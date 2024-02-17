@@ -9,6 +9,8 @@ namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
+        private float _armorDamageScalar;
+
         protected GameObject GameObject { get; }
 
         protected BodyModule(GameObject gameObject)
@@ -36,12 +38,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            var unknownFloat = 1.0f;
-            reader.PersistSingle(ref unknownFloat);
-            if (unknownFloat != 1.0f)
-            {
-                throw new InvalidStateException();
-            }
+            reader.PersistSingle(ref _armorDamageScalar); // was roughly 0.9 after changing to hold the line
         }
 
         private DamageType _inspectorDamageType = DamageType.Explosion;
