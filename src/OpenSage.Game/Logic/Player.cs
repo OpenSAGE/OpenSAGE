@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
@@ -50,6 +49,12 @@ namespace OpenSage.Logic
         internal readonly SyncedSpecialPowerTimerCollection SyncedSpecialPowerTimers = [];
         private readonly List<ObjectIdSet> _controlGroups = new();
         private readonly ObjectIdSet _destroyedObjects = new();
+
+        private bool _bombardmentActive;
+        private bool _holdTheLineActive;
+        private bool _searchAndDestroyActive;
+
+        private StrategyData? _strategyData;
 
         public uint Id { get; }
         public PlayerTemplate Template { get; }
@@ -302,6 +307,7 @@ namespace OpenSage.Logic
         public void DirectlyAssignScience(Science science)
         {
             _sciences.Add(science);
+            ApplyScienceUpgrades(science);
         }
 
         public void PurchaseScience(Science science)
@@ -319,6 +325,21 @@ namespace OpenSage.Logic
 
             SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
             _sciences.Add(science);
+            ApplyScienceUpgrades(science);
+        }
+
+        private void ApplyScienceUpgrades(Science science)
+        {
+            foreach (var gameObject in _game.GameLogic.Objects)
+            {
+                if (gameObject.Owner == this)
+                {
+                    foreach (var upgradableScienceModule in gameObject.FindBehaviors<IUpgradableScienceModule>())
+                    {
+                        upgradableScienceModule.TryUpgrade(science);
+                    }
+                }
+            }
         }
 
         public bool HasScience(Science science)
@@ -653,7 +674,20 @@ namespace OpenSage.Logic
 
             reader.PersistObject(_destroyedObjects);
 
-            reader.SkipUnknownBytes(14);
+            var hasStrategy = _strategyData != null;
+            reader.PersistBoolean(ref hasStrategy);
+            if (hasStrategy)
+            {
+                _strategyData ??= new StrategyData();
+                reader.PersistObject(_strategyData);
+            }
+
+            reader.PersistBoolean(ref _bombardmentActive);
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _holdTheLineActive);
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _searchAndDestroyActive);
+            reader.SkipUnknownBytes(4);
         }
 
         public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
@@ -1120,5 +1154,62 @@ namespace OpenSage.Logic
             reader.PersistObject(_objectsLost);
             reader.PersistObject(_objectsCaptured);
         }
+    }
+
+    // this seems to be _pretty_ similar to the content of BattlePlanUpdate, but not entirely?
+    // it's possible all this data parsing is incorrect
+    public sealed class StrategyData : IPersistableObject
+    {
+        private ushort _unknownShort1;
+        private ushort _unknownShort2;
+        private ushort _unknownShort3;
+        private ushort _unknownShort4;
+
+        private bool _bombardmentActive;
+        private bool _holdTheLineActive;
+        private bool _searchAndDestroyActive;
+
+        private uint _unknownUInt1;
+        private uint _unknownUInt2;
+
+        private List<byte> _unknownList1 = [];
+        private List<byte> _unknownList2 = [];
+        private List<byte> _unknownList3 = [];
+        private List<byte> _unknownList4 = [];
+        private List<byte> _unknownList5 = [];
+        private List<byte> _unknownList6 = [];
+        private List<byte> _unknownList7 = [];
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistUInt16(ref _unknownShort1);
+            persister.PersistUInt16(ref _unknownShort2);
+            persister.PersistUInt16(ref _unknownShort3);
+            persister.PersistUInt16(ref _unknownShort4);
+
+            persister.PersistBoolean(ref _bombardmentActive);
+            persister.SkipUnknownBytes(3);
+            persister.PersistBoolean(ref _holdTheLineActive);
+            persister.SkipUnknownBytes(3);
+            persister.PersistBoolean(ref _searchAndDestroyActive);
+            persister.SkipUnknownBytes(3);
+
+            persister.PersistUInt32(ref _unknownUInt1);
+            persister.SkipUnknownBytes(1);
+
+            persister.PersistListWithByteCount(_unknownList1, ByteListPersister);
+            persister.PersistListWithByteCount(_unknownList2, ByteListPersister);
+            persister.PersistListWithByteCount(_unknownList3, ByteListPersister);
+
+            persister.PersistUInt32(ref _unknownUInt2);
+            persister.SkipUnknownBytes(1);
+
+            persister.PersistListWithByteCount(_unknownList4, ByteListPersister);
+            persister.PersistListWithByteCount(_unknownList5, ByteListPersister);
+            persister.PersistListWithByteCount(_unknownList6, ByteListPersister);
+            persister.PersistListWithByteCount(_unknownList7, ByteListPersister);
+        }
+
+        private static void ByteListPersister(StatePersister persister, ref byte item) => persister.PersistByteValue(ref item);
     }
 }

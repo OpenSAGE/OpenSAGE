@@ -125,7 +125,9 @@ namespace OpenSage.Gui
                             targetOptions.Set(SpecialPowerTarget.EnemyObject, needEnemy);
                             targetOptions.Set(SpecialPowerTarget.NeutralObject, needNeutral);
 
-                            var cursorInformation = new SpecialPowerCursorInformation(specialPower,
+                            var orderFlags = OrderFlagsForCommandButtonOptions(commandButton.Options);
+
+                            var cursorInformation = new SpecialPowerCursorInformation(specialPower, orderFlags,
                                 targetOptions, commandButton.CursorName, commandButton.InvalidCursorName);
 
                             if (needsPos)
@@ -135,6 +137,10 @@ namespace OpenSage.Gui
                             else if (needsObject)
                             {
                                 game.OrderGenerator.StartSpecialPowerAtObject(cursorInformation);
+                            }
+                            else
+                            {
+                                game.OrderGenerator.StartSpecialPower(cursorInformation);
                             }
                         }
                         else
@@ -185,6 +191,82 @@ namespace OpenSage.Gui
             {
                 game.NetworkMessageBuffer.AddLocalOrder(order);
             }
+        }
+
+        private static SpecialPowerOrderFlags OrderFlagsForCommandButtonOptions(BitArray<CommandButtonOption> commandButtonOptions)
+        {
+            SpecialPowerOrderFlags flags = default;
+
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetEnemyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetEnemyObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetEnemyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetEnemyObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetNeutralObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetNeutralObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetAllyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetAllyObject;
+            }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown1))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown1;
+            // }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown2))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown2;
+            // }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetPos))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetPosition;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedUpgrade))
+            {
+                flags |= SpecialPowerOrderFlags.NeedUpgrade;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedSpecialPowerScience))
+            {
+                flags |= SpecialPowerOrderFlags.NeedSpecialPowerScience;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OkForMultiSelect))
+            {
+                flags |= SpecialPowerOrderFlags.OkForMultiSelect;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.ContextModeCommand))
+            {
+                flags |= SpecialPowerOrderFlags.ContextModeCommand;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.CheckLike))
+            {
+                flags |= SpecialPowerOrderFlags.CheckLike;
+            }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown3))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown3;
+            // }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown4))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown4;
+            // }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionOne))
+            {
+                flags |= SpecialPowerOrderFlags.OptionOne;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionTwo))
+            {
+                flags |= SpecialPowerOrderFlags.OptionTwo;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionThree))
+            {
+                flags |= SpecialPowerOrderFlags.OptionThree;
+            }
+
+            return flags;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.Orders.SpecialPower;
 
 namespace OpenSage.Logic.Orders
 {
@@ -314,39 +315,41 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.SpecialPowerAtLocation:
                         {
-                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
                             var specialPowerLocation = order.Arguments[1].Value.Position;
                             var unknownObjectId = order.Arguments[2].Value.ObjectId;
                             var commandFlags = (SpecialPowerOrderFlags) order.Arguments[3].Value.Integer;
                             var commandCenterSource = order.Arguments[4].Value.ObjectId;
 
-                            var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId((int)specialPowerDefinitionId); // todo: using the internal id is likely incorrect - these items have specific values that don't line up with how they are loaded
-                            foreach (var unit in player.SelectedUnits) // todo: usa spy satellite is special power at location, but has nothing to do with selected objects
-                            {
-                                unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
-                            }
-
-                            _game.Audio.PlayAudioEvent(specialPower.InitiateSound?.Value);
-                            _game.Audio.PlayAudioEvent(specialPower.InitiateAtLocationSound?.Value); // todo: play this at location
+                            SpecialPowerAtLocationApplicator.Execute(specialPowerDefinition,
+                                new LocationArguments(player, specialPowerLocation, commandFlags,
+                                    _game.GameLogic.GetObjectById(commandCenterSource)), player.SelectedUnits);
                         }
                         break;
 
                     case OrderType.SpecialPower:
                         {
-                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
                             var commandFlags = (SpecialPowerOrderFlags) order.Arguments[1].Value.Integer;
-                            var commandCenterSource = order.Arguments[2].Value.ObjectId;
+                            var commandCenterSource = order.Arguments[2].Value.ObjectId; // todo: is this ever used for these commands?
+
+                            SpecialPowerApplicator.Execute(specialPowerDefinition,
+                                new SpecialPowerArguments(player, commandFlags), player.SelectedUnits);
                         }
-                        throw new NotImplementedException();
+                        break;
 
                     case OrderType.SpecialPowerAtObject:
                         {
-                            var specialPowerDefinitionId = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
                             var targetId = order.Arguments[1].Value.ObjectId;
                             var commandFlags = (SpecialPowerOrderFlags) order.Arguments[2].Value.Integer;
                             var commandCenterSource = order.Arguments[3].Value.ObjectId;
+
+                            SpecialPowerAtObjectApplicator.Execute(specialPowerDefinition,
+                                new ObjectArguments(player, _game.GameLogic.GetObjectById(targetId), commandFlags,
+                                    _game.GameLogic.GetObjectById(commandCenterSource)), player.SelectedUnits);
                         }
-                        throw new NotImplementedException();
+                        break;
 
                     case OrderType.EndGame:
                         _game.EndGame();

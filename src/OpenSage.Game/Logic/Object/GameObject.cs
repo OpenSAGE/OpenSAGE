@@ -700,6 +700,7 @@ namespace OpenSage.Logic.Object
         internal void Update()
         {
             VerifyHealer();
+            CheckDisabledStates();
             foreach (var behavior in _behaviorModules)
             {
                 behavior.Update(_behaviorUpdateContext);
@@ -803,6 +804,11 @@ namespace OpenSage.Logic.Object
             }
 
             return _behaviorCache!.TryGetValue(typeof(T), out var behaviors) ? behaviors.Cast<T>() : [];
+        }
+
+        public T FindSpecialPowerBehavior<T>(SpecialPowerType specialPowerType) where T : SpecialPowerModule
+        {
+            return FindBehaviors<T>().FirstOrDefault(m => m.SpecialPowerType == specialPowerType);
         }
 
         public bool HasBehavior<T>()
@@ -1298,8 +1304,8 @@ namespace OpenSage.Logic.Object
         {
             _containerId = containerId;
             _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
-            _disabledTypes.Set(DisabledType.Held, true);
-            _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
+            const uint disabledUntilFrame = 0x3FFFFFFFu; // not sure why this is this way;
+            Disable(DisabledType.Held, disabledUntilFrame);
             Hidden = true;
             IsSelectable = false;
             _status.Set(ObjectStatus.Unselectable, true);
@@ -1311,12 +1317,35 @@ namespace OpenSage.Logic.Object
         {
             _containerId = 0;
             _containedFrame = 0;
-            _disabledTypes.Set(DisabledType.Held, false);
-            _disabledTypesFrames[(int)DisabledType.Held] = 0;
+            UnDisable(DisabledType.Held);
             Hidden = false;
             IsSelectable = true;
             _status.Set(ObjectStatus.Unselectable, false);
             _status.Set(ObjectStatus.InsideGarrison, false);
+        }
+
+        public void Disable(DisabledType type, uint frame)
+        {
+            _disabledTypes.Set(type, true);
+            _disabledTypesFrames[(int)type] = frame;
+        }
+
+        public void UnDisable(DisabledType type)
+        {
+            _disabledTypes.Set(type, false);
+            _disabledTypesFrames[(int)type] = 0;
+        }
+
+        private void CheckDisabledStates()
+        {
+            for (var i = 0; i < _disabledTypesFrames.Length; i++)
+            {
+                var disabledTypeFrame = _disabledTypesFrames[i];
+                if (disabledTypeFrame > 0 && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame.Value)
+                {
+                    UnDisable((DisabledType)i);
+                }
+            }
         }
 
         internal void Sell()
@@ -1345,20 +1374,6 @@ namespace OpenSage.Logic.Object
                 HealedByObjectId = 0;
                 HealedEndFrame = 0; // todo: is this reset?
             }
-        }
-
-        internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)
-        {
-            var oclSpecialPowers = FindBehaviors<OCLSpecialPowerModule>();
-
-            foreach (var oclSpecialPower in oclSpecialPowers)
-            {
-                if (oclSpecialPower.Matches(specialPower))
-                {
-                    oclSpecialPower.Activate(location);
-                }
-            }
-            _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
         public void AddWeaponBonusType(WeaponBonusType bonusType)

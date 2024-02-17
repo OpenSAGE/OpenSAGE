@@ -226,6 +226,19 @@ namespace OpenSage.Audio
             return source;
         }
 
+        public AudioSource PlayAudioEvent(Vector3 position, BaseAudioEventInfo baseAudioEvent, bool looping = false)
+        {
+            var source = PlayAudioEventBase(baseAudioEvent, looping);
+            if (source == null)
+            {
+                return null;
+            }
+
+            _3dengine.SetSourcePosition(source, position);
+            source.Play();
+            return source;
+        }
+
         public AudioSource PlayAudioEvent(BaseAudioEventInfo baseAudioEvent, bool looping = false)
         {
             var source = PlayAudioEventBase(baseAudioEvent, looping);
