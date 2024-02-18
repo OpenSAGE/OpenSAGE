@@ -21,25 +21,14 @@ namespace OpenSage.Logic.Object
 
         private uint _stateChangeCompleteFrame; // the frame at which the current state change will be completed
 
-        private uint _unknownUInt2;
-        private uint _unknownUInt3;
+        private bool _bombardmentActive;
+        private bool _holdTheLineActive;
+        private bool _searchAndDestroyActive;
+        private float _activeArmorDamageScalar = 1; // 0.9 when hold the line is active
+        private float _activeSightRangeScalar = 1; // 1.2 when search and destroy is active
 
-        private bool _unknownBool1;
-        private bool _unknownBool2;
-        private ushort _unknownShort1;
-
-        private uint _unknownUInt4;
-
-        private List<byte> _unknownList1 = [];
-        private List<byte> _unknownList2 = [];
-        private List<byte> _unknownList3 = [];
-
-        private ushort _unknownShort2;
-
-        private List<byte> _unknownList4 = [];
-        private List<byte> _unknownList5 = [];
-        private List<byte> _unknownList6 = [];
-        private List<byte> _unknownList7 = [];
+        private BitArray<ObjectKinds> _validMemberKindOf = new();
+        private BitArray<ObjectKinds> _invalidMemberKindOf = new();
 
         private int _unknownInt;
 
@@ -214,40 +203,31 @@ namespace OpenSage.Logic.Object
 
             reader.PersistUInt32(ref _stateChangeCompleteFrame);
 
-            // unsure of this part
-            reader.PersistUInt32(ref _unknownUInt2);
-            reader.PersistUInt32(ref _unknownUInt3);
-
-            // unsure of this part
             reader.SkipUnknownBytes(2);
-            reader.PersistBoolean(ref _unknownBool1); // this was 1 when search and destroy was enabled
-            reader.SkipUnknownBytes(3);
-            reader.PersistBoolean(ref _unknownBool2);
-            reader.SkipUnknownBytes(3);
-            reader.PersistUInt16(ref _unknownShort1);
+
+            reader.PersistSingle(ref _activeArmorDamageScalar); // 0.9 when hold the line is active
 
             // unsure of this part
-            reader.PersistUInt32(ref _unknownUInt4);
+            reader.PersistBoolean(ref _bombardmentActive); // this was 1 when bombardment was active
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _searchAndDestroyActive); // this was 1 when search and destroy was enabled
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _holdTheLineActive); // this was 1 when hold the line was active
             reader.SkipUnknownBytes(3);
 
-            reader.PersistListWithByteCount(_unknownList1, ByteListPersister);
-            reader.PersistListWithByteCount(_unknownList2, ByteListPersister);
-            reader.PersistListWithByteCount(_unknownList3, ByteListPersister);
+            reader.PersistSingle(ref _activeSightRangeScalar);
 
-            // unsure of this part
-            reader.PersistUInt16(ref _unknownShort2);
-            reader.SkipUnknownBytes(3);
-
-            reader.PersistListWithByteCount(_unknownList4, ByteListPersister);
-            reader.PersistListWithByteCount(_unknownList5, ByteListPersister);
-            reader.PersistListWithByteCount(_unknownList6, ByteListPersister);
-            reader.PersistListWithByteCount(_unknownList7, ByteListPersister);
+            reader.PersistBitArray(ref _validMemberKindOf);
+            reader.PersistBitArray(ref _invalidMemberKindOf);
 
             // unsure of this part
             reader.PersistInt32(ref _unknownInt);
+            if (_unknownInt != 0 && _unknownInt != 11)
+            {
+                // 0 before any strategy had been selected, 11 after (even before it was fully active)
+                throw new InvalidStateException();
+            }
         }
-
-        private static void ByteListPersister(StatePersister persister, ref byte item) => persister.PersistByteValue(ref item);
 
         private enum BattlePlanUpdateState
         {
