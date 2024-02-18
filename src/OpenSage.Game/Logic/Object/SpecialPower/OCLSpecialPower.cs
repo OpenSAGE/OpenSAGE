@@ -11,9 +11,7 @@ namespace OpenSage.Logic.Object
     public class OCLSpecialPowerModule : SpecialPowerModule, IUpgradableScienceModule
     {
         private readonly OCLSpecialPowerModuleData _moduleData;
-        private bool _activated = false;
         private ObjectCreationList _activeOcl;
-        private Vector3 _position;
 
         internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
         {
@@ -24,51 +22,119 @@ namespace OpenSage.Logic.Object
         // todo: unclear what this offset should be
         private const int CreateAboveLocationOffset = 250;
 
-        internal override void Update(BehaviorUpdateContext context)
+        internal void Activate(Vector3 position, GameObject source)
         {
-            if (_activated)
+            var spawnPosition = _moduleData.CreateLocation switch
             {
-                var position = _moduleData.CreateLocation switch
-                {
-                    OCLCreateLocation.UseOwnerObject => GameObject.Transform.Translation,
-                    OCLCreateLocation.CreateAtEdgeNearSource => throw new NotImplementedException(), // todo: calculate edge point and set target location
-                    OCLCreateLocation.CreateAtEdgeFarthestFromTarget => throw new NotImplementedException(), // todo: calculate edge point and set target location
-                    OCLCreateLocation.CreateAboveLocation => _position with { Z = _position.Z + CreateAboveLocationOffset }, // todo: locomotor needs to update z position to desired altitude agnostic of move order
-                    OCLCreateLocation.CreateAtLocation => _position,
-                    OCLCreateLocation.CreateAtEdgeNearTargetAndMoveToLocation => throw new NotImplementedException(),
-                    OCLCreateLocation.UseSecondaryObjectLocation => throw new NotImplementedException(),
-                    _ => throw new ArgumentOutOfRangeException(),
-                };
+                OCLCreateLocation.UseOwnerObject => GameObject.Transform.Translation,
+                OCLCreateLocation.CreateAtEdgeNearSource => GetEdgeNearestToPosition(source.Translation),
+                OCLCreateLocation.CreateAtEdgeFarthestFromTarget => GetEdgeFarthestFromPosition(position),
+                OCLCreateLocation.CreateAboveLocation => position with { Z = position.Z + CreateAboveLocationOffset },
+                OCLCreateLocation.CreateAtLocation => position,
+                OCLCreateLocation.CreateAtEdgeNearTargetAndMoveToLocation => throw new NotImplementedException(),
+                OCLCreateLocation.UseSecondaryObjectLocation => throw new NotImplementedException(),
+                _ => throw new ArgumentOutOfRangeException(),
+            };
 
-                if (_moduleData.CreateLocation is OCLCreateLocation.UseOwnerObject)
-                {
-                    // todo: activate via DeliverPayloadAIUpdate
-                    var payloads = _activeOcl.Nuggets.OfType<DeliverPayloadOCNugget>();
-                    // most will use payload, delivery distance, and drop offset to spawn payload
-                    // a10 and artillery barrage use a more complicated method
+            if (_moduleData.CreateLocation is OCLCreateLocation.UseOwnerObject)
+            {
+                // todo: activate via DeliverPayloadAIUpdate
+                var payloads = _activeOcl.Nuggets.OfType<DeliverPayloadOCNugget>();
+                // most will use payload, delivery distance, and drop offset to spawn payload
+                // a10 and artillery barrage use a more complicated method
 
-                    foreach (var deliverPayload in payloads)
+                foreach (var deliverPayload in payloads)
+                {
+                    if (deliverPayload.SelfDestructObject)
                     {
-                        if (deliverPayload.SelfDestructObject)
-                        {
-                            GameObject.Die(DeathType.Normal); // todo: what would this actually be?
-                        }
+                        GameObject.Die(DeathType.Normal); // todo: use some other method of silent despawning
                     }
+                }
+            }
+            else
+            {
+                var context = new BehaviorUpdateContext(Context, GameObject);
+                Context.ObjectCreationLists.CreateAtPosition(_activeOcl, context, spawnPosition);
+            }
+
+            if (_moduleData.CreateLocation is OCLCreateLocation.CreateAtEdgeNearSource
+                or OCLCreateLocation.CreateAtEdgeFarthestFromTarget)
+            {
+                // todo: configure deliverpayloadaiupdate
+            }
+
+            Activate(spawnPosition);
+        }
+
+        private Vector3 GetEdgeNearestToPosition(Vector3 sourcePosition)
+        {
+            // the edge position nearest a position will be a cardinal direction from the position depending on the triangular quadrant
+            // we can cut the map in half diagonally in both positions to figure out which coordinate to nullify/max
+            // we can do this by comparing one coordinate to another via the aspect ratio of the map
+            var maxX = Context.Terrain.HeightMap.MaxXCoordinate;
+            var maxY = Context.Terrain.HeightMap.MaxYCoordinate;
+            var aspectRatio = (float)maxX / maxY;
+            var scaledY = sourcePosition.Y * aspectRatio;
+            Vector2 edge;
+            if (sourcePosition.X > scaledY)
+            {
+                // lower right half
+                if (maxX - sourcePosition.X < scaledY)
+                {
+                    // right
+                    edge = new Vector2(maxX, sourcePosition.Y);
                 }
                 else
                 {
-                    Context.ObjectCreationLists.CreateAtPosition(_activeOcl, context, position);
+                    // bottom
+                    edge = new Vector2(sourcePosition.X, 0);
                 }
-                _activated = false;
             }
+            else if (maxX - sourcePosition.X < scaledY)
+            {
+                // top
+                edge = new Vector2(sourcePosition.X, maxY);
+            }
+            else
+            {
+                // left
+                edge = new Vector2(0, sourcePosition.Y);
+            }
+
+            return Context.Terrain.HeightMap.GetPositionWithHeight(edge);
         }
 
-        internal override void Activate(Vector3 position)
+        private Vector3 GetEdgeFarthestFromPosition(Vector3 targetPosition)
         {
-            _position = position;
-            _activated = true;
+            // the edge position furthest from the target is a map corner opposite the target position quadrant
+            var maxX = Context.Terrain.HeightMap.MaxXCoordinate;
+            var maxY = Context.Terrain.HeightMap.MaxYCoordinate;
+            Vector2 corner;
+            if (targetPosition.X > maxX / 2f)
+            {
+                if (targetPosition.Y > maxY / 2f)
+                {
+                    // upper right quadrant - spawn from lower left
+                    corner = default;
+                }
+                else
+                {
+                    // lower right quadrant - spawn from upper left
+                    corner = new Vector2(0, maxY);
+                }
+            }
+            else if (targetPosition.Y > maxY / 2f)
+            {
+                // upper left quadrant - spawn from lower right
+                corner = new Vector2(maxX, 0);
+            }
+            else
+            {
+                // lower left quadrant - spawn from upper right
+                corner = new Vector2(maxX, maxY);
+            }
 
-            base.Activate(position);
+            return Context.Terrain.HeightMap.GetPositionWithHeight(corner);
         }
 
         internal override void Load(StatePersister reader)

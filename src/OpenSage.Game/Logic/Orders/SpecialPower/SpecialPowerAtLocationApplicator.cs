@@ -51,23 +51,33 @@ internal class SpecialPowerAtLocationApplicator
 
     private static void ExecuteSpySatellite(LocationArguments arguments, IReadOnlyCollection<GameObject> selectedObjects)
     {
-        ExecuteOclSpecialPower(SpecialPowerType.SpySatellite, arguments.CommandCenter, arguments.Location);
+        ExecuteOclSpecialPowerFromCommandCenter(SpecialPowerType.SpySatellite, arguments);
     }
 
     private static void ExecuteSpyDrone(LocationArguments arguments, IReadOnlyCollection<GameObject> selectedObjects)
     {
-        ExecuteOclSpecialPower(SpecialPowerType.SpyDrone, arguments.CommandCenter, arguments.Location);
+        ExecuteOclSpecialPowerFromCommandCenter(SpecialPowerType.SpyDrone, arguments);
     }
 
     private static void ExecuteRadarVanScan(LocationArguments arguments, IReadOnlyCollection<GameObject> selectedObjects)
     {
-        // todo: first object where special power is ready, since we could have multiple selected
-        ExecuteOclSpecialPower(SpecialPowerType.RadarVanScan, selectedObjects.FirstOrDefault(), arguments.Location);
+        ExecuteOclSpecialPowerFromSelectedObject(SpecialPowerType.RadarVanScan, arguments, selectedObjects);
     }
 
     private static void ExecuteAmbush(LocationArguments arguments, IReadOnlyCollection<GameObject> selectedObjects)
     {
-        ExecuteOclSpecialPower(SpecialPowerType.Ambush, arguments.CommandCenter, arguments.Location);
+        ExecuteOclSpecialPowerFromCommandCenter(SpecialPowerType.Ambush, arguments);
+    }
+
+    private static void ExecuteOclSpecialPowerFromCommandCenter(SpecialPowerType specialPowerType, LocationArguments arguments)
+    {
+        ExecuteOclSpecialPower(specialPowerType, arguments.CommandCenter, arguments.Location);
+    }
+
+    private static void ExecuteOclSpecialPowerFromSelectedObject(SpecialPowerType specialPowerType, LocationArguments arguments, IEnumerable<GameObject> selectedObjects)
+    {
+        // todo: first object where special power is ready, since we could have multiple selected
+        ExecuteOclSpecialPower(specialPowerType, selectedObjects.FirstOrDefault(), arguments.Location);
     }
 
     private static void ExecuteOclSpecialPower(SpecialPowerType specialPowerType, GameObject source, Vector3 location)

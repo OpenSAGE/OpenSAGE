@@ -103,6 +103,17 @@ namespace OpenSage.Terrain
             return Normals[(int)x, (int)y];
         }
 
+        public Vector3 GetPositionWithHeight(Vector2 worldPosition)
+        {
+            var tilePosition = GetTilePosition(worldPosition);
+            if (!tilePosition.HasValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(worldPosition));
+            }
+
+            return GetPosition(tilePosition.Value.X, tilePosition.Value.Y);
+        }
+
         public Vector3 GetPosition(int x, int y) => new Vector3(
             (x - _heightMapData.BorderWidth) * HorizontalScale,
             (y - _heightMapData.BorderWidth) * HorizontalScale,
