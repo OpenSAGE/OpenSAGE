@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using FixedMath.NET;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -42,6 +43,14 @@ namespace OpenSage.Logic.Object
         public void ChangeBattlePlan(BattlePlanType newPlan)
         {
             _desired = newPlan;
+            _gameObject.Owner.InitializeStrategyData(_validMemberKindOf, _invalidMemberKindOf);
+        }
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+        {
+            ClearActiveBattlePlan();
+            // todo: remove unit bonuses (but don't disable units)
+            base.OnDie(context, deathType, status);
         }
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
@@ -65,7 +74,8 @@ namespace OpenSage.Logic.Object
                     if (context.LogicFrame.Value >= _stateChangeCompleteFrame)
                     {
                         _state = BattlePlanUpdateState.Active;
-                        // todo: apply bonuses (unit + structure)
+                        ActivateCurrentBattlePlan();
+                        // todo: apply unit bonuses
                     }
                     break;
                 case BattlePlanUpdateState.Active:
@@ -76,17 +86,97 @@ namespace OpenSage.Logic.Object
                         // DisableAffectedUnits(); // todo: this currently causes an exception due to modifying the gameobject collection, but it's unclear why
                         PlayPackSound();
                         SetStateChangeCompleteFrame(context.LogicFrame.Value);
+                        ClearActiveBattlePlan();
                     }
                     break;
                 case BattlePlanUpdateState.Deactivating:
                     if (context.LogicFrame.Value >= _stateChangeCompleteFrame)
                     {
                         _state = BattlePlanUpdateState.None;
+                        _current = BattlePlanType.None;
                     }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void ClearActiveBattlePlan()
+        {
+            _bombardmentActive = false;
+            _holdTheLineActive = false;
+            _searchAndDestroyActive = false;
+            _activeArmorDamageScalar = 1;
+            _activeSightRangeScalar = 1;
+            _gameObject.Owner.ClearBattlePlan();
+
+            switch (_current)
+            {
+                case BattlePlanType.None:
+                case BattlePlanType.Bombardment:
+                    break;
+                case BattlePlanType.HoldTheLine:
+                    RemoveHoldTheLineMaxHealthScalar();
+                    break;
+                case BattlePlanType.SearchAndDestroy:
+                    RemoveSearchAndDestroyVisionScalar();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void ActivateCurrentBattlePlan()
+        {
+            _bombardmentActive = _current is BattlePlanType.Bombardment;
+            _holdTheLineActive = _current is BattlePlanType.HoldTheLine;
+            _searchAndDestroyActive = _current is BattlePlanType.SearchAndDestroy;
+            _activeArmorDamageScalar = _current is BattlePlanType.HoldTheLine ? _moduleData.HoldTheLinePlanArmorDamageScalar : 1;
+            _activeSightRangeScalar = _current is BattlePlanType.SearchAndDestroy ? _moduleData.SearchAndDestroyPlanSightRangeScalar : 1;
+            _gameObject.Owner.SetActiveBattlePlan(_current, _activeArmorDamageScalar, _activeSightRangeScalar);
+
+            switch (_current)
+            {
+                case BattlePlanType.None:
+                case BattlePlanType.Bombardment:
+                    break;
+                case BattlePlanType.HoldTheLine:
+                    AddHoldTheLineMaxHealthScalar();
+                    break;
+                case BattlePlanType.SearchAndDestroy:
+                    AddSearchAndDestroyVisionScalar();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void AddHoldTheLineMaxHealthScalar()
+        {
+            var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
+            var newMaxHealth = _gameObject.MaxHealth * maxHealthScalar;
+            _gameObject.Health = _gameObject.HealthPercentage * newMaxHealth;
+            _gameObject.MaxHealth = newMaxHealth;
+        }
+
+        private void RemoveHoldTheLineMaxHealthScalar()
+        {
+            var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
+            var newMaxHealth = _gameObject.MaxHealth / maxHealthScalar;
+            _gameObject.Health = _gameObject.HealthPercentage * newMaxHealth;
+            _gameObject.MaxHealth = newMaxHealth;
+        }
+
+        private void AddSearchAndDestroyVisionScalar()
+        {
+            _gameObject.FindBehavior<StealthDetectorUpdate>().Active = _moduleData.StrategyCenterSearchAndDestroyDetectsStealth;
+            _gameObject.ApplyVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
+        }
+
+        private void RemoveSearchAndDestroyVisionScalar()
+        {
+            _gameObject.FindBehavior<StealthDetectorUpdate>().Active = false;
+            _gameObject.RemoveVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
         }
 
         private void DisableAffectedUnits()
@@ -275,7 +365,7 @@ namespace OpenSage.Logic.Object
             { "StrategyCenterSearchAndDestroySightRangeScalar", (parser, x) => x.StrategyCenterSearchAndDestroySightRangeScalar = parser.ParseFloat() },
             { "StrategyCenterSearchAndDestroyDetectsStealth", (parser, x) => x.StrategyCenterSearchAndDestroyDetectsStealth = parser.ParseBoolean() },
             { "StrategyCenterHoldTheLineMaxHealthScalar", (parser, x) => x.StrategyCenterHoldTheLineMaxHealthScalar = parser.ParseFloat() },
-            { "StrategyCenterHoldTheLineMaxHealthChangeType", (parser, x) => x.StrategyCenterHoldTheLineMaxHealthChangeType = parser.ParseEnum<ChangeType>() },
+            { "StrategyCenterHoldTheLineMaxHealthChangeType", (parser, x) => x.StrategyCenterHoldTheLineMaxHealthChangeType = parser.ParseEnum<MaxHealthChangeType>() },
 
             { "VisionObjectName", (parser, x) => x.VisionObjectName = parser.ParseAssetReference() }
         };
@@ -316,7 +406,7 @@ namespace OpenSage.Logic.Object
         public float StrategyCenterSearchAndDestroySightRangeScalar { get; private set; }
         public bool StrategyCenterSearchAndDestroyDetectsStealth { get; private set; }
         public float StrategyCenterHoldTheLineMaxHealthScalar { get; private set; }
-        public ChangeType StrategyCenterHoldTheLineMaxHealthChangeType { get; private set; }
+        public MaxHealthChangeType StrategyCenterHoldTheLineMaxHealthChangeType { get; private set; }
 
         // Revealing
         public string VisionObjectName { get; private set; }
@@ -325,12 +415,6 @@ namespace OpenSage.Logic.Object
         {
             return new BattlePlanUpdate(gameObject, context, this);
         }
-    }
-
-    public enum ChangeType
-    {
-        [IniEnum("PRESERVE_RATIO")]
-        PreserveRatio
     }
 
     public enum BattlePlanType

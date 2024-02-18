@@ -175,6 +175,21 @@ namespace OpenSage.Logic.Object
         private readonly ShroudReveal _shroudRevealSomething2 = new();
         private float _visionRange;
         private float _shroudClearingRange;
+
+        public void ApplyVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange *= scalar;
+            _visionRange *= scalar;
+            _shroudClearingRange *= scalar;
+        }
+
+        public void RemoveVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange /= scalar;
+            _visionRange /= scalar;
+            _shroudClearingRange /= scalar;
+        }
+
         private BitArray<DisabledType> _disabledTypes = new();
         private readonly uint[] _disabledTypesFrames = new uint[9];
         private readonly ObjectVeterancyHelper _veterancyHelper = new();
@@ -528,6 +543,10 @@ namespace OpenSage.Logic.Object
             }
 
             RoughCollider = Collider.Create(Colliders);
+
+            _visionRange = Definition.VisionRange;
+            _shroudRevealSomething1.VisionRange = Definition.VisionRange;
+            _shroudClearingRange = Definition.ShroudClearingRange;
 
             IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
             CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);

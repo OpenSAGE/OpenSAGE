@@ -770,6 +770,28 @@ namespace OpenSage.Logic
         {
             Enemies.Add(player);
         }
+
+        public void InitializeStrategyData(BitArray<ObjectKinds> validMemberKindOf, BitArray<ObjectKinds> invalidMemberKindOf)
+        {
+            _strategyData ??= new StrategyData();
+            _strategyData.SetMemberKinds(validMemberKindOf, invalidMemberKindOf);
+        }
+
+        public void SetActiveBattlePlan(BattlePlanType battlePlan, float armorDamageScalar, float sightRangeScalar)
+        {
+            _bombardmentActive = battlePlan is BattlePlanType.Bombardment;
+            _holdTheLineActive = battlePlan is BattlePlanType.HoldTheLine;
+            _searchAndDestroyActive = battlePlan is BattlePlanType.SearchAndDestroy;
+            _strategyData?.SetActiveBattlePlan(battlePlan, armorDamageScalar, sightRangeScalar);
+        }
+
+        public void ClearBattlePlan()
+        {
+            _bombardmentActive = false;
+            _holdTheLineActive = false;
+            _searchAndDestroyActive = false;
+            _strategyData?.ClearBattlePlan();
+        }
     }
 
     public sealed class SupplyManager : IPersistableObject
@@ -1171,6 +1193,30 @@ namespace OpenSage.Logic
 
         private BitArray<ObjectKinds> _validMemberKindOf = new();
         private BitArray<ObjectKinds> _invalidMemberKindOf = new();
+
+        internal void SetMemberKinds(BitArray<ObjectKinds> validMemberKindOf, BitArray<ObjectKinds> invalidMemberKindOf)
+        {
+            _validMemberKindOf = validMemberKindOf;
+            _invalidMemberKindOf = invalidMemberKindOf;
+        }
+
+        internal void SetActiveBattlePlan(BattlePlanType battlePlan, float armorDamageScalar, float sightRangeScalar)
+        {
+            _bombardmentActive = battlePlan is BattlePlanType.Bombardment;
+            _holdTheLineActive = battlePlan is BattlePlanType.HoldTheLine;
+            _searchAndDestroyActive = battlePlan is BattlePlanType.SearchAndDestroy;
+            _activeArmorDamageScalar = armorDamageScalar;
+            _activeSightRangeScalar = sightRangeScalar;
+        }
+
+        internal void ClearBattlePlan()
+        {
+            _bombardmentActive = false;
+            _holdTheLineActive = false;
+            _searchAndDestroyActive = false;
+            _activeArmorDamageScalar = 1;
+            _activeSightRangeScalar = 1;
+        }
 
         public void Persist(StatePersister persister)
         {
