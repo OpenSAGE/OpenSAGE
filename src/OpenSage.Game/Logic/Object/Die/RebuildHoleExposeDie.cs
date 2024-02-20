@@ -1,11 +1,32 @@
-﻿using OpenSage.Data.Ini;
+﻿using FixedMath.NET;
+using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class RebuildHoleExposeDie : DieModule
     {
-        public RebuildHoleExposeDie(RebuildHoleExposeDieModuleData moduleData) : base(moduleData)
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
+        private readonly RebuildHoleExposeDieModuleData _moduleData;
+
+        internal RebuildHoleExposeDie(GameObject gameObject, GameContext context, RebuildHoleExposeDieModuleData moduleData) : base(moduleData)
         {
+            _gameObject = gameObject;
+            _context = context;
+            _moduleData = moduleData;
+        }
+
+        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+        {
+            var hole = _context.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, _gameObject.Owner);
+            hole.SetTransformMatrix(_gameObject.TransformMatrix);
+            var holeHealth = (Fix64)_moduleData.HoleMaxHealth;
+            hole.MaxHealth = holeHealth;
+            hole.Health = holeHealth;
+            hole.FindBehavior<RebuildHoleUpdate>().SetOriginalStructure(_gameObject);
+
+            base.Die(context, deathType);
         }
 
         internal override void Load(StatePersister reader)
@@ -19,8 +40,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Requires the object specified in <see cref="HoleName"/> to have the REBUILD_HOLE KindOf and
-    /// <see cref="RebuildHoleBehaviorModuleData"/> module in order to work.
+    /// Requires the object specified in <see cref="HoleDefinition"/> to have the REBUILD_HOLE KindOf and
+    /// <see cref="RebuildHoleUpdateModuleData"/> module in order to work.
     /// </summary>
     public sealed class RebuildHoleExposeDieModuleData : DieModuleData
     {
@@ -29,13 +50,15 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<RebuildHoleExposeDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
             .Concat(new IniParseTable<RebuildHoleExposeDieModuleData>
             {
-                { "HoleName", (parser, x) => x.HoleName = parser.ParseAssetReference() },
+                { "HoleName", (parser, x) => x.HoleDefinition = parser.ParseObjectReference() },
                 { "HoleMaxHealth", (parser, x) => x.HoleMaxHealth = parser.ParseFloat() },
                 { "FadeInTimeSeconds", (parser, x) => x.FadeInTimeSeconds = parser.ParseFloat() },
                 { "TransferAttackers", (parser, x) => x.TransferAttackers = parser.ParseBoolean() }
             });
 
-        public string HoleName { get; private set; }
+        public override ObjectStatus? ExemptStatus { get; protected set; } = ObjectStatus.UnderConstruction;
+
+        public LazyAssetReference<ObjectDefinition> HoleDefinition { get; private set; }
         public float HoleMaxHealth { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
@@ -46,7 +69,7 @@ namespace OpenSage.Logic.Object
 
         internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameContext context)
         {
-            return new RebuildHoleExposeDie(this);
+            return new RebuildHoleExposeDie(gameObject, context, this);
         }
     }
 }

@@ -137,7 +137,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft))
+            if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft) && targetPoint != GameObject.Translation)
             {
                 var start = GameObject.Translation;
                 var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);

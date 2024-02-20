@@ -203,7 +203,7 @@ namespace OpenSage.Logic.Object
             { "PoisonedBehavior", PoisonedBehaviorModuleData.Parse },
             { "PropagandaTowerBehavior", PropagandaTowerBehaviorModuleData.Parse },
             { "RailroadBehavior", RailroadBehaviorModuleData.Parse },
-            { "RebuildHoleBehavior", RebuildHoleBehaviorModuleData.Parse },
+            { "RebuildHoleBehavior", RebuildHoleUpdateModuleData.Parse },
             { "ReplenishUnitsBehavior", ReplenishUnitsBehaviorModuleData.Parse },
             { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
