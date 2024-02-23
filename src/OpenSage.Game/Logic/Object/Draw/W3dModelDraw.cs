@@ -240,19 +240,22 @@ namespace OpenSage.Logic.Object
             var bestConditionState = FindBestFittingConditionState(_data.ConditionStates, flags);
             SetActiveConditionState(bestConditionState, random);
 
-            foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
+            if (_activeModelDrawConditionState != null)
             {
-                var visible = flags.Get(ModelConditionFlag.FiringA);
-                for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
+                foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
                 {
-                    var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
-                    // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
-                    if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName, StringComparison.OrdinalIgnoreCase))
+                    var visible = flags.Get(ModelConditionFlag.FiringA);
+                    for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
                     {
-                        _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
+                        var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
+                        // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
+                        if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
+                        }
                     }
-                }
-            };
+                };
+            }
 
             var bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);
             SetActiveAnimationState(bestAnimationState, random);

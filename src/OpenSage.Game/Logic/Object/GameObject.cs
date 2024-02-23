@@ -276,6 +276,8 @@ namespace OpenSage.Logic.Object
 
         public bool IsFullHealth => Health >= MaxHealth;
 
+        public bool IsDead => Health == Fix64.Zero;
+
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
@@ -702,6 +704,10 @@ namespace OpenSage.Logic.Object
             VerifyHealer();
             foreach (var behavior in _behaviorModules)
             {
+                if (HasActiveBody() && IsDead && behavior is not SlowDeathBehavior)
+                {
+                    continue; // if we're dead, we should only update SlowDeathBehavior
+                }
                 behavior.Update(_behaviorUpdateContext);
             }
         }
@@ -871,6 +877,22 @@ namespace OpenSage.Logic.Object
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasEnqueuedUpgrade(upgrade)
                 : ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+        }
+
+        /// <summary>
+        /// Used to set an object status when the integer value of the bit is known but the actual enum value is not.
+        /// </summary>
+        /// <remarks>
+        /// When <see cref="ObjectStatus"/> is fully defined, this method should be removed.
+        /// </remarks>
+        public void SetUnknownStatus(int status, bool value)
+        {
+            _status.Set(status, value);
+        }
+
+        public void SetObjectStatus(ObjectStatus status, bool value)
+        {
+            _status.Set(status, value);
         }
 
         /// <summary>
@@ -1257,6 +1279,14 @@ namespace OpenSage.Logic.Object
             PlayDieSound(deathType);
         }
 
+        /// <summary>
+        /// Removes this object from the scene without playing any death effects or affecting stats.
+        /// </summary>
+        public void Destroy()
+        {
+            GameContext.GameObjects.DestroyObject(this);
+        }
+
         private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
         {
             // If there are multiple SlowDeathBehavior modules,
@@ -1294,6 +1324,12 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public void SetSelectable(bool selectable)
+        {
+            IsSelectable = selectable;
+            _status.Set(ObjectStatus.Unselectable, !selectable);
+        }
+
         internal void AddToContainer(uint containerId)
         {
             _containerId = containerId;
@@ -1301,8 +1337,7 @@ namespace OpenSage.Logic.Object
             _disabledTypes.Set(DisabledType.Held, true);
             _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
             Hidden = true;
-            IsSelectable = false;
-            _status.Set(ObjectStatus.Unselectable, true);
+            SetSelectable(false);
             _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
             Owner.DeselectUnit(this);
         }
@@ -1314,8 +1349,7 @@ namespace OpenSage.Logic.Object
             _disabledTypes.Set(DisabledType.Held, false);
             _disabledTypesFrames[(int)DisabledType.Held] = 0;
             Hidden = false;
-            IsSelectable = true;
-            _status.Set(ObjectStatus.Unselectable, false);
+            SetSelectable(true);
             _status.Set(ObjectStatus.InsideGarrison, false);
         }
 
