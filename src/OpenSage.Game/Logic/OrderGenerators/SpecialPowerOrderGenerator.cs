@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
@@ -18,12 +19,14 @@ namespace OpenSage.Logic.OrderGenerators
 
     public enum SpecialPowerTargetType
     {
+        None,
         Location,
         Object,
     }
 
     public record struct SpecialPowerCursorInformation(
         SpecialPower SpecialPower,
+        SpecialPowerOrderFlags OrderFlags,
         BitArray<SpecialPowerTarget> AllowedTargets,
         string CursorName,
         string InvalidCursorName);
@@ -77,15 +80,37 @@ namespace OpenSage.Logic.OrderGenerators
         {
             var player = scene.LocalPlayer;
             var playerIdx = scene.GetPlayerIndex(player);
-            Order specialPowerOrder;
-            if (_targetType == SpecialPowerTargetType.Location)
+            var orderFlags = _cursorInformation.OrderFlags;
+            var commandCenter = player.SelectedUnits.FirstOrDefault();
+            commandCenter = commandCenter?.IsKindOf(ObjectKinds.CommandCenter) == true ? commandCenter : null;
+            if (commandCenter == null)
             {
-                specialPowerOrder = Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, WorldPosition);
+                foreach (var gameObject in _gameContext.GameObjects.Items.Reverse())
+                {
+                    // zero hour uses the _last_ built command center
+                    if (gameObject.Owner == player && gameObject.IsKindOf(ObjectKinds.CommandCenter))
+                    {
+                        commandCenter = gameObject;
+                        break;
+                    }
+                }
             }
-            else
+
+            var commandCenterId = commandCenter?.ID ?? 0;
+
+            var specialPowerOrder = _targetType switch
             {
-                specialPowerOrder = Order.CreateSpecialPowerAtObject(playerIdx, _specialPower.InternalId);
+                SpecialPowerTargetType.Location => Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, WorldPosition, orderFlags, commandCenterId),
+                SpecialPowerTargetType.Object when WorldObject is not null => Order.CreateSpecialPowerAtObject(playerIdx, _specialPower.InternalId, WorldObject.ID, orderFlags, commandCenterId),
+                SpecialPowerTargetType.None => Order.CreateSpecialPower(playerIdx, _specialPower.InternalId, orderFlags, commandCenterId),
+                _ => null,
+            };
+
+            if (specialPowerOrder == null)
+            {
+                return OrderGeneratorResult.Failure("no target selected");
             }
+
             return OrderGeneratorResult.SuccessAndExit(new[] { specialPowerOrder });
         }
 

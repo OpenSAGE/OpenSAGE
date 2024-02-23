@@ -120,20 +120,34 @@ namespace OpenSage.Logic
             return Game.Scene3D.Terrain.Intersect(ray);
         }
 
-        public void StartSpecialPowerAtLocation(SpecialPowerCursorInformation cursorInformation)
+        public void StartSpecialPower(in SpecialPowerCursorInformation cursorInformation)
         {
-            var gameData = Game.AssetStore.GameData.Current;
-
-            ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTargetType.Location, Game.Scene3D, Game.MapTime);
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.None);
         }
 
-        public void StartSpecialPowerAtObject(SpecialPowerCursorInformation cursorInformation)
+        public void StartSpecialPowerAtLocation(in SpecialPowerCursorInformation cursorInformation)
+        {
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.Location);
+        }
+
+        public void StartSpecialPowerAtObject(in SpecialPowerCursorInformation cursorInformation)
+        {
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.Object);
+        }
+
+        private void StartSpecialPower(in SpecialPowerCursorInformation cursorInformation,
+            SpecialPowerTargetType targetType)
         {
             var gameData = Game.AssetStore.GameData.Current;
 
             ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTargetType.Object, Game.Scene3D, Game.MapTime);
+                Game.Scene3D.GameContext, targetType, Game.Scene3D, Game.MapTime);
+
+            if (cursorInformation.OrderFlags.HasFlag(SpecialPowerOrderFlags.CheckLike))
+            {
+                // check-like options are activated immediately with no cursor
+                TryActivate(KeyModifiers.None);
+            }
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)
