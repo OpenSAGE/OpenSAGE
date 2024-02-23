@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
         private LogicFrame _nextEvacAllowedAfter; // unsure if this is correct, but seems plausible from testing?
 
-        internal TransportContain(GameObject gameObject, TransportContainModuleData moduleData): base(gameObject, moduleData)
+        internal TransportContain(GameObject gameObject, GameContext gameContext, TransportContainModuleData moduleData): base(gameObject, gameContext, moduleData)
         {
             _moduleData = moduleData;
 
@@ -311,7 +311,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new TransportContain(gameObject, this);
+            return new TransportContain(gameObject, context, this);
         }
     }
 

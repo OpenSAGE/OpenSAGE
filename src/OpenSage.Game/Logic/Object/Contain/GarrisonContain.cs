@@ -7,19 +7,50 @@ namespace OpenSage.Logic.Object
 {
     public sealed class GarrisonContain : OpenContainModule
     {
-        private uint _unknown1;
+        private uint _originalTeamId;
         private readonly Vector3[] _positions = new Vector3[120];
-        private bool _unknown3;
+        private bool _originalTeamSet;
 
-        public GarrisonContain(GameObject gameObject, OpenContainModuleData moduleData) : base(gameObject, moduleData)
+        internal GarrisonContain(GameObject gameObject, GameContext gameContext, OpenContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
         {
         }
 
         private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
         {
             var isGarrisoned = ContainedObjectIds.Count > 0;
+
+            if (!_originalTeamSet && isGarrisoned)
+            {
+                // store the team this object should return to when no occupying force is present
+                var originalTeam = GameObjectForId(ContainedObjectIds[0]).Owner.DefaultTeam?.Id;
+                if (originalTeam.HasValue)
+                {
+                    _originalTeamId = originalTeam.Value;
+                }
+                else
+                {
+                    // todo: DefaultTeam is not currently set on player object - this if statement can be removed once we're actually setting this
+                    _originalTeamId = uint.MaxValue;
+                }
+                _originalTeamSet = true;
+            }
+
             ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
+            if (_originalTeamSet)
+            {
+                if (isGarrisoned)
+                {
+                    GameObject.Owner = GameObjectForId(ContainedObjectIds[0]).Owner;
+                }
+                else
+                {
+                    var owner = GameContext.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
+                    owner ??= GameContext.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
+
+                    GameObject.Owner = owner;
+                }
+            }
         }
 
         protected override bool HealthTooLowToHoldUnits()
@@ -42,7 +73,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistUInt32(ref _originalTeamId);
 
             reader.SkipUnknownBytes(1);
 
@@ -62,7 +93,7 @@ namespace OpenSage.Logic.Object
                     persister.PersistVector3Value(ref item);
                 });
 
-            reader.PersistBoolean(ref _unknown3);
+            reader.PersistBoolean(ref _originalTeamSet);
 
             reader.SkipUnknownBytes(13);
         }
@@ -108,7 +139,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new GarrisonContain(gameObject, this);
+            return new GarrisonContain(gameObject, context, this);
         }
     }
 

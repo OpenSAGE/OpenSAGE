@@ -54,6 +54,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Bfme2Rotwk", "OpenSage.Mods.Bfme2Rotwk\OpenSage.Mods.Bfme2Rotwk.csproj", "{81FA71B5-6D48-457D-A85D-E0B0B7827245}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.IO", "OpenSage.IO\OpenSage.IO.csproj", "{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +146,10 @@ Global
 		{81FA71B5-6D48-457D-A85D-E0B0B7827245}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81FA71B5-6D48-457D-A85D-E0B0B7827245}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81FA71B5-6D48-457D-A85D-E0B0B7827245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

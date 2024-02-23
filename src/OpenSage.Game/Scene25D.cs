@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Content;
+using OpenSage.Content.Translation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Gui;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using SixLabors.Fonts;
 
 namespace OpenSage;
 
@@ -16,6 +18,8 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
     protected GameData GameData => assetStore.GameData.Current;
 
     private Player LocalPlayer => scene3D.LocalPlayer;
+
+    private readonly LocalizedString _buildProgressString = new("CONTROLBAR:UnderConstructionDesc");
 
     public void Draw(DrawingContext2D drawingContext)
     {
@@ -47,6 +51,11 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 if (obj.IsSelected || LocalPlayer.HoveredUnit == obj)
                 {
                     DrawHealthBox(drawingContext, obj);
+                }
+
+                if (obj.IsBeingConstructed())
+                {
+                    DrawBuildProgress(drawingContext, obj);
                 }
 
                 DrawPips(drawingContext, obj, focused);
@@ -189,6 +198,32 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 new ColorRgba(255, 255, 0, 255).ToColorRgbaF(),
                 gameObject.ExperienceValue / (float)gameObject.ExperienceRequiredForNextLevel);
         }
+    }
+
+    private void DrawBuildProgress(DrawingContext2D drawingContext, GameObject gameObject)
+    {
+        if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
+        {
+            return;
+        }
+
+        var boundingSphere = GetBoundingSphere(gameObject);
+
+        var buildProgressSize = Camera.GetScreenSize(boundingSphere);
+
+        var buildProgressWorldSpacePos = gameObject.Translation;
+        var buildProgressRect = Camera.WorldToScreenRectangle(
+            buildProgressWorldSpacePos,
+            new SizeF(buildProgressSize * 10, 40)); // these numbers feel right, but are just a guess
+
+        if (buildProgressRect == null)
+        {
+            return;
+        }
+
+        var text = _buildProgressString.Localize(gameObject.BuildProgress * 100);
+        // todo: is this the correct font?
+        drawingContext.DrawText(text, gameObject.GameContext.Game.ContentManager.FontManager.GetOrCreateFont(assetStore.InGameUI.Current.MessageFont, 26, FontWeight.Normal), TextAlignment.Center, ColorRgbaF.White, buildProgressRect.Value);
     }
 
     private void DrawBottomLeftImage(DrawingContext2D drawingContext, GameObject gameObject, MappedImage image)

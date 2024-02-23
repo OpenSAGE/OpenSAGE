@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace OpenSage.IO
+﻿namespace OpenSage.IO
 {
     public sealed class DiskFileSystem : FileSystem
     {
@@ -14,7 +11,7 @@ namespace OpenSage.IO
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
+            string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var childDirectory = Path.Combine(RootDirectory, NormalizeFilePath(directoryPath));
@@ -37,7 +34,7 @@ namespace OpenSage.IO
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             var fullFilePath = Path.Combine(RootDirectory, NormalizeFilePath(filePath));
             var fileInfo = new FileInfo(fullFilePath);

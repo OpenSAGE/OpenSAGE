@@ -6,8 +6,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly OverlordContainModuleData _moduleData;
 
-        internal OverlordContain(GameObject gameObject, OverlordContainModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal OverlordContain(GameObject gameObject, GameContext gameContext, OverlordContainModuleData moduleData)
+            : base(gameObject, gameContext, moduleData)
         {
             _moduleData = moduleData;
         }
@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new OverlordContain(gameObject, this);
+            return new OverlordContain(gameObject, context, this);
         }
     }
 }

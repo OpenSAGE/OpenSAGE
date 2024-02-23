@@ -60,7 +60,7 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<DeathType>? DeathTypes { get; private set; }
-        public ObjectStatus? ExemptStatus { get; private set; }
+        public virtual ObjectStatus? ExemptStatus { get; protected set; }
         public ObjectStatus? RequiredStatus { get; private set; }
     }
 }

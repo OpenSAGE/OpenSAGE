@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace OpenSage.IO
+﻿namespace OpenSage.IO
 {
     public abstract class FileSystem : DisposableBase
     {
@@ -12,7 +9,7 @@ namespace OpenSage.IO
                 .Replace('\\', Path.DirectorySeparatorChar);
         }
 
-        public abstract FileSystemEntry GetFile(string filePath);
+        public abstract FileSystemEntry? GetFile(string filePath);
 
         public abstract IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,

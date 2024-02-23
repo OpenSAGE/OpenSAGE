@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.Data;
-using OpenSage.FileFormats.Big;
+﻿using OpenSage.FileFormats.Big;
 
 namespace OpenSage.IO
 {
@@ -40,8 +35,8 @@ namespace OpenSage.IO
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
-            SearchOption searchOption)
+            string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             var search = new SearchPattern(searchPattern);
 
@@ -89,7 +84,7 @@ namespace OpenSage.IO
             }
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             var directoryParts = NormalizeFilePath(filePath).Split(Path.DirectorySeparatorChar);
 

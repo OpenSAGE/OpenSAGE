@@ -13,6 +13,7 @@ public abstract class OrderGenerator(Game game) : IOrderGenerator
 
     protected Vector3 WorldPosition { get; private set; }
     protected GameObject? WorldObject { get; private set; }
+    protected Game Game => game;
     protected Player? LocalPlayer => game.Scene3D.LocalPlayer;
     protected IReadOnlyCollection<GameObject>? SelectedUnits => LocalPlayer?.SelectedUnits;
 

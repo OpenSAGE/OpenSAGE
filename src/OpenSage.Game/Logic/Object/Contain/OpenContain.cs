@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly OpenContainModuleData _moduleData;
         protected GameObject GameObject { get; }
+        private protected GameContext GameContext { get; }
 
         private readonly List<uint> _containedObjectIds = new();
         private uint _unknownFrame1;
@@ -29,14 +30,16 @@ namespace OpenSage.Logic.Object
         public bool DrawPips => _moduleData.ShouldDrawPips;
         public virtual int TotalSlots => _moduleData.ContainMax;
         public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
+        public bool Full => OccupiedSlots >= TotalSlots;
 
         protected const string ExitBoneStartName = "ExitStart";
         protected const string ExitBoneEndName = "ExitEnd";
 
-        protected OpenContainModule(GameObject gameObject, OpenContainModuleData moduleData)
+        private protected OpenContainModule(GameObject gameObject, GameContext gameContext, OpenContainModuleData moduleData)
         {
             _moduleData = moduleData;
             GameObject = gameObject;
+            GameContext = gameContext;
         }
 
         public bool CanAddUnit(GameObject unit)
