@@ -390,7 +390,7 @@ namespace OpenSage
         Upgrade = 2,
         UnderAttack = 3,
         Information = 4,
-
+        BattlePlanInitiated = 7,
         StealUnitDiscovered = 8,
         UnitLost = 10,
     }

@@ -32,6 +32,8 @@ namespace OpenSage.Logic.Object
 
         private bool _unlocked;
 
+        public SpecialPowerType SpecialPowerType => _moduleData.SpecialPower.Value.Type;
+
         internal SpecialPowerModule(GameObject gameObject, GameContext context, SpecialPowerModuleData moduleData)
         {
             GameObject = gameObject;
@@ -54,6 +56,11 @@ namespace OpenSage.Logic.Object
             if (_paused)
             {
                 return 0;
+            }
+
+            if (_reloadFrames == 0)
+            {
+                _ready = true;
             }
 
             // quick short-circuit
@@ -129,10 +136,18 @@ namespace OpenSage.Logic.Object
         {
             _availableAtFrame = Context.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
             _ready = false;
+
+            if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
+            {
+                GameObject.Owner.SyncedSpecialPowerTimers[_moduleData.SpecialPower.Value.Type] = _availableAtFrame;
+            }
         }
 
         internal virtual void Activate(Vector3 position)
         {
+            var specialPower = _moduleData.SpecialPower.Value;
+            Context.AudioSystem.PlayAudioEvent(specialPower.InitiateSound?.Value);
+            Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSound?.Value);
             ResetCountdown();
         }
 

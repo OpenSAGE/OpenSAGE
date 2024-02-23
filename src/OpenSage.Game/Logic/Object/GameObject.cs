@@ -175,6 +175,21 @@ namespace OpenSage.Logic.Object
         private readonly ShroudReveal _shroudRevealSomething2 = new();
         private float _visionRange;
         private float _shroudClearingRange;
+
+        public void ApplyVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange *= scalar;
+            _visionRange *= scalar;
+            _shroudClearingRange *= scalar;
+        }
+
+        public void RemoveVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange /= scalar;
+            _visionRange /= scalar;
+            _shroudClearingRange /= scalar;
+        }
+
         private BitArray<DisabledType> _disabledTypes = new();
         private readonly uint[] _disabledTypesFrames = new uint[9];
         private readonly ObjectVeterancyHelper _veterancyHelper = new();
@@ -275,6 +290,8 @@ namespace OpenSage.Logic.Object
         public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
         public bool IsFullHealth => Health >= MaxHealth;
+
+        public bool IsDead => Health == Fix64.Zero;
 
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
@@ -529,6 +546,10 @@ namespace OpenSage.Logic.Object
 
             RoughCollider = Collider.Create(Colliders);
 
+            _visionRange = Definition.VisionRange;
+            _shroudRevealSomething1.VisionRange = Definition.VisionRange;
+            _shroudClearingRange = Definition.ShroudClearingRange;
+
             IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
             CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
 
@@ -700,8 +721,13 @@ namespace OpenSage.Logic.Object
         internal void Update()
         {
             VerifyHealer();
+            CheckDisabledStates();
             foreach (var behavior in _behaviorModules)
             {
+                if (HasActiveBody() && IsDead && behavior is not SlowDeathBehavior)
+                {
+                    continue; // if we're dead, we should only update SlowDeathBehavior
+                }
                 behavior.Update(_behaviorUpdateContext);
             }
         }
@@ -805,6 +831,11 @@ namespace OpenSage.Logic.Object
             return _behaviorCache!.TryGetValue(typeof(T), out var behaviors) ? behaviors.Cast<T>() : [];
         }
 
+        public T FindSpecialPowerBehavior<T>(SpecialPowerType specialPowerType) where T : SpecialPowerModule
+        {
+            return FindBehaviors<T>().FirstOrDefault(m => m.SpecialPowerType == specialPowerType);
+        }
+
         public bool HasBehavior<T>()
         {
             return FindBehavior<T>() != null;
@@ -871,6 +902,22 @@ namespace OpenSage.Logic.Object
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasEnqueuedUpgrade(upgrade)
                 : ProductionUpdate.ProductionQueue.Any(x => x.UpgradeDefinition == upgrade);
+        }
+
+        /// <summary>
+        /// Used to set an object status when the integer value of the bit is known but the actual enum value is not.
+        /// </summary>
+        /// <remarks>
+        /// When <see cref="ObjectStatus"/> is fully defined, this method should be removed.
+        /// </remarks>
+        public void SetUnknownStatus(int status, bool value)
+        {
+            _status.Set(status, value);
+        }
+
+        public void SetObjectStatus(ObjectStatus status, bool value)
+        {
+            _status.Set(status, value);
         }
 
         /// <summary>
@@ -1257,6 +1304,14 @@ namespace OpenSage.Logic.Object
             PlayDieSound(deathType);
         }
 
+        /// <summary>
+        /// Removes this object from the scene without playing any death effects or affecting stats.
+        /// </summary>
+        public void Destroy()
+        {
+            GameContext.GameObjects.DestroyObject(this);
+        }
+
         private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
         {
             // If there are multiple SlowDeathBehavior modules,
@@ -1294,15 +1349,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public void SetSelectable(bool selectable)
+        {
+            IsSelectable = selectable;
+            _status.Set(ObjectStatus.Unselectable, !selectable);
+        }
+
         internal void AddToContainer(uint containerId)
         {
             _containerId = containerId;
             _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
-            _disabledTypes.Set(DisabledType.Held, true);
-            _disabledTypesFrames[(int)DisabledType.Held] = 0x3FFFFFFFu; // not sure why this is this way
+            const uint disabledUntilFrame = 0x3FFFFFFFu; // not sure why this is this way;
+            Disable(DisabledType.Held, disabledUntilFrame);
             Hidden = true;
-            IsSelectable = false;
-            _status.Set(ObjectStatus.Unselectable, true);
+            SetSelectable(false);
             _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
             Owner.DeselectUnit(this);
         }
@@ -1311,12 +1371,34 @@ namespace OpenSage.Logic.Object
         {
             _containerId = 0;
             _containedFrame = 0;
-            _disabledTypes.Set(DisabledType.Held, false);
-            _disabledTypesFrames[(int)DisabledType.Held] = 0;
+            UnDisable(DisabledType.Held);
             Hidden = false;
-            IsSelectable = true;
-            _status.Set(ObjectStatus.Unselectable, false);
+            SetSelectable(true);
             _status.Set(ObjectStatus.InsideGarrison, false);
+        }
+
+        public void Disable(DisabledType type, uint frame)
+        {
+            _disabledTypes.Set(type, true);
+            _disabledTypesFrames[(int)type] = frame;
+        }
+
+        public void UnDisable(DisabledType type)
+        {
+            _disabledTypes.Set(type, false);
+            _disabledTypesFrames[(int)type] = 0;
+        }
+
+        private void CheckDisabledStates()
+        {
+            for (var i = 0; i < _disabledTypesFrames.Length; i++)
+            {
+                var disabledTypeFrame = _disabledTypesFrames[i];
+                if (disabledTypeFrame > 0 && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame.Value)
+                {
+                    UnDisable((DisabledType)i);
+                }
+            }
         }
 
         internal void Sell()
@@ -1345,20 +1427,6 @@ namespace OpenSage.Logic.Object
                 HealedByObjectId = 0;
                 HealedEndFrame = 0; // todo: is this reset?
             }
-        }
-
-        internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)
-        {
-            var oclSpecialPowers = FindBehaviors<OCLSpecialPowerModule>();
-
-            foreach (var oclSpecialPower in oclSpecialPowers)
-            {
-                if (oclSpecialPower.Matches(specialPower))
-                {
-                    oclSpecialPower.Activate(location);
-                }
-            }
-            _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
         }
 
         public void AddWeaponBonusType(WeaponBonusType bonusType)
