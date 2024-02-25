@@ -3,7 +3,7 @@ using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
-    [AptCallbacks(SageGame.Bfme)]
+    [AptCallbacks(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
     static class AptPalantir
     {
         public static bool Initialized { get; private set; } = false;

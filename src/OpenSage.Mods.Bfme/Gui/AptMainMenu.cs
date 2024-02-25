@@ -5,7 +5,7 @@ using Veldrid;
 
 namespace OpenSage.Mods.Bfme.Gui
 {
-    [AptCallbacks(SageGame.Bfme)]
+    [AptCallbacks(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
     static class AptMainMenu
     {
         // Called after the initialization has been performed
@@ -37,15 +37,15 @@ namespace OpenSage.Mods.Bfme.Gui
             // Probably used for debug purposes
         }
 
-        public static void Options(string param, ActionContext context, AptWindow window, Game game)
+        public static void CreateAHero(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("Options.apt");
+            var aptWindow = game.LoadAptWindow("CreateAHero.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
-        public static void LoadGame(string param, ActionContext context, AptWindow window, Game game)
+        public static void Options(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("SaveLoad.apt");
+            var aptWindow = game.LoadAptWindow("Options.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
@@ -63,17 +63,15 @@ namespace OpenSage.Mods.Bfme.Gui
 
         public static void Credits(string param, ActionContext context, AptWindow window, Game game)
         {
-
         }
 
         public static void OnTutorial(string param, ActionContext context, AptWindow window, Game game)
         {
-
         }
 
         public static void MultiplayerButtonPressed(string param, ActionContext context, AptWindow window, Game game)
         {
-            var aptWindow = game.LoadAptWindow("OnlineLogin.apt");
+            var aptWindow = game.LoadAptWindow("MPGameSetup.apt");
             game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
 
@@ -112,6 +110,12 @@ namespace OpenSage.Mods.Bfme.Gui
         {
             // Todo:
             // After opening the game for the first time, Button "Battle School" will blink, this gets disabled with the option.ini entry -> 'FlashTutorial = 0'!
+        }
+
+        public static void LoadGame(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("SaveLoad.apt");
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
     }
 }

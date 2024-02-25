@@ -5,7 +5,8 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
-using OpenSage.Mods.Bfme2.Gui;
+using OpenSage.Mods.Bfme.Gui;
+using OpenSage.Mods.Bfme;
 using System.IO;
 
 namespace OpenSage.Mods.Bfme2

@@ -118,7 +118,7 @@ namespace OpenSage.Mods.Bfme
             for (var i = 1; i <= 6; i++)
             {
                 // we do not know how bfme handles this yet
-                if (_game.SageGame is SageGame.Bfme) continue;
+                if (_game.SageGame is SageGame.Bfme or SageGame.Bfme2 or SageGame.Bfme2Rotwk) continue;
 
                 var commandButton = aptCommandButtons.GetMember((i - 1).ToString()).ToObject();
                 var placeHolder = commandButton.GetMember("placeholder").ToObject();

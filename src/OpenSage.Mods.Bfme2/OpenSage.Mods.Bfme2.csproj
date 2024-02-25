@@ -4,5 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />
   </ItemGroup>
 </Project>
