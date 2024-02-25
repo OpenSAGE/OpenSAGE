@@ -65,6 +65,7 @@ namespace OpenSage
             { "DefaultUnitHealingBuffFxList", (parser, x) => x.DefaultUnitHealingBuffFxList = parser.ParseAssetReference() },
             { "DefaultStructureRepairBuffFxList", (parser, x) => x.DefaultStructureRepairBuffFxList = parser.ParseAssetReference() },
 
+            { "TimeAfterDamageUntilRepairAllowed", (parser, x) => x.TimeAfterDamageUntilRepairAllowed = parser.ParseInteger() },
             { "DefaultStructureRubbleHeight", (parser, x) => x.DefaultStructureRubbleHeight = parser.ParseFloat() },
 
             { "VertexWaterAvailableMaps1", (parser, x) => x.VertexWaterAvailableMaps1 = parser.ParseString() },
@@ -669,6 +670,7 @@ namespace OpenSage
         public string DefaultUnitHealingBuffFxList { get; private set; }
         public string DefaultStructureRepairBuffFxList { get; private set; }
 
+        public float TimeAfterDamageUntilRepairAllowed { get; private set; }
         public float DefaultStructureRubbleHeight { get; private set; }
 
         public string VertexWaterAvailableMaps1 { get; private set; }
