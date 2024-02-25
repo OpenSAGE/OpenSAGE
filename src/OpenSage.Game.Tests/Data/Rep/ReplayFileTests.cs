@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using OpenSage.Data.Rep;
 using OpenSage.IO;
+using OpenSage.Logic.Orders;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -289,6 +290,66 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
             Assert.Equal(1287, replayFile.Header.NumTimecodes);
             Assert.Equal(25, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_024_EnterExitEvacTransport()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(4448, replayFile.Header.NumTimecodes);
+            Assert.Equal(5088, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_025_StructureExit()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1201, replayFile.Header.NumTimecodes);
+            Assert.Equal(1966, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_026_DozerRepair()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(3498, replayFile.Header.NumTimecodes);
+            Assert.Equal(4136, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_027_DeselectUnit()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(2327, replayFile.Header.NumTimecodes);
+            Assert.Equal(3094, replayFile.Chunks.Count);
+
+            WriteOrders(replayFile);
+        }
+
+        [Fact]
+        public void Test_028_FlashbangCombatDrop()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(7929, replayFile.Header.NumTimecodes);
+            Assert.Equal(8404, replayFile.Chunks.Count);
 
             WriteOrders(replayFile);
         }

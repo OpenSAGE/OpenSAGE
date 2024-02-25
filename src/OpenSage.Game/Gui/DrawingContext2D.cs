@@ -128,10 +128,40 @@ namespace OpenSage.Gui
         public void DrawMappedImage(
             MappedImage mappedImage,
             in RectangleF destinationRect,
+            in ColorRgbaF sourceColor,
+            bool flipped = false,
+            bool grayscaled = false)
+        {
+            DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, sourceColor, flipped, grayscaled);
+        }
+
+
+        public void DrawMappedImage(
+            MappedImage mappedImage,
+            in RectangleF destinationRect,
             bool flipped = false,
             bool grayscaled = false)
         {
             DrawImage(mappedImage.Texture.Value, mappedImage.Coords, destinationRect, flipped, grayscaled);
+        }
+
+        public void DrawImage(
+            Texture texture,
+            in Rectangle? sourceRect,
+            in RectangleF destinationRect,
+            in ColorRgbaF sourceColor,
+            bool flipped = false,
+            bool grayscale = false)
+        {
+            var color = sourceColor.WithA(_currentOpacity);
+
+            _spriteBatch.DrawImage(
+                texture,
+                sourceRect,
+                RectangleF.Transform(destinationRect, _currentTransform),
+                color,
+                flipped,
+                grayscale: grayscale);
         }
 
         public void DrawImage(

@@ -233,7 +233,7 @@ namespace OpenSage.Network
                 switch (type)
                 {
                     case PacketType.SkirmishSlotStatus:
-                        _processor.ReadPacket(dataReader, fromPeer.EndPoint);
+                        _processor.ReadPacket(dataReader, fromPeer);
                         break;
 
                     case PacketType.SkirmishClientReady:
@@ -255,7 +255,7 @@ namespace OpenSage.Network
             {
                 // In addition to the obvious reasons, this also happens when we
                 // want to connect to a game and there are not open slots left.
-                Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+                Logger.Trace($"{peer} disconnected with reason {info.Reason}");
 
                 // We can't go back to the lobby directly because we're not on the
                 // main thread, so we save the reason and handle it in the Update method.
@@ -401,11 +401,11 @@ namespace OpenSage.Network
             _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
             _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);
 
-            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
+            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer} connected");
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+                Logger.Trace($"{peer} disconnected with reason {info.Reason}");
 
                 var slot = _slotLookup[peer.Id];
 
@@ -441,7 +441,7 @@ namespace OpenSage.Network
                     _processor.ReadPacket(request.Data, nextFreeSlot);
 
                     nextFreeSlot.State = SkirmishSlotState.Human;
-                    nextFreeSlot.EndPoint = peer.EndPoint;
+                    nextFreeSlot.EndPoint = peer;
                     _slotLookup.Add(peer.Id, nextFreeSlot);
                 }
                 else
@@ -483,7 +483,7 @@ namespace OpenSage.Network
             StartThread();
         }
 
-        public override bool IsStartButtonEnabled()                  
+        public override bool IsStartButtonEnabled()
         {
             //all human players (except for the host) are ready
             return Settings.Slots.Where(s => s.State == SkirmishSlotState.Human && s.Index != 0)
@@ -498,7 +498,7 @@ namespace OpenSage.Network
 
         public void Disconnect(SkirmishSlot slot)
         {
-            var peer = _manager.ConnectedPeerList.FirstOrDefault(p => p.EndPoint == slot.EndPoint);
+            var peer = _manager.ConnectedPeerList.FirstOrDefault(p => p.Equals(slot.EndPoint));
             if (peer != null)
             {
                 _manager.DisconnectPeer(peer);

@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private TimeInterval _lastUpdate;
 
-        public LocalizedString TextValue { get; private set; }
+        public LocalizedString? TextValue { get; private set; }
         private bool IsHovered { get; set; }
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
@@ -59,7 +59,7 @@ namespace OpenSage.Gui.Apt
                     Logger.Warn($"Failed to resolve text value: {e}");
                 }
 
-                if (TextValue.Original != textValue)
+                if (TextValue?.Original != textValue)
                 {
                     TextValue = LocalizedString.CreateApt(textValue);
                 }
@@ -95,7 +95,7 @@ namespace OpenSage.Gui.Apt
                     break;
 
                 case Text t:
-                    renderingContext.RenderText(t, TextValue.Localized);
+                    renderingContext.RenderText(t, TextValue?.Localize());
                     break;
             }
 

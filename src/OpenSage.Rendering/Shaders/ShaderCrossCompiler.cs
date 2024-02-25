@@ -110,7 +110,7 @@ internal static class ShaderCrossCompiler
         using (var shaderStream = assembly.GetManifestResourceStream(bytecodeShaderName))
         using (var memoryStream = new MemoryStream())
         {
-            shaderStream.CopyTo(memoryStream);
+            shaderStream?.CopyTo(memoryStream);
             return memoryStream.ToArray();
         }
     }
@@ -124,7 +124,7 @@ internal static class ShaderCrossCompiler
         var compilationResult = Vortice.D3DCompiler.Compiler.Compile(
             hlsl,
             EntryPoint,
-            null,
+            null!, // digging into the source, this seems to be ok
             profile,
             flags);
 

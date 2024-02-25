@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CrushDie : DieModule
     {
+        public CrushDie(CrushDieModuleData moduleData) : base(moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -31,7 +35,7 @@ namespace OpenSage.Logic.Object
                 { "BackEndCrushSoundPercent", (parser, x) => x.BackEndCrushSoundPercent = parser.ParseInteger() },
                 { "FrontEndCrushSoundPercent", (parser, x) => x.FrontEndCrushSoundPercent = parser.ParseInteger() }
             });
-        
+
         public string TotalCrushSound { get; private set; }
         public string BackEndCrushSound { get; private set; }
         public string FrontEndCrushSound { get; private set; }
@@ -39,9 +43,9 @@ namespace OpenSage.Logic.Object
         public int BackEndCrushSoundPercent { get; private set; }
         public int FrontEndCrushSoundPercent { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override CrushDie CreateModule(GameObject gameObject, GameContext context)
         {
-            return new CrushDie();
+            return new CrushDie(this);
         }
     }
 }

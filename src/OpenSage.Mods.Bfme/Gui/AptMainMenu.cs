@@ -79,5 +79,43 @@ namespace OpenSage.Mods.Bfme.Gui
         {
 
         }
+
+        public static void GoodCampaign(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void EvilCampaign(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void LevelSelect(string param, ActionContext context, AptWindow window, Game game)
+        {
+
+        }
+
+        public static void DisableComponents(string param, ActionContext context, AptWindow window, Game game)
+        {
+            // do we need to hide the buttons from MainMenu here?
+        }
+
+        public static void BlinkVar(string param, ActionContext context, AptWindow window, Game game)
+        {
+            // Todo:
+            // Disable BlinkVar for every Button except the Battle School at first Start || if 'FlashTutorial = 0'!
+        }
+
+        public static void BlinkBattleSchoolOff(string param, ActionContext context, AptWindow window, Game game)
+        {
+            // Todo:
+            // After opening the game for the first time, Button "Battle School" will blink, this gets disabled with the option.ini entry -> 'FlashTutorial = 0'!
+        }
+
+        public static void LoadGame(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.LoadAptWindow("SaveLoad.apt");
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
+        }
     }
 }

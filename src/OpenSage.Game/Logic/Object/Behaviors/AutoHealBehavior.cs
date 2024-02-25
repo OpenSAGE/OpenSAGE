@@ -1,16 +1,28 @@
-﻿using OpenSage.Data.Ini;
+﻿using FixedMath.NET;
+using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     // It looks from the .sav files that this actually inherits from UpdateModule,
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
-    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule
+    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, ISelfHealable
     {
-        private readonly UpgradeLogic _upgradeLogic;
-        private uint _unknownFrame;
+        protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.HealingDelay);
 
-        public AutoHealBehavior(AutoHealBehaviorModuleData moduleData)
+        private readonly GameObject _gameObject;
+        private readonly AutoHealBehaviorModuleData _moduleData;
+        private readonly UpgradeLogic _upgradeLogic;
+        /// <summary>
+        /// This is a guess as to what this frame is for, and may not be correct.
+        /// </summary>
+        private uint _endOfStartHealingDelay;
+
+        public AutoHealBehavior(GameObject gameObject, AutoHealBehaviorModuleData moduleData)
         {
+            _gameObject = gameObject;
+            _moduleData = moduleData;
+            NextUpdateFrame.Frame = uint.MaxValue;
             _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
@@ -20,7 +32,105 @@ namespace OpenSage.Logic.Object
 
         private void OnUpgrade()
         {
-            // TODO
+            // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
+            NextUpdateFrame.Frame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
+        }
+
+        /// <summary>
+        /// Increments the frame after which healing is allowed. If <code>_moduleData.StartHealingDelay</code> is 0, this is a no-op.
+        /// </summary>
+        public void RegisterDamage()
+        {
+            // this seems to only apply if the unit is capable of healing itself
+            // make sure the upgrade is triggered before resetting any frames
+            if (_moduleData.StartHealingDelay > 0 && _upgradeLogic.Triggered)
+            {
+                var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
+                _endOfStartHealingDelay = currentFrame + FramesForMs(_moduleData.StartHealingDelay);
+                NextUpdateFrame.Frame = _endOfStartHealingDelay;
+            }
+        }
+
+        private protected override void RunUpdate(BehaviorUpdateContext context)
+        {
+            if (context.LogicFrame.Value < _endOfStartHealingDelay)
+            {
+                return;
+            }
+
+            if (_moduleData.Radius == 0)
+            {
+                if (_moduleData.AffectsWholePlayer)
+                {
+                    // USA hospital has this behavior
+                    foreach (var candidate in _gameObject.GameContext.GameObjects.Items)
+                    {
+                        if (ObjectIsOwnedBySamePlayer(candidate) && CanHealUnit(candidate))
+                        {
+                            HealUnit(candidate);
+                        }
+                    }
+                }
+                else
+                {
+                    // we only heal ourselves - china mines and GLA junk repair have this behavior
+                    // todo: unclear how to show healing icon for this behavior
+                    HealUnit(_gameObject);
+                }
+
+                return;
+            }
+
+            foreach (var candidate in _gameObject.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
+            {
+                if (_moduleData.SkipSelfForHealing && candidate == _gameObject) continue;
+                if (!CanHealUnit(candidate)) continue;
+
+                HealUnit(candidate);
+            }
+        }
+
+        // todo: lots of duplicated logic between this and propagandatowerbehavior
+        private bool CanHealUnit(GameObject gameObject)
+        {
+            return _moduleData.ForbiddenKindOf?.Intersects(gameObject.Definition.KindOf) != true &&
+                   _moduleData.KindOf?.Intersects(gameObject.Definition.KindOf) != false &&
+                   ObjectIsOnSameTeam(gameObject) && // todo: does autohealbehavior affect teammates?
+                   ObjectNotInContainer(gameObject) &&
+                   ObjectNotBeingHealedByAnybodyElse(gameObject); // don't heal units that are being healed by something else
+        }
+
+        private bool ObjectNotInContainer(GameObject gameObject)
+        {
+            return gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+        }
+
+        private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
+        {
+            return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == _gameObject.ID;
+        }
+
+        private bool ObjectIsOnSameTeam(GameObject gameObject)
+        {
+            return ObjectIsOwnedBySamePlayer(gameObject) ||
+                   gameObject.Owner.Allies.Contains(_gameObject.Owner); // I _think_ this is correct
+        }
+
+        private bool ObjectIsOwnedBySamePlayer(GameObject gameObject)
+        {
+            return gameObject.Owner == _gameObject.Owner;
+        }
+
+        private void HealUnit(GameObject gameObject)
+        {
+            if (gameObject.HealthPercentage < Fix64.One)
+            {
+                gameObject.Heal((Fix64)_moduleData.HealingAmount);
+                if (gameObject != _gameObject)
+                {
+                    gameObject.SetBeingHealed(_gameObject, NextUpdateFrame.Frame);
+                }
+            }
         }
 
         internal override void Load(StatePersister reader)
@@ -35,7 +145,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistFrame(ref _endOfStartHealingDelay);
 
             reader.SkipUnknownBytes(1);
         }
@@ -52,8 +162,8 @@ namespace OpenSage.Logic.Object
                 { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseFloat() },
                 { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseInteger() },
                 { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
-                { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
-                { "ForbiddenKindOf", (parser, x) => x.ForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
+                { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
+                { "ForbiddenKindOf", (parser, x) => x.ForbiddenKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
                 { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
                 { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
@@ -73,10 +183,16 @@ namespace OpenSage.Logic.Object
         public UpgradeLogicData UpgradeData { get; } = new();
 
         public float HealingAmount { get; private set; }
+        /// <summary>
+        /// Time to wait between successive HealingAmount applications.
+        /// </summary>
         public int HealingDelay { get; private set; }
         public bool AffectsWholePlayer { get; private set; }
-        public ObjectKinds KindOf { get; private set; }
-        public ObjectKinds ForbiddenKindOf { get; private set; }
+        public BitArray<ObjectKinds> KindOf { get; private set; }
+        public BitArray<ObjectKinds> ForbiddenKindOf { get; private set; }
+        /// <summary>
+        /// Time to wait after taking damage before beginning healing.
+        /// </summary>
         public int StartHealingDelay { get; private set; }
         public float Radius { get; private set; }
         public bool SingleBurst { get; private set; }
@@ -116,7 +232,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoHealBehavior(this);
+            return new AutoHealBehavior(gameObject, this);
         }
     }
 }

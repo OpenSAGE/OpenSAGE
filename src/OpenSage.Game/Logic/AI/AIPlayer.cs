@@ -66,7 +66,7 @@ namespace OpenSage.Logic.AI
             }
 
             reader.PersistInt32(ref _unknownInt2);
-            if (_unknownInt2 != 0 && _unknownInt2 != -1)
+            if (_unknownInt2 != 0 && _unknownInt2 != -1 && _unknownInt2 != 1)
             {
                 throw new InvalidStateException();
             }

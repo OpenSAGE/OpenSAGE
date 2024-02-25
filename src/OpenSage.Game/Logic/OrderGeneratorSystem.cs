@@ -120,21 +120,34 @@ namespace OpenSage.Logic
             return Game.Scene3D.Terrain.Intersect(ray);
         }
 
-        public void StartSpecialPowerAtLocation(SpecialPower specialPower)
+        public void StartSpecialPower(in SpecialPowerCursorInformation cursorInformation)
         {
-            var gameData = Game.AssetStore.GameData.Current;
-
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.Location, Game.Scene3D, Game.MapTime);
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.None);
         }
 
-        public void StartSpecialPowerAtObject(SpecialPower specialPower)
+        public void StartSpecialPowerAtLocation(in SpecialPowerCursorInformation cursorInformation)
+        {
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.Location);
+        }
+
+        public void StartSpecialPowerAtObject(in SpecialPowerCursorInformation cursorInformation)
+        {
+            StartSpecialPower(cursorInformation, SpecialPowerTargetType.Object);
+        }
+
+        private void StartSpecialPower(in SpecialPowerCursorInformation cursorInformation,
+            SpecialPowerTargetType targetType)
         {
             var gameData = Game.AssetStore.GameData.Current;
 
-            //TODO: pass the right target type
-            ActiveGenerator = new SpecialPowerOrderGenerator(specialPower, gameData, Game.Scene3D.LocalPlayer,
-                    Game.Scene3D.GameContext, SpecialPowerTarget.EnemyObject, Game.Scene3D, Game.MapTime);
+            ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
+                Game.Scene3D.GameContext, targetType, Game.Scene3D, Game.MapTime);
+
+            if (cursorInformation.OrderFlags.HasFlag(SpecialPowerOrderFlags.CheckLike))
+            {
+                // check-like options are activated immediately with no cursor
+                TryActivate(KeyModifiers.None);
+            }
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition)
@@ -163,7 +176,7 @@ namespace OpenSage.Logic
 
         public void SetRallyPoint()
         {
-            ActiveGenerator = new RallyPointOrderGenerator();
+            ActiveGenerator = new RallyPointOrderGenerator(Game);
         }
 
         public void CancelOrderGenerator()

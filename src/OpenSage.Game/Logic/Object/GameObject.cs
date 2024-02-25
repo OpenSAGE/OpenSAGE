@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +18,7 @@ using OpenSage.Gui.InGame;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using FixedMath.NET;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Terrain;
 using OpenSage.FileFormats;
 
@@ -150,6 +152,7 @@ namespace OpenSage.Logic.Object
 
         internal BitArray<WeaponSetConditions> WeaponSetConditions;
         private readonly WeaponSet _weaponSet;
+        public WeaponSet ActiveWeaponSet => _weaponSet;
 
         public readonly ObjectDefinition Definition;
 
@@ -162,20 +165,36 @@ namespace OpenSage.Logic.Object
 
         private bool _objectMoved;
 
-        private uint _createdByObjectID;
-        private uint _builtByObjectID;
+        public uint CreatedByObjectID;
+        public uint BuiltByObjectID;
 
-        private uint _unknown1;
+        private BitArray<ObjectStatus> _status = new();
         private byte _unknown2;
         private GameObjectUnknownFlags _unknownFlags;
         private readonly ShroudReveal _shroudRevealSomething1 = new();
         private readonly ShroudReveal _shroudRevealSomething2 = new();
         private float _visionRange;
         private float _shroudClearingRange;
+
+        public void ApplyVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange *= scalar;
+            _visionRange *= scalar;
+            _shroudClearingRange *= scalar;
+        }
+
+        public void RemoveVisionRangeScalar(float scalar)
+        {
+            _shroudRevealSomething1.VisionRange /= scalar;
+            _visionRange /= scalar;
+            _shroudClearingRange /= scalar;
+        }
+
         private BitArray<DisabledType> _disabledTypes = new();
         private readonly uint[] _disabledTypesFrames = new uint[9];
         private readonly ObjectVeterancyHelper _veterancyHelper = new();
         private uint _containerId;
+        public uint ContainerId => _containerId;
         private uint _containedFrame;
         private string _teamName;
         private uint _enteredOrExitedPolygonTriggerFrame;
@@ -183,8 +202,8 @@ namespace OpenSage.Logic.Object
         private PolygonTriggerState[] _polygonTriggersState;
         private int _unknown5;
         private uint _unknownFrame;
-        private uint _healedByObjectId;
-        private uint _healedEndFrame;
+        public uint HealedByObjectId;
+        public uint HealedEndFrame;
         private uint _weaponBonusTypes;
         private byte _weaponSomethingPrimary;
         private byte _weaponSomethingSecondary;
@@ -248,7 +267,11 @@ namespace OpenSage.Logic.Object
         // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
         // while simultaneously supporting fast (non-allocating) iteration when accessing the list within the class.
         public IReadOnlyList<BehaviorModule> BehaviorModules => _behaviorModules;
-        private readonly List<BehaviorModule> _behaviorModules;
+        private readonly IReadOnlyList<BehaviorModule> _behaviorModules;
+
+        // this allows us to avoid allocating and casting a new list when we just want a single object
+        private FrozenDictionary<Type, object>? _firstBehaviorCache;
+        private FrozenDictionary<Type, List<object>>? _behaviorCache;
 
         private readonly BodyModule _body;
         public bool HasActiveBody() => _body is ActiveBody;
@@ -266,12 +289,29 @@ namespace OpenSage.Logic.Object
         }
         public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
+        public bool IsFullHealth => Health >= MaxHealth;
+
+        public bool IsDead => Health == Fix64.Zero;
+
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             _body.DoDamage(damageType, amount, deathType);
+            // units can have multiple delayed heal behaviors, as the default object has an inheritable autohealbehavior provided by veterancy
+            foreach (var autoHealBehavior in FindBehaviors<ISelfHealable>())
+            {
+                autoHealBehavior.RegisterDamage();
+            }
+        }
+
+        public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
+
+        public void Heal(Fix64 amount)
+        {
+            _body.Heal(amount);
         }
 
         public Collider RoughCollider { get; set; }
+        public Collider ShapedCollider => Collider.Create(Definition.CurrentGeometryShape, Transform);
         public List<Collider> Colliders { get; }
 
         public float VerticalOffset;
@@ -325,7 +365,14 @@ namespace OpenSage.Logic.Object
 
         public LogicFrame? LifeTime { get; set; }
 
-        public float BuildProgress;
+        private float _buildProgress100;
+
+        // todo: this is a bit convoluted, but the save file uses 0-100 whereas we use 0-1 for everything
+        public float BuildProgress
+        {
+            get => _buildProgress100 / 100;
+            set => _buildProgress100 = value * 100;
+        }
 
         public bool Hidden { get; set; }
 
@@ -359,7 +406,32 @@ namespace OpenSage.Logic.Object
         // to allocate a new object every time.
         private readonly UpgradeSet _upgradesAll = new();
 
-        public int Rank { get; set; }
+        private const string VeterancyUpgradeNameVeteran = "Upgrade_Veterancy_VETERAN"; // doesn't seem to be used in any of the inis, but is present in the sav file
+        private const string VeterancyUpgradeNameElite = "Upgrade_Veterancy_ELITE";
+        private const string VeterancyUpgradeNameHeroic = "Upgrade_Veterancy_HEROIC";
+
+        private VeterancyLevel _rank;
+        public int Rank
+        {
+            get => (int) _rank;
+            set
+            {
+                _rank = (VeterancyLevel)value;
+                var upgradeToApply = _rank switch
+                {
+                    VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
+                    VeterancyLevel.Elite => VeterancyUpgradeNameElite,
+                    VeterancyLevel.Heroic => VeterancyUpgradeNameHeroic,
+                    _ => null,
+                };
+                // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
+                if (upgradeToApply != null)
+                {
+                    Upgrade(GameContext.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
+                }
+            }
+        }
+
         public int ExperienceValue { get; set; }
         public int ExperienceRequiredForNextLevel { get; set; }
         internal float ExperienceMultiplier { get; set; }
@@ -473,6 +545,10 @@ namespace OpenSage.Logic.Object
             }
 
             RoughCollider = Collider.Create(Colliders);
+
+            _visionRange = Definition.VisionRange;
+            _shroudRevealSomething1.VisionRange = Definition.VisionRange;
+            _shroudClearingRange = Definition.ShroudClearingRange;
 
             IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
             CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
@@ -602,8 +678,6 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(in TimeInterval time)
         {
-            HandleConstruction();
-
             if (_objectMoved)
             {
                 UpdateColliders();
@@ -646,8 +720,14 @@ namespace OpenSage.Logic.Object
 
         internal void Update()
         {
+            VerifyHealer();
+            CheckDisabledStates();
             foreach (var behavior in _behaviorModules)
             {
+                if (HasActiveBody() && IsDead && behavior is not SlowDeathBehavior)
+                {
+                    continue; // if we're dead, we should only update SlowDeathBehavior
+                }
                 behavior.Update(_behaviorUpdateContext);
             }
         }
@@ -719,20 +799,6 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private void HandleConstruction()
-        {
-            // Check if the unit is being constructed
-            if (IsUnderActiveConstruction())
-            {
-                BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
-
-                if (BuildProgress >= 1.0f)
-                {
-                    FinishConstruction();
-                }
-            }
-        }
-
         internal Vector3 ToWorldspace(in Vector3 localPos)
         {
             var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), _transform.Matrix);
@@ -747,14 +813,76 @@ namespace OpenSage.Logic.Object
 
         public T FindBehavior<T>()
         {
-            // TODO: Cache this?
-            return _behaviorModules.OfType<T>().FirstOrDefault();
+            if (_firstBehaviorCache == null)
+            {
+                InstantiateBehaviorCache();
+            }
+
+            return _firstBehaviorCache!.TryGetValue(typeof(T), out var behavior) ? (T)behavior : default;
         }
 
-        internal IEnumerable<T> FindBehaviors<T>()
+        public IEnumerable<T> FindBehaviors<T>()
         {
-            // TODO: Cache this?
-            return _behaviorModules.OfType<T>();
+            if (_behaviorCache == null)
+            {
+                InstantiateBehaviorCache();
+            }
+
+            return _behaviorCache!.TryGetValue(typeof(T), out var behaviors) ? behaviors.Cast<T>() : [];
+        }
+
+        public T FindSpecialPowerBehavior<T>(SpecialPowerType specialPowerType) where T : SpecialPowerModule
+        {
+            return FindBehaviors<T>().FirstOrDefault(m => m.SpecialPowerType == specialPowerType);
+        }
+
+        public bool HasBehavior<T>()
+        {
+            return FindBehavior<T>() != null;
+        }
+
+        private void InstantiateBehaviorCache()
+        {
+            var cache = new Dictionary<Type, List<object>>();
+            var firstCache = new Dictionary<Type, object>();
+            foreach (var module in _behaviorModules)
+            {
+                var type = module.GetType();
+                foreach (var parent in GetParentTypes(type))
+                {
+                    if (!cache.TryGetValue(parent, out var value))
+                    {
+                        value = [];
+                        cache[parent] = value;
+                        firstCache[parent] = module;
+                    }
+
+                    value.Add(module);
+                }
+            }
+
+            _firstBehaviorCache = firstCache.ToFrozenDictionary();
+            _behaviorCache = cache.ToFrozenDictionary();
+        }
+
+        // modified https://stackoverflow.com/a/18375526
+        private static IEnumerable<Type> GetParentTypes(Type type)
+        {
+            yield return type;
+
+            // return all implemented or inherited interfaces
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            while (currentBaseType != null)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
         }
 
         public bool HasUpgrade(UpgradeTemplate upgrade)
@@ -769,7 +897,7 @@ namespace OpenSage.Logic.Object
                 : _upgrades.Contains(upgrade);
         }
 
-        private bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
+        public bool HasEnqueuedUpgrade(UpgradeTemplate upgrade)
         {
             return upgrade.Type == UpgradeType.Player
                 ? Owner.HasEnqueuedUpgrade(upgrade)
@@ -777,46 +905,101 @@ namespace OpenSage.Logic.Object
         }
 
         /// <summary>
+        /// Used to set an object status when the integer value of the bit is known but the actual enum value is not.
+        /// </summary>
+        /// <remarks>
+        /// When <see cref="ObjectStatus"/> is fully defined, this method should be removed.
+        /// </remarks>
+        public void SetUnknownStatus(int status, bool value)
+        {
+            _status.Set(status, value);
+        }
+
+        public void SetObjectStatus(ObjectStatus status, bool value)
+        {
+            _status.Set(status, value);
+        }
+
+        /// <summary>
         /// Called when a foundation has been placed, but construction has not yet begun
         /// </summary>
         internal void PrepareConstruction()
         {
-            if (IsStructure)
+            if (!IsStructure)
             {
-                ClearModelConditionFlags();
-
-                ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
-                ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
-                ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
+                return;
             }
+
+            Health = Fix64.Zero;
+            ClearModelConditionFlags();
+
+            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
+            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+            ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, false);
+
+            _status.Set(ObjectStatus.UnderConstruction, true);
+
+            // flatten terrain around object
+            var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(_transform.Translation);
+
+            if (centerPosition == null)
+            {
+                throw new InvalidStateException("object built outside of map bounds");
+            }
+
+            var (centerX, centerY) = centerPosition.Value;
+            var maxHeight = _gameContext.Terrain.HeightMap.GetHeight(centerX, centerY);
+            // on slopes, the height map isn't always exactly where our cursor is (our cursor is a float, and the heightmap is always a ushort), so snap the building to the nearest heightmap value
+            UpdateTransform(_transform.Translation with { Z = maxHeight }, _transform.Rotation);
+
+            // clear anything applicable in the build area (trees, rubble, etc)
+            var toDelete = new BitArray<ObjectKinds>(ObjectKinds.Shrubbery, ObjectKinds.ClearedByBuild); // this may not be completely accurate
+            foreach (var intersecting in _gameContext.Quadtree.FindIntersecting(ShapedCollider))
+            {
+                if (intersecting.Definition.KindOf.Intersects(toDelete))
+                {
+                    GameContext.GameObjects.DestroyObject(intersecting);
+                }
+            }
+
+            _gameContext.Terrain.SetMaxHeight(ShapedCollider, maxHeight);
         }
 
         /// <summary>
-        /// Called when construction has <i>actually</i> begun
+        /// Called when the dozer gets within the bounding sphere of the object in generals
         /// </summary>
-        internal void Construct()
+        internal void SetIsBeingConstructed()
         {
             ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, true);
+            ModelConditionFlags.Set(ModelConditionFlag.PartiallyConstructed, true);
             ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, false);
         }
 
-        internal void PauseConstruction()
+        internal void AdvanceConstruction()
         {
-            ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
-            ModelConditionFlags.Set(ModelConditionFlag.AwaitingConstruction, true);
+            var lastBuildProgress = BuildProgress;
+            BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
+            // structures can be attacked while under construction, and their health is a factor of their build progress;
+            var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
+            Heal(newHealth);
+
+            if (BuildProgress >= 1.0f)
+            {
+                FinishConstruction();
+            }
         }
 
         internal void FinishConstruction()
         {
             ClearModelConditionFlags();
+
+            _status.Set(ObjectStatus.UnderConstruction, false);
+
             EnergyProduction += Definition.EnergyProduction;
 
-            foreach (var module in _behaviorModules)
+            foreach (var module in FindBehaviors<ICreateModule>())
             {
-                if (module is ICreateModule createModule)
-                {
-                    createModule.OnBuildComplete();
-                }
+                module.OnBuildComplete();
             }
         }
 
@@ -832,7 +1015,7 @@ namespace OpenSage.Logic.Object
             return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed);
         }
 
-        internal void UpdateDamageFlags(Fix64 healthPercentage)
+        internal void UpdateDamageFlags(Fix64 healthPercentage, bool takingDamage)
         {
             // TODO: SoundOnDamaged
             // TODO: SoundOnReallyDamaged
@@ -843,15 +1026,33 @@ namespace OpenSage.Logic.Object
 
             if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
-                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
+                }
+
+                if (!IsBeingConstructed())
+                {
+                    // prevents damaged flags from being set while the building is being constructed - generals has models for this it seems, but they're not implemented as far as I can tell?
+                    ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
+                    _bodyDamageType = BodyDamageType.ReallyDamaged;
+                }
+
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
-                _bodyDamageType = BodyDamageType.ReallyDamaged;
             }
-            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            else if (takingDamage && healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
+                if (!ModelConditionFlags.Get(ModelConditionFlag.Damaged) && Definition.SoundOnDamaged != null)
+                {
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged.Value);
+                }
+
+                if (!IsBeingConstructed())
+                {
+                    ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
+                    _bodyDamageType = BodyDamageType.Damaged;
+                }
                 ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
-                ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
-                _bodyDamageType = BodyDamageType.Damaged;
             }
             else
             {
@@ -877,6 +1078,7 @@ namespace OpenSage.Logic.Object
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
             _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
+            Drawable.LogicTick();
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
@@ -911,6 +1113,7 @@ namespace OpenSage.Logic.Object
         public void ClearModelConditionFlags()
         {
             ModelConditionFlags.SetAll(false);
+            // todo: maintain map-based flags, such as NIGHT, SNOW, etc
         }
 
         public void OnLocalSelect(AudioSystem gameAudio)
@@ -926,16 +1129,6 @@ namespace OpenSage.Logic.Object
         public void OnLocalMove(AudioSystem gameAudio)
         {
             var audioEvent = Definition.VoiceMove?.Value;
-            if (audioEvent != null && ParentHorde == null)
-            {
-                gameAudio.PlayAudioEvent(this, audioEvent);
-            }
-        }
-
-        //TODO: use the target to figure out which sound triggers
-        public void OnLocalAttack(AudioSystem gameAudio)
-        {
-            var audioEvent = Definition.VoiceAttack?.Value;
             if (audioEvent != null && ParentHorde == null)
             {
                 gameAudio.PlayAudioEvent(this, audioEvent);
@@ -1037,12 +1230,9 @@ namespace OpenSage.Logic.Object
         {
             var completedUpgrades = GetUpgradesCompleted();
 
-            foreach (var module in _modules)
+            foreach (var upgradeableModule in FindBehaviors<IUpgradeableModule>())
             {
-                if (module is IUpgradeableModule upgradeableModule)
-                {
-                    upgradeableModule.TryUpgrade(completedUpgrades);
-                }
+                upgradeableModule.TryUpgrade(completedUpgrades);
             }
         }
 
@@ -1051,6 +1241,18 @@ namespace OpenSage.Logic.Object
             _upgrades.Remove(upgrade);
 
             // TODO: Set _triggered to false for all affected upgrade modules
+        }
+
+        public bool CanAttackObject(GameObject target)
+        {
+            return CanAttack && Definition.WeaponSets.Values.Any(t =>
+                t.Slots.Any(s => s?.Weapon.Value?.AntiMask.CanAttackObject(target) == true));
+        }
+
+        // todo: this probably is not correct
+        public bool IsAirborne(float groundDelta = 0.1f)
+        {
+            return Translation.Z - GameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
         }
 
         internal void Kill(DeathType deathType)
@@ -1066,6 +1268,14 @@ namespace OpenSage.Logic.Object
             if (construction)
             {
                 ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
+
+                var mostRecentConstructor = GameContext.GameObjects.GetObjectById(BuiltByObjectID);
+                // mostRecentConstructor is set to the unit currently or most recently building us
+                if (mostRecentConstructor.AIUpdate is IBuilderAIUpdate builderAiUpdate && builderAiUpdate.BuildTarget == this)
+                {
+                    // mostRecentConstructor is still trying to build us
+                    mostRecentConstructor.AIUpdate.Stop();
+                }
             }
             else
             {
@@ -1077,33 +1287,126 @@ namespace OpenSage.Logic.Object
 
             if (!construction)
             {
-                // If there are multiple SlowDeathBehavior modules,
-                // we need to use ProbabilityModifier to choose between them.
-                var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-                    .Where(x => x.IsApplicable(deathType))
-                    .ToList();
-                if (slowDeathBehaviors.Count > 1)
-                {
-                    var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-                    var random = _gameContext.Random.Next(sumProbabilityModifiers);
-                    var cumulative = 0;
-                    foreach (var deathBehavior in slowDeathBehaviors)
-                    {
-                        cumulative += deathBehavior.ProbabilityModifier;
-                        if (random < cumulative)
-                        {
-                            deathBehavior.OnDie(_behaviorUpdateContext, deathType);
-                            return;
-                        }
-                    }
-                    throw new InvalidOperationException();
-                }
+                ExecuteRandomSlowDeathBehavior(deathType);
             }
 
             foreach (var module in _behaviorModules)
             {
-                module.OnDie(_behaviorUpdateContext, deathType);
+                if (module is SlowDeathBehavior)
+                {
+                    // this is handled above
+                    continue;
+                }
+
+                module.OnDie(_behaviorUpdateContext, deathType, _status);
             }
+
+            PlayDieSound(deathType);
+        }
+
+        /// <summary>
+        /// Removes this object from the scene without playing any death effects or affecting stats.
+        /// </summary>
+        public void Destroy()
+        {
+            GameContext.GameObjects.DestroyObject(this);
+        }
+
+        private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
+        {
+            // If there are multiple SlowDeathBehavior modules,
+            // we need to use ProbabilityModifier to choose between them.
+            var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
+                .Where(x => x.IsApplicable(deathType, _status))
+                .ToList();
+
+            var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
+            var random = _gameContext.Random.Next(sumProbabilityModifiers);
+            var cumulative = 0;
+            foreach (var deathBehavior in slowDeathBehaviors)
+            {
+                cumulative += deathBehavior.ProbabilityModifier;
+                if (random < cumulative)
+                {
+                    deathBehavior.OnDie(_behaviorUpdateContext, deathType, _status);
+                    return;
+                }
+            }
+        }
+
+        private void PlayDieSound(DeathType deathType)
+        {
+            var voiceDie = deathType switch
+            {
+                DeathType.Burned => Definition.SoundDieFire?.Value,
+                DeathType.Poisoned or DeathType.PoisonedGamma or DeathType.PoisonedBeta => Definition.SoundDieToxin?.Value,
+                _ => null,
+            } ?? Definition.SoundDie?.Value;
+
+            if (voiceDie != null)
+            {
+                GameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
+            }
+        }
+
+        public void SetSelectable(bool selectable)
+        {
+            IsSelectable = selectable;
+            _status.Set(ObjectStatus.Unselectable, !selectable);
+        }
+
+        internal void AddToContainer(uint containerId)
+        {
+            _containerId = containerId;
+            _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
+            const uint disabledUntilFrame = 0x3FFFFFFFu; // not sure why this is this way;
+            Disable(DisabledType.Held, disabledUntilFrame);
+            Hidden = true;
+            SetSelectable(false);
+            _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
+            Owner.DeselectUnit(this);
+        }
+
+        internal void RemoveFromContainer()
+        {
+            _containerId = 0;
+            _containedFrame = 0;
+            UnDisable(DisabledType.Held);
+            Hidden = false;
+            SetSelectable(true);
+            _status.Set(ObjectStatus.InsideGarrison, false);
+        }
+
+        public void Disable(DisabledType type, uint frame)
+        {
+            _disabledTypes.Set(type, true);
+            _disabledTypesFrames[(int)type] = frame;
+        }
+
+        public void UnDisable(DisabledType type)
+        {
+            _disabledTypes.Set(type, false);
+            _disabledTypesFrames[(int)type] = 0;
+        }
+
+        private void CheckDisabledStates()
+        {
+            for (var i = 0; i < _disabledTypesFrames.Length; i++)
+            {
+                var disabledTypeFrame = _disabledTypesFrames[i];
+                if (disabledTypeFrame > 0 && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame.Value)
+                {
+                    UnDisable((DisabledType)i);
+                }
+            }
+        }
+
+        internal void Sell()
+        {
+            ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
+            _status.Set(ObjectStatus.Unselectable, true);
+            _status.Set(ObjectStatus.Sold, true);
+            Owner.DeselectUnit(this);
         }
 
         internal void GainExperience(int experience)
@@ -1111,18 +1414,29 @@ namespace OpenSage.Logic.Object
             ExperienceValue += (int) (ExperienceMultiplier * experience);
         }
 
-        internal void SpecialPowerAtLocation(SpecialPower specialPower, Vector3 location)
+        internal void SetBeingHealed(GameObject healer, uint endFrame)
         {
-            var oclSpecialPowers = FindBehaviors<OCLSpecialPowerModule>();
+            HealedByObjectId = healer.ID;
+            HealedEndFrame = endFrame;
+        }
 
-            foreach (var oclSpecialPower in oclSpecialPowers)
+        private void VerifyHealer()
+        {
+            if (HealedByObjectId != 0 && (IsFullHealth || _gameContext.GameLogic.CurrentFrame.Value >= HealedEndFrame))
             {
-                if (oclSpecialPower.Matches(specialPower))
-                {
-                    oclSpecialPower.Activate(location);
-                }
+                HealedByObjectId = 0;
+                HealedEndFrame = 0; // todo: is this reset?
             }
-            _gameContext.AudioSystem.PlayAudioEvent(specialPower.InitiateAtLocationSound.Value);
+        }
+
+        public void AddWeaponBonusType(WeaponBonusType bonusType)
+        {
+            _weaponBonusTypes |= (uint)bonusType;
+        }
+
+        public void RemoveWeaponBonusType(WeaponBonusType bonusType)
+        {
+            _weaponBonusTypes &= ~(uint)bonusType;
         }
 
         public void Persist(StatePersister reader)
@@ -1149,8 +1463,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref teamId);
             Team = GameContext.Game.TeamFactory.FindTeamById(teamId);
 
-            reader.PersistObjectID(ref _createdByObjectID);
-            reader.PersistUInt32(ref _builtByObjectID);
+            reader.PersistObjectID(ref CreatedByObjectID);
+            reader.PersistUInt32(ref BuiltByObjectID);
 
             var drawableId = Drawable.ID;
             reader.PersistUInt32(ref drawableId);
@@ -1160,7 +1474,7 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistAsciiString(ref _name);
-            reader.PersistUInt32(ref _unknown1);
+            reader.PersistBitArrayAsUInt32(ref _status); // this is stored as a uint in the sav file
             reader.PersistByte(ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
@@ -1191,7 +1505,7 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame(ref _containedFrame);
 
             // TODO: This goes up to 100, not 1, as other code in GameObject expects
-            reader.PersistSingle(ref BuildProgress);
+            reader.PersistSingle(ref _buildProgress100);
 
             reader.PersistObject(_upgrades);
 
@@ -1275,8 +1589,8 @@ namespace OpenSage.Logic.Object
             }
             reader.EndArray();
 
-            reader.PersistObjectID(ref _healedByObjectId);
-            reader.PersistFrame(ref _healedEndFrame);
+            reader.PersistObjectID(ref HealedByObjectId);
+            reader.PersistFrame(ref HealedEndFrame);
             reader.PersistBitArray(ref WeaponSetConditions);
             reader.PersistUInt32(ref _weaponBonusTypes);
 
@@ -1332,9 +1646,17 @@ namespace OpenSage.Logic.Object
                 Kill(DeathType.Exploded);
             }
 
+            if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
+                ImGui.CollapsingHeader("Veterancy"))
+            {
+                var rank = _rank;
+                ImGuiUtility.ComboEnum("Current Rank", ref rank);
+                Rank = (int)rank;
+            }
+
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                ImGui.LabelText("DisplayName", Definition.DisplayName);
+                ImGui.LabelText("DisplayName", Definition.DisplayName ?? string.Empty);
 
                 var translation = _transform.Translation;
                 if (ImGui.DragFloat3("Position", ref translation))
@@ -1342,8 +1664,31 @@ namespace OpenSage.Logic.Object
                     _transform.Translation = translation;
                 }
 
-                // TODO: Make this editable
+                ImGui.LabelText("ObjectStatus", _status.DisplayName);
+                if (ImGui.TreeNodeEx("Select ObjectStatus"))
+                {
+                    foreach (var flag in Enum.GetValues<ObjectStatus>())
+                    {
+                        if (ImGui.Selectable(flag.ToString(), _status.Get(flag)))
+                        {
+                            _status.Set(flag, !_status.Get(flag));
+                        }
+                    }
+                    ImGui.TreePop();
+                }
+
                 ImGui.LabelText("ModelConditionFlags", ModelConditionFlags.DisplayName);
+                if (ImGui.TreeNodeEx("Select ModelConditionFlags"))
+                {
+                    foreach (var flag in Enum.GetValues<ModelConditionFlag>())
+                    {
+                        if (ImGui.Selectable(flag.ToString(), ModelConditionFlags.Get(flag)))
+                        {
+                            ModelConditionFlags.Set(flag, !ModelConditionFlags.Get(flag));
+                        }
+                    }
+                    ImGui.TreePop();
+                }
 
                 var speed = Speed;
                 if (ImGui.InputFloat("Speed", ref speed))
@@ -1370,8 +1715,6 @@ namespace OpenSage.Logic.Object
             {
                 DrawInspector(drawModule);
             }
-
-            DrawInspector(_body);
 
             if (CurrentWeapon != null)
             {
@@ -1428,6 +1771,7 @@ namespace OpenSage.Logic.Object
     {
         public PolygonTrigger PolygonTrigger;
         public bool EnteredThisFrame;
+        private byte _unknown1;
         public bool IsInside;
 
         public void Persist(StatePersister reader)
@@ -1442,7 +1786,11 @@ namespace OpenSage.Logic.Object
 
             reader.PersistBoolean(ref EnteredThisFrame);
 
-            reader.SkipUnknownBytes(1);
+            reader.PersistByte(ref _unknown1); // encountered 1 for TrainCoal on Alpine Assault, not every time
+            if (_unknown1 != 0 && _unknown1 != 1)
+            {
+                throw new InvalidStateException();
+            }
 
             reader.PersistBoolean(ref IsInside);
         }

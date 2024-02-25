@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class BodyModule : BehaviorModule
     {
+        private float _armorDamageScalar;
+
+        protected GameObject GameObject { get; }
+
+        protected BodyModule(GameObject gameObject)
+        {
+            GameObject = gameObject;
+        }
+
         public Fix64 Health { get; internal set; }
 
         public abstract Fix64 MaxHealth { get; internal set; }
@@ -18,6 +28,8 @@ namespace OpenSage.Logic.Object
 
         public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
 
+        public virtual void Heal(Fix64 amount) { }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -26,13 +38,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            var unknownFloat = 1.0f;
-            reader.PersistSingle(ref unknownFloat);
-            if (unknownFloat != 1.0f)
-            {
-                throw new InvalidStateException();
-            }
+            reader.PersistSingle(ref _armorDamageScalar); // was roughly 0.9 after changing to hold the line
         }
+
+        private DamageType _inspectorDamageType = DamageType.Explosion;
+        private float _inspectorDamageAmount;
+        private DeathType _inspectorDeathType = DeathType.Normal;
 
         internal override void DrawInspector()
         {
@@ -46,6 +57,16 @@ namespace OpenSage.Logic.Object
             if (ImGui.InputFloat("Health", ref health))
             {
                 Health = (Fix64) health;
+            }
+
+            ImGui.Separator();
+
+            ImGuiUtility.ComboEnum("Damage Type", ref _inspectorDamageType);
+            ImGui.InputFloat("Damage Amount", ref _inspectorDamageAmount);
+            ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
+            if (ImGui.Button("Apply Damage"))
+            {
+                GameObject.DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType);
             }
         }
     }

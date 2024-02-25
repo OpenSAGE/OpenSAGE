@@ -9,9 +9,14 @@ namespace OpenSage.Logic.Object
     {
         internal virtual void Update(BehaviorUpdateContext context) { }
 
-        internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType) { }
+        internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status) { }
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
+
+        protected static uint FramesForMs(int ms)
+        {
+            return (uint)(Game.LogicFramesPerSecond * (ms / 1000f));
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -198,7 +203,7 @@ namespace OpenSage.Logic.Object
             { "PoisonedBehavior", PoisonedBehaviorModuleData.Parse },
             { "PropagandaTowerBehavior", PropagandaTowerBehaviorModuleData.Parse },
             { "RailroadBehavior", RailroadBehaviorModuleData.Parse },
-            { "RebuildHoleBehavior", RebuildHoleBehaviorModuleData.Parse },
+            { "RebuildHoleBehavior", RebuildHoleUpdateModuleData.Parse },
             { "ReplenishUnitsBehavior", ReplenishUnitsBehaviorModuleData.Parse },
             { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },

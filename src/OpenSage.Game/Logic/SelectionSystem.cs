@@ -139,7 +139,7 @@ namespace OpenSage.Logic
             {
                 if (CanSetRallyPoint(objects))
                 {
-                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator();
+                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator(Game);
                 }
                 else
                 {

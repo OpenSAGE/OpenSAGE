@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Orders
@@ -166,6 +167,15 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
+        public static Order CreateResumeBuild(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.ResumeBuild);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
         public static Order CreateAttackGround(int playerId, in Vector3 position)
         {
             var order = new Order(playerId, OrderType.ForceAttackGround);
@@ -184,26 +194,38 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateSpecialPowerAtObject(int playerId, int specialPowerId)
+        public static Order CreateSpecialPower(int playerId, int specialPowerId, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
         {
-            var order = new Order(playerId, OrderType.SpecialPowerAtObject);
+            var order = new Order(playerId, OrderType.SpecialPower);
 
-            //TODO: figure out arguments
+            order.AddIntegerArgument(specialPowerId);
+            order.AddIntegerArgument((int)orderFlags);
+            order.AddObjectIdArgument(commandCenterId);
 
             return order;
         }
 
-        public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position)
+        public static Order CreateSpecialPowerAtObject(int playerId, int specialPowerId, uint targetId, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
+        {
+            var order = new Order(playerId, OrderType.SpecialPowerAtObject);
+
+            order.AddIntegerArgument(specialPowerId);
+            order.AddObjectIdArgument(targetId);
+            order.AddIntegerArgument((int)orderFlags);
+            order.AddObjectIdArgument(commandCenterId);
+
+            return order;
+        }
+
+        public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
         {
             var order = new Order(playerId, OrderType.SpecialPowerAtLocation);
 
             order.AddIntegerArgument(specialPowerId);
             order.AddPositionArgument(position);
-
-            // Figure those out
-            order.AddObjectIdArgument(0);
-            order.AddIntegerArgument(0);
-            order.AddObjectIdArgument(0);
+            order.AddObjectIdArgument(0); // todo: unknown
+            order.AddIntegerArgument((int)orderFlags);
+            order.AddObjectIdArgument(commandCenterId);
 
             return order;
         }
@@ -214,6 +236,24 @@ namespace OpenSage.Logic.Orders
 
             // TODO: Figure this out.
             order.AddObjectIdArgument(0);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateRepairVehicle(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.RepairVehicle);
+
+            order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateRepairStructure(int playerId, uint objectId)
+        {
+            var order = new Order(playerId, OrderType.RepairStructure);
 
             order.AddObjectIdArgument(objectId);
 

@@ -537,10 +537,10 @@ namespace OpenSage.FileFormats
         }
 
         // TODO: remove this in favour of ReadArrayAtOffset
-        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
+        public static List<T?> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
         {
             var capacity = reader.ReadInt32();
-            List<T> result = new List<T>(capacity);
+            var result = new List<T?>(capacity);
 
             //get the offset
             var listOffset = reader.ReadUInt32();
@@ -551,7 +551,7 @@ namespace OpenSage.FileFormats
 
             for (var i = 0; i < capacity; i++)
             {
-                T item = default(T);
+                var item = default(T);
                 if (!ptr)
                 {
                     item = creator();
@@ -574,7 +574,7 @@ namespace OpenSage.FileFormats
                     }
                 }
 
-                result.Add(item);
+                result.Add(item); // todo: can definitely be null, but it seems like we really assume it isn't?
             }
 
             //jump back to where we came from
@@ -582,10 +582,10 @@ namespace OpenSage.FileFormats
             return result;
         }
 
-        public static T[] ReadArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
+        public static T?[] ReadArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
         {
             var capacity = reader.ReadInt32();
-            var result = new T[capacity];
+            var result = new T?[capacity];
 
             //get the offset
             var listOffset = reader.ReadUInt32();
@@ -596,7 +596,7 @@ namespace OpenSage.FileFormats
 
             for (var i = 0; i < capacity; i++)
             {
-                T item = default(T);
+                var item = default(T);
                 if (!ptr)
                 {
                     item = creator();
@@ -632,7 +632,7 @@ namespace OpenSage.FileFormats
             //get the offset
             var listOffset = reader.ReadUInt32();
             var oldOffset = reader.BaseStream.Position;
-            
+
             //jump to the location and read the data
             reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
 
@@ -642,14 +642,14 @@ namespace OpenSage.FileFormats
             reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
         }
 
-        public static T ReadAtOffset<T>(this BinaryReader reader, Func<T> callback)
+        public static T? ReadAtOffset<T>(this BinaryReader reader, Func<T> callback)
         {
             //get the offset
             var listOffset = reader.ReadUInt32();
 
             if (listOffset == 0)
             {
-                return default(T);
+                return default;
             }
 
             var oldOffset = reader.BaseStream.Position;
@@ -844,7 +844,7 @@ namespace OpenSage.FileFormats
 
         }
 
-        public static T ReadOptionalClassTypedValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
+        public static T? ReadOptionalClassTypedValueAtOffset<T>(this BinaryReader reader, Func<T> readCallback)
             where T : class
         {
             var offset = reader.ReadUInt32();
@@ -856,10 +856,8 @@ namespace OpenSage.FileFormats
                 reader.BaseStream.Seek(current, SeekOrigin.Begin);
                 return value;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public static byte ReadVersion(this BinaryReader reader) => reader.ReadByte();

@@ -24,6 +24,18 @@ namespace OpenSage.Mathematics
             _data = new BitArray512(maxBits);
         }
 
+        /// <summary>
+        /// Constructs a new bit array with the provided values set to true.
+        /// </summary>
+        /// <param name="values"></param>
+        public BitArray(params TEnum[] values): this()
+        {
+            foreach (var value in values)
+            {
+                Set(value, true);
+            }
+        }
+
         public BitArray(System.Collections.BitArray bitArray)
         {
             if (bitArray.Length >= 512)
@@ -48,6 +60,11 @@ namespace OpenSage.Mathematics
             }
         }
 
+        public BitArray(in BitArray512 bitArray)
+        {
+            _data = bitArray;
+        }
+
         public bool Get(int bit)
         {
             return _data.Get(bit);
@@ -57,21 +74,20 @@ namespace OpenSage.Mathematics
         {
             // This avoids an object allocation.
             var bitI = Unsafe.As<TEnum, int>(ref bit);
-            return _data.Get(bitI);
+            return Get(bitI);
         }
 
         public void Set(int bit, bool value)
         {
+            BitsChanged |= _data.Get(bit) != value;
             _data.Set(bit, value);
-            BitsChanged = true;
         }
 
         public void Set(TEnum bit, bool value)
         {
             // This avoids an object allocation.
             var bitI = Unsafe.As<TEnum, int>(ref bit);
-            _data.Set(bitI, value);
-            BitsChanged = true;
+            Set(bitI, value);
         }
 
         public void SetAll(bool value)
@@ -107,6 +123,16 @@ namespace OpenSage.Mathematics
             }
         }
 
+        public static BitArray<TEnum> operator |(BitArray<TEnum> left, BitArray<TEnum> right)
+        {
+            return new BitArray<TEnum>(left._data.Or(right._data));
+        }
+
+        public static BitArray<TEnum> operator &(BitArray<TEnum> left, BitArray<TEnum> right)
+        {
+            return new BitArray<TEnum>(left._data.And(right._data));
+        }
+
         public string DisplayName
         {
             get
@@ -124,7 +150,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public bool Equals(BitArray<TEnum> other) => _data.Equals(other._data);
+        public bool Equals(BitArray<TEnum>? other) => _data.Equals(other?._data);
 
         public override int GetHashCode()
         {

@@ -7,5 +7,11 @@
         {
             context.Scene.Audio.PlayMusicTrack(context.Scene.AssetLoadContext.AssetStore.MusicTracks.GetByName(trackName), fadeIn, fadeOut);
         }
+
+        [ScriptAction(ScriptActionType.SpeechPlay, "Play a speech file.", "'{0}' plays, allowing overlap {1} (true to allow, false to disallow)")]
+        public static void PlaySpeechFile(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.SpeechName)] string speechName, bool overlap)
+        {
+            context.Scene.Audio.PlayAudioEvent(context.Scene.AssetLoadContext.AssetStore.DialogEvents.GetByName(speechName));
+        }
     }
 }

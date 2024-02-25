@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.OrderGenerators;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
@@ -112,17 +114,33 @@ namespace OpenSage.Gui
                         if (commandButton.Options != null)
                         {
                             var needsPos = commandButton.Options.Get(CommandButtonOption.NeedTargetPos);
-                            var needsObject = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject)
-                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject)
-                                             || commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+                            var needAlly = commandButton.Options.Get(CommandButtonOption.NeedTargetAllyObject);
+                            var needEnemy = commandButton.Options.Get(CommandButtonOption.NeedTargetEnemyObject);
+                            var needNeutral = commandButton.Options.Get(CommandButtonOption.NeedTargetNeutralObject);
+                            var needsObject = needAlly || needEnemy || needNeutral;
+
+                            var targetOptions = new BitArray<SpecialPowerTarget>();
+                            targetOptions.Set(SpecialPowerTarget.Location, needsPos);
+                            targetOptions.Set(SpecialPowerTarget.AllyObject, needAlly);
+                            targetOptions.Set(SpecialPowerTarget.EnemyObject, needEnemy);
+                            targetOptions.Set(SpecialPowerTarget.NeutralObject, needNeutral);
+
+                            var orderFlags = OrderFlagsForCommandButtonOptions(commandButton.Options);
+
+                            var cursorInformation = new SpecialPowerCursorInformation(specialPower, orderFlags,
+                                targetOptions, commandButton.CursorName, commandButton.InvalidCursorName);
 
                             if (needsPos)
                             {
-                                game.OrderGenerator.StartSpecialPowerAtLocation(specialPower);
+                                game.OrderGenerator.StartSpecialPowerAtLocation(cursorInformation);
                             }
                             else if (needsObject)
                             {
-                                game.OrderGenerator.StartSpecialPowerAtObject(specialPower);
+                                game.OrderGenerator.StartSpecialPowerAtObject(cursorInformation);
+                            }
+                            else
+                            {
+                                game.OrderGenerator.StartSpecialPower(cursorInformation);
                             }
                         }
                         else
@@ -146,6 +164,25 @@ namespace OpenSage.Gui
                     order = CreateOrder(OrderType.PurchaseScience);
                     order.AddIntegerArgument(science.Value.InternalId);
                     break;
+
+                case CommandType.ExitContainer:
+                    // this hack is because:
+                    // a) the humvee's enter/exit slots start at 3, not 1
+                    // b) these exit buttons could theoretically not even be sequential (picture them only on the top or bottom)
+                    var orderedExits = selectedObject.Definition.CommandSet.Value.Buttons
+                        .Where(kvp => kvp.Value.Value.Command == CommandType.ExitContainer).OrderBy(kvp => kvp.Key);
+
+                    var objectToRemoveIndex = orderedExits.Select((kvp, i) => (kvp.Key, i)).First(t => t.Key == index).i;
+                    var objectIdToRemove = selectedObject.FindBehavior<OpenContainModule>().ContainedObjectIds[objectToRemoveIndex];
+
+                    order = CreateOrder(OrderType.ExitContainer);
+                    order.AddObjectIdArgument(objectIdToRemove);
+                    break;
+
+                case CommandType.Evacuate:
+                    order = CreateOrder(OrderType.Evacuate);
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }
@@ -154,6 +191,82 @@ namespace OpenSage.Gui
             {
                 game.NetworkMessageBuffer.AddLocalOrder(order);
             }
+        }
+
+        private static SpecialPowerOrderFlags OrderFlagsForCommandButtonOptions(BitArray<CommandButtonOption> commandButtonOptions)
+        {
+            SpecialPowerOrderFlags flags = default;
+
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetEnemyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetEnemyObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetEnemyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetEnemyObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetNeutralObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetNeutralObject;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetAllyObject))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetAllyObject;
+            }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown1))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown1;
+            // }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown2))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown2;
+            // }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedTargetPos))
+            {
+                flags |= SpecialPowerOrderFlags.NeedTargetPosition;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedUpgrade))
+            {
+                flags |= SpecialPowerOrderFlags.NeedUpgrade;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.NeedSpecialPowerScience))
+            {
+                flags |= SpecialPowerOrderFlags.NeedSpecialPowerScience;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OkForMultiSelect))
+            {
+                flags |= SpecialPowerOrderFlags.OkForMultiSelect;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.ContextModeCommand))
+            {
+                flags |= SpecialPowerOrderFlags.ContextModeCommand;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.CheckLike))
+            {
+                flags |= SpecialPowerOrderFlags.CheckLike;
+            }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown3))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown3;
+            // }
+            // if (commandButtonOptions.Get(CommandButtonOption.Unknown4))
+            // {
+            //     flags |= SpecialPowerOrderFlags.Unknown4;
+            // }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionOne))
+            {
+                flags |= SpecialPowerOrderFlags.OptionOne;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionTwo))
+            {
+                flags |= SpecialPowerOrderFlags.OptionTwo;
+            }
+            if (commandButtonOptions.Get(CommandButtonOption.OptionThree))
+            {
+                flags |= SpecialPowerOrderFlags.OptionThree;
+            }
+
+            return flags;
         }
     }
 }

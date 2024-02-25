@@ -128,7 +128,7 @@ namespace OpenSage.Mods.Generals.Gui
         }
 
         public static void StartingPositionClicked(SkirmishGameSettings settings, byte clickedPosition)
-        {            
+        {
             var currentlyAssignedPlayer = settings.Slots.FirstOrDefault(s => s.StartPosition == clickedPosition)?.Index ?? -1;
 
             var assignablePlayers = settings.Slots
@@ -291,7 +291,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                                     if (slot.FactionIndex == 0)
                                     {
-                                        slot.FactionIndex = (byte) random.Next(slot.FactionIndex, _game.GetPlayableSides().Count());
+                                        slot.FactionIndex = (byte) random.Next(1, _game.GetPlayableSides().Count() + 1);
                                     }
 
                                     if (slot.ColorIndex == -1)

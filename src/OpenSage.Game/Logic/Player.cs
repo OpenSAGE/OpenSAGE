@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
@@ -40,14 +39,24 @@ namespace OpenSage.Logic
         private uint _unknown3;
         private bool _hasInsufficientPower;
         private readonly List<BuildListItem> _buildListItems = new();
-        private TunnelManager _tunnelManager;
+        private TunnelManager? _tunnelManager;
+        public TunnelManager? TunnelManager => _tunnelManager;
         private uint _unknown4;
         private uint _unknown5;
         private bool _unknown6;
         private readonly bool[] _attackedByPlayerIds = new bool[MaxPlayers];
         private readonly PlayerScoreManager _scoreManager = new();
+        internal readonly SyncedSpecialPowerTimerCollection SyncedSpecialPowerTimers = [];
         private readonly List<ObjectIdSet> _controlGroups = new();
         private readonly ObjectIdSet _destroyedObjects = new();
+
+        private bool _bombardmentActive;
+        private bool _holdTheLineActive;
+        private bool _searchAndDestroyActive;
+
+        private bool _unknownBool;
+
+        private StrategyData? _strategyData;
 
         public uint Id { get; }
         public PlayerTemplate Template { get; }
@@ -95,14 +104,11 @@ namespace OpenSage.Logic
 
         public bool SpecialPowerAvailable(SpecialPower specialPower)
         {
-            if (specialPower.RequiredSciences != null)
+            foreach (var requirement in specialPower.RequiredSciences)
             {
-                foreach (var requirement in specialPower.RequiredSciences)
+                if (!HasScience(requirement.Value))
                 {
-                    if (!HasScience(requirement.Value))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -150,6 +156,8 @@ namespace OpenSage.Logic
 
             _teamTemplates = new List<TeamTemplate>();
 
+            _tunnelManager = new TunnelManager(); // todo: one of the map factions in generals doesn't have this - probably ok?
+
             Rank = new Rank(this, game.AssetStore.Ranks);
 
             if (template?.InitialUpgrades != null)
@@ -171,7 +179,7 @@ namespace OpenSage.Logic
             BankAccount = new BankAccount();
         }
 
-        internal void SelectUnits(IEnumerable<GameObject> units, bool additive = false)
+        internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
         {
             if (additive)
             {
@@ -180,6 +188,11 @@ namespace OpenSage.Logic
             else
             {
                 _selectedUnits = units.ToSet();
+            }
+
+            foreach (var unit in units)
+            {
+                unit.Drawable.TriggerSelection();
             }
 
             var unitsFromHordeSelection = new List<GameObject>();
@@ -209,21 +222,28 @@ namespace OpenSage.Logic
             foreach (var unit in _selectedUnits)
             {
                 unit.IsSelected = false;
-
-                if (unit.ParentHorde != null && unit.ParentHorde.IsSelected)
-                {
-                    unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
-                }
-                else
-                {
-                    var hordeContain = unit.FindBehavior<HordeContainBehavior>();
-                    if (hordeContain != null)
-                    {
-                        hordeContain.SelectAll(false);
-                    }
-                }
+                HandleHordeDeselect(unit);
             }
             _selectedUnits.Clear();
+        }
+
+        public void DeselectUnit(GameObject unit)
+        {
+            unit.IsSelected = false;
+            HandleHordeDeselect(unit);
+            _selectedUnits.Remove(unit);
+        }
+
+        private static void HandleHordeDeselect(GameObject unit)
+        {
+            if (unit.ParentHorde is { IsSelected: true })
+            {
+                unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
+            }
+            else
+            {
+                unit.FindBehavior<HordeContainBehavior>()?.SelectAll(false);
+            }
         }
 
         public void CreateSelectionGroup(int idx)
@@ -289,6 +309,7 @@ namespace OpenSage.Logic
         public void DirectlyAssignScience(Science science)
         {
             _sciences.Add(science);
+            ApplyScienceUpgrades(science);
         }
 
         public void PurchaseScience(Science science)
@@ -306,6 +327,21 @@ namespace OpenSage.Logic
 
             SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
             _sciences.Add(science);
+            ApplyScienceUpgrades(science);
+        }
+
+        private void ApplyScienceUpgrades(Science science)
+        {
+            foreach (var gameObject in _game.GameLogic.Objects)
+            {
+                if (gameObject.Owner == this)
+                {
+                    foreach (var upgradableScienceModule in gameObject.FindBehaviors<IUpgradableScienceModule>())
+                    {
+                        upgradableScienceModule.TryUpgrade(science);
+                    }
+                }
+            }
         }
 
         public bool HasScience(Science science)
@@ -620,8 +656,9 @@ namespace OpenSage.Logic
             reader.SkipUnknownBytes(70);
 
             reader.PersistObject(_scoreManager);
+            reader.SkipUnknownBytes(2);
 
-            reader.SkipUnknownBytes(4);
+            reader.PersistObject(SyncedSpecialPowerTimers);
 
             reader.PersistList(
                 _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
@@ -639,7 +676,21 @@ namespace OpenSage.Logic
 
             reader.PersistObject(_destroyedObjects);
 
-            reader.SkipUnknownBytes(14);
+            var hasStrategy = _strategyData != null;
+            reader.PersistBoolean(ref hasStrategy);
+            if (hasStrategy)
+            {
+                _strategyData ??= new StrategyData();
+                reader.PersistObject(_strategyData);
+            }
+
+            reader.PersistBoolean(ref _bombardmentActive);
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _holdTheLineActive);
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _searchAndDestroyActive);
+            reader.SkipUnknownBytes(3);
+            reader.PersistBoolean(ref _unknownBool);
         }
 
         public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
@@ -718,6 +769,28 @@ namespace OpenSage.Logic
         public void AddEnemy(Player player)
         {
             Enemies.Add(player);
+        }
+
+        public void InitializeStrategyData(BitArray<ObjectKinds> validMemberKindOf, BitArray<ObjectKinds> invalidMemberKindOf)
+        {
+            _strategyData ??= new StrategyData();
+            _strategyData.SetMemberKinds(validMemberKindOf, invalidMemberKindOf);
+        }
+
+        public void SetActiveBattlePlan(BattlePlanType battlePlan, float armorDamageScalar, float sightRangeScalar)
+        {
+            _bombardmentActive = battlePlan is BattlePlanType.Bombardment;
+            _holdTheLineActive = battlePlan is BattlePlanType.HoldTheLine;
+            _searchAndDestroyActive = battlePlan is BattlePlanType.SearchAndDestroy;
+            _strategyData?.SetActiveBattlePlan(battlePlan, armorDamageScalar, sightRangeScalar);
+        }
+
+        public void ClearBattlePlan()
+        {
+            _bombardmentActive = false;
+            _holdTheLineActive = false;
+            _searchAndDestroyActive = false;
+            _strategyData?.ClearBattlePlan();
         }
     }
 
@@ -927,6 +1000,19 @@ namespace OpenSage.Logic
         }
     }
 
+    public sealed class SyncedSpecialPowerTimerCollection : Dictionary<SpecialPowerType, uint>, IPersistableObject
+    {
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistDictionary(this,
+                static (StatePersister statePersister, ref SpecialPowerType specialPowerType, ref uint availableAtFrame) =>
+                {
+                    statePersister.PersistEnum(ref specialPowerType);
+                    statePersister.PersistUInt32(ref availableAtFrame);
+                }, "Dictionary");
+        }
+    }
+
     internal sealed class PlayerStatObjectCollection : Dictionary<string, uint>, IPersistableObject
     {
         public void Persist(StatePersister reader)
@@ -990,25 +1076,25 @@ namespace OpenSage.Logic
 
     public sealed class TunnelManager : IPersistableObject
     {
-        private readonly ObjectIdSet _tunnelIds = new();
-        private readonly List<uint> _containedObjectIds = new();
+        public ObjectIdSet TunnelIds { get; } = [];
+        public List<uint> ContainedObjectIds { get; } = [];
 
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistObject(_tunnelIds);
+            reader.PersistObject(TunnelIds);
 
             reader.PersistListWithUInt32Count(
-                _containedObjectIds,
+                ContainedObjectIds,
                 static (StatePersister persister, ref uint item) =>
                 {
                     persister.PersistObjectIDValue(ref item);
                 });
 
-            var tunnelCount = (uint)_tunnelIds.Count;
+            var tunnelCount = (uint)TunnelIds.Count;
             reader.PersistUInt32(ref tunnelCount);
-            if (tunnelCount != _tunnelIds.Count)
+            if (tunnelCount != TunnelIds.Count)
             {
                 throw new InvalidStateException();
             }
@@ -1092,6 +1178,62 @@ namespace OpenSage.Logic
 
             reader.PersistObject(_objectsLost);
             reader.PersistObject(_objectsCaptured);
+        }
+    }
+
+    // this seems to be _pretty_ similar to the content of BattlePlanUpdate, but not entirely?
+    public sealed class StrategyData : IPersistableObject
+    {
+        private bool _bombardmentActive;
+        private bool _holdTheLineActive;
+        private bool _searchAndDestroyActive;
+
+        private float _activeArmorDamageScalar = 1; // 0.9 when hold the line is active
+        private float _activeSightRangeScalar = 1; // 1.2 when search and destroy is active
+
+        private BitArray<ObjectKinds> _validMemberKindOf = new();
+        private BitArray<ObjectKinds> _invalidMemberKindOf = new();
+
+        internal void SetMemberKinds(BitArray<ObjectKinds> validMemberKindOf, BitArray<ObjectKinds> invalidMemberKindOf)
+        {
+            _validMemberKindOf = validMemberKindOf;
+            _invalidMemberKindOf = invalidMemberKindOf;
+        }
+
+        internal void SetActiveBattlePlan(BattlePlanType battlePlan, float armorDamageScalar, float sightRangeScalar)
+        {
+            _bombardmentActive = battlePlan is BattlePlanType.Bombardment;
+            _holdTheLineActive = battlePlan is BattlePlanType.HoldTheLine;
+            _searchAndDestroyActive = battlePlan is BattlePlanType.SearchAndDestroy;
+            _activeArmorDamageScalar = armorDamageScalar;
+            _activeSightRangeScalar = sightRangeScalar;
+        }
+
+        internal void ClearBattlePlan()
+        {
+            _bombardmentActive = false;
+            _holdTheLineActive = false;
+            _searchAndDestroyActive = false;
+            _activeArmorDamageScalar = 1;
+            _activeSightRangeScalar = 1;
+        }
+
+        public void Persist(StatePersister persister)
+        {
+
+            persister.PersistSingle(ref _activeArmorDamageScalar);
+            persister.PersistSingle(ref _activeSightRangeScalar);
+
+            // yes, this is actually parsed in a different order from BattlePlanUpdate
+            persister.PersistBoolean(ref _bombardmentActive);
+            persister.SkipUnknownBytes(3);
+            persister.PersistBoolean(ref _holdTheLineActive);
+            persister.SkipUnknownBytes(3);
+            persister.PersistBoolean(ref _searchAndDestroyActive);
+            persister.SkipUnknownBytes(3);
+
+            persister.PersistBitArray(ref _validMemberKindOf);
+            persister.PersistBitArray(ref _invalidMemberKindOf);
         }
     }
 }

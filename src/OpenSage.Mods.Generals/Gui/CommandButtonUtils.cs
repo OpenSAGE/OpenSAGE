@@ -12,9 +12,10 @@ namespace OpenSage.Mods.Generals.Gui
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void SetCommandButton(Button buttonControl, CommandButton commandButton, GeneralsControlBar controlBar)
+        public static void SetCommandButton(Button buttonControl, CommandButton commandButton, GeneralsControlBar controlBar, int index = 0)
         {
             buttonControl.BackgroundImage = buttonControl.Window.ImageLoader.CreateFromMappedImageReference(commandButton.ButtonImage);
+            buttonControl.OverlayImage = null;
 
             buttonControl.DisabledBackgroundImage = buttonControl.BackgroundImage?.WithGrayscale(true);
 
@@ -24,13 +25,15 @@ namespace OpenSage.Mods.Generals.Gui
             buttonControl.HoverOverlayImage = controlBar.CommandButtonHover;
             buttonControl.PushedOverlayImage = controlBar.CommandButtonPush;
 
+            buttonControl.IsSelected = false;
+
             var objectDefinition = commandButton.Object?.Value;
             buttonControl.SystemCallback = (control, message, context) =>
             {
                 Logger.Debug($"Button callback: {control.Name}, {commandButton.Command}");
                 Logger.Debug($"Relevant object: {objectDefinition?.Name}");
 
-                CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false);
+                CommandButtonCallback.HandleCommand(context.Game, commandButton, objectDefinition, false, index);
             };
 
             buttonControl.InputCallback = (control, message, context) =>

@@ -26,6 +26,9 @@ namespace OpenSage.Logic
 
         private uint _rankLevelLimit;
 
+        // object id -> some frame? unsure if order matters for this collection
+        private readonly Dictionary<uint, uint> _structuresBeingSold = [];
+
         internal uint NextObjectId = 1;
 
         private readonly List<GameObject> _objectsToIterate = new();
@@ -284,7 +287,12 @@ namespace OpenSage.Logic
 
             reader.PersistUInt32(ref _rankLevelLimit);
 
-            reader.SkipUnknownBytes(4);
+            reader.PersistDictionaryWithUInt32Count(_structuresBeingSold,
+                (StatePersister persister, ref uint objectId, ref uint saleFinishedFrameMaybe) =>
+                {
+                    persister.PersistUInt32(ref objectId);
+                    persister.PersistUInt32(ref saleFinishedFrameMaybe);
+                });
 
             reader.BeginArray("TechTreeOverrides");
             if (reader.Mode == StatePersistMode.Read)

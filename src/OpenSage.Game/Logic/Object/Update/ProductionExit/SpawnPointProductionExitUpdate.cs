@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
 
             _nextIndex++;
 
-            return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
+            return modelInstance.RelativeBoneTransforms[bone.Index].Translation;
         }
 
         private (ModelInstance, ModelBone) FindBone(int index)

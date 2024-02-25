@@ -55,7 +55,7 @@ namespace OpenSage.Mathematics
         //        Top < value.Bottom;
         //}
 
-        
+
         //public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
         //{
         //    if (value1.Intersects(value2))
@@ -86,7 +86,7 @@ namespace OpenSage.Mathematics
 
         public RectangleF ToRectangleF() => new RectangleF(X, Y, Width, Height);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is Rectangle))
             {

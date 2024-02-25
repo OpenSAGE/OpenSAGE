@@ -1,21 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using OpenSage.IO;
-
-namespace OpenSage.Data
+namespace OpenSage.IO
 {
     internal static class SkudefReader
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private class SkudefVersion : IComparable<SkudefVersion>
+        private readonly record struct SkudefVersion(string LanguageName, int VersionMajor, int VersionMinor) : IComparable<SkudefVersion>
         {
-            public string LanguageName { get; init; }
-            public int VersionMajor { get; init; }
-            public int VersionMinor { get; init; }
-
             public static SkudefVersion Parse(string fileName)
             {
                 var body = Path.GetFileNameWithoutExtension(fileName);
@@ -76,8 +66,7 @@ namespace OpenSage.Data
 
         private static void Read(string skudefDirectory, TextReader skudefReader, Action<string> addBigArchive)
         {
-            string line;
-            while ((line = skudefReader.ReadLine()) != null)
+            while (skudefReader.ReadLine() is { } line)
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
@@ -105,7 +94,7 @@ namespace OpenSage.Data
                     case "add-config":
                         using (var reader = new StreamReader(fullPath))
                         {
-                            Read(Path.GetDirectoryName(fullPath), reader, addBigArchive);
+                            Read(Path.GetDirectoryName(fullPath)!, reader, addBigArchive);
                         }
                         break;
                 }

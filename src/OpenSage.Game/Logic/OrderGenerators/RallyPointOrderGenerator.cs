@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
-using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Input;
 using OpenSage.Logic.Orders;
 
@@ -10,44 +7,53 @@ namespace OpenSage.Logic.OrderGenerators
     // TODO: Cancel this when:
     // 1. Structure dies
     // 2. We lose access to the building
-    public sealed class RallyPointOrderGenerator : IOrderGenerator
+    public sealed class RallyPointOrderGenerator(Game game) : OrderGenerator(game)
     {
-        private Vector3 _position;
+        public override bool CanDrag => true;
 
-        public bool CanDrag { get; } = true;
+        private OrderType _currentOrder = OrderType.Zero;
 
-        public RallyPointOrderGenerator()
+        public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
         {
-        }
+            var playerId = scene.GetPlayerIndex(LocalPlayer);
 
-        public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
-        {
-        }
+            if (_currentOrder is OrderType.SetSelection)
+            {
+                if (WorldObject == null)
+                {
+                    throw new InvalidStateException("World object null for set selection order");
+                }
 
-        public OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
-        {
-            var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
+                var setSelectionOrder = Order.CreateSetSelection(playerId, WorldObject.ID);
+
+                return OrderGeneratorResult.SuccessAndContinue(new[] { setSelectionOrder });
+            }
+
+            if (SelectedUnits == null)
+            {
+                throw new InvalidStateException("Local player not present when setting rally point");
+            }
 
             var objectIds = new List<uint>();
-            foreach (var gameObject in scene.LocalPlayer.SelectedUnits)
+            foreach (var gameObject in SelectedUnits)
             {
                 objectIds.Add(gameObject.ID);
             }
 
-            var order = Order.CreateSetRallyPointOrder(playerId, objectIds, _position);
+            var order = Order.CreateSetRallyPointOrder(playerId, objectIds, WorldPosition);
 
             return OrderGeneratorResult.SuccessAndContinue(new[] { order });
         }
 
-        public void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
+        public override string GetCursor(KeyModifiers keyModifiers)
         {
-            _position = worldPosition;
+            _currentOrder = GetCurrentOrder();
+            return Cursors.CursorForOrder(_currentOrder);
         }
 
-        public void UpdateDrag(Vector3 position)
+        private OrderType GetCurrentOrder()
         {
+            return WorldObject != null ? OrderType.SetSelection : OrderType.SetRallyPoint;
         }
-
-        public string GetCursor(KeyModifiers keyModifiers) => "SetRallyPoint";
     }
 }

@@ -75,7 +75,7 @@ namespace OpenSage.Mathematics
             return vec * c;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is DVector3 f && this == f;
         }

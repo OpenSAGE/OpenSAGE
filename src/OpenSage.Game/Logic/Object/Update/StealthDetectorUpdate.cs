@@ -4,7 +4,26 @@ namespace OpenSage.Logic.Object
 {
     public sealed class StealthDetectorUpdate : UpdateModule
     {
-        private bool _unknown;
+        private readonly StealthDetectorUpdateModuleData _moduleData;
+        public bool Active;
+
+        protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.DetectionRate);
+
+        public StealthDetectorUpdate(StealthDetectorUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+            Active = !_moduleData.InitiallyDisabled;
+        }
+
+        private protected override void RunUpdate(BehaviorUpdateContext context)
+        {
+            if (!Active)
+            {
+                return;
+            }
+
+            // todo: detect stealth
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -14,7 +33,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean(ref _unknown);
+            reader.PersistBoolean(ref Active);
         }
     }
 
@@ -75,7 +94,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new StealthDetectorUpdate();
+            return new StealthDetectorUpdate(this);
         }
     }
 }

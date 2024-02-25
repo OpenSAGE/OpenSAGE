@@ -29,6 +29,8 @@ namespace OpenSage.Logic.Object
         private uint _unknownInt5;
         private uint _unknownFrame;
         private float _unknownFloat1;
+        private byte _unknownByte1;
+        private byte _unknownByte2;
 
         public float Mass
         {
@@ -121,7 +123,9 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt5);
             reader.PersistFrame(ref _unknownFrame);
 
-            reader.SkipUnknownBytes(8);
+            reader.SkipUnknownBytes(6);
+            reader.PersistByte(ref _unknownByte1); // 128 for supply drop zone crate parachute
+            reader.PersistByte(ref _unknownByte2); // 63 for supply drop zone crate parachute
 
             reader.PersistSingle(ref _unknownFloat1);
         }

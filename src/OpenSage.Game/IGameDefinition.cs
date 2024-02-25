@@ -12,7 +12,7 @@ namespace OpenSage
     {
         SageGame Game { get; }
         string DisplayName { get; }
-        IGameDefinition BaseGame { get; }
+        IGameDefinition? BaseGame { get; }
 
         bool LauncherImagePrefixLang { get; }
         string LauncherImagePath { get; }
@@ -20,10 +20,10 @@ namespace OpenSage
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
-        
+
         IMainMenuSource MainMenu { get; }
-        IControlBarSource ControlBar { get; }
-        ICommandListOverlaySource CommandListOverlay { get; }
+        IControlBarSource? ControlBar { get; }
+        ICommandListOverlaySource? CommandListOverlay { get; }
 
         string Identifier { get; }
 
@@ -32,6 +32,8 @@ namespace OpenSage
         string GetLocalizedStringsPath(string language);
 
         OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
+
+        Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore);
 
         bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
     }

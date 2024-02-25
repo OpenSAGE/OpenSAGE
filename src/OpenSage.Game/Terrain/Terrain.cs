@@ -12,6 +12,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering.Water;
 using OpenSage.Graphics.Shaders;
 using OpenSage.IO;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
 using OpenSage.Utilities;
@@ -23,6 +24,7 @@ using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Rectangle = OpenSage.Mathematics.Rectangle;
+using RectangleF = OpenSage.Mathematics.RectangleF;
 
 namespace OpenSage.Terrain
 {
@@ -185,6 +187,65 @@ namespace OpenSage.Terrain
             _graphicsDevice.WaitForIdle();
 
             return result;
+        }
+
+        /// <summary>
+        /// Adjusts the terrain height within the specified collider. Does not consider z-axis.
+        /// </summary>
+        internal void SetMaxHeight(in Collider collider, in float newHeight)
+        {
+            // set terrain underneath geometry
+            var aaBounds = collider.AxisAlignedBoundingArea;
+
+            // this seems like the easiest (read: laziest) way to pick up all the coordinates within the bounds?
+            for (var x = (int) aaBounds.Left; x < aaBounds.Right; x++)
+            for (var y = (int) aaBounds.Top; y < aaBounds.Bottom; y++) // top to bottom is correct
+            {
+                var testCoords = new Vector2(x, y);
+                if (!collider.Contains(testCoords))
+                {
+                    continue;
+                }
+
+                // get current tile coords
+                var tilePosition = HeightMap.GetTilePosition(testCoords); // z doesn't matter
+                if (tilePosition == null)
+                {
+                    continue; // area is outside map bounds
+                }
+
+                // set tile height
+                var (tileX, tileY) = tilePosition.Value;
+                HeightMap.LowerHeight(tileX, tileY, newHeight);
+            }
+
+            // update terrain patches in affected area
+            OnHeightMapChanged(collider.AxisAlignedBoundingArea);
+        }
+
+        /// <summary>
+        /// Disposes of terrain patches within the bounding area and replaces them with new patches.
+        /// </summary>
+        private void OnHeightMapChanged(in RectangleF bounds)
+        {
+            for (var i = 0; i < _patches.Count; i++)
+            {
+                var patch = _patches[i];
+
+                if (patch.BoundingBox.Intersects(bounds))
+                {
+                    var newPatch = new TerrainPatch(HeightMap, patch.Bounds, _graphicsDevice,
+                        _indexBufferCache, patch.MaterialPass.ForwardPass);
+                    patch.Dispose();
+                    RemoveToDispose(patch);
+
+                    _renderBucket.RemoveObject(patch);
+
+                    _renderBucket.AddObject(newPatch);
+
+                    _patches[i] = newPatch;
+                }
+            }
         }
 
         internal void OnHeightMapChanged()

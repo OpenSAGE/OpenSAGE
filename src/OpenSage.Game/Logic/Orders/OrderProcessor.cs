@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.Orders.SpecialPower;
 
 namespace OpenSage.Logic.Orders
 {
@@ -69,10 +70,22 @@ namespace OpenSage.Logic.Orders
                     case OrderType.MoveTo:
                         {
                             var targetPosition = order.Arguments[0].Value.Position;
+                            GameObject? lastUnit = null;
                             foreach (var unit in player.SelectedUnits)
                             {
                                 unit.AIUpdate?.SetTargetPoint(targetPosition);
+                                var sound = unit.IsDamaged ? unit.Definition.SoundMoveStartDamaged?.Value : null;
+                                sound ??= unit.Definition.SoundMoveStart?.Value;
+
+                                if (sound != null)
+                                {
+                                    _game.Audio.PlayAudioEvent(unit, sound);
+                                }
+
+                                lastUnit = unit;
                             }
+
+                            lastUnit?.OnLocalMove(_game.Audio);
                         }
                         break;
                     case OrderType.BuildObject:
@@ -91,6 +104,8 @@ namespace OpenSage.Logic.Orders
 
                             var dozer = player.SelectedUnits.SingleOrDefault(u => u.Definition.KindOf.Get(ObjectKinds.Dozer));
                             (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(gameObject); // todo: I don't love this cast; it would be nice to get rid of it
+
+                            _game.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
                         }
                         break;
                     case OrderType.CancelBuild:
@@ -106,11 +121,13 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.ResumeBuild:
                         {
-                            var objId = order.Arguments[0].Value.ObjectId;
-                            var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
+                            var buildTargetId = order.Arguments[0].Value.ObjectId;
+                            var buildTarget = _game.Scene3D.GameObjects.GetObjectById(buildTargetId);
 
-                            // TODO: move selected unit (Dozer) to destination object
+                            var dozer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
+                            (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
 
+                            _game.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
                         }
                         break;
                     case OrderType.BeginUpgrade:
@@ -184,12 +201,25 @@ namespace OpenSage.Logic.Orders
                     case OrderType.Sell:
                         foreach (var unit in player.SelectedUnits)
                         {
-                            unit.ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
-                            // TODO: is there any logic for ModelConditionFlag.Sold ?
+                            unit.Sell();
+                            // todo: do not destroy or award money until sell teardown is complete
                             _game.Scene3D.GameObjects.DestroyObject(unit);
-                            player.BankAccount.Deposit((uint) (unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage));
+                            // items which award free units, like a tunnel network or supply center, have refund value set which overrides SellPercentage
+                            var sellAmount = unit.Definition.RefundValue ?? unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage;
+                            player.BankAccount.Deposit((uint) sellAmount);
                         }
-                        _game.Selection.ClearSelectedObjects(player);
+                        break;
+
+                    case OrderType.RepairStructure:
+                        {
+                            var repairer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
+                            var repairTargetId = order.Arguments[0].Value.ObjectId;
+                            var repairTarget =  _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
+
+                            (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
+
+                            _game.Audio.PlayAudioEvent(repairer, repairer.Definition.UnitSpecificSounds?.VoiceRepair?.Value);
+                        }
                         break;
 
                     case OrderType.SetCameraPosition:
@@ -229,6 +259,17 @@ namespace OpenSage.Logic.Orders
                                     unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, (uint)objectId));
                                 }
                             }
+
+                            var firstUnit = player.SelectedUnits.FirstOrDefault();
+
+                            // TODO: use the target to figure out which sound triggers
+                            // TODO: handle hordes properly
+                            var voiceAttack = firstUnit?.Definition.VoiceAttack?.Value;
+                            if (voiceAttack != null)
+                            {
+                                // only the first unit says their attack line (and only for attacking objects, not ground)
+                                _game.Audio.PlayAudioEvent(firstUnit, voiceAttack);
+                            }
                         }
                         break;
 
@@ -264,6 +305,8 @@ namespace OpenSage.Logic.Orders
                                     .ToArray();
                                 _game.Selection.SetRallyPointForSelectedObjects(player, objIds, new Vector3());
                             }
+
+                            _game.Audio.PlayAudioEvent("RallyPointSet");
                         }
                         catch (Exception e)
                         {
@@ -272,19 +315,41 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.SpecialPowerAtLocation:
                         {
-                            var specialPowerDefinitionId = order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
                             var specialPowerLocation = order.Arguments[1].Value.Position;
+                            var unknownObjectId = order.Arguments[2].Value.ObjectId;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[3].Value.Integer;
+                            var commandCenterSource = order.Arguments[4].Value.ObjectId;
 
-                            var specialPower = _game.AssetStore.SpecialPowers.GetByInternalId(specialPowerDefinitionId);
-                            foreach (var unit in player.SelectedUnits)
-                            {
-                                unit.SpecialPowerAtLocation(specialPower, specialPowerLocation);
-                            }
+                            SpecialPowerAtLocationApplicator.Execute(specialPowerDefinition,
+                                new LocationArguments(player, specialPowerLocation, commandFlags,
+                                    _game.GameLogic.GetObjectById(commandCenterSource)), player.SelectedUnits);
                         }
                         break;
+
                     case OrderType.SpecialPower:
+                        {
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[1].Value.Integer;
+                            var commandCenterSource = order.Arguments[2].Value.ObjectId; // todo: is this ever used for these commands?
+
+                            SpecialPowerApplicator.Execute(specialPowerDefinition,
+                                new SpecialPowerArguments(player, commandFlags), player.SelectedUnits);
+                        }
+                        break;
+
                     case OrderType.SpecialPowerAtObject:
-                        throw new NotImplementedException();
+                        {
+                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var targetId = order.Arguments[1].Value.ObjectId;
+                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[2].Value.Integer;
+                            var commandCenterSource = order.Arguments[3].Value.ObjectId;
+
+                            SpecialPowerAtObjectApplicator.Execute(specialPowerDefinition,
+                                new ObjectArguments(player, _game.GameLogic.GetObjectById(targetId), commandFlags,
+                                    _game.GameLogic.GetObjectById(commandCenterSource)), player.SelectedUnits);
+                        }
+                        break;
 
                     case OrderType.EndGame:
                         _game.EndGame();
@@ -295,6 +360,21 @@ namespace OpenSage.Logic.Orders
                         var science = _game.AssetStore.Sciences.GetByInternalId(scienceDefinitionId);
                         player.PurchaseScience(science);
                         //TODO: implement
+                        break;
+
+                    case OrderType.ExitContainer:
+                        var objectIdToExit = order.Arguments[0].Value.ObjectId;
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.FindBehavior<OpenContainModule>().Remove(objectIdToExit);
+                        }
+                        break;
+
+                    case OrderType.Evacuate:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            unit.FindBehavior<OpenContainModule>().Evacuate();
+                        }
                         break;
 
                     case OrderType.Enter:
@@ -308,13 +388,19 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[1].Value.Integer;
                             var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
 
+                            var container = gameObject.FindBehavior<OpenContainModule>();
                             foreach (var unit in player.SelectedUnits)
                             {
-                                gameObject.FindBehavior<TransportContain>().AddContained(unit);
+                                if (!container.CanAddUnit(unit))
+                                {
+                                    continue; // this unit can't enter the container (kindof doesn't match, or there aren't enough slots)
+                                }
 
                                 // TODO: Don't put it in container right now. Tell it to move towards container.
+                                //  use AIStateMachine EnterContainerState?
+                                //  deselect unit upon entry
                                 //unit.AIUpdate.SetTargetObject(gameObject);
-
+                                container.Add(unit);
                             }
 
                             break;
@@ -343,6 +429,23 @@ namespace OpenSage.Logic.Orders
                                 behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplyTarget;
                             }
                         }
+                        break;
+                    case OrderType.ToggleOvercharge:
+                        foreach (var unit in player.SelectedUnits)
+                        {
+                            foreach (var overchargeBehavior in unit.FindBehaviors<OverchargeBehavior>())
+                            {
+                                if (overchargeBehavior.Enabled)
+                                {
+                                    overchargeBehavior.Deactivate();
+                                }
+                                else
+                                {
+                                    overchargeBehavior.Activate();
+                                }
+                            }
+                        }
+
                         break;
                     case OrderType.Checksum:
                         break;

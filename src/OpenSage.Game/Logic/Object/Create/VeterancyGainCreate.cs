@@ -25,12 +25,17 @@ namespace OpenSage.Logic.Object
 
         public override void OnCreate()
         {
-            if (!_gameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
+            if (_moduleData.ScienceRequired != null && !_gameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
             {
                 return;
             }
 
-            _gameObject.Rank = (int) _moduleData.StartingLevel;
+            // units like the minigunner or tank battlemaster can start at vet 1 and be upgraded to vet 2, and so have two VeterancyGainCreate modules
+            var level = (int)_moduleData.StartingLevel;
+            if (level > _gameObject.Rank)
+            {
+                _gameObject.Rank = level;
+            }
         }
     }
 

@@ -52,7 +52,7 @@ namespace OpenSage.Mathematics
             M43 = m43;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Matrix4x3 x && Equals(x);
         }

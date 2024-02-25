@@ -65,6 +65,8 @@ namespace OpenSage.Logic.Object
             {
                 if (context.LogicFrame >= _currentStepEnd)
                 {
+                    var newObject = _productionQueue[0];
+                    ProduceObject(newObject.ObjectDefinition);
                     _productionQueue.RemoveAt(0);
                     Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
                     _currentStepEnd = context.LogicFrame + _moduleData.DoorWaitOpenTime;
@@ -80,7 +82,10 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            if (_productionQueue.Count > 0)
+            var isProducing = _productionQueue.Count > 0;
+            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, isProducing);
+
+            if (isProducing)
             {
                 var front = _productionQueue[0];
                 var result = front.Produce();
@@ -100,8 +105,7 @@ namespace OpenSage.Logic.Object
 
                             GetDoorConditionFlags(out var doorOpening, out var _, out var _);
                             _gameObject.ModelConditionFlags.Set(doorOpening, true);
-
-                            ProduceObject(front.ObjectDefinition);
+                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, true);
                         }
                         else
                         {
@@ -128,6 +132,7 @@ namespace OpenSage.Logic.Object
                 case DoorState.Open:
                     if (context.LogicFrame >= _currentStepEnd)
                     {
+                        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, false);
                         _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
                         if (_productionExit is ParkingPlaceBehaviour)
                         {
@@ -345,6 +350,8 @@ namespace OpenSage.Logic.Object
             {
                 _producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
+
+            _gameObject.GameContext.AudioSystem.PlayAudioEvent(_producedUnit, _producedUnit.Definition.SoundMoveStart.Value);
 
             HandleHordeCreation();
             HandleHarvesterUnitCreation(_gameObject, _producedUnit);

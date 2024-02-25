@@ -5,7 +5,7 @@ namespace OpenSage
     public abstract class BaseAsset : DisposableBase
     {
         public string FullName { get; private set; }
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
         public uint InstanceId { get; private set; }
 
         protected void SetNameAndInstanceId(string typeName, string name)

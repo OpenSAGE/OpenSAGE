@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.IO
 {
@@ -15,7 +13,7 @@ namespace OpenSage.IO
             _targetFileSystem = targetFileSystem;
         }
 
-        public override FileSystemEntry GetFile(string filePath)
+        public override FileSystemEntry? GetFile(string filePath)
         {
             if (!TryGetRelativePath(filePath, out var relativePath))
             {
@@ -27,8 +25,8 @@ namespace OpenSage.IO
 
         public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
             string directoryPath,
-            string searchPattern,
-            SearchOption searchOption)
+            string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             if (!TryGetRelativePath(directoryPath, out var relativePath))
             {
@@ -41,7 +39,7 @@ namespace OpenSage.IO
                 searchOption);
         }
 
-        private bool TryGetRelativePath(string path, out string relativePath)
+        private bool TryGetRelativePath(string path, [NotNullWhen(true)] out string? relativePath)
         {
             if (!path.StartsWith(_virtualDirectory))
             {

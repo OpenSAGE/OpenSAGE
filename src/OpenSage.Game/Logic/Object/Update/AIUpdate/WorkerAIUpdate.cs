@@ -8,21 +8,37 @@ namespace OpenSage.Logic.Object
 {
     public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
-        public bool HasBuildTarget => _buildTarget != null;
+        public GameObject? BuildTarget => _state.BuildTarget;
+        public GameObject? RepairTarget => _state.RepairTarget;
 
-        private WorkerAIUpdateModuleData _moduleData;
-        private GameObject _buildTarget;
+        private readonly GameContext _context;
+        private readonly WorkerAIUpdateModuleData _moduleData;
 
-        private readonly DozerAndWorkerState _state = new();
+        private readonly DozerAndWorkerState _state;
 
         private readonly WorkerAIUpdateStateMachine2 _stateMachine2 = new();
         private uint _unknownObjectId;
         private int _unknown5;
+        private int _unknown6;
         private readonly WorkerAIUpdateStateMachine3 _stateMachine3 = new();
 
-        internal WorkerAIUpdate(GameObject gameObject, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
+            _context = context;
             _moduleData = moduleData;
+            _state = new DozerAndWorkerState(gameObject, context, moduleData);
+        }
+
+        internal override void Stop()
+        {
+            _state.ClearDozerTasks();
+            // todo: stop supply gathering?
+            base.Stop();
+        }
+
+        protected override void ArrivedAtDestination()
+        {
+            _state.ArrivedAtDestination();
         }
 
         #region Dozer stuff
@@ -32,36 +48,33 @@ namespace OpenSage.Logic.Object
             // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
             // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
             SetTargetPoint(gameObject.Translation);
-            CurrentSupplyTarget = null;
-            SupplyGatherState = SupplyGatherStates.Default;
-            _buildTarget = gameObject;
+            _state.SetBuildTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
+            ResetSupplyState();
+        }
+
+        public void SetRepairTarget(GameObject gameObject)
+        {
+            // note that the order here is important, as SetTargetPoint will clear any existing repairTarget
+            SetTargetPoint(gameObject.Translation);
+            _state.SetRepairTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
+            ResetSupplyState();
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
+            _state.ClearDozerTasks();
             base.SetTargetPoint(targetPoint);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
-            _buildTarget?.PauseConstruction();
-            ClearBuildTarget();
-        }
-
-        protected override void ArrivedAtDestination()
-        {
-            base.ArrivedAtDestination();
-
-            if (_buildTarget is not null)
-            {
-                _buildTarget.Construct();
-                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, true);
-            }
-        }
-
-        private void ClearBuildTarget()
-        {
-            _buildTarget = null;
         }
 
         #endregion
+
+        #region Supply Stuff
+
+        private void ResetSupplyState()
+        {
+            CurrentSupplyTarget = null;
+            SupplyGatherState = SupplyGatherStates.Default;
+        }
 
         internal override void ClearConditionFlags()
         {
@@ -164,38 +177,25 @@ namespace OpenSage.Logic.Object
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.HarvestAction, false);
         }
 
+        #endregion
+
         internal override void Update(BehaviorUpdateContext context)
         {
             base.Update(context);
+            _state.Update(context);
 
-            if (_buildTarget?.ModelConditionFlags.Get(ModelConditionFlag.DestroyedWhilstBeingConstructed) == true)
-            {
-                ClearBuildTarget();
-                Stop();
-                return;
-            }
+            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
-            if (_buildTarget != null && _buildTarget.BuildProgress >= 1)
+            switch (SupplyGatherState)
             {
-                ClearBuildTarget();
-                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
-                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.VoiceTaskComplete.Value);
-            }
-            else
-            {
-                var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-
-                switch (SupplyGatherState)
-                {
-                    case SupplyGatherStates.Default:
-                        if (!isMoving)
-                        {
-                            SupplyGatherState = SupplyGatherStateToResume;
-                            break;
-                        }
-                        _waitUntil = context.LogicFrame + _moduleData.BoredTime;
+                case SupplyGatherStates.Default:
+                    if (!isMoving)
+                    {
+                        SupplyGatherState = SupplyGatherStateToResume;
                         break;
-                }
+                    }
+                    _waitUntil = context.LogicFrame + _moduleData.BoredTime;
+                    break;
             }
         }
 
@@ -213,7 +213,7 @@ namespace OpenSage.Logic.Object
             reader.PersistObjectID(ref _unknownObjectId);
             reader.PersistInt32(ref _unknown5);
 
-            reader.SkipUnknownBytes(1);
+            reader.PersistInt32(ref _unknown6); // was 1 when worker was carrying supplies, wandering around cc with no supply stash available
 
             reader.PersistObject(_stateMachine3);
         }
@@ -253,65 +253,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    internal sealed class WorkerAIUpdateStateMachine1 : StateMachineBase
-    {
-        public WorkerAIUpdateStateMachine1()
-        {
-            AddState(0, new WorkerUnknown0State());
-            AddState(1, new WorkerUnknown1State());
-        }
-
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
-        }
-
-        private sealed class WorkerUnknown0State : State
-        {
-            private int _unknown1;
-            private int _unknown2;
-            private bool _unknown3;
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-
-                reader.PersistInt32(ref _unknown1);
-                reader.PersistInt32(ref _unknown2);
-                reader.PersistBoolean(ref _unknown3);
-            }
-        }
-
-        private sealed class WorkerUnknown1State : State
-        {
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-
-                reader.SkipUnknownBytes(4);
-
-                var unknown2 = 1;
-                reader.PersistInt32(ref unknown2);
-                if (unknown2 != 1)
-                {
-                    throw new InvalidStateException();
-                }
-
-                reader.SkipUnknownBytes(1);
-            }
-        }
-    }
-
     internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
     {
         public WorkerAIUpdateStateMachine2()
         {
             AddState(0, new WorkerUnknown0State());
             AddState(1, new WorkerUnknown1State());
+            AddState(2, new WorkerUnknown2State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
+            AddState(3, new WorkerUnknown3State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
             AddState(4, new WorkerUnknown4State());
         }
 
@@ -340,6 +289,22 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        private sealed class WorkerUnknown2State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+            }
+        }
+
+        private sealed class WorkerUnknown3State : State
+        {
+            public override void Persist(StatePersister reader)
+            {
+                reader.PersistVersion(1);
+            }
+        }
+
         private sealed class WorkerUnknown4State : State
         {
             public override void Persist(StatePersister reader)
@@ -354,7 +319,7 @@ namespace OpenSage.Logic.Object
     /// VoiceTaskComplete within UnitSpecificSounds section of the object.
     /// Requires Kindof = DOZER.
     /// </summary>
-    public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData
+    public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData, IBuilderAIUpdateData
     {
         internal new static WorkerAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
@@ -392,7 +357,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new WorkerAIUpdate(gameObject, this);
+            return new WorkerAIUpdate(gameObject, context, this);
         }
     }
 }

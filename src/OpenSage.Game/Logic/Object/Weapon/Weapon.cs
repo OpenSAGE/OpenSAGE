@@ -3,7 +3,7 @@ using ImGuiNET;
 
 namespace OpenSage.Logic.Object
 {
-    internal sealed class Weapon : IPersistableObject
+    public sealed class Weapon : IPersistableObject
     {
         private readonly ModelConditionFlag _usingFlag;
 
@@ -37,7 +37,7 @@ namespace OpenSage.Logic.Object
             internal set => _currentRounds = value;
         }
 
-        public WeaponTarget CurrentTarget { get; private set; }
+        internal WeaponTarget CurrentTarget { get; private set; }
 
         private Vector3? CurrentTargetPosition => CurrentTarget?.TargetPosition;
 
@@ -94,7 +94,7 @@ namespace OpenSage.Logic.Object
             CurrentRounds = Template.ClipSize;
         }
 
-        public void SetTarget(WeaponTarget target)
+        internal void SetTarget(WeaponTarget target)
         {
             if (CurrentTarget == target)
             {

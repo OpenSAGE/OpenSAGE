@@ -28,7 +28,7 @@ namespace OpenSage.Mathematics
             return rect.Size;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is SizeF && Equals((SizeF) obj);
         }
@@ -58,6 +58,11 @@ namespace OpenSage.Mathematics
         public static bool operator !=(in SizeF f1, in SizeF f2)
         {
             return !(f1 == f2);
+        }
+
+        public static SizeF operator *(SizeF size, float multiplier)
+        {
+            return new SizeF(size.Width * multiplier, size.Height * multiplier);
         }
     }
 }

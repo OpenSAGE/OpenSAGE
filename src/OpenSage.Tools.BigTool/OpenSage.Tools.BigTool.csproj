@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="ConsoleTables" Version="2.4.2" />
+    <PackageReference Include="ConsoleTables" Version="2.6.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,6 +11,8 @@ namespace OpenSage.Mathematics
         public static readonly ColorRgbaF White = new ColorRgbaF(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly ColorRgbaF Black = new ColorRgbaF(0.0f, 0.0f, 0.0f, 1.0f);
         public static readonly ColorRgbaF Red = new ColorRgbaF(1.0f, 0.0f, 0.0f, 1.0f);
+        public static readonly ColorRgbaF Green = new ColorRgbaF(0.0f, 1.0f, 0.0f, 1.0f);
+        public static readonly ColorRgbaF Blue = new ColorRgbaF(0.0f, 0.0f, 1.0f, 1.0f);
 
         public readonly float R;
         public readonly float G;
@@ -63,7 +65,7 @@ namespace OpenSage.Mathematics
             return new ColorRgbaF(r, g, b, A);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ColorRgbaF && Equals((ColorRgbaF) obj);
         }

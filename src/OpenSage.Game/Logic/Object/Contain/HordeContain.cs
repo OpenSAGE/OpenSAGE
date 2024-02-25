@@ -169,7 +169,7 @@ namespace OpenSage.Logic.Object
             { "InitialPayload", (parser, x) => x.InitialPayloads.Add(Payload.Parse(parser)) },
             { "Slots", (parser, x) => x.Slots = parser.ParseInteger() },
             { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) },
-            { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() }, 
+            { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
             { "ThisFormationIsTheMainFormation", (parser, x) => x.ThisFormationIsTheMainFormation = parser.ParseBoolean() },
             { "RandomOffset", (parser, x ) => x.RandomOffset = parser.ParsePoint() },
 
@@ -310,7 +310,6 @@ namespace OpenSage.Logic.Object
         public bool Initialized { get; set; } = false;
     }
 
-    [AddedIn(SageGame.Bfme)]
     public sealed class Payload
     {
         internal static Payload Parse(IniParser parser)

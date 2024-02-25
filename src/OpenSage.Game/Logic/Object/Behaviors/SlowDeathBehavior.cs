@@ -33,11 +33,21 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        internal bool IsApplicable(DeathType deathType) => _moduleData.DeathTypes?.Get(deathType) ?? true;
+        internal bool IsApplicable(DeathType deathType, BitArray<ObjectStatus> status) =>
+            (_moduleData.DeathTypes?.Get(deathType) ?? true) && IsCorrectStatus(status);
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        private bool IsCorrectStatus(BitArray<ObjectStatus> status)
         {
-            if (!IsApplicable(deathType))
+            var required = !_moduleData.RequiredStatus.AnyBitSet || // if nothing is required, we pass
+                                _moduleData.RequiredStatus.Intersects(status); // or if we are the one of the required statuses, we pass
+            var notExempt = !_moduleData.ExemptStatus.AnyBitSet || // if nothing is exempt, we pass
+                                !_moduleData.ExemptStatus.Intersects(status); // or if we are not one of the exempt statuses, we pass
+            return required && notExempt;
+        }
+
+        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+        {
+            if (!IsApplicable(deathType, status))
             {
                 return;
             }
@@ -193,10 +203,10 @@ namespace OpenSage.Logic.Object
             { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
         };
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
-        public BitArray<ObjectStatus> RequiredStatus { get; private set; }
-        public BitArray<ObjectStatus> ExemptStatus { get; private set; }
-        public int ProbabilityModifier { get; private set; }
+        public BitArray<DeathType>? DeathTypes { get; private set; }
+        public BitArray<ObjectStatus> RequiredStatus { get; private set; } = new();
+        public BitArray<ObjectStatus> ExemptStatus { get; private set; } = new();
+        public int ProbabilityModifier { get; private set; } = 100;
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
         public LogicFrameSpan SinkDelay { get; private set; }

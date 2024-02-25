@@ -31,8 +31,8 @@ namespace OpenSage.Mods.Bfme2
         public string Identifier { get; } = "bfme2_rotwk";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
-        public IControlBarSource ControlBar { get; }
-        public ICommandListOverlaySource CommandListOverlay => null;
+        public IControlBarSource? ControlBar { get; }
+        public ICommandListOverlaySource? CommandListOverlay => null;
 
         public uint ScriptingTicksPerSecond => 5;
 
@@ -44,6 +44,8 @@ namespace OpenSage.Mods.Bfme2
         {
             return new OnDemandAssetLoadStrategy(PathResolvers.Bfme2W3d, PathResolvers.Bfme2Texture);
         }
+
+        public Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore) => new(scene3D, assetStore);
 
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
 

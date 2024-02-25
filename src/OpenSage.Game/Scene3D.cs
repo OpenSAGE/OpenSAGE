@@ -108,6 +108,8 @@ namespace OpenSage
 
         public readonly RenderScene RenderScene;
 
+        private readonly Scene25D _scene25D;
+
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -157,6 +159,8 @@ namespace OpenSage
             };
 
             game.ContentManager.GraphicsDevice.WaitForIdle();
+
+            _scene25D = game.Definition.CreateScene25D(this, AssetLoadContext.AssetStore);
         }
 
         private void LoadObjects(
@@ -419,109 +423,10 @@ namespace OpenSage
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
         internal void Render(DrawingContext2D drawingContext)
         {
-            DrawHealthBoxes(drawingContext);
+            _scene25D.Draw(drawingContext);
 
             SelectionGui?.Draw(drawingContext);
             DebugOverlay?.Draw(drawingContext, Camera);
-        }
-
-        private void DrawHealthBoxes(DrawingContext2D drawingContext)
-        {
-            void DrawHealthBox(GameObject gameObject)
-            {
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Horde))
-                {
-                    return;
-                }
-
-                var geometrySize = gameObject.Definition.Geometry.Shapes[0].MajorRadius;
-
-                // Not sure if this is what IsSmall is actually for.
-                if (gameObject.Definition.Geometry.IsSmall)
-                {
-                    geometrySize = Math.Max(geometrySize, 15);
-                }
-
-                var boundingSphere = new BoundingSphere(gameObject.Translation, geometrySize);
-                var healthBoxSize = Camera.GetScreenSize(boundingSphere);
-
-                var healthBoxWorldSpacePos = gameObject.Translation.WithZ(gameObject.Translation.Z + gameObject.Definition.Geometry.Shapes[0].Height);
-                var healthBoxRect = Camera.WorldToScreenRectangle(
-                    healthBoxWorldSpacePos,
-                    new SizeF(healthBoxSize, 3));
-
-                if (healthBoxRect == null)
-                {
-                    return;
-                }
-
-                void DrawBar(in RectangleF rect, in ColorRgbaF color, float value)
-                {
-                    var actualRect = rect.WithWidth(rect.Width * value);
-                    drawingContext.FillRectangle(actualRect, color);
-
-                    var borderColor = color.WithRGB(color.R / 2.0f, color.G / 2.0f, color.B / 2.0f);
-                    drawingContext.DrawRectangle(rect, borderColor, 1);
-                }
-
-                // TODO: Not sure what to draw for InactiveBody?
-                if (gameObject.HasActiveBody())
-                {
-                    DrawBar(
-                        healthBoxRect.Value,
-                        new ColorRgbaF(0, 1, 0, 1),
-                        (float)gameObject.HealthPercentage);
-                }
-
-                var yOffset = 0;
-                if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) && gameObject.IsBeingConstructed())
-                {
-                    yOffset += 4;
-                    var constructionProgressBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
-                    DrawBar(
-                        constructionProgressBoxRect,
-                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
-                        gameObject.BuildProgress);
-                }
-                else if (gameObject.ProductionUpdate != null)
-                {
-                    yOffset += 4;
-                    var productionBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
-                    var productionBoxValue = gameObject.ProductionUpdate.IsProducing
-                        ? gameObject.ProductionUpdate.ProductionQueue[0].Progress
-                        : 0;
-
-                    DrawBar(
-                        productionBoxRect,
-                        new ColorRgba(172, 255, 254, 255).ToColorRgbaF(),
-                        productionBoxValue);
-                }
-
-                var gainsExperience = gameObject.FindBehavior<ExperienceUpdate>().ObjectGainsExperience;
-                if (gainsExperience)
-                {
-                    yOffset += 4;
-                    var experienceBoxRect = healthBoxRect.Value.WithY(healthBoxRect.Value.Y + yOffset);
-                    DrawBar(
-                        experienceBoxRect,
-                        new ColorRgba(255, 255, 0, 255).ToColorRgbaF(),
-                        gameObject.ExperienceValue / (float)gameObject.ExperienceRequiredForNextLevel);
-                }
-            }
-
-            // The AssetViewer has no LocalPlayer
-            if (LocalPlayer != null)
-            {
-                foreach (var selectedUnit in LocalPlayer.SelectedUnits)
-                {
-                    DrawHealthBox(selectedUnit);
-                }
-
-                if (LocalPlayer.HoveredUnit != null)
-                {
-                    DrawHealthBox(LocalPlayer.HoveredUnit);
-                }
-            }
         }
 
         internal void CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)

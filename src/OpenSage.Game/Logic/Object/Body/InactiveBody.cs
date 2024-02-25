@@ -5,20 +5,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class InactiveBody : BodyModule
     {
-        private readonly GameObject _gameObject;
-
-        internal InactiveBody(GameObject gameObject)
+        internal InactiveBody(GameObject gameObject) : base(gameObject)
         {
-            _gameObject = gameObject;
         }
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {
             // TODO
 
-            _gameObject.Die(deathType);
+            GameObject.Die(deathType);
         }
-        
+
         public override Fix64 MaxHealth
         {
             get => Fix64.Zero;

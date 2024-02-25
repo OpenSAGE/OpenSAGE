@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 
@@ -11,7 +12,8 @@ namespace OpenSage.Logic.Object
 
         private List<GameObject> _spawnedUnits;
         private bool _initial;
-        private IProductionExit _productionExit;
+        private IProductionExit? _productionExit;
+        private OpenContainModule? _openContain;
 
         private bool _unknownBool1;
         private string _templateName;
@@ -33,8 +35,6 @@ namespace OpenSage.Logic.Object
 
         private void SpawnUnit()
         {
-            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
-
             var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
@@ -42,6 +42,22 @@ namespace OpenSage.Logic.Object
             if (slavedUpdate != null)
             {
                 slavedUpdate.Master = _gameObject;
+            }
+
+            if (!TryTransformViaProductionExit(spawnedObject) &&
+                !TryTransformViaOpenContainer(spawnedObject))
+            {
+                throw new Exception("Unable to set spawn point for spawned unit");
+            }
+        }
+
+        private bool TryTransformViaProductionExit(GameObject spawnedObject)
+        {
+            _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+
+            if (_productionExit == null)
+            {
+                return false;
             }
 
             if (_productionExit != null)
@@ -60,6 +76,41 @@ namespace OpenSage.Logic.Object
             {
                 ProductionUpdate.HandleHarvesterUnitCreation(_gameObject, spawnedObject);
             }
+
+            return true;
+        }
+
+        // GLATunnelNetwork has no production exit behavior - it's explicitly commented out, saying "... we don't appear to need it for the spawns because they use OpenContain instead"
+        private bool TryTransformViaOpenContainer(GameObject spawnedObject)
+        {
+            _openContain ??= _gameObject.FindBehavior<OpenContainModule>();
+
+            if (_openContain == null)
+            {
+                return false;
+            }
+
+            // spawn at container output
+            var (exitStart, exitEnd) = _openContain.DefaultExitPath;
+
+            if (exitStart.HasValue && exitEnd.HasValue)
+            {
+                spawnedObject.SetTranslation(_gameObject.ToWorldspace(exitStart.Value));
+                spawnedObject.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(exitEnd.Value));
+            }
+            else
+            {
+                spawnedObject.SetTranslation(_gameObject.Translation);
+            }
+
+            // move to rally point
+            var rallyPoint = _gameObject.RallyPoint;
+            if (rallyPoint.HasValue)
+            {
+                spawnedObject.AIUpdate?.AddTargetPoint(rallyPoint.Value);
+            }
+
+            return true;
         }
 
         public void SpawnInitial()

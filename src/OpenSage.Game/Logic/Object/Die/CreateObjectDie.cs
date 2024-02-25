@@ -5,16 +5,16 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CreateObjectDie : DieModule
     {
-        private readonly CreateObjectDieModuleData _moduleData;
+        private new CreateObjectDieModuleData ModuleData { get; }
 
-        internal CreateObjectDie(CreateObjectDieModuleData moduleData)
+        internal CreateObjectDie(CreateObjectDieModuleData moduleData) : base(moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
         }
 
-        internal override void OnDie(BehaviorUpdateContext context, DeathType deathType)
+        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            context.GameContext.ObjectCreationLists.Create(_moduleData.CreationList.Value, context);
+            context.GameContext.ObjectCreationLists.Create(ModuleData.CreationList.Value, context);
         }
 
         internal override void Load(StatePersister reader)

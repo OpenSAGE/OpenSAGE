@@ -25,29 +25,26 @@ namespace OpenSage.Logic.Object
         private bool _indestructible;
         private BitArray<ArmorSetCondition> _armorSetConditions = new();
 
-        protected readonly GameObject GameObject;
-
         public override Fix64 MaxHealth { get; internal set; }
 
-        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData)
+        internal ActiveBody(GameObject gameObject, ActiveBodyModuleData moduleData) : base(gameObject)
         {
-            GameObject = gameObject;
             _moduleData = moduleData;
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
 
-            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
+            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth), false);
         }
 
-        private void SetHealth(Fix64 value)
+        private void SetHealth(Fix64 value, bool takingDamage)
         {
             Health = value;
-            GameObject.UpdateDamageFlags(HealthPercentage);
+            GameObject.UpdateDamageFlags(HealthPercentage, takingDamage);
         }
 
         public override void SetInitialHealth(float multiplier)
         {
-            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
+            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier), false);
         }
 
         public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
@@ -63,7 +60,7 @@ namespace OpenSage.Logic.Object
             var armor = armorSet.Armor.Value;
             var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
             var actualDamage = amount * (Fix64) (float) damagePercent;
-            SetHealth(Health - actualDamage);
+            SetHealth(Health - actualDamage, true);
 
             // TODO: DamageFX
             if (armorSet.DamageFX?.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
@@ -83,6 +80,16 @@ namespace OpenSage.Logic.Object
             {
                 GameObject.Die(deathType);
             }
+        }
+
+        public override void Heal(Fix64 amount)
+        {
+            var newHealth = Health + amount;
+            if (newHealth > MaxHealth)
+            {
+                newHealth = MaxHealth;
+            }
+            SetHealth(newHealth, false);
         }
 
         internal override void Load(StatePersister reader)
@@ -164,7 +171,7 @@ namespace OpenSage.Logic.Object
 
         public float MaxHealth { get; private set; }
         public float? InitialHealth { get; private set; }
-       
+
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }
 
@@ -191,7 +198,7 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float MaxHealthReallyDamaged { get; private set; }
-        
+
         [AddedIn(SageGame.Bfme)]
         public string GrabFX { get; private set; }
 

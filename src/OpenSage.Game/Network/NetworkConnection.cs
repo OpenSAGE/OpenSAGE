@@ -90,7 +90,7 @@ namespace OpenSage.Network
             {
                 if (peer != sender)
                 {
-                    Logger.Trace($"  Redistributing to {peer.EndPoint}");
+                    Logger.Trace($"  Redistributing to {peer}");
                     peer.Send(_writer, DeliveryMethod.ReliableUnordered);
                 }
             }
@@ -122,12 +122,12 @@ namespace OpenSage.Network
                 _manager.DisconnectTimeout = 600000;
             }
 
-            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer.EndPoint} connected");
-            _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer.EndPoint} disconnected with reason {info.Reason}");
+            _listener.PeerConnectedEvent += peer => Logger.Trace($"{peer} connected");
+            _listener.PeerDisconnectedEvent += (peer, info) => Logger.Trace($"{peer} disconnected with reason {info.Reason}");
             _listener.NetworkReceiveEvent += (NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod) => _processor.ReadAllPackets(reader, peer);
 
             _writer = new NetDataWriter();
-            _processor = new NetPacketProcessor();            
+            _processor = new NetPacketProcessor();
             _processor.RegisterNestedType<Order>(WriteOrder, ReadOrder);
             _processor.Subscribe<SkirmishOrderPacket, NetPeer>(ReceiveOrderPacket, () => new SkirmishOrderPacket());
         }
@@ -136,7 +136,7 @@ namespace OpenSage.Network
 
         private void ReceiveOrderPacket(SkirmishOrderPacket packet, NetPeer sender)
         {
-            Logger.Trace($"Received packet for frame {packet.Frame} from {sender.EndPoint}");
+            Logger.Trace($"Received packet for frame {packet.Frame} from {sender}");
             ProcessOrderPacket(packet, sender);
         }
 

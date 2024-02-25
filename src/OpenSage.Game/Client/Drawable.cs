@@ -76,7 +76,7 @@ namespace OpenSage.Client
         private ColorFlashHelper _selectionFlashHelper;
         private ColorFlashHelper _scriptedFlashHelper;
 
-        private ObjectDecalType _objectDecalType;
+        public ObjectDecalType ObjectDecalType;
 
         private float _unknownFloat2;
         private float _unknownFloat3;
@@ -104,7 +104,18 @@ namespace OpenSage.Client
         private bool _someMatrixIsIdentity;
         private Matrix4x3 _someMatrix;
 
-        private Animation _animation;
+        private List<Animation> _animations = [];
+        public IReadOnlyList<Animation> Animations => _animations;
+        private readonly Dictionary<AnimationType, Animation> _animationMap = [];
+
+        private Vector3? _selectionFlashColor;
+        private Vector3 SelectionFlashColor => _selectionFlashColor ??=
+            _gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashHouseColor
+                ? GameObject.Owner.Color.ToVector3()
+                : new Vector3( // the ini comments say "zero leaves color unaffected, 4.0 is purely saturated", however the value in the ini is 0.5 and value in sav files is 0.25, so either it's hardcoded or the comments are wrong and I choose configurability
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                    Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1));
 
         internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
         {
@@ -148,6 +159,48 @@ namespace OpenSage.Client
                     // TODO: This will never be null once we've implemented all the draw modules.
                     AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
+            }
+        }
+
+        // as far as I can tell nothing like this is stored in the actual game, so I'm not sure how this was handled for network games where logic ticks weren't linked to fps (if at all - you can't save a network game, after all)
+        private LogicFrame _lastSelectionFlashFrame;
+
+        public void LogicTick()
+        {
+            var currentFrame = _gameContext.GameLogic.CurrentFrame;
+            if (currentFrame > _lastSelectionFlashFrame)
+            {
+                _lastSelectionFlashFrame = currentFrame;
+                _selectionFlashHelper?.StepFrame();
+            }
+        }
+
+        public void TriggerSelection()
+        {
+            _selectionFlashHelper ??= new ColorFlashHelper(); // this is dynamically created in generals - units don't get one until they have been selected
+            _selectionFlashHelper.StartSelection(SelectionFlashColor);
+        }
+
+        public void AddAnimation(AnimationType animationName)
+        {
+            if (_animationMap.ContainsKey(animationName))
+            {
+                return;
+            }
+
+            var animationTemplate = _gameContext.Game.AssetStore.Animations.GetByName(Animation.AnimationTypeToName(animationName));
+            var animation = new Animation(animationTemplate);
+
+            _animations.Add(animation);
+            _animationMap[animationName] = animation;
+        }
+
+        public void RemoveAnimation(AnimationType animationType)
+        {
+            if (_animationMap.Remove(animationType))
+            {
+                // todo: this can result in a lot of allocations
+                _animations = _animations.Where(a => a.AnimationType != animationType).ToList();
             }
         }
 
@@ -196,7 +249,7 @@ namespace OpenSage.Client
             return null;
         }
 
-        public (ModelInstance modelInstance, ModelBone bone) FindBone(string boneName)
+        public (ModelInstance? modelInstance, ModelBone? bone) FindBone(string boneName)
         {
             foreach (var drawModule in _drawModules)
             {
@@ -229,6 +282,15 @@ namespace OpenSage.Client
                     continue;
                 }
 
+                var pitchShift = renderItemConstantsPS;
+                if (_selectionFlashHelper?.IsActive == true)
+                {
+                    pitchShift = pitchShift with
+                    {
+                        TintColor = pitchShift.TintColor + _selectionFlashHelper.CurrentColor,
+                    };
+                }
+
                 drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
                 drawModule.Update(gameTime);
                 drawModule.SetWorldMatrix(worldMatrix);
@@ -236,7 +298,7 @@ namespace OpenSage.Client
                     renderList,
                     camera,
                     castsShadow,
-                    renderItemConstantsPS,
+                    pitchShift,
                     _shownSubObjects,
                     _hiddenSubObjects);
             }
@@ -351,7 +413,7 @@ namespace OpenSage.Client
                 reader.PersistObject(_scriptedFlashHelper);
             }
 
-            reader.PersistEnum(ref _objectDecalType);
+            reader.PersistEnum(ref ObjectDecalType);
 
             var unknownFloat1 = 1.0f;
             reader.PersistSingle(ref unknownFloat1);
@@ -419,14 +481,25 @@ namespace OpenSage.Client
             var unknownInt8 = 0u;
             reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
 
-            var hasAnimation2D = _animation != null;
-            reader.PersistBoolean(ref hasAnimation2D);
-            if (hasAnimation2D)
+            var animation2DCount = (byte) _animations.Count;
+            reader.PersistByte(ref animation2DCount);
+
+            reader.BeginArray("Animations");
+
+            if (reader.Mode == StatePersistMode.Read)
             {
-                var animation2DName = _animation?.Template.Name;
+                _animations = [];
+            }
+
+            for (var i = 0; i < animation2DCount; i++)
+            {
+                reader.BeginObject();
+                var animation = reader.Mode == StatePersistMode.Read ? null : _animations[i];
+                var animation2DName = animation?.Template.Name;
                 reader.PersistAsciiString(ref animation2DName);
 
-                reader.SkipUnknownBytes(4);
+                var unknownInt = 0;
+                reader.PersistInt32(ref unknownInt); // was non-zero for bombtimed - potentially a frame?
 
                 var animation2DName2 = animation2DName;
                 reader.PersistAsciiString(ref animation2DName2);
@@ -438,11 +511,16 @@ namespace OpenSage.Client
                 if (reader.Mode == StatePersistMode.Read)
                 {
                     var animationTemplate = reader.AssetStore.Animations.GetByName(animation2DName);
-                    _animation = new Animation(animationTemplate);
+                    animation = new Animation(animationTemplate);
+                    _animations.Add(animation);
                 }
 
-                reader.PersistObject(_animation);
+                reader.PersistObject(animation);
+
+                reader.EndObject();
             }
+
+            reader.EndArray();
 
             var unknownBool3 = true;
             reader.PersistBoolean(ref unknownBool3);
@@ -515,9 +593,11 @@ namespace OpenSage.Client
 
     public enum ObjectDecalType
     {
-        HordeInfantry = 1,
-        HordeVehicle = 3,
-        Crate = 5,
+        HordeInfantry = 1, // exhorde.dds
+        NationalismInfantry = 2, // exhorde_up.dds
+        HordeVehicle = 3, // exhordeb.dds
+        NationalismVehicle = 4, // exhordeb_up.dds
+        Crate = 5, // exjunkcrate.dds
         None = 6,
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Audio;
+using System;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -17,7 +18,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<SpecialPower> FieldParseTable = new()
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
-            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
+            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseInteger() },
             { "RequiredScience", (parser, x) => x.RequiredSciences = new[] { parser.ParseScienceReference() } },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
@@ -44,7 +45,10 @@ namespace OpenSage.Logic.Object
         };
 
         public SpecialPowerType Type { get; private set; }
-        public long ReloadTime { get; private set; }
+        /// <summary>
+        /// The time for the special power to reload, in ms.
+        /// </summary>
+        public int ReloadTime { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }
@@ -78,7 +82,7 @@ namespace OpenSage.Logic.Object
         public int ForbiddenObjectRange { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public LazyAssetReference<Science>[] RequiredSciences { get; private set; }
+        public LazyAssetReference<Science>[] RequiredSciences { get; private set; } = [];
 
         [AddedIn(SageGame.Bfme2)]
         public string UnitSpecificSoundToUseAsInitiateIntendToDoVoice { get; private set; }
@@ -111,53 +115,92 @@ namespace OpenSage.Logic.Object
 
     public enum SpecialPowerType
     {
+        /// <summary>
+        /// USA fuel-air bomb science ability.
+        /// </summary>
         [IniEnum("SPECIAL_DAISY_CUTTER")]
-        DaisyCutter,
+        FuelAirBomb = 2,
 
+        /// <summary>
+        /// USA paradrop infantry science ability.
+        /// </summary>
         [IniEnum("SPECIAL_PARADROP_AMERICA")]
-        ParadropAmerica,
+        ParadropAmerica = 3,
 
+        /// <summary>
+        /// China carpet bomb science ability.
+        /// </summary>
         [IniEnum("SPECIAL_CARPET_BOMB")]
         CarpetBomb,
 
+        /// <summary>
+        /// China cluster mines science ability.
+        /// </summary>
         [IniEnum("SPECIAL_CLUSTER_MINES")]
-        ClusterMines,
+        ClusterMines = 5,
 
+        /// <summary>
+        /// China EMP bomb science ability.
+        /// </summary>
         [IniEnum("SPECIAL_EMP_PULSE")]
-        EmpPulse,
+        EmpPulse = 6,
 
         [IniEnum("SPECIAL_CRATE_DROP")]
         CrateDrop,
 
+        /// <summary>
+        /// USA A-10 Thunderbolt strike science ability.
+        /// </summary>
         [IniEnum("SPECIAL_A10_THUNDERBOLT_STRIKE")]
-        A10ThunderboltStrike,
+        A10ThunderboltStrike = 8,
 
         [IniEnum("SPECIAL_NAPALM_STRIKE")]
         NapalmStrike,
 
+        /// <summary>
+        /// China nuclear missile superweapon launch.
+        /// </summary>
         [IniEnum("SPECIAL_NEUTRON_MISSILE")]
-        NeutronMissile,
+        NuclearMissile = 10,
 
         [IniEnum("SPECIAL_DETONATE_DIRTY_NUKE")]
         DetonateDirtyNuke,
 
+        /// <summary>
+        /// GLA SCUD storm superweapon launch.
+        /// </summary>
         [IniEnum("SPECIAL_SCUD_STORM")]
-        ScudStorm,
+        ScudStorm = 12,
 
+        /// <summary>
+        /// China artillery barrage science ability.
+        /// </summary>
         [IniEnum("SPECIAL_ARTILLERY_BARRAGE")]
-        ArtilleryBarrage,
+        ArtilleryBarrage = 13,
 
+        /// <summary>
+        /// China cash hack science ability.
+        /// </summary>
         [IniEnum("SPECIAL_CASH_HACK")]
-        CashHack,
+        CashHack = 14,
 
+        /// <summary>
+        /// USA spy satellite command center ability.
+        /// </summary>
         [IniEnum("SPECIAL_SPY_SATELLITE")]
-        SpySatellite,
+        SpySatellite = 15,
 
+        /// <summary>
+        /// USA spy drone science ability.
+        /// </summary>
         [IniEnum("SPECIAL_SPY_DRONE")]
-        SpyDrone,
+        SpyDrone = 16,
 
+        /// <summary>
+        /// GLA radar van scan ability.
+        /// </summary>
         [IniEnum("SPECIAL_RADAR_VAN_SCAN")]
-        RadarVanScan,
+        RadarVanScan = 17,
 
         [IniEnum("SPECIAL_DEFECTOR")]
         Defector,
@@ -165,62 +208,123 @@ namespace OpenSage.Logic.Object
         [IniEnum("SPECIAL_TERROR_CELL")]
         TerrorCell,
 
+        /// <summary>
+        /// GLA rebel ambush science ability.
+        /// </summary>
         [IniEnum("SPECIAL_AMBUSH")]
-        Ambush,
+        Ambush = 20,
 
         [IniEnum("SPECIAL_BLACK_MARKET_NUKE")]
         BlackMarketNuke,
 
+        /// <summary>
+        /// GLA anthrax bomb science ability.
+        /// </summary>
         [IniEnum("SPECIAL_ANTHRAX_BOMB")]
         AnthraxBomb,
 
+        /// <summary>
+        /// USA Missile Defender laser-lock ability.
+        /// </summary>
         [IniEnum("SPECIAL_MISSILE_DEFENDER_LASER_GUIDED_MISSILES")]
-        MissileDefenderLaserGuidedMissiles,
+        MissileDefenderLaserGuidedMissiles = 23,
 
+        /// <summary>
+        /// China Tank Hunter TNT ability.
+        /// </summary>
         [IniEnum("SPECIAL_TANKHUNTER_TNT_ATTACK")]
-        TankHunterTntAttack,
+        TankHunterTntAttack = 24,
 
+        /// <summary>
+        /// USA Colonel Burton remote demo charge ability (plus detonation).
+        /// </summary>
         [IniEnum("SPECIAL_REMOTE_CHARGES")]
-        RemoteCharges,
+        RemoteCharges = 25,
 
+        /// <summary>
+        /// USA Colonel Burton timed demo charge ability.
+        /// </summary>
         [IniEnum("SPECIAL_TIMED_CHARGES")]
-        TimedCharges,
+        TimedCharges = 26,
 
+        /// <summary>
+        /// China Hacker disable building ability.
+        /// </summary>
         [IniEnum("SPECIAL_HACKER_DISABLE_BUILDING")]
-        HackerDisableBuilding,
+        HackerDisableBuilding = 27,
 
-        [IniEnum("SPECIAL_INFANTRY_CAPTURE_BUILDING")]
-        InfantryCaptureBuilding,
-
+        /// <summary>
+        /// China Black Lotus capture building ability.
+        /// </summary>
         [IniEnum("SPECIAL_BLACKLOTUS_CAPTURE_BUILDING")]
-        BlackLotusCaptureBuilding,
+        BlackLotusCaptureBuilding = 28,
 
+        /// <summary>
+        /// Infantry capture building ability.
+        /// </summary>
+        /// <remarks>
+        /// 29 for usa, 30 for china, 31 for gla (enum string is the same)
+        /// todo: figure out how to handle this
+        /// </remarks>
+        [IniEnum("SPECIAL_INFANTRY_CAPTURE_BUILDING")]
+        InfantryCaptureBuilding = 29,
+
+        /// <summary>
+        /// China Black Lotus disable vehicle ability.
+        /// </summary>
         [IniEnum("SPECIAL_BLACKLOTUS_DISABLE_VEHICLE_HACK")]
-        BlackLotusDisableVehicleHack,
+        BlackLotusDisableVehicleHack = 32,
 
+        /// <summary>
+        /// China Black Lotus cash hack ability.
+        /// </summary>
         [IniEnum("SPECIAL_BLACKLOTUS_STEAL_CASH_HACK")]
-        BlackLotusStealCashHack,
+        BlackLotusStealCashHack = 33,
 
+        /// <summary>
+        /// USA Detention Center intelligence ability.
+        /// </summary>
         [IniEnum("SPECIAL_CIA_INTELLIGENCE")]
-        CiaIntelligence,
+        CiaIntelligence = 34,
 
+        /// <summary>
+        /// All-faction emergency repair science ability.
+        /// </summary>
         [IniEnum("SPECIAL_REPAIR_VEHICLES")]
-        RepairVehicles,
+        RepairVehicles = 35,
 
+        /// <summary>
+        /// GLA Bomb Truck disguise as vehicle ability.
+        /// </summary>
         [IniEnum("SPECIAL_DISGUISE_AS_VEHICLE")]
-        DisguiseAsVehicle,
+        DisguiseAsVehicle = 36,
 
+        /// <summary>
+        /// USA Particle Cannon superweapon launch.
+        /// </summary>
+        /// <remarks>
+        /// Uses <see cref="OrderType.DirectParticleCannon"/> to guide.
+        /// </remarks>
         [IniEnum("SPECIAL_PARTICLE_UPLINK_CANNON")]
-        ParticleUplinkCannon,
+        ParticleUplinkCannon = 37,
 
         [IniEnum("SPECIAL_CASH_BOUNTY")]
         CashBounty,
 
+        /// <summary>
+        /// USA Strategy center Bombardment/Hold the Line/Search and Destroy abilities.
+        /// </summary>
+        /// <remarks>
+        /// Uses flags to set plan type.
+        /// </remarks>
         [IniEnum("SPECIAL_CHANGE_BATTLE_PLANS")]
-        ChangeBattlePlans,
+        ChangeBattlePlans = 41,
 
+        /// <summary>
+        /// USA Ambulance clean up toxins ability.
+        /// </summary>
         [IniEnum("SPECIAL_CLEANUP_AREA")]
-        CleanupArea,
+        CleanupArea = 42,
 
         [IniEnum("SPECIAL_LAUNCH_BAIKONUR_ROCKET")]
         LaunchBaikonurRocket,
@@ -714,5 +818,27 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("RESPECT_RECHARGE_TIME_DISCOUNT")]
         RespectRechargeTimeDiscount,
+    }
+
+    // todo: these entries are very similar to CommandButtonOrderType. Perhaps in the future CommandButtonOrderType should be reordered as the ordinal values don't appear to be used?
+    [Flags]
+    public enum SpecialPowerOrderFlags
+    {
+        NeedTargetEnemyObject       = 1 << 0,
+        NeedTargetNeutralObject     = 1 << 1,
+        NeedTargetAllyObject        = 1 << 2,
+        Unknown1                    = 1 << 3,
+        Unknown2                    = 1 << 4,
+        NeedTargetPosition          = 1 << 5,
+        NeedUpgrade                 = 1 << 6,
+        NeedSpecialPowerScience     = 1 << 7,
+        OkForMultiSelect            = 1 << 8,
+        ContextModeCommand          = 1 << 9,
+        CheckLike                   = 1 << 10,
+        Unknown3                    = 1 << 11,
+        Unknown4                    = 1 << 12,
+        OptionOne                   = 1 << 13,
+        OptionTwo                   = 1 << 14,
+        OptionThree                 = 1 << 15,
     }
 }

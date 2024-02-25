@@ -159,23 +159,36 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (wasOpenClicked)
             {
-                var openDialog = new OpenFileDialog("Open .big file");
-                openDialog.Open(result => OpenBigFile(result), "Big archive(*.big) | *.big");
+                // "Open .big file"
+                var bigFilter = new NativeFileDialog.Filter { Name = "Big archive", Extensions = ["big"], };
+                if (NativeFileDialog.OpenDialog([bigFilter], null, out var result))
+                {
+                    OpenBigFile(result);
+                }
             }
             if (wasExportAllClicked)
             {
-                var dirDialog = new DirectoryDialog("Select folder for export files");
-                dirDialog.Open(result => Export(result));
+                // "Select folder for export files"
+                if (NativeFileDialog.PickFolder(null, out var result))
+                {
+                    Export(result);
+                }
             }
             if (wasImportDirectoryClicked)
             {
-                var dirDialog = new DirectoryDialog("Select folder for import files");
-                dirDialog.Open(result => ImportDirectory(result));
+                // "Select folder for import files"
+                if (NativeFileDialog.PickFolder(null, out var result))
+                {
+                    ImportDirectory(result);
+                }
             }
             if (wasImportFileClicked)
             {
-                var openDialog = new OpenFileDialog("Select file which you want to import");
-                openDialog.Open(result => ImportFile(result));
+                // "Select file which you want to import"
+                if (NativeFileDialog.OpenDialog(null, null, out var result))
+                {
+                    ImportFile(result);
+                }
             }
 
             if (_bigArchive != null)
@@ -217,20 +230,15 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild();
         }
 
-        private void OpenBigFile(DialogResult result)
+        private void OpenBigFile(string path)
         {
-            if (!result.Success)
-            {
-                return;
-            }
-
             Reset();
 
-            if (File.Exists(result.FileName))
+            if (File.Exists(path))
             {
                 try
                 {
-                    _bigArchive = AddDisposable(new BigArchive(result.FileName, _openMode.Value));
+                    _bigArchive = AddDisposable(new BigArchive(path, _openMode.Value));
                 }
                 catch (Exception e)
                 {
@@ -351,9 +359,12 @@ namespace OpenSage.Tools.BigEditor.UI
 
                 if (shouldOpenSaveDialog)
                 {
-                    var saveDialog = new SaveFileDialog("Export file");
-                    saveDialog.DefaultFileName = entry.Name;
-                    saveDialog.Save(result => ExportFile(entry, result));
+                    // "Export file"
+                    if (NativeFileDialog.SaveDialog(null, null, out var result))
+                    {
+                        // saveDialog.DefaultFileName = entry.Name;
+                        ExportFile(entry, result);
+                    }
                 }
             }
 
@@ -380,16 +391,11 @@ namespace OpenSage.Tools.BigEditor.UI
             ImGui.EndChild(); // end statusbar
         }
 
-        private void Export(DialogResult result)
+        private void Export(string path)
         {
-            if (!result.Success)
-            {
-                return;
-            }
-
             foreach (var entry in _files)
             {
-                string filePath = Path.Combine(result.FileName, Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar)));
+                string filePath = Path.Combine(path, Path.GetDirectoryName(entry.FullName.Replace('\\', Path.DirectorySeparatorChar)));
                 try
                 {
                     Directory.CreateDirectory(filePath);
@@ -417,55 +423,32 @@ namespace OpenSage.Tools.BigEditor.UI
             }
         }
 
-        private void ExportFile(BigArchiveEntry entry, DialogResult result)
+        private static void ExportFile(BigArchiveEntry entry, string path)
         {
-            if (!result.Success)
-            {
-                return;
-            }
-
-            using (var entryStream = entry.Open())
-            {
-                using (var fileStream = File.OpenWrite(result.FileName))
-                {
-                    entryStream.CopyTo(fileStream);
-                }
-            }
+            using var entryStream = entry.Open();
+            using var fileStream = File.OpenWrite(path);
+            entryStream.CopyTo(fileStream);
         }
 
-        private void ImportDirectory(DialogResult result)
+        private void ImportDirectory(string path)
         {
-            if (!result.Success)
+            foreach (var filePath in Directory.GetFiles(path))
             {
-                return;
-            }
+                using var fileStream = File.OpenRead(filePath);
+                var entry = _bigArchive.CreateEntry(filePath);
 
-            foreach (var filePath in Directory.GetFiles(result.FileName))
-            {
-                using (var fileStream = File.OpenRead(filePath))
-                {
-                    var entry = _bigArchive.CreateEntry(filePath);
-
-                    using (var entryStream = entry.Open())
-                    {
-                        fileStream.CopyTo(entryStream);
-                    }
-                }
+                using var entryStream = entry.Open();
+                fileStream.CopyTo(entryStream);
             }
 
             UpdateFilesList();
         }
 
-        private void ImportFile(DialogResult result)
+        private void ImportFile(string path)
         {
-            if(!result.Success)
+            using (var fileStream = File.OpenRead(path))
             {
-                return;
-            }
-
-            using (var fileStream = File.OpenRead(result.FileName))
-            {
-                var entry = _bigArchive.CreateEntry(result.FileName);
+                var entry = _bigArchive.CreateEntry(path);
 
                 using (var entryStream = entry.Open())
                 {

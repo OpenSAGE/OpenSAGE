@@ -226,7 +226,7 @@ namespace OpenSage.Logic.Object
                 case LocomotorAppearance.GiantBird:
                 case LocomotorAppearance.Wings:
                 case LocomotorAppearance.Hover:
-                    thrust = GetCurrentThrust(height, translation.Z);
+                    thrust = GetCurrentThrust(height, z);
                     if (!reachedTurnSpeed)
                     {
                         break;
@@ -310,11 +310,11 @@ namespace OpenSage.Logic.Object
 
         public void MaintainPosition(HeightMap heightMap)
         {
+            var translation = _gameObject.Translation;
+            var height = heightMap.GetHeight(translation.X, translation.Y);
             switch (LocomotorTemplate.Appearance)
             {
                 case LocomotorAppearance.Wings:
-                    var translation = _gameObject.Translation;
-
                     _gameObject.Speed = GetSpeed();
                     var circumference = MathUtility.TwoPi * GetScaledLocomotorValue(x => x.CirclingRadius);
                     var timePerRoundtrip = circumference / _gameObject.Speed;
@@ -325,7 +325,6 @@ namespace OpenSage.Logic.Object
 
                     translation += deltaTransform;
 
-                    var height = heightMap.GetHeight(translation.X, translation.Y);
                     translation.Z += GetCurrentThrust(height, translation.Z);
                     _gameObject.SetTranslation(translation);
 
@@ -341,6 +340,9 @@ namespace OpenSage.Logic.Object
                     _gameObject.ModelTransform.Rotation = Quaternion.CreateFromYawPitchRoll(0, modelRoll, 0);
                     _gameObject.SetRotation(Quaternion.CreateFromYawPitchRoll(worldPitch, worldRoll, worldYaw));
                     break;
+                case LocomotorAppearance.Hover:
+                    _gameObject.SetTranslation(translation with { Z = translation.Z + GetCurrentThrust(height, translation.Z) });
+                    break;
             }
         }
 
@@ -348,9 +350,15 @@ namespace OpenSage.Logic.Object
         {
             var heightRemaining = (terrainHeight + LocomotorTemplate.PreferredHeight) - height;
             var lift = GetLift();
+            if (heightRemaining < 0)
+            {
+                lift *= -1;
+            }
             _gameObject.Lift += lift;
-            _gameObject.Lift = Math.Clamp(_gameObject.Lift, 0, lift);
-            return MathF.Min(_gameObject.Lift, heightRemaining);
+
+            var maxLiftVelocity = lift * Game.LogicFramesPerSecond; // lift is given in dist/sec^s
+            _gameObject.Lift = heightRemaining >= 0 ? Math.Clamp(_gameObject.Lift, 0, maxLiftVelocity) : Math.Clamp(_gameObject.Lift, maxLiftVelocity, 0);
+            return heightRemaining >= 0 ? MathF.Min(_gameObject.Lift, heightRemaining) : MathF.Max(_gameObject.Lift, heightRemaining);
         }
 
         public float GetScaledLocomotorValue(Func<LocomotorTemplate, float> getValue)
@@ -403,8 +411,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt1); // 0, 4
             reader.PersistSingle(ref _unknownFloat8); // 0, 100
 
-            reader.PersistSingle(ref _unknownFloat9);
-            if (_unknownFloat9 != 1.0f)
+            reader.PersistSingle(ref _unknownFloat9); // 1, 0 mid humvee evac (unsure if related)
+            if (_unknownFloat9 != 0f && _unknownFloat9 != 1.0f)
             {
                 throw new InvalidStateException();
             }

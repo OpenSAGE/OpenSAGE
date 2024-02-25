@@ -30,7 +30,7 @@ namespace OpenSage.Launcher
             public SageGame Game { get; set; }
 
             [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.")]
-            public string Map { get; set; }
+            public string? Map { get; set; }
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
             public bool DisableVsync { get; set; }
@@ -45,13 +45,16 @@ namespace OpenSage.Launcher
             public bool DeveloperMode { get; set; }
 
             [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
-            public string TraceFile { get; set; }
+            public string? TraceFile { get; set; }
 
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
-            public string ReplayFile { get; set; }
+            public string? ReplayFile { get; set; }
 
             [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
-            public string GamePath { get; set; }
+            public string? GamePath { get; set; }
+
+            [Option('b', "basegamepath", Default = null, Required = false, HelpText = "Force the game's base game to use this gamepath")]
+            public string? BaseGamePath { get; set; }
 
             [Option('u', "uniqueports", Default = false, Required = false, HelpText = "Use a unique port for each client in a multiplayer game. Normally, port 8088 is used, but when we want to run multiple game instances on the same machine (for debugging purposes), each client needs a different port.")]
             public bool UseUniquePorts { get; set; }
@@ -69,43 +72,44 @@ namespace OpenSage.Launcher
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void Run(Options opts)
+        private static GameInstallation? GameFromPath(Options opts, SageGame game, string? path)
         {
-            logger.Info("Starting...");
-
-            var DetectedGame = opts.Game;
-            var GameFolder = opts.GamePath;
             var UseLocators = true;
 
-            if (GameFolder == null)
-            {
-                GameFolder = Environment.CurrentDirectory;
-            }
+            path ??= Environment.CurrentDirectory;
 
             foreach (var gameDef in GameDefinition.All)
             {
-                if (gameDef.Probe(GameFolder))
+                if (gameDef.Probe(path))
                 {
-                    DetectedGame = gameDef.Game;
+                    game = gameDef.Game;
                     UseLocators = false;
                 }
             }
 
-            var definition = GameDefinition.FromGame(DetectedGame);
-            GameInstallation installation;
+            var definition = GameDefinition.FromGame(game);
             if (UseLocators)
             {
-                installation = GameInstallation
+                return GameInstallation
                     .FindAll(new[] { definition })
                     .FirstOrDefault();
             }
-            else
-            {
-                installation = new GameInstallation(definition, GameFolder);
-            }
+
+            var baseGame = definition.BaseGame != null
+                ? GameFromPath(opts, definition.BaseGame.Game, opts.BaseGamePath) // we shouldn't ever have more than one base game
+                : null;
+            return new GameInstallation(definition, path, baseGame);
+        }
+
+        public static void Run(Options opts)
+        {
+            logger.Info("Starting...");
+
+            var installation = GameFromPath(opts, opts.Game, opts.GamePath);
 
             if (installation == null)
             {
+                var definition = GameDefinition.FromGame(opts.Game);
                 Console.WriteLine($"OpenSAGE was unable to find any installations of {definition.DisplayName}.\n");
 
                 Console.WriteLine("You can manually specify the installation path by setting the following environment variable:");
@@ -121,7 +125,7 @@ namespace OpenSage.Launcher
                 Environment.Exit(1);
             }
 
-            logger.Debug($"Have installation of {definition.DisplayName}");
+            logger.Debug($"Have installation of {installation.Game.DisplayName}");
 
             Platform.Start();
 

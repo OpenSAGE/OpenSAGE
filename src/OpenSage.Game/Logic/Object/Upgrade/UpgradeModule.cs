@@ -67,8 +67,8 @@ namespace OpenSage.Logic.Object
 
             if (data.StartsActive)
             {
-                //DoUpgrade();
-                //_triggered = data.StartsActive;
+                triggerUpgradeCallback();
+                _triggered = true;
             }
         }
 

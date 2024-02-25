@@ -169,31 +169,59 @@ namespace OpenSage.Logic.Object
             SetActiveAnimationState(transitionState, _context.Random);
         }
 
-        private static T FindBestFittingConditionState<T>(List<T> conditionStates, BitArray<ModelConditionFlag> flags)
+        internal static T FindBestFittingConditionState<T>(List<T> conditionStates, BitArray<ModelConditionFlag> flags)
             where T : IConditionState
         {
+            // prefer exact match
+            // if not, find the first one with the most number of matching bits
+            // this may be convoluted, but the unit tests pass!
             T bestConditionState = default;
             var bestIntersections = 0;
+            T bestContainedConditionState = default;
+            var leastMissing = int.MaxValue;
+            var leastMissingBestIntersections = 0;
+            T defaultConditionState = default;
 
             foreach (var conditionState in conditionStates)
             {
                 foreach (var conditionStateFlags in conditionState.ConditionFlags)
                 {
-                    var numStateBits = conditionStateFlags.NumBitsSet;
-                    var numIntersectionBits = conditionStateFlags.CountIntersectionBits(flags);
-
-                    if (numIntersectionBits < bestIntersections
-                        || numStateBits > numIntersectionBits)
+                    // the default condition state has no bits set
+                    if (!conditionStateFlags.AnyBitSet)
                     {
-                        continue;
+                        defaultConditionState = conditionState;
                     }
 
-                    bestConditionState = conditionState;
-                    bestIntersections = numIntersectionBits;
+                    var intersections = conditionStateFlags.CountIntersectionBits(flags);
+                    // we've found a state that matches everything we have, but it may have extra things we don't have that we don't want
+                    // the order of the condition states in the ini files is not guaranteed to be ideal
+                    if (intersections == flags.NumBitsSet)
+                    {
+                        var missing = conditionStateFlags.NumBitsSet - intersections;
+                        if (missing == 0)
+                        {
+                            // if we have an exact match, great! doesn't matter what else we've found
+                            return conditionState;
+                        }
+
+                        // otherwise, this state may have extra things we don't have. Cool, but less than ideal... let's keep searching?
+                        // this ensures we don't store the first least missing as better, even if a subsequent one has better best intersections (which should be a better "score")
+                        if (missing < leastMissing || missing == leastMissing && intersections > leastMissingBestIntersections)
+                        {
+                            bestContainedConditionState = conditionState;
+                            leastMissing = missing;
+                            leastMissingBestIntersections = intersections;
+                        }
+                    } else if (intersections > bestIntersections)
+                    {
+                        // not an exact match, but save this if we can't find an exact match
+                        bestIntersections = conditionStateFlags.NumBitsSet;
+                        bestConditionState = conditionState;
+                    }
                 }
             }
 
-            return bestConditionState;
+            return bestContainedConditionState ?? bestConditionState ?? defaultConditionState;
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
@@ -212,19 +240,22 @@ namespace OpenSage.Logic.Object
             var bestConditionState = FindBestFittingConditionState(_data.ConditionStates, flags);
             SetActiveConditionState(bestConditionState, random);
 
-            foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
+            if (_activeModelDrawConditionState != null)
             {
-                var visible = flags.Get(ModelConditionFlag.FiringA);
-                for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
+                foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
                 {
-                    var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
-                    // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
-                    if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName, StringComparison.OrdinalIgnoreCase))
+                    var visible = flags.Get(ModelConditionFlag.FiringA);
+                    for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
                     {
-                        _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
+                        var bone = _activeModelDrawConditionState.Model.ModelBoneInstances[i];
+                        // StartsWith is a bit awkward here, but for instance AVCommance has WeaponMuzzleFlashes = { TurretFX }, and Bones = { TURRETFX01 }
+                        if (bone.Name.StartsWith(weaponMuzzleFlash.BoneName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
+                        }
                     }
-                }
-            };
+                };
+            }
 
             var bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);
             SetActiveAnimationState(bestAnimationState, random);
@@ -581,18 +612,18 @@ namespace OpenSage.Logic.Object
         /// In Generals, transition states were defined like this:
         ///
         /// ```
-        /// ConditionState = FIRING_A 
+        /// ConditionState = FIRING_A
         ///         Animation         = NICNSC_SKL.NICNSC_ATA
         ///         AnimationMode = LOOP
         ///     TransitionKey     = TRANS_Firing
         /// End
-        /// 
+        ///
         /// ConditionState = FIRING_A REALLYDAMAGED
         ///     Animation         = NICNSC_SKL.NICNSC_ATC
         ///     AnimationMode = LOOP
         ///     TransitionKey     = TRANS_FiringDamaged
         /// End
-        /// 
+        ///
         /// TransitionState = TRANS_Firing TRANS_FiringDamaged
         ///     Animation       = NICNSC_SKL.NICNSC_AA2AC
         ///     AnimationMode = ONCE
@@ -609,7 +640,7 @@ namespace OpenSage.Logic.Object
         ///         AnimationMode = LOOP
         ///     End
         /// End
-        /// 
+        ///
         /// AnimationState = FIRING_A REALLYDAMAGED
         ///     StateName = FIRING_A_REALLYDAMAGED
         ///     Animation = ATC
@@ -621,7 +652,7 @@ namespace OpenSage.Logic.Object
         ///         if Prev == "FIRING_A" then CurDrawableSetTransitionAnimState("TransitionFiringToFiringDamaged") end
         ///     EndScript
         /// End
-        /// 
+        ///
         /// TransitionState = TRANS_Firing_TRANS_FiringDamaged
         ///     Animation = AA2AC
         ///         AnimationName = NICNSC_SKL.NICNSC_AA2AC

@@ -4,9 +4,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class OverlordContain : TransportContain
     {
-        internal OverlordContain(OverlordContainModuleData moduleData)
-            : base(moduleData)
+        private readonly OverlordContainModuleData _moduleData;
+
+        internal OverlordContain(GameObject gameObject, GameContext gameContext, OverlordContainModuleData moduleData)
+            : base(gameObject, gameContext, moduleData)
         {
+            _moduleData = moduleData;
+        }
+
+        private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+        {
+            // todo: ExperienceSinkForRider
         }
 
         internal override void Load(StatePersister reader)
@@ -20,7 +28,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Like Transport, but when full, passes transport queries along to first passenger 
+    /// Like Transport, but when full, passes transport queries along to first passenger
     /// (redirects like tunnel).
     /// </summary>
     public sealed class OverlordContainModuleData : TransportContainModuleData
@@ -42,7 +50,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new OverlordContain(this);
+            return new OverlordContain(gameObject, context, this);
         }
     }
 }

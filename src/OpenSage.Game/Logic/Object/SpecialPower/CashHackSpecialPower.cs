@@ -1,10 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CashHackSpecialPower : SpecialPowerModule
+    public sealed class CashHackSpecialPower : SpecialPowerModule, IUpgradableScienceModule
     {
+        private readonly CashHackSpecialPowerModuleData _moduleData;
+
+        private uint _currentAmount;
+
+        internal CashHackSpecialPower(GameObject gameObject, GameContext context, CashHackSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
+        {
+            _moduleData = moduleData;
+            _currentAmount = (uint)moduleData.MoneyAmount;
+        }
+
+        public void Activate(GameObject target)
+        {
+            var targetBankAccount = target.Owner.BankAccount;
+            var amountToTransfer = Math.Min(targetBankAccount.Money, _currentAmount);
+            targetBankAccount.Withdraw(amountToTransfer);
+            GameObject.Owner.BankAccount.Deposit(amountToTransfer);
+
+            base.Activate(target.Transform.Translation);
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -12,6 +34,18 @@ namespace OpenSage.Logic.Object
             reader.BeginObject("Base");
             base.Load(reader);
             reader.EndObject();
+        }
+
+        public void TryUpgrade(Science purchasedScience)
+        {
+            foreach (var (science, amount) in _moduleData.UpgradeMoneyAmounts)
+            {
+                if (science.Value == purchasedScience)
+                {
+                    _currentAmount = (uint)amount;
+                    return;
+                }
+            }
         }
     }
 
@@ -37,24 +71,21 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int MoneyAmount { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override CashHackSpecialPower CreateModule(GameObject gameObject, GameContext context)
         {
-            return new CashHackSpecialPower();
+            return new CashHackSpecialPower(gameObject, context, this);
         }
     }
 
-    public sealed class CashHackSpecialPowerUpgrade
+    public readonly record struct CashHackSpecialPowerUpgrade(LazyAssetReference<Science> Science, int MoneyAmount)
     {
         internal static CashHackSpecialPowerUpgrade Parse(IniParser parser)
         {
             return new CashHackSpecialPowerUpgrade
             {
-                Science = parser.ParseAssetReference(),
+                Science = parser.ParseScienceReference(),
                 MoneyAmount = parser.ParseInteger()
             };
         }
-
-        public string Science { get; private set; }
-        public int MoneyAmount { get; private set; }
     }
 }

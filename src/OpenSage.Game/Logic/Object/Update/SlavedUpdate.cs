@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
         private RepairStatus _repairStatus;
 
         private int _unknown;
+        private int _unknown2;
 
         private enum RepairStatus
         {
@@ -162,7 +163,7 @@ namespace OpenSage.Logic.Object
                     maxRange = _moduleData.AttackRange;
                 }
 
-                if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToMaster > maxRange)
+                if (_gameObject.AIUpdate?.TargetPoints.Count == 0 && distanceToMaster > maxRange)
                 {
                     _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
                 }
@@ -182,7 +183,8 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.SkipUnknownBytes(16);
+            reader.PersistInt32(ref _unknown2);
+            reader.SkipUnknownBytes(12);
 
             reader.PersistInt32(ref _unknown);
 
@@ -253,7 +255,7 @@ namespace OpenSage.Logic.Object
         public string RepairWeldingSys { get; private set; }
         public string RepairWeldingFXBone { get; private set; }
         // How close I have to be to the master's target in order to grant master a range bonus.
-        public int DistToTargetToGrantRangeBonus { get; private set; } 
+        public int DistToTargetToGrantRangeBonus { get; private set; }
         public bool StayOnSameLayerAsMaster { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

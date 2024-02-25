@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
@@ -44,11 +44,11 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             DrawText(drawingContext, TextAlignment.Center);
 
-            if (IsMouseDown && PushedOverlayImage != null)
+            if ((IsMouseDown || IsSelected) && PushedOverlayImage != null)
             {
                 PushedOverlayImage.Draw(drawingContext, ClientRectangle);
             }
-            else if (IsMouseOver && HoverOverlayImage != null)
+            else if (Enabled && IsMouseOver && HoverOverlayImage != null)
             {
                 HoverOverlayImage.Draw(drawingContext, ClientRectangle);
             }

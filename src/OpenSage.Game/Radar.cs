@@ -25,6 +25,8 @@ namespace OpenSage
         private uint _unknown2;
         private uint _unknown3;
 
+        private readonly MappedImage _heroImage;
+
         internal Radar(Scene3D scene, AssetStore assetStore, string mapPath)
         {
             _scene = scene;
@@ -50,6 +52,7 @@ namespace OpenSage
 
             _radarEvents = new List<RadarEvent>();
 
+            _heroImage = assetStore.MappedImages.GetByName("HeroReticle");
             // TODO: Bridges
             // TODO: Fog of war / shroud
         }
@@ -194,6 +197,14 @@ namespace OpenSage
             drawingContext.FillRectangle(
                 gameObjectRectangle,
                 item.Color.ToColorRgbaF());
+
+            if (gameObject.IsKindOf(ObjectKinds.Hero) && _heroImage != null)
+            {
+                var startX = gameObjectRectangle.X + 1 - _heroImage.Coords.Width / 2f;
+                var startY = gameObjectRectangle.Y + 1 - _heroImage.Coords.Height / 2f;
+                var heroRectangle = new RectangleF(startX, startY, _heroImage.Coords.Width, _heroImage.Coords.Height);
+                drawingContext.DrawMappedImage(_heroImage, heroRectangle);
+            }
         }
 
         private Vector2? WorldToRadarSpace(in Vector3 worldPosition, in Matrix3x2 miniMapTransform)
@@ -379,7 +390,7 @@ namespace OpenSage
         Upgrade = 2,
         UnderAttack = 3,
         Information = 4,
-
+        BattlePlanInitiated = 7,
         StealUnitDiscovered = 8,
         UnitLost = 10,
     }

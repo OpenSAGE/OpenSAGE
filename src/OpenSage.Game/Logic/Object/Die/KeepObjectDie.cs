@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object
 {
     public sealed class KeepObjectDie : DieModule
     {
+        public KeepObjectDie(KeepObjectDieModuleData moduleData) : base(moduleData)
+        {
+        }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -31,9 +35,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool StayOnRadar { get; private set; }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        internal override KeepObjectDie CreateModule(GameObject gameObject, GameContext context)
         {
-            return new KeepObjectDie();
+            return new KeepObjectDie(this);
         }
     }
 }

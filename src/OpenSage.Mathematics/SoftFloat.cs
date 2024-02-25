@@ -422,7 +422,7 @@ namespace OpenSage.Mathematics
             return *(float*) &i;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
             {
@@ -653,17 +653,17 @@ namespace OpenSage.Mathematics
             return (_raw & 0x7FFFFFFF) == 0;
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            if (!(obj is SoftFloat))
+            if (obj is not SoftFloat softFloat)
             {
                 throw new ArgumentException("obj");
             }
 
-            return CompareTo((SoftFloat) obj);
+            return CompareTo(softFloat);
         }
 
-        public string ToString(string format, IFormatProvider formatProvider)
+        public string ToString(string? format, IFormatProvider? formatProvider)
         {
             return ((float) this).ToString(format, formatProvider);
         }
