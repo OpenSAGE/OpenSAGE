@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using OpenSage.Audio;
+using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
@@ -176,7 +178,7 @@ namespace OpenSage.Logic
                 }
             }
 
-            BankAccount = new BankAccount();
+            BankAccount = new BankAccount(_game, this);
         }
 
         internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
@@ -1037,7 +1039,7 @@ namespace OpenSage.Logic
         Completed = 2
     }
 
-    public sealed class BankAccount : IPersistableObject
+    public sealed class BankAccount(Game game, Player owner) : IPersistableObject
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -1046,6 +1048,11 @@ namespace OpenSage.Logic
         public void Withdraw(uint amount)
         {
             // TODO: Play MoneyWithdrawSound
+
+            if (game.PlayerManager.LocalPlayer == owner) // only play the deposit sound for the owner
+            {
+                game.Audio.PlayAudioEvent(game.AssetStore.MiscAudio.Current.MoneyWithdrawSound.Value);
+            }
 
             if (Money >= amount)
             {
@@ -1061,7 +1068,10 @@ namespace OpenSage.Logic
 
         public void Deposit(uint amount)
         {
-            // TODO: Play MoneyDepositSound
+            if (game.PlayerManager.LocalPlayer == owner) // only play the deposit sound for the owner
+            {
+                game.Audio.PlayAudioEvent(game.AssetStore.MiscAudio.Current.MoneyDepositSound.Value);
+            }
 
             Money += amount;
         }

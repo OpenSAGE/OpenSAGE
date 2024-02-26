@@ -25,8 +25,8 @@ namespace OpenSage.Audio
             { "NoCanDoSound", (parser, x) => x.NoCanDoSound = parser.ParseAssetReference() },
             { "StealthDiscoveredSound", (parser, x) => x.StealthDiscoveredSound = parser.ParseAssetReference() },
             { "StealthNeutralizedSound", (parser, x) => x.StealthNeutralizedSound = parser.ParseAssetReference() },
-            { "MoneyDepositSound", (parser, x) => x.MoneyDepositSound = parser.ParseAssetReference() },
-            { "MoneyWithdrawSound", (parser, x) => x.MoneyWithdrawSound = parser.ParseAssetReference() },
+            { "MoneyDepositSound", (parser, x) => x.MoneyDepositSound = parser.ParseAudioEventReference() },
+            { "MoneyWithdrawSound", (parser, x) => x.MoneyWithdrawSound = parser.ParseAudioEventReference() },
             { "BuildingDisabled", (parser, x) => x.BuildingDisabled = parser.ParseAssetReference() },
             { "BuildingReenabled", (parser, x) => x.BuildingReenabled = parser.ParseAssetReference() },
             { "VehicleDisabled", (parser, x) => x.VehicleDisabled = parser.ParseAssetReference() },
@@ -99,8 +99,8 @@ namespace OpenSage.Audio
         public string NoCanDoSound { get; private set; }
         public string StealthDiscoveredSound { get; private set; }
         public string StealthNeutralizedSound { get; private set; }
-        public string MoneyDepositSound { get; private set; }
-        public string MoneyWithdrawSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> MoneyDepositSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> MoneyWithdrawSound { get; private set; }
         public string BuildingDisabled { get; private set; }
         public string BuildingReenabled { get; private set; }
         public string VehicleDisabled { get; private set; }
