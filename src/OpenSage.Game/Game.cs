@@ -45,7 +45,7 @@ namespace OpenSage
 
         // TODO: These should be configurable at runtime with GameSpeed.
 
-        internal const float LogicFramesPerSecond = 30.0f;
+        public const float LogicFramesPerSecond = 30.0f;
 
         // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
         // so as a temporary workaround, we simply tick the logic at 30fps.

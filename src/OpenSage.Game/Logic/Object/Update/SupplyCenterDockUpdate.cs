@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        public void DumpBoxes(AssetStore assetStore, ref int numBoxes, int additionalAmountPerBox)
+        public int DumpBoxes(AssetStore assetStore, ref int numBoxes, int additionalAmountPerBox)
         {
             var gameData = assetStore.GameData.Current;
             var amountPerBox = (gameData.ValuePerSupplyBox + additionalAmountPerBox) * _moduleData.ValueMultiplier;
@@ -29,8 +29,11 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            _gameObject.Owner.BankAccount.Deposit((uint)(numBoxes * amountPerBox * _gameObject.ProductionModifier));
+            var amount = (int)(numBoxes * amountPerBox * _gameObject.ProductionModifier);
+            _gameObject.Owner.BankAccount.Deposit((uint)amount);
             numBoxes = 0;
+
+            return amount;
         }
 
         internal override void Update(BehaviorUpdateContext context)

@@ -240,7 +240,8 @@ namespace OpenSage.Logic.Object
 
                         var assetStore = context.GameContext.AssetLoadContext.AssetStore;
                         var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
-                        _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
+                        var amountDeposited = _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
+                        GameObject.ActiveCashEvent = new CashEvent(amountDeposited, GameObject.Owner.Color);
 
                         GameObject.Supply = _numBoxes;
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);

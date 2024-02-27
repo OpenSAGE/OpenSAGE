@@ -7,7 +7,6 @@ using OpenSage.Gui;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using SixLabors.Fonts;
 
 namespace OpenSage;
 
@@ -20,6 +19,11 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
     private Player LocalPlayer => scene3D.LocalPlayer;
 
     private readonly LocalizedString _buildProgressString = new("CONTROLBAR:UnderConstructionDesc");
+
+    /// <summary>
+    /// Animations which are not persisted across saves
+    /// </summary>
+    protected Queue<TransientAnimation> TransientAnimations { get; } = [];
 
     public void Draw(DrawingContext2D drawingContext)
     {
@@ -99,11 +103,21 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 // AmmoEmpty, UNUSED?
 
                 DrawAnimations(drawingContext, obj, scene3D.GameContext.GameLogic.CurrentFrame.Value);
+                // todo: transient animations need to be pulled from a game object, but processed separately
+                EnqueueTransientAnimations(obj, scene3D.GameContext.GameLogic.CurrentFrame.Value);
             }
+
+            // transient animations are not tied to a specific object
+            DrawTransientAnimations(drawingContext, scene3D.GameContext.GameLogic.CurrentFrame.Value);
         }
     }
 
     protected virtual void DrawPips(DrawingContext2D drawingContext, GameObject gameObject, bool focused) { }
+
+    /// <summary>
+    /// Draws animations which are not persisted across saves.
+    /// </summary>
+    protected virtual void EnqueueTransientAnimations(GameObject gameObject, uint currentFrame) { }
 
     protected static BoundingSphere GetBoundingSphere(GameObject gameObject)
     {
@@ -327,5 +341,40 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
         {
             RemoveAnimationFromDrawable(gameObject, animation);
         }
+    }
+
+    protected void DrawTransientAnimations(DrawingContext2D drawingContext, uint currentFrame)
+    {
+        var animationsToProcess = TransientAnimations.Count;
+        for (var i = 0; i < animationsToProcess; i++)
+        {
+            var animation = TransientAnimations.Dequeue();
+
+            animation.DrawForFrame(drawingContext, currentFrame);
+
+            if (!animation.Complete)
+            {
+                TransientAnimations.Enqueue(animation);
+            }
+        }
+    }
+}
+
+public abstract class TransientAnimation(Camera camera, uint startFrame)
+{
+    protected abstract uint FrameLength { get; }
+    protected Camera Camera { get; } = camera;
+    private uint EndFrame => startFrame + FrameLength;
+
+    public bool Complete { get; protected set; }
+
+    public virtual void DrawForFrame(DrawingContext2D drawingContext, uint currentFrame)
+    {
+        Complete = currentFrame >= EndFrame;
+    }
+
+    protected float Progress(uint currentFrame)
+    {
+        return (float)(currentFrame - startFrame) / (EndFrame - startFrame);
     }
 }

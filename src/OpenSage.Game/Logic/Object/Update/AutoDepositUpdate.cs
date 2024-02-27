@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -31,6 +32,7 @@ namespace OpenSage.Logic.Object
             _waitUntil = context.LogicFrame + _moduleData.DepositTiming;
             var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
             _gameObject.Owner.BankAccount.Deposit(amount);
+            _gameObject.ActiveCashEvent = new CashEvent((int)amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
             if (!_moduleData.GiveNoXP)
             {
                 _gameObject.GainExperience((int)amount);

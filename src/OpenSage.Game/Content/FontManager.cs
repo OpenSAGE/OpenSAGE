@@ -56,6 +56,11 @@ namespace OpenSage.Content
             _fallbackFonts.Install(fontStream);
         }
 
+        public Font GetOrCreateFont(float fontSize, FontWeight fontWeight)
+        {
+            return GetOrCreateFont(FallbackEmbeddedFont, fontSize, fontWeight);
+        }
+
         public Font GetOrCreateFont(string fontName, float fontSize, FontWeight fontWeight)
         {
             var key = new FontKey(fontName, fontSize, fontWeight);
