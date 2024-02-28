@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Content.Translation;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using SixLabors.Fonts;
 
 namespace OpenSage.Mods.Generals;
 
@@ -24,6 +28,8 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
     // while there are single-image animations for this in the generals game files, they don't appear to ever be used in the game
     private readonly LazyAssetReference<MappedImage> _emptyAmmoPip = assetStore.MappedImages.GetLazyAssetReferenceByName(EmptyAmmoPipName);
     private readonly LazyAssetReference<MappedImage> _fullAmmoPip = assetStore.MappedImages.GetLazyAssetReferenceByName(FullAmmoPipName);
+
+    private readonly Font _defaultFont = scene3D.Game.ContentManager.FontManager.GetOrCreateFont(14, FontWeight.Normal);
 
     /// <summary>
     /// Draws veterancy, container, and ammo pips specific to Generals/Zero Hour
@@ -50,6 +56,21 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
         if (obj.Rank > 0)
         {
             DrawRank(drawingContext, obj);
+        }
+
+        base.DrawPips(drawingContext, obj, focused);
+    }
+
+    protected override void EnqueueTransientAnimations(GameObject gameObject, uint currentFrame)
+    {
+        if (gameObject.ActiveCashEvent.HasValue)
+        {
+            var cashEvent = gameObject.ActiveCashEvent.Value;
+            // as far as I can tell, there aren't any localized strings for this;
+            TransientAnimations.Enqueue(new CashAnimation(Camera, currentFrame, _defaultFont,
+                gameObject.Transform.Translation + cashEvent.Offset, cashEvent.Amount, cashEvent.Color.ToColorRgbaF()));
+
+            gameObject.ActiveCashEvent = null;
         }
     }
 
@@ -179,5 +200,37 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
             drawingContext.DrawMappedImage(_emptyAmmoPip.Value, rect.WithX(rect.X + xOffset));
             xOffset += pipWidth;
         }
+    }
+}
+
+// shows text on-screen with the included offset, slowly moving up and fading out over 2.75 seconds
+internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vector3 baseLocation, int amount, in ColorRgbaF baseColor) : TransientAnimation(camera, currentFrame)
+{
+    protected override uint FrameLength => (uint)(Game.LogicFramesPerSecond * 2.75f);
+
+    private readonly Vector3 _baseLocation = baseLocation;
+    private readonly string _text = $"{(amount < 0 ? "-" : string.Empty)}{MoneySymbol.Localize()}{amount}";
+    private readonly ColorRgbaF _baseColor = baseColor;
+
+    // this stuff seems to be hardcoded in the engine
+    private static readonly LocalizedString MoneySymbol = new("GUI:MoneySymbol");
+    private const int MoneyRiseHeight = 30; // unable to find this parameterized anywhere
+
+    public override void DrawForFrame(DrawingContext2D drawingContext, uint currentFrame)
+    {
+        var progress = Progress(currentFrame);
+        var zOffset = MoneyRiseHeight * progress;
+        var opacity = progress < 0.75 ? 1 : (1 - progress) * 4; // there seems to be a falloff where we don't adjust opacity for the first bit
+
+        var worldRectangle = Camera.WorldToScreenRectangle(_baseLocation with { Z = _baseLocation.Z + zOffset }, new SizeF(100)); // unsure what the correct size should be
+
+        if (worldRectangle.HasValue)
+        {
+            var rect = worldRectangle.Value;
+            drawingContext.DrawText(_text, font, TextAlignment.Center,new ColorRgbaF(0,0,0, opacity), rect.WithX(rect.X + 1).WithY(rect.Y + 1)); // drop shadow
+            drawingContext.DrawText(_text, font, TextAlignment.Center,_baseColor.WithA(opacity), rect);
+        }
+
+        base.DrawForFrame(drawingContext, currentFrame);
     }
 }

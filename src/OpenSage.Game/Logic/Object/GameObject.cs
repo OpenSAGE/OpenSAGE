@@ -443,6 +443,11 @@ namespace OpenSage.Logic.Object
 
         public readonly Drawable Drawable;
 
+        /// <summary>
+        /// A non-persisted queue of rising-cash-text items that should originate from this GameObject.
+        /// </summary>
+        public CashEvent? ActiveCashEvent { get; set; }
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal GameObject(
@@ -1748,6 +1753,8 @@ namespace OpenSage.Logic.Object
             base.Dispose(disposeManagedResources);
         }
     }
+
+    public record struct CashEvent(int Amount, ColorRgb Color, Vector3 Offset = default);
 
     internal sealed class ObjectVeterancyHelper : IPersistableObject
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -22,6 +23,7 @@ namespace OpenSage.Logic.Object
             var targetBankAccount = target.Owner.BankAccount;
             var amountToTransfer = Math.Min(targetBankAccount.Money, _currentAmount);
             targetBankAccount.Withdraw(amountToTransfer);
+            target.ActiveCashEvent = new CashEvent(-(int)amountToTransfer, new ColorRgb(255, 0, 0));
             GameObject.Owner.BankAccount.Deposit(amountToTransfer);
 
             base.Activate(target.Transform.Translation);
