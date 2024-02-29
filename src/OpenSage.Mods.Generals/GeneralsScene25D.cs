@@ -30,6 +30,7 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
     private readonly LazyAssetReference<MappedImage> _fullAmmoPip = assetStore.MappedImages.GetLazyAssetReferenceByName(FullAmmoPipName);
 
     private readonly Font _defaultFont = scene3D.Game.ContentManager.FontManager.GetOrCreateFont(14, FontWeight.Normal);
+    private AnimationTemplate LevelUpAnimation => assetStore.Animations.GetLazyAssetReferenceByName(GameData.LevelGainAnimationName).Value;
 
     /// <summary>
     /// Draws veterancy, container, and ammo pips specific to Generals/Zero Hour
@@ -71,6 +72,13 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
                 gameObject.Transform.Translation + cashEvent.Offset, cashEvent.Amount, cashEvent.Color.ToColorRgbaF()));
 
             gameObject.ActiveCashEvent = null;
+        }
+
+        if (gameObject.VeterancyHelper.ShowRankUpAnimation)
+        {
+            TransientAnimations.Enqueue(new RankUpAnimation(Camera, currentFrame, GameData, new Animation(LevelUpAnimation), gameObject.Translation with { Z = gameObject.Translation.Z + 20 }));
+
+            gameObject.VeterancyHelper.ShowRankUpAnimation = false;
         }
     }
 
@@ -229,6 +237,34 @@ internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vec
             var rect = worldRectangle.Value;
             drawingContext.DrawText(_text, font, TextAlignment.Center,new ColorRgbaF(0,0,0, opacity), rect.WithX(rect.X + 1).WithY(rect.Y + 1)); // drop shadow
             drawingContext.DrawText(_text, font, TextAlignment.Center,_baseColor.WithA(opacity), rect);
+        }
+
+        base.DrawForFrame(drawingContext, currentFrame);
+    }
+}
+
+// Shows the rank-up animation rising above the character
+internal class RankUpAnimation(Camera camera, uint currentFrame, GameData gameData, Animation animation, in Vector3 baseLocation) : TransientAnimation(camera, currentFrame)
+{
+    protected override uint FrameLength { get; } = (uint)(Game.LogicFramesPerSecond * gameData.LevelGainAnimationTime);
+    private readonly float _zRise = gameData.LevelGainAnimationZRise;
+
+    private readonly Vector3 _baseLocation = baseLocation;
+
+    public override void DrawForFrame(DrawingContext2D drawingContext, uint currentFrame)
+    {
+        animation.SetFrame(currentFrame);
+        var currentImage = animation.Current;
+
+        var progress = Progress(currentFrame);
+        var zOffset = _zRise * progress * 5; // multiplying by 5 feels better - not sure why
+
+        var worldRectangle = Camera.WorldToScreenRectangle(_baseLocation with { Z = _baseLocation.Z + zOffset }, currentImage.Coords.Size.ToSizeF());
+
+        if (worldRectangle.HasValue)
+        {
+            var rect = worldRectangle.Value;
+            drawingContext.DrawMappedImage(currentImage, rect);
         }
 
         base.DrawForFrame(drawingContext, currentFrame);
