@@ -192,7 +192,7 @@ namespace OpenSage.Logic.Object
 
         private BitArray<DisabledType> _disabledTypes = new();
         private readonly uint[] _disabledTypesFrames = new uint[9];
-        private readonly ObjectVeterancyHelper _veterancyHelper = new();
+        public readonly ObjectVeterancyHelper VeterancyHelper;
         private uint _containerId;
         public uint ContainerId => _containerId;
         private uint _containedFrame;
@@ -410,14 +410,14 @@ namespace OpenSage.Logic.Object
         private const string VeterancyUpgradeNameElite = "Upgrade_Veterancy_ELITE";
         private const string VeterancyUpgradeNameHeroic = "Upgrade_Veterancy_HEROIC";
 
-        private VeterancyLevel _rank;
         public int Rank
         {
-            get => (int) _rank;
+            get => (int) VeterancyHelper.VeterancyLevel;
             set
             {
-                _rank = (VeterancyLevel)value;
-                var upgradeToApply = _rank switch
+                var rank = (VeterancyLevel)value;
+                VeterancyHelper.VeterancyLevel = rank;
+                var upgradeToApply = rank switch
                 {
                     VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
                     VeterancyLevel.Elite => VeterancyUpgradeNameElite,
@@ -432,9 +432,12 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public int ExperienceValue { get; set; }
+        public int ExperienceValue
+        {
+            get => VeterancyHelper.ExperiencePoints;
+            set => VeterancyHelper.ExperiencePoints = value;
+        }
         public int ExperienceRequiredForNextLevel { get; set; }
-        internal float ExperienceMultiplier { get; set; }
 
         public int EnergyProduction { get; internal set; }
 
@@ -462,11 +465,9 @@ namespace OpenSage.Logic.Object
 
             _objectMoved = true;
             Hidden = false;
-            ExperienceMultiplier = 1.0f;
-            ExperienceValue = 0;
-            Rank = 0;
 
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
+            VeterancyHelper = new ObjectVeterancyHelper(this);
 
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
@@ -514,7 +515,11 @@ namespace OpenSage.Logic.Object
             AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
 
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
+            if (_gameContext.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
+            {
+                // this was added in bfme and is not present in generals or zero hour
+                AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
+            }
 
             foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
             {
@@ -1416,7 +1421,7 @@ namespace OpenSage.Logic.Object
 
         internal void GainExperience(int experience)
         {
-            ExperienceValue += (int) (ExperienceMultiplier * experience);
+            VeterancyHelper.GainExperience(experience);
         }
 
         internal void SetBeingHealed(GameObject healer, uint endFrame)
@@ -1505,7 +1510,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(8);
 
-            reader.PersistObject(_veterancyHelper);
+            reader.PersistObject(VeterancyHelper);
             reader.PersistObjectID(ref _containerId);
             reader.PersistFrame(ref _containedFrame);
 
@@ -1654,7 +1659,8 @@ namespace OpenSage.Logic.Object
             if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
                 ImGui.CollapsingHeader("Veterancy"))
             {
-                var rank = _rank;
+                ImGui.LabelText("Experience", VeterancyHelper.ExperiencePoints.ToString());
+                var rank = VeterancyHelper.VeterancyLevel;
                 ImGuiUtility.ComboEnum("Current Rank", ref rank);
                 Rank = (int)rank;
             }
@@ -1756,21 +1762,57 @@ namespace OpenSage.Logic.Object
 
     public record struct CashEvent(int Amount, ColorRgb Color, Vector3 Offset = default);
 
-    internal sealed class ObjectVeterancyHelper : IPersistableObject
+    public sealed class ObjectVeterancyHelper : IPersistableObject
     {
-        private VeterancyLevel _veterancyLevel;
-        private int _experiencePoints;
+        public VeterancyLevel VeterancyLevel;
+        public int ExperiencePoints;
         private uint _experienceSinkObjectId;
-        private float _experienceScalar;
+        public float ExperienceScalar = 1;
+
+        public bool ShowRankUpAnimation;
+
+        private readonly GameObject _gameObject;
+
+        internal ObjectVeterancyHelper(GameObject gameObject)
+        {
+            _gameObject = gameObject;
+        }
+
+        public void GainExperience(int experience)
+        {
+            if (_experienceSinkObjectId > 0)
+            {
+                var experienceSink = _gameObject.GameContext.GameObjects.GetObjectById(_experienceSinkObjectId);
+                experienceSink?.GainExperience(experience);
+                return;
+            }
+
+            ExperiencePoints += (int) (ExperienceScalar * experience);
+            var nextRank = (int)VeterancyLevel + 1;
+
+            if (_gameObject.Definition.ExperienceRequired == null || nextRank >= _gameObject.Definition.ExperienceRequired.Values.Length)
+            {
+                return; // nothing left for us to gain
+            }
+
+            var xpForNextRank =_gameObject.Definition.ExperienceRequired.Values[nextRank];
+            if (ExperiencePoints >= xpForNextRank)
+            {
+                VeterancyLevel = (VeterancyLevel) nextRank;
+                ShowRankUpAnimation = true;
+                _gameObject.GameContext.AudioSystem.PlayAudioEvent(_gameObject,
+                    _gameObject.GameContext.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
+            }
+        }
 
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistEnum(ref _veterancyLevel);
-            reader.PersistInt32(ref _experiencePoints);
+            reader.PersistEnum(ref VeterancyLevel);
+            reader.PersistInt32(ref ExperiencePoints);
             reader.PersistObjectID(ref _experienceSinkObjectId);
-            reader.PersistSingle(ref _experienceScalar);
+            reader.PersistSingle(ref ExperienceScalar);
         }
     }
 

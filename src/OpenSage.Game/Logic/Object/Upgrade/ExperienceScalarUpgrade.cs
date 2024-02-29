@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
         protected override void OnUpgrade()
         {
-            _gameObject.ExperienceMultiplier += _moduleData.AddXPScalar;
+            _gameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
         }
 
         internal override void Load(StatePersister reader)

@@ -40,7 +40,7 @@ namespace OpenSage.Audio
             { "CrateSalvage", (parser, x) => x.CrateSalvage = parser.ParseAssetReference() },
             { "CrateFreeUnit", (parser, x) => x.CrateFreeUnit = parser.ParseAssetReference() },
             { "CrateMoney", (parser, x) => x.CrateMoney = parser.ParseAssetReference() },
-            { "UnitPromoted", (parser, x) => x.UnitPromoted = parser.ParseAssetReference() },
+            { "UnitPromoted", (parser, x) => x.UnitPromoted = parser.ParseAudioEventReference() },
             { "RepairSparks", (parser, x) => x.RepairSparks = parser.ParseAssetReference() },
             { "AircraftWheelScreech", (parser, x) => x.AircraftWheelScreech = parser.ParseAssetReference() },
             { "SabotageShutDownBuilding", (parser, x) => x.SabotageShutDownBuilding = parser.ParseAssetReference() },
@@ -114,7 +114,7 @@ namespace OpenSage.Audio
         public string CrateSalvage { get; private set; }
         public string CrateFreeUnit { get; private set; }
         public string CrateMoney { get; private set; }
-        public string UnitPromoted { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> UnitPromoted { get; private set; }
         public string RepairSparks { get; private set; }
         public string AircraftWheelScreech { get; private set; }
 
