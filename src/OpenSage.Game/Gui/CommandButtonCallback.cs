@@ -183,6 +183,10 @@ namespace OpenSage.Gui
                     order = CreateOrder(OrderType.Evacuate);
                     break;
 
+                case CommandType.HackInternet:
+                    order = CreateOrder(OrderType.HackInternet);
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }

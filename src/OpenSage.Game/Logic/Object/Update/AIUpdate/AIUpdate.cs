@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly AIStateMachine _stateMachine;
+        private protected readonly AIStateMachine StateMachine;
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
 
             TargetPoints = new List<Vector3>();
 
-            _stateMachine = new AIStateMachine();
+            StateMachine = new AIStateMachine();
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
@@ -252,48 +252,49 @@ namespace OpenSage.Logic.Object
                 context.GameContext.Quadtree.Update(GameObject);
             }
 
-            if (CurrentLocomotor == null)
+            if (CurrentLocomotor != null)
             {
-                return;
-            }
-
-            if (TargetPoints.Count > 0)
-            {
-                Vector3? nextPoint = null;
-
-                if (TargetPoints.Count > 1)
+                if (TargetPoints.Count > 0)
                 {
-                    nextPoint = TargetPoints[1];
-                }
+                    Vector3? nextPoint = null;
 
-                var reachedPosition = CurrentLocomotor.MoveTowardsPosition(TargetPoints[0], context.GameContext.Terrain.HeightMap, nextPoint);
-
-                // this should be moved to LogicTick
-                if (reachedPosition)
-                {
-                    Logger.Debug($"Reached point {TargetPoints[0]}");
-                    TargetPoints.RemoveAt(0);
-                    if (TargetPoints.Count == 0)
+                    if (TargetPoints.Count > 1)
                     {
-                        MoveToNextWaypointOrStop();
+                        nextPoint = TargetPoints[1];
+                    }
+
+                    var reachedPosition = CurrentLocomotor.MoveTowardsPosition(TargetPoints[0],
+                        context.GameContext.Terrain.HeightMap, nextPoint);
+
+                    // this should be moved to LogicTick
+                    if (reachedPosition)
+                    {
+                        Logger.Debug($"Reached point {TargetPoints[0]}");
+                        TargetPoints.RemoveAt(0);
+                        if (TargetPoints.Count == 0)
+                        {
+                            MoveToNextWaypointOrStop();
+                        }
                     }
                 }
-            }
-            else if (_targetDirection.HasValue)
-            {
-                if (!CurrentLocomotor.RotateToTargetDirection(_targetDirection.Value))
+                else if (_targetDirection.HasValue)
                 {
-                    return;
-                }
+                    if (!CurrentLocomotor.RotateToTargetDirection(_targetDirection.Value))
+                    {
+                        return;
+                    }
 
-                _targetDirection = null;
-                Stop();
+                    _targetDirection = null;
+                    Stop();
+                }
+                else
+                {
+                    // maintain position (jets etc)
+                    CurrentLocomotor.MaintainPosition(context.GameContext.Terrain.HeightMap);
+                }
             }
-            else
-            {
-                // maintain position (jets etc)
-                CurrentLocomotor.MaintainPosition(context.GameContext.Terrain.HeightMap);
-            }
+
+            base.Update(context);
         }
 
         internal override void DrawInspector()
@@ -311,7 +312,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistObject(_stateMachine);
+            reader.PersistObject(StateMachine);
             reader.PersistUInt32(ref _unknownInt3);
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistBoolean(ref _unknownBool2);

@@ -430,6 +430,27 @@ namespace OpenSage.Logic.Orders
                             }
                         }
                         break;
+
+                    case OrderType.HackInternet:
+                        {
+                            GameObject? lastUnit = null;
+                            foreach (var unit in player.SelectedUnits)
+                            {
+                                if (unit.AIUpdate is not HackInternetAIUpdate hackInternetAIUpdate)
+                                {
+                                    Logger.Warn("Attempting to hack internet with unit without {HackInternetAIUpdate}",
+                                        nameof(HackInternetAIUpdate));
+                                    continue;
+                                }
+
+                                hackInternetAIUpdate.StartHackingInternet();
+                                lastUnit = unit;
+                            }
+
+                            _game.Audio.PlayAudioEvent(lastUnit, lastUnit?.Definition.UnitSpecificSounds.VoiceHackInternet?.Value);
+                        }
+                        break;
+
                     case OrderType.ToggleOvercharge:
                         foreach (var unit in player.SelectedUnits)
                         {

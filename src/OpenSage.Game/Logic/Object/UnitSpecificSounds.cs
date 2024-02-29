@@ -34,6 +34,11 @@ namespace OpenSage.Logic.Object
         public LazyAssetReference<BaseAudioEventInfo>? VoiceBuildResponse => TryGetValue("VoiceBuildResponse", out var sound) ? sound : null;
         public LazyAssetReference<BaseAudioEventInfo>? VoiceGetHealed => TryGetValue("VoiceGetHealed", out var sound) ? sound : null;
         public LazyAssetReference<BaseAudioEventInfo>? VoiceEject => TryGetValue("VoiceEject", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? UnitPack => TryGetValue("UnitPack", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? UnitUnpack => TryGetValue("UnitUnpack", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? UnitCashPing => TryGetValue("UnitCashPing", out var sound) ? sound : null;
+        public LazyAssetReference<BaseAudioEventInfo>? VoiceHackInternet => TryGetValue("VoiceHackInternet", out var sound) ? sound : null;
+
 
         internal static UnitSpecificSounds Parse(IniParser parser)
         {

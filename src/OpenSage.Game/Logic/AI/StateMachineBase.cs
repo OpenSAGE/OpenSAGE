@@ -13,6 +13,7 @@ namespace OpenSage.Logic.AI
 
         private uint _currentStateId;
         private State _currentState;
+        internal State CurrentState => _currentState;
 
         private uint _objectToEnter;
         private Vector3 _unknownPosition;
@@ -37,6 +38,11 @@ namespace OpenSage.Logic.AI
             }
 
             throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
+        }
+
+        internal void SetState(uint id)
+        {
+            _currentState = GetState(id);
         }
 
         public virtual void Persist(StatePersister reader)

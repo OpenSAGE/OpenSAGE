@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
 
@@ -43,6 +43,9 @@ namespace OpenSage.Logic.AI
             AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
+            AddState(1000, new StartHackingInternetState());
+            AddState(1001, new HackInternetState());
+            AddState(1002, new StopHackingInternetState());
         }
 
         public override void Persist(StatePersister reader)
