@@ -29,19 +29,6 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            // this bonus happens on capture, regardless of the award frame timing
-            if (_shouldGrantInitialCaptureBonus && _moduleData.InitialCaptureBonus != 0 && _gameObject.Owner != _context.Game.PlayerManager.GetCivilianPlayer())
-            {
-                _shouldGrantInitialCaptureBonus = false;
-                _gameObject.ActiveCashEvent = new CashEvent(_moduleData.InitialCaptureBonus, _gameObject.Owner.Color, new Vector3(0, 0, 10));
-
-                // It doesn't appear capture bonus and actual money ever intersect, but just in case...
-                if (_moduleData.ActualMoney)
-                {
-                    _gameObject.Owner.BankAccount.Deposit((uint)_moduleData.InitialCaptureBonus);
-                }
-            }
-
             if (context.LogicFrame < _nextAwardFrame)
             {
                 return;
@@ -55,7 +42,7 @@ namespace OpenSage.Logic.Object
                 amount += (uint)(amount * (_moduleData.UpgradedBoost.Value.Boost / 100f));
             }
 
-            _gameObject.ActiveCashEvent = new CashEvent((int)amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
+            GenerateAutoDepositCashEvent((int)amount);
             if (_moduleData.ActualMoney)
             {
                 _gameObject.Owner.BankAccount.Deposit(amount);
@@ -64,6 +51,26 @@ namespace OpenSage.Logic.Object
                     _gameObject.GainExperience((int)amount);
                 }
             }
+        }
+
+        public void GrantCaptureBonus()
+        {
+            if (_shouldGrantInitialCaptureBonus && _moduleData.InitialCaptureBonus != 0)
+            {
+                _shouldGrantInitialCaptureBonus = false;
+                GenerateAutoDepositCashEvent(_moduleData.InitialCaptureBonus);
+
+                // It doesn't appear capture bonus and actual money ever intersect, but just in case...
+                if (_moduleData.ActualMoney)
+                {
+                    _gameObject.Owner.BankAccount.Deposit((uint)_moduleData.InitialCaptureBonus);
+                }
+            }
+        }
+
+        private void GenerateAutoDepositCashEvent(int amount)
+        {
+            _gameObject.ActiveCashEvent = new CashEvent(amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
         }
 
         internal override void Load(StatePersister reader)
