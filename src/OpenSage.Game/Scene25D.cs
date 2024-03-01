@@ -202,7 +202,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 productionBoxValue);
         }
 
-        var gainsExperience = gameObject.FindBehavior<ExperienceUpdate>().ObjectGainsExperience;
+        var gainsExperience = gameObject.FindBehavior<ExperienceUpdate>()?.ObjectGainsExperience ?? false;
         if (gainsExperience)
         {
             yOffset += 4;
