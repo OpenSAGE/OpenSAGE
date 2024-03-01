@@ -7,36 +7,70 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class AutoDepositUpdate : UpdateModule
     {
-        GameObject _gameObject;
-        AutoDepositUpdateModuleData _moduleData;
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
+        private readonly AutoDepositUpdateModuleData _moduleData;
 
-        private LogicFrame _waitUntil;
-
-        private uint _unknownFrame;
-        private bool _unknownBool1;
-        private bool _unknownBool2;
+        private LogicFrame _nextAwardFrame;
+        private bool _shouldGrantInitialCaptureBonus = true; // this always starts as true, even if there is no capture bonus
+        private bool _unknownBool2 = true;
 
         internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _context = context;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (_gameObject.IsBeingConstructed() || (context.LogicFrame < _waitUntil))
+            if (_gameObject.IsBeingConstructed())
             {
                 return;
             }
 
-            _waitUntil = context.LogicFrame + _moduleData.DepositTiming;
-            var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
-            _gameObject.Owner.BankAccount.Deposit(amount);
-            _gameObject.ActiveCashEvent = new CashEvent((int)amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
-            if (!_moduleData.GiveNoXP)
+            if (context.LogicFrame < _nextAwardFrame)
             {
-                _gameObject.GainExperience((int)amount);
+                return;
             }
+
+            _nextAwardFrame = context.LogicFrame + _moduleData.DepositTiming;
+            var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
+
+            if (_moduleData.UpgradedBoost.HasValue && _gameObject.HasUpgrade(_moduleData.UpgradedBoost.Value.UpgradeType.Value))
+            {
+                amount += (uint)(amount * (_moduleData.UpgradedBoost.Value.Boost / 100f));
+            }
+
+            GenerateAutoDepositCashEvent((int)amount);
+            if (_moduleData.ActualMoney)
+            {
+                _gameObject.Owner.BankAccount.Deposit(amount);
+                if (!_moduleData.GiveNoXP)
+                {
+                    _gameObject.GainExperience((int)amount);
+                }
+            }
+        }
+
+        public void GrantCaptureBonus()
+        {
+            if (_shouldGrantInitialCaptureBonus && _moduleData.InitialCaptureBonus != 0)
+            {
+                _shouldGrantInitialCaptureBonus = false;
+                GenerateAutoDepositCashEvent(_moduleData.InitialCaptureBonus);
+
+                // It doesn't appear capture bonus and actual money ever intersect, but just in case...
+                if (_moduleData.ActualMoney)
+                {
+                    _gameObject.Owner.BankAccount.Deposit((uint)_moduleData.InitialCaptureBonus);
+                }
+            }
+        }
+
+        private void GenerateAutoDepositCashEvent(int amount)
+        {
+            _gameObject.ActiveCashEvent = new CashEvent(amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
         }
 
         internal override void Load(StatePersister reader)
@@ -47,8 +81,8 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref _unknownFrame);
-            reader.PersistBoolean(ref _unknownBool1);
+            reader.PersistLogicFrame(ref _nextAwardFrame);
+            reader.PersistBoolean(ref _shouldGrantInitialCaptureBonus);
             reader.PersistBoolean(ref _unknownBool2);
         }
     }
@@ -86,11 +120,17 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int InitialCaptureBonus { get; private set; }
 
+        /// <summary>
+        /// Whether to actually award money or just make it appear to others that money has been awarded.
+        /// </summary>
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public bool ActualMoney { get; private set; }
+        public bool ActualMoney { get; private set; } = true;
 
+        /// <summary>
+        /// Bonus cash percentage to add to the <see cref="DepositAmount"/> contingent upon the upgrade being researched.
+        /// </summary>
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public BoostUpgrade UpgradedBoost { get; private set; }
+        public BoostUpgrade? UpgradedBoost { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string Upgrade { get; private set; }

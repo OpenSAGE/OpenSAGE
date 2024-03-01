@@ -1421,6 +1421,11 @@ namespace OpenSage.Logic.Object
 
         internal void GainExperience(int experience)
         {
+            if (!Definition.IsTrainable)
+            {
+                return;
+            }
+
             VeterancyHelper.GainExperience(experience);
         }
 

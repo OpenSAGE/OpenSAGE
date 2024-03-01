@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 
@@ -36,18 +37,15 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public struct BoostUpgrade
+    public readonly record struct BoostUpgrade(LazyAssetReference<UpgradeTemplate> UpgradeType, int Boost)
     {
         internal static BoostUpgrade Parse(IniParser parser)
         {
             return new BoostUpgrade
             {
-                UpgradeType = parser.ParseAttribute("UpgradeType", () => parser.ParseAssetReference()),
-                Boost = parser.ParseAttributeInteger("Boost")
+                UpgradeType = parser.ParseAttribute("UpgradeType", parser.ParseUpgradeReference),
+                Boost = parser.ParseAttributeInteger("Boost"),
             };
         }
-
-        public string UpgradeType;
-        public int Boost;
     }
 }
