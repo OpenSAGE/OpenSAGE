@@ -14,6 +14,7 @@ namespace OpenSage.Logic.Object
         private uint _availableAtFrame;
         private bool _paused;
         private uint _countdownEndFrame; // unclear what this is
+        private float _unknownFloat;
 
         private readonly float _reloadFrames;
 
@@ -170,8 +171,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(3);
 
             reader.PersistFrame(ref _countdownEndFrame);
-
-            reader.SkipUnknownBytes(4);
+            reader.PersistSingle(ref _unknownFloat);
         }
 
         internal override void DrawInspector()

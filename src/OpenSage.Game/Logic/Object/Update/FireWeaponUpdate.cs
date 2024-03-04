@@ -1,30 +1,96 @@
 ﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class FireWeaponUpdate : UpdateModule
+    {
+        private byte _unknownByte;
+        private string _weaponTemplate;
+
+        private uint _unknownUInt1;
+        private uint _unknownUInt2;
+
+        private LogicFrame _unknownFrame1;
+        private LogicFrame _unknownFrame2;
+        private LogicFrame _unknownFrame3;
+        private LogicFrame _unknownFrame4;
+
+        private uint _unknownUInt3;
+        private uint _unknownUInt4;
+        private uint _unknownUInt5;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+
+            reader.PersistByte(ref _unknownByte);
+            reader.PersistAsciiString(ref _weaponTemplate);
+
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistUInt32(ref _unknownUInt1);
+            if (_unknownUInt1 != 2)
+            {
+                throw new InvalidStateException();
+            }
+            reader.PersistUInt32(ref _unknownUInt2); // something large
+
+            reader.PersistLogicFrame(ref _unknownFrame1);
+            reader.SkipUnknownBytes(4);
+            reader.PersistLogicFrame(ref _unknownFrame2);
+            reader.PersistLogicFrame(ref _unknownFrame3);
+            reader.PersistLogicFrame(ref _unknownFrame4);
+
+            reader.SkipUnknownBytes(8);
+
+            reader.PersistUInt32(ref _unknownUInt3);
+            if (_unknownUInt3 != _unknownUInt2)
+            {
+                throw new InvalidStateException();
+            }
+            reader.PersistUInt32(ref _unknownUInt4);
+            if (_unknownUInt4 != 1)
+            {
+                throw new InvalidStateException();
+            }
+            reader.PersistUInt32(ref _unknownUInt5);
+            if (_unknownUInt5 != 1)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.SkipUnknownBytes(4);
+        }
+    }
+
     public sealed class FireWeaponUpdateModuleData : UpdateModuleData
     {
         internal static FireWeaponUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FireWeaponUpdateModuleData> FieldParseTable = new IniParseTable<FireWeaponUpdateModuleData>
         {
-            { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
-            { "ExclusiveWeaponDelay", (parser, x) => x.ExclusiveWeaponDelay = parser.ParseInteger() },
-            { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() },
+            { "Weapon", (parser, x) => x.Weapon = parser.ParseWeaponTemplateReference() },
+            { "ExclusiveWeaponDelay", (parser, x) => x.ExclusiveWeaponDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "ChargingModeTrigger", (parser, x) => x.ChargingModeTrigger = parser.ParseBoolean() },
             { "AliveOnly", (parser, x) => x.AliveOnly = parser.ParseBoolean() },
             { "HeroModeTrigger", (parser, x) => x.HeroModeTrigger = parser.ParseBoolean() },
             { "FireWeaponNugget", (parser, x) => x.FireWeaponNugget = WeaponNugget.Parse(parser) }
         };
 
-        public string Weapon { get; private set; }
+        public LazyAssetReference<WeaponTemplate> Weapon { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public int ExclusiveWeaponDelay { get; private set; }
+        public LogicFrameSpan ExclusiveWeaponDelay { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public int InitialDelay { get; private set; }
+        public LogicFrameSpan InitialDelay { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool ChargingModeTrigger { get; private set; }
@@ -37,6 +103,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public WeaponNugget FireWeaponNugget { get; private set; }
+
+        internal override FireWeaponUpdate CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new FireWeaponUpdate();
+        }
     }
 
     [AddedIn(SageGame.Bfme2)]
