@@ -1002,15 +1002,15 @@ namespace OpenSage.Logic
         }
     }
 
-    public sealed class SyncedSpecialPowerTimerCollection : Dictionary<SpecialPowerType, uint>, IPersistableObject
+    public sealed class SyncedSpecialPowerTimerCollection : Dictionary<SpecialPowerType, LogicFrame>, IPersistableObject
     {
         public void Persist(StatePersister persister)
         {
             persister.PersistDictionary(this,
-                static (StatePersister statePersister, ref SpecialPowerType specialPowerType, ref uint availableAtFrame) =>
+                static (StatePersister statePersister, ref SpecialPowerType specialPowerType, ref LogicFrame availableAtFrame) =>
                 {
                     statePersister.PersistEnum(ref specialPowerType);
-                    statePersister.PersistUInt32(ref availableAtFrame);
+                    statePersister.PersistLogicFrame(ref availableAtFrame);
                 }, "Dictionary");
         }
     }

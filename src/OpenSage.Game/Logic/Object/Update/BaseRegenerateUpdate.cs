@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _gameObject;
         private readonly GameContext _context;
 
-        protected override uint FramesBetweenUpdates => (uint)Game.LogicFramesPerSecond;
+        protected override LogicFrameSpan FramesBetweenUpdates => LogicFrameSpan.OneSecond;
 
         internal BaseRegenerateUpdate(GameObject gameObject, GameContext context)
         {
@@ -21,8 +21,8 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public void RegisterDamage()
         {
-            var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
-            NextUpdateFrame.Frame = currentFrame + FramesForMs(_context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
+            var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame;
+            NextUpdateFrame = new UpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
         }
 
         private protected override void RunUpdate(BehaviorUpdateContext context)

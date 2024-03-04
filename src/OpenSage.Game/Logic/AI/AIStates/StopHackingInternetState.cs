@@ -1,14 +1,16 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class StopHackingInternetState : State
     {
-        public uint FramesUntilFinishedPacking;
+        public LogicFrameSpan FramesUntilFinishedPacking;
 
         public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
 
-            reader.PersistUInt32(ref FramesUntilFinishedPacking);
+            reader.PersistLogicFrameSpan(ref FramesUntilFinishedPacking);
         }
     }
 }

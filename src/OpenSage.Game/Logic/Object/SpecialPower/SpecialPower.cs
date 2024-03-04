@@ -11,11 +11,11 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// The next frame when this special power can be used
         /// </summary>
-        private uint _availableAtFrame;
+        private LogicFrame _availableAtFrame;
         private bool _paused;
-        private uint _countdownEndFrame; // unclear what this is
+        private LogicFrame _countdownEndFrame; // unclear what this is
 
-        private readonly float _reloadFrames;
+        private readonly LogicFrameSpan _reloadFrames;
 
         /// <summary>
         /// Whether the special power is ready to be used.
@@ -39,7 +39,7 @@ namespace OpenSage.Logic.Object
             GameObject = gameObject;
             Context = context;
             _moduleData = moduleData;
-            _reloadFrames = FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
+            _reloadFrames = _moduleData.SpecialPower.Value.ReloadTime;
             _paused = moduleData.StartsPaused;
             if (!moduleData.SpecialPower.Value.SharedSyncedTimer)
             {
@@ -58,7 +58,7 @@ namespace OpenSage.Logic.Object
                 return 0;
             }
 
-            if (_reloadFrames == 0)
+            if (_reloadFrames == LogicFrameSpan.Zero)
             {
                 _ready = true;
             }
@@ -82,7 +82,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            var progress = 1 - Math.Clamp((availableAtFrame - Math.Min(availableAtFrame, Context.GameLogic.CurrentFrame.Value)) / _reloadFrames, 0, 1);
+            var progress = 1 - Math.Clamp((availableAtFrame.Value - Math.Min(availableAtFrame.Value, Context.GameLogic.CurrentFrame.Value)) / (float)_reloadFrames.Value, 0, 1);
             _ready = progress >= 1;
             return progress;
         }
@@ -92,7 +92,7 @@ namespace OpenSage.Logic.Object
             if (!_unlocked)
             {
                 // the GLA cash bounty is actually awarded immediately upon a CC scaffold being placed - I suspect this is due to the reload time being zero
-                if (GameObject.IsBeingConstructed() && _moduleData.SpecialPower.Value.ReloadTime > 0)
+                if (GameObject.IsBeingConstructed() && _moduleData.SpecialPower.Value.ReloadTime != LogicFrameSpan.Zero)
                 {
                     return; // nothing for us to do if we're not even built yet
                 }
@@ -118,7 +118,7 @@ namespace OpenSage.Logic.Object
                 return; // this is handled by SpecialPowerCreate
             }
 
-            _availableAtFrame = Context.GameLogic.CurrentFrame.Value;
+            _availableAtFrame = Context.GameLogic.CurrentFrame;
             if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
             {
                 var player = GameObject.Owner;
@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Object
 
         public void ResetCountdown()
         {
-            _availableAtFrame = Context.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.SpecialPower.Value.ReloadTime);
+            _availableAtFrame = Context.GameLogic.CurrentFrame + _moduleData.SpecialPower.Value.ReloadTime;
             _ready = false;
 
             if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
@@ -164,12 +164,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref _availableAtFrame);
+            reader.PersistLogicFrame(ref _availableAtFrame);
 
             reader.PersistBoolean(ref _paused);
             reader.SkipUnknownBytes(3);
 
-            reader.PersistFrame(ref _countdownEndFrame);
+            reader.PersistLogicFrame(ref _countdownEndFrame);
 
             reader.SkipUnknownBytes(4);
         }

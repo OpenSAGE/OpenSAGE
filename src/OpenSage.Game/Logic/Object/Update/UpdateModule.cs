@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
         // it's also possible this is _last_ update, not next update
         protected UpdateFrame NextUpdateFrame;
 
-        protected virtual uint FramesBetweenUpdates => 1;
+        protected virtual LogicFrameSpan FramesBetweenUpdates { get; } = new(1);
 
         private protected virtual void RunUpdate(BehaviorUpdateContext context) { }
 
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            NextUpdateFrame.Frame = context.LogicFrame.Value + FramesBetweenUpdates;
+            NextUpdateFrame = new UpdateFrame(context.LogicFrame + FramesBetweenUpdates);
             RunUpdate(context);
         }
 
@@ -37,6 +37,11 @@ namespace OpenSage.Logic.Object
         protected struct UpdateFrame
         {
             public uint RawValue;
+
+            public UpdateFrame(LogicFrame frame)
+            {
+                Frame = frame.Value;
+            }
 
             public uint Frame
             {

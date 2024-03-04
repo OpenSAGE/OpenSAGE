@@ -13,11 +13,6 @@ namespace OpenSage.Logic.Object
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
 
-        protected static uint FramesForMs(int ms)
-        {
-            return (uint)(Game.LogicFramesPerSecond * (ms / 1000f));
-        }
-
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -59,6 +54,7 @@ namespace OpenSage.Logic.Object
 
     public readonly struct LogicFrame
     {
+        public static readonly LogicFrame Zero = default;
         public static readonly LogicFrame MaxValue = new LogicFrame(uint.MaxValue);
 
         internal readonly uint Value;
@@ -127,6 +123,16 @@ namespace OpenSage.Logic.Object
             return new LogicFrameSpan(left.Value + 1);
         }
 
+        public static LogicFrameSpan operator -(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return new LogicFrameSpan(left.Value - right.Value);
+        }
+
+        public static LogicFrameSpan operator --(LogicFrameSpan left)
+        {
+            return new LogicFrameSpan(left.Value - 1);
+        }
+
         public static LogicFrameSpan operator *(LogicFrameSpan left, Percentage right)
         {
             return new LogicFrameSpan((uint)MathF.Ceiling(left.Value * (float)right));
@@ -150,6 +156,31 @@ namespace OpenSage.Logic.Object
         public static LogicFrameSpan operator /(LogicFrameSpan left, Percentage right)
         {
             return new LogicFrameSpan((uint)MathF.Ceiling(left.Value / (float)right));
+        }
+
+        public static bool operator ==(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LogicFrameSpan logicFrameSpan && Equals(logicFrameSpan);
+        }
+
+        private bool Equals(LogicFrameSpan other)
+        {
+            return Value == other.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)Value;
         }
     }
 

@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class PropagandaTowerBehavior : UpdateModule
     {
-        protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.DelayBetweenUpdates);
+        protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DelayBetweenUpdates;
 
         private readonly GameObject _gameObject;
         private readonly PropagandaTowerBehaviorModuleData _moduleData;
@@ -140,7 +140,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<PropagandaTowerBehaviorModuleData> FieldParseTable = new IniParseTable<PropagandaTowerBehaviorModuleData>
         {
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
-            { "DelayBetweenUpdates", (parser, x) => x.DelayBetweenUpdates = parser.ParseInteger() },
+            { "DelayBetweenUpdates", (parser, x) => x.DelayBetweenUpdates = parser.ParseTimeMillisecondsToLogicFrames() },
             { "HealPercentEachSecond", (parser, x) => x.HealPercentEachSecond = parser.ParsePercentage() },
             { "PulseFX", (parser, x) => x.PulseFX = parser.ParseFXListReference() },
             { "UpgradeRequired", (parser, x) => x.UpgradeRequired = parser.ParseUpgradeReference() },
@@ -150,7 +150,7 @@ namespace OpenSage.Logic.Object
         };
 
         public float Radius { get; private set; }
-        public int DelayBetweenUpdates { get; private set; }
+        public LogicFrameSpan DelayBetweenUpdates { get; private set; }
         public Percentage HealPercentEachSecond { get; private set; }
         /// <summary>
         /// plays as often as DelayBetweenUpdates

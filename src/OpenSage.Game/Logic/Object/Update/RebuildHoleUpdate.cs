@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
         private uint _structureId; // the structure that is being built
         private uint _originalStructureId; // the structure that was destroyed to create this hole
 
-        private uint _framesUntilConstructionBegins;
+        private LogicFrameSpan _framesUntilConstructionBegins;
 
         private string _workerObjectName; // the worker to spawn to build the structure
         private ObjectDefinition WorkerObjectDefinition => _context.Game.AssetStore.ObjectDefinitions.GetByName(_workerObjectName);
@@ -49,7 +49,7 @@ namespace OpenSage.Logic.Object
 
         private void ResetConstructionCounter()
         {
-            _framesUntilConstructionBegins = FramesForMs(_moduleData.WorkerRespawnDelay);
+            _framesUntilConstructionBegins = _moduleData.WorkerRespawnDelay;
         }
 
         // scaffolds have a status of 0001 0000 0000 0000 0000 0100 in sav file (0100 is under construction)
@@ -66,9 +66,9 @@ namespace OpenSage.Logic.Object
                 _gameObject.Heal(_healPercentagePerFrame);
             }
 
-            if (_framesUntilConstructionBegins > 0)
+            if (_framesUntilConstructionBegins != LogicFrameSpan.Zero)
             {
-                _framesUntilConstructionBegins -= 1;
+                _framesUntilConstructionBegins--;
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace OpenSage.Logic.Object
             reader.PersistObjectID(ref _structureId);
             reader.PersistObjectID(ref _originalStructureId);
 
-            reader.PersistUInt32(ref _framesUntilConstructionBegins);
+            reader.PersistLogicFrameSpan(ref _framesUntilConstructionBegins);
 
             reader.PersistAsciiString(ref _workerObjectName);
             reader.PersistAsciiString(ref _structureObjectName);
@@ -195,13 +195,13 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<RebuildHoleUpdateModuleData> BaseFieldParseTable = new IniParseTable<RebuildHoleUpdateModuleData>
         {
             { "WorkerObjectName", (parser, x) => x.WorkerObjectDefinition = parser.ParseObjectReference() },
-            { "WorkerRespawnDelay", (parser, x) => x.WorkerRespawnDelay = parser.ParseInteger() },
+            { "WorkerRespawnDelay", (parser, x) => x.WorkerRespawnDelay = parser.ParseTimeMillisecondsToLogicFrames() },
             { "HoleHealthRegen%PerSecond", (parser, x) => x.HoleHealthRegenPercentPerSecond = parser.ParsePercentage() }
         };
 
         public LazyAssetReference<ObjectDefinition> WorkerObjectDefinition { get; private set; }
 
-        public int WorkerRespawnDelay { get; private set; }
+        public LogicFrameSpan WorkerRespawnDelay { get; private set; }
 
         public Percentage HoleHealthRegenPercentPerSecond { get; private set; }
 
