@@ -148,7 +148,7 @@ namespace OpenSage.Logic.Object
         {
             var specialPower = _moduleData.SpecialPower.Value;
             Context.AudioSystem.PlayAudioEvent(specialPower.InitiateSound?.Value);
-            Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSoun2.Value);
+            Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSound?.Value);
             ResetCountdown();
         }
 
