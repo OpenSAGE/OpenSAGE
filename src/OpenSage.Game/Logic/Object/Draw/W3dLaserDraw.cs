@@ -1,12 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Client;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Wnd;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class W3dLaserDraw : DrawModule
+    {
+        public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = [];
+        internal override string GetWeaponFireFXBone(WeaponSlot slot)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override string GetWeaponLaunchBone(WeaponSlot slot)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Update(in TimeInterval time)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow,
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS, Dictionary<string, bool> shownSubObjects = null, Dictionary<string, bool> hiddenSubObjects = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override (ModelInstance, ModelBone) FindBone(string boneName)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+        }
+    }
     /// <summary>
-    /// Interdependent with the <see cref="LaserUpdateModuleData"/> module and requires the object to have 
+    /// Interdependent with the <see cref="LaserUpdateModuleData"/> module and requires the object to have
     /// KindOf = INERT IMMOBILE.
     /// </summary>
     public sealed class W3dLaserDrawModuleData : DrawModuleData
@@ -49,6 +98,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public Envelope Envelope { get; private set; }
+
+        internal override W3dLaserDraw CreateDrawModule(Drawable drawable, GameContext context)
+        {
+            return new W3dLaserDraw();
+        }
     }
 
     [AddedIn(SageGame.Bfme)]

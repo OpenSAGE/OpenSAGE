@@ -14,6 +14,7 @@ namespace OpenSage.Logic.Object
         private LogicFrame _availableAtFrame;
         private bool _paused;
         private LogicFrame _countdownEndFrame; // unclear what this is
+        private float _unknownFloat;
 
         private readonly LogicFrameSpan _reloadFrames;
 
@@ -147,7 +148,7 @@ namespace OpenSage.Logic.Object
         {
             var specialPower = _moduleData.SpecialPower.Value;
             Context.AudioSystem.PlayAudioEvent(specialPower.InitiateSound?.Value);
-            Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSound?.Value);
+            Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSoun2.Value);
             ResetCountdown();
         }
 
@@ -170,8 +171,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(3);
 
             reader.PersistLogicFrame(ref _countdownEndFrame);
-
-            reader.SkipUnknownBytes(4);
+            reader.PersistSingle(ref _unknownFloat);
         }
 
         internal override void DrawInspector()
