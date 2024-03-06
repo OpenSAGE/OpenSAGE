@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<SpecialPower> FieldParseTable = new()
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
-            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseInteger() },
+            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "RequiredScience", (parser, x) => x.RequiredSciences = new[] { parser.ParseScienceReference() } },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
@@ -48,7 +48,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// The time for the special power to reload, in ms.
         /// </summary>
-        public int ReloadTime { get; private set; }
+        public LogicFrameSpan ReloadTime { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> InitiateSound { get; private set; }

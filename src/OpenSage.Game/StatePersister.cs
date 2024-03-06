@@ -500,6 +500,20 @@ namespace OpenSage
             value = new LogicFrame(innerValue);
         }
 
+        public static void PersistLogicFrameSpan(this StatePersister persister, ref LogicFrameSpan value, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.PersistFieldName(name);
+
+            persister.PersistLogicFrameSpanValue(ref value);
+        }
+
+        public static void PersistLogicFrameSpanValue(this StatePersister persister, ref LogicFrameSpan value)
+        {
+            var innerValue = value.Value;
+            persister.PersistUInt32Value(ref innerValue);
+            value = new LogicFrameSpan(innerValue);
+        }
+
         public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true, [CallerArgumentExpression("value")] string name = "")
         {
             persister.BeginObject(name);

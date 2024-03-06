@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-                    if (start.FramesUntilHackingBegins-- == 0)
+                    if (start.FramesUntilHackingBegins-- == LogicFrameSpan.Zero)
                     {
                         // update state to hack
                         StateMachine.SetState(1001);
@@ -38,9 +38,9 @@ namespace OpenSage.Logic.Object
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, true);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-                    if (hack.FramesUntilNextHack-- == 0)
+                    if (hack.FramesUntilNextHack-- == LogicFrameSpan.Zero)
                     {
-                        hack.FramesUntilNextHack = FramesForMs(GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay);
+                        hack.FramesUntilNextHack = GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay;
                         var amount = GetCashGrant();
                         GameObject.Owner.BankAccount.Deposit((uint)amount);
                         _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitCashPing?.Value);
@@ -52,7 +52,7 @@ namespace OpenSage.Logic.Object
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
-                    if (stop.FramesUntilFinishedPacking-- == 0)
+                    if (stop.FramesUntilFinishedPacking-- == LogicFrameSpan.Zero)
                     {
                         // update state to idle
                         StateMachine.SetState(0);
@@ -69,7 +69,7 @@ namespace OpenSage.Logic.Object
 
         private void ResetFramesUntilNextHack(HackInternetState hack)
         {
-            hack.FramesUntilNextHack = FramesForMs(GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay);
+            hack.FramesUntilNextHack = GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay;
         }
 
         private int GetCashGrant()
@@ -148,10 +148,10 @@ namespace OpenSage.Logic.Object
             base.Stop();
         }
 
-        private uint GetVariableFrames(int timeMs, float variance)
+        private LogicFrameSpan GetVariableFrames(LogicFrameSpan time, float variance)
         {
             // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-            return FramesForMs((int)(timeMs + timeMs * ((_context.Random.NextSingle() * 2 - 1) * variance)));
+            return new LogicFrameSpan((uint)(time.Value + time.Value * ((_context.Random.NextSingle() * 2 - 1) * variance)));
         }
 
         internal override void Load(StatePersister reader)
@@ -254,10 +254,10 @@ namespace OpenSage.Logic.Object
         private new static readonly IniParseTable<HackInternetAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<HackInternetAIUpdateModuleData>
             {
-                { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
-                { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
-                { "CashUpdateDelay", (parser, x) => x.CashUpdateDelay = parser.ParseInteger() },
-                { "CashUpdateDelayFast", (parser, x) => x.CashUpdateDelayFast = parser.ParseInteger() },
+                { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "PackTime", (parser, x) => x.PackTime = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "CashUpdateDelay", (parser, x) => x.CashUpdateDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "CashUpdateDelayFast", (parser, x) => x.CashUpdateDelayFast = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "RegularCashAmount", (parser, x) => x.RegularCashAmount = parser.ParseInteger() },
                 { "VeteranCashAmount", (parser, x) => x.VeteranCashAmount = parser.ParseInteger() },
                 { "EliteCashAmount", (parser, x) => x.EliteCashAmount = parser.ParseInteger() },
@@ -266,9 +266,9 @@ namespace OpenSage.Logic.Object
                 { "PackUnpackVariationFactor", (parser, x) => x.PackUnpackVariationFactor = parser.ParseFloat() },
             });
 
-        public int UnpackTime { get; private set; }
-        public int PackTime { get; private set; }
-        public int CashUpdateDelay { get; private set; }
+        public LogicFrameSpan UnpackTime { get; private set; }
+        public LogicFrameSpan PackTime { get; private set; }
+        public LogicFrameSpan CashUpdateDelay { get; private set; }
 
         /// <summary>
         /// Hack speed when in a container (presumably with <see cref="InternetHackContainModuleData"/>).
@@ -279,7 +279,7 @@ namespace OpenSage.Logic.Object
         /// in <i>any</i> container, not just internet centers.
         /// </remarks>
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public int CashUpdateDelayFast { get; private set; }
+        public LogicFrameSpan CashUpdateDelayFast { get; private set; }
 
         public int RegularCashAmount { get; private set; }
         public int VeteranCashAmount { get; private set; }

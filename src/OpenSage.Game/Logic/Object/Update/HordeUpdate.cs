@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
         private bool _isInHorde;
 
-        protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.UpdateRate);
+        protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.UpdateRate;
 
         internal HordeUpdate(GameObject gameObject, GameContext context, HordeUpdateModuleData moduleData)
         {
@@ -119,7 +119,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<HordeUpdateModuleData> FieldParseTable = new IniParseTable<HordeUpdateModuleData>
         {
             { "RubOffRadius", (parser, x) => x.RubOffRadius = parser.ParseInteger() },
-            { "UpdateRate", (parser, x) => x.UpdateRate = parser.ParseInteger() },
+            { "UpdateRate", (parser, x) => x.UpdateRate = parser.ParseTimeMillisecondsToLogicFrames() },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "AlliesOnly", (parser, x) => x.AlliesOnly = parser.ParseBoolean() },
@@ -135,7 +135,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// how often to recheck horde status (msec)
         /// </summary>
-        public int UpdateRate { get; private set; }
+        public LogicFrameSpan UpdateRate { get; private set; }
         /// <summary>
         /// how close other units must be to us to count towards our horde-ness
         /// </summary>

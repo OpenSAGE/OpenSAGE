@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
         private BattlePlanType _active; // the battle plan active (different from current in that this is None while _state is not Active)
         private BattlePlanUpdateState _state; // the state of the strategy center
 
-        private uint _stateChangeCompleteFrame; // the frame at which the current state change will be completed
+        private LogicFrame _stateChangeCompleteFrame; // the frame at which the current state change will be completed
 
         private bool _bombardmentActive;
         private bool _holdTheLineActive;
@@ -60,18 +60,18 @@ namespace OpenSage.Logic.Object
             switch (_state)
             {
                 case BattlePlanUpdateState.None:
-                    if (_desired is not BattlePlanType.None && context.LogicFrame.Value >= _stateChangeCompleteFrame)
+                    if (_desired is not BattlePlanType.None && context.LogicFrame >= _stateChangeCompleteFrame)
                     {
                         // the state has been changed
                         _state = BattlePlanUpdateState.Activating;
                         _current = _desired;
                         PlayUnpackSound();
                         PlayAnnouncementSound();
-                        SetStateChangeCompleteFrame(context.LogicFrame.Value);
+                        SetStateChangeCompleteFrame(context.LogicFrame);
                     }
                     break;
                 case BattlePlanUpdateState.Activating:
-                    if (context.LogicFrame.Value >= _stateChangeCompleteFrame)
+                    if (context.LogicFrame >= _stateChangeCompleteFrame)
                     {
                         _state = BattlePlanUpdateState.Active;
                         ActivateCurrentBattlePlan();
@@ -85,12 +85,12 @@ namespace OpenSage.Logic.Object
                         _state = BattlePlanUpdateState.Deactivating;
                         // DisableAffectedUnits(); // todo: this currently causes an exception due to modifying the gameobject collection, but it's unclear why
                         PlayPackSound();
-                        SetStateChangeCompleteFrame(context.LogicFrame.Value);
+                        SetStateChangeCompleteFrame(context.LogicFrame);
                         ClearActiveBattlePlan();
                     }
                     break;
                 case BattlePlanUpdateState.Deactivating:
-                    if (context.LogicFrame.Value >= _stateChangeCompleteFrame)
+                    if (context.LogicFrame >= _stateChangeCompleteFrame)
                     {
                         _state = BattlePlanUpdateState.None;
                         _current = BattlePlanType.None;
@@ -181,7 +181,7 @@ namespace OpenSage.Logic.Object
 
         private void DisableAffectedUnits()
         {
-            var disabledUntilFrame = _context.GameLogic.CurrentFrame.Value + FramesForMs(_moduleData.BattlePlanChangeParalyzeTime);
+            var disabledUntilFrame = _context.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
             // if deactivating, set disabled_paralyzed to affected units based on kind, frames is current frame + property
             foreach (var gameObject in _context.GameObjects.Items)
             {
@@ -231,7 +231,7 @@ namespace OpenSage.Logic.Object
             _context.AudioSystem.PlayAudioEvent(sound?.Value);
         }
 
-        private void SetStateChangeCompleteFrame(uint currentFrame)
+        private void SetStateChangeCompleteFrame(LogicFrame currentFrame)
         {
             var animationTime = _current switch
             {
@@ -240,7 +240,7 @@ namespace OpenSage.Logic.Object
                 BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyPlanAnimationTime,
                 _ => _moduleData.TransitionIdleTime,
             };
-            _stateChangeCompleteFrame = currentFrame + FramesForMs(animationTime);
+            _stateChangeCompleteFrame = currentFrame + animationTime;
         }
 
         private readonly FrozenDictionary<BattlePlanType, DoorState> _doorStates = new Dictionary<BattlePlanType, DoorState>
@@ -291,7 +291,7 @@ namespace OpenSage.Logic.Object
             reader.PersistEnum(ref _active);
             reader.PersistEnum(ref _state);
 
-            reader.PersistUInt32(ref _stateChangeCompleteFrame);
+            reader.PersistLogicFrame(ref _stateChangeCompleteFrame);
 
             reader.SkipUnknownBytes(2);
 
@@ -336,10 +336,10 @@ namespace OpenSage.Logic.Object
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseSpecialPowerReference() },
 
-            { "BombardmentPlanAnimationTime", (parser, x) => x.BombardmentPlanAnimationTime = parser.ParseInteger() },
-            { "HoldTheLinePlanAnimationTime", (parser, x) => x.HoldTheLinePlanAnimationTime = parser.ParseInteger() },
-            { "SearchAndDestroyPlanAnimationTime", (parser, x) => x.SearchAndDestroyPlanAnimationTime = parser.ParseInteger() },
-            { "TransitionIdleTime", (parser, x) => x.TransitionIdleTime = parser.ParseInteger() },
+            { "BombardmentPlanAnimationTime", (parser, x) => x.BombardmentPlanAnimationTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "HoldTheLinePlanAnimationTime", (parser, x) => x.HoldTheLinePlanAnimationTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "SearchAndDestroyPlanAnimationTime", (parser, x) => x.SearchAndDestroyPlanAnimationTime = parser.ParseTimeMillisecondsToLogicFrames() },
+            { "TransitionIdleTime", (parser, x) => x.TransitionIdleTime = parser.ParseTimeMillisecondsToLogicFrames() },
 
             { "BombardmentMessageLabel", (parser, x) => x.BombardmentMessageLabel = parser.ParseLocalizedStringKey() },
             { "HoldTheLineMessageLabel", (parser, x) => x.HoldTheLineMessageLabel = parser.ParseLocalizedStringKey() },
@@ -358,7 +358,7 @@ namespace OpenSage.Logic.Object
 
             { "ValidMemberKindOf", (parser, x) => x.ValidMemberKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "InvalidMemberKindOf", (parser, x) => x.InvalidMemberKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
-            { "BattlePlanChangeParalyzeTime", (parser, x) => x.BattlePlanChangeParalyzeTime = parser.ParseInteger() },
+            { "BattlePlanChangeParalyzeTime", (parser, x) => x.BattlePlanChangeParalyzeTime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "HoldTheLinePlanArmorDamageScalar", (parser, x) => x.HoldTheLinePlanArmorDamageScalar = parser.ParseFloat() },
             { "SearchAndDestroyPlanSightRangeScalar", (parser, x) => x.SearchAndDestroyPlanSightRangeScalar = parser.ParseFloat() },
 
@@ -367,16 +367,16 @@ namespace OpenSage.Logic.Object
             { "StrategyCenterHoldTheLineMaxHealthScalar", (parser, x) => x.StrategyCenterHoldTheLineMaxHealthScalar = parser.ParseFloat() },
             { "StrategyCenterHoldTheLineMaxHealthChangeType", (parser, x) => x.StrategyCenterHoldTheLineMaxHealthChangeType = parser.ParseEnum<MaxHealthChangeType>() },
 
-            { "VisionObjectName", (parser, x) => x.VisionObjectName = parser.ParseAssetReference() }
+            { "VisionObjectName", (parser, x) => x.VisionObjectName = parser.ParseObjectReference() }
         };
 
         public LazyAssetReference<SpecialPower> SpecialPowerTemplate { get; private set; }
 
         // Transition times
-        public int BombardmentPlanAnimationTime { get; private set; }
-        public int HoldTheLinePlanAnimationTime { get; private set; }
-        public int SearchAndDestroyPlanAnimationTime { get; private set; }
-        public int TransitionIdleTime { get; private set; }
+        public LogicFrameSpan BombardmentPlanAnimationTime { get; private set; }
+        public LogicFrameSpan HoldTheLinePlanAnimationTime { get; private set; }
+        public LogicFrameSpan SearchAndDestroyPlanAnimationTime { get; private set; }
+        public LogicFrameSpan TransitionIdleTime { get; private set; }
 
         // Messages
         public string BombardmentMessageLabel { get; private set; }
@@ -398,7 +398,7 @@ namespace OpenSage.Logic.Object
         // Army bonuses
         public BitArray<ObjectKinds> ValidMemberKindOf { get; private set; } = new();
         public BitArray<ObjectKinds> InvalidMemberKindOf { get; private set; } = new();
-        public int BattlePlanChangeParalyzeTime { get; private set; }
+        public LogicFrameSpan BattlePlanChangeParalyzeTime { get; private set; }
         public float HoldTheLinePlanArmorDamageScalar { get; private set; }
         public float SearchAndDestroyPlanSightRangeScalar { get; private set; }
 
@@ -409,7 +409,7 @@ namespace OpenSage.Logic.Object
         public MaxHealthChangeType StrategyCenterHoldTheLineMaxHealthChangeType { get; private set; }
 
         // Revealing
-        public string VisionObjectName { get; private set; }
+        public LazyAssetReference<ObjectDefinition>? VisionObjectName { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

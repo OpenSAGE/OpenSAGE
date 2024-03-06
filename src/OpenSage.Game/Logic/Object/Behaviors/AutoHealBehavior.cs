@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
     public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, ISelfHealable
     {
-        protected override uint FramesBetweenUpdates => FramesForMs(_moduleData.HealingDelay);
+        protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.HealingDelay;
 
         private readonly GameObject _gameObject;
         private readonly AutoHealBehaviorModuleData _moduleData;
@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// This is a guess as to what this frame is for, and may not be correct.
         /// </summary>
-        private uint _endOfStartHealingDelay;
+        private LogicFrame _endOfStartHealingDelay;
 
         public AutoHealBehavior(GameObject gameObject, AutoHealBehaviorModuleData moduleData)
         {
@@ -43,17 +43,17 @@ namespace OpenSage.Logic.Object
         {
             // this seems to only apply if the unit is capable of healing itself
             // make sure the upgrade is triggered before resetting any frames
-            if (_moduleData.StartHealingDelay > 0 && _upgradeLogic.Triggered)
+            if (_moduleData.StartHealingDelay != LogicFrameSpan.Zero && _upgradeLogic.Triggered)
             {
-                var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
-                _endOfStartHealingDelay = currentFrame + FramesForMs(_moduleData.StartHealingDelay);
-                NextUpdateFrame.Frame = _endOfStartHealingDelay;
+                var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame;
+                _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
+                NextUpdateFrame = new UpdateFrame(_endOfStartHealingDelay);
             }
         }
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
-            if (context.LogicFrame.Value < _endOfStartHealingDelay)
+            if (context.LogicFrame < _endOfStartHealingDelay)
             {
                 return;
             }
@@ -145,7 +145,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistFrame(ref _endOfStartHealingDelay);
+            reader.PersistLogicFrame(ref _endOfStartHealingDelay);
 
             reader.SkipUnknownBytes(1);
         }
@@ -160,11 +160,11 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<AutoHealBehaviorModuleData>
             {
                 { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseFloat() },
-                { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseInteger() },
+                { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
                 { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
                 { "ForbiddenKindOf", (parser, x) => x.ForbiddenKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
-                { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
+                { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseTimeMillisecondsToLogicFrames() },
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
                 { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
                 { "SkipSelfForHealing", (parser, x) => x.SkipSelfForHealing = parser.ParseBoolean() },
@@ -186,14 +186,14 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Time to wait between successive HealingAmount applications.
         /// </summary>
-        public int HealingDelay { get; private set; }
+        public LogicFrameSpan HealingDelay { get; private set; }
         public bool AffectsWholePlayer { get; private set; }
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public BitArray<ObjectKinds> ForbiddenKindOf { get; private set; }
         /// <summary>
         /// Time to wait after taking damage before beginning healing.
         /// </summary>
-        public int StartHealingDelay { get; private set; }
+        public LogicFrameSpan StartHealingDelay { get; private set; }
         public float Radius { get; private set; }
         public bool SingleBurst { get; private set; }
 

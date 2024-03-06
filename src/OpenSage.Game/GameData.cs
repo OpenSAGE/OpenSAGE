@@ -416,7 +416,7 @@ namespace OpenSage
             { "SellPercentage", (parser, x) => x.SellPercentage = parser.ParsePercentage() },
 
             { "BaseRegenHealthPercentPerSecond", (parser, x) => x.BaseRegenHealthPercentPerSecond = parser.ParsePercentage() },
-            { "BaseRegenDelay", (parser, x) => x.BaseRegenDelay = parser.ParseInteger() },
+            { "BaseRegenDelay", (parser, x) => x.BaseRegenDelay = parser.ParseTimeMillisecondsToLogicFrames() },
 
             { "SpecialPowerViewObject", (parser, x) => x.SpecialPowerViewObject = parser.ParseAssetReference() },
 
@@ -1160,7 +1160,7 @@ namespace OpenSage
         public Percentage SellPercentage { get; private set; }
 
         public Percentage BaseRegenHealthPercentPerSecond { get; private set; }
-        public int BaseRegenDelay { get; private set; }
+        public LogicFrameSpan BaseRegenDelay { get; private set; }
 
         public string SpecialPowerViewObject { get; private set; }
 
@@ -1557,7 +1557,7 @@ namespace OpenSage
 
     public sealed class WeaponBonus : Dictionary<WeaponBonusAttributeType, Percentage>
     {
-        
+
     }
 
     public enum WeaponBonusAttributeType

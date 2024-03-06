@@ -191,7 +191,7 @@ namespace OpenSage.Logic.Object
         }
 
         private BitArray<DisabledType> _disabledTypes = new();
-        private readonly uint[] _disabledTypesFrames = new uint[9];
+        private readonly LogicFrame[] _disabledTypesFrames = new LogicFrame[9];
         public readonly ObjectVeterancyHelper VeterancyHelper;
         private uint _containerId;
         public uint ContainerId => _containerId;
@@ -1369,7 +1369,7 @@ namespace OpenSage.Logic.Object
         {
             _containerId = containerId;
             _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
-            const uint disabledUntilFrame = 0x3FFFFFFFu; // not sure why this is this way;
+            var disabledUntilFrame = new LogicFrame(0x3FFFFFFFu); // not sure why this is this way;
             Disable(DisabledType.Held, disabledUntilFrame);
             Hidden = true;
             SetSelectable(false);
@@ -1387,7 +1387,7 @@ namespace OpenSage.Logic.Object
             _status.Set(ObjectStatus.InsideGarrison, false);
         }
 
-        public void Disable(DisabledType type, uint frame)
+        public void Disable(DisabledType type, LogicFrame frame)
         {
             _disabledTypes.Set(type, true);
             _disabledTypesFrames[(int)type] = frame;
@@ -1396,7 +1396,7 @@ namespace OpenSage.Logic.Object
         public void UnDisable(DisabledType type)
         {
             _disabledTypes.Set(type, false);
-            _disabledTypesFrames[(int)type] = 0;
+            _disabledTypesFrames[(int)type] = LogicFrame.Zero;
         }
 
         private void CheckDisabledStates()
@@ -1404,7 +1404,7 @@ namespace OpenSage.Logic.Object
             for (var i = 0; i < _disabledTypesFrames.Length; i++)
             {
                 var disabledTypeFrame = _disabledTypesFrames[i];
-                if (disabledTypeFrame > 0 && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame.Value)
+                if (disabledTypeFrame > LogicFrame.Zero && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame)
                 {
                     UnDisable((DisabledType)i);
                 }
@@ -1508,9 +1508,9 @@ namespace OpenSage.Logic.Object
 
             reader.PersistArray(
                 _disabledTypesFrames,
-                static (StatePersister persister, ref uint item) =>
+                static (StatePersister persister, ref LogicFrame item) =>
                 {
-                    persister.PersistFrameValue(ref item);
+                    persister.PersistLogicFrameValue(ref item);
                 });
 
             reader.SkipUnknownBytes(8);
