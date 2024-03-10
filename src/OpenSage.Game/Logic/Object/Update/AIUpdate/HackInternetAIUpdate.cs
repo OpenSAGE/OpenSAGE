@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public class HackInternetAIUpdate : AIUpdate
     {
-        private PackingUpData? _packingUpData;
+        private UnknownStateData? _packingUpData;
 
         private readonly GameContext _context;
         private readonly HackInternetAIUpdateModuleData _moduleData;
@@ -57,9 +57,9 @@ namespace OpenSage.Logic.Object
                         // update state to idle
                         StateMachine.SetState(0);
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-                        if (_packingUpData != null && _packingUpData.MoveTarget != default)
+                        if (_packingUpData != null && _packingUpData.TargetPosition != default)
                         {
-                            SetTargetPoint(_packingUpData.MoveTarget);
+                            SetTargetPoint(_packingUpData.TargetPosition);
                         }
                         _packingUpData = null;
                     }
@@ -109,7 +109,7 @@ namespace OpenSage.Logic.Object
             if (StateMachine.CurrentState is StopHackingInternetState)
             {
                 // we can't move just yet
-                _packingUpData = new PackingUpData { MoveTarget = targetPoint };
+                _packingUpData = new UnknownStateData { TargetPosition = targetPoint };
             }
             else
             {
@@ -166,78 +166,8 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref hasPackingUpData);
             if (hasPackingUpData)
             {
-                _packingUpData ??= new PackingUpData();
+                _packingUpData ??= new UnknownStateData();
                 reader.PersistObject(_packingUpData);
-            }
-        }
-
-        private sealed class PackingUpData : IPersistableObject
-        {
-            private int _unknownInt1;
-            private int _unknownInt2;
-
-            public Vector3 MoveTarget;
-            private uint _enterTargetObjectId;
-
-            private uint _unknownUInt1;
-            private uint _unknownUInt2;
-
-            private bool _unknownBool1;
-            private bool _unknownBool2;
-            private bool _unknownBool3;
-
-            public void Persist(StatePersister persister)
-            {
-                // I think these have something to do with the next state machine to use, but I'm not sure
-                // as far as I can tell, this object doesn't support alt-clicking for multiple actions though
-                persister.PersistInt32(ref _unknownInt1);
-                persister.PersistInt32(ref _unknownInt2);
-
-                if (_unknownInt1 != _unknownInt2)
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.PersistVector3(ref MoveTarget);
-                persister.PersistObjectID(ref _enterTargetObjectId);
-
-                persister.SkipUnknownBytes(9);
-
-                persister.PersistUInt32(ref _unknownUInt1);
-                if (_unknownUInt1 != 0x7FFFFFFF)
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.SkipUnknownBytes(1);
-
-                persister.PersistUInt32(ref _unknownUInt2);
-                if (_unknownUInt2 != 0 && _unknownUInt2 != 0x7FFFFFFF) // 0x7FFFFFFF when attack move?
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.PersistBoolean(ref _unknownBool1);
-                if (!_unknownBool1)
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.PersistBoolean(ref _unknownBool2);
-                if (!_unknownBool2)
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.SkipUnknownBytes(18);
-
-                persister.PersistBoolean(ref _unknownBool3);
-                if (!_unknownBool3)
-                {
-                    throw new InvalidStateException();
-                }
-
-                persister.SkipUnknownBytes(11);
             }
         }
     }
