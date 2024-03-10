@@ -85,7 +85,7 @@ namespace OpenSage.Data
                 return new GameInstallation[]{};
             }
 
-            var installations = new GameInstallation[]{new GameInstallation(game, path)};
+            var installations = new GameInstallation[]{new GameInstallation(game, path, game.BaseGame != null ? FindInstallations(game.BaseGame).First() : null )};
 
             return installations;
         }
@@ -136,12 +136,12 @@ namespace OpenSage.Data
     {
         public static IEnumerable<IInstallationLocator> GetAllForPlatform()
         {
+            yield return new EnvironmentInstallationLocator();
+
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 yield return new RegistryInstallationLocator();
             }
-
-            yield return new EnvironmentInstallationLocator();
         }
 
         public static IEnumerable<GameInstallation> FindAllInstallations(IGameDefinition game)
