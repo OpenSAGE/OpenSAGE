@@ -42,6 +42,8 @@ namespace OpenSage.Logic.Object
         private uint _unknownInt11;
         private bool _unknownBool5;
 
+        private readonly UnknownStateData _stateData = new();
+
         public enum JetAIState
         {
             JustCreated, //TODO: better name
@@ -74,37 +76,8 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             reader.PersistVector3(ref _positionSomething);
-            reader.PersistUInt32(ref _unknownInt1); // 11
-            reader.PersistUInt32(ref _unknownInt2); // 11
 
-            reader.SkipUnknownBytes(12);
-
-            reader.PersistBoolean(ref _unknownBool1);
-
-            reader.SkipUnknownBytes(12);
-
-            reader.PersistUInt32(ref _unknownInt3);
-            if (_unknownInt3 != 0x7FFFFFFF)
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.PersistBoolean(ref _unknownBool2);
-
-            reader.PersistUInt32(ref _unknownInt4);
-            if (_unknownInt4 != 0x7FFFFFFF && _unknownInt4 != 0) // 0 for idle reloading comanche with no airfield
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.PersistBoolean(ref _unknownBool3);
-            reader.PersistBoolean(ref _unknownBool4);
-
-            reader.SkipUnknownBytes(18);
-
-            reader.PersistUInt32(ref _unknownInt5); // 1
-
-            reader.SkipUnknownBytes(8);
+            reader.PersistObject(_stateData);
 
             reader.PersistUInt32(ref _unknownInt6); // 255, probably frameSomething
             reader.PersistUInt32(ref _unknownInt7); // 255, probably frameSomething
