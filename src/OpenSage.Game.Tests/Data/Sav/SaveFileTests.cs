@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using OpenSage.Data.Sav;
 using Xunit;
 
@@ -9,6 +7,10 @@ namespace OpenSage.Tests.Data.Sav
 {
     public class SaveFileTests : IClassFixture<GameFixture>
     {
+        // swap to the null skip message in order to run locally
+        private const string Skip = "game files required";
+        // private const string? Skip = null;
+
         private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Sav", "Assets");
 
         private readonly GameFixture _fixture;
@@ -18,16 +20,23 @@ namespace OpenSage.Tests.Data.Sav
             _fixture = fixture;
         }
 
-        [Theory(Skip = "Doesn't work yet")]
-        //[Theory]
-        [MemberData(nameof(GetSaveFiles))]
-        public void CanLoadSaveFiles(string relativePath)
+        [Theory(Skip = Skip)]
+        [MemberData(nameof(GeneralsSaveFiles))]
+        public void CanLoadGeneralsSaveFiles(string fullPath)
         {
-            var fullPath = Path.Combine(RootFolder, relativePath);
+            LoadSaveFile(fullPath, SageGame.CncGenerals);
+        }
 
+        [Theory(Skip = Skip)]
+        [MemberData(nameof(ZeroHourSaveFiles), Skip = "Zero Hour save parsing not yet working")]
+        public void CanLoadZeroHourSaveFiles(string fullPath)
+        {
+            LoadSaveFile(fullPath, SageGame.CncGeneralsZeroHour);
+        }
+
+        private void LoadSaveFile(string fullPath, SageGame sageGame)
+        {
             using var stream = File.OpenRead(fullPath);
-
-            var sageGame = Enum.Parse<SageGame>(relativePath.Substring(0, relativePath.IndexOf(Path.DirectorySeparatorChar)));
 
             var game = _fixture.GetGame(sageGame);
 
@@ -43,13 +52,14 @@ namespace OpenSage.Tests.Data.Sav
             game.EndGame();
         }
 
-        public static IEnumerable<object[]> GetSaveFiles()
+        public static TheoryData<string> GeneralsSaveFiles() => GetSaveFiles(SageGame.CncGenerals);
+        public static TheoryData<string> ZeroHourSaveFiles() => GetSaveFiles(SageGame.CncGeneralsZeroHour);
+
+        private static TheoryData<string> GetSaveFiles(SageGame sageGame)
         {
-            foreach (var file in Directory.GetFiles(RootFolder, "*.sav", SearchOption.AllDirectories))
-            {
-                var relativePath = file.Substring(RootFolder.Length + 1);
-                yield return new object[] { relativePath };
-            }
+            var data = new TheoryData<string>();
+            data.AddRange(Directory.GetFiles(Path.Combine(RootFolder, sageGame.ToString()), "*.sav", SearchOption.AllDirectories));
+            return data;
         }
 
         private sealed class ValidatingStateWriter : StatePersister
