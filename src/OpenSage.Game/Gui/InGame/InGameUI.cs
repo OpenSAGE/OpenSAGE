@@ -185,7 +185,8 @@ namespace OpenSage.Gui.InGame
         private bool _unknown3;
         private bool _unknown4;
         private uint _unknown5;
-        private readonly List<SuperweaponSomething> _superweaponSomethings = new();
+        private readonly List<SuperweaponTimer> _superweaponTimers = new();
+        public IReadOnlyList<SuperweaponTimer> SuperweaponTimers => _superweaponTimers;
 
         private void AddRadiusCursor(RadiusCursor radiusCursor)
         {
@@ -363,6 +364,22 @@ namespace OpenSage.Gui.InGame
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
 
+        public void AddSuperweaponTimer(string specialPowerName, uint objectId, uint secondsUntilReady)
+        {
+            _superweaponTimers.Add(new SuperweaponTimer
+            {
+                SpecialPowerName1 = specialPowerName,
+                SpecialPowerName2 = specialPowerName,
+                ObjectId = objectId,
+                SecondsUntilReady = secondsUntilReady,
+            });
+        }
+
+        public void RemoveSuperweaponTimer(int index)
+        {
+            _superweaponTimers.RemoveAt(index);
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(2);
@@ -374,7 +391,7 @@ namespace OpenSage.Gui.InGame
             reader.PersistUInt32(ref _unknown5); // 0
 
             // TODO: Superweapon something...
-            reader.BeginArray("SuperweaponSomethings");
+            reader.BeginArray(nameof(_superweaponTimers));
             if (reader.Mode == StatePersistMode.Read)
             {
                 while (true)
@@ -390,22 +407,22 @@ namespace OpenSage.Gui.InGame
                         break;
                     }
 
-                    var item = new SuperweaponSomething();
+                    var item = new SuperweaponTimer();
                     reader.PersistObject(ref item);
-                    _superweaponSomethings.Add(item);
+                    _superweaponTimers.Add(item);
 
                     reader.EndObject();
                 }
             }
             else
             {
-                for (var i = 0u; i < _superweaponSomethings.Count; i++)
+                for (var i = 0u; i < _superweaponTimers.Count; i++)
                 {
                     reader.BeginObject();
 
                     reader.PersistUInt32(ref i, "Something");
 
-                    var item = _superweaponSomethings[(int)i];
+                    var item = _superweaponTimers[(int)i];
                     reader.PersistObject(ref item);
 
                     reader.EndObject();
@@ -422,27 +439,31 @@ namespace OpenSage.Gui.InGame
         }
     }
 
-    internal struct SuperweaponSomething : IPersistableObject
+    public struct SuperweaponTimer : IPersistableObject
     {
-        public string UnknownString1;
-        public string UnknownString2;
-        public uint UnknownInt1;
-        public uint UnknownInt2;
+        public string SpecialPowerName1;
+        public string SpecialPowerName2;
+        public uint ObjectId;
+        public uint SecondsUntilReady; // yes, this is _actually_ seconds, not frames
         public bool UnknownBool1;
-        public bool UnknownBool2;
-        public bool UnknownBool3;
-        public uint UnknownInt3;
+        public bool CountdownPausedMaybe;
+        public bool Ready;
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistAsciiString(ref UnknownString1);
-            reader.PersistAsciiString(ref UnknownString2);
+            reader.PersistAsciiString(ref SpecialPowerName1);
+            reader.PersistAsciiString(ref SpecialPowerName2);
 
-            reader.PersistUInt32(ref UnknownInt1);
-            reader.PersistUInt32(ref UnknownInt2); // 0xFFFFFFFF
+            if (SpecialPowerName1 != SpecialPowerName2)
+            {
+                throw new InvalidStateException();
+            }
+
+            reader.PersistObjectID(ref ObjectId);
+            reader.PersistUInt32(ref SecondsUntilReady); // 0xFFFFFFFF if it "can't" be ready?
             reader.PersistBoolean(ref UnknownBool1);
-            reader.PersistBoolean(ref UnknownBool2);
-            reader.PersistBoolean(ref UnknownBool3);
+            reader.PersistBoolean(ref CountdownPausedMaybe); // true for napalm strike?
+            reader.PersistBoolean(ref Ready);
         }
     }
 

@@ -5,6 +5,9 @@ namespace OpenSage.Logic.Object
 {
     public sealed class QueueProductionExitUpdate : UpdateModule, IProductionExit
     {
+        private Vector3 _unknownPosition;
+        private bool _unknownBool;
+
         private readonly QueueProductionExitUpdateModuleData _moduleData;
 
         internal QueueProductionExitUpdate(QueueProductionExitUpdateModuleData moduleData)
@@ -26,7 +29,10 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.SkipUnknownBytes(25);
+            reader.SkipUnknownBytes(4);
+            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistBoolean(ref _unknownBool);
+            reader.SkipUnknownBytes(8);
         }
     }
 

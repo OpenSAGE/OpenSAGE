@@ -35,11 +35,11 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(4);
 
             reader.PersistUInt32(ref _unknownUInt1);
-            if (_unknownUInt1 != 2)
+            if (_unknownUInt1 != 2 && _unknownUInt1 != 3) // was 3 for NukeRadiationFieldWeapon
             {
                 throw new InvalidStateException();
             }
-            reader.PersistUInt32(ref _unknownUInt2); // something large
+            reader.PersistUInt32(ref _unknownUInt2); // something large, was 1 for NukeRadiationFieldWeapon
 
             reader.PersistLogicFrame(ref _unknownFrame1);
             reader.SkipUnknownBytes(4);
@@ -50,10 +50,7 @@ namespace OpenSage.Logic.Object
             reader.SkipUnknownBytes(8);
 
             reader.PersistUInt32(ref _unknownUInt3);
-            if (_unknownUInt3 != _unknownUInt2)
-            {
-                throw new InvalidStateException();
-            }
+
             reader.PersistUInt32(ref _unknownUInt4);
             if (_unknownUInt4 != 1)
             {
