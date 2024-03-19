@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using CommandLine;
 using OpenSage.Data;
@@ -45,6 +44,6 @@ public static class Program
         public SageGame SageGame { get; set; }
 
         [Value(1, MetaName = "SaveFilePath", HelpText = "Full path to .sav file.", Required = true)]
-        public string SaveFilePath { get; set; }
+        public string SaveFilePath { get; set; } = null!;
     }
 }
