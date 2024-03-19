@@ -30,6 +30,7 @@ namespace OpenSage.Scripting
         private readonly List<AttackPriority> _attackPriorities = new();
         private readonly List<ObjectNameAndId> _unknownSomethings = new();
         private readonly List<ObjectNameAndId>[] _specialPowers;
+        private readonly List<ObjectNameAndId>[] _unknownSuperweaponArray;
         private readonly List<ObjectNameAndId>[] _upgrades;
         private readonly ScienceSet[] _sciences;
         private readonly float[] _unknownFloats = new float[6];
@@ -40,7 +41,7 @@ namespace OpenSage.Scripting
 
         public bool Active { get; set; }
 
-        public event EventHandler<ScriptingSystem> OnUpdateFinished; 
+        public event EventHandler<ScriptingSystem> OnUpdateFinished;
 
         public ScriptingSystem(Game game)
             : base(game)
@@ -55,6 +56,12 @@ namespace OpenSage.Scripting
             for (var i = 0; i < _specialPowers.Length; i++)
             {
                 _specialPowers[i] = new List<ObjectNameAndId>();
+            }
+
+            _unknownSuperweaponArray = new List<ObjectNameAndId>[Player.MaxPlayers];
+            for (var i = 0; i < _unknownSuperweaponArray.Length; i++)
+            {
+                _unknownSuperweaponArray[i] = [];
             }
 
             _upgrades = new List<ObjectNameAndId>[Player.MaxPlayers];
@@ -78,7 +85,7 @@ namespace OpenSage.Scripting
 
         internal override void OnSceneChanged()
         {
-            
+
         }
 
         public Script FindScript(string name)
@@ -380,12 +387,7 @@ namespace OpenSage.Scripting
             }
             reader.EndArray();
 
-            reader.PersistArrayWithUInt16Length(
-                _specialPowers,
-                static (StatePersister persister, ref List<ObjectNameAndId> item) =>
-                {
-                    persister.PersistObjectNameAndIdList(item);
-                });
+            reader.PersistArrayWithUInt16Length(_specialPowers, ObjectNameAndIdListPersister);
 
             ushort numUnknown1Sets = 0;
             reader.PersistUInt16(ref numUnknown1Sets);
@@ -397,21 +399,9 @@ namespace OpenSage.Scripting
                 reader.SkipUnknownBytes(2);
             }
 
-            ushort numUnknown2Sets = 0;
-            reader.PersistUInt16(ref numUnknown2Sets);
+            reader.PersistArrayWithUInt16Length(_unknownSuperweaponArray, ObjectNameAndIdListPersister);
 
-            for (var i = 0; i < numUnknown2Sets; i++)
-            {
-                reader.PersistVersion(1);
-
-                reader.SkipUnknownBytes(2);
-            }
-
-            reader.PersistArrayWithUInt16Length(
-                _upgrades, static (StatePersister persister, ref List<ObjectNameAndId> item) =>
-                {
-                    persister.PersistObjectNameAndIdList(item);
-                });
+            reader.PersistArrayWithUInt16Length(_upgrades, ObjectNameAndIdListPersister);
 
             reader.PersistArrayWithUInt16Length(
                 _sciences,
@@ -484,6 +474,8 @@ namespace OpenSage.Scripting
 
             reader.SkipUnknownBytes(1);
         }
+
+        private static void ObjectNameAndIdListPersister(StatePersister persister, ref List<ObjectNameAndId> item) => persister.PersistObjectNameAndIdList(item);
 
         internal void Dump(StringBuilder sb)
         {
