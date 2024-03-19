@@ -141,8 +141,8 @@ namespace OpenSage.Logic
         {
             foreach (var gameObject in _destroyList)
             {
-                _game.Scene3D.Quadtree.Remove(gameObject);
-                _game.Scene3D.Radar.RemoveGameObject(gameObject);
+                _game.Scene3D?.Quadtree.Remove(gameObject);
+                _game.Scene3D?.Radar.RemoveGameObject(gameObject);
                 gameObject.PartitionObject.Remove();
 
                 gameObject.Drawable.Destroy();
