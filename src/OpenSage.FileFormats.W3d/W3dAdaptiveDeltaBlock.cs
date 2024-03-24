@@ -3,21 +3,11 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d
 {
-
-    public sealed class W3dAdaptiveDeltaBlock
+    public sealed record W3dAdaptiveDeltaBlock(int VectorIndex, byte BlockIndex, sbyte[] DeltaBytes)
     {
-        public int VectorIndex { get; private set; }
-
-        public byte BlockIndex { get; private set; }
-        public sbyte[] DeltaBytes { get; private set; }
-
         internal static W3dAdaptiveDeltaBlock Parse(BinaryReader reader, int vectorIndex, int numBits)
         {
-            var result = new W3dAdaptiveDeltaBlock
-            {
-                VectorIndex = vectorIndex,
-                BlockIndex = reader.ReadByte()
-            };
+            var blockIndex = reader.ReadByte();
 
             var numDeltaBytes = numBits * 2;
             var deltaBytes = new sbyte[numDeltaBytes];
@@ -25,9 +15,8 @@ namespace OpenSage.FileFormats.W3d
             {
                 deltaBytes[k] = reader.ReadSByte();
             }
-            result.DeltaBytes = deltaBytes;
 
-            return result;
+            return new W3dAdaptiveDeltaBlock(vectorIndex, blockIndex, deltaBytes);
         }
 
         internal void WriteTo(BinaryWriter writer)
