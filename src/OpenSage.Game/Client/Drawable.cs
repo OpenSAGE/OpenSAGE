@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -367,6 +367,11 @@ namespace OpenSage.Client
                 _shownSubObjects[subObject] = true;
             }
             _hiddenSubObjects.Remove(subObject);
+        }
+
+        public new void Dispose()
+        {
+            Destroy();
         }
 
         internal void Destroy()

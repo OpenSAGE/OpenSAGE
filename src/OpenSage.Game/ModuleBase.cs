@@ -15,5 +15,7 @@
         }
 
         internal virtual void DrawInspector() { }
+
+        public virtual void Dispose() { }
     }
 }
