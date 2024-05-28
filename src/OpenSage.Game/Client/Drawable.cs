@@ -20,6 +20,8 @@ namespace OpenSage.Client
             module.Tag = tag;
             _drawModules.Add(module);
             _tagToModuleLookup.Add(tag, module);
+
+            AddDisposable(module);
         }
 
         private void AddClientUpdateModule(string tag, ClientUpdateModule module)
@@ -367,11 +369,6 @@ namespace OpenSage.Client
                 _shownSubObjects[subObject] = true;
             }
             _hiddenSubObjects.Remove(subObject);
-        }
-
-        public new void Dispose()
-        {
-            Destroy();
         }
 
         internal void Destroy()

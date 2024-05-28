@@ -366,11 +366,6 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.Model?.DrawInspector();
         }
 
-        public override void Dispose()
-        {
-            _activeModelDrawConditionState?.Dispose();
-        }
-
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(2);
@@ -430,14 +425,11 @@ namespace OpenSage.Logic.Object
 
             _particleSystems = particleSystems;
             _context = context;
+
+            AddDisposeAction(() => Deactivate());
         }
 
         public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying);
-
-        public new void Dispose()
-        {
-            Deactivate();
-        }
 
         public void Deactivate()
         {
