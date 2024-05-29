@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -425,6 +425,8 @@ namespace OpenSage.Logic.Object
 
             _particleSystems = particleSystems;
             _context = context;
+
+            AddDisposeAction(() => Deactivate());
         }
 
         public bool StillActive() => Model.AnimationInstances.Any(x => x.IsPlaying);

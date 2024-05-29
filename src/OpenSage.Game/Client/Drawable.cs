@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -20,6 +20,8 @@ namespace OpenSage.Client
             module.Tag = tag;
             _drawModules.Add(module);
             _tagToModuleLookup.Add(tag, module);
+
+            AddDisposable(module);
         }
 
         private void AddClientUpdateModule(string tag, ClientUpdateModule module)
