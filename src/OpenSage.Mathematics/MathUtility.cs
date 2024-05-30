@@ -69,5 +69,16 @@ namespace OpenSage.Mathematics
 
             return value;
         }
+
+        public static uint GetClosestDivisible(uint value, uint divisor)
+        {
+            var remainder = value % divisor;
+            if(remainder >= divisor / 2)
+            {
+                return value + (divisor - remainder);
+            }
+
+            return value - remainder;
+        }
     }
 }
