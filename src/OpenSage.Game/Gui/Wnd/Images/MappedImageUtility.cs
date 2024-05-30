@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Content;
+using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -19,8 +20,22 @@ namespace OpenSage.Gui.Wnd.Images
             var graphicsDevice = loadContext.GraphicsDevice;
 
             var src = mappedImage.Coords;
+
+            var left = (uint)src.Left;
+            var top = (uint)src.Top;    
             var width = (uint) src.Width;
             var height = (uint) src.Height;
+
+            var format = mappedImage.Texture.Value.Texture.Format;
+            if(format.IsBlockCompressed())
+            {
+                var blockDivisor = format.GetBlockDivisor();
+
+                left = MathUtility.GetClosestDivisible(left, blockDivisor);
+                top = MathUtility.GetClosestDivisible(top, blockDivisor);
+                width = MathUtility.GetClosestDivisible(width, blockDivisor);
+                height = MathUtility.GetClosestDivisible(height, blockDivisor);
+            }
 
             var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
@@ -28,7 +43,7 @@ namespace OpenSage.Gui.Wnd.Images
                     height,
                     1,
                     1,
-                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    format,
                     TextureUsage.Sampled));
 
             imageTexture.Name = "WndImage";
@@ -38,7 +53,7 @@ namespace OpenSage.Gui.Wnd.Images
             commandList.Begin();
 
             commandList.CopyTexture(
-                mappedImage.Texture.Value, (uint) src.Left, (uint) src.Top, 0, 0, 0,    // Source
+                mappedImage.Texture.Value, left, top, 0, 0, 0,    // Source
                 imageTexture, 0, 0, 0, 0, 0, width, height, 1, 1);                      // Destination
 
             commandList.End();
