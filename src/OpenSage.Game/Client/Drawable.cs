@@ -42,6 +42,9 @@ namespace OpenSage.Client
         private readonly Dictionary<string, bool> _hiddenSubObjects;
         private readonly Dictionary<string, bool> _shownSubObjects;
 
+        public Dictionary<string, bool> ShownSubObjects => _shownSubObjects;
+        public Dictionary<string, bool> HiddenSubObjects => _hiddenSubObjects;
+
         public readonly GameObject GameObject;
         public readonly ObjectDefinition Definition;
 

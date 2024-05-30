@@ -167,7 +167,7 @@ namespace OpenSage.Graphics
 
                     RelativeBoneTransforms[i] = ModelBoneInstances[i].Matrix * parentTransform;
 
-                    var parentVisible = bone.Parent == null || BoneVisibilities[bone.Parent.Index];
+                    var parentVisible = bone.Parent == null || (BoneVisibilities[bone.Parent.Index] && BoneFrameVisibilities[bone.Parent.Index]);
 
                     BoneFrameVisibilities[i] = BoneVisibilities[i] && parentVisible && ModelBoneInstances[i].Visible;
                 }
@@ -220,13 +220,6 @@ namespace OpenSage.Graphics
             for (var i = 0; i < Model.SubObjects.Length; i++)
             {
                 var subObject = Model.SubObjects[i];
-                var name = subObject.Name;
-
-                if ((subObject.RenderObject.Hidden && !(shownSubObjects?.ContainsKey(name) ?? false))
-                    || (hiddenSubObjects?.ContainsKey(name) ?? false))
-                {
-                    continue;
-                }
 
                 subObject.RenderObject.BuildRenderList(
                     renderList,

@@ -85,6 +85,8 @@ namespace OpenSage.Logic.Object
         {
             if (_activeConditionState == conditionState || ShouldWaitForRunningAnimationsToFinish())
             {
+                UpdateBoneVisibilities(_activeConditionState, _activeModelDrawConditionState);
+
                 return;
             }
 
@@ -261,6 +263,26 @@ namespace OpenSage.Logic.Object
             SetActiveAnimationState(bestAnimationState, random);
         }
 
+        private void UpdateBoneVisibilities(ModelConditionState conditionState, W3dModelDrawConditionState drawState)
+        {
+            var model = conditionState.Model?.Value;
+            if (model == null) return;
+
+            foreach (var subObject in model.SubObjects)
+            {
+                var name = subObject.Name;
+
+                if ((subObject.RenderObject.Hidden && !(Drawable.ShownSubObjects?.ContainsKey(name) ?? false))
+                    || (Drawable.HiddenSubObjects?.ContainsKey(name) ?? false))
+                {
+                    drawState.Model.BoneVisibilities[subObject.Bone.Index] = false;
+                    continue;
+                }
+
+                drawState.Model.BoneVisibilities[subObject.Bone.Index] = true;
+            }
+        }
+
         private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)
         {
             // Load model, fallback to default model.
@@ -294,7 +316,10 @@ namespace OpenSage.Logic.Object
                     () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
             }
 
-            return new W3dModelDrawConditionState(modelInstance, particleSystems, _context);
+            var drawState = new W3dModelDrawConditionState(modelInstance, particleSystems, _context);
+            UpdateBoneVisibilities(conditionState, drawState);
+
+            return drawState;
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)
