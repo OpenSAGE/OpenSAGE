@@ -11,6 +11,13 @@ namespace OpenSage.Gui.Wnd.Controls
             TextAlignment = wndWindow.StaticTextData.Centered
                 ? TextAlignment.Center
                 : TextAlignment.Leading;
+
+            if(wndWindow.EnabledDrawData.Items.Length > 0)
+            {
+                BorderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
+            }
+            
+            BorderWidth = 1;
         }
 
         protected override void DrawOverride(DrawingContext2D drawingContext)
