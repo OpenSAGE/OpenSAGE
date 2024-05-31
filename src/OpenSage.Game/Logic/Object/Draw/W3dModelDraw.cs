@@ -105,6 +105,49 @@ namespace OpenSage.Logic.Object
             NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
         }
 
+        private void InitiateTransition(AnimationState transitionState, ModelConditionState modelConditionState, Random random, AnimationInstance.PlaybackFinishedCallback finishedCallback = null)
+        {
+            if (_activeAnimationState == transitionState || ShouldWaitForRunningAnimationsToFinish())
+            {
+                return;
+            }
+
+            W3dModelDrawConditionState modelState = null;
+
+            // If the transition defines a model...
+            if (transitionState.Model != null)
+            {
+                // ...then instantiate the transition model and select it
+                modelState = AddDisposable(CreateModelDrawTransitionStateInstance(transitionState, random));
+            }
+            else if (modelConditionState != null && modelConditionState.Model != null)
+            {
+                // ...otherwise use the fallback condition state with its model
+                modelState = AddDisposable(CreateModelDrawConditionStateInstance(modelConditionState, random));
+            }
+
+            if(modelState == null)
+            {
+                // No model - no animations.
+                return;
+            }
+
+            // Apply the selected model.
+
+            if (_activeModelDrawConditionState != null)
+            {
+                _activeModelDrawConditionState.Deactivate();
+                RemoveAndDispose(ref _activeModelDrawConditionState);
+            }
+
+            _activeModelDrawConditionState = modelState;
+
+            // Apply the transition animation.
+            SetActiveAnimationState(transitionState, random, finishedCallback);
+
+            NLog.LogManager.GetCurrentClassLogger().Info($"Initiated transition {transitionState.StateName} for {GameObject.Definition.Name}");
+        }
+
         private bool ShouldWaitForRunningAnimationsToFinish()
         {
             return false;
@@ -251,27 +294,18 @@ namespace OpenSage.Logic.Object
             // If the object has defined a transition...
             if(_activeTransitionState != null)
             {
-                // ...and if it defines a model for the transition animation to play, then apply it...
-                if (bestConditionState?.Model != null)
+                // Initiate it.
+                InitiateTransition(_activeTransitionState, bestConditionState, random, () =>
                 {
-                    SetActiveConditionState(bestConditionState, random);
-                }
-
-                // ...and play the transition
-                SetActiveAnimationState(_activeTransitionState, random, () => {
+                    // After the transition has finished, assign conditino and animation states, and clear the transition.
                     _activeTransitionState = null;
-
-                    // These values may be different when the transition finishes playing
-                    bestConditionState = FindBestFittingConditionState(_data.ConditionStates, flags);
-                    bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);
-
                     AssignStates(flags, bestConditionState, bestAnimationState, random);
                 });
 
                 return;
             }
 
-            // If not, just set the states immediately
+            // If the transition is not defined, just set the states immediately.
             AssignStates(flags, bestConditionState, bestAnimationState, random);
         }
 
@@ -333,6 +367,18 @@ namespace OpenSage.Logic.Object
             }
 
             return new W3dModelDrawConditionState(modelInstance, particleSystems, _context);
+        }
+
+        private W3dModelDrawConditionState CreateModelDrawTransitionStateInstance(AnimationState transitionState, Random random)
+        {
+            if (transitionState.Model == null) return null;
+
+            var model = transitionState.Model.Value;
+            var modelInstance = model?.CreateInstance(_context.AssetLoadContext) ?? null;
+
+            if (modelInstance == null) return null;
+
+            return new W3dModelDrawConditionState(modelInstance, new List<ParticleSystem>(), _context);
         }
 
         internal override (ModelInstance, ModelBone) FindBone(string boneName)
@@ -774,6 +820,7 @@ namespace OpenSage.Logic.Object
                 var transitionStateNew = new AnimationState
                 {
                     StateName = transitionName,
+                    Model = transitionStateOld.Model,
                 };
 
                 transitionStateOld.CopyTo(transitionStateNew);
