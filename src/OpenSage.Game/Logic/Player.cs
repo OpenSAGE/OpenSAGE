@@ -183,14 +183,12 @@ namespace OpenSage.Logic
 
         internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
         {
-            if (additive)
+            if (!additive)
             {
-                _selectedUnits.UnionWith(units);
+                DeselectUnits();
             }
-            else
-            {
-                _selectedUnits = units.ToSet();
-            }
+
+            _selectedUnits.UnionWith(units);
 
             foreach (var unit in units)
             {
