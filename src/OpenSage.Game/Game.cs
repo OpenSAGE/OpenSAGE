@@ -284,6 +284,8 @@ namespace OpenSage
         // Used for FPS calculations and rendering-related things that should advanced even when the game is paused.
         private readonly DeltaTimer _renderTimer;
 
+        public TimeInterval CurrentGameTime => _renderTimer.CurrentGameTime;
+
         /// <summary>
         /// The amount of time the game has been rendering frames.
         /// </summary>
@@ -537,7 +539,7 @@ namespace OpenSage
                 GameSystems.ForEach(gs => gs.Initialize());
 
                 Cursors = AddDisposable(new CursorManager(AssetStore, ContentManager, window));
-                Cursors.SetCursor("Arrow", _renderTimer.CurrentGameTime);
+                Cursors.SetCursor("Arrow", CurrentGameTime);
 
                 LauncherImage = LoadLauncherImage();
 
