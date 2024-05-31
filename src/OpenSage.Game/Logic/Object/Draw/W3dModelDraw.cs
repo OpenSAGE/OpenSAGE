@@ -272,8 +272,8 @@ namespace OpenSage.Logic.Object
             {
                 var name = subObject.Name;
 
-                if ((subObject.RenderObject.Hidden && !(Drawable.ShownSubObjects?.ContainsKey(name) ?? false))
-                    || (Drawable.HiddenSubObjects?.ContainsKey(name) ?? false))
+                if ((subObject.RenderObject.Hidden && !Drawable.ShownSubObjects.ContainsKey(name))
+                    || Drawable.HiddenSubObjects.ContainsKey(name))
                 {
                     drawState.Model.BoneVisibilities[subObject.Bone.Index] = false;
                     continue;
