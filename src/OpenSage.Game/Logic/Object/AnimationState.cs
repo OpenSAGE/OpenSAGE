@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -65,6 +66,9 @@ namespace OpenSage.Logic.Object
         public ParseConditionStateType ParseConditionStateType { get; set; }
         // Only used in Generals and ZH?
         public bool IsIdleAnimation { get; internal set; }
+
+        [AddedIn(SageGame.CncGenerals)]
+        public LazyAssetReference<Model> Model { get; set; }
     }
 
     // From C&C3 SDK ParseCondStateType.

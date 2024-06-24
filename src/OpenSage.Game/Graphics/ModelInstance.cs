@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Content.Loaders;
@@ -137,10 +138,22 @@ namespace OpenSage.Graphics
         {
             // TODO: Don't update animations if model isn't visible.
 
+            List<AnimationInstance> finishedAnimations = new List<AnimationInstance>();
+
             // Update animations.
             foreach (var animationInstance in AnimationInstances)
             {
                 animationInstance.Update(gameTime);
+                if(!animationInstance.IsPlaying)
+                {
+                    finishedAnimations.Add(animationInstance);
+                }
+            }
+
+            foreach (var animationInstance in finishedAnimations)
+            {
+                animationInstance.OnFinished?.Invoke();
+                AnimationInstances.Remove(animationInstance);
             }
 
             // Check if any model bone transform has changed.

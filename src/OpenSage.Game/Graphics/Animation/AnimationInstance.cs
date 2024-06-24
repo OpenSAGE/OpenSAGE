@@ -27,6 +27,11 @@ namespace OpenSage.Graphics.Animation
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
+        public delegate void PlaybackFinishedCallback();
+
+        // Called by the animation player, not by the animation itself
+        public PlaybackFinishedCallback OnFinished;
+
         /// <summary>
         /// Construct a new <see cref="AnimationInstance"/>
         /// </summary>
