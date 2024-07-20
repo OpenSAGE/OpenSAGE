@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
 
         private ModelConditionState _activeConditionState;
         protected AnimationState _activeAnimationState;
+        protected AnimationState _activeTransitionState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -30,6 +31,8 @@ namespace OpenSage.Logic.Object
         private bool _hasUnknownThing;
         private int _unknownInt;
         private float _unknownFloat;
+
+        private float _verticalOffset;
 
         public AnimationState PreviousAnimationState { get; private set; }
 
@@ -104,6 +107,49 @@ namespace OpenSage.Logic.Object
             NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
         }
 
+        private void InitiateTransition(AnimationState transitionState, ModelConditionState modelConditionState, Random random, AnimationInstance.PlaybackFinishedCallback finishedCallback = null)
+        {
+            if (_activeAnimationState == transitionState || ShouldWaitForRunningAnimationsToFinish())
+            {
+                return;
+            }
+
+            W3dModelDrawConditionState modelState = null;
+
+            // If the transition defines a model...
+            if (transitionState.Model != null)
+            {
+                // ...then instantiate the transition model and select it
+                modelState = AddDisposable(CreateModelDrawTransitionStateInstance(transitionState, random));
+            }
+            else if (modelConditionState != null && modelConditionState.Model != null)
+            {
+                // ...otherwise use the fallback condition state with its model
+                modelState = AddDisposable(CreateModelDrawConditionStateInstance(modelConditionState, random));
+            }
+
+            if(modelState == null)
+            {
+                // No model - no animations.
+                return;
+            }
+
+            // Apply the selected model.
+
+            if (_activeModelDrawConditionState != null)
+            {
+                _activeModelDrawConditionState.Deactivate();
+                RemoveAndDispose(ref _activeModelDrawConditionState);
+            }
+
+            _activeModelDrawConditionState = modelState;
+
+            // Apply the transition animation.
+            SetActiveAnimationState(transitionState, random, finishedCallback);
+
+            NLog.LogManager.GetCurrentClassLogger().Info($"Initiated transition {transitionState.StateName} for {GameObject.Definition.Name}");
+        }
+
         private bool ShouldWaitForRunningAnimationsToFinish()
         {
             return false;
@@ -115,17 +161,14 @@ namespace OpenSage.Logic.Object
                 //&& (_activeModelDrawConditionState?.StillActive() ?? false);
         }
 
-        protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
+        protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random, AnimationInstance.PlaybackFinishedCallback finishedCallback = null)
         {
             if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
             {
                 return false;
             }
 
-            if (animationState?.Script != null)
-            {
-                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
-            }
+            _activeAnimationState = animationState;
 
             if (animationState == null
                 || animationState.Animations.Count == 0
@@ -133,8 +176,6 @@ namespace OpenSage.Logic.Object
             {
                 return true;
             }
-
-            PreviousAnimationState = _activeAnimationState;
 
             if (_activeModelDrawConditionState?.Model != null)
             {
@@ -146,7 +187,6 @@ namespace OpenSage.Logic.Object
 
             var modelInstance = _activeModelDrawConditionState.Model;
             modelInstance.AnimationInstances.Clear();
-            _activeAnimationState = animationState;
 
             var animationBlock = animationState.Animations[random.Next(0, animationState.Animations.Count - 1)];
             var anim = animationBlock?.Animation?.Value;
@@ -155,7 +195,10 @@ namespace OpenSage.Logic.Object
             {
                 var flags = animationState.Flags;
                 var mode = animationBlock.AnimationMode;
+
                 var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
+                animationInstance.OnFinished += finishedCallback;
+
                 modelInstance.AnimationInstances.Add(animationInstance);
                 animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
             }
@@ -167,8 +210,7 @@ namespace OpenSage.Logic.Object
 
         public void SetTransitionState(string state)
         {
-            var transitionState = _data.TransitionStates.FirstOrDefault(x => x.StateName == state);
-            SetActiveAnimationState(transitionState, _context.Random);
+            _activeTransitionState = _data.TransitionStates.FirstOrDefault(x => x.StateName == state);
         }
 
         internal static T FindBestFittingConditionState<T>(List<T> conditionStates, BitArray<ModelConditionFlag> flags)
@@ -240,11 +282,42 @@ namespace OpenSage.Logic.Object
             }
 
             var bestConditionState = FindBestFittingConditionState(_data.ConditionStates, flags);
-            SetActiveConditionState(bestConditionState, random);
+            var bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);
+
+            PreviousAnimationState = _activeAnimationState;
+
+            // Some objects define a transition animation between condition states.
+            if(bestAnimationState?.Script != null)
+            {
+                // Let the object run its script, where it has a chance to define a transition
+                _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, bestAnimationState.Script);
+            }
+
+            // If the object has defined a transition...
+            if(_activeTransitionState != null)
+            {
+                // Initiate it.
+                InitiateTransition(_activeTransitionState, bestConditionState, random, () =>
+                {
+                    // After the transition has finished, assign conditino and animation states, and clear the transition.
+                    _activeTransitionState = null;
+                    AssignStates(flags, bestConditionState, bestAnimationState, random);
+                });
+
+                return;
+            }
+
+            // If the transition is not defined, just set the states immediately.
+            AssignStates(flags, bestConditionState, bestAnimationState, random);
+        }
+
+        private void AssignStates(BitArray<ModelConditionFlag> flags, ModelConditionState conditionState, AnimationState animationState, Random random)
+        {
+            SetActiveConditionState(conditionState, random);
 
             if (_activeModelDrawConditionState != null)
             {
-                foreach (var weaponMuzzleFlash in bestConditionState.WeaponMuzzleFlashes)
+                foreach (var weaponMuzzleFlash in conditionState.WeaponMuzzleFlashes)
                 {
                     var visible = flags.Get(ModelConditionFlag.FiringA);
                     for (var i = 0; i < _activeModelDrawConditionState.Model.ModelBoneInstances.Length; i++)
@@ -259,8 +332,7 @@ namespace OpenSage.Logic.Object
                 };
             }
 
-            var bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);
-            SetActiveAnimationState(bestAnimationState, random);
+            SetActiveAnimationState(animationState, random);
         }
 
         private void UpdateBoneVisibilities(ModelConditionState conditionState, W3dModelDrawConditionState drawState)
@@ -322,6 +394,18 @@ namespace OpenSage.Logic.Object
             return drawState;
         }
 
+        private W3dModelDrawConditionState CreateModelDrawTransitionStateInstance(AnimationState transitionState, Random random)
+        {
+            if (transitionState.Model == null) return null;
+
+            var model = transitionState.Model.Value;
+            var modelInstance = model?.CreateInstance(_context.AssetLoadContext) ?? null;
+
+            if (modelInstance == null) return null;
+
+            return new W3dModelDrawConditionState(modelInstance, new List<ParticleSystem>(), _context);
+        }
+
         internal override (ModelInstance, ModelBone) FindBone(string boneName)
         {
             return (ActiveModelInstance, ActiveModelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, boneName, StringComparison.OrdinalIgnoreCase)));
@@ -345,7 +429,7 @@ namespace OpenSage.Logic.Object
             if (_activeAnimationState?.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent) ?? false)
             {
                 var progress = GameObject.BuildProgress;
-                GameObject.VerticalOffset = -((1.0f - progress) * GameObject.Geometry.MaxZ);
+                _verticalOffset = -((1.0f - progress) * GameObject.Geometry.MaxZ);
             }
 
             _activeModelDrawConditionState?.Update(gameTime);
@@ -353,9 +437,9 @@ namespace OpenSage.Logic.Object
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (GameObject.VerticalOffset != 0)
+            if (_verticalOffset != 0)
             {
-                var mat = worldMatrix * Matrix4x4.CreateTranslation(Vector3.UnitZ * GameObject.VerticalOffset);
+                var mat = worldMatrix * Matrix4x4.CreateTranslation(Vector3.UnitZ * _verticalOffset);
                 _activeModelDrawConditionState?.SetWorldMatrix(mat);
             }
             else
@@ -730,7 +814,7 @@ namespace OpenSage.Logic.Object
                     var animationState = new AnimationState
                     {
                         StateName = conditionState.TransitionKey,
-                        Script = $"Prev = CurDrawablePrevAnimationState{Environment.NewLine}",
+                        Script = $"Prev = CurDrawablePrevAnimationState(){Environment.NewLine}",
                     };
 
                     conditionState.CopyTo(animationState);
@@ -761,6 +845,7 @@ namespace OpenSage.Logic.Object
                 var transitionStateNew = new AnimationState
                 {
                     StateName = transitionName,
+                    Model = transitionStateOld.Model,
                 };
 
                 transitionStateOld.CopyTo(transitionStateNew);

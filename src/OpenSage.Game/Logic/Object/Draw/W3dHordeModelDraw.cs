@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,9 +17,9 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
+        protected override bool SetActiveAnimationState(AnimationState animationState, Random random, AnimationInstance.PlaybackFinishedCallback finishedCallback = null)
         {
-            return base.SetActiveAnimationState(animationState, random);
+            return base.SetActiveAnimationState(animationState, random, finishedCallback);
         }
     }
 
