@@ -27,6 +27,8 @@ namespace OpenSage.Graphics.Animation
         private bool Reverse => _mode == AnimationMode.OnceBackwards || _mode == AnimationMode.LoopBackwards;
         private bool Manual => _mode == AnimationMode.Manual;
 
+        public TimeSpan Duration => _animation.Duration;
+
         /// <summary>
         /// Construct a new <see cref="AnimationInstance"/>
         /// </summary>
@@ -46,6 +48,11 @@ namespace OpenSage.Graphics.Animation
             _keyframeIndices = new int[animation.Clips.Length];
             _gameObject = gameObject;
             _random = random;
+        }
+
+        public void SetSpeedFactor(float speedFactor)
+        {
+            _speedFactor = speedFactor;
         }
 
         public void Play(float speedFactor = 1.0f)

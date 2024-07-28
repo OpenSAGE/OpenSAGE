@@ -26,6 +26,8 @@ namespace OpenSage.Logic.Object
 
         }
 
+        public virtual void SetAnimationDuration(LogicFrameSpan frames) { }
+
         internal abstract void Update(in TimeInterval time);
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);

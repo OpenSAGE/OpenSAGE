@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _moduleData = moduleData;
             _currentBoxes = _moduleData.StartingBoxes;
-            _supplyDraw = _gameObject.Drawable.DrawModules.OfType<W3dSupplyDraw>().Single(); // unsure if there is ever more or less than one
+            _supplyDraw = _gameObject.Drawable.DrawModules.ToArray().OfType<W3dSupplyDraw>().Single(); // unsure if there is ever more or less than one
         }
 
         public bool HasBoxes() => _currentBoxes > 0;

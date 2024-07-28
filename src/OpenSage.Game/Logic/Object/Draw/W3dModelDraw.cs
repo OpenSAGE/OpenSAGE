@@ -340,6 +340,22 @@ namespace OpenSage.Logic.Object
             return null;
         }
 
+        public override void SetAnimationDuration(LogicFrameSpan frames)
+        {
+            if (ActiveModelInstance.AnimationInstances.Count != 1)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var animation = ActiveModelInstance.AnimationInstances[0];
+
+            var desiredDuration = TimeSpan.FromSeconds(frames.Value / Game.LogicFramesPerSecond);
+
+            var speedFactor = (float)(animation.Duration / desiredDuration);
+
+            animation.SetSpeedFactor(speedFactor);
+        }
+
         internal override void Update(in TimeInterval gameTime)
         {
             if (_activeAnimationState?.Flags.HasFlag(AnimationFlags.AdjustHeightByConstructionPercent) ?? false)
