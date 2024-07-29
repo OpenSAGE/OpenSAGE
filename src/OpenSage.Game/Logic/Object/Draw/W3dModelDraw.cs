@@ -342,12 +342,7 @@ namespace OpenSage.Logic.Object
 
         public override void SetAnimationDuration(LogicFrameSpan frames)
         {
-            if (ActiveModelInstance.AnimationInstances.Count != 1)
-            {
-                throw new InvalidOperationException();
-            }
-
-            var animation = ActiveModelInstance.AnimationInstances[0];
+            var animation = ActiveModelInstance.AnimationInstances.Single();
 
             var desiredDuration = TimeSpan.FromSeconds(frames.Value / Game.LogicFramesPerSecond);
 
