@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -8,14 +7,12 @@ namespace OpenSage.Logic.Object
         private GameObject _gameObject;
         private SupplyWarehouseDockUpdateModuleData _moduleData;
         private int _currentBoxes;
-        private readonly W3dSupplyDraw _supplyDraw;
 
         internal SupplyWarehouseDockUpdate(GameObject gameObject, SupplyWarehouseDockUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
             _currentBoxes = _moduleData.StartingBoxes;
-            _supplyDraw = _gameObject.Drawable.DrawModules.ToArray().OfType<W3dSupplyDraw>().Single(); // unsure if there is ever more or less than one
         }
 
         public bool HasBoxes() => _currentBoxes > 0;
@@ -27,7 +24,7 @@ namespace OpenSage.Logic.Object
                 _currentBoxes--;
 
                 var boxPercentage = (float)_currentBoxes / _moduleData.StartingBoxes;
-                _supplyDraw.SetBoxesRemaining(boxPercentage);
+                _gameObject.Drawable.SetSupplyBoxesRemaining(boxPercentage);
 
                 return true;
             }

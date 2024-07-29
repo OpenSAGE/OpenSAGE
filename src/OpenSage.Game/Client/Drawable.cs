@@ -385,6 +385,14 @@ namespace OpenSage.Client
             }
         }
 
+        public void SetSupplyBoxesRemaining(float boxPercentage)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                drawModule.SetSupplyBoxesRemaining(boxPercentage);
+            }
+        }
+
         internal void Destroy()
         {
             foreach (var drawModule in DrawModules)
