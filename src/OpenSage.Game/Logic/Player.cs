@@ -881,6 +881,11 @@ namespace OpenSage.Logic
             {
                 var supplyWarehouse = _game.GameLogic.GetObjectById(supplyWarehouseId);
 
+                if (supplyWarehouse == null)
+                {
+                    continue;
+                }
+
                 var dockUpdate = supplyWarehouse.FindBehavior<SupplyWarehouseDockUpdate>();
 
                 if (!dockUpdate?.CanApproach() ?? false)

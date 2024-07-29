@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
                     .ToDictionary(b => b.Name, b => b.Index);
         }
 
-        public void SetBoxesRemaining(float boxPercentage)
+        public override void SetSupplyBoxesRemaining(float boxPercentage)
         {
             var totalBones = _boxBoneMap.Count;
 

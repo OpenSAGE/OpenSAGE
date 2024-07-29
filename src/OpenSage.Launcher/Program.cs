@@ -50,6 +50,9 @@ namespace OpenSage.Launcher
             [Option("replay", Default = null, Required = false, HelpText = "Specify a replay file to immediately start replaying")]
             public string? ReplayFile { get; set; }
 
+            [Option("save", Default = null, Required = false, HelpText = "Specify a save file to immediately load")]
+            public string? SaveFile { get; set; }
+
             [Option('p', "gamepath", Default = null, Required = false, HelpText = "Force game to use this gamepath")]
             public string? GamePath { get; set; }
 
@@ -172,6 +175,17 @@ namespace OpenSage.Launcher
                     }
 
                     game.LoadReplayFile(replayFile);
+                }
+                else if (opts.SaveFile != null)
+                {
+                    var saveFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Save", opts.SaveFile));
+                    if (saveFile == null)
+                    {
+                        logger.Debug("Could not find entry for Save " + opts.SaveFile);
+                        game.ShowMainMenu();
+                    }
+
+                    game.LoadSaveFile(saveFile);
                 }
                 else if (opts.Map != null)
                 {

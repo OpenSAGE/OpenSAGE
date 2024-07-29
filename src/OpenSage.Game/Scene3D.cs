@@ -423,7 +423,7 @@ namespace OpenSage
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
         internal void Render(DrawingContext2D drawingContext)
         {
-            _scene25D.Draw(drawingContext);
+            _scene25D?.Draw(drawingContext);
 
             SelectionGui?.Draw(drawingContext);
             DebugOverlay?.Draw(drawingContext, Camera);

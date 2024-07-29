@@ -24,9 +24,6 @@ namespace OpenSage.Logic.Object
             switch (StateMachine.CurrentState)
             {
                 case StartHackingInternetState start:
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
                     if (start.FramesUntilHackingBegins-- == LogicFrameSpan.Zero)
                     {
                         // update state to hack
@@ -49,9 +46,6 @@ namespace OpenSage.Logic.Object
                     }
                     break;
                 case StopHackingInternetState stop:
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
                     if (stop.FramesUntilFinishedPacking-- == LogicFrameSpan.Zero)
                     {
                         // update state to idle
@@ -97,6 +91,12 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
+
+            GameObject.Drawable.SetAnimationDuration(frames);
+
             _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
 
             start.FramesUntilHackingBegins = frames;
@@ -136,6 +136,12 @@ namespace OpenSage.Logic.Object
                         {
                             throw new InvalidStateException();
                         }
+
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
+                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
+
+                        GameObject.Drawable.SetAnimationDuration(frames);
 
                         _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
 

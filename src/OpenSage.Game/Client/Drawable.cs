@@ -15,22 +15,6 @@ namespace OpenSage.Client
     {
         private readonly Dictionary<string, ModuleBase> _tagToModuleLookup = new();
 
-        private void AddDrawModule(string tag, DrawModule module)
-        {
-            module.Tag = tag;
-            _drawModules.Add(module);
-            _tagToModuleLookup.Add(tag, module);
-
-            AddDisposable(module);
-        }
-
-        private void AddClientUpdateModule(string tag, ClientUpdateModule module)
-        {
-            module.Tag = tag;
-            _clientUpdateModules.Add(module);
-            _tagToModuleLookup.Add(tag, module);
-        }
-
         private ModuleBase GetModuleByTag(string tag)
         {
             return _tagToModuleLookup[tag];
@@ -52,12 +36,25 @@ namespace OpenSage.Client
 
         public readonly BitArray<ModelConditionFlag> ModelConditionFlags;
 
-        // Doing this with a field and a property instead of an auto-property allows us to have a read-only public interface,
-        // while simultaneously supporting fast (non-allocating) iteration when accessing the list within the class.
-        public IReadOnlyList<DrawModule> DrawModules => _drawModules;
-        private readonly List<DrawModule> _drawModules;
+        public ReadOnlySpan<DrawModule> DrawModules
+        {
+            get
+            {
+                if (ModelConditionFlags.BitsChanged)
+                {
+                    foreach (var drawModule in _drawModules)
+                    {
+                        drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
+                    }
+                    ModelConditionFlags.BitsChanged = false;
+                }
+                return _drawModules;
+            }
+        }
 
-        private readonly List<ClientUpdateModule> _clientUpdateModules;
+        private readonly DrawModule[] _drawModules;
+
+        private readonly ClientUpdateModule[] _clientUpdateModules;
 
         private uint _id;
 
@@ -134,7 +131,7 @@ namespace OpenSage.Client
             _hiddenSubObjects = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
             _shownSubObjects = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
-            _drawModules = new List<DrawModule>();
+            var drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
                 var drawModuleData = (DrawModuleData) drawDataContainer.Data;
@@ -142,9 +139,13 @@ namespace OpenSage.Client
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddDrawModule(drawDataContainer.Tag, drawModule);
+                    drawModule.Tag = drawDataContainer.Tag;
+                    drawModules.Add(drawModule);
+                    _tagToModuleLookup.Add(drawDataContainer.Tag, drawModule);
+                    AddDisposable(drawModule);
                 }
             }
+            _drawModules = drawModules.ToArray();
 
             ModelConditionStates = _drawModules
                 .SelectMany(x => x.ModelConditionStates)
@@ -154,7 +155,7 @@ namespace OpenSage.Client
 
             _hiddenDrawModules = new List<string>();
 
-            _clientUpdateModules = new List<ClientUpdateModule>();
+            var clientUpdateModules = new List<ClientUpdateModule>();
             foreach (var clientUpdateModuleDataContainer in objectDefinition.ClientUpdates.Values)
             {
                 var clientUpdateModuleData = (ClientUpdateModuleData) clientUpdateModuleDataContainer.Data;
@@ -162,9 +163,12 @@ namespace OpenSage.Client
                 if (clientUpdateModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
-                    AddClientUpdateModule(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
+                    clientUpdateModule.Tag = clientUpdateModuleDataContainer.Tag;
+                    clientUpdateModules.Add(clientUpdateModule);
+                    _tagToModuleLookup.Add(clientUpdateModuleDataContainer.Tag, clientUpdateModule);
                 }
             }
+            _clientUpdateModules = clientUpdateModules.ToArray();
         }
 
         // as far as I can tell nothing like this is stored in the actual game, so I'm not sure how this was handled for network games where logic ticks weren't linked to fps (if at all - you can't save a network game, after all)
@@ -217,7 +221,7 @@ namespace OpenSage.Client
         // TODO: This probably shouldn't be here.
         public Matrix4x4? GetWeaponFireFXBoneTransform(WeaponSlot slot, int index)
         {
-            foreach (var drawModule in _drawModules)
+            foreach (var drawModule in DrawModules)
             {
                 var fireFXBone = drawModule.GetWeaponFireFXBone(slot);
                 if (fireFXBone != null)
@@ -237,7 +241,7 @@ namespace OpenSage.Client
         // TODO: This probably shouldn't be here.
         public Matrix4x4? GetWeaponLaunchBoneTransform(WeaponSlot slot, int index)
         {
-            foreach (var drawModule in _drawModules)
+            foreach (var drawModule in DrawModules)
             {
                 var fireFXBone = drawModule.GetWeaponLaunchBone(slot);
                 if (fireFXBone != null)
@@ -256,7 +260,7 @@ namespace OpenSage.Client
 
         public (ModelInstance? modelInstance, ModelBone? bone) FindBone(string boneName)
         {
-            foreach (var drawModule in _drawModules)
+            foreach (var drawModule in DrawModules)
             {
                 var (modelInstance, bone) = drawModule.FindBone(boneName);
                 if (bone != null)
@@ -280,7 +284,7 @@ namespace OpenSage.Client
             }
 
             // Update all draw modules
-            foreach (var drawModule in _drawModules)
+            foreach (var drawModule in DrawModules)
             {
                 if (_hiddenDrawModules.Contains(drawModule.Tag))
                 {
@@ -296,7 +300,6 @@ namespace OpenSage.Client
                     };
                 }
 
-                drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
                 drawModule.Update(gameTime);
                 drawModule.SetWorldMatrix(worldMatrix);
                 drawModule.BuildRenderList(
@@ -374,9 +377,25 @@ namespace OpenSage.Client
             _hiddenSubObjects.Remove(subObject);
         }
 
+        public void SetAnimationDuration(LogicFrameSpan frames)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                drawModule.SetAnimationDuration(frames);
+            }
+        }
+
+        public void SetSupplyBoxesRemaining(float boxPercentage)
+        {
+            foreach (var drawModule in DrawModules)
+            {
+                drawModule.SetSupplyBoxesRemaining(boxPercentage);
+            }
+        }
+
         internal void Destroy()
         {
-            foreach (var drawModule in _drawModules)
+            foreach (var drawModule in DrawModules)
             {
                 drawModule.Dispose();
             }
@@ -549,18 +568,18 @@ namespace OpenSage.Client
                 throw new InvalidStateException();
             }
 
-            PersistModuleGroup(reader, "DrawModules", _drawModules);
-            PersistModuleGroup(reader, "ClientUpdateModules", _clientUpdateModules);
+            PersistModuleGroup(reader, "DrawModules", DrawModules);
+            PersistModuleGroup(reader, "ClientUpdateModules", new ReadOnlySpan<ClientUpdateModule>(_clientUpdateModules));
 
             reader.EndObject();
         }
 
-        private void PersistModuleGroup<T>(StatePersister reader, string groupName, List<T> modules)
+        private void PersistModuleGroup<T>(StatePersister reader, string groupName, ReadOnlySpan<T> modules)
             where T : ModuleBase
         {
             reader.BeginObject(groupName);
 
-            var numModules = (ushort)modules.Count;
+            var numModules = (ushort)modules.Length;
             reader.PersistUInt16(ref numModules);
 
             reader.BeginArray("Modules");
