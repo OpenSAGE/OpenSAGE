@@ -46,7 +46,7 @@ namespace OpenSage.DataStructures
             {
                 case Quad.LowerLeft: // our lower left corner aligns with the parents lower left corner so nothing to do
                     break;
-                case Quad.LowerRight: 
+                case Quad.LowerRight:
                     position.X += halfWidth;
                     break;
                 case Quad.UpperLeft:
@@ -118,15 +118,33 @@ namespace OpenSage.DataStructures
                 }
             }
 
+            // this might not be fully contained within our searcher
             foreach (var item in _items)
             {
-                if (!item.Equals(searcher))
+                if (searcher != null)
                 {
-                    if (searcher != null && hasToCollideWithSearcher && !searcher.CollidesWith(item, twoDimensional))
+                    if (item.Equals(searcher))
                     {
                         continue;
                     }
-                    yield return item;
+
+                    if (hasToCollideWithSearcher)
+                    {
+                        if (searcher.CollidesWith(item, twoDimensional))
+                        {
+                            yield return item;
+                        }
+
+                        continue;
+                    }
+                }
+
+                if (collider.Intersects(item.RoughCollider))
+                {
+                    if (item.Colliders.Any(c => collider.Intersects(c, twoDimensional)))
+                    {
+                        yield return item;
+                    }
                 }
             }
         }

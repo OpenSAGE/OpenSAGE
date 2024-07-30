@@ -29,9 +29,30 @@ namespace OpenSage.Tests.DataStructures
                 Colliders = new List<Collider> { collider };
             }
 
+            // implementation copied from GameObject
             public bool CollidesWith(ICollidable other, bool twoDimensional)
             {
-                throw new System.NotImplementedException();
+                if (RoughCollider == null || other.RoughCollider == null)
+                {
+                    return false;
+                }
+
+                if (!RoughCollider.Intersects(other.RoughCollider, twoDimensional))
+                {
+                    return false;
+                }
+
+                foreach (var collider in Colliders)
+                {
+                    foreach (var otherCollider in other.Colliders)
+                    {
+                        if (collider.Intersects(otherCollider, twoDimensional))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             }
         }
 
@@ -135,5 +156,196 @@ namespace OpenSage.Tests.DataStructures
 
             Assert.Equal(new[] {item}, quadtree.FindIntersecting(quadtree.Bounds));
         }
+
+        #region Searcher
+
+        [Fact]
+        public void SearcherDoesNotIntersectItself()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            Assert.Empty(quadtree.FindIntersecting(item));
+        }
+
+        [Fact]
+        public void SearcherDoesNotIntersectOthersNearby()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(60, 57, 2, 2));
+
+            quadtree.Insert(item2);
+
+            Assert.Empty(quadtree.FindIntersecting(item));
+        }
+
+
+        [Fact]
+        public void SearcherIntersectsOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(60, 59, 2, 2));
+
+            quadtree.Insert(item2);
+
+            Assert.Equal(new[] { item2 }, quadtree.FindIntersecting(item));
+        }
+
+        [Fact]
+        public void SearcherTouchesOthersEdgeNoIntersection()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(60, 58, 2, 2));
+
+            quadtree.Insert(item2);
+
+            Assert.Empty(quadtree.FindIntersecting(item));
+        }
+
+        [Fact]
+        public void SearcherTouchesOthersCornerNoIntersection()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(58, 58, 2, 2));
+
+            quadtree.Insert(item2);
+
+            Assert.Empty(quadtree.FindIntersecting(item));
+        }
+
+        [Fact]
+        public void SearcherContainsOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(59, 59, 3, 3));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(60, 60, 1, 1));
+
+            quadtree.Insert(item2);
+
+            Assert.Equal(new[] { item2 }, quadtree.FindIntersecting(item));
+        }
+
+        [Fact]
+        public void SearcherIsContainedByOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 1, 1));
+
+            quadtree.Insert(item);
+
+            var item2 = new MockQuadtreeItem(2, new RectangleF(59, 59, 3, 3));
+
+            quadtree.Insert(item2);
+
+            Assert.Equal(new[] { item2 }, quadtree.FindIntersecting(item));
+        }
+
+        #endregion
+
+        #region Bounding Box
+
+        [Fact]
+        public void RectangleDoesNotIntersectOthersNearby()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            Assert.Empty(quadtree.FindIntersecting(new BoxCollider(new RectangleF(60, 57, 2, 2))));
+        }
+
+
+        [Fact]
+        public void RectangleIntersectsOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            Assert.Equal(new[] { item }, quadtree.FindIntersecting(new BoxCollider(new RectangleF(60, 59, 2, 2))));
+        }
+
+
+        [Fact]
+        public void RectangleTouchesOthersEdgeNoIntersection()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            Assert.Empty(quadtree.FindIntersecting(new BoxCollider(new RectangleF(60, 58, 2, 2))));
+        }
+
+        [Fact]
+        public void RectangleTouchesOthersCornerNoIntersection()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 2, 2));
+
+            quadtree.Insert(item);
+
+            Assert.Empty(quadtree.FindIntersecting(new BoxCollider(new RectangleF(58, 58, 2, 2))));
+        }
+
+        [Fact]
+        public void RectangleContainsOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(60, 60, 1, 1));
+
+            quadtree.Insert(item);
+
+            Assert.Equal(new[] { item }, quadtree.FindIntersecting(new BoxCollider(new RectangleF(59, 59, 3, 3))));
+        }
+
+        [Fact]
+        public void RectangleIsContainedByOthers()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 100, 100));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(59, 59, 3, 3));
+
+            quadtree.Insert(item);
+
+            Assert.Equal(new[] { item }, quadtree.FindIntersecting(new BoxCollider(new RectangleF(60, 60, 1, 1))));
+        }
+
+        #endregion
     }
 }
