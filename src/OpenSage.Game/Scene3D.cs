@@ -54,7 +54,7 @@ namespace OpenSage
 
         public readonly Terrain.Terrain Terrain;
 
-        public readonly Quadtree<GameObject> Quadtree;
+        public readonly IQuadtree<GameObject> Quadtree;
         public bool ShowTerrain
         {
             get => RenderScene.GetRenderBucket("Terrain").Visible;
