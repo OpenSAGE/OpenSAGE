@@ -43,7 +43,7 @@ public class QuadtreeNode<T> where T : class, ICollidable
 
                 foreach (var subChild in child.Find(collider, searcher, twoDimensional, hasToCollideWithSearcher))
                 {
-                    if (CollidesForReal(subChild, collider, searcher, twoDimensional, hasToCollideWithSearcher))
+                    if (CollidesPrecise(subChild, collider, searcher, twoDimensional, hasToCollideWithSearcher))
                     {
                         yield return subChild;
                     }
@@ -58,14 +58,14 @@ public class QuadtreeNode<T> where T : class, ICollidable
                 continue;
             }
 
-            if (CollidesForReal(data, collider, searcher, twoDimensional, hasToCollideWithSearcher))
+            if (CollidesPrecise(data, collider, searcher, twoDimensional, hasToCollideWithSearcher))
             {
                 yield return data;
             }
         }
     }
 
-    private static bool CollidesForReal(T item, Collider collider, T? searcher, bool twoDimensional, bool hasToCollideWithSearcher)
+    private static bool CollidesPrecise(T item, Collider collider, T? searcher, bool twoDimensional, bool hasToCollideWithSearcher)
     {
         if (searcher != null)
         {
