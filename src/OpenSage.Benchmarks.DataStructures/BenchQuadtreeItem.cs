@@ -27,11 +27,10 @@ namespace OpenSage.Benchmarks.DataStructures
 
         public static BenchQuadtreeItem Generate(int id, RectangleF bounds, SizeF maxSize, Random random)
         {
-            var x = (float) random.NextDouble() * bounds.Width - bounds.Left;
-            var y = (float) random.NextDouble() * bounds.Height - bounds.Top;
-
-            var width = MathF.Min(bounds.Right - x, (float) (random.NextDouble() * maxSize.Width));
-            var height = MathF.Min(bounds.Bottom - y, (float) (random.NextDouble() * maxSize.Height));
+            var x = (float)(bounds.X + random.NextDouble() * bounds.Width);
+            var y = (float)(bounds.Y + random.NextDouble() * bounds.Height);
+            var width = (float)(random.NextDouble() * Math.Min(bounds.Width - x, maxSize.Width));
+            var height = (float)(random.NextDouble() * Math.Min(bounds.Height - y, maxSize.Height));
 
             return new BenchQuadtreeItem(id, new RectangleF(x, y, width, height));
         }
