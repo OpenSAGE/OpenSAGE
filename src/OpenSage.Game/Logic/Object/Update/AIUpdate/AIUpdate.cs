@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
 
             TargetPoints = new List<Vector3>();
 
-            StateMachine = new AIStateMachine();
+            StateMachine = new AIStateMachine(gameObject);
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
@@ -233,6 +233,8 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            StateMachine.Update();
+
             if (_turretAIUpdate != null)
             {
                 _turretAIUpdate.Update(context, _moduleData.AutoAcquireEnemiesWhenIdle);

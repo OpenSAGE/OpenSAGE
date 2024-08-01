@@ -31,7 +31,7 @@
     {
         public AttackAreaStateMachine()
         {
-            AddState(0, new IdleState());
+            AddState(IdleState.Id, new IdleState());
             AddState(10, new AttackState());
         }
 

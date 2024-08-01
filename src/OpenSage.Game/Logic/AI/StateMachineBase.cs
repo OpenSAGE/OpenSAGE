@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI
 {
@@ -19,6 +20,8 @@ namespace OpenSage.Logic.AI
         private Vector3 _unknownPosition;
         private bool _unknownBool1;
         private bool _unknownBool2;
+
+        public readonly GameObject GameObject;
 
         protected StateMachineBase()
         {
@@ -42,7 +45,34 @@ namespace OpenSage.Logic.AI
 
         internal void SetState(uint id)
         {
+            _currentState?.OnExit();
+
             _currentState = GetState(id);
+
+            _currentState.OnEnter();
+        }
+
+        internal void Update()
+        {
+            if (_currentState == null)
+            {
+                return;
+            }
+
+            var updateResult = _currentState.Update();
+
+            switch (updateResult.Type)
+            {
+                case UpdateStateResultType.Continue:
+                    break;
+
+                case UpdateStateResultType.TransitionToState:
+                    SetState(updateResult.TransitionToStateId.Value);
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         public virtual void Persist(StatePersister reader)

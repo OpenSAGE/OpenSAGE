@@ -1477,6 +1477,8 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref teamId);
             Team = GameContext.Game.TeamFactory.FindTeamById(teamId);
 
+            Owner = Team.Template.Owner;
+
             reader.PersistObjectID(ref CreatedByObjectID);
             reader.PersistUInt32(ref BuiltByObjectID);
 

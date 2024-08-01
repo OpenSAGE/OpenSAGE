@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI
 {
@@ -13,9 +14,9 @@ namespace OpenSage.Logic.AI
         private uint _stateSomethingId;
         private State _stateSomething;
 
-        public AIStateMachine()
+        public AIStateMachine(GameObject gameObject)
         {
-            AddState(0, new IdleState());
+            AddState(IdleState.Id, new IdleState());
             AddState(1, new MoveTowardsState());
             AddState(2, new FollowWaypointsState(true));
             AddState(3, new FollowWaypointsState(false));
@@ -43,9 +44,9 @@ namespace OpenSage.Logic.AI
             AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
-            AddState(1000, new StartHackingInternetState());
-            AddState(1001, new HackInternetState());
-            AddState(1002, new StopHackingInternetState());
+            AddState(StartHackingInternetState.Id, new StartHackingInternetState(gameObject));
+            AddState(HackInternetState.Id, new HackInternetState(gameObject));
+            AddState(StopHackingInternetState.Id, new StopHackingInternetState(gameObject));
             AddState(1013, new WaitForAirfieldState());
         }
 
@@ -130,7 +131,7 @@ namespace OpenSage.Logic.AI
     {
         public AIState32StateMachine()
         {
-            AddState(0, new IdleState());
+            AddState(IdleState.Id, new IdleState());
         }
 
         public override void Persist(StatePersister reader)

@@ -2,6 +2,8 @@
 {
     internal sealed class IdleState : State
     {
+        public const uint Id = 0;
+
         private ushort _unknownShort;
         private bool _unknownBool1;
         private bool _unknownBool2;
