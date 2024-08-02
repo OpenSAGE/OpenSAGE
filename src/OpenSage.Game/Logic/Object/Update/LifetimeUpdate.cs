@@ -33,6 +33,7 @@ namespace OpenSage.Logic.Object
             if (context.LogicFrame >= _frameToDie)
             {
                 _gameObject.Die(_moduleData.DeathType);
+                _frameToDie = LogicFrame.MaxValue;
             }
         }
 

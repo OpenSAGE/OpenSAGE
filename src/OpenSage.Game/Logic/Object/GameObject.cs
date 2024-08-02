@@ -734,9 +734,9 @@ namespace OpenSage.Logic.Object
             CheckDisabledStates();
             foreach (var behavior in _behaviorModules)
             {
-                if (HasActiveBody() && IsDead && behavior is not SlowDeathBehavior)
+                if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate)
                 {
-                    continue; // if we're dead, we should only update SlowDeathBehavior
+                    continue; // if we're dead, we should only update SlowDeathBehavior or LifetimeUpdate
                 }
                 behavior.Update(_behaviorUpdateContext);
             }
