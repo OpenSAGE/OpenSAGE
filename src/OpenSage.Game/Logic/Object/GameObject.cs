@@ -1292,6 +1292,7 @@ namespace OpenSage.Logic.Object
             }
 
             IsSelectable = false;
+            Owner.DeselectUnit(this);
 
             if (!construction)
             {
