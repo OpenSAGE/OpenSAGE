@@ -52,6 +52,11 @@ namespace OpenSage.Content
                 InitFile = Data\INI\Science.ini
             End
 
+            LoadSubsystem TheArmorStore
+                Loader = INI
+                InitFile = Data\INI\Armor.ini
+            End
+
             LoadSubsystem TheWeaponStore
                 Loader = INI
                 InitFile = Data\INI\Weapon.ini
@@ -269,6 +274,10 @@ namespace OpenSage.Content
 
                 case Subsystem.Sciences:
                     yield return "TheScienceStore";
+                    break;
+
+                case Subsystem.Armor:
+                    yield return "TheArmorStore";
                     break;
 
                 case Subsystem.Weapons:
