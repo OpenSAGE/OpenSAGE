@@ -291,7 +291,7 @@ namespace OpenSage.Logic.Object
 
         public bool IsFullHealth => Health >= MaxHealth;
 
-        public bool IsDead => Health == Fix64.Zero;
+        public bool IsDead => Health <= Fix64.Zero;
 
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
         {

@@ -38,11 +38,9 @@ namespace OpenSage.Logic.Object
             var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
+            spawnedObject.CreatedByObjectID = _gameObject.ID;
             var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
-            if (slavedUpdate != null)
-            {
-                slavedUpdate.Master = _gameObject;
-            }
+            slavedUpdate?.SetMaster(_gameObject);
 
             if (!TryTransformViaProductionExit(spawnedObject) &&
                 !TryTransformViaOpenContainer(spawnedObject))

@@ -1,7 +1,40 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public class UpgradeDieModule : DieModule
+    {
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
+        private readonly UpgradeDieModuleData _moduleData;
+
+        internal UpgradeDieModule(GameObject gameObject, GameContext context, UpgradeDieModuleData moduleData) : base(moduleData)
+        {
+            _gameObject = gameObject;
+            _context = context;
+            _moduleData = moduleData;
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            reader.BeginObject("Base");
+            base.Load(reader);
+            reader.EndObject();
+        }
+
+        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+        {
+            var parent = _context.GameObjects.GetObjectById(_gameObject.CreatedByObjectID);
+
+            parent?.RemoveUpgrade(_moduleData.UpgradeToRemove.UpgradeName.Value);
+
+            base.Die(context, deathType);
+        }
+    }
+
     /// <summary>
     /// Frees the object-based upgrade for the producer object.
     /// </summary>
@@ -16,6 +49,11 @@ namespace OpenSage.Logic.Object
             });
 
         public UpgradeToRemove UpgradeToRemove { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new UpgradeDieModule(gameObject, context, this);
+        }
     }
 
     public struct UpgradeToRemove
@@ -24,12 +62,12 @@ namespace OpenSage.Logic.Object
         {
             return new UpgradeToRemove
             {
-                UpgradeName = parser.ParseAssetReference(),
-                ModuleTag = parser.ParseIdentifier()
+                UpgradeName = parser.ParseUpgradeReference(),
+                ModuleTag = parser.ParseIdentifier(),
             };
         }
 
-        public string UpgradeName { get; private set; }
+        public LazyAssetReference<UpgradeTemplate> UpgradeName { get; private set; }
         public string ModuleTag { get; private set; }
     }
 }
