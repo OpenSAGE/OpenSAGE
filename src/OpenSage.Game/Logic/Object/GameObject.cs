@@ -279,7 +279,7 @@ namespace OpenSage.Logic.Object
         public Fix64 Health
         {
             get => _body?.Health ?? Fix64.Zero;
-            set => _body.Health = value;
+            set => _body.Health = value < Fix64.Zero ? Fix64.Zero : value;
         }
 
         public Fix64 MaxHealth
