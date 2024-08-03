@@ -65,7 +65,7 @@ namespace OpenSage.Data.Ini
                 // https://github.com/OpenSAGE/OpenSAGE/issues/405
                 var localeSpecificFileName = Path.ChangeExtension(entry.FilePath, null) + "9x.ini";
                 var localeSpecificEntry = entry.FileSystem.GetFile(localeSpecificFileName);
-                if(localeSpecificEntry != null) 
+                if(localeSpecificEntry != null)
                 {
                     entry = localeSpecificEntry;
                     iniEncoding = localeSpecificEncoding;
@@ -401,10 +401,10 @@ namespace OpenSage.Data.Ini
 
         private float ScanPercentage(in IniToken token)
         {
-            return token.Text.Contains('.') ? ScanFloat(token) : ScanFloat(token) / 100.0f;
+            return  ScanFloat(token) / 100.0f;
         }
 
-        public Percentage ParsePercentage() => new Percentage(ScanPercentage(GetNextToken(SeparatorsPercent)));
+        public Percentage ParsePercentage() => new(ScanPercentage(GetNextToken()));
 
         private bool ScanBoolean(in IniToken token)
         {
@@ -1118,4 +1118,3 @@ namespace OpenSage.Data.Ini
         void OnParsed();
     }
 }
-
