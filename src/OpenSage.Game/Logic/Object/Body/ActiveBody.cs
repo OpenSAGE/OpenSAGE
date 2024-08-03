@@ -39,6 +39,10 @@ namespace OpenSage.Logic.Object
         private void SetHealth(Fix64 value, bool takingDamage)
         {
             Health = value;
+            if (Health < Fix64.Zero)
+            {
+                Health = Fix64.Zero;
+            }
             GameObject.UpdateDamageFlags(HealthPercentage, takingDamage);
         }
 
