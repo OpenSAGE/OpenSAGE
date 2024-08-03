@@ -736,7 +736,7 @@ namespace OpenSage.Logic
             }
             else
             {
-                color = new ColorRgb(0, 0, 0);
+                color = new ColorRgb(255, 255, 255); // neutral appears to be white
             }
 
             var result = new Player(index, template, color, game)
