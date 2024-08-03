@@ -32,6 +32,11 @@
         Sciences,
 
         /// <summary>
+        /// Things that need to be loaded in order to get shot by things.
+        /// </summary>
+        Armor,
+
+        /// <summary>
         /// Things that need to be loaded in order to shoot things.
         /// </summary>
         Weapons,

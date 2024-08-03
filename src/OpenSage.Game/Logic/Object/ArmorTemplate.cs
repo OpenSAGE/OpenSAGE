@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -35,7 +36,7 @@ namespace OpenSage.Logic.Object
                         var damageType = IniParser.ParseEnum<DamageType>(damageTypeString);
                         x.Values[(int)damageType] = percent;
                     }
-                    
+
                 }
             },
             { "FlankedPenalty", (parser, x) => x.FlankedPenalty = parser.ParsePercentage() }
@@ -47,7 +48,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public Percentage DamageScalar { get; private set; }
 
-        public Percentage[] Values { get; } = new Percentage[Enum.GetValues(typeof(DamageType)).Length];
+        public Percentage[] Values { get; } = Enumerable.Repeat(new Percentage(1), Enum.GetValues(typeof(DamageType)).Length).ToArray(); // default to 100%
 
         [AddedIn(SageGame.Bfme2)]
         public Percentage FlankedPenalty { get; private set; }
