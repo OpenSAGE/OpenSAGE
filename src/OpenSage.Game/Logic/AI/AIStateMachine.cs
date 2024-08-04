@@ -46,6 +46,7 @@ namespace OpenSage.Logic.AI
             AddState(1000, new StartHackingInternetState());
             AddState(1001, new HackInternetState());
             AddState(1002, new StopHackingInternetState());
+            AddState(1013, new WaitForAirfieldState());
         }
 
         public override void Persist(StatePersister reader)
