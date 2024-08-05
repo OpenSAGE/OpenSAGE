@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using FixedMath.NET;
@@ -194,7 +194,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
 
             reader.BeginObject("Base");
             base.Load(reader);
@@ -245,6 +245,11 @@ namespace OpenSage.Logic.Object
                 });
 
             reader.PersistInt32(ref _unknownInt);
+
+            if (version >= 2)
+            {
+                reader.SkipUnknownBytes(1);
+            }
         }
 
         internal override void DrawInspector()

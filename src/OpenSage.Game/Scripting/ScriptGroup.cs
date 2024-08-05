@@ -10,8 +10,10 @@ namespace OpenSage.Scripting
     {
         public const string AssetName = "ScriptGroup";
 
+        private bool _isActive;
+
         public string Name { get; private set; }
-        public bool IsActive { get; private set; }
+        public bool IsActive => _isActive;
         public bool IsSubroutine { get; private set; }
         public Script[] Scripts { get; private set; }
 
@@ -89,7 +91,7 @@ namespace OpenSage.Scripting
                 return new ScriptGroup
                 {
                     Name = name,
-                    IsActive = isActive,
+                    _isActive = isActive,
                     IsSubroutine = isSubroutine,
                     Scripts = scripts.ToArray(),
                     Groups = groups.ToArray()
@@ -121,7 +123,12 @@ namespace OpenSage.Scripting
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
+
+            if (version >= 2)
+            {
+                reader.PersistBoolean(ref _isActive);
+            }
 
             reader.PersistArrayWithUInt16Length(
                 Scripts,
@@ -136,7 +143,7 @@ namespace OpenSage.Scripting
             return new ScriptGroup()
             {
                 Groups = Groups.Select(g => g.Copy(appendix)).ToArray(),
-                IsActive = IsActive,
+                _isActive = _isActive,
                 IsSubroutine = IsSubroutine,
                 Name = Name + appendix,
                 Scripts = Scripts.Select(s => s.Copy(appendix)).ToArray()

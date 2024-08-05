@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object.Damage;
 
 namespace OpenSage.Logic.Object;
 
@@ -13,9 +14,9 @@ public sealed class UnknownStateData : IPersistableObject
     private uint _unknownUInt1;
     private uint _unknownUInt2;
 
-    private bool _unknownBool1;
-    private bool _unknownBool2;
-    private bool _unknownBool3;
+    private DamageData _damageData;
+
+    private bool _unknownBool;
 
     public void Persist(StatePersister persister)
     {
@@ -52,26 +53,8 @@ public sealed class UnknownStateData : IPersistableObject
             throw new InvalidStateException();
         }
 
-        persister.PersistBoolean(ref _unknownBool1);
-        if (!_unknownBool1)
-        {
-            throw new InvalidStateException();
-        }
+        persister.PersistObject(ref _damageData);
 
-        persister.PersistBoolean(ref _unknownBool2);
-        if (!_unknownBool2)
-        {
-            throw new InvalidStateException();
-        }
-
-        persister.SkipUnknownBytes(18);
-
-        persister.PersistBoolean(ref _unknownBool3);
-        if (!_unknownBool3)
-        {
-            throw new InvalidStateException();
-        }
-
-        persister.SkipUnknownBytes(11);
+        persister.SkipUnknownBytes(2);
     }
 }

@@ -2,6 +2,24 @@
 
 namespace OpenSage.Logic.Object
 {
+    internal sealed class ArmorUpgrade : UpgradeModule
+    {
+        private readonly ArmorUpgradeModuleData _moduleData;
+
+        internal ArmorUpgrade(GameObject gameObject, ArmorUpgradeModuleData moduleData)
+            : base(gameObject, moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+        }
+    }
+
     /// <summary>
     /// Triggers use of PLAYER_UPGRADE ArmorSet on this object.
     /// </summary>
@@ -20,5 +38,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool IgnoreArmorUpgrade { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new ArmorUpgrade(gameObject, this);
+        }
     }
 }

@@ -382,7 +382,7 @@ namespace OpenSage.Gui.InGame
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(2);
+            var version = reader.PersistVersion(3);
 
             reader.PersistUInt32(ref _unknown1); // 0
             reader.PersistBoolean(ref _unknown2);
@@ -408,7 +408,7 @@ namespace OpenSage.Gui.InGame
                     }
 
                     var item = new SuperweaponTimer();
-                    reader.PersistObject(ref item);
+                    item.Persist(reader, version);
                     _superweaponTimers.Add(item);
 
                     reader.EndObject();
@@ -423,7 +423,7 @@ namespace OpenSage.Gui.InGame
                     reader.PersistUInt32(ref i, "Something");
 
                     var item = _superweaponTimers[(int)i];
-                    reader.PersistObject(ref item);
+                    item.Persist(reader, version);
 
                     reader.EndObject();
                 }
@@ -439,7 +439,7 @@ namespace OpenSage.Gui.InGame
         }
     }
 
-    public struct SuperweaponTimer : IPersistableObject
+    public struct SuperweaponTimer
     {
         public string SpecialPowerName1;
         public string SpecialPowerName2;
@@ -448,8 +448,9 @@ namespace OpenSage.Gui.InGame
         public bool UnknownBool1;
         public bool CountdownPausedMaybe;
         public bool Ready;
+        public bool UnknownBool2;
 
-        public void Persist(StatePersister reader)
+        public void Persist(StatePersister reader, byte version)
         {
             reader.PersistAsciiString(ref SpecialPowerName1);
             reader.PersistAsciiString(ref SpecialPowerName2);
@@ -464,6 +465,11 @@ namespace OpenSage.Gui.InGame
             reader.PersistBoolean(ref UnknownBool1);
             reader.PersistBoolean(ref CountdownPausedMaybe); // true for napalm strike?
             reader.PersistBoolean(ref Ready);
+
+            if (version >= 3)
+            {
+                reader.PersistBoolean(ref UnknownBool2);
+            }
         }
     }
 

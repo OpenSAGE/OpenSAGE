@@ -3,6 +3,24 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class OCLUpdate : UpdateModule
+    {
+        private bool _unknownBool;
+
+        internal override void Load(StatePersister reader)
+        {
+            reader.PersistVersion(1);
+
+            base.Load(reader);
+
+            reader.SkipUnknownBytes(8);
+
+            reader.PersistBoolean(ref _unknownBool);
+
+            reader.SkipUnknownBytes(4);
+        }
+    }
+
     public sealed class OCLUpdateModuleData : UpdateModuleData
     {
         internal static OCLUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -31,6 +49,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int Amount { get; private set; }
+
+        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        {
+            return new OCLUpdate();
+        }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -589,7 +589,12 @@ namespace OpenSage.Graphics.ParticleSystems
             if (reader.Mode == StatePersistMode.Read)
             {
                 // TODO: Shouldn't do this.
-                _particles = new Particle[numParticles];
+                _particles = new Particle[Math.Max(_particles.Length, numParticles)];
+
+                for (var i = numParticles; i < _particles.Length; i++)
+                {
+                    _particles[i] = new Particle(this);
+                }
             }
 
             reader.BeginArray("Particles");

@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
         private LogicFrame _unknownFrame2;
         private LogicFrame _unknownFrame3;
         private LogicFrame _unknownFrame4;
+        private LogicFrame _unknownFrame5;
 
         private uint _unknownUInt3;
         private uint _unknownUInt4;
@@ -23,7 +24,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
 
             reader.BeginObject("Base");
             base.Load(reader);
@@ -63,6 +64,11 @@ namespace OpenSage.Logic.Object
             }
 
             reader.SkipUnknownBytes(4);
+
+            if (version >= 2)
+            {
+                reader.PersistLogicFrame(ref _unknownFrame5);
+            }
         }
     }
 

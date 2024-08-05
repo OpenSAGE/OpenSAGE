@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -173,6 +173,7 @@ namespace OpenSage.Logic.Object
         private GameObjectUnknownFlags _unknownFlags;
         private readonly ShroudReveal _shroudRevealSomething1 = new();
         private readonly ShroudReveal _shroudRevealSomething2 = new();
+        private readonly ShroudReveal _shroudRevealSomething3 = new();
         private float _visionRange;
         private float _shroudClearingRange;
 
@@ -519,6 +520,14 @@ namespace OpenSage.Logic.Object
             {
                 // this was added in bfme and is not present in generals or zero hour
                 AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
+            }
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
+            {
+                AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper());
+                AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper());
+                AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper());
             }
 
             foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
@@ -1455,7 +1464,7 @@ namespace OpenSage.Logic.Object
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(7);
+            var version = reader.PersistVersion(9);
 
             var id = ID;
             reader.PersistObjectID(ref id, "ObjectId");
@@ -1490,7 +1499,16 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistAsciiString(ref _name);
-            reader.PersistBitArrayAsUInt32(ref _status); // this is stored as a uint in the sav file
+
+            if (version >= 9)
+            {
+                reader.PersistBitArray(ref _status);
+            }
+            else
+            {
+                reader.PersistBitArrayAsUInt32(ref _status); // this is stored as a uint in the sav file
+            }
+
             reader.PersistByte(ref _unknown2);
             reader.PersistEnumByteFlags(ref _unknownFlags);
 
@@ -1498,6 +1516,14 @@ namespace OpenSage.Logic.Object
 
             reader.PersistObject(_shroudRevealSomething1);
             reader.PersistObject(_shroudRevealSomething2);
+
+            if (version >= 9)
+            {
+                reader.PersistObject(_shroudRevealSomething3);
+
+                reader.SkipUnknownBytes(66);
+            }
+
             reader.PersistSingle(ref _visionRange);
             reader.PersistSingle(ref _shroudClearingRange);
 
@@ -1515,6 +1541,11 @@ namespace OpenSage.Logic.Object
                 });
 
             reader.SkipUnknownBytes(8);
+
+            if (version >= 9)
+            {
+                reader.SkipUnknownBytes(12);
+            }
 
             reader.PersistObject(VeterancyHelper);
             reader.PersistObjectID(ref _containerId);

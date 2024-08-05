@@ -1,4 +1,4 @@
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -56,6 +56,9 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("STATUS_RIDER7")]
         StatusRider7,
+
+        [IniEnum("IS_BRAKING")]
+        IsBraking,
 
         [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
         CanAttack,
