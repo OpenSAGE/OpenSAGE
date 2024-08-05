@@ -25,11 +25,9 @@ namespace OpenSage.Logic.Object
 
                 foreach (var createdObject in createdObjects)
                 {
+                    createdObject.CreatedByObjectID = _gameObject.ID;
                     var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
-                    if (slavedUpdateBehaviour != null)
-                    {
-                        slavedUpdateBehaviour.Master = _gameObject;
-                    }
+                    slavedUpdateBehaviour?.SetMaster(_gameObject);
                 }
             }
         }

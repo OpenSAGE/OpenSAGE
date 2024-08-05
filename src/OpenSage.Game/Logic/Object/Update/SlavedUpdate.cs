@@ -4,20 +4,26 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
 using FixedMath.NET;
+using OpenSage.Content;
 
 namespace OpenSage.Logic.Object
 {
     public class SlavedUpdateModule : UpdateModule
     {
         private readonly SlavedUpdateModuleData _moduleData;
-        protected readonly GameObject _gameObject;
-        public GameObject Master;
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
+        private GameObject _master;
 
+        // todo: these two fields need to be fit into the persisted fields somehow
         private LogicFrame _waitUntil;
         private RepairStatus _repairStatus;
 
-        private int _unknown;
-        private int _unknown2;
+        private uint _parentObjectId;
+        private Vector3 _nextRelativePosition; // next coordinates relative to the parent we should move to
+        private int _unknownInt; // 1, 4, 5, 9, 13
+        private int _unknownInt2; // 0, 3, 6
+        private bool _unknownBool;
 
         private enum RepairStatus
         {
@@ -32,24 +38,25 @@ namespace OpenSage.Logic.Object
 
         private FXParticleSystemTemplate _particleTemplate;
 
-        internal SlavedUpdateModule(GameObject gameObject, SlavedUpdateModuleData moduleData)
+        internal SlavedUpdateModule(GameObject gameObject, GameContext context, SlavedUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _context = context;
         }
 
         internal override void Update(BehaviorUpdateContext context)
         {
-            if (Master == null)
+            if (_master == null)
             {
                 // TODO: Should this ever be null?
                 return;
             }
 
-            var masterIsMoving = Master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-            var masterHealthPercent = Master.HealthPercentage;
+            var masterIsMoving = _master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+            var masterHealthPercent = _master.HealthPercentage;
 
-            var offsetToMaster = Master.Translation - _gameObject.Translation;
+            var offsetToMaster = _master.Translation - _gameObject.Translation;
             var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
             if (!masterIsMoving && (masterHealthPercent < (Fix64) (_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
@@ -63,7 +70,7 @@ namespace OpenSage.Logic.Object
                         // go to master
                         if (distanceToMaster > 1.0)
                         {
-                            _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
+                            _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
                             _repairStatus = RepairStatus.GOING_TO_MASTER;
                         }
 
@@ -85,7 +92,7 @@ namespace OpenSage.Logic.Object
                             var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
 
                             var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                            _gameObject.AIUpdate.SetTargetPoint(Master.Translation + offset);
+                            _gameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
                             _repairStatus = RepairStatus.IN_TRANSITION;
                         }
                         break;
@@ -94,7 +101,7 @@ namespace OpenSage.Logic.Object
                         {
                             var (modelInstance, bone) = _gameObject.Drawable.FindBone(_moduleData.RepairWeldingFXBone);
                             var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
-                            _particleTemplate ??= context.GameContext.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName(_moduleData.RepairWeldingSys);
+                            _particleTemplate ??= _moduleData.RepairWeldingSys.Value;
 
                             var particleSystem = context.GameContext.ParticleSystems.Create(
                                 _particleTemplate,
@@ -120,10 +127,10 @@ namespace OpenSage.Logic.Object
                     case RepairStatus.ZIP_AROUND:
                     case RepairStatus.IN_TRANSITION:
                     case RepairStatus.WELDING:
-                        Master.Health += (Fix64) (_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
-                        if (Master.Health > Master.MaxHealth)
+                        _master.Health += (Fix64) (_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
+                        if (_master.Health > _master.MaxHealth)
                         {
-                            Master.Health = Master.MaxHealth;
+                            _master.Health = _master.MaxHealth;
                             _repairStatus = RepairStatus.INITIAL;
                             _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
                         }
@@ -142,7 +149,7 @@ namespace OpenSage.Logic.Object
 
                     if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToTarget > _moduleData.AttackWanderRange)
                     {
-                        _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
+                        _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
                     }
                 }
             }
@@ -154,22 +161,23 @@ namespace OpenSage.Logic.Object
                 {
                     maxRange = _moduleData.ScoutRange;
                 }
-                else if (Master.ModelConditionFlags.Get(ModelConditionFlag.Guarding))
+                else if (_master.ModelConditionFlags.Get(ModelConditionFlag.Guarding))
                 {
                     maxRange = _moduleData.GuardWanderRange;
                 }
-                else if (Master.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+                else if (_master.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
                 {
                     maxRange = _moduleData.AttackRange;
                 }
 
                 if (_gameObject.AIUpdate?.TargetPoints.Count == 0 && distanceToMaster > maxRange)
                 {
-                    _gameObject.AIUpdate.SetTargetPoint(Master.Translation);
+                    _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
                 }
             }
 
-            if (_moduleData.DieOnMastersDeath && Master.ModelConditionFlags.Get(ModelConditionFlag.Dying))
+            // prior to bfme2, die on master death seems to be the default?
+            if (_master.IsDead && (_context.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
             {
                 _gameObject.Die(DeathType.Exploded);
             }
@@ -183,12 +191,21 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistInt32(ref _unknown2);
-            reader.SkipUnknownBytes(12);
+            reader.PersistObjectID(ref _parentObjectId);
+            reader.PersistVector3(ref _nextRelativePosition);
 
-            reader.PersistInt32(ref _unknown);
+            reader.PersistInt32(ref _unknownInt);
+            reader.PersistInt32(ref _unknownInt2);
 
-            reader.SkipUnknownBytes(5);
+            reader.PersistBoolean(ref _unknownBool);
+
+            reader.Game.GameLogic.GetObjectById(_parentObjectId);
+        }
+
+        public void SetMaster(GameObject gameObject)
+        {
+            _master = gameObject;
+            _parentObjectId = gameObject.ID;
         }
     }
 
@@ -213,7 +230,7 @@ namespace OpenSage.Logic.Object
             { "RepairMaxReadyTime", (parser, x) => x.RepairMaxReadyTime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "RepairMinWeldTime", (parser, x) => x.RepairMinWeldTime = parser.ParseTimeMillisecondsToLogicFrames() },
             { "RepairMaxWeldTime", (parser, x) => x.RepairMaxWeldTime = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "RepairWeldingSys", (parser, x) => x.RepairWeldingSys = parser.ParseAssetReference() },
+            { "RepairWeldingSys", (parser, x) => x.RepairWeldingSys = parser.ParseFXParticleSystemTemplateReference() },
             { "RepairWeldingFXBone", (parser, x) => x.RepairWeldingFXBone = parser.ParseBoneName() },
             { "DistToTargetToGrantRangeBonus", (parser, x) => x.DistToTargetToGrantRangeBonus = parser.ParseInteger() },
             { "StayOnSameLayerAsMaster", (parser, x) => x.StayOnSameLayerAsMaster = parser.ParseBoolean() },
@@ -252,7 +269,7 @@ namespace OpenSage.Logic.Object
         public LogicFrameSpan RepairMaxReadyTime { get; private set; }
         public LogicFrameSpan RepairMinWeldTime { get; private set; }
         public LogicFrameSpan RepairMaxWeldTime { get; private set; }
-        public string RepairWeldingSys { get; private set; }
+        public LazyAssetReference<FXParticleSystemTemplate> RepairWeldingSys { get; private set; }
         public string RepairWeldingFXBone { get; private set; }
         // How close I have to be to the master's target in order to grant master a range bonus.
         public int DistToTargetToGrantRangeBonus { get; private set; }
@@ -281,7 +298,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new SlavedUpdateModule(gameObject, this);
+            return new SlavedUpdateModule(gameObject, context, this);
         }
     }
 }
