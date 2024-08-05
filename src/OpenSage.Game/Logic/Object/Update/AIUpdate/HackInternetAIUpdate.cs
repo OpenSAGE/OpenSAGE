@@ -13,6 +13,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _context;
         private readonly HackInternetAIUpdateModuleData _moduleData;
 
+        public HackInternetAIUpdateModuleData ModuleData => _moduleData;
+
         internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _context = context;
@@ -21,85 +23,21 @@ namespace OpenSage.Logic.Object
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
-            switch (StateMachine.CurrentState)
+            if (StateMachine.CurrentState is IdleState)
             {
-                case StartHackingInternetState start:
-                    if (start.FramesUntilHackingBegins-- == LogicFrameSpan.Zero)
-                    {
-                        // update state to hack
-                        StateMachine.SetState(1001);
-                        ResetFramesUntilNextHack(StateMachine.CurrentState as HackInternetState);
-                    }
-                    break;
-                case HackInternetState hack:
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, true);
-                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-                    if (hack.FramesUntilNextHack-- == LogicFrameSpan.Zero)
-                    {
-                        hack.FramesUntilNextHack = GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay;
-                        var amount = GetCashGrant();
-                        GameObject.Owner.BankAccount.Deposit((uint)amount);
-                        _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitCashPing?.Value);
-                        GameObject.ActiveCashEvent = new CashEvent(amount, new ColorRgb(0, 255, 0), new Vector3(0, 0, 20));
-                        GameObject.GainExperience(_moduleData.XpPerCashUpdate);
-                    }
-                    break;
-                case StopHackingInternetState stop:
-                    if (stop.FramesUntilFinishedPacking-- == LogicFrameSpan.Zero)
-                    {
-                        // update state to idle
-                        StateMachine.SetState(0);
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-                        if (_packingUpData != null && _packingUpData.TargetPosition != default)
-                        {
-                            SetTargetPoint(_packingUpData.TargetPosition);
-                        }
-                        _packingUpData = null;
-                    }
-                    break;
+                if (_packingUpData != null && _packingUpData.TargetPosition != default)
+                {
+                    SetTargetPoint(_packingUpData.TargetPosition);
+                }
+                _packingUpData = null;
             }
-        }
-
-        private void ResetFramesUntilNextHack(HackInternetState hack)
-        {
-            hack.FramesUntilNextHack = GameObject.ContainerId != 0 ? _moduleData.CashUpdateDelayFast : _moduleData.CashUpdateDelay;
-        }
-
-        private int GetCashGrant()
-        {
-            return GameObject.Rank switch
-            {
-                0 => _moduleData.RegularCashAmount,
-                1 => _moduleData.VeteranCashAmount,
-                2 => _moduleData.EliteCashAmount,
-                3 => _moduleData.HeroicCashAmount,
-                _ => throw new ArgumentOutOfRangeException(nameof(GameObject.Rank)),
-            };
         }
 
         public void StartHackingInternet()
         {
             Stop();
 
-            // todo: adjust animation duration
-            var frames = GetVariableFrames(_moduleData.UnpackTime, _moduleData.PackUnpackVariationFactor);
-
-            StateMachine.SetState(1000);
-            if (StateMachine.CurrentState is not StartHackingInternetState start)
-            {
-                throw new InvalidStateException();
-            }
-
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-
-            GameObject.Drawable.SetAnimationDuration(frames);
-
-            _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
-
-            start.FramesUntilHackingBegins = frames;
+            StateMachine.SetState(StartHackingInternetState.Id);
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
@@ -123,30 +61,10 @@ namespace OpenSage.Logic.Object
             {
                 case StartHackingInternetState:
                     // this takes effect immediately
-                    StateMachine.SetState(0);
+                    StateMachine.SetState(IdleState.Id);
                     break;
                 case HackInternetState:
-                    if (StateMachine.CurrentState is HackInternetState)
-                    {
-                        // todo: adjust animation duration
-                        var frames = GetVariableFrames(_moduleData.PackTime, _moduleData.PackUnpackVariationFactor);
-
-                        StateMachine.SetState(1002);
-                        if (StateMachine.CurrentState is not StopHackingInternetState start)
-                        {
-                            throw new InvalidStateException();
-                        }
-
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-                        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
-
-                        GameObject.Drawable.SetAnimationDuration(frames);
-
-                        _context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
-
-                        start.FramesUntilFinishedPacking = frames;
-                    }
+                    StateMachine.SetState(StopHackingInternetState.Id);
                     break;
                 // If we're in StopHackingInternetState, we need to see that through
             }
@@ -154,10 +72,10 @@ namespace OpenSage.Logic.Object
             base.Stop();
         }
 
-        private LogicFrameSpan GetVariableFrames(LogicFrameSpan time, float variance)
+        internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time)
         {
             // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-            return new LogicFrameSpan((uint)(time.Value + time.Value * ((_context.Random.NextSingle() * 2 - 1) * variance)));
+            return new LogicFrameSpan((uint)(time.Value + time.Value * ((_context.Random.NextSingle() * 2 - 1) * _moduleData.PackUnpackVariationFactor)));
         }
 
         internal override void Load(StatePersister reader)

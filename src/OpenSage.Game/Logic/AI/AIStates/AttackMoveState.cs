@@ -28,7 +28,7 @@
     {
         public AttackMoveStateMachine()
         {
-            AddState(0, new IdleState());
+            AddState(IdleState.Id, new IdleState());
         }
 
         public override void Persist(StatePersister reader)
