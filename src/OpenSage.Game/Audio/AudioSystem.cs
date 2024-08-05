@@ -254,17 +254,22 @@ namespace OpenSage.Audio
         public void PlayMusicTrack(MusicTrack musicTrack, bool fadeIn, bool fadeOut)
         {
             // TODO: fading
-
-            if (_currentTrack != null)
-            {
-                _currentTrack.Stop();
-                _currentTrack.Dispose();
-            }
+            StopCurrentMusicTrack(fadeOut);
 
             _currentTrackName = musicTrack.Name;
             _currentTrack = GetStream(musicTrack.File.Value.Entry);
             _currentTrack.Volume = (float) musicTrack.Volume;
             _currentTrack.Play();
+        }
+
+        public void StopCurrentMusicTrack(bool fadeOut = false)
+        {
+            // todo: fade out
+            if (_currentTrack != null)
+            {
+                _currentTrack.Stop();
+                _currentTrack.Dispose();
+            }
         }
 
         public int GetFinishedCount(string musicTrackName)

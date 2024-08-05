@@ -648,6 +648,7 @@ namespace OpenSage
             GameType gameType,
             int seed)
         {
+            Audio.StopCurrentMusicTrack();
             InGame = true;
 
             // TODO: Loading screen.
@@ -760,6 +761,8 @@ namespace OpenSage
         {
             // TODO: there's a huge memory leak somewhere here...
             // Hopefully it will be fixed when we refactor ContentManager.
+
+            Audio.StopCurrentMusicTrack();
 
             Scene3D.Dispose();
             Scene3D = null;
