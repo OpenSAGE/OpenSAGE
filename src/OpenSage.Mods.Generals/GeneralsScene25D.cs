@@ -30,7 +30,8 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
     private readonly LazyAssetReference<MappedImage> _fullAmmoPip = assetStore.MappedImages.GetLazyAssetReferenceByName(FullAmmoPipName);
 
     private readonly Font _defaultFont = scene3D.Game.ContentManager.FontManager.GetOrCreateFont(14, FontWeight.Normal);
-    private AnimationTemplate LevelUpAnimation => assetStore.Animations.GetLazyAssetReferenceByName(GameData.LevelGainAnimationName).Value;
+    private readonly AssetStore _assetStore = assetStore;
+    private AnimationTemplate LevelUpAnimation => _assetStore.Animations.GetLazyAssetReferenceByName(GameData.LevelGainAnimationName).Value;
 
     /// <summary>
     /// Draws veterancy, container, and ammo pips specific to Generals/Zero Hour

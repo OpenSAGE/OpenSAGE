@@ -10,7 +10,7 @@ namespace OpenSage.Utilities
             var size = Marshal.SizeOf<T>();
             var result = new byte[size];
 
-            MemoryMarshal.Write(result, ref value);
+            MemoryMarshal.Write(result, in value);
 
             return result;
         }
