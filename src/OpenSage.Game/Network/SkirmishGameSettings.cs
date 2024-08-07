@@ -24,6 +24,7 @@ namespace OpenSage.Network
         private uint _mapFileSize;
         private uint _unknownInt4;
         private uint _unknownInt5;
+        private bool _limitSuperweapons;
 
         private Money _startingCash = new();
 
@@ -124,8 +125,9 @@ namespace OpenSage.Network
 
             if (version >= 4)
             {
-                ushort unknown6 = 0;
-                reader.PersistUInt16(ref unknown6);
+                reader.PersistBoolean(ref _limitSuperweapons);
+
+                reader.SkipUnknownBytes(1);
 
                 reader.PersistObject(ref _startingCash);
             }
