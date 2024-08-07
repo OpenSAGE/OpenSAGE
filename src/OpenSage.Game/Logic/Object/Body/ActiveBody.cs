@@ -111,7 +111,7 @@ namespace OpenSage.Logic.Object
             var maxHealth2 = _maxHealth;
             reader.PersistSingle(ref maxHealth2);
 
-            if (reader.SageGame == SageGame.CncGeneralsZeroHour)
+            if (reader.SageGame >= SageGame.CncGeneralsZeroHour)
             {
                 var maxHealth3 = _maxHealth;
                 reader.PersistSingle(ref maxHealth3);
