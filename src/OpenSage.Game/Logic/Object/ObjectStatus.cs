@@ -57,14 +57,17 @@ namespace OpenSage.Logic.Object
         [IniEnum("STATUS_RIDER7")]
         StatusRider7,
 
+        [IniEnum("SOLD")]
+        Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
+
         [IniEnum("IS_BRAKING")]
         IsBraking,
 
+        [IniEnum("AIRBORNE_TARGET")]
+        AirborneTarget,
+
         [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
         CanAttack,
-
-        [IniEnum("SOLD")]
-        Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
 
         [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         BloodThirsty,
