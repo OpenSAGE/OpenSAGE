@@ -133,7 +133,10 @@ namespace OpenSage.Network
             }
             else
             {
-                // TODO: Set default starting cash.
+                _startingCash = new Money
+                {
+                    Amount = (uint)reader.Game.AssetStore.GameData.Current.DefaultStartingCash
+                };
             }
         }
     }
