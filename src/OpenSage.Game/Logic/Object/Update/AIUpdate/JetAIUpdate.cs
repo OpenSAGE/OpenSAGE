@@ -25,15 +25,7 @@ namespace OpenSage.Logic.Object
         private bool _afterburnerEnabled;
 
         private Vector3 _positionSomething;
-        private uint _unknownInt1;
-        private uint _unknownInt2;
-        private bool _unknownBool1;
-        private uint _unknownInt3;
-        private bool _unknownBool2;
-        private uint _unknownInt4;
-        private bool _unknownBool3;
-        private bool _unknownBool4;
-        private uint _unknownInt5;
+
         private uint _unknownInt6;
         private uint _unknownInt7;
         private uint _unknownInt8;

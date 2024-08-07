@@ -11,7 +11,7 @@ namespace OpenSage.Tests.Mathematics
         [Fact]
         public void DegreesToRadiansTest()
         {
-            Assert.Equal(MathUtility.ToRadians(90.0f), MathUtility.PiOver2, Precision);
+            Assert.Equal(MathUtility.PiOver2, MathUtility.ToRadians(90.0f), Precision);
         }
 
         [Fact]

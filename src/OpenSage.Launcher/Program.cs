@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
+using NLog;
 using NLog.Targets;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
@@ -67,7 +68,7 @@ namespace OpenSage.Launcher
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            Target.Register<Core.InternalLogger>("OpenSage");
+            LogManager.Setup().SetupExtensions(b => b.RegisterTarget<Core.InternalLogger>("OpenSage"));
 
             Parser.Default.ParseArguments<Options>(args)
               .WithParsed(opts => Run(opts));

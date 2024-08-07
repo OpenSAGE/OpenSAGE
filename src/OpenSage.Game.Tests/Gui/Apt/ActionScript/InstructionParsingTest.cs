@@ -117,7 +117,7 @@ namespace OpenSage.Tests.Gui.Apt.ActionScript
             var vm = new VM();
             vm.Execute(collection, context, new List<ConstantEntry>());
             // Assert that during execution of instructions, the right value is set
-            Assert.True(context.GetMember(paramName).ToString().Equals(rightValue));
+            Assert.Equal(rightValue, context.GetMember(paramName).ToString());
         }
     }
 }
