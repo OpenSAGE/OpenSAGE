@@ -504,6 +504,13 @@ namespace OpenSage.Logic.Object
             }
 
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
+            if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
+            {
+                AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper());
+                AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper());
+            }
+
+            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
             // Maybe KindOf = CAN_ATTACK ?
             AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
 
@@ -525,8 +532,6 @@ namespace OpenSage.Logic.Object
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
             if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
             {
-                AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper());
-                AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper());
                 AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper());
             }
 
