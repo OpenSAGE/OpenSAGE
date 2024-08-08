@@ -60,6 +60,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("SOLD")]
         Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
 
+        [IniEnum("INSIDE_GARRISON")]
+        InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
+
         [IniEnum("IS_BRAKING")]
         IsBraking,
 
@@ -74,9 +77,6 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
         Enclosed,
-
-        [IniEnum("INSIDE_GARRISON")]
-        InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
 
         [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
         Deployed,
