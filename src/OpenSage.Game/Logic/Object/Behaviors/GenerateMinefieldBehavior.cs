@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
             reader.SkipUnknownBytes(13);
 
-            if (reader.SageGame == SageGame.CncGeneralsZeroHour)
+            if (reader.SageGame >= SageGame.CncGeneralsZeroHour)
             {
                 reader.SkipUnknownBytes(2);
             }
