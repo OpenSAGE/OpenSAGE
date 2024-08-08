@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using OpenSage.Audio;
 using OpenSage.Content;
@@ -546,13 +546,18 @@ namespace OpenSage.Logic
             {
                 reader.BeginObject("UnknownThing");
 
-                reader.PersistVersion(2);
+                var unknownThingVersion = reader.PersistVersion(3);
 
                 var playerId = Id;
                 reader.PersistUInt32(ref playerId);
                 if (playerId != Id)
                 {
                     throw new InvalidStateException();
+                }
+
+                if (unknownThingVersion >= 3)
+                {
+                    reader.SkipUnknownBytes(4);
                 }
 
                 reader.EndObject();
@@ -653,7 +658,12 @@ namespace OpenSage.Logic
                     persister.PersistBooleanValue(ref item);
                 });
 
-            reader.SkipUnknownBytes(70);
+            reader.SkipUnknownBytes(4);
+
+            if (reader.SageGame == SageGame.CncGenerals)
+            {
+                reader.SkipUnknownBytes(66);
+            }
 
             reader.PersistObject(_scoreManager);
             reader.SkipUnknownBytes(2);

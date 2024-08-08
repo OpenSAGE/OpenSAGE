@@ -20,18 +20,30 @@
         public uint ObjectId;
         public ushort Unknown1;
         public DamageType DamageType;
+        public DamageType DamageTypeUnknown;
         public DeathType DeathType;
         public float Unknown4;
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(3);
 
             reader.PersistObjectID(ref ObjectId);
             reader.PersistUInt16(ref Unknown1);
             reader.PersistEnum(ref DamageType);
+
+            if (version >= 3)
+            {
+                reader.PersistEnum(ref DamageTypeUnknown);
+            }
+
             reader.PersistEnum(ref DeathType);
             reader.PersistSingle(ref Unknown4);
+
+            if (version >= 3)
+            {
+                reader.SkipUnknownBytes(30);
+            }
         }
     }
 

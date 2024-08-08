@@ -110,9 +110,15 @@ namespace OpenSage.Logic.Object
 
             var maxHealth2 = _maxHealth;
             reader.PersistSingle(ref maxHealth2);
-            if (_maxHealth != maxHealth2)
+
+            if (reader.SageGame >= SageGame.CncGeneralsZeroHour)
             {
-                throw new InvalidStateException();
+                var maxHealth3 = _maxHealth;
+                reader.PersistSingle(ref maxHealth3);
+                if (maxHealth3 != maxHealth2)
+                {
+                    throw new InvalidStateException();
+                }
             }
 
             reader.PersistEnum(ref _damageType);

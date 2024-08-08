@@ -183,7 +183,7 @@ namespace OpenSage.Logic
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(9);
+            var version = reader.PersistVersion(10);
 
             var currentFrame = _currentFrame.Value;
             reader.PersistUInt32(ref currentFrame);
@@ -407,6 +407,11 @@ namespace OpenSage.Logic
             reader.EndArray();
 
             reader.SkipUnknownBytes(4);
+
+            if (version >= 10)
+            {
+                reader.SkipUnknownBytes(2);
+            }
         }
     }
 

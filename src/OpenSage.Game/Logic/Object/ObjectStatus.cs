@@ -1,4 +1,4 @@
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -57,20 +57,26 @@ namespace OpenSage.Logic.Object
         [IniEnum("STATUS_RIDER7")]
         StatusRider7,
 
-        [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
-        CanAttack,
-
         [IniEnum("SOLD")]
         Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
+
+        [IniEnum("INSIDE_GARRISON")]
+        InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
+
+        [IniEnum("IS_BRAKING")]
+        IsBraking,
+
+        [IniEnum("AIRBORNE_TARGET")]
+        AirborneTarget,
+
+        [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
+        CanAttack,
 
         [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         BloodThirsty,
 
         [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
         Enclosed,
-
-        [IniEnum("INSIDE_GARRISON")]
-        InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
 
         [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
         Deployed,

@@ -33,6 +33,11 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref _unknown);
 
             reader.SkipUnknownBytes(13);
+
+            if (reader.SageGame >= SageGame.CncGeneralsZeroHour)
+            {
+                reader.SkipUnknownBytes(2);
+            }
         }
     }
 

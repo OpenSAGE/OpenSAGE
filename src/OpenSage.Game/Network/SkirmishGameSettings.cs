@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using OpenSage.Logic;
 
 namespace OpenSage.Network
 {
@@ -23,6 +24,9 @@ namespace OpenSage.Network
         private uint _mapFileSize;
         private uint _unknownInt4;
         private uint _unknownInt5;
+        private bool _limitSuperweapons;
+
+        private Money _startingCash = new();
 
         public SkirmishGameSettings(bool isHost)
         {
@@ -82,7 +86,7 @@ namespace OpenSage.Network
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(2);
+            var version = reader.PersistVersion(4);
 
             reader.PersistUInt32(ref _unknownInt1); // 25600 (160^2)
             reader.PersistInt32(ref _unknownInt2);
@@ -118,6 +122,34 @@ namespace OpenSage.Network
             reader.PersistUInt32(ref _mapFileSize);
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _unknownInt5);
+
+            if (version >= 4)
+            {
+                reader.PersistBoolean(ref _limitSuperweapons);
+
+                reader.SkipUnknownBytes(1);
+
+                reader.PersistObject(ref _startingCash);
+            }
+            else
+            {
+                _startingCash = new Money
+                {
+                    Amount = (uint)reader.Game.AssetStore.GameData.Current.DefaultStartingCash
+                };
+            }
+        }
+    }
+
+    internal struct Money : IPersistableObject
+    {
+        public uint Amount;
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistVersion(1);
+
+            persister.PersistUInt32(ref Amount);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
 
             reader.BeginObject("Base");
             base.Load(reader);
@@ -39,6 +39,11 @@ namespace OpenSage.Logic.Object
             }
 
             reader.SkipUnknownBytes(8);
+
+            if (version >= 2)
+            {
+                reader.SkipUnknownBytes(4);
+            }
         }
     }
 

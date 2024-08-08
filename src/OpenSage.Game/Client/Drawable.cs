@@ -403,7 +403,7 @@ namespace OpenSage.Client
 
         public void Persist(StatePersister reader)
         {
-            reader.PersistVersion(5);
+            var version = reader.PersistVersion(7);
 
             var id = ID;
             reader.PersistUInt32(ref id);
@@ -552,6 +552,18 @@ namespace OpenSage.Client
             {
                 throw new InvalidStateException();
             }
+
+            if (version >= 7)
+            {
+                var unknownBool4 = true;
+                reader.PersistBoolean(ref unknownBool4);
+                if (!unknownBool4)
+                {
+                    throw new InvalidStateException();
+                }
+
+                reader.SkipUnknownBytes(1);
+            }
         }
 
         private void PersistModules(StatePersister reader)
@@ -623,5 +635,7 @@ namespace OpenSage.Client
         NationalismVehicle = 4, // exhordeb_up.dds
         Crate = 5, // exjunkcrate.dds
         None = 6,
+        Unknown1 = 7,
+        Unknown2 = 8,
     }
 }

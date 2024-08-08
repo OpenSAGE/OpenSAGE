@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
         private uint _unknown2;
         private bool _unknown3;
         private bool _unknown4;
+        private BitArray<DamageType> _damageTypes = new();
 
         internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
         public IEnumerable<Weapon> Weapons => _weapons;
@@ -106,9 +107,19 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknown1);
             reader.PersistUInt32(ref _filledWeaponSlots);
             reader.PersistEnumFlags(ref _combinedAntiMask);
-            reader.PersistUInt32(ref _unknown2);
+
+            if (reader.SageGame == SageGame.CncGenerals)
+            {
+                reader.PersistUInt32(ref _unknown2);
+            }
+
             reader.PersistBoolean(ref _unknown3);
             reader.PersistBoolean(ref _unknown4);
+
+            if (reader.SageGame == SageGame.CncGeneralsZeroHour)
+            {
+                reader.PersistBitArray(ref _damageTypes);
+            }
         }
     }
 }

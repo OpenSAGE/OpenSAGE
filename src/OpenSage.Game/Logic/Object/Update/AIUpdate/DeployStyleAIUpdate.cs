@@ -19,33 +19,43 @@ namespace OpenSage.Logic.Object
 
         private readonly UnknownStateData _unknownStateData = new();
 
+        private uint _unknownInt;
+
         internal DeployStyleAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
         }
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(3);
+            var version = reader.PersistVersion(4);
 
             reader.BeginObject("Base");
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistBoolean(ref _isMovingOrDeployed);
-            reader.PersistLogicFrame(ref _packCompleteFrame);
-            reader.PersistEnum(ref _deploymentStatus);
+            if (version >= 4)
+            {
+                reader.PersistEnum(ref _deploymentStatus);
+                reader.PersistLogicFrame(ref _packCompleteFrame);
+            }
+            else
+            {
+                reader.PersistBoolean(ref _isMovingOrDeployed);
+                reader.PersistLogicFrame(ref _packCompleteFrame);
+                reader.PersistEnum(ref _deploymentStatus);
 
-            reader.SkipUnknownBytes(4);
-            reader.PersistObjectID(ref _targetObjectId);
-            reader.PersistVector3(ref _targetPosition);
+                reader.SkipUnknownBytes(4);
+                reader.PersistObjectID(ref _targetObjectId);
+                reader.PersistVector3(ref _targetPosition);
 
-            reader.PersistBoolean(ref _unknownBool1); // repositioning to fire at ground?
-            reader.PersistBoolean(ref _unknownBool2); // repositioning to fire at target?
-            reader.PersistBoolean(ref _unknownBool3); // fire when ready?
+                reader.PersistBoolean(ref _unknownBool1); // repositioning to fire at ground?
+                reader.PersistBoolean(ref _unknownBool2); // repositioning to fire at target?
+                reader.PersistBoolean(ref _unknownBool3); // fire when ready?
 
-            reader.SkipUnknownBytes(2);
+                reader.SkipUnknownBytes(2);
 
-            reader.PersistObject(_unknownStateData);
+                reader.PersistObject(_unknownStateData);
+            }
         }
 
         private enum DeploymentStatus
