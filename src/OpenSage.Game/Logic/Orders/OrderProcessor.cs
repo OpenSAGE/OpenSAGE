@@ -205,7 +205,14 @@ namespace OpenSage.Logic.Orders
                             // todo: do not destroy or award money until sell teardown is complete
                             _game.Scene3D.GameObjects.DestroyObject(unit);
                             // items which award free units, like a tunnel network or supply center, have refund value set which overrides SellPercentage
-                            var sellAmount = unit.Definition.RefundValue ?? unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage;
+                            var sellAmount = unit.Definition.RefundValue;
+
+                            // from the inis: With nothing (or zero) listed, we sell for half price.
+                            if (sellAmount == 0)
+                            {
+                                sellAmount = (int)Math.Round(unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
+                            }
+
                             player.BankAccount.Deposit((uint) sellAmount);
                         }
                         break;
