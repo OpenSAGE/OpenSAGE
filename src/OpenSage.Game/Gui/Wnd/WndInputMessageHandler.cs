@@ -44,6 +44,16 @@ namespace OpenSage.Gui.Wnd
                 case InputMessageType.MouseMove:
                     {
                         var mouseOverControls = _windowManager.GetControlsAtPoint(message.Value.MousePosition).ToList();
+                        if(mouseOverControls.Count > 0)
+                        {
+                            _game.Cursors.SetCursor("Arrow", _game.CurrentGameTime);
+                            _game.Cursors.IsCursorLocked = true;
+                        }
+                        else
+                        {
+                            _game.Cursors.IsCursorLocked = false;
+                        }
+
                         foreach (var control in _lastMouseOverControls)
                         {
                             if (!mouseOverControls.Contains(control))

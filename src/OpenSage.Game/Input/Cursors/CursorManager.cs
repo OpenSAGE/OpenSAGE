@@ -24,6 +24,8 @@ namespace OpenSage.Input.Cursors
             }
         }
 
+        public bool IsCursorLocked = false;
+
         public CursorManager(AssetStore assetStore, ContentManager contentManager, GameWindow window)
         {
             _cachedCursors = new Dictionary<string, Cursor>();
@@ -35,6 +37,8 @@ namespace OpenSage.Input.Cursors
 
         public void SetCursor(string cursorName, in TimeInterval time)
         {
+            if (IsCursorLocked) return;
+
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
                 var mouseCursor = _assetStore.MouseCursors.GetByName(cursorName);
