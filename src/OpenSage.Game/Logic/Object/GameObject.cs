@@ -358,7 +358,11 @@ namespace OpenSage.Logic.Object
 
         public bool IsSelected { get; set; }
 
-        public Vector3? RallyPoint { get; set; }
+        public Vector3? RallyPoint
+        {
+            get => FindBehavior<IHasRallyPoint>()?.RallyPointManager.RallyPoint;
+            set => FindBehavior<IHasRallyPoint>()?.RallyPointManager.SetRallyPoint(value);
+        }
 
         internal Weapon CurrentWeapon => _weaponSet.CurrentWeapon;
 

@@ -3,8 +3,10 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IProductionExit
+    public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
     {
+        public RallyPointManager RallyPointManager { get; } = new();
+
         private readonly SupplyCenterProductionExitUpdateModuleData _moduleData;
 
         internal SupplyCenterProductionExitUpdate(SupplyCenterProductionExitUpdateModuleData moduleData)
@@ -24,7 +26,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.SkipUnknownBytes(13);
+            reader.PersistObject(RallyPointManager);
         }
     }
 

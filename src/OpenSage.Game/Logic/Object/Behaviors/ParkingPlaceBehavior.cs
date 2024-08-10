@@ -7,8 +7,10 @@ using OpenSage.Logic.Object.Production;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ParkingPlaceBehaviour : UpdateModule, IProductionExit
+    public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProductionExit
     {
+        public RallyPointManager RallyPointManager { get; } = new();
+
         private readonly ParkingPlaceBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;
         private readonly GameContext _gameContext;
@@ -245,7 +247,9 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.SkipUnknownBytes(29);
+            reader.SkipUnknownBytes(16);
+
+            reader.PersistObject(RallyPointManager);
 
             var unknown3 = 0x3FFFFFFFu;
             reader.PersistUInt32(ref unknown3);
@@ -257,8 +261,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Used by FS_AIRFIELD KindOfs. If <see cref="HasRunways"/> is set then the model requires 
-    /// RunwayStartN, RunwayEndN, RunwayNPrepN, RunwayNParkingN and RunwayNParkNHan bones where N 
+    /// Used by FS_AIRFIELD KindOfs. If <see cref="HasRunways"/> is set then the model requires
+    /// RunwayStartN, RunwayEndN, RunwayNPrepN, RunwayNParkingN and RunwayNParkNHan bones where N
     /// corresponds to rows and columns. Module will only use the HeliPark01 bone for helicopters.
     /// </summary>
     public sealed class ParkingPlaceBehaviorModuleData : BehaviorModuleData
