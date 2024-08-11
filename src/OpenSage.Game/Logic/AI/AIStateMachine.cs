@@ -42,6 +42,7 @@ namespace OpenSage.Logic.AI
             AddState(32, new AIState32());
             AddState(33, new FaceState(FaceTargetType.FaceNamed));
             AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
+            AddState(35, new RappelState());
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
             AddState(41, new AIState41());
