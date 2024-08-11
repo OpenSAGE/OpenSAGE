@@ -2,6 +2,8 @@
 {
     internal abstract class State : IPersistableObject
     {
+        public uint Id { get; internal set; }
+
         public virtual void OnEnter() { }
 
         public virtual UpdateStateResult Update() => UpdateStateResult.Continue();
