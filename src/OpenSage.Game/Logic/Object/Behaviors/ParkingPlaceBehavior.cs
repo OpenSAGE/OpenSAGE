@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _gameContext;
         private readonly GameObject[] _parkingSlots;
         private readonly Dictionary<string, bool> _blockedBones;
+        private readonly List<HealingData> _healingData;
+        private LogicFrame _frameSomething = new LogicFrame(0x3FFFFFFFu);
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
@@ -24,6 +26,7 @@ namespace OpenSage.Logic.Object
             _gameContext = context;
             _parkingSlots = new GameObject[_moduleData.NumRows * _moduleData.NumCols];
             _blockedBones = new Dictionary<string, bool>();
+            _healingData = new List<HealingData>();
         }
 
         public bool CanProduceObject(ObjectDefinition definition, IReadOnlyList<ProductionJob> productionQueue)
@@ -247,15 +250,29 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.SkipUnknownBytes(16);
+            reader.SkipUnknownBytes(15);
+
+            reader.PersistListWithByteCount(_healingData, (StatePersister persister, ref HealingData item) =>
+            {
+                persister.PersistObjectValue(ref item);
+            });
 
             reader.PersistObject(RallyPointManager);
 
-            var unknown3 = 0x3FFFFFFFu;
-            reader.PersistUInt32(ref unknown3);
-            if (unknown3 != 0x3FFFFFFF)
+            // This is the default 0x3FFFFFFFu, unless we are healing something,
+            // in which case it's CurrentFrame + a small number of frames.
+            reader.PersistLogicFrame(ref _frameSomething);
+        }
+
+        private struct HealingData : IPersistableObject
+        {
+            public uint ObjectID;
+            public LogicFrame FrameSomething;
+
+            public void Persist(StatePersister persister)
             {
-                throw new InvalidStateException();
+                persister.PersistObjectID(ref ObjectID);
+                persister.PersistLogicFrame(ref FrameSomething);
             }
         }
     }
