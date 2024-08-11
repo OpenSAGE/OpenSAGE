@@ -23,6 +23,7 @@
         public DamageType DamageTypeUnknown;
         public DeathType DeathType;
         public float Unknown4;
+        public string AttackerName;
 
         public void Persist(StatePersister reader)
         {
@@ -42,7 +43,8 @@
 
             if (version >= 3)
             {
-                reader.SkipUnknownBytes(30);
+                reader.SkipUnknownBytes(29);
+                reader.PersistAsciiString(ref AttackerName);
             }
         }
     }

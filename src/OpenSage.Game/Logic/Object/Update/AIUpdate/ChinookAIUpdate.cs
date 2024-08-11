@@ -1,5 +1,7 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.AI;
+using OpenSage.Logic.AI.AIStates;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -7,6 +9,12 @@ namespace OpenSage.Logic.Object
     public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
         private readonly ChinookAIUpdateModuleData _moduleData;
+
+        public ChinookAIUpdateModuleData ModuleData => _moduleData;
+
+        private UnknownStateData _queuedCommand;
+        private ChinookState _state;
+        private uint _airfieldToRepairAt;
 
         internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
@@ -24,20 +32,39 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            reader.SkipUnknownBytes(1);
-
-            var unknown2 = true;
-            reader.PersistBoolean(ref unknown2);
-            if (!unknown2)
+            var hasQueuedCommand = _queuedCommand != null;
+            reader.PersistBoolean(ref hasQueuedCommand);
+            if (hasQueuedCommand)
             {
-                throw new InvalidStateException();
+                _queuedCommand ??= new UnknownStateData();
+                reader.PersistObject(_queuedCommand);
             }
 
-            reader.SkipUnknownBytes(7);
+            reader.PersistEnum(ref _state);
+            reader.PersistObjectID(ref _airfieldToRepairAt);
+
+            if (version >= 2)
+            {
+                reader.SkipUnknownBytes(12);
+            }
+        }
+    }
+
+    internal enum ChinookState
+    {
+        Takeoff = 0,
+        InAir = 1,
+        CombatDropMaybe = 2,
+        Landing = 3,
+        OnGround = 4,
+    }
+
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
         public ChinookAIUpdateStateMachine(GameObject gameObject)
