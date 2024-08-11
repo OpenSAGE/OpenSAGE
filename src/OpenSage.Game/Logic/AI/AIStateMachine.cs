@@ -45,7 +45,7 @@ namespace OpenSage.Logic.AI
             AddState(35, new RappelState());
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
-            AddState(41, new AIState41());
+            AddState(41, new DoNothingState());
         }
 
         internal override void Update()
@@ -175,14 +175,6 @@ namespace OpenSage.Logic.AI
             reader.PersistVersion(1);
 
             base.Persist(reader);
-        }
-    }
-
-    internal sealed class AIState41 : State
-    {
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
         }
     }
 
