@@ -13,6 +13,8 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject);
+
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
             // this is also hardcoded in original SAGE, replaced by BonusScience and BonusScienceMultiplier (SupplyCenterDockUpdate) in later games
@@ -36,6 +38,24 @@ namespace OpenSage.Logic.Object
             }
 
             reader.SkipUnknownBytes(7);
+    internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
+    {
+        public ChinookAIUpdateStateMachine(GameObject gameObject)
+            : base(gameObject)
+        {
+            AddState(1001, new ChinookTakeoffAndLandingState(false)); // Takeoff
+            AddState(1002, new ChinookTakeoffAndLandingState(true));  // Landing
+            AddState(1003, new MoveTowardsState());                   // Moving towards airfield to repair at
+            AddState(1004, new MoveTowardsState());                   // Moving towards evacuation point
+            AddState(1005, new ChinookTakeoffAndLandingState(true));  // Landing for evacuation
+            // 1006?
+            AddState(1007, new MoveTowardsState());                   // Moving towards reinforcement point
+            AddState(1008, new ChinookTakeoffAndLandingState(true));  // Landing for reinforcement
+            // 1009?
+            AddState(1010, new ChinookTakeoffAndLandingState(false)); // Takeoff after reinforcement
+            AddState(1011, new ChinookExitMapState());                // Exit map after reinforcement
+            AddState(1012, new ChinookMoveToCombatDropState());       // Moving towards combat drop location
+            AddState(1013, new ChinookCombatDropState(gameObject));   // Combat drop
         }
     }
 

@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private protected readonly AIStateMachine StateMachine;
+        private protected readonly AIUpdateStateMachine StateMachine;
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -91,7 +91,7 @@ namespace OpenSage.Logic.Object
 
             TargetPoints = new List<Vector3>();
 
-            StateMachine = new AIStateMachine(gameObject);
+            StateMachine = CreateStateMachine(gameObject);
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
@@ -103,6 +103,8 @@ namespace OpenSage.Logic.Object
                 _turretAIUpdate = _moduleData.Turret.CreateTurretAIUpdate(GameObject);
             }
         }
+
+        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject);
 
         internal void SetLocomotor(LocomotorSetType type)
         {

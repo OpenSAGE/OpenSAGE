@@ -5,7 +5,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI
 {
-    internal sealed class AIStateMachine : StateMachineBase
+    internal class AIUpdateStateMachine : StateMachineBase
     {
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
@@ -14,7 +14,7 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIStateMachine(GameObject gameObject)
+        public AIUpdateStateMachine(GameObject gameObject)
         {
             AddState(IdleState.Id, new IdleState());
             AddState(1, new MoveTowardsState());
@@ -46,10 +46,6 @@ namespace OpenSage.Logic.AI
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
             AddState(41, new AIState41());
-            AddState(StartHackingInternetState.Id, new StartHackingInternetState(gameObject));
-            AddState(HackInternetState.Id, new HackInternetState(gameObject));
-            AddState(StopHackingInternetState.Id, new StopHackingInternetState(gameObject));
-            AddState(1013, new WaitForAirfieldState());
         }
 
         internal override void Update()
