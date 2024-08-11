@@ -168,6 +168,26 @@ namespace OpenSage.Logic.Object
             return !(left == right);
         }
 
+        public static bool operator >(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Value > right.Value;
+        }
+
+        public static bool operator <(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Value < right.Value;
+        }
+
+        public static bool operator >=(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Value >= right.Value;
+        }
+
+        public static bool operator <=(LogicFrameSpan left, LogicFrameSpan right)
+        {
+            return left.Value <= right.Value;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is LogicFrameSpan logicFrameSpan && Equals(logicFrameSpan);
@@ -181,6 +201,11 @@ namespace OpenSage.Logic.Object
         public override int GetHashCode()
         {
             return (int)Value;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 
