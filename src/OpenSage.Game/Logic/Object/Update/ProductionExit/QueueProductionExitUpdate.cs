@@ -1,12 +1,11 @@
-﻿using System.Numerics;
+using System.Numerics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class QueueProductionExitUpdate : UpdateModule, IProductionExit
+    public sealed class QueueProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
     {
-        private Vector3 _unknownPosition;
-        private bool _unknownBool;
+        public RallyPointManager RallyPointManager { get; } = new();
 
         private readonly QueueProductionExitUpdateModuleData _moduleData;
 
@@ -30,8 +29,7 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             reader.SkipUnknownBytes(4);
-            reader.PersistVector3(ref _unknownPosition);
-            reader.PersistBoolean(ref _unknownBool);
+            reader.PersistObject(RallyPointManager);
             reader.SkipUnknownBytes(8);
         }
     }

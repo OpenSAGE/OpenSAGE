@@ -9,8 +9,10 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class OpenContainModule : UpdateModule
+    public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     {
+        public RallyPointManager RallyPointManager { get; } = new();
+
         private readonly OpenContainModuleData _moduleData;
         protected GameObject GameObject { get; }
         private protected GameContext GameContext { get; }
@@ -235,7 +237,7 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _numFirePoints);
             reader.PersistBoolean(ref _hasNoFirePoints);
 
-            reader.SkipUnknownBytes(13);
+            reader.PersistObject(RallyPointManager);
 
             reader.PersistList(
                 _evacQueue,
