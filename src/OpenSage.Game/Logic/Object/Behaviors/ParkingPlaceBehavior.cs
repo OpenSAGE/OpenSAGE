@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject[] _parkingSlots;
         private readonly Dictionary<string, bool> _blockedBones;
         private readonly List<HealingData> _healingData;
-        private LogicFrame _frameSomething = new LogicFrame(0x3FFFFFFFu);
+        private LogicFrame _nextHealFrame = new LogicFrame(0x3FFFFFFFu);
 
         internal ParkingPlaceBehaviour(ParkingPlaceBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
         {
@@ -261,7 +261,7 @@ namespace OpenSage.Logic.Object
 
             // This is the default 0x3FFFFFFFu, unless we are healing something,
             // in which case it's CurrentFrame + a small number of frames.
-            reader.PersistLogicFrame(ref _frameSomething);
+            reader.PersistLogicFrame(ref _nextHealFrame);
         }
 
         private struct HealingData : IPersistableObject
