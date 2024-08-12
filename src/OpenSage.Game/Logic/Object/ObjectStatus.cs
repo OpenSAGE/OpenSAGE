@@ -69,6 +69,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("AIRBORNE_TARGET")]
         AirborneTarget,
 
+        [IniEnum("MASKED")]
+        Masked,
+
+        [IniEnum("STATUS_RIDER8")]
+        StatusRider8,
+
         [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
         CanAttack,
 

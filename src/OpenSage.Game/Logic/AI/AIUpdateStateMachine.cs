@@ -5,16 +5,16 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI
 {
-    internal sealed class AIStateMachine : StateMachineBase
+    internal class AIUpdateStateMachine : StateMachineBase
     {
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
 
-        private uint _stateSomethingId;
-        private State _stateSomething;
+        private State _overrideState;
+        private LogicFrame _overrideStateUntilFrame;
 
-        public AIStateMachine(GameObject gameObject)
+        public AIUpdateStateMachine(GameObject gameObject)
         {
             AddState(IdleState.Id, new IdleState());
             AddState(1, new MoveTowardsState());
@@ -42,13 +42,37 @@ namespace OpenSage.Logic.AI
             AddState(32, new AIState32());
             AddState(33, new FaceState(FaceTargetType.FaceNamed));
             AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
+            AddState(35, new RappelState());
             AddState(37, new ExitContainerState());
             AddState(40, new WanderInPlaceState());
-            AddState(41, new AIState41());
-            AddState(StartHackingInternetState.Id, new StartHackingInternetState(gameObject));
-            AddState(HackInternetState.Id, new HackInternetState(gameObject));
-            AddState(StopHackingInternetState.Id, new StopHackingInternetState(gameObject));
-            AddState(1013, new WaitForAirfieldState());
+            AddState(41, new DoNothingState());
+        }
+
+        internal override void Update()
+        {
+            if (_overrideState != null)
+            {
+                var overrideStateResult = _overrideState.Update();
+
+                var currentFrame = GameObject.GameContext.GameLogic.CurrentFrame;
+
+                var shouldContinueOverrideState = overrideStateResult.Type switch
+                {
+                    UpdateStateResultType.Continue => _overrideStateUntilFrame >= currentFrame,
+                    UpdateStateResultType.TransitionToState => false,
+                    _ => throw new System.InvalidOperationException(),
+                };
+
+                if (shouldContinueOverrideState)
+                {
+                    return;
+                }
+
+                _overrideState.OnExit();
+                _overrideState = null;
+            }
+
+            base.Update();
         }
 
         public override void Persist(StatePersister reader)
@@ -76,12 +100,23 @@ namespace OpenSage.Logic.AI
                 reader.PersistObject(_targetTeam);
             }
 
-            reader.PersistUInt32(ref _stateSomethingId);
-            if (_stateSomethingId != 999999)
+            const uint unsetOverrideStateId = 999999;
+            var overrideStateId = unsetOverrideStateId;
+            if (reader.Mode == StatePersistMode.Write && _overrideState != null)
             {
-                _stateSomething = GetState(_stateSomethingId);
-                reader.PersistObject(_stateSomething);
+                overrideStateId = _overrideState.Id;
             }
+            reader.PersistUInt32(ref overrideStateId);
+            if (reader.Mode == StatePersistMode.Read && overrideStateId != unsetOverrideStateId)
+            {
+                _overrideState = GetState(overrideStateId);
+            }
+            if (_overrideState != null)
+            {
+                reader.PersistObject(_overrideState);
+            }
+
+            reader.PersistLogicFrame(ref _overrideStateUntilFrame);
         }
     }
 
@@ -140,14 +175,6 @@ namespace OpenSage.Logic.AI
             reader.PersistVersion(1);
 
             base.Persist(reader);
-        }
-    }
-
-    internal sealed class AIState41 : State
-    {
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
         }
     }
 

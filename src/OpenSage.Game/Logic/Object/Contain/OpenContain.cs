@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
         private readonly List<uint> _containedObjectIds = new();
         private uint _unknownFrame1;
         private uint _unknownFrame2;
+        private uint _unknownInt2;
         protected BitArray<ModelConditionFlag> ModelConditionFlags = new();
         private readonly Matrix4x3[] _unknownTransforms = new Matrix4x3[32];
         private uint _nextFirePointIndex;
@@ -214,7 +215,9 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame(ref _unknownFrame1);
             reader.PersistFrame(ref _unknownFrame2);
 
-            reader.SkipUnknownBytes(8);
+            reader.SkipUnknownBytes(4);
+
+            reader.PersistUInt32(ref _unknownInt2);
 
             reader.PersistBitArray(ref ModelConditionFlags);
 

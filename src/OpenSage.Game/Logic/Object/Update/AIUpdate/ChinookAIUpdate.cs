@@ -1,5 +1,7 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.AI;
+using OpenSage.Logic.AI.AIStates;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -8,10 +10,18 @@ namespace OpenSage.Logic.Object
     {
         private readonly ChinookAIUpdateModuleData _moduleData;
 
+        public ChinookAIUpdateModuleData ModuleData => _moduleData;
+
+        private UnknownStateData _queuedCommand;
+        private ChinookState _state;
+        private uint _airfieldToRepairAt;
+
         internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
         }
+
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
@@ -22,20 +32,57 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(1);
+            var version = reader.PersistVersion(2);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
-            reader.SkipUnknownBytes(1);
-
-            var unknown2 = true;
-            reader.PersistBoolean(ref unknown2);
-            if (!unknown2)
+            var hasQueuedCommand = _queuedCommand != null;
+            reader.PersistBoolean(ref hasQueuedCommand);
+            if (hasQueuedCommand)
             {
-                throw new InvalidStateException();
+                _queuedCommand ??= new UnknownStateData();
+                reader.PersistObject(_queuedCommand);
             }
 
-            reader.SkipUnknownBytes(7);
+            reader.PersistEnum(ref _state);
+            reader.PersistObjectID(ref _airfieldToRepairAt);
+
+            if (version >= 2)
+            {
+                reader.SkipUnknownBytes(12);
+            }
+        }
+    }
+
+    internal enum ChinookState
+    {
+        Takeoff = 0,
+        InAir = 1,
+        CombatDropMaybe = 2,
+        Landing = 3,
+        OnGround = 4,
+    }
+
+    internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
+    {
+        public ChinookAIUpdateStateMachine(GameObject gameObject)
+            : base(gameObject)
+        {
+            AddState(1001, new ChinookTakeoffAndLandingState(false)); // Takeoff
+            AddState(1002, new ChinookTakeoffAndLandingState(true));  // Landing
+            AddState(1003, new MoveTowardsState());                   // Moving towards airfield to repair at
+            AddState(1004, new MoveTowardsState());                   // Moving towards evacuation point
+            AddState(1005, new ChinookTakeoffAndLandingState(true));  // Landing for evacuation
+            // 1006?
+            AddState(1007, new MoveTowardsState());                   // Moving towards reinforcement point
+            AddState(1008, new ChinookTakeoffAndLandingState(true));  // Landing for reinforcement
+            // 1009?
+            AddState(1010, new ChinookTakeoffAndLandingState(false)); // Takeoff after reinforcement
+            AddState(1011, new ChinookExitMapState());                // Exit map after reinforcement
+            AddState(1012, new ChinookMoveToCombatDropState());       // Moving towards combat drop location
+            AddState(1013, new ChinookCombatDropState(gameObject));   // Combat drop
         }
     }
 

@@ -30,6 +30,8 @@ namespace OpenSage.Logic.AI
 
         public void AddState(uint id, State state)
         {
+            state.Id = id;
+
             _states.Add(id, state);
         }
 
@@ -52,7 +54,7 @@ namespace OpenSage.Logic.AI
             _currentState.OnEnter();
         }
 
-        internal void Update()
+        internal virtual void Update()
         {
             if (_currentState == null)
             {

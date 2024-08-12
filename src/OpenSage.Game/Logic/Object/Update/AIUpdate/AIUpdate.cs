@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private protected readonly AIStateMachine StateMachine;
+        private protected readonly AIUpdateStateMachine StateMachine;
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -33,7 +33,6 @@ namespace OpenSage.Logic.Object
 
         private uint _unknownInt1;
         private uint _unknownInt2;
-        private uint _unknownInt3;
         private bool _unknownBool1;
         private bool _unknownBool2;
         private uint _unknownInt4;
@@ -74,7 +73,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownObjectId2;
         private uint _unknownInt17;
         private uint _unknownInt18;
-        private float _angleSomething;
+        private Vector3 _unknownPosition3;
         private int _unknownInt19;
         private int _unknownInt20;
         private uint _unknownFrame3;
@@ -91,7 +90,7 @@ namespace OpenSage.Logic.Object
 
             TargetPoints = new List<Vector3>();
 
-            StateMachine = new AIStateMachine(gameObject);
+            StateMachine = CreateStateMachine(gameObject);
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
@@ -103,6 +102,8 @@ namespace OpenSage.Logic.Object
                 _turretAIUpdate = _moduleData.Turret.CreateTurretAIUpdate(GameObject);
             }
         }
+
+        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject);
 
         internal void SetLocomotor(LocomotorSetType type)
         {
@@ -315,7 +316,6 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistObject(StateMachine);
-            reader.PersistUInt32(ref _unknownInt3);
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistBoolean(ref _unknownBool2);
             reader.PersistUInt32(ref _unknownInt4);
@@ -398,15 +398,13 @@ namespace OpenSage.Logic.Object
             }
 
             reader.PersistUInt32(ref _unknownInt17);
-            if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != uint.MaxValue)
+            if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != 5 && _unknownInt17 != uint.MaxValue)
             {
                 throw new InvalidStateException();
             }
 
             reader.PersistUInt32(ref _unknownInt18); // 0, 1
-            reader.PersistSingle(ref _angleSomething);
-
-            reader.SkipUnknownBytes(8);
+            reader.PersistVector3(ref _unknownPosition3);
 
             if (_moduleData.Turret != null)
             {

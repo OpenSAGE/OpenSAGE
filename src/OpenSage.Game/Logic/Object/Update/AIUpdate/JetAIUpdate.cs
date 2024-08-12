@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.AI.AIStates;
+using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -59,6 +61,8 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
             CurrentJetAIState = JetAIState.Parked;
         }
+
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new JetAIUpdateStateMachine(gameObject);
 
         internal override void Load(StatePersister reader)
         {
@@ -309,6 +313,14 @@ namespace OpenSage.Logic.Object
         }
     }
 
+    internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
+    {
+        public JetAIUpdateStateMachine(GameObject gameObject)
+            : base(gameObject)
+        {
+            AddState(1013, new WaitForAirfieldState());
+        }
+    }
 
     /// <summary>
     /// Allows the use of VoiceLowFuel and Afterburner within UnitSpecificSounds section of the object.

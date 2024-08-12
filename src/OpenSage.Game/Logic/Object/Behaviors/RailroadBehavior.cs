@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(2);
+            var version = reader.PersistVersion(3);
 
             reader.BeginObject("Base");
             base.Load(reader);
@@ -56,6 +56,11 @@ namespace OpenSage.Logic.Object
             reader.PersistInt32(ref _unknownInt3);
             reader.PersistObject(_something1);
             reader.PersistObject(_something2);
+
+            if (version >= 3)
+            {
+                reader.SkipUnknownBytes(1);
+            }
         }
 
         private sealed class RailroadBehaviorSomething : IPersistableObject

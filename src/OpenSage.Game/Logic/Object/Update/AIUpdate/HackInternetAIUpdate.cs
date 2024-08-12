@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.AI;
 using OpenSage.Logic.AI.AIStates;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -20,6 +20,8 @@ namespace OpenSage.Logic.Object
             _context = context;
             _moduleData = moduleData;
         }
+
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new HackInternetAIUpdateStateMachine(gameObject);
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
@@ -93,6 +95,17 @@ namespace OpenSage.Logic.Object
                 _packingUpData ??= new UnknownStateData();
                 reader.PersistObject(_packingUpData);
             }
+        }
+    }
+
+    internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
+    {
+        public HackInternetAIUpdateStateMachine(GameObject gameObject)
+            : base(gameObject)
+        {
+            AddState(StartHackingInternetState.Id, new StartHackingInternetState(gameObject));
+            AddState(HackInternetState.Id, new HackInternetState(gameObject));
+            AddState(StopHackingInternetState.Id, new StopHackingInternetState(gameObject));
         }
     }
 

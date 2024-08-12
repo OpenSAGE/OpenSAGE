@@ -1109,6 +1109,8 @@ namespace OpenSage
             {
                 value.Clear();
 
+                value.EnsureCapacity((int)count);
+
                 for (var i = 0; i < count; i++)
                 {
                     var item = default(T);
