@@ -16,7 +16,13 @@ internal sealed class ChinookCombatDropState : State
 
     public override void OnEnter()
     {
-        ResetRopes(((ChinookAIUpdate)_gameObject.AIUpdate).ModuleData.NumRopes);
+        _ropes.Clear();
+
+        var numRopes = ((ChinookAIUpdate)_gameObject.AIUpdate).ModuleData.NumRopes;
+        for (var i = 0; i < numRopes; i++)
+        {
+            _ropes.Add(new Rope());
+        }
     }
 
     public override void OnExit()
@@ -28,30 +34,11 @@ internal sealed class ChinookCombatDropState : State
     {
         reader.PersistVersion(2);
 
-        var numRopes = _ropes.Count;
-        reader.PersistInt32(ref numRopes);
-
-        if (reader.Mode == StatePersistMode.Read)
+        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope item) =>
         {
-            ResetRopes(numRopes);
-        }
-
-        reader.BeginArray("Ropes");
-        foreach (var rope in _ropes)
-        {
-            reader.PersistObject(rope);
-        }
-        reader.EndArray();
-    }
-
-    private void ResetRopes(int count)
-    {
-        _ropes.Clear();
-
-        for (var i = 0; i < count; i++)
-        {
-            _ropes.Add(new Rope());
-        }
+            item ??= new Rope();
+            persister.PersistObjectValue(item);
+        });
     }
 
     private sealed class Rope : IPersistableObject
