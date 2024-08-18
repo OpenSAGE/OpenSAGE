@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
-    <PackageReference Include="NLog" Version="5.3.3" />
+    <PackageReference Include="Veldrid.SDL2" />
+    <PackageReference Include="NLog" />
   </ItemGroup>
 
   <ItemGroup>

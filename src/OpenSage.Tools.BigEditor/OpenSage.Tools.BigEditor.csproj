@@ -11,11 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ImGui.NET" Version="1.89.5" />
-    <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
-    <PackageReference Include="SharpFileDialog" Version="2.0.0" />
+    <PackageReference Include="ImGui.NET" />
+    <PackageReference Include="Veldrid.ImGui" />
+    <PackageReference Include="Veldrid.StartupUtilities" />
+    <PackageReference Include="Veldrid.ImageSharp" />
+    <PackageReference Include="SharpFileDialog" />
   </ItemGroup>
 
   <ItemGroup>
