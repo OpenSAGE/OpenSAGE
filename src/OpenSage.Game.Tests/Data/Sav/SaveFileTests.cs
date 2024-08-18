@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using OpenSage.Data.Sav;
+using OpenSage.Logic.Object;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Sav
@@ -28,7 +29,7 @@ namespace OpenSage.Tests.Data.Sav
         }
 
         [Theory(Skip = Skip)]
-        [MemberData(nameof(ZeroHourSaveFiles), Skip = "Zero Hour save parsing not yet working")]
+        [MemberData(nameof(ZeroHourSaveFiles))]
         public void CanLoadZeroHourSaveFiles(string fullPath)
         {
             LoadSaveFile(fullPath, SageGame.CncGeneralsZeroHour);
@@ -195,6 +196,11 @@ namespace OpenSage.Tests.Data.Sav
                 {
                     CheckEquality(span[i], comparisonValue[i]);
                 }
+            }
+
+            public override void PersistUpdateFrameValue(ref UpdateFrame value)
+            {
+                PersistUInt32Value(ref value.RawValue);
             }
 
             private static void CheckEquality<T>(T value, T comparisonValue)

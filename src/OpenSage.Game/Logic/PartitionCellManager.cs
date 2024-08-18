@@ -44,8 +44,10 @@ namespace OpenSage.Logic
                 new Point2D((int)border.Corner1X, (int)border.Corner1Y),
                 new Point2D((int)border.Corner2X, (int)border.Corner2Y));
 
-            _numCellsX = (int) MathF.Ceiling((_terrainBoundary.Width * 10.0f) / _partitionCellSize);
-            _numCellsY = (int) MathF.Ceiling((_terrainBoundary.Height * 10.0f) / _partitionCellSize);
+            var extra = _game.SageGame >= SageGame.CncGeneralsZeroHour ? 1.0f : 0.0f;
+
+            _numCellsX = (int) MathF.Ceiling((_terrainBoundary.Width * 10.0f) / _partitionCellSize + extra);
+            _numCellsY = (int) MathF.Ceiling((_terrainBoundary.Height * 10.0f) / _partitionCellSize + extra);
 
             _cells = new PartitionCell[_numCellsX * _numCellsY];
 

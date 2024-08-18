@@ -16,8 +16,8 @@ namespace OpenSage.Logic.AI
         private State _currentState;
         internal State CurrentState => _currentState;
 
-        private uint _objectToEnter;
-        private Vector3 _unknownPosition;
+        private uint _targetObjectId;
+        private Vector3 _targetPosition;
         private bool _unknownBool1;
         private bool _unknownBool2;
 
@@ -90,8 +90,8 @@ namespace OpenSage.Logic.AI
             reader.SkipUnknownBytes(1);
 
             reader.PersistObject(_currentState);
-            reader.PersistObjectID(ref _objectToEnter);
-            reader.PersistVector3(ref _unknownPosition);
+            reader.PersistObjectID(ref _targetObjectId);
+            reader.PersistVector3(ref _targetPosition);
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistBoolean(ref _unknownBool2);
         }

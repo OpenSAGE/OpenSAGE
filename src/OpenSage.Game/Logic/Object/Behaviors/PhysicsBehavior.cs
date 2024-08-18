@@ -21,14 +21,13 @@ namespace OpenSage.Logic.Object
         private Vector3 _unknownVector1;
         private Vector3 _unknownVector2;
         private Vector3 _unknownVector3;
-        private Vector3 _unknownVector4;
         private int _unknownInt1;
         private uint _unknownInt2;
         private uint _unknownInt3;
         private uint _unknownInt4;
         private uint _unknownInt5;
         private uint _unknownFrame;
-        private float _unknownFloat1;
+        private float _velocityMagnitude;
         private byte _unknownByte1;
         private byte _unknownByte2;
 
@@ -114,7 +113,7 @@ namespace OpenSage.Logic.Object
             reader.PersistVector3(ref _unknownVector1);
             reader.PersistVector3(ref _unknownVector2);
             reader.PersistVector3(ref _unknownVector3);
-            reader.PersistVector3(ref _unknownVector4);
+            reader.PersistVector3(ref _velocity);
             reader.PersistInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
             reader.PersistUInt32(ref _unknownInt3);
@@ -127,7 +126,7 @@ namespace OpenSage.Logic.Object
             reader.PersistByte(ref _unknownByte1); // 128 for supply drop zone crate parachute
             reader.PersistByte(ref _unknownByte2); // 63 for supply drop zone crate parachute
 
-            reader.PersistSingle(ref _unknownFloat1);
+            reader.PersistSingle(ref _velocityMagnitude);
         }
     }
 

@@ -1390,6 +1390,7 @@ namespace OpenSage.Logic.Object
             Disable(DisabledType.Held, disabledUntilFrame);
             Hidden = true;
             SetSelectable(false);
+            _status.Set(ObjectStatus.Masked, true);
             _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
             Owner.DeselectUnit(this);
         }
@@ -1401,6 +1402,7 @@ namespace OpenSage.Logic.Object
             UnDisable(DisabledType.Held);
             Hidden = false;
             SetSelectable(true);
+            _status.Set(ObjectStatus.Masked, false);
             _status.Set(ObjectStatus.InsideGarrison, false);
         }
 

@@ -35,7 +35,6 @@ namespace OpenSage.Logic.Object
                 _originalTeamSet = true;
             }
 
-            ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Garrisoned, isGarrisoned);
             if (_originalTeamSet)
             {

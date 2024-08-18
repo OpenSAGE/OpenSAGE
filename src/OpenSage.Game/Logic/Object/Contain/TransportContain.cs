@@ -40,7 +40,6 @@ namespace OpenSage.Logic.Object
             }
 
             var isLoaded = ContainedObjectIds.Count > 0;
-            ModelConditionFlags.Set(ModelConditionFlag.Loaded, isLoaded);
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Loaded, isLoaded);
         }
 

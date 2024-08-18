@@ -31,34 +31,34 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistFrame(ref NextUpdateFrame.RawValue, "UpdateFrame");
-        }
-
-        protected struct UpdateFrame
-        {
-            public uint RawValue;
-
-            public UpdateFrame(LogicFrame frame)
-            {
-                Frame = frame.Value;
-            }
-
-            public uint Frame
-            {
-                get => RawValue >> 2;
-                set => RawValue = (value << 2) | (RawValue & 0x3);
-            }
-
-            public byte Something
-            {
-                get => (byte)(RawValue & 0x3);
-                set => RawValue = (RawValue & 0xFFFFFFFC) | (value);
-            }
+            reader.PersistUpdateFrame(ref NextUpdateFrame);
         }
 
         internal override void DrawInspector()
         {
             ImGui.LabelText("Next update frame", NextUpdateFrame.Frame.ToString());
+        }
+    }
+
+    public struct UpdateFrame
+    {
+        public uint RawValue;
+
+        public UpdateFrame(LogicFrame frame)
+        {
+            Frame = frame.Value;
+        }
+
+        public uint Frame
+        {
+            get => RawValue >> 2;
+            set => RawValue = (value << 2) | (RawValue & 0x3);
+        }
+
+        public byte Something
+        {
+            get => (byte)(RawValue & 0x3);
+            set => RawValue = (RawValue & 0xFFFFFFFC) | (value);
         }
     }
 
