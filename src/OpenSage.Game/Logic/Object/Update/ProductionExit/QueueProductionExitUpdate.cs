@@ -1,17 +1,21 @@
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
     public sealed class QueueProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
     {
+        public bool CanProduce => _framesUntilNextSpawn == LogicFrameSpan.Zero;
         public RallyPointManager RallyPointManager { get; } = new();
 
+        private LogicFrameSpan _framesUntilNextSpawn;
         private readonly QueueProductionExitUpdateModuleData _moduleData;
 
         internal QueueProductionExitUpdate(QueueProductionExitUpdateModuleData moduleData)
         {
             _moduleData = moduleData;
+            _framesUntilNextSpawn = moduleData.ExitDelay;
         }
 
         Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
@@ -28,9 +32,29 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.SkipUnknownBytes(4);
+            reader.PersistLogicFrameSpan(ref _framesUntilNextSpawn);
             reader.PersistObject(RallyPointManager);
             reader.SkipUnknownBytes(8);
+        }
+
+        public void ProduceUnit()
+        {
+            _framesUntilNextSpawn = ExitDelay;
+        }
+
+        private protected override void RunUpdate(BehaviorUpdateContext context)
+        {
+            if (_framesUntilNextSpawn.Value > 0)
+            {
+                _framesUntilNextSpawn--;
+            }
+
+            base.RunUpdate(context);
+        }
+
+        internal override void DrawInspector()
+        {
+            ImGui.LabelText("Frames until next spawn", _framesUntilNextSpawn.ToString());
         }
     }
 
