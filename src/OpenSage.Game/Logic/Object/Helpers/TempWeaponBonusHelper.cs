@@ -13,8 +13,9 @@
             reader.EndObject();
 
             reader.PersistInt32(ref _unknownInt);
-            if (_unknownInt != -1)
+            if (_unknownInt != -1 && _unknownInt != 0)
             {
+                // Normally -1, 0 for a civilian building when an infantry is garrisoned inside it
                 throw new InvalidStateException();
             }
 

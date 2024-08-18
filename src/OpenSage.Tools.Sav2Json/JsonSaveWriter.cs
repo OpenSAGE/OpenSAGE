@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Tools.Sav2Json;
 
@@ -142,6 +143,15 @@ internal sealed class JsonSaveWriter : StatePersister
     public override void PersistUnicodeStringValue(ref string value)
     {
         _writer.WriteStringValue(value);
+    }
+
+    public override void PersistUpdateFrameValue(ref UpdateFrame value)
+    {
+        var frame = value.Frame;
+        PersistUInt32(ref frame);
+
+        var something = value.Something;
+        PersistByte(ref something);
     }
 
     public override void SkipUnknownBytes(int numBytes)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -225,6 +225,8 @@ namespace OpenSage
 
         public abstract void PersistSpan(Span<byte> span);
 
+        public abstract void PersistUpdateFrameValue(ref UpdateFrame value);
+
         public abstract uint BeginSegment(string segmentName);
 
         public abstract void EndSegment();
@@ -299,6 +301,8 @@ namespace OpenSage
         public override void PersistEnumByteFlagsValue<TEnum>(ref TEnum value) => value = _binaryReader.ReadByteAsEnumFlags<TEnum>();
 
         public override void PersistSpan(Span<byte> span) => _binaryReader.BaseStream.Read(span);
+
+        public override void PersistUpdateFrameValue(ref UpdateFrame value) => PersistUInt32Value(ref value.RawValue);
 
         public override uint BeginSegment(string segmentName)
         {
@@ -393,6 +397,8 @@ namespace OpenSage
         public override void PersistEnumByteFlagsValue<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
 
         public override void PersistSpan(Span<byte> span) => _binaryWriter.BaseStream.Write(span);
+
+        public override void PersistUpdateFrameValue(ref UpdateFrame value) => PersistUInt32Value(ref value.RawValue);
 
         public override uint BeginSegment(string segmentName)
         {
@@ -512,6 +518,15 @@ namespace OpenSage
             var innerValue = value.Value;
             persister.PersistUInt32Value(ref innerValue);
             value = new LogicFrameSpan(innerValue);
+        }
+
+        public static void PersistUpdateFrame(this StatePersister persister, ref UpdateFrame value, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.BeginObject(name);
+
+            persister.PersistUpdateFrameValue(ref value);
+
+            persister.EndObject();
         }
 
         public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true, [CallerArgumentExpression("value")] string name = "")

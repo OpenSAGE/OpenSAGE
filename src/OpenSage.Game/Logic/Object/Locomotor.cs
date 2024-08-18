@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object
         private float _unknownFloat5 = 99999.0f;
         private float _unknownFloat6 = 99999.0f;
         private float _unknownFloat7 = 1.0f;
-        private uint _unknownInt1;
+        private LocomotorFlags _flags;
         private float _unknownFloat8;
         private float _unknownFloat9;
         private float _unknownFloat10;
@@ -408,7 +408,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt1); // 0, 4
+            reader.PersistEnumFlags(ref _flags); // 0, 4
             reader.PersistSingle(ref _unknownFloat8); // 0, 100
 
             reader.PersistSingle(ref _unknownFloat9); // 1, 0 mid humvee evac (unsure if related)
@@ -420,5 +420,23 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle(ref _unknownFloat10); // 0.4849...
             reader.PersistSingle(ref _unknownFloat11); // 0.0892...
         }
+    }
+
+    [Flags]
+    public enum LocomotorFlags
+    {
+        None = 0,
+        Unknown1 = 1 << 0,
+        Unknown2 = 1 << 1,
+        Unknown3 = 1 << 2,
+        Unknown4 = 1 << 3,
+        Unknown5 = 1 << 5,
+        Unknown6 = 1 << 6,
+        Unknown7 = 1 << 7,
+        Unknown8 = 1 << 8,
+        Unknown9 = 1 << 9,
+        Unknown10 = 1 << 10,
+        Unknown11 = 1 << 11,
+        Unknown12 = 1 << 12,
     }
 }

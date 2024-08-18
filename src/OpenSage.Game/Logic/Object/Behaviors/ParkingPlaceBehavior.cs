@@ -232,7 +232,9 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(3);
 
+            reader.BeginObject("Base");
             base.Load(reader);
+            reader.EndObject();
 
             var unknown1 = 4u;
             reader.PersistUInt32(ref unknown1);

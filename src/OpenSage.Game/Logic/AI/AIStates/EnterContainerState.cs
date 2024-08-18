@@ -8,7 +8,9 @@
         {
             reader.PersistVersion(1);
 
+            reader.BeginObject("Base");
             base.Persist(reader);
+            reader.EndObject();
 
             reader.PersistObjectID(ref _containerObjectId);
         }

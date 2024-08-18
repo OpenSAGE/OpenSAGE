@@ -4,7 +4,7 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal class MoveTowardsState : State
     {
-        private Vector3 _unknownPosition1;
+        private Vector3 _targetPosition;
         private uint _unknownInt1;
         private bool _unknownBool1;
         private Vector3 _unknownPosition2;
@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.PersistVector3(ref _unknownPosition1);
+            reader.PersistVector3(ref _targetPosition);
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistVector3(ref _unknownPosition2);
