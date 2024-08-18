@@ -1,0 +1,37 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageVersion Include="CommandLineParser" Version="2.9.1" />
+    <PackageVersion Include="ConsoleTables" Version="2.6.1" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="FixedMath.NET" Version="1.0.1" />
+    <PackageVersion Include="ImGui.NET" Version="1.89.5" />
+    <PackageVersion Include="LiteNetLib" Version="1.2.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
+    <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageVersion Include="MoonSharp" Version="2.0.0" />
+    <PackageVersion Include="NLog" Version="5.3.3" />
+    <PackageVersion Include="Open.NAT.Core" Version="2.1.0.5" />
+    <PackageVersion Include="OptimizedPriorityQueue" Version="5.1.0" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="1.0.4" />
+    <PackageVersion Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
+    <PackageVersion Include="SharpAudio" Version="1.0.27-beta" />
+    <PackageVersion Include="SharpAudio.Codec" Version="1.0.27-beta" />
+    <PackageVersion Include="SharpFileDialog" Version="2.0.0" />
+    <PackageVersion Include="Sprintf.NET" Version="2.0.0" />
+    <PackageVersion Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
+    <PackageVersion Include="Veldrid" Version="4.9.0" />
+    <PackageVersion Include="Veldrid.ImageSharp" Version="4.9.0" />
+    <PackageVersion Include="Veldrid.ImGui" Version="5.72" />
+    <PackageVersion Include="Veldrid.RenderDoc" Version="1.0.1" />
+    <PackageVersion Include="Veldrid.SDL2" Version="4.9.0" />
+    <PackageVersion Include="Veldrid.StartupUtilities" Version="4.9.0" />
+    <PackageVersion Include="Veldrid.SPIRV" Version="1.0.15" />
+
+    <!-- Test projects only -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageVersion Include="xunit" Version="2.9.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+</Project>

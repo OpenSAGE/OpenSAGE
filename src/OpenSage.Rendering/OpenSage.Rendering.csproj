@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
+    <PackageReference Include="Veldrid" />
+    <PackageReference Include="Veldrid.SPIRV" />
   </ItemGroup>
 
   <ItemGroup>

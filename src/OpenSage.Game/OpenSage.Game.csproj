@@ -6,28 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FixedMath.NET" Version="1.0.1" />
-    <PackageReference Include="ImGui.NET" Version="1.89.5" />
-    <PackageReference Include="LiteNetLib" Version="1.2.0" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="MoonSharp" Version="2.0.0" />
-    <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
-    <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
-    <PackageReference Include="SharpAudio" Version="1.0.27-beta" />
-    <PackageReference Include="SharpAudio.Codec" Version="1.0.27-beta" />
-    <PackageReference Include="Sprintf.NET" Version="2.0.0" />
+    <PackageReference Include="FixedMath.NET" />
+    <PackageReference Include="ImGui.NET" />
+    <PackageReference Include="LiteNetLib" />
+    <PackageReference Include="Microsoft.Win32.Registry" />
+    <PackageReference Include="MoonSharp" />
+    <PackageReference Include="Open.NAT.Core" />
+    <PackageReference Include="OptimizedPriorityQueue" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" />
+    <PackageReference Include="SharpAudio" />
+    <PackageReference Include="SharpAudio.Codec" />
+    <PackageReference Include="Sprintf.NET" />
 
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
-    <PackageReference Include="Veldrid.RenderDoc" Version="1.0.1" />
-    <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="System.ValueTuple" />
+    <PackageReference Include="Veldrid" />
+    <PackageReference Include="Veldrid.ImageSharp" />
+    <PackageReference Include="Veldrid.ImGui" />
+    <PackageReference Include="Veldrid.RenderDoc" />
+    <PackageReference Include="Veldrid.SDL2" />
+    <PackageReference Include="Veldrid.StartupUtilities" />
+    <PackageReference Include="Veldrid.SPIRV" />
   </ItemGroup>
 
   <ItemGroup>
