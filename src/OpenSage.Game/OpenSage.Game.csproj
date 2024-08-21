@@ -22,7 +22,6 @@
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="System.ValueTuple" />
     <PackageReference Include="Veldrid" />
-    <PackageReference Include="Veldrid.ImageSharp" />
     <PackageReference Include="Veldrid.ImGui" />
     <PackageReference Include="Veldrid.RenderDoc" />
     <PackageReference Include="Veldrid.SDL2" />
@@ -39,6 +38,7 @@
     <ProjectReference Include="..\OpenSage.IO\OpenSage.IO.csproj" />
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
     <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
+    <ProjectReference Include="..\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

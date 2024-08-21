@@ -85,7 +85,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
 
                 var font = game.ContentManager.FontManager.GetOrCreateFont("Arial", fontSize, FontWeight.Normal);
-                var height = DrawingContext2D.MeasureText(measureText, font, TextAlignment.Center, control.Width).Height;
+                var height = DrawingContext2D.MeasureText(measureText, font, OpenSage.Gui.TextAlignment.Center, control.Width).Height;
 
                 data.Items.Add(new CreditsMenuDataItem
                 {
@@ -148,7 +148,7 @@ namespace OpenSage.Mods.Generals.Gui
                 drawingContext.DrawText(
                     item.Text,
                     item.Font,
-                    TextAlignment.Center,
+                    OpenSage.Gui.TextAlignment.Center,
                     item.Color.ToColorRgbaF(),
                     rect);
             }

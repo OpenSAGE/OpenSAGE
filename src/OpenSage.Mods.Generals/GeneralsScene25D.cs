@@ -236,8 +236,8 @@ internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vec
         if (worldRectangle.HasValue)
         {
             var rect = worldRectangle.Value;
-            drawingContext.DrawText(_text, font, TextAlignment.Center,new ColorRgbaF(0,0,0, opacity), rect.WithX(rect.X + 1).WithY(rect.Y + 1)); // drop shadow
-            drawingContext.DrawText(_text, font, TextAlignment.Center,_baseColor.WithA(opacity), rect);
+            drawingContext.DrawText(_text, font, OpenSage.Gui.TextAlignment.Center,new ColorRgbaF(0,0,0, opacity), rect.WithX(rect.X + 1).WithY(rect.Y + 1)); // drop shadow
+            drawingContext.DrawText(_text, font, OpenSage.Gui.TextAlignment.Center,_baseColor.WithA(opacity), rect);
         }
 
         base.DrawForFrame(drawingContext, currentFrame);

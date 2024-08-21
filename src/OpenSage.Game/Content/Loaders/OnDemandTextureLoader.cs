@@ -135,19 +135,19 @@ namespace OpenSage.Content.Loaders
 
                     var alphaTexture = new ImageSharpTexture(pngStream);
 
-                    if (!colorTexture.Images[0].TryGetSinglePixelSpan(out var colorPixelSpan))
+                    if (!colorTexture.Images[0].DangerousTryGetSinglePixelMemory(out var colorPixelSpan))
                     {
                         throw new InvalidOperationException("Unable to get image pixelspan.");
                     }
 
-                    if (!alphaTexture.Images[0].TryGetSinglePixelSpan(out var alphaPixelSpan))
+                    if (!alphaTexture.Images[0].DangerousTryGetSinglePixelMemory(out var alphaPixelSpan))
                     {
                         throw new InvalidOperationException("Unable to get image pixelspan.");
                     }
 
                     for (var i = 0; i < colorPixelSpan.Length; i++)
                     {
-                        colorPixelSpan[i].A = alphaPixelSpan[i].A;
+                        colorPixelSpan.Span[i].A = alphaPixelSpan.Span[i].A;
                     }
                 }
             }

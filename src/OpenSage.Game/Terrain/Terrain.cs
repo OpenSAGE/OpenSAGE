@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
@@ -552,24 +551,24 @@ namespace OpenSage.Terrain
             for (uint level = 0; level < texture.MipLevels; level++)
             {
                 var image = texture.Images[level];
-                if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+                if (!image.DangerousTryGetSinglePixelMemory(out var pixelSpan))
                 {
                     throw new InvalidOperationException("Unable to get image pixelspan.");
                 }
-                fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+                using (var pin = pixelSpan.Pin())
                 {
                     var map = gd.Map(staging, MapMode.Write, level);
                     var rowWidth = (uint) (image.Width * 4);
                     if (rowWidth == map.RowPitch)
                     {
-                        Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint) (image.Width * image.Height * 4));
+                        Unsafe.CopyBlock(map.Data.ToPointer(), pin.Pointer, (uint) (image.Width * image.Height * 4));
                     }
                     else
                     {
                         for (uint y = 0; y < image.Height; y++)
                         {
                             var dstStart = (byte*) map.Data.ToPointer() + y * map.RowPitch;
-                            var srcStart = (byte*) pin + y * rowWidth;
+                            var srcStart = (byte*) pin.Pointer + y * rowWidth;
                             Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
                         }
                     }
