@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -39,7 +40,7 @@ namespace OpenSage.Logic.Object
         {
             Stop();
 
-            StateMachine.SetState(StartHackingInternetState.Id);
+            StateMachine.SetState(StartHackingInternetState.StateId);
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)
@@ -63,10 +64,10 @@ namespace OpenSage.Logic.Object
             {
                 case StartHackingInternetState:
                     // this takes effect immediately
-                    StateMachine.SetState(IdleState.Id);
+                    StateMachine.SetState(IdleState.StateId);
                     break;
                 case HackInternetState:
-                    StateMachine.SetState(StopHackingInternetState.Id);
+                    StateMachine.SetState(StopHackingInternetState.StateId);
                     break;
                 // If we're in StopHackingInternetState, we need to see that through
             }
@@ -103,9 +104,9 @@ namespace OpenSage.Logic.Object
         public HackInternetAIUpdateStateMachine(GameObject gameObject)
             : base(gameObject)
         {
-            AddState(StartHackingInternetState.Id, new StartHackingInternetState(gameObject));
-            AddState(HackInternetState.Id, new HackInternetState(gameObject));
-            AddState(StopHackingInternetState.Id, new StopHackingInternetState(gameObject));
+            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject));
+            AddState(HackInternetState.StateId, new HackInternetState(gameObject));
+            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject));
         }
     }
 

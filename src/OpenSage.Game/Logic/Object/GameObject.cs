@@ -271,8 +271,8 @@ namespace OpenSage.Logic.Object
         private readonly IReadOnlyList<BehaviorModule> _behaviorModules;
 
         // this allows us to avoid allocating and casting a new list when we just want a single object
-        private FrozenDictionary<Type, object>? _firstBehaviorCache;
-        private FrozenDictionary<Type, List<object>>? _behaviorCache;
+        private FrozenDictionary<Type, object> _firstBehaviorCache;
+        private FrozenDictionary<Type, List<object>> _behaviorCache;
 
         private readonly BodyModule _body;
         public bool HasActiveBody() => _body is ActiveBody;

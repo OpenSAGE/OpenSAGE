@@ -7,7 +7,7 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class HackInternetState : State
     {
-        public const uint Id = 1001;
+        public const uint StateId = 1001;
 
         private readonly GameObject _gameObject;
 

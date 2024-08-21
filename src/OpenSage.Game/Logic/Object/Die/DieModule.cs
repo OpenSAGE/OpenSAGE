@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿#nullable enable
+
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object

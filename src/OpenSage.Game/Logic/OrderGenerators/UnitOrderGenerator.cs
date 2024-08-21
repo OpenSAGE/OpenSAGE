@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -273,7 +275,7 @@ namespace OpenSage.Logic.OrderGenerators
             return AnySelectedUnitCanEnterTarget(target) ? OrderType.Enter : OrderType.SetSelection;
         }
 
-        private bool SelectedUnitsIsStructure([NotNullWhen(true)] out GameObject structure)
+        private bool SelectedUnitsIsStructure([NotNullWhen(true)] out GameObject? structure)
         {
             structure = default;
 
@@ -297,7 +299,7 @@ namespace OpenSage.Logic.OrderGenerators
             return structure.Definition.KindOf.Get(ObjectKinds.AutoRallyPoint);
         }
 
-        private bool TryGetTarget(out GameObject target)
+        private bool TryGetTarget([NotNullWhen(true)] out GameObject? target)
         {
             target = WorldObject;
             return target is not null;

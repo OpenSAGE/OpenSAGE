@@ -409,7 +409,7 @@ namespace OpenSage.Logic.Object
         public MaxHealthChangeType StrategyCenterHoldTheLineMaxHealthChangeType { get; private set; }
 
         // Revealing
-        public LazyAssetReference<ObjectDefinition>? VisionObjectName { get; private set; }
+        public LazyAssetReference<ObjectDefinition> VisionObjectName { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

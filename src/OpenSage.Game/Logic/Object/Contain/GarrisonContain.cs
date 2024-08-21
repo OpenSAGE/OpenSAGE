@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -124,17 +126,17 @@ namespace OpenSage.Logic.Object
         public override BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; } = new(ObjectKinds.Infantry);
 
         public bool MobileGarrison { get; private set; }
-        public InitialRoster InitialRoster { get; private set; }
+        public InitialRoster? InitialRoster { get; private set; }
         public bool ImmuneToClearBuildingAttacks { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool IsEnclosingContainer { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
+        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme)]
-        public ObjectFilter PassengerFilter { get; private set; }
+        public ObjectFilter PassengerFilter { get; private set; } = new();
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
@@ -153,7 +155,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string TemplateId { get; private set; }
+        public required string TemplateId { get; init; }
         public int Count { get; private set; }
     }
 }

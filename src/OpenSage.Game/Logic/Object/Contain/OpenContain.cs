@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using FixedMath.NET;
@@ -295,11 +297,11 @@ namespace OpenSage.Logic.Object
             { "ShouldDrawPips", (parser, x) => x.ShouldDrawPips = parser.ParseBoolean() },
         };
 
-        public virtual BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; }
+        public virtual BitArray<ObjectKinds> AllowInsideKindOf { get; protected set; } = new();
         public BitArray<ObjectKinds>? ForbidInsideKindOf { get; private set; }
         public int ContainMax { get; private set; }
-        public string EnterSound { get; private set; }
-        public string ExitSound { get; private set; }
+        public string? EnterSound { get; private set; }
+        public string? ExitSound { get; private set; }
         public Percentage DamagePercentToUnits { get; private set; }
         public bool PassengersInTurret { get; private set; }
         public bool AllowAlliesInside { get; private set; }

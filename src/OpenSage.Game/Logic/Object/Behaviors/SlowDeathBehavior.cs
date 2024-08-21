@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using ImGuiNET;
 using OpenSage.Content;
@@ -80,12 +82,12 @@ namespace OpenSage.Logic.Object
         {
             _phase = phase;
 
-            if (_moduleData.OCLs.TryGetValue(phase, out var ocl))
+            if (_moduleData.OCLs.TryGetValue(phase, out var ocl) && ocl != null)
             {
                 context.GameContext.ObjectCreationLists.Create(ocl.Value, context);
             }
 
-            if (_moduleData.FXs.TryGetValue(phase, out var fx))
+            if (_moduleData.FXs.TryGetValue(phase, out var fx) && fx != null)
             {
                 fx.Value.Execute(
                     new FXListExecutionContext(
@@ -218,8 +220,8 @@ namespace OpenSage.Logic.Object
         public int FlingPitch { get; private set; }
         public int FlingPitchVariance { get; private set; }
 
-        public Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>> OCLs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>>();
-        public Dictionary<SlowDeathPhase, LazyAssetReference<FXList>> FXs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<FXList>>();
+        public Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>?> OCLs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<ObjectCreationList>?>();
+        public Dictionary<SlowDeathPhase, LazyAssetReference<FXList>?> FXs { get; } = new Dictionary<SlowDeathPhase, LazyAssetReference<FXList>?>();
         public Dictionary<SlowDeathPhase, string> Weapons { get; } = new Dictionary<SlowDeathPhase, string>();
 
         [AddedIn(SageGame.Bfme)]
@@ -232,7 +234,7 @@ namespace OpenSage.Logic.Object
         public int FadeTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string Sound { get; private set; }
+        public string? Sound { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int DecayBeginTime { get; private set; }

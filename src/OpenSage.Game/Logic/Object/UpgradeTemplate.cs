@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
         public LogicFrameSpan BuildTime { get; private set; }
         public float BuildCost { get; private set; }
         public LazyAssetReference<MappedImage> ButtonImage { get; private set; }
-        public LazyAssetReference<BaseAudioEventInfo>? ResearchSound { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> ResearchSound { get; private set; }
         public string UnitSpecificSound { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]

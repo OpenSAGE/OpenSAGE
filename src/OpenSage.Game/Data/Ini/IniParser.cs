@@ -1,5 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -47,7 +50,7 @@ namespace OpenSage.Data.Ini
         private readonly AssetStore _assetStore;
 
         // Used for some things that need temporary storage, like AliasConditionState.
-        public object Temp { get; set; }
+        public object? Temp { get; set; }
         public Stack<object> BlockStack { get; set; } = new Stack<object>();
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
@@ -73,7 +76,7 @@ namespace OpenSage.Data.Ini
             }
 
             _directory = new Stack<string>();
-            _directory.Push(Path.GetDirectoryName(entry.FilePath));
+            _directory.Push(Path.GetDirectoryName(entry.FilePath)!);
             _dataContext = dataContext;
             _fileSystem = entry.FileSystem;
             _assetStore = assetStore;
@@ -85,7 +88,7 @@ namespace OpenSage.Data.Ini
             _currentBlockOrFieldStack = new Stack<string>();
         }
 
-        private TokenReader CreateTokenReader(FileSystemEntry entry, Encoding encoding)
+        private TokenReader CreateTokenReader(FileSystemEntry? entry, Encoding encoding)
         {
             string source;
 
@@ -100,7 +103,7 @@ namespace OpenSage.Data.Ini
                 source = "";
             }
 
-            return new TokenReader(source, entry.FilePath);
+            return new TokenReader(source, entry?.FilePath);
         }
 
         public void GoToNextLine() => _tokenReader.GoToNextLine();
@@ -557,7 +560,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.ArmorTemplates.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<FXList> ParseFXListReference()
+        public LazyAssetReference<FXList>? ParseFXListReference()
         {
             var name = ParseAssetReference().Replace("FX:", "");
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
@@ -571,7 +574,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.DamageFXs.GetLazyAssetReferenceByName(name);
         }
 
-        public LazyAssetReference<ObjectCreationList> ParseObjectCreationListReference()
+        public LazyAssetReference<ObjectCreationList>? ParseObjectCreationListReference()
         {
             var name = ParseAssetReference();
             return (!string.Equals(name, "NONE", StringComparison.OrdinalIgnoreCase))
@@ -655,7 +658,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.ObjectDefinitions.GetByName("DefaultThingTemplate");
         }
 
-        public LazyAssetReference<ObjectDefinition> ParseObjectReference(string label = null)
+        public LazyAssetReference<ObjectDefinition>? ParseObjectReference(string? label = null)
         {
             var name = label ?? ParseAssetReference();
 
@@ -689,7 +692,7 @@ namespace OpenSage.Data.Ini
             return _assetStore.GuiTextures.GetLazyAssetReferenceByName(fileName);
         }
 
-        public LazyAssetReference<Model> ParseModelReference()
+        public LazyAssetReference<Model>? ParseModelReference()
         {
             var fileName = ParseFileName();
             return (!string.Equals(fileName, "NONE", StringComparison.OrdinalIgnoreCase))
@@ -697,14 +700,14 @@ namespace OpenSage.Data.Ini
                 : null;
         }
 
-        public LazyAssetReference<Graphics.Animation.W3DAnimation> ParseAnimationReference()
+        public LazyAssetReference<Graphics.Animation.W3DAnimation>? ParseAnimationReference()
         {
             var token = GetNextToken();
 
             return ScanAnimationReference(token);
         }
 
-        public LazyAssetReference<Graphics.Animation.W3DAnimation> ScanAnimationReference(in IniToken token)
+        public LazyAssetReference<Graphics.Animation.W3DAnimation>? ScanAnimationReference(in IniToken token)
         {
             return (!string.Equals(token.Text, "NONE", StringComparison.OrdinalIgnoreCase))
                 ? _assetStore.ModelAnimations.GetLazyAssetReferenceByName(token.Text)
@@ -801,7 +804,7 @@ namespace OpenSage.Data.Ini
             return new RandomVariable(low, high, distributionType);
         }
 
-        public IniToken GetNextToken(char[] separators = null)
+        public IniToken GetNextToken(char[]? separators = null)
         {
             var result = GetNextTokenOptional(separators);
             if (result == null)
@@ -812,7 +815,7 @@ namespace OpenSage.Data.Ini
             return result.Value;
         }
 
-        private bool ResolveFunc(string text, out IniToken? resolved)
+        private bool ResolveFunc(string text, [NotNullWhen(true)] out IniToken? resolved)
         {
             if (!text.StartsWith("#") || text.StartsWith("#(")) //hacky for e.g. #(MODEL)_WLK as animation names
             {
@@ -850,7 +853,7 @@ namespace OpenSage.Data.Ini
             return new IniToken(ParseUtility.ToInvariant(value), _tokenReader.CurrentPosition);
         }
 
-        public IniToken? GetNextTokenOptional(char[] separators = null)
+        public IniToken? GetNextTokenOptional(char[]? separators = null)
         {
             var result = _tokenReader.NextToken(separators ?? Separators);
 
@@ -869,7 +872,7 @@ namespace OpenSage.Data.Ini
             return result;
         }
 
-        public IniToken? PeekNextTokenOptional(char[] separators = null)
+        public IniToken? PeekNextTokenOptional(char[]? separators = null)
         {
             return _tokenReader.PeekToken(separators ?? Separators);
         }
@@ -889,8 +892,8 @@ namespace OpenSage.Data.Ini
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider,
-            IIniFieldParserProvider<T> fieldParserProviderFallback = null,
-            T resultObject = null)
+            IIniFieldParserProvider<T>? fieldParserProviderFallback = null,
+            T? resultObject = null)
             where T : class, new()
         {
             var result = resultObject ?? new T();
@@ -930,7 +933,7 @@ namespace OpenSage.Data.Ini
 
         public T ParseBlock<T>(
            IIniFieldParserProvider<T> fieldParserProvider,
-           T resultObject = null)
+           T? resultObject = null)
            where T : class, new()
         {
             var result = resultObject ?? new T();
@@ -944,7 +947,7 @@ namespace OpenSage.Data.Ini
             T result,
             IIniFieldParserProvider<T> fieldParserProvider,
             bool isIncludedBlock = false,
-            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
+            IIniFieldParserProvider<T>? fieldParserProviderFallback = null)
             where T : class, new()
         {
             BlockStack.Push(result);
@@ -1029,7 +1032,7 @@ namespace OpenSage.Data.Ini
             }
 
             var path = Path.Combine(directory, includeFileName);
-            _directory.Push(Path.GetDirectoryName(path));
+            _directory.Push(Path.GetDirectoryName(path)!);
             var includeEntry = _fileSystem.GetFile(path);
             // I doubt locale-specific-encoded files will ever include other files.
             // But if they do, it's reasonable to assume included files use the same encoding as the includer.
@@ -1072,16 +1075,16 @@ namespace OpenSage.Data.Ini
                 if (fieldName == "#define")
                 {
                     var macroName = ParseIdentifier();
-                    var macroExpansionToken = _tokenReader.NextToken(Separators);
-                    if (ResolveFunc(macroExpansionToken.Value.Text, out var resolved))
+                    var macroExpansionToken = _tokenReader.NextToken(Separators) ?? throw new IniParseException($"Missing macro expansion", token.Value.Position);
+                    if (ResolveFunc(macroExpansionToken.Text, out var resolved))
                     {
-                        macroExpansionToken = resolved;
+                        macroExpansionToken = resolved.Value;
                     }
 
-                    if (!_dataContext.Defines.TryAdd(macroName.ToUpper(), macroExpansionToken.Value))
+                    if (!_dataContext.Defines.TryAdd(macroName.ToUpper(), macroExpansionToken))
                     {
                         // Overwrite the existing macro. This is necessary for BFME2 RotWk
-                        _dataContext.Defines[macroName.ToUpper()] = macroExpansionToken.Value;
+                        _dataContext.Defines[macroName.ToUpper()] = macroExpansionToken;
                     }
                 }
                 else if (fieldName == "#include")
@@ -1093,7 +1096,7 @@ namespace OpenSage.Data.Ini
                     }
 
                     var includePath = Path.Combine(_directory.Peek(), includeFileName);
-                    var includeEntry = _fileSystem.GetFile(includePath);
+                    var includeEntry = _fileSystem.GetFile(includePath) ?? throw new InvalidOperationException();
                     // I doubt locale-specific-encoded files will ever include other files.
                     // But if they do, it's reasonable to assume included files use the same encoding as the includer.
                     var includeParser = new IniParser(includeEntry, _assetStore, SageGame, _dataContext, _encoding);

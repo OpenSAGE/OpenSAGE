@@ -52,7 +52,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Rendering", "OpenS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mathematics.Tests", "OpenSage.Mathematics.Tests\OpenSage.Mathematics.Tests.csproj", "{DCD60D8E-36FF-4C5C-B71B-19EA41A5FDF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.IO", "OpenSage.IO\OpenSage.IO.csproj", "{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.IO", "OpenSage.IO\OpenSage.IO.csproj", "{CE6B09A7-CE42-4F9F-9274-B16979DC61A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{C0257C6F-2554-414D-BDF5-FFFC35C7CC39}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

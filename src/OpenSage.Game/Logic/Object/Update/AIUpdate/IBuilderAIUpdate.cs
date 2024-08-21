@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.Object;
+﻿#nullable enable
+
+namespace OpenSage.Logic.Object;
 
 /// <summary>
 /// Should be implemented by any class which inherits <see cref="AIUpdate"/> and is used by a <see cref="ObjectKinds.Dozer"/> unit.

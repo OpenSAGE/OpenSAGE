@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;

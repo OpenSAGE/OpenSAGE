@@ -19,8 +19,6 @@ namespace OpenSage.Logic.Object
 
         private readonly UnknownStateData _unknownStateData = new();
 
-        private uint _unknownInt;
-
         internal DeployStyleAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData) : base(gameObject, moduleData)
         {
         }

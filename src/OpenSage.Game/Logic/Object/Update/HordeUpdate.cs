@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#nullable enable
+
+using System.Linq;
 using ImGuiNET;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
@@ -143,7 +145,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// what KindOf's must match to count towards horde-ness
         /// </summary>
-        public BitArray<ObjectKinds> KindOf { get; private set; }
+        public BitArray<ObjectKinds> KindOf { get; private set; } = new();
         /// <summary>
         /// do we only count allies towards horde status?
         /// </summary>

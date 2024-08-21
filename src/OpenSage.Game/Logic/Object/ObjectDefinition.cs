@@ -793,9 +793,9 @@ namespace OpenSage.Logic.Object
 
         public LazyAssetReference<BaseAudioEventInfo> SoundOnDamaged { get; private set; }
         public LazyAssetReference<BaseAudioEventInfo> SoundOnReallyDamaged { get; private set; }
-        public LazyAssetReference<BaseAudioEventInfo>? SoundDie { get; private set; }
-        public LazyAssetReference<BaseAudioEventInfo>? SoundDieFire { get; private set; }
-        public LazyAssetReference<BaseAudioEventInfo>? SoundDieToxin { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundDie { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundDieFire { get; private set; }
+        public LazyAssetReference<BaseAudioEventInfo> SoundDieToxin { get; private set; }
         public string SoundStealthOn { get; private set; }
         public string SoundStealthOff { get; private set; }
         public string SoundCrush { get; private set; }
