@@ -11,8 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ImGui.NET" />
-    <PackageReference Include="Veldrid.ImGui" />
     <PackageReference Include="Veldrid.StartupUtilities" />
     <PackageReference Include="SharpFileDialog" />
   </ItemGroup>
@@ -21,6 +19,7 @@
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj" />
     <ProjectReference Include="..\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj" />
+    <ProjectReference Include="..\Veldrid.ImGui\Veldrid.ImGui.csproj" />
   </ItemGroup>
 
 </Project>

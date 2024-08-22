@@ -54,7 +54,7 @@ namespace OpenSage.Diagnostics
 
         public void Draw()
         {
-            ImGui.BeginChild("RenderedViewContent", Vector2.Zero, false, ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild("RenderedViewContent", Vector2.Zero, ImGuiChildFlags.None, ImGuiWindowFlags.NoMove);
 
             var currentSize = ImGui.GetContentRegionAvail();
             if (_cachedSize != currentSize)

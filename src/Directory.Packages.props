@@ -5,7 +5,7 @@
     <PackageVersion Include="ConsoleTables" Version="2.6.1" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="FixedMath.NET" Version="1.0.1" />
-    <PackageVersion Include="ImGui.NET" Version="1.89.5" />
+    <PackageVersion Include="ImGui.NET" Version="1.91.0.1" />
     <PackageVersion Include="LiteNetLib" Version="1.2.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
@@ -22,7 +22,6 @@
     <PackageVersion Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
     <PackageVersion Include="Veldrid" Version="4.9.0" />
-    <PackageVersion Include="Veldrid.ImGui" Version="5.72" />
     <PackageVersion Include="Veldrid.RenderDoc" Version="1.0.1" />
     <PackageVersion Include="Veldrid.SDL2" Version="4.9.0" />
     <PackageVersion Include="Veldrid.StartupUtilities" Version="4.9.0" />

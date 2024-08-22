@@ -31,7 +31,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
         public override void Draw()
         {
-            ImGui.BeginChild("object states", new Vector2(200, 0), true, 0);
+            ImGui.BeginChild("object states", new Vector2(200, 0), ImGuiChildFlags.Border, 0);
 
             for (var i = 0; i < _modelConditionStates.Count; i++)
             {

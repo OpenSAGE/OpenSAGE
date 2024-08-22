@@ -193,7 +193,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             if (_bigArchive != null)
             {
-                ImGui.BeginChild("body", new Vector2(0, -36), false, 0);
+                ImGui.BeginChild("body", new Vector2(0, -36));
 
                 DrawFilesList(new Vector2(window.Width, window.Height));
 
@@ -249,14 +249,14 @@ namespace OpenSage.Tools.BigEditor.UI
 
         private void DrawFilesList(Vector2 windowSize)
         {
-            ImGui.BeginChild("sidebar", new Vector2(350, 0), true, 0);
+            ImGui.BeginChild("sidebar", new Vector2(350, 0), ImGuiChildFlags.Border);
 
             ImGui.PushItemWidth(-1);
             ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
             UpdateSearch(searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("files list", Vector2.Zero, true);
+            ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Border);
 
             ImGui.Columns(2, "Files", false);
 
@@ -377,7 +377,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
         private void DrawStatusPanel()
         {
-            ImGui.BeginChild("statusbar", new Vector2(0, 30), true, 0);
+            ImGui.BeginChild("statusbar", new Vector2(0, 30), ImGuiChildFlags.Border);
 
             ImGui.Text($"{Path.GetFileName(_bigArchive.FilePath)} | Version: {_bigArchive.Version} | Size: {ImGuiUtility.GetFormatedSize(_bigArchive.Size)} | Files: {_bigArchive.Entries.Count}");
 

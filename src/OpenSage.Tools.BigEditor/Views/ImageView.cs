@@ -30,7 +30,7 @@ namespace OpenSage.Tools.BigEditor.Views
 
         public override void Draw()
         {
-            ImGui.BeginChild("mip level", new Vector2(150, 0), true, 0);
+            ImGui.BeginChild("mip level", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
 
             for (var i = 0u; i < _texture.MipLevels; i++)
             {
