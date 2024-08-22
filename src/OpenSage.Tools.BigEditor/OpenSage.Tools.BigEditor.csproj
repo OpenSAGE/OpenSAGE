@@ -14,13 +14,13 @@
     <PackageReference Include="ImGui.NET" />
     <PackageReference Include="Veldrid.ImGui" />
     <PackageReference Include="Veldrid.StartupUtilities" />
-    <PackageReference Include="Veldrid.ImageSharp" />
     <PackageReference Include="SharpFileDialog" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
     <ProjectReference Include="..\OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj" />
+    <ProjectReference Include="..\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj" />
   </ItemGroup>
 
 </Project>

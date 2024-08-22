@@ -1,4 +1,6 @@
-﻿using OpenSage.Content.Translation;
+﻿#nullable enable
+
+using OpenSage.Content.Translation;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
@@ -15,9 +17,9 @@ namespace OpenSage.Gui.Apt
         private bool IsHovered { get; set; }
 
         public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
-        public CustomRenderCallback RenderCallback;
+        public CustomRenderCallback? RenderCallback;
 
-        public override void Create(Character character, AptContext context, SpriteItem parent = null)
+        public override void Create(Character character, AptContext context, SpriteItem? parent = null)
         {
             Character = character;
             Context = context;
@@ -45,7 +47,7 @@ namespace OpenSage.Gui.Apt
             _lastUpdate = gt;
             if (t.Value.Length > 0)
             {
-                string textValue = null;
+                string? textValue = null;
                 try
                 {
                     var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
@@ -61,7 +63,7 @@ namespace OpenSage.Gui.Apt
 
                 if (TextValue?.Original != textValue)
                 {
-                    TextValue = LocalizedString.CreateApt(textValue);
+                    TextValue = LocalizedString.CreateApt(textValue ?? "");
                 }
             }
         }

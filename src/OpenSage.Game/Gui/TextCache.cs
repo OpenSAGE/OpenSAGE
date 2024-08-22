@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using ImGuiNET;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
@@ -194,14 +193,25 @@ namespace OpenSage.Gui
                     var drawOptions = new DrawingOptions
                     {
                         GraphicsOptions = new GraphicsOptions { Antialias = true, },
-                        TextOptions = new TextOptions
-                        {
-                            WrapTextWidth = size.Width,
-                            HorizontalAlignment = key.Alignment == TextAlignment.Center
-                                ? HorizontalAlignment.Center
-                                : HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Center,
-                        },
+                    };
+
+                    var wrappingLength = size.Width;
+                    var horizontalAlignment = key.Alignment == TextAlignment.Center
+                        ? HorizontalAlignment.Center
+                        : HorizontalAlignment.Left;
+                    var verticalAlignment = VerticalAlignment.Center;
+
+                    if (horizontalAlignment == HorizontalAlignment.Center)
+                    {
+                        location.X = size.Width / 2f;
+                    }
+
+                    var regularRenderOptions = new RichTextOptions(actualFont)
+                    {
+                        WrappingLength = wrappingLength,
+                        HorizontalAlignment = horizontalAlignment,
+                        VerticalAlignment = verticalAlignment,
+                        Origin = location,
                     };
 
                     var drawColor = new Bgra32(
@@ -212,60 +222,51 @@ namespace OpenSage.Gui
 
                     var ctx = x.DrawText(
                         drawOptions,
+                        regularRenderOptions,
                         text1,
-                        actualFont,
-                        drawColor,
-                        location);
+                        new SolidBrush(drawColor),
+                        null);
 
                     if (hotkeyIndex > -1)
                     {
-                        var continuedDrawOptions = new DrawingOptions
-                        {
-                            GraphicsOptions = drawOptions.GraphicsOptions,
-                            TextOptions = new TextOptions
-                            {
-                                WrapTextWidth = drawOptions.TextOptions.WrapTextWidth,
-                                HorizontalAlignment = HorizontalAlignment.Left,
-                                VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
-                            },
-                        };
-
-                        var regularRenderOptions = new RendererOptions(actualFont)
-                        {
-                            WrappingWidth = drawOptions.TextOptions.WrapTextWidth,
-                            HorizontalAlignment = drawOptions.TextOptions.HorizontalAlignment,
-                            VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
-                            Origin = location,
-                        };
-
                         var ogSize = TextMeasurer.MeasureBounds(text1, regularRenderOptions);
 
-                        var boldRenderOptions = new RendererOptions(hotkeyFont)
+                        var boldRenderOptions = new RichTextOptions(hotkeyFont)
                         {
-                            WrappingWidth = drawOptions.TextOptions.WrapTextWidth,
+                            WrappingLength = wrappingLength,
                             HorizontalAlignment = HorizontalAlignment.Left,
-                            VerticalAlignment = drawOptions.TextOptions.VerticalAlignment,
+                            VerticalAlignment = verticalAlignment,
                             Origin = location with { X = ogSize.Right },
                         };
 
                         var boldChar = key.Text[hotkeyIndex + 1].ToString();
                         var boldSize = TextMeasurer.MeasureBounds(boldChar, boldRenderOptions);
+
+                        var remainingRenderOptions = new RichTextOptions(actualFont)
+                        {
+                            WrappingLength = wrappingLength,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            VerticalAlignment = verticalAlignment,
+                            Origin = new Vector2(boldSize.Right, regularRenderOptions.Origin.Y),
+                        };
+
                         ctx.DrawText(
-                                continuedDrawOptions,
+                                drawOptions,
+                                boldRenderOptions,
                                 boldChar,
-                                hotkeyFont,
-                                new Bgra32(
-                                    255, // hotkey text is yellow
-                                    255,
-                                    0,
-                                    (byte)(color.A * 255.0f)),
-                                boldRenderOptions.Origin)
+                                new SolidBrush(
+                                    new Bgra32(
+                                        255, // hotkey text is yellow
+                                        255,
+                                        0,
+                                        (byte)(color.A * 255.0f))),
+                                null)
                             .DrawText(
-                                continuedDrawOptions,
+                                drawOptions,
+                                remainingRenderOptions,
                                 key.Text[(hotkeyIndex + 2)..],
-                                actualFont,
-                                drawColor,
-                                location with { X = boldSize.Right });
+                                new SolidBrush(drawColor),
+                                null);
                     }
                 }
                 catch
@@ -277,11 +278,11 @@ namespace OpenSage.Gui
             Texture texture;
 
             // Draw image to texture.
-            if (!image.TryGetSinglePixelSpan(out Span<Bgra32> pixelSpan))
+            if (!image.DangerousTryGetSinglePixelMemory(out Memory<Bgra32> pixelSpan))
             {
                 throw new InvalidOperationException("Unable to get image pixelspan.");
             }
-            fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+            using (var pin = pixelSpan.Pin())
             {
                 texture = _graphicsDevice.ResourceFactory.CreateTexture(
                     TextureDescription.Texture2D(
@@ -294,7 +295,7 @@ namespace OpenSage.Gui
 
                 _graphicsDevice.UpdateTexture(
                     texture,
-                    new IntPtr(pin),
+                    new IntPtr(pin.Pointer),
                     (uint) (image.Width * image.Height * 4),
                     0, 0, 0,
                     texture.Width,

@@ -1,4 +1,6 @@
-﻿﻿using System.Collections.Generic;
+﻿#nullable enable
+
+﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;

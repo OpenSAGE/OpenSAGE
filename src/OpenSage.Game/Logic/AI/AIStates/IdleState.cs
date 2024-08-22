@@ -2,7 +2,7 @@
 {
     internal sealed class IdleState : State
     {
-        public const uint Id = 0;
+        public const uint StateId = 0;
 
         private ushort _unknownShort;
         private bool _unknownBool1;

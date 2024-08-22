@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
-using OpenSage.Diagnostics.Util;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
@@ -19,7 +20,7 @@ namespace OpenSage.Logic.Object
         private readonly ProductionUpdateModuleData _moduleData;
         private readonly List<ProductionJob> _productionQueue = new();
 
-        private IProductionExit _productionExit;
+        private IProductionExit? _productionExit;
         private IProductionExit? ProductionExit => _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
 
         private int _doorIndex;
@@ -29,7 +30,7 @@ namespace OpenSage.Logic.Object
         private readonly DoorStatus[] _doorStatuses = new DoorStatus[4];
 
         // todo: persist or remove
-        public GameObject ParentHorde;
+        public GameObject? ParentHorde;
 
         private enum DoorState
         {
@@ -386,15 +387,9 @@ namespace OpenSage.Logic.Object
 
         private void MoveProducedObjectOut(GameObject producedUnit)
         {
-            if (producedUnit == null)
-            {
-                return;
-            }
-
             if (ProductionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(producedUnit.Definition))
             {
                 parkingPlace.ParkVehicle(producedUnit);
-                producedUnit = null;
                 return;
             }
 
@@ -671,7 +666,7 @@ namespace OpenSage.Logic.Object
         /// </remarks>
         public Dictionary<string, uint> QuantityModifiers { get; } = [];
 
-        public BitArray<DisabledType> DisabledTypesToProcess { get; private set; }
+        public BitArray<DisabledType> DisabledTypesToProcess { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme)]
         public bool VeteranUnitsFromVeteranFactory { get; private set; }
@@ -680,10 +675,10 @@ namespace OpenSage.Logic.Object
         public bool SetBonusModelConditionOnSpeedBonus { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string BonusForType { get; private set; }
+        public string? BonusForType { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string SpeedBonusAudioLoop { get; private set; }
+        public string? SpeedBonusAudioLoop { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int UnitInvulnerableTime { get; private set; }
@@ -718,10 +713,10 @@ namespace OpenSage.Logic.Object
             { "HeroRevive", (parser, x) => x.HeroRevive = parser.ParseBoolean() }
         };
 
-        public string RequiredUpgrade { get; private set; }
+        public string? RequiredUpgrade { get; private set; }
         public float CostMultiplier { get; private set; }
         public float TimeMultiplier { get; private set; }
-        public ObjectFilter ModifierFilter { get; private set; }
+        public ObjectFilter ModifierFilter { get; private set; } = new();
         public bool HeroPurchase { get; private set; }
         public bool HeroRevive { get; private set; }
     }

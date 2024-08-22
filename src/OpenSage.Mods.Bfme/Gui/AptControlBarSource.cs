@@ -201,7 +201,7 @@ namespace OpenSage.Mods.Bfme
                         if (count > 1)
                         {
                             var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 4))));
-                            renderContext.GetActiveDrawingContext().DrawText(count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+                            renderContext.GetActiveDrawingContext().DrawText(count.ToString(), _font, OpenSage.Gui.TextAlignment.Center, _fontColor, textRect);
                         }
                     }
                 };

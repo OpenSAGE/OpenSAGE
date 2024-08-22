@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.IO;
 using OpenSage.Data.Sav;
 using OpenSage.Logic.Object;
@@ -85,7 +87,7 @@ namespace OpenSage.Tests.Data.Sav
 
             public override void PersistAsciiStringValue(ref string value)
             {
-                string comparisonValue = default;
+                string? comparisonValue = default;
                 _comparisonReader.PersistAsciiStringValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
@@ -181,7 +183,7 @@ namespace OpenSage.Tests.Data.Sav
 
             public override void PersistUnicodeStringValue(ref string value)
             {
-                string comparisonValue = default;
+                string? comparisonValue = default;
                 _comparisonReader.PersistUnicodeStringValue(ref comparisonValue);
 
                 CheckEquality(value, comparisonValue);
@@ -203,9 +205,9 @@ namespace OpenSage.Tests.Data.Sav
                 PersistUInt32Value(ref value.RawValue);
             }
 
-            private static void CheckEquality<T>(T value, T comparisonValue)
+            private static void CheckEquality<T>(T? value, T? comparisonValue)
             {
-                if (!value.Equals(comparisonValue))
+                if (Equals(value, comparisonValue))
                 {
                     throw new InvalidStateException($"Actual value '{value}' does not match comparison value '{comparisonValue}'");
                 }

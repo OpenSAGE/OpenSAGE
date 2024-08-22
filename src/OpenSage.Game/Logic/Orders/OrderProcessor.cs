@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace OpenSage.Logic.Orders
         {
             foreach (var order in orders)
             {
-                Player player = null;
+                Player? player = null;
 
                 if (order.PlayerIndex == -1)
                 {
@@ -105,7 +107,7 @@ namespace OpenSage.Logic.Orders
                             var dozer = player.SelectedUnits.SingleOrDefault(u => u.Definition.KindOf.Get(ObjectKinds.Dozer));
                             (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(gameObject); // todo: I don't love this cast; it would be nice to get rid of it
 
-                            _game.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
+                            _game.Audio.PlayAudioEvent(dozer, dozer?.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
                         }
                         break;
                     case OrderType.CancelBuild:
@@ -127,7 +129,7 @@ namespace OpenSage.Logic.Orders
                             var dozer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
                             (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
 
-                            _game.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
+                            _game.Audio.PlayAudioEvent(dozer, dozer?.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
                         }
                         break;
                     case OrderType.BeginUpgrade:
@@ -225,7 +227,7 @@ namespace OpenSage.Logic.Orders
 
                             (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
 
-                            _game.Audio.PlayAudioEvent(repairer, repairer.Definition.UnitSpecificSounds?.VoiceRepair?.Value);
+                            _game.Audio.PlayAudioEvent(repairer, repairer?.Definition.UnitSpecificSounds?.VoiceRepair?.Value);
                         }
                         break;
 

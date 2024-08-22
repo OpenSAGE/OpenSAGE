@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI
 
         public AIUpdateStateMachine(GameObject gameObject)
         {
-            AddState(IdleState.Id, new IdleState());
+            AddState(IdleState.StateId, new IdleState());
             AddState(1, new MoveTowardsState());
             AddState(2, new FollowWaypointsState(true));
             AddState(3, new FollowWaypointsState(false));
@@ -167,7 +167,7 @@ namespace OpenSage.Logic.AI
     {
         public AIState32StateMachine()
         {
-            AddState(IdleState.Id, new IdleState());
+            AddState(IdleState.StateId, new IdleState());
         }
 
         public override void Persist(StatePersister reader)

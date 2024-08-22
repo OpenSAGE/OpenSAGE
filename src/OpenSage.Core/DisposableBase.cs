@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage
 {
@@ -76,10 +77,11 @@ namespace OpenSage
         /// Adds a disposable object to the list of the objects to dispose.
         /// </summary>
         /// <param name="toDisposeArg">To dispose.</param>
-        protected internal T AddDisposable<T>(T toDisposeArg)
+        [return: NotNullIfNotNull(nameof(toDisposeArg))]
+        protected internal T? AddDisposable<T>(T? toDisposeArg)
             where T : IDisposable
         {
-            if (!ReferenceEquals(toDisposeArg, null))
+            if (toDisposeArg is not null)
             {
                 _disposables.Add(toDisposeArg);
             }
@@ -113,10 +115,10 @@ namespace OpenSage
         /// Removes this object from the ToDispose list.
         /// </summary>
         /// <param name="objectToDispose">Object to dispose.</param>
-        protected internal void RemoveAndDispose<T>(ref T objectToDispose)
+        protected internal void RemoveAndDispose<T>(ref T? objectToDispose)
             where T : class, IDisposable
         {
-            if (!ReferenceEquals(objectToDispose, null))
+            if (objectToDispose is not null)
             {
                 _disposables.Remove(objectToDispose);
                 objectToDispose.Dispose();
@@ -132,10 +134,10 @@ namespace OpenSage
         /// Useful to make properties a bit cleaner.
         /// </summary>
         /// <param name="objectToDispose">Object to dispose.</param>
-        protected internal void DisposeAndAssign<T>(ref T objectToDispose, T newValue)
+        protected internal void DisposeAndAssign<T>(ref T? objectToDispose, T newValue)
             where T : class, IDisposable
         {
-            if (!ReferenceEquals(objectToDispose, null))
+            if (objectToDispose is not null)
             {
                 _disposables.Remove(objectToDispose);
                 objectToDispose.Dispose();
@@ -151,7 +153,7 @@ namespace OpenSage
         protected internal void RemoveToDispose<T>(T toDisposeArg)
             where T : IDisposable
         {
-            if (!ReferenceEquals(toDisposeArg, null))
+            if (toDisposeArg is not null)
             {
                 _disposables.Remove(toDisposeArg);
             }

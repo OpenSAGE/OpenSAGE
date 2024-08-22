@@ -184,11 +184,11 @@ namespace OpenSage.Gui
 
         public static SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)
         {
-            var textSize = TextMeasurer.Measure(
+            var textSize = TextMeasurer.MeasureSize(
                 text,
-                new RendererOptions(font)
+                new TextOptions(font)
                 {
-                    WrappingWidth = width,
+                    WrappingLength = width,
                     HorizontalAlignment = textAlignment == TextAlignment.Center
                         ? HorizontalAlignment.Center
                         : HorizontalAlignment.Left,
@@ -220,7 +220,7 @@ namespace OpenSage.Gui
                 return;
             }
 
-            var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            var actualFont = _contentManager.FontManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.IsBold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
             var actualColor = GetModifiedColorWithCurrentOpacity(color);

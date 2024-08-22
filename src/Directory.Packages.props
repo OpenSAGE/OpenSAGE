@@ -13,8 +13,8 @@
     <PackageVersion Include="NLog" Version="5.3.3" />
     <PackageVersion Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageVersion Include="OptimizedPriorityQueue" Version="5.1.0" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="1.0.4" />
-    <PackageVersion Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.5" />
+    <PackageVersion Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
     <PackageVersion Include="SharpAudio" Version="1.0.27-beta" />
     <PackageVersion Include="SharpAudio.Codec" Version="1.0.27-beta" />
     <PackageVersion Include="SharpFileDialog" Version="2.0.0" />
@@ -22,7 +22,6 @@
     <PackageVersion Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
     <PackageVersion Include="Veldrid" Version="4.9.0" />
-    <PackageVersion Include="Veldrid.ImageSharp" Version="4.9.0" />
     <PackageVersion Include="Veldrid.ImGui" Version="5.72" />
     <PackageVersion Include="Veldrid.RenderDoc" Version="1.0.1" />
     <PackageVersion Include="Veldrid.SDL2" Version="4.9.0" />

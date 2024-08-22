@@ -16,8 +16,6 @@ public sealed class UnknownStateData : IPersistableObject
 
     private DamageData _damageData;
 
-    private bool _unknownBool;
-
     public void Persist(StatePersister persister)
     {
         // these seem to have something to do with the current or next state

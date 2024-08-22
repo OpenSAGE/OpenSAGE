@@ -51,9 +51,9 @@ namespace OpenSage.Content
 
 
             var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{FallbackEmbeddedFont}-Regular.ttf");
-            _fallbackFonts.Install(fontStream);
+            _fallbackFonts.Add(fontStream);
             fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{FallbackEmbeddedFont}-Bold.ttf");
-            _fallbackFonts.Install(fontStream);
+            _fallbackFonts.Add(fontStream);
         }
 
         public Font GetOrCreateFont(float fontSize, FontWeight fontWeight)
@@ -70,7 +70,7 @@ namespace OpenSage.Content
                 var alternatives = _fontFallbackSettings.GetFallbackList(fontName);
                 var fontNameFound = alternatives
                     .Prepend(fontName)
-                    .FirstOrDefault(name => SystemFonts.TryFind(name, out _));
+                    .FirstOrDefault(name => SystemFonts.TryGet(name, out _));
                 if (fontNameFound != fontName)
                 {
                     Logger.Info($"Requesting font {fontName}, actually found {fontNameFound}");
@@ -87,7 +87,7 @@ namespace OpenSage.Content
                 else
                 {
                     Logger.Info($"Will use embedded font as fallback for font {fontName}");
-                    font = _fallbackFonts.CreateFont(FallbackEmbeddedFont, fontSize, fontStyle);
+                    font = _fallbackFonts.Get(FallbackEmbeddedFont).CreateFont(fontSize, fontStyle);
                 }
                 _cachedFonts.Add(key, font);
             }

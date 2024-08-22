@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#nullable enable
+
+using System.Linq;
 
 namespace OpenSage.Content.Translation
 {
@@ -19,7 +21,7 @@ namespace OpenSage.Content.Translation
         }
         public static LocalizedString CreateApt(string original)
         {
-            var trimmed = original?.Replace("$", "APT:") // All string values begin with $
+            var trimmed = original.Replace("$", "APT:") // All string values begin with $
                 .Split('&').First(); // Query strings after ampersand
 
             return new LocalizedString(trimmed);

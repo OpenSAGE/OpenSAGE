@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -90,7 +92,7 @@ namespace OpenSage.Logic.Object
             return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
         }
 
-        internal override GameObject FindClosestSupplyWarehouse(BehaviorUpdateContext context)
+        internal override GameObject? FindClosestSupplyWarehouse(BehaviorUpdateContext context)
         {
             if (_moduleData.HarvestTrees)
             {
@@ -100,7 +102,7 @@ namespace OpenSage.Logic.Object
                     _moduleData.SupplyWarehouseScanDistance,
                     new PartitionQueries.KindOfQuery(ObjectKinds.Tree));
 
-                GameObject closestTree = null;
+                GameObject? closestTree = null;
                 var closestDistance = float.MaxValue;
 
                 foreach (var tree in nearbyTrees)

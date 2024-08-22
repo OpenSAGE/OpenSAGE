@@ -1,3 +1,5 @@
+﻿#nullable enable
+
 using System;
 using System.Linq;
 using OpenSage.Content;
@@ -11,6 +13,7 @@ using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Logic.Object.Production;
 using OpenSage.Mathematics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -36,6 +39,7 @@ namespace OpenSage.Mods.Generals.Gui
         private ControlBarState State
         {
             get => _state;
+            [MemberNotNull(nameof(_state))]
             set
             {
                 if (_state != value)
@@ -64,32 +68,32 @@ namespace OpenSage.Mods.Generals.Gui
 
         private readonly Button _resize;
 
-        private readonly Image _resizeDownBackground;
-        private readonly Image _resizeDownHover;
-        private readonly Image _resizeDownPushed;
+        private readonly Image? _resizeDownBackground;
+        private readonly Image? _resizeDownHover;
+        private readonly Image? _resizeDownPushed;
 
-        private readonly Image _resizeUpBackground;
-        private readonly Image _resizeUpHover;
-        private readonly Image _resizeUpPushed;
+        private readonly Image? _resizeUpBackground;
+        private readonly Image? _resizeUpHover;
+        private readonly Image? _resizeUpPushed;
 
-        private readonly Image _commandButtonHover;
-        private readonly Image _commandButtonPushed;
+        private readonly Image? _commandButtonHover;
+        private readonly Image? _commandButtonPushed;
 
         internal Game Game { get; }
 
-        public Image Rank1OverlayLarge { get; }
-        public Image Rank2OverlayLarge { get; }
-        public Image Rank3OverlayLarge { get; }
-        public Image Rank1OverlaySmall { get; }
-        public Image Rank2OverlaySmall { get; }
-        public Image Rank3OverlaySmall { get; }
+        public Image? Rank1OverlayLarge { get; }
+        public Image? Rank2OverlayLarge { get; }
+        public Image? Rank3OverlayLarge { get; }
+        public Image? Rank1OverlaySmall { get; }
+        public Image? Rank2OverlaySmall { get; }
+        public Image? Rank3OverlaySmall { get; }
 
-        public Image ChinaEmptyContainer { get; }
-        public Image UsaEmptyContainer { get; }
-        public Image GlaEmptyContainer { get; }
+        public Image? ChinaEmptyContainer { get; }
+        public Image? UsaEmptyContainer { get; }
+        public Image? GlaEmptyContainer { get; }
 
-        public Image CommandButtonHover => _commandButtonHover;
-        public Image CommandButtonPush => _commandButtonPushed;
+        public Image? CommandButtonHover => _commandButtonHover;
+        public Image? CommandButtonPush => _commandButtonPushed;
 
         // when no commandset is defined for a structure and it has a garrisoncontain module, buttons are generated automagically
         private LazyAssetReference<CommandButton> StructureExit { get; }
@@ -113,8 +117,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             var schemeType = _scheme.GetType();
 
-            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(_scheme);
-            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(_scheme);
+            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(_scheme)!;
+            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(_scheme)!;
             var width = (int) (progress * (lr.X - ul.X));
             lr = new Point2D(ul.X + width, lr.Y);
 
@@ -123,12 +127,18 @@ namespace OpenSage.Mods.Generals.Gui
 
         public void ShowDescription(string name, string cost, string description)
         {
-            var lblName = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextName") as Label;
-            lblName.Text = name;
-            var lblCost = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextCost") as Label;
-            lblCost.Text = cost;
-            var lblDesc = _descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextDescription") as Label;
-            lblDesc.Text = description;
+            if (_descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextName") is Label lblName)
+            {
+                lblName.Text = name;
+            }
+            if (_descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextCost") is Label lblCost)
+            {
+                lblCost.Text = cost;
+            }
+            if (_descriptionWindow.Controls.FindControl("ControlBarPopupDescription.wnd:StaticTextDescription") is Label lblDesc)
+            {
+                lblDesc.Text = description;
+            }
             _descriptionWindow.Show();
         }
 
@@ -159,12 +169,12 @@ namespace OpenSage.Mods.Generals.Gui
 
             _commandWindow = FindControl("CommandWindow");
 
-            _moneyDisplay = FindControl("MoneyDisplay") as Label;
+            _moneyDisplay = (Label)FindControl("MoneyDisplay");
             _moneyDisplay.Text = "$ 0";
             _powerBar = FindControl("PowerWindow");
             _expBar = FindControl("GeneralsExp");
 
-            _resize = FindControl("ButtonLarge") as Button;
+            _resize = (Button)FindControl("ButtonLarge");
 
             _resizeDownBackground = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownOn);
             _resizeDownHover = window.ImageLoader.CreateFromMappedImageReference(_scheme.ToggleButtonDownIn);
@@ -348,7 +358,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             protected void ApplySpecialPowers(Player player, GeneralsControlBar controlBar)
             {
-                var commandSet = player.Template.SpecialPowerShortcutCommandSet.Value;
+                var commandSet = player.Template!.SpecialPowerShortcutCommandSet.Value;
                 for (int i = 0; i < player.Template.SpecialPowerShortcutButtonCount; i++)
                 {
                     if (!commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
@@ -568,7 +578,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 if (isProducing)
                 {
-                    var queue = unit.ProductionUpdate.ProductionQueue;
+                    var queue = unit.ProductionUpdate!.ProductionQueue;
 
                     for (var pos = 0; pos < PRODUCTION_QUEUE_SIZE; pos++)
                     {
@@ -581,8 +591,8 @@ namespace OpenSage.Mods.Generals.Gui
                         queueButton.HoverOverlayImage = controlBar.CommandButtonHover;
                         queueButton.PushedOverlayImage = controlBar.CommandButtonPush;
 
-                        Image img = null;
-                        Image overlayImage = null;
+                        Image? img = null;
+                        Image? overlayImage = null;
                         if (queue.Count > pos)
                         {
                             var job = queue[pos];
@@ -703,8 +713,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         private sealed class UnderConstructionControlBarState : ControlBarState
         {
-            Control _window;
-            Control _progressText;
+            Control? _window;
+            Control? _progressText;
             string? _baseText;
 
 
@@ -718,7 +728,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 _baseText ??= _progressText.Text;
 
-                Button cancelButton = _window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction") as Button;
+                Button cancelButton = (Button)_window.Controls.FindControl("ControlBar.wnd:ButtonCancelConstruction");
                 // Is that CommandButton hardcoded or defined somewhere?
                 var commandButton = controlBar._window.Game.AssetStore.CommandButtons.GetByName("Command_CancelConstruction");
                 CommandButtonUtils.SetCommandButton(cancelButton, commandButton, controlBar);
@@ -726,6 +736,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
+                if (_progressText == null)
+                {
+                    throw new InvalidOperationException();
+                }
+
                 var unit = player.SelectedUnits.First();
                 var percent = unit.BuildProgress * 100.0f;
                 _progressText.Text = _baseText != null ? SprintfNET.StringFormatter.PrintF(_baseText, percent) : string.Empty;
@@ -771,8 +786,8 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var control = FindControl(name);
 
-                var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL").GetValue(scheme);
-                var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR").GetValue(scheme);
+                var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(scheme)!;
+                var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(scheme)!;
 
                 control.Bounds = Rectangle.FromCorners(ul - windowOrigin, lr - windowOrigin);
 
@@ -781,11 +796,11 @@ namespace OpenSage.Mods.Generals.Gui
 
             void ApplyButtonScheme(string name, string coordPrefix, string texturePrefix)
             {
-                var button = ApplyBounds(name, coordPrefix) as Button;
+                var button = (Button)ApplyBounds(name, coordPrefix);
 
-                Image LoadImageForState(string state) =>
+                Image? LoadImageForState(string state) =>
                     controlBarWindow.ImageLoader.CreateFromMappedImageReference(
-                        (LazyAssetReference<MappedImage>) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
+                        (LazyAssetReference<MappedImage>?) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
                 button.BackgroundImage = LoadImageForState("Enable");
                 button.DisabledBackgroundImage = LoadImageForState("Disabled");
@@ -812,7 +827,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             FindControl("ExpBarForeground").BackgroundImage = controlBarWindow.ImageLoader.CreateFromMappedImageReference(scheme.ExpBarForegroundImage);
 
-            var powersShortcutBar = game.LoadWindow(game.Scene3D.LocalPlayer.Template.SpecialPowerShortcutWinName);
+            var powersShortcutBar = game.LoadWindow(game.Scene3D.LocalPlayer.Template!.SpecialPowerShortcutWinName);
             return new GeneralsControlBar(backgroundWindow, controlBarWindow, controlBarDescriptionWindow, powersShortcutBar, scheme, game.ContentManager, game.AssetStore);
         }
     }

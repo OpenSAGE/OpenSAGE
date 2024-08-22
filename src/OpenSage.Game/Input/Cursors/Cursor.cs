@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using OpenSage.Data.Ani;
 using OpenSage.IO;
 using OpenSage.Utilities;
@@ -57,14 +56,14 @@ namespace OpenSage.Input.Cursors
                     var scaledImage = Image.LoadPixelData<Bgra32>(image.PixelsBgra, width, height);
                     scaledImage.Mutate(x => x.Resize(scaledWidth, scaledHeight));
 
-                    if (!scaledImage.TryGetSinglePixelSpan(out Span<Bgra32> pixelSpan))
+                    if (!scaledImage.DangerousTryGetSinglePixelMemory(out Memory<Bgra32> pixelSpan))
                     {
                         throw new InvalidOperationException("Unable to get image pixelspan.");
                     }
-                    fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+                    using (var pin = pixelSpan.Pin())
                     {
                         surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
-                           (byte*) pin,
+                           (byte*) pin.Pointer,
                            scaledWidth,
                            scaledHeight,
                            32,

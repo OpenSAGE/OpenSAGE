@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -231,10 +233,10 @@ namespace OpenSage.Logic.Object
         public bool DelayExitInAir { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
+        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme)]
-        public ObjectFilter PassengerFilter { get; private set; }
+        public ObjectFilter PassengerFilter { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme)]
         public bool ShowPips { get; private set; }
@@ -258,7 +260,7 @@ namespace OpenSage.Logic.Object
         public bool KillPassengersOnDeath { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public ObjectFilter ManualPickUpFilter { get; private set; }
+        public ObjectFilter ManualPickUpFilter { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme)]
         public bool EjectPassengersOnDeath { get; private set; }
@@ -267,7 +269,7 @@ namespace OpenSage.Logic.Object
         public bool CanGrabStructure { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string GrabWeapon { get; private set; }
+        public string? GrabWeapon { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool FireGrabWeaponOnVictim { get; private set; }
@@ -288,7 +290,7 @@ namespace OpenSage.Logic.Object
         public List<BoneSpecificConditionState> BoneSpecificConditionStates { get; } = new List<BoneSpecificConditionState>();
 
         [AddedIn(SageGame.Bfme2)]
-        public ObjectFilter FadeFilter { get; private set; }
+        public ObjectFilter FadeFilter { get; private set; } = new();
 
         [AddedIn(SageGame.Bfme2)]
         public List<UpgradeCreationTrigger> UpgradeCreationTriggers { get; } = new List<UpgradeCreationTrigger>();
@@ -325,7 +327,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string BoneName { get; private set; }
+        public required string BoneName { get; init; }
         public ObjectKinds ObjectKind { get; private set; }
     }
 
@@ -342,8 +344,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string Upgrade { get; private set; }
-        public string Model { get; private set; }
-        public int Unknown { get; private set; }
+        public required string Upgrade { get; init; }
+        public required string Model { get; init; }
+        public int Unknown { get; init; }
     }
 }

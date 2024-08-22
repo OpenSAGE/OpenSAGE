@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -16,7 +18,7 @@ namespace OpenSage.Logic.Object
         private OpenContainModule? _openContain;
 
         private bool _unknownBool1;
-        private string _templateName;
+        private string? _templateName;
         private int _unknownInt1;
         private int _unknownInt2;
         private readonly List<uint> _unknownIntList = new();
@@ -35,7 +37,7 @@ namespace OpenSage.Logic.Object
 
         private void SpawnUnit()
         {
-            var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate.Value, _gameObject.Owner);
+            var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
             spawnedObject.CreatedByObjectID = _gameObject.ID;
@@ -215,7 +217,7 @@ namespace OpenSage.Logic.Object
 
         public int SpawnNumber { get; private set; }
         public long SpawnReplaceDelay { get; private set; }
-        public LazyAssetReference<ObjectDefinition> SpawnTemplate { get; private set; }
+        public LazyAssetReference<ObjectDefinition>? SpawnTemplate { get; private set; }
         public bool OneShot { get; private set; }
         public bool CanReclaimOrphans { get; private set; }
         public bool SpawnedRequireSpawner { get; private set; }

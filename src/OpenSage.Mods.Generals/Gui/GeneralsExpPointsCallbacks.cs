@@ -1,4 +1,6 @@
-﻿using OpenSage.Content.Translation;
+﻿#nullable enable
+
+using OpenSage.Content.Translation;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -9,7 +11,7 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     public static class GeneralsExpPointsCallbacks
     {
-        private static Window _window;
+        private static Window? _window;
 
         public static void GeneralsExpPointsSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -31,7 +33,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             for (int i = 0; i < commandSet.Buttons.Count; i++)
             {
-                var buttonControl = _window.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i) as Button;
+                var buttonControl = (Button)_window!.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i);
                 if (commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
                 {
                     var commandButton = commandButtonReference.Value;
@@ -56,7 +58,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void ApplyCommandSets(Player player, GeneralsControlBar controlBar)
         {
-            var rank1 = player.Template.PurchaseScienceCommandSetRank1;
+            var rank1 = player.Template!.PurchaseScienceCommandSetRank1;
             ApplyRankCommandSet(rank1.Value, 1, player, controlBar);
 
             var rank3 = player.Template.PurchaseScienceCommandSetRank3;

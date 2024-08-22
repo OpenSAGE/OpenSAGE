@@ -4,7 +4,7 @@ namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class StopHackingInternetState : State
     {
-        public const uint Id = 1002;
+        public const uint StateId = 1002;
 
         private readonly GameObject _gameObject;
 
@@ -36,7 +36,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             if (_framesUntilFinishedPacking-- == LogicFrameSpan.Zero)
             {
-                return UpdateStateResult.TransitionToState(IdleState.Id);
+                return UpdateStateResult.TransitionToState(IdleState.StateId);
             }
 
             return UpdateStateResult.Continue();

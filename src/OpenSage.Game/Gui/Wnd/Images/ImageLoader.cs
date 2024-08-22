@@ -1,4 +1,6 @@
-﻿using OpenSage.Content;
+﻿#nullable enable
+
+using OpenSage.Content;
 using OpenSage.Data.Wnd;
 
 namespace OpenSage.Gui.Wnd.Images
@@ -12,7 +14,7 @@ namespace OpenSage.Gui.Wnd.Images
             _textureCache = textureCache;
         }
 
-        public Image CreateFromMappedImageReference(LazyAssetReference<MappedImage> mappedImageReference)
+        public Image? CreateFromMappedImageReference(LazyAssetReference<MappedImage>? mappedImageReference)
         {
             var mappedImage = mappedImageReference?.Value;
             if (mappedImage != null)
@@ -25,12 +27,12 @@ namespace OpenSage.Gui.Wnd.Images
             }
         }
 
-        public Image CreateFromWndDrawData(WndDrawData wndDrawData, int index)
+        public Image? CreateFromWndDrawData(WndDrawData wndDrawData, int index)
         {
             return CreateFromMappedImageReference(wndDrawData.Items[index].Image);
         }
 
-        public Image CreateFromStretchableWndDrawData(WndDrawData wndDrawData, int leftIndex, int middleIndex, int rightIndex)
+        public Image? CreateFromStretchableWndDrawData(WndDrawData wndDrawData, int leftIndex, int middleIndex, int rightIndex)
         {
             var leftImage = wndDrawData.Items[leftIndex].Image?.Value;
             var middleImage = wndDrawData.Items[middleIndex].Image?.Value;

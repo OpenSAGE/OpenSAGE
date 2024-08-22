@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Diagnostics;
-using OpenSage.Audio;
-using OpenSage.Content;
 using OpenSage.Content.Translation;
 using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
@@ -61,15 +60,15 @@ namespace OpenSage.Logic
         private StrategyData? _strategyData;
 
         public uint Id { get; }
-        public PlayerTemplate Template { get; }
-        public string Name;
-        public string DisplayName { get; private set; }
+        public PlayerTemplate? Template { get; }
+        public string? Name;
+        public string? DisplayName { get; private set; }
 
-        public string Side { get; private set; }
+        public string? Side { get; private set; }
 
         public bool IsHuman { get; private set; }
 
-        public Team DefaultTeam { get; private set; }
+        public Team? DefaultTeam { get; private set; }
 
         public readonly BankAccount BankAccount;
 
@@ -82,7 +81,7 @@ namespace OpenSage.Logic
         public float GeneralsExperienceMultiplier;
         public bool ShowOnScoreScreen;
 
-        public AIPlayer AIPlayer { get; private set; }
+        public AIPlayer? AIPlayer { get; private set; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public int GetEnergy(GameObjectCollection allGameObjects)
@@ -130,11 +129,11 @@ namespace OpenSage.Logic
         private HashSet<GameObject> _selectedUnits;
         public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
-        public GameObject HoveredUnit { get; set; }
+        public GameObject? HoveredUnit { get; set; }
 
         public int Team { get; init; }
 
-        public Player(uint id, PlayerTemplate template, in ColorRgb color, Game game)
+        public Player(uint id, PlayerTemplate? template, in ColorRgb color, Game game)
         {
             _game = game;
 
@@ -203,7 +202,7 @@ namespace OpenSage.Logic
                 if (unit.ParentHorde != null && !unit.ParentHorde.IsSelected)
                 {
                     unitsFromHordeSelection.Add(unit.ParentHorde);
-                    unitsFromHordeSelection.AddRange(unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(true));
+                    unitsFromHordeSelection.AddRange(unit.ParentHorde.FindBehavior<HordeContainBehavior>()?.SelectAll(true) ?? []);
                 }
                 else
                 {
@@ -417,7 +416,7 @@ namespace OpenSage.Logic
 
         internal Upgrade AddUpgrade(UpgradeTemplate template, UpgradeStatus status)
         {
-            Upgrade upgrade = null;
+            Upgrade? upgrade = null;
             foreach (var eachUpgrade in _upgrades)
             {
                 if (eachUpgrade.Template == template)
@@ -454,7 +453,7 @@ namespace OpenSage.Logic
 
         internal void RemoveUpgrade(UpgradeTemplate template)
         {
-            Upgrade upgradeToRemove = null;
+            Upgrade? upgradeToRemove = null;
 
             foreach (var upgrade in _upgrades)
             {
@@ -705,7 +704,7 @@ namespace OpenSage.Logic
 
         public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
         {
-            var side = mapPlayer.Properties["playerFaction"].Value as string;
+            var side = (string)mapPlayer.Properties["playerFaction"].Value;
 
             if (side.StartsWith("FactionAmerica", System.StringComparison.InvariantCultureIgnoreCase))
             {
@@ -844,9 +843,9 @@ namespace OpenSage.Logic
             return _supplyCenters.Contains(supplyCenter.ID);
         }
 
-        public GameObject FindClosestSupplyCenter(GameObject supplyGatherer)
+        public GameObject? FindClosestSupplyCenter(GameObject supplyGatherer)
         {
-            GameObject closestSupplyCenter = null;
+            GameObject? closestSupplyCenter = null;
             var closestDistanceSquared = float.MaxValue;
 
             foreach (var supplyCenterId in _supplyCenters)
@@ -876,9 +875,9 @@ namespace OpenSage.Logic
             return closestSupplyCenter;
         }
 
-        public GameObject FindClosestSupplyWarehouse(GameObject supplyGatherer)
+        public GameObject? FindClosestSupplyWarehouse(GameObject supplyGatherer)
         {
-            GameObject closestSupplyWarehouse = null;
+            GameObject? closestSupplyWarehouse = null;
             var closestDistanceSquared = float.MaxValue;
 
             var supplyAIUpdate = supplyGatherer.FindBehavior<SupplyAIUpdate>();

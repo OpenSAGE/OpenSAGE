@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Input;
@@ -41,7 +43,7 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly SpecialPowerTargetType _targetType;
         private readonly Scene3D _scene;
 
-        private readonly DecalHandle _decalHandle;
+        private readonly DecalHandle? _decalHandle;
 
         private SpecialPowerTarget Target => TargetForGameObject(WorldObject);
 

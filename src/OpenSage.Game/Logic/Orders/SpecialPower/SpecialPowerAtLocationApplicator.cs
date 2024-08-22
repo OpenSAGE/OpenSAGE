@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -80,7 +82,7 @@ internal class SpecialPowerAtLocationApplicator
         ExecuteOclSpecialPower(specialPowerType, selectedObjects.FirstOrDefault(), arguments.Location);
     }
 
-    private static void ExecuteOclSpecialPower(SpecialPowerType specialPowerType, GameObject source, Vector3 location)
+    private static void ExecuteOclSpecialPower(SpecialPowerType specialPowerType, GameObject? source, Vector3 location)
     {
         source?.FindSpecialPowerBehavior<OCLSpecialPowerModule>(specialPowerType)?.Activate(location);
     }

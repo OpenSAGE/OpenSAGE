@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -75,8 +77,8 @@ namespace OpenSage.Client
 
         private Matrix4x3 _transformMatrix;
 
-        private ColorFlashHelper _selectionFlashHelper;
-        private ColorFlashHelper _scriptedFlashHelper;
+        private ColorFlashHelper? _selectionFlashHelper;
+        private ColorFlashHelper? _scriptedFlashHelper;
 
         public ObjectDecalType ObjectDecalType;
 
