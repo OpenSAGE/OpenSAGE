@@ -17,11 +17,11 @@ namespace OpenSage.Network
     {
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        protected Game _game;
+        protected IGame Game { get; }
 
-        public SkirmishManager(Game game, bool isHosting)
+        public SkirmishManager(IGame game, bool isHosting)
         {
-            _game = game;
+            Game = game;
 
             IsHosting = isHosting;
             Settings = new SkirmishGameSettings(isHosting);
@@ -43,7 +43,7 @@ namespace OpenSage.Network
 
             if (Settings.Status == SkirmishGameStatus.ReadyToStart)
             {
-                _game.Scene2D.WndWindowManager.PopWindow();
+                Game.Scene2D.WndWindowManager.PopWindow();
                 StartGame();
             }
         }
@@ -75,14 +75,14 @@ namespace OpenSage.Network
 
                 playerSettings.Add(new PlayerSetting(
                     slot.StartPosition,
-                    _game.GetPlayableSides().ElementAt(slot.FactionIndex - 1).Name,
-                    _game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
+                    Game.GetPlayableSides().ElementAt(slot.FactionIndex - 1).Name,
+                    Game.AssetStore.MultiplayerColors.GetByIndex(slot.ColorIndex).RgbColor,
                     slot.Team,
                     owner,
                     isLocalForMultiplayer: i == Settings.LocalSlotIndex));
             }
 
-            _game.StartSkirmishOrMultiPlayerGame(
+            Game.StartSkirmishOrMultiPlayerGame(
                 Settings.MapName,
                 Connection,
                 playerSettings.ToArray(),
@@ -95,7 +95,7 @@ namespace OpenSage.Network
 
     public sealed class LocalSkirmishManager : SkirmishManager
     {
-        public LocalSkirmishManager(Game game)
+        public LocalSkirmishManager(IGame game)
             : base(game, isHosting: true)
         {
             Settings.LocalSlotIndex = 0;
@@ -274,7 +274,7 @@ namespace OpenSage.Network
             _writer.Reset();
             _processor.Write(_writer, new SkirmishClientConnectPacket()
             {
-                PlayerName = _game.LobbyManager.Username,
+                PlayerName = Game.LobbyManager.Username,
                 ClientId = ClientInstance.Id,
             });
 
@@ -308,8 +308,8 @@ namespace OpenSage.Network
                 _ => "LAN:HostNotResponding"
             };
 
-            _game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
-            _game.Scene2D.WndWindowManager.ShowMessageBox(title.Translate(), text.Translate());
+            Game.Scene2D.WndWindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+            Game.Scene2D.WndWindowManager.ShowMessageBox(title.Translate(), text.Translate());
             _disconnectReason = null;
 
             Stop();
@@ -474,7 +474,7 @@ namespace OpenSage.Network
             Settings.LocalSlotIndex = 0;
 
             var localSlot = Settings.LocalSlot;
-            localSlot.PlayerName = _game.LobbyManager.Username;
+            localSlot.PlayerName = Game.LobbyManager.Username;
             localSlot.State = SkirmishSlotState.Human;
             localSlot.EndPoint = new IPEndPoint(IPAddress.Any, Ports.SkirmishHost); // The host does not know his own external IP address
 

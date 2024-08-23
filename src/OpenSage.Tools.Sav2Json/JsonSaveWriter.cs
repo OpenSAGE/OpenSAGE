@@ -9,7 +9,7 @@ internal sealed class JsonSaveWriter : StatePersister
 {
     private readonly Utf8JsonWriter _writer;
 
-    public JsonSaveWriter(Game game, string filePath)
+    public JsonSaveWriter(IGame game, string filePath)
         : base(game, StatePersistMode.Write)
     {
         var stream = AddDisposable(File.OpenWrite(filePath));
@@ -28,7 +28,7 @@ internal sealed class JsonSaveWriter : StatePersister
 
     public override void EndSegment()
     {
-        
+
     }
 
     public override void BeginArray()
@@ -127,7 +127,7 @@ internal sealed class JsonSaveWriter : StatePersister
 
     public override void PersistSpan(Span<byte> span)
     {
-        
+
     }
 
     public override void PersistUInt16Value(ref ushort value)
@@ -156,6 +156,6 @@ internal sealed class JsonSaveWriter : StatePersister
 
     public override void SkipUnknownBytes(int numBytes)
     {
-        
+
     }
 }

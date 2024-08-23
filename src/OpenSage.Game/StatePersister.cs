@@ -17,11 +17,11 @@ namespace OpenSage
 
         public readonly StatePersistMode Mode;
 
-        public readonly Game Game;
+        public readonly IGame Game;
         public readonly SageGame SageGame;
         public readonly AssetStore AssetStore;
 
-        protected StatePersister(Game game, StatePersistMode mode)
+        protected StatePersister(IGame game, StatePersistMode mode)
         {
             Segments = new Stack<Segment>();
 
@@ -268,7 +268,7 @@ namespace OpenSage
     {
         private readonly BinaryReader _binaryReader;
 
-        internal StateReader(Stream stream, Game game)
+        internal StateReader(Stream stream, IGame game)
             : base(game, StatePersistMode.Read)
         {
             _binaryReader = AddDisposable(new BinaryReader(stream, Encoding.Unicode, true));
@@ -364,7 +364,7 @@ namespace OpenSage
     {
         private readonly BinaryWriter _binaryWriter;
 
-        internal StateWriter(Stream stream, Game game)
+        internal StateWriter(Stream stream, IGame game)
             : base(game, StatePersistMode.Read)
         {
             _binaryWriter = AddDisposable(new BinaryWriter(stream, Encoding.Unicode, true));

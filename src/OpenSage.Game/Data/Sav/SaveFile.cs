@@ -48,7 +48,7 @@ namespace OpenSage.Data.Sav
             Persist(statePersister);
         }
 
-        private record struct ChunkDefinition(string ChunkName, Func<Game, IPersistableObject> GetPersistableObject);
+        private record struct ChunkDefinition(string ChunkName, Func<IGame, IPersistableObject> GetPersistableObject);
 
         private static readonly List<ChunkDefinition> ChunkDefinitions = new()
         {
