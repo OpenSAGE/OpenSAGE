@@ -46,7 +46,7 @@ namespace OpenSage.Diagnostics
             UpdateSearch(searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("files list", Vector2.Zero, true);
+            ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Border);
 
             foreach (var item in _items)
             {

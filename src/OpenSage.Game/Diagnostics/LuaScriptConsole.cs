@@ -49,7 +49,7 @@ namespace OpenSage.Diagnostics
 
             ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0, 0, 150, 1));
             ImGui.Separator();
-            ImGui.BeginChild("cmd", Vector2.Zero, true);
+            ImGui.BeginChild("cmd", Vector2.Zero, ImGuiChildFlags.Border);
             ImGui.PushStyleColor(ImGuiCol.Text, _consoleTextColor);
             ImGui.Text(_scriptConsoleTextAll);
             ImGui.PopStyleColor();

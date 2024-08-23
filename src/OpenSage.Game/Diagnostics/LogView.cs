@@ -17,7 +17,7 @@ namespace OpenSage.Diagnostics
         {
             var target = LogManager.Configuration.FindTargetByName("internal") as InternalLogger;
 
-            ImGui.BeginChild("Log", Vector2.Zero, false);
+            ImGui.BeginChild("Log", Vector2.Zero);
 
             foreach (var msg in target.Messages)
             {

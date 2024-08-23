@@ -37,7 +37,7 @@ namespace OpenSage.Diagnostics
             UpdateSearch(searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), true);
+            ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), ImGuiChildFlags.Border);
 
             var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper();
             var clipper = new ImGuiListClipperPtr(clipperPtr);

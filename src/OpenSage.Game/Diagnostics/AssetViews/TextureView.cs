@@ -25,9 +25,9 @@ namespace OpenSage.Diagnostics.AssetViews
 
         public override void Draw()
         {
-            ImGui.BeginChild("sidebar", new Vector2(150, 0), false);
+            ImGui.BeginChild("sidebar", new Vector2(150, 0));
             {
-                ImGui.BeginChild("mip level", new Vector2(150, 200), true, 0);
+                ImGui.BeginChild("mip level", new Vector2(150, 200), ImGuiChildFlags.Border, 0);
                 {
                     for (var i = 0u; i < _texture.MipLevels; i++)
                     {
@@ -39,7 +39,7 @@ namespace OpenSage.Diagnostics.AssetViews
                 }
                 ImGui.EndChild();
 
-                ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), true, 0);
+                ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
                 {
                     ImGui.Text("Background color");
                     {
@@ -96,7 +96,7 @@ namespace OpenSage.Diagnostics.AssetViews
                 _ => throw new System.InvalidOperationException()
             });
 
-            ImGui.BeginChild("texture", _scaleToFit ? Vector2.Zero : size.ToVector2(), false, 0);
+            ImGui.BeginChild("texture", _scaleToFit ? Vector2.Zero : size.ToVector2());
             {
                 ImGui.Image(
                     imagePointer,

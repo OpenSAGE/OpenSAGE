@@ -124,7 +124,7 @@ namespace OpenSage.Diagnostics
 
         public void Draw(ref bool isGameViewFocused)
         {
-            ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
+            ImGui.DockSpaceOverViewport(0, ImGui.GetMainViewport());
 
             float menuBarHeight = 0;
 

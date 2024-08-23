@@ -29,7 +29,7 @@ namespace OpenSage.Diagnostics
             UpdateSearch(searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("strings", Vector2.Zero, false);
+            ImGui.BeginChild("strings", Vector2.Zero);
 
             ImGui.Columns(2, "CSF", true);
 

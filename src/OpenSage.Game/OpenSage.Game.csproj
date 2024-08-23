@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="FixedMath.NET" />
-    <PackageReference Include="ImGui.NET" />
     <PackageReference Include="LiteNetLib" />
     <PackageReference Include="Microsoft.Win32.Registry" />
     <PackageReference Include="MoonSharp" />
@@ -22,7 +21,6 @@
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="System.ValueTuple" />
     <PackageReference Include="Veldrid" />
-    <PackageReference Include="Veldrid.ImGui" />
     <PackageReference Include="Veldrid.RenderDoc" />
     <PackageReference Include="Veldrid.SDL2" />
     <PackageReference Include="Veldrid.StartupUtilities" />
@@ -39,6 +37,7 @@
     <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
     <ProjectReference Include="..\OpenSage.Rendering\OpenSage.Rendering.csproj" />
     <ProjectReference Include="..\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj" />
+    <ProjectReference Include="..\Veldrid.ImGui\Veldrid.ImGui.csproj" />
   </ItemGroup>
 
   <ItemGroup>

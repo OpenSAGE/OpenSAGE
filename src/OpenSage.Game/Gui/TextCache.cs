@@ -312,7 +312,7 @@ namespace OpenSage.Gui
 
         internal void DrawDiagnostic(ref object selectedObject)
         {
-            ImGui.BeginChild("text cache", Vector2.Zero, true, 0);
+            ImGui.BeginChild("text cache", Vector2.Zero, ImGuiChildFlags.Border);
 
             foreach (var ((key, entry), index) in _cache.WithIndex())
             {

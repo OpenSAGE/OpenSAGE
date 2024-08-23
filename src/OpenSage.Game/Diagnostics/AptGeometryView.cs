@@ -63,7 +63,7 @@ namespace OpenSage.Diagnostics
 
             var geometry = Context.SelectedAptWindow.AptFile.GeometryMap[Convert.ToUInt32(_geometryNames[_currentGeometry])];
 
-            ImGui.BeginChild("geometry sidebar", new Vector2(150, 0), true, 0);
+            ImGui.BeginChild("geometry sidebar", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
             ImGui.TextWrapped(geometry.RawText);
             ImGui.EndChild();
 
