@@ -81,7 +81,7 @@ namespace OpenSage.Logic.Object
     /// Allows this object to turn on or off the <see cref="ModelConditionFlag.PowerPlantUpgrading"/>
     /// and <see cref="ModelConditionFlag.PowerPlantUpgraded"/> condition states.
     /// </summary>
-    public sealed class OverchargeBehaviorModuleData : BehaviorModuleData
+    public sealed class OverchargeBehaviorModuleData : UpdateModuleData
     {
         internal static OverchargeBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 

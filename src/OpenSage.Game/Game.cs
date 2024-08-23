@@ -36,7 +36,7 @@ using Veldrid.ImageSharp;
 
 namespace OpenSage
 {
-    public sealed class Game : DisposableBase
+    public sealed class Game : DisposableBase, IGame
     {
         static Game()
         {
@@ -105,6 +105,9 @@ namespace OpenSage
         public AudioSystem Audio { get; }
 
         public GameState GameState { get; } = new GameState();
+
+        GameStateMap IGame.GameStateMap => GameStateMap;
+
         internal GameStateMap GameStateMap { get; } = new GameStateMap();
 
         public CampaignManager CampaignManager { get; } = new CampaignManager();
@@ -378,15 +381,22 @@ namespace OpenSage
 
         public Texture LauncherImage { get; }
 
+        // currently, the only way to implement internal interface properties is explicitly
+        GameLogic IGame.GameLogic => GameLogic;
+
         internal readonly GameLogic GameLogic;
+
+        GameClient IGame.GameClient => GameClient;
 
         internal readonly GameClient GameClient;
 
-        public readonly PlayerManager PlayerManager;
+        public PlayerManager PlayerManager { get; }
+
+        TeamFactory IGame.TeamFactory => TeamFactory;
 
         internal readonly TeamFactory TeamFactory;
 
-        public readonly PartitionCellManager PartitionCellManager;
+        public PartitionCellManager PartitionCellManager { get; }
 
         public Game(GameInstallation installation)
             : this(installation, null, new Configuration(), null)

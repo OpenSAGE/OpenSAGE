@@ -135,7 +135,7 @@ namespace OpenSage.Network
             {
                 _startingCash = new Money
                 {
-                    Amount = (uint)reader.Game.AssetStore.GameData.Current.DefaultStartingCash
+                    Amount = (uint)reader.AssetStore.GameData.Current.DefaultStartingCash
                 };
             }
         }
