@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -256,6 +256,8 @@ namespace OpenSage
         public virtual void EndArray() { }
 
         public abstract void SkipUnknownBytes(int numBytes);
+
+        public virtual void LogToSegmentEnd() { }
     }
 
     public enum StatePersistMode
@@ -357,6 +359,21 @@ namespace OpenSage
                     throw new InvalidStateException($"Expected byte (index {i}) to be 0 but it was {value}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Only to be used for local debugging and should not be present in committed code.
+        /// </summary>
+        public override void LogToSegmentEnd()
+        {
+            var segment = Segments.Pop();
+            for (var i = _binaryReader.BaseStream.Position; i < segment.End; i++)
+            {
+                Console.Write(_binaryReader.ReadByte().ToString("x2"));
+                Console.Write(" ");
+            }
+            Console.WriteLine();
+            Segments.Push(segment);
         }
     }
 
