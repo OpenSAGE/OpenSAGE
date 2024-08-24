@@ -188,6 +188,19 @@ namespace OpenSage.Terrain
             return result;
         }
 
+        public bool ImpassableAt(Vector3 worldPosition)
+        {
+            var mapCoords = HeightMap.GetTilePosition(worldPosition);
+            if (!mapCoords.HasValue)
+            {
+                // we're outside of the map, so definitely impassable
+                return true;
+            }
+
+            var (x, y) = mapCoords.Value;
+            return Map.BlendTileData.Impassability[x, y];
+        }
+
         /// <summary>
         /// Adjusts the terrain height within the specified collider. Does not consider z-axis.
         /// </summary>

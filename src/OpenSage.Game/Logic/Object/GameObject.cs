@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1224,7 +1224,7 @@ namespace OpenSage.Logic.Object
 
             var upgradeModuleCanUpgrade = false;
             var hasUpgradeBehaviors = false; // some objects don't have upgrade modules
-            foreach (var upgradeModule in FindBehaviors<UpgradeModule>())
+            foreach (var upgradeModule in FindBehaviors<IUpgradeableModule>())
             {
                 hasUpgradeBehaviors = true;
                 if (upgradeModule.CanUpgrade(existingUpgrades))

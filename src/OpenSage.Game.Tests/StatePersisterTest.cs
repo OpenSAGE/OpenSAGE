@@ -13,6 +13,7 @@ namespace OpenSage.Tests;
 public abstract class MockedGameTest : IDisposable
 {
     private protected TestGame Generals { get; } = new(SageGame.CncGenerals);
+    private protected TestGame ZeroHour { get; } = new(SageGame.CncGeneralsZeroHour);
 
     public void Dispose()
     {
