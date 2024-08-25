@@ -338,15 +338,7 @@ namespace OpenSage.Logic.OrderGenerators
 
         private bool TerrainUnderTargetIsImpassable()
         {
-            var mapCoords = Game.Scene3D.Terrain.HeightMap.GetTilePosition(WorldPosition);
-            if (!mapCoords.HasValue)
-            {
-                // we're outside of the map, so definitely impassable
-                return true;
-            }
-
-            var (x, y) = mapCoords.Value;
-            return Game.Scene3D.Terrain.Map.BlendTileData.Impassability[x, y];
+            return Game.Scene3D.Terrain.ImpassableAt(WorldPosition);
         }
 
         private bool AnySelectedUnitCanTraverseCliffs()

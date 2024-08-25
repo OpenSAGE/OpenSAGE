@@ -367,6 +367,7 @@ namespace OpenSage
         public override void LogToSegmentEnd()
         {
             var segment = Segments.Pop();
+            Console.WriteLine(segment.Name);
             for (var i = _binaryReader.BaseStream.Position; i < segment.End; i++)
             {
                 Console.Write(_binaryReader.ReadByte().ToString("x2"));
