@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    internal abstract class UpgradeModule : BehaviorModule, IUpgradeableModule
+    public abstract class UpgradeModule : BehaviorModule, IUpgradeableModule
     {
         protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;

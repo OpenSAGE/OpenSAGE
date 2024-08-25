@@ -1,4 +1,4 @@
-﻿using FixedMath.NET;
+using FixedMath.NET;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -182,19 +182,44 @@ namespace OpenSage.Logic.Object
 
         public UpgradeLogicData UpgradeData { get; } = new();
 
-        public float HealingAmount { get; private set; }
         /// <summary>
-        /// Time to wait between successive HealingAmount applications.
+        /// Amount to heal with each <see cref="HealingDelay"/>.
+        /// </summary>
+        public float HealingAmount { get; private set; }
+
+        /// <summary>
+        /// Time to wait between successive <see cref="HealingAmount"/> applications.
         /// </summary>
         public LogicFrameSpan HealingDelay { get; private set; }
+
+        /// <summary>
+        /// Whether healing should affect the entire player (e.g. true for TechHospital).
+        /// </summary>
         public bool AffectsWholePlayer { get; private set; }
+
+        /// <summary>
+        /// Object kinds which should be healed by this unit.
+        /// </summary>
         public BitArray<ObjectKinds> KindOf { get; private set; }
+
+        /// <summary>
+        /// Object kinds which should not be healed by this unit.
+        /// </summary>
         public BitArray<ObjectKinds> ForbiddenKindOf { get; private set; }
+
         /// <summary>
         /// Time to wait after taking damage before beginning healing.
         /// </summary>
         public LogicFrameSpan StartHealingDelay { get; private set; }
+
+        /// <summary>
+        /// Radius around gameobject where units should be healed.
+        /// </summary>
         public float Radius { get; private set; }
+
+        /// <summary>
+        /// Whether healing should be applied all at once (e.g. true for Emergency Repair Special Power).
+        /// </summary>
         public bool SingleBurst { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
