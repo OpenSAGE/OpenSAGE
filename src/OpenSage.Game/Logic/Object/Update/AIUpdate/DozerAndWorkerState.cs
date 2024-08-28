@@ -78,8 +78,7 @@ internal sealed class DozerAndWorkerState
         else if (repairTarget.HealedEndFrame <= updateContext.LogicFrame.Value)
         {
             // advance repair progress
-            repairTarget.HealedByObjectId = _gameObject.ID;
-            repairTarget.Heal(_moduleData.RepairHealthPercentPerSecond);
+            repairTarget.Heal(_moduleData.RepairHealthPercentPerSecond, _gameObject);
             repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond).Value;
         }
     }

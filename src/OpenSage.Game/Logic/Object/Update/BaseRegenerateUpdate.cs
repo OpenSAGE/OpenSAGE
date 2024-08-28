@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
-            _gameObject.Heal(_context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
+            _gameObject.HealDirectly(_context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
 
             if (_gameObject.IsFullHealth)
             {

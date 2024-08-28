@@ -5,12 +5,12 @@ namespace OpenSage.Logic.Object
 {
     public sealed class HighlanderBody : ActiveBody
     {
-        internal HighlanderBody(GameObject gameObject, HighlanderBodyModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal HighlanderBody(GameObject gameObject, GameContext context, HighlanderBodyModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
             // TODO: Don't think this is right.
             if (damageType == DamageType.Unresistable)
@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new HighlanderBody(gameObject, this);
+            return new HighlanderBody(gameObject, context, this);
         }
     }
 }

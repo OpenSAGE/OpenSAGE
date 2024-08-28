@@ -2,12 +2,11 @@
 
 namespace OpenSage.Tests.Logic.Object;
 
-public abstract class ModuleTest : MockedGameTest
+public abstract class ModuleTest : StatePersisterTest
 {
-    protected const byte V1 = 0x01;
     protected virtual byte[] ModuleData() => [V1];
 
-    protected MemoryStream SaveData(byte[] data, byte version = V1)
+    protected override MemoryStream SaveData(byte[] data, byte version = V1)
     {
         return new MemoryStream([version, .. ModuleData(), ..data]);
     }

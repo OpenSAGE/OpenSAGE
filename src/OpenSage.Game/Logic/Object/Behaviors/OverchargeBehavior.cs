@@ -53,8 +53,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            // todo: is this death type right?
-            _gameObject.DoDamage(DamageType.Penalty, _gameObject.MaxHealth * (Fix64)(float)_moduleData.HealthPercentToDrainPerSecond, DeathType.Normal);
+            _gameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, _gameObject);
             NextUpdateFrame.Frame += (uint)Game.LogicFramesPerSecond;
         }
 

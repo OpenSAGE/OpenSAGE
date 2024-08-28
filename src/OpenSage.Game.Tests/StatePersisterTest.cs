@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
@@ -9,6 +10,17 @@ using OpenSage.Scripting;
 using OpenSage.Terrain;
 
 namespace OpenSage.Tests;
+
+public abstract class StatePersisterTest : MockedGameTest
+{
+    protected const byte V1 = 0x01;
+    protected const byte V3 = 0x03;
+
+    protected virtual MemoryStream SaveData(byte[] data, byte version = V1)
+    {
+        return new MemoryStream([version, ..data]);
+    }
+}
 
 public abstract class MockedGameTest : IDisposable
 {

@@ -33,11 +33,11 @@ namespace OpenSage.Logic.Object
 
         public GameObject GetTargetObject() => _gameObjects.GetObjectById(TargetObjectId);
 
-        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
             if (TargetType == WeaponTargetType.Object)
             {
-                GetTargetObject().DoDamage(damageType, amount, deathType);
+                GetTargetObject().DoDamage(damageType, amount, deathType, damageDealer);
             }
         }
     }

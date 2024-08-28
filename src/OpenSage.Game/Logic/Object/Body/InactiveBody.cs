@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         {
         }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
             // TODO
 
