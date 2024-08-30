@@ -114,7 +114,7 @@ namespace OpenSage.Logic.Object
 
         public override void Heal(Fix64 amount, GameObject healer)
         {
-            DoDamage(DamageType.Healing, amount, DeathType.UnknownHealing, healer);
+            DoDamage(DamageType.Healing, amount, DeathType.None, healer);
         }
 
         public override void Heal(Fix64 amount)

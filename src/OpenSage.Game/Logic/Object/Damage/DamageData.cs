@@ -41,7 +41,7 @@ namespace OpenSage.Logic.Object.Damage
     /// Raw damage to be applied to a body prior to any calculations.
     /// </summary>
     /// <remarks>
-    /// This is also used to heal objects with <see cref="DamageType.Healing"/> and <see cref="DeathType.UnknownHealing"/>.
+    /// This is also used to heal objects with <see cref="DamageType.Healing"/> and <see cref="DeathType.None"/>.
     /// </remarks>
     public struct DamageDataRequest : IPersistableObject
     {

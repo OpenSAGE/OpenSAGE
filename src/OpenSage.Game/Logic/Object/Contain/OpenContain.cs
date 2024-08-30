@@ -171,7 +171,9 @@ namespace OpenSage.Logic.Object
                 {
                     // this is dealt when the parent dies
                     var damageToDeal = unit.MaxHealth * (Fix64)(float)_moduleData.DamagePercentToUnits;
-                    unit.DoDamage(DamageType.Unresistable, damageToDeal, DeathType.UnknownContainDeath, GameObject); // yes, the container is the damager, not the one who destroyed the container
+                    // yes, the container is the damager, not the one who destroyed the container
+                    // and yes, the death type is in fact burned
+                    unit.DoDamage(DamageType.Unresistable, damageToDeal, DeathType.Burned, GameObject);
                 }
             }
             else

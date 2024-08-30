@@ -131,8 +131,74 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(0, data.Unknown1);
         Assert.Equal(DamageType.Healing, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
-        Assert.Equal(DeathType.UnknownHealing, data.DeathType);
+        Assert.Equal(DeathType.None, data.DeathType);
         Assert.Equal(3.333, data.DamageToDeal, 0.01);
+        Assert.Equal(string.Empty, data.AttackerName); // v3
+    }
+
+    /// <summary>
+    /// When damaged by a burning ember, the damage dealer is the burning unit.
+    /// </summary>
+    private static readonly byte[] GeneralsBurningEmberDamageDataRequest = [0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x40];
+
+    [Fact]
+    public void DamageDataRequest_BurningEmber_V1()
+    {
+        var stream = SaveData(GeneralsBurningEmberDamageDataRequest);
+        var reader = new StateReader(stream, Generals);
+        var data = new DamageDataRequest();
+        data.Persist(reader);
+
+        Assert.Equal(5u, data.DamageDealer);
+        Assert.Equal(0, data.Unknown1);
+        Assert.Equal(DamageType.Flame, data.DamageType);
+        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DeathType.Burned, data.DeathType);
+        Assert.Equal(3, data.DamageToDeal, 0.01);
+        Assert.Equal(string.Empty, data.AttackerName); // v3
+    }
+
+    /// <summary>
+    /// Tnt attacks have a death type of suicided
+    /// </summary>
+    private static readonly byte[] GeneralsTntDamageDataRequest = [0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfa, 0x43];
+
+    [Fact]
+    public void DamageDataRequest_Tnt_V1()
+    {
+        var stream = SaveData(GeneralsTntDamageDataRequest);
+        var reader = new StateReader(stream, Generals);
+        var data = new DamageDataRequest();
+        data.Persist(reader);
+
+        Assert.Equal(7u, data.DamageDealer);
+        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(DamageType.Explosion, data.DamageType);
+        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DeathType.Suicided, data.DeathType);
+        Assert.Equal(500, data.DamageToDeal, 0.01);
+        Assert.Equal(string.Empty, data.AttackerName); // v3
+    }
+
+    /// <summary>
+    /// Tnt attacks have a death type of suicided
+    /// </summary>
+    private static readonly byte[] GeneralsToxinFieldDamageDataRequest = [0x1c, 0x00, 0x00, 0x00, 0x04, 0x00, 0x09, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40];
+
+    [Fact]
+    public void DamageDataRequest_ToxinField_V1()
+    {
+        var stream = SaveData(GeneralsToxinFieldDamageDataRequest);
+        var reader = new StateReader(stream, Generals);
+        var data = new DamageDataRequest();
+        data.Persist(reader);
+
+        Assert.Equal(28u, data.DamageDealer);
+        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(DamageType.Poison, data.DamageType);
+        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DeathType.Poisoned, data.DeathType);
+        Assert.Equal(2, data.DamageToDeal, 0.01);
         Assert.Equal(string.Empty, data.AttackerName); // v3
     }
 

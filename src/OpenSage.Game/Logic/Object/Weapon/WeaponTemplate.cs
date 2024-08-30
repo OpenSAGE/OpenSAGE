@@ -597,47 +597,45 @@ namespace OpenSage.Logic.Object
         [IniEnum("NORMAL")]
         Normal = 0,
 
-        // this seems to pair with the Healing damage type, but there doesn't seem to be anything corresponding to this in the INIs.
-        UnknownHealing = 1,
+        // this seems to pair with the Healing damage type
+        [IniEnum("NONE")]
+        None = 1,
 
-        // this seems to appear when an object in a container takes damage (and potentially dies) due to the container being destroyed
-        UnknownContainDeath = 3,
+        [IniEnum("CRUSHED")]
+        Crushed,
+
+        [IniEnum("BURNED")]
+        Burned = 3,
 
         [IniEnum("EXPLODED")]
         Exploded = 4,
 
+        [IniEnum("POISONED")]
+        Poisoned = 5,
+
+        [IniEnum("TOPPLED")]
+        Toppled,
+
+        [IniEnum("FLOODED")]
+        Flooded,
+
+        [IniEnum("SUICIDED")]
+        Suicided = 8,
+
         [IniEnum("LASERED")]
         Lasered,
 
-        [IniEnum("BURNED")]
-        Burned,
+        [IniEnum("DETONATED")]
+        Detonated,
 
-        [IniEnum("SUICIDED")]
-        Suicided,
-
-        [IniEnum("POISONED")]
-        Poisoned,
+        [IniEnum("SPLATTED")]
+        Splatted,
 
         [IniEnum("POISONED_BETA")]
         PoisonedBeta,
 
         [IniEnum("POISONED_GAMMA"), AddedIn(SageGame.CncGeneralsZeroHour)]
         PoisonedGamma,
-
-        [IniEnum("CRUSHED")]
-        Crushed,
-
-        [IniEnum("TOPPLED")]
-        Toppled,
-
-        [IniEnum("SPLATTED")]
-        Splatted,
-
-        [IniEnum("FLOODED")]
-        Flooded,
-
-        [IniEnum("DETONATED")]
-        Detonated,
 
         [IniEnum("EXTRA_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
         Extra4,

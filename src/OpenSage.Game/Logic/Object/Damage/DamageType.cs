@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
         Radiation,
 
         [IniEnum("FLAME")]
-        Flame,
+        Flame = 6,
 
         [IniEnum("LASER")]
         Laser,
