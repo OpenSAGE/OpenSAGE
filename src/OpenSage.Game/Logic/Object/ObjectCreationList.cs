@@ -152,11 +152,12 @@ namespace OpenSage.Logic.Object
 
             if (Disposition.Get(ObjectDisposition.SendItFlying))
             {
+                var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
                 physicsBehavior.AddForce(
                     new Vector3(
-                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
-                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * 200,
-                        DispositionIntensity * 200));
+                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                        DispositionIntensity * forceMultiplier));
             }
 
             // TODO: Count, Disposition, DispositionIntensity

@@ -14,8 +14,8 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool2;
         private uint _unknownInt1;
         private int _unknownInt2;
-        private uint _unknownInt3;
-        private uint _unknownInt4;
+        private uint _countdownSomething1;
+        private uint _countdownSomething2;
         private uint _unknownObjectId;
         private uint _unknownInt5;
         private uint _unknownInt6;
@@ -71,8 +71,8 @@ namespace OpenSage.Logic.AI
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt3); // 50, 51, 8, 35
-            reader.PersistUInt32(ref _unknownInt4); // 0, 50
+            reader.PersistUInt32(ref _countdownSomething1); // Decrements by 1 each logic frame. When it reaches 0, it resets to 60.
+            reader.PersistUInt32(ref _countdownSomething2); // Decrements by 1 each logic frame. When it reaches 0, it resets to 150.
 
             var unknown6 = 10u;
             reader.PersistUInt32(ref unknown6);

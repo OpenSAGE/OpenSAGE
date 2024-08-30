@@ -372,7 +372,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(2);
 
-            reader.PersistFrame(ref _frameSomething);
+            reader.PersistFrame(ref _frameSomething); // Equal to CurrentFrame + 75
             reader.PersistVector3(ref _positionSomething);
             reader.PersistSingle(ref _unknownFloat1);
 

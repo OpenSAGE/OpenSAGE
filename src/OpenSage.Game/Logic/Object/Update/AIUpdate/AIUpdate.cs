@@ -55,7 +55,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownInt14;
         private bool _unknownBool7;
         private uint _unknownInt15;
-        private bool _unknownBool8;
+        private bool _pathSomething;
         private PathfindingPath _path;
         private uint _unknownInt16;
         private Vector3 _unknownPosition1;
@@ -346,7 +346,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistBoolean(ref _unknownBool8);
+            reader.PersistBoolean(ref _pathSomething); // This is true on the frame that a unit is moved, and then false on the frame that a path is present
 
             var hasPath = _path != null;
             reader.PersistBoolean(ref hasPath);
@@ -403,7 +403,7 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt18); // 0, 1
+            reader.PersistUInt32(ref _unknownInt18); // 0 when unit stationary, 1 when moving
             reader.PersistVector3(ref _unknownPosition3);
 
             if (_moduleData.Turret != null)
@@ -560,7 +560,6 @@ namespace OpenSage.Logic.Object
     {
         private readonly List<PathPoint> _points = new();
         private bool _unknownBool1;
-        private uint _unknownInt1;
         private uint _unknownInt2;
         private bool _unknownBool2;
 
@@ -576,7 +575,7 @@ namespace OpenSage.Logic.Object
                 });
 
             reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistUInt32(ref _unknownInt1);
+            reader.SkipUnknownBytes(4);
             reader.PersistUInt32(ref _unknownInt2); // 1
             reader.PersistBoolean(ref _unknownBool2);
         }

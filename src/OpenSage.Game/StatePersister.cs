@@ -286,7 +286,7 @@ namespace OpenSage
 
         public override void PersistUInt32Value(ref uint value) => value = _binaryReader.ReadUInt32();
 
-        public override void PersistBooleanValue(ref bool value) => value = _binaryReader.ReadBoolean();
+        public override void PersistBooleanValue(ref bool value) => value = _binaryReader.ReadBooleanChecked();
 
         public override void PersistAsciiStringValue(ref string value) => value = _binaryReader.ReadBytePrefixedAsciiString();
 

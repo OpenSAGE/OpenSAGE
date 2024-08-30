@@ -167,12 +167,12 @@ namespace OpenSage.Data.Map
             var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
 
             var playerNames = mapPlayers
-                .Select(p => p.Properties.GetPropOrNull("playerName")?.Value.ToString())
+                .Select(p => p.Properties.GetPropOrNull("playerFaction")?.Value.ToString())
                 .ToArray();
 
             while (mapScriptLists.Count < mapPlayers.Count)
             {
-                mapScriptLists.Add(null);
+                mapScriptLists.Add(new ScriptList());
             }
 
             // Copy neutral player scripts.
@@ -195,11 +195,12 @@ namespace OpenSage.Data.Map
                 1,
                 appendIndex: false);
 
+            var hadScripts = false;
             switch (game.SageGame)
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    CreateTeamsFromScbFile(game, mapPlayers, mapTeams, mapScriptLists, playerSettings, neutralPlayerName, civilianPlayerName);
+                    CreateTeamsFromScbFile(game, originalMapScriptLists, playerNames, mapPlayers, mapTeams, mapScriptLists, playerSettings, neutralPlayerName, civilianPlayerName, out hadScripts);
                     break;
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
@@ -208,7 +209,7 @@ namespace OpenSage.Data.Map
                     break;
             }
 
-            if (playerSettings.Length > 1)
+            if (!hadScripts && playerSettings.Length > 1)
             {
                 var multiplayerScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\MultiplayerScripts.scb");
 
@@ -250,7 +251,7 @@ namespace OpenSage.Data.Map
             if (sourcePlayerIndex >= 0)
             {
                 // In script files, the neutral player at index 0 is not included in the player names list
-                if (scriptsList.Length > playerNames.Length)
+                if (scriptsList.Length > playerNames.Length && playerNames[0] != "")
                 {
                     sourcePlayerIndex++;
                 }
@@ -276,13 +277,67 @@ namespace OpenSage.Data.Map
 
         private static void CreateTeamsFromScbFile(
             Game game,
+            ScriptList[] originalMapScriptLists,
+            string[] originalMapPlayerNames,
             List<Player> mapPlayers,
             List<Team> mapTeams,
             List<ScriptList> mapScriptLists,
             PlayerSetting[] playerSettings,
             string neutralPlayerName,
-            string civilianPlayerName)
+            string civilianPlayerName,
+
+            out bool hadScripts)
         {
+            // If we already have scripts defined in World Builder for this map, don't overwrite them.
+            hadScripts = originalMapScriptLists.Any(x => x != null && (x.ScriptGroups.Length > 0 || x.Scripts.Length > 0));
+            if (hadScripts)
+            {
+                // ... but we still need to create teams.
+                for (var i = 2; i < mapPlayers.Count; i++)
+                {
+                    if ((bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                    {
+                        // Copy the scripts from the civilian player to all human players.
+                        CopyScripts(
+                            originalMapScriptLists,
+                            originalMapPlayerNames,
+                            civilianPlayerName,
+                            mapScriptLists,
+                            i,
+                            appendIndex: true);
+
+                        mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                    }
+                }
+
+                mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
+
+                mapTeams.Add(CreateDefaultTeam(neutralPlayerName));
+                mapTeams.Add(CreateDefaultTeam(civilianPlayerName));
+
+                for (var i = 2; i < mapPlayers.Count; i++)
+                {
+                    if (!(bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                    {
+                        var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
+                        var sourcePlayerName = $"Faction{playerSide}";
+
+                        // Copy the scripts from the according skirmish player for all AI players.
+                        CopyScripts(
+                            originalMapScriptLists,
+                            originalMapPlayerNames,
+                            sourcePlayerName,
+                            mapScriptLists,
+                            i,
+                            appendIndex: true);
+
+                        mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                    }
+                }
+
+                return;
+            }
+
             var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
 
             using var stream = skirmishScriptsEntry.Open();

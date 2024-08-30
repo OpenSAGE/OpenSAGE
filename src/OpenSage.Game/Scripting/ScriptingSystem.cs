@@ -35,6 +35,7 @@ namespace OpenSage.Scripting
         private readonly ScienceSet[] _sciences;
         private readonly float[] _unknownFloats = new float[6];
         private uint _unknown17;
+        private bool _timeFrozen;
         private readonly List<MapReveal> _mapReveals = new();
         private readonly List<ObjectTypeList> _objectTypeLists = new();
         private string _musicTrackName;
@@ -439,7 +440,7 @@ namespace OpenSage.Scripting
                 throw new InvalidStateException();
             }
 
-            reader.SkipUnknownBytes(1);
+            reader.PersistBoolean(ref _timeFrozen);
 
             reader.PersistList(
                 _mapReveals,
