@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
                 {
                     return;
                 }
-                _gameObject.Heal(_healPercentagePerFrame);
+                _gameObject.HealDirectly(_healPercentagePerFrame);
             }
 
             if (_framesUntilConstructionBegins != LogicFrameSpan.Zero)

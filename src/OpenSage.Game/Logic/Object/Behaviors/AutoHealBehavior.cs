@@ -125,7 +125,7 @@ namespace OpenSage.Logic.Object
         {
             if (gameObject.HealthPercentage < Fix64.One)
             {
-                gameObject.Heal((Fix64)_moduleData.HealingAmount);
+                gameObject.Heal((Fix64)_moduleData.HealingAmount, _gameObject);
                 if (gameObject != _gameObject)
                 {
                     gameObject.SetBeingHealed(_gameObject, NextUpdateFrame.Frame);

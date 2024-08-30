@@ -68,8 +68,7 @@ namespace OpenSage.Logic.Object
         {
             if (gameObject.HealthPercentage < Fix64.One)
             {
-                gameObject.Heal(GetHealPercentage());
-                gameObject.HealedByObjectId = _gameObject.ID;
+                gameObject.Heal(GetHealPercentage(), _gameObject);
             }
         }
 

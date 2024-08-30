@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class ImmortalBody : ActiveBody
     {
-        internal ImmortalBody(GameObject gameObject, ImmortalBodyModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal ImmortalBody(GameObject gameObject, GameContext context, ImmortalBodyModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
         }
 
@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ImmortalBody(gameObject, this);
+            return new ImmortalBody(gameObject, context, this);
         }
     }
 }

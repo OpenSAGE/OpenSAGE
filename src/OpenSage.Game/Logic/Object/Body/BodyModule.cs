@@ -26,9 +26,11 @@ namespace OpenSage.Logic.Object
 
         public virtual void SetInitialHealth(float multiplier) { }
 
-        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType) { }
+        public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer) { }
 
         public virtual void Heal(Fix64 amount) { }
+
+        public virtual void Heal(Fix64 amount, GameObject healer) { }
 
         internal override void Load(StatePersister reader)
         {
@@ -66,7 +68,7 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
             if (ImGui.Button("Apply Damage"))
             {
-                GameObject.DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType);
+                GameObject.DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType, null);
             }
         }
     }

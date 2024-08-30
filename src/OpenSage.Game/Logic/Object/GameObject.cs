@@ -294,9 +294,12 @@ namespace OpenSage.Logic.Object
 
         public bool IsDead => Health <= Fix64.Zero;
 
-        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType)
+        public void DoDamage(DamageType damageType, Percentage percentage, DeathType deathType, GameObject damageDealer) =>
+            DoDamage(damageType, MaxHealth * (Fix64)(float)percentage, deathType, damageDealer);
+
+        public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
-            _body.DoDamage(damageType, amount, deathType);
+            _body.DoDamage(damageType, amount, deathType, damageDealer);
             // units can have multiple delayed heal behaviors, as the default object has an inheritable autohealbehavior provided by veterancy
             foreach (var autoHealBehavior in FindBehaviors<ISelfHealable>())
             {
@@ -304,9 +307,24 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        public void Heal(Percentage percentage) => Heal(MaxHealth * (Fix64)(float)percentage);
+        public void Heal(Percentage percentage, GameObject healer) => Heal(MaxHealth * (Fix64)(float)percentage, healer);
 
-        public void Heal(Fix64 amount)
+        public void Heal(Fix64 amount, GameObject healer)
+        {
+            _body.Heal(amount, healer);
+            HealedByObjectId = healer?.ID ?? 0;
+        }
+
+        /// <summary>
+        /// Heals without any sort of healer or registering any sort of DamageData.
+        /// </summary>
+        public void HealDirectly(Percentage percentage) => HealDirectly(MaxHealth * (Fix64)(float)percentage);
+
+        /// <summary>
+        /// Heals without any sort of healer or registering any sort of DamageData.
+        /// </summary>
+        /// <param name="amount"></param>
+        public void HealDirectly(Fix64 amount)
         {
             _body.Heal(amount);
         }
@@ -1009,7 +1027,7 @@ namespace OpenSage.Logic.Object
             BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
             // structures can be attacked while under construction, and their health is a factor of their build progress;
             var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
-            Heal(newHealth);
+            HealDirectly(newHealth);
 
             if (BuildProgress >= 1.0f)
             {
@@ -1045,8 +1063,6 @@ namespace OpenSage.Logic.Object
 
         internal void UpdateDamageFlags(Fix64 healthPercentage, bool takingDamage)
         {
-            // TODO: SoundOnDamaged
-            // TODO: SoundOnReallyDamaged
             // TODO: SoundDie
             // TODO: TransitionDamageFX
 
@@ -1054,9 +1070,9 @@ namespace OpenSage.Logic.Object
 
             if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
-                if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged) && Definition.SoundOnReallyDamaged != null)
+                if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged))
                 {
-                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged.Value);
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged?.Value);
                 }
 
                 if (!IsBeingConstructed())
@@ -1068,11 +1084,11 @@ namespace OpenSage.Logic.Object
 
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
             }
-            else if (takingDamage && healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
-                if (!ModelConditionFlags.Get(ModelConditionFlag.Damaged) && Definition.SoundOnDamaged != null)
+                if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.Damaged))
                 {
-                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged.Value);
+                    _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged?.Value);
                 }
 
                 if (!IsBeingConstructed())
@@ -1283,7 +1299,7 @@ namespace OpenSage.Logic.Object
 
         internal void Kill(DeathType deathType)
         {
-            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType);
+            _body.DoDamage(DamageType.Unresistable, _body.Health, deathType, null);
         }
 
         internal void Die(DeathType deathType)

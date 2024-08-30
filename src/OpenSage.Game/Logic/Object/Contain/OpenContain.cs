@@ -172,7 +172,9 @@ namespace OpenSage.Logic.Object
                 {
                     // this is dealt when the parent dies
                     var damageToDeal = unit.MaxHealth * (Fix64)(float)_moduleData.DamagePercentToUnits;
-                    unit.DoDamage(DamageType.Penalty, damageToDeal, DeathType.Normal); // todo: is this the right damage/death type?
+                    // yes, the container is the damager, not the one who destroyed the container
+                    // and yes, the death type is in fact burned
+                    unit.DoDamage(DamageType.Unresistable, damageToDeal, DeathType.Burned, GameObject);
                 }
             }
             else
@@ -189,7 +191,7 @@ namespace OpenSage.Logic.Object
             foreach (var unitId in ContainedObjectIds)
             {
                 var unit = GameObjectForId(unitId);
-                unit.Heal(percentToHeal);
+                unit.Heal(percentToHeal, GameObject);
             }
         }
 

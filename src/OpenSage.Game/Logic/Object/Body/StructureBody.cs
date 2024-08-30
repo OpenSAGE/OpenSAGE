@@ -6,8 +6,8 @@ namespace OpenSage.Logic.Object
     {
         private uint _unknown;
 
-        internal StructureBody(GameObject gameObject, StructureBodyModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal StructureBody(GameObject gameObject, GameContext context, StructureBodyModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
         }
 
@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new StructureBody(gameObject, this);
+            return new StructureBody(gameObject, context, this);
         }
     }
 }
