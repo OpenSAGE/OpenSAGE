@@ -30,6 +30,7 @@ namespace OpenSage.Logic.Object
         private bool _hasNoFirePoints;
         private readonly List<QueuedForEvac> _evacQueue = new();
         private int _unknownInt;
+        private bool _passengersAllowedToFire;
 
         public virtual IList<uint> ContainedObjectIds => _containedObjectIds;
         public bool DrawPips => _moduleData.ShouldDrawPips;
@@ -255,7 +256,7 @@ namespace OpenSage.Logic.Object
 
             if (version >= 2)
             {
-                reader.SkipUnknownBytes(1);
+                reader.PersistBoolean(ref _passengersAllowedToFire);
             }
         }
 
