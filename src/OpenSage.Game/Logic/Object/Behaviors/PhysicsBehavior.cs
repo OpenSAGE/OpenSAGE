@@ -13,14 +13,10 @@ namespace OpenSage.Logic.Object
 
         private float _mass;
 
-        // TODO: Don't know if this belongs here.
-        private Vector3 _velocity;
-
-        private Vector3 _cumulativeForces;
-
         private Vector3 _unknownVector1;
-        private Vector3 _unknownVector2;
-        private Vector3 _unknownVector3;
+        private Vector3 _acceleration;
+        private Vector3 _lastAcceleration;
+        private Vector3 _velocity;
         private int _unknownInt1;
         private uint _unknownInt2;
         private uint _unknownInt3;
@@ -50,6 +46,8 @@ namespace OpenSage.Logic.Object
 
         internal override void Update(BehaviorUpdateContext context)
         {
+            // TODO: This probably isn't right. Aircraft locomotors should probably apply forces using this behavior
+            // instead of modifying translations directly.
             if (_gameObject.Definition.KindOf.Get(ObjectKinds.Aircraft)
                 || _gameObject.Definition.KindOf.Get(ObjectKinds.Drone)
                 || _gameObject.Definition.KindOf.Get(ObjectKinds.GiantBird)
@@ -58,18 +56,17 @@ namespace OpenSage.Logic.Object
                 if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying) == false) return;
             }
 
-            var cumulativeAcceleration = _cumulativeForces / Mass;
-            _cumulativeForces = Vector3.Zero;
+            var acceleration = _gravityAcceleration + _acceleration;
 
-            var acceleration = _gravityAcceleration + cumulativeAcceleration;
+            _lastAcceleration = _acceleration;
+
+            _acceleration = Vector3.Zero;
 
             // Integrate velocity.
-            // TODO
-            var deltaTime = 1.0f / Game.LogicFramesPerSecond;
-            _velocity += acceleration * deltaTime;
+            _velocity += acceleration;
 
             // Integrate position.
-            var newTranslation = context.GameObject.Translation + (_velocity * deltaTime);
+            var newTranslation = context.GameObject.Translation + _velocity;
 
             var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
                 newTranslation.X,
@@ -93,12 +90,13 @@ namespace OpenSage.Logic.Object
 
         public void AddForce(in Vector3 force)
         {
-            _cumulativeForces += force;
+            _acceleration += force / _mass;
         }
 
         internal override void DrawInspector()
         {
             ImGui.InputFloat("Mass", ref _mass);
+            ImGui.DragFloat3("Acceleration", ref _acceleration);
             ImGui.DragFloat3("Velocity", ref _velocity);
         }
 
@@ -111,8 +109,8 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
 
             reader.PersistVector3(ref _unknownVector1);
-            reader.PersistVector3(ref _unknownVector2);
-            reader.PersistVector3(ref _unknownVector3);
+            reader.PersistVector3(ref _acceleration);
+            reader.PersistVector3(ref _lastAcceleration);
             reader.PersistVector3(ref _velocity);
             reader.PersistInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);
@@ -120,7 +118,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle(ref _mass);
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistFrame(ref _unknownFrame);
+            reader.PersistFrame(ref _unknownFrame); // When object starts moving, this is set to current frame + 10
 
             reader.SkipUnknownBytes(6);
             reader.PersistByte(ref _unknownByte1); // 128 for supply drop zone crate parachute
