@@ -21,6 +21,7 @@ using FixedMath.NET;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Terrain;
 using OpenSage.FileFormats;
+using OpenSage.Logic.Object.Damage;
 
 namespace OpenSage.Logic.Object
 {
@@ -277,6 +278,18 @@ namespace OpenSage.Logic.Object
         private readonly BodyModule _body;
         public bool HasActiveBody() => _body is ActiveBody;
 
+        public bool TryGetLastDamage(out DamageData damageData)
+        {
+            damageData = default;
+            if (_body is ActiveBody b)
+            {
+                damageData = b.LastDamage;
+                return true;
+            }
+
+            return false;
+        }
+
         public Fix64 Health
         {
             get => _body?.Health ?? Fix64.Zero;
@@ -368,7 +381,7 @@ namespace OpenSage.Logic.Object
 
         public TeamTemplate TeamTemplate { get; set; }
 
-        public Team Team { get; private set; }
+        public Team Team { get; internal set; }
 
         public bool IsSelectable;
         public bool IsProjectile { get; private set; } = false;
@@ -770,9 +783,9 @@ namespace OpenSage.Logic.Object
             CheckDisabledStates();
             foreach (var behavior in _behaviorModules)
             {
-                if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate)
+                if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate and not DeletionUpdate)
                 {
-                    continue; // if we're dead, we should only update SlowDeathBehavior or LifetimeUpdate
+                    continue; // if we're dead, we should only update SlowDeathBehavior, LifetimeUpdate, or DeletionUpdate
                 }
                 behavior.Update(_behaviorUpdateContext);
             }

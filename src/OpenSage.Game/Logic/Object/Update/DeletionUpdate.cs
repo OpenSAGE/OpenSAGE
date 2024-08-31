@@ -1,4 +1,5 @@
 ﻿using System;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -16,6 +17,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
 
             _frameToDelete = gameObject.GameContext.GameLogic.CurrentFrame + gameObject.GameContext.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
+            NextUpdateFrame = new UpdateFrame(_frameToDelete);
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -33,6 +35,12 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
 
             reader.PersistLogicFrame(ref _frameToDelete);
+        }
+
+        internal override void DrawInspector()
+        {
+            base.DrawInspector();
+            ImGui.LabelText("Frame to delete", _frameToDelete.ToString());
         }
     }
 
