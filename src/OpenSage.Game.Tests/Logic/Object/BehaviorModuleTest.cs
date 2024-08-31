@@ -6,5 +6,5 @@ public abstract class BehaviorModuleTest<TModule, TData> : ModuleTest where TMod
 {
     protected override byte[] ModuleData() => [V1, V1, .. base.ModuleData()];
 
-    protected TModule SampleModule() => (TModule)new TData().CreateModule(null!, null!);
+    protected TModule SampleModule(IGame game = null, TData moduleData = null) => (TModule)(moduleData ?? new TData()).CreateModule(null!, game?.Context);
 }
