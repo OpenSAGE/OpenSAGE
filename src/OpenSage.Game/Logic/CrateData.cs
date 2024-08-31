@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
@@ -17,19 +21,41 @@ namespace OpenSage.Logic
         {
             { "CreationChance", (parser, x) => x.CreationChance = parser.ParseFloat() },
             { "KilledByType", (parser, x) => x.KilledByType = parser.ParseEnum<ObjectKinds>() },
-            { "KillerScience", (parser, x) => x.KillerScience = parser.ParseAssetReference() },
+            { "KillerScience", (parser, x) => x.KillerScience = parser.ParseScienceReference() },
             { "VeterancyLevel", (parser, x) => x.VeterancyLevel = parser.ParseEnum<VeterancyLevel>() },
             { "OwnedByMaker", (parser, x) => x.OwnedByMaker = parser.ParseBoolean() },
             { "CrateObject", (parser, x) => x.CrateObjects.Add(CrateObject.Parse(parser)) },
         };
 
+        /// <summary>
+        /// Chance of a crate being created.
+        /// </summary>
         public float CreationChance { get; private set; }
+
+        /// <summary>
+        /// <see cref="ObjectKinds"/> required by the killer in order to create the crate.
+        /// </summary>
         public ObjectKinds? KilledByType { get; private set; }
-        public string KillerScience { get; private set; }
+
+        /// <summary>
+        /// Science required by the killer in order to create the crate.
+        /// </summary>
+        public LazyAssetReference<Science>? KillerScience { get; private set; }
+
+        /// <summary>
+        /// The <b>victim</b> must have this veterancy level in order to generate the crate.
+        /// </summary>
         public VeterancyLevel? VeterancyLevel { get; private set; }
+
+        /// <summary>
+        /// Used "to have the Crate assigned to the default team of the dead guy's player for scripting."
+        /// </summary>
         public bool OwnedByMaker { get; private set; }
 
-        public List<CrateObject> CrateObjects { get; } = new List<CrateObject>();
+        /// <summary>
+        /// Different crates which may be created if all conditions succeed.
+        /// </summary>
+        public List<CrateObject> CrateObjects { get; } = [];
     }
 
     public enum VeterancyLevel
@@ -44,21 +70,14 @@ namespace OpenSage.Logic
         Elite,
 
         [IniEnum("HEROIC")]
-        Heroic
+        Heroic,
     }
 
-    public sealed class CrateObject
+    public readonly record struct CrateObject(LazyAssetReference<ObjectDefinition>? Object, float Probability)
     {
         internal static CrateObject Parse(IniParser parser)
         {
-            return new CrateObject
-            {
-                ObjectName = parser.ParseAssetReference(),
-                Probability = parser.ParseFloat()
-            };
+            return new CrateObject(parser.ParseObjectReference(), parser.ParseFloat());
         }
-
-        public string ObjectName { get; private set; }
-        public float Probability { get; private set; }
     }
 }

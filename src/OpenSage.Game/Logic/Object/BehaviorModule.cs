@@ -98,6 +98,11 @@ namespace OpenSage.Logic.Object
         {
             return left.Value >= right.Value;
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public readonly struct LogicFrameSpan
