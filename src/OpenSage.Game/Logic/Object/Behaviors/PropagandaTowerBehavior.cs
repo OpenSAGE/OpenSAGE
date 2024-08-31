@@ -61,7 +61,7 @@ namespace OpenSage.Logic.Object
 
         private GameObject GameObjectForId(uint unitId)
         {
-            return _gameObject.GameContext.GameObjects.GetObjectById(unitId);
+            return _gameObject.GameContext.GameLogic.GetObjectById(unitId);
         }
 
         private void HealUnit(GameObject gameObject)

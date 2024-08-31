@@ -196,12 +196,12 @@ namespace OpenSage.Scripting
         {
             if (objectType.Equals("")) { objectType = "AmericaVehicleDozer"; }
             var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
-            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, Game.Scene3D.LocalPlayer);
+            var spawnUnit = Game.Scene3D.GameObjects.CreateObject(spawnUnitDefinition, Game.Scene3D.LocalPlayer);
             var localPlayerStartPosition = Game.Scene3D.Waypoints[$"Player_{1}_Start"].Position;
             localPlayerStartPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(localPlayerStartPosition.X, localPlayerStartPosition.Y);
             var spawnUnitPosition = localPlayerStartPosition;
             var playerTemplate = Game.Scene3D.LocalPlayer.Template;
-            var startingBuilding = Game.Scene3D.GameObjects.Add(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
+            var startingBuilding = Game.Scene3D.GameObjects.CreateObject(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
             spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
             spawnUnit.SetTranslation(spawnUnitPosition);
             return GetLuaObjectIndex(spawnUnit.ID);
@@ -211,7 +211,7 @@ namespace OpenSage.Scripting
         {
             var player = Game.Scene3D.LocalPlayer;
             var spawnUnitDefinition = Game.AssetStore.ObjectDefinitions.GetByName(objectType);
-            var spawnUnit = Game.Scene3D.GameObjects.Add(spawnUnitDefinition, player);
+            var spawnUnit = Game.Scene3D.GameObjects.CreateObject(spawnUnitDefinition, player);
             var spawnPosition = new System.Numerics.Vector3(xPos, yPos, zPos);
             spawnPosition.Z += Game.Scene3D.Terrain.HeightMap.GetHeight(spawnPosition.X, spawnPosition.Y);
             if (zPos > spawnPosition.Z) { spawnPosition.Z = zPos; }

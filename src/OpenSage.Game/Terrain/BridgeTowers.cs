@@ -46,7 +46,7 @@ namespace OpenSage.Terrain
         {
             void CreateTower(ObjectDefinition objectDefinition, float x, float y)
             {
-                var tower = gameContext.GameObjects.Add(objectDefinition, owner);
+                var tower = gameContext.GameLogic.CreateObject(objectDefinition, owner);
 
                 var translation = Vector3.Transform(
                     new Vector3(x, y, 0),

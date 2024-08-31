@@ -183,7 +183,7 @@ namespace OpenSage.Logic.Object
         {
             var disabledUntilFrame = _context.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
             // if deactivating, set disabled_paralyzed to affected units based on kind, frames is current frame + property
-            foreach (var gameObject in _context.GameObjects.Items)
+            foreach (var gameObject in _context.GameLogic.Objects)
             {
                 if (gameObject.Owner == _gameObject.Owner && // we must own the object
                     gameObject.Definition.KindOf.Intersects(_moduleData.ValidMemberKindOf) && // and it should be one of these kinds

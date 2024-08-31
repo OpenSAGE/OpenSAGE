@@ -131,7 +131,7 @@ namespace OpenSage.Logic.Object
             // TODO: Cache this.
             var debrisObjectDefinition = context.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
 
-            var debrisObject = context.GameContext.GameObjects.Add(debrisObjectDefinition, context.GameObject.Owner);
+            var debrisObject = context.GameContext.GameLogic.CreateObject(debrisObjectDefinition, context.GameObject.Owner);
 
             var lifeTime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
             debrisObject.LifeTime = context.LogicFrame + lifeTime;
@@ -340,7 +340,7 @@ namespace OpenSage.Logic.Object
             {
                 for (var i = 0; i < Count; i++)
                 {
-                    var newGameObject = context.GameContext.GameObjects.Add(objectName.Value, context.GameObject.Owner);
+                    var newGameObject = context.GameContext.GameLogic.CreateObject(objectName.Value, context.GameObject.Owner);
                     // TODO: Count
                     // TODO: Disposition
                     // TODO: DispositionIntensity

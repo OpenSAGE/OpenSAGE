@@ -87,7 +87,7 @@ namespace OpenSage.Logic.OrderGenerators
             commandCenter = commandCenter?.IsKindOf(ObjectKinds.CommandCenter) == true ? commandCenter : null;
             if (commandCenter == null)
             {
-                foreach (var gameObject in _gameContext.GameObjects.Items.Reverse())
+                foreach (var gameObject in _gameContext.GameLogic.Objects.Reverse())
                 {
                     // zero hour uses the _last_ built command center
                     if (gameObject.Owner == player && gameObject.IsKindOf(ObjectKinds.CommandCenter))

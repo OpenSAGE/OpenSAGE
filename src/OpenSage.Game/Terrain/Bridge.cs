@@ -39,7 +39,7 @@ namespace OpenSage.Terrain
             // TODO: Cache this.
             var genericBridgeDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericBridge");
 
-            _bridgeObject = gameContext.GameObjects.Add(genericBridgeDefinition, null);
+            _bridgeObject = gameContext.GameLogic.CreateObject(genericBridgeDefinition, null);
             _bridgeObject.SetMapObjectProperties(mapObject);
 
             _model = model;

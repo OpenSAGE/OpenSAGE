@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            var parent = _context.GameObjects.GetObjectById(_gameObject.CreatedByObjectID);
+            var parent = _context.GameLogic.GetObjectById(_gameObject.CreatedByObjectID);
 
             parent?.RemoveUpgrade(_moduleData.UpgradeToRemove.UpgradeName.Value);
 

@@ -6,7 +6,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
 {
-    internal sealed class GameLogic : DisposableBase, IPersistableObject
+    internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersistableObject
     {
         private readonly Game _game;
         private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
@@ -137,7 +137,7 @@ namespace OpenSage.Logic
             _destroyList.Add(gameObject);
         }
 
-        internal void DeleteDestroyed()
+        public void DeleteDestroyed()
         {
             foreach (var gameObject in _destroyList)
             {

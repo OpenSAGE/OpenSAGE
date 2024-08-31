@@ -98,7 +98,7 @@ namespace OpenSage.Logic.Orders
                             var angle = order.Arguments[2].Value.Float;
                             player.BankAccount.Withdraw((uint) objectDefinition.BuildCost);
 
-                            var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
+                            var gameObject = _game.Scene3D.GameObjects.CreateObject(objectDefinition, player);
                             gameObject.Owner = player;
                             gameObject.UpdateTransform(position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
 

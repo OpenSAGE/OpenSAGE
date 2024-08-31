@@ -94,7 +94,7 @@ internal sealed class DozerAndWorkerState
         var id = _dozerTargets[0].ObjectId;
         if (id > 0)
         {
-            gameObject = _context.GameObjects.GetObjectById(id);
+            gameObject = _context.GameLogic.GetObjectById(id);
             return true;
         }
 
@@ -121,7 +121,7 @@ internal sealed class DozerAndWorkerState
         var id = _dozerTargets[1].ObjectId;
         if (id > 0)
         {
-            gameObject = _context.GameObjects.GetObjectById(id);
+            gameObject = _context.GameLogic.GetObjectById(id);
             return true;
         }
 

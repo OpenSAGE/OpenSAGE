@@ -78,7 +78,7 @@ namespace OpenSage
 
         public PlayerScriptsList PlayerScripts { get; private set; }
 
-        public readonly GameObjectCollection GameObjects;
+        public IGameObjectCollection GameObjects => GameContext.GameLogic;
         public bool ShowObjects { get; set; } = true;
         public readonly CameraCollection Cameras;
         public readonly WaypointCollection Waypoints;
@@ -337,10 +337,6 @@ namespace OpenSage
             Game.GameLogic.Reset();
             Game.GameClient.Reset();
 
-            GameObjects = AddDisposable(new GameObjectCollection(GameContext));
-
-            GameContext.GameObjects = GameObjects;
-
             _orderGeneratorSystem = game.OrderGenerator;
         }
 
@@ -357,7 +353,7 @@ namespace OpenSage
         {
             Game.PlayerManager.LogicTick();
 
-            foreach (var gameObject in GameObjects.Items)
+            foreach (var gameObject in GameObjects.Objects)
             {
                 gameObject.LogicTick(time);
             }
@@ -369,7 +365,7 @@ namespace OpenSage
         {
             _orderGeneratorInputHandler?.Update();
 
-            foreach (var gameObject in GameObjects.Items)
+            foreach (var gameObject in GameObjects.Objects)
             {
                 gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
             }
@@ -406,7 +402,7 @@ namespace OpenSage
 
             if (ShowObjects)
             {
-                foreach (var gameObject in GameObjects.Items)
+                foreach (var gameObject in GameObjects.Objects)
                 {
                     if (!FrustumCulling
                         || gameObject.Definition.KindOf.Get(ObjectKinds.NoCollide)
@@ -441,13 +437,13 @@ namespace OpenSage
 
             if (player.Template.StartingBuilding != null)
             {
-                var startingBuilding = GameObjects.Add(player.Template.StartingBuilding.Value, player);
+                var startingBuilding = GameObjects.CreateObject(player.Template.StartingBuilding.Value, player);
                 var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
                 startingBuilding.UpdateTransform(playerStartPosition, rotation);
 
                 Navigation.UpdateAreaPassability(startingBuilding, false);
 
-                var startingUnit0 = GameObjects.Add(player.Template.StartingUnits[0].Unit.Value, player);
+                var startingUnit0 = GameObjects.CreateObject(player.Template.StartingUnits[0].Unit.Value, player);
                 var startingUnit0Position = playerStartPosition;
                 startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
                 startingUnit0.SetTranslation(startingUnit0Position);
@@ -457,7 +453,7 @@ namespace OpenSage
             else
             {
                 var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
-                foreach (var gameObject in GameObjects.Items)
+                foreach (var gameObject in GameObjects.Objects)
                 {
                     var team = gameObject.TeamTemplate;
                     if (team?.Name == $"Player_{playerSetting.StartPosition}_Inherit")

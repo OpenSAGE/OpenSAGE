@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content.Loaders;
@@ -35,8 +35,6 @@ namespace OpenSage
             return new LogicFrameSpan((uint)value);
         }
 
-        // TODO: Make this readonly.
-        public GameObjectCollection GameObjects;
         public readonly IQuadtree<GameObject> Quadtree;
 
         // TODO: This is temporary until Scene3D and GameContext are merged.

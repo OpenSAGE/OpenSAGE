@@ -116,7 +116,7 @@ namespace OpenSage.Gui.DebugUI
                     _scene3D.BuildPreviewObject.Geometry.DebugDraw(context, camera, _scene3D.BuildPreviewObject);
                 }
 
-                foreach (var gameObject in _scene3D.GameObjects.Items)
+                foreach (var gameObject in _scene3D.GameObjects.Objects)
                 {
                     // TODO: Reuse frustum culling results.
                     if (gameObject.RoughCollider != null && gameObject.RoughCollider.Intersects(camera.BoundingFrustum))

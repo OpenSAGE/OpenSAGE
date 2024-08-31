@@ -76,7 +76,7 @@ namespace OpenSage.Diagnostics
 
             var isEmptySearch = string.IsNullOrWhiteSpace(_searchText);
 
-            foreach (var asset in Context.Game.Scene3D.GameObjects.Items)
+            foreach (var asset in Context.Game.Scene3D.GameObjects.Objects)
             {
                 var name = GetObjectName(asset);
                 if (isEmptySearch || name.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)

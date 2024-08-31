@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var stump = _gameObject.GameContext.GameObjects.Add(_moduleData.StumpName.Value, null);
+            var stump = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
             stump.UpdateTransform(_gameObject.Translation, _gameObject.Rotation);
             _stumpId = stump.ID;
         }

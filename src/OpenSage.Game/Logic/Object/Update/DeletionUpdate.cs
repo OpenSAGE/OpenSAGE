@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
         {
             if (context.LogicFrame >= _frameToDelete)
             {
-                context.GameContext.GameObjects.DestroyObject(_gameObject);
+                context.GameContext.GameLogic.DestroyObject(_gameObject);
             }
         }
 
