@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -370,8 +370,9 @@ namespace OpenSage
             Console.WriteLine(segment.Name);
             for (var i = _binaryReader.BaseStream.Position; i < segment.End; i++)
             {
+                Console.Write("0x");
                 Console.Write(_binaryReader.ReadByte().ToString("x2"));
-                Console.Write(" ");
+                Console.Write(", ");
             }
             Console.WriteLine();
             Segments.Push(segment);

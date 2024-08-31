@@ -11,8 +11,6 @@ namespace OpenSage.Logic.Object
         private readonly PhysicsBehaviorModuleData _moduleData;
         private readonly Vector3 _gravityAcceleration;
 
-        private float _mass;
-
         private Vector3 _unknownVector1;
         private Vector3 _acceleration;
         private Vector3 _lastAcceleration;
@@ -20,9 +18,10 @@ namespace OpenSage.Logic.Object
         private int _unknownInt1;
         private uint _unknownInt2;
         private uint _unknownInt3;
+        private float _mass;
         private uint _unknownInt4;
         private uint _unknownInt5;
-        private uint _unknownFrame;
+        private LogicFrame _unknownFrame;
         private float _velocityMagnitude;
         private byte _unknownByte1;
         private byte _unknownByte2;
@@ -32,6 +31,20 @@ namespace OpenSage.Logic.Object
             get => _mass;
             set => _mass = value;
         }
+
+        internal Vector3 UnknownVector => _unknownVector1;
+        internal Vector3 Acceleration => _acceleration;
+        internal Vector3 LastAcceleration => _lastAcceleration;
+        internal Vector3 Velocity => _velocity;
+        internal int UnknownInt1 => _unknownInt1;
+        internal uint UnknownInt2 => _unknownInt2;
+        internal uint UnknownInt3 => _unknownInt3;
+        internal uint UnknownInt4 => _unknownInt4;
+        internal uint UnknownInt5 => _unknownInt5;
+        internal LogicFrame UnknownFrame => _unknownFrame;
+        internal float VelocityMagnitude => _velocityMagnitude;
+        internal byte UnknownByte1 => _unknownByte1;
+        internal byte UnknownByte2 => _unknownByte2;
 
         internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
         {
@@ -66,9 +79,9 @@ namespace OpenSage.Logic.Object
             _velocity += acceleration;
 
             // Integrate position.
-            var newTranslation = context.GameObject.Translation + _velocity;
+            var newTranslation = _gameObject.Translation + _velocity;
 
-            var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
+            var terrainHeight = _gameObject.GameContext.Terrain.HeightMap.GetHeight(
                 newTranslation.X,
                 newTranslation.Y);
 
@@ -81,11 +94,11 @@ namespace OpenSage.Logic.Object
 
                 if (_moduleData.KillWhenRestingOnGround && _velocity.Z < 0.1f)
                 {
-                    context.GameObject.Kill(DeathType.Normal);
+                    _gameObject.Kill(DeathType.Normal);
                 }
             }
 
-            context.GameObject.SetTranslation(newTranslation);
+            _gameObject.SetTranslation(newTranslation);
         }
 
         public void AddForce(in Vector3 force)
@@ -118,7 +131,7 @@ namespace OpenSage.Logic.Object
             reader.PersistSingle(ref _mass);
             reader.PersistUInt32(ref _unknownInt4);
             reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistFrame(ref _unknownFrame); // When object starts moving, this is set to current frame + 10
+            reader.PersistLogicFrame(ref _unknownFrame); // When object starts moving, this is set to current frame + 10
 
             reader.SkipUnknownBytes(6);
             reader.PersistByte(ref _unknownByte1); // 128 for supply drop zone crate parachute
@@ -150,7 +163,7 @@ namespace OpenSage.Logic.Object
             { "SecondHeight", (parser, x) => x.SecondHeight = parser.ParseInteger() }
         };
 
-        public float Mass { get; private set; } = 1.0f;
+        public float Mass { get; internal set; } = 1.0f;
         public float AerodynamicFriction { get; private set; }
         public float ForwardFriction { get; private set; }
         public float CenterOfMassOffset { get; private set; }

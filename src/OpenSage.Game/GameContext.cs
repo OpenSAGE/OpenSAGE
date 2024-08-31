@@ -9,21 +9,21 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage
 {
-    internal sealed class GameContext
+    public sealed class GameContext
     {
-        public readonly AssetLoadContext AssetLoadContext;
+        internal readonly AssetLoadContext AssetLoadContext;
         public readonly AudioSystem AudioSystem;
-        public readonly ParticleSystemManager ParticleSystems;
-        public readonly ObjectCreationListManager ObjectCreationLists;
+        internal readonly ParticleSystemManager ParticleSystems;
+        internal readonly ObjectCreationListManager ObjectCreationLists;
         public readonly Terrain.Terrain Terrain;
         public readonly Navigation.Navigation Navigation;
         public readonly Radar Radar;
 
         public Game Game => Scene3D.Game;
 
-        public GameLogic GameLogic => Scene3D.Game.GameLogic;
+        internal GameLogic GameLogic => Scene3D.Game.GameLogic;
 
-        public GameClient GameClient => Scene3D.Game.GameClient;
+        internal GameClient GameClient => Scene3D.Game.GameClient;
 
         public readonly Random Random = new Random();
 
@@ -42,7 +42,7 @@ namespace OpenSage
         // TODO: This is temporary until Scene3D and GameContext are merged.
         public readonly Scene3D Scene3D;
 
-        public GameContext(
+        internal GameContext(
             AssetLoadContext assetLoadContext,
             AudioSystem audioSystem,
             ParticleSystemManager particleSystems,

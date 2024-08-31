@@ -398,6 +398,8 @@ namespace OpenSage
 
         public PartitionCellManager PartitionCellManager { get; }
 
+        public GameContext Context => Scene3D.GameContext;
+
         public Game(GameInstallation installation)
             : this(installation, null, new Configuration(), null)
         {

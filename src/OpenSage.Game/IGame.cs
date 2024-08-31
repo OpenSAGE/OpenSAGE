@@ -30,6 +30,7 @@ public interface IGame
     TeamFactory TeamFactory { get; }
     PartitionCellManager PartitionCellManager { get; }
     bool InGame { get; }
+    GameContext Context { get; }
 
     void StartCampaign(string campaignName, string missionName);
     void StartSkirmishOrMultiPlayerGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int seed, bool isMultiPlayer);

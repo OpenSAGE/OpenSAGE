@@ -14,6 +14,7 @@ namespace OpenSage.Tests;
 public abstract class StatePersisterTest : MockedGameTest
 {
     protected const byte V1 = 0x01;
+    protected const byte V2 = 0x02;
     protected const byte V3 = 0x03;
 
     protected virtual MemoryStream SaveData(byte[] data, byte version = V1)
@@ -32,9 +33,15 @@ public abstract class MockedGameTest : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private protected class TestGame(SageGame game) : IGame
+    protected MockedGameTest()
     {
-        public SageGame SageGame { get; } = game;
+        Generals.AssetStore.PushScope();
+        ZeroHour.AssetStore.PushScope();
+    }
+
+    private protected class TestGame : IGame
+    {
+        public SageGame SageGame { get; }
         public AssetStore AssetStore { get; }
         public ContentManager ContentManager { get; }
         public SkirmishManager SkirmishManager { get; set; }
@@ -54,6 +61,14 @@ public abstract class MockedGameTest : IDisposable
         public TeamFactory TeamFactory { get; }
         public PartitionCellManager PartitionCellManager { get; }
         public bool InGame { get; }
+        public GameContext Context { get; }
+
+        public TestGame(SageGame game)
+        {
+            SageGame = game;
+            AssetStore = new AssetStore(game, null, null, null, null, null, null, OnDemandAssetLoadStrategy.None);
+            Context = new GameContext(AssetStore.LoadContext, null, null, null, null, null, null, null, Scene3D);
+        }
 
         public void StartCampaign(string campaignName, string missionName)
         {
