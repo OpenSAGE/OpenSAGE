@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
         {
             if (killer is null)
             {
-                return crateData.VeterancyLevel is null && crateData.KillerScience is null; // if we don't need to match veterancy or killer science, everything else passes by default
+                return crateData.KillerScience is null; // if we don't need to match killer science, everything else passes by default
             }
 
             return (!crateData.KilledByType.HasValue || killer.Definition.KindOf.Get(crateData.KilledByType.Value)) && // killer type ok
