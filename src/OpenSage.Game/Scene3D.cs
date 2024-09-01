@@ -297,7 +297,7 @@ namespace OpenSage
             if (mapFile != null)
             {
                 MapFile = mapFile;
-                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.AssetStore.LoadContext, RenderScene));
+                Terrain = AddDisposable(new Terrain.Terrain(mapFile, game.TerrainLogic.HeightMap, game.AssetStore.LoadContext, RenderScene));
                 WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
                 Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
             }
@@ -332,7 +332,8 @@ namespace OpenSage
                 Navigation,
                 Radar,
                 Quadtree,
-                this);
+                this,
+                game);
 
             Game.GameLogic.Reset();
             Game.GameClient.Reset();

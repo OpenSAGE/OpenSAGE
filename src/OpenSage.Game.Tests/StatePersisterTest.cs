@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
@@ -33,12 +34,6 @@ public abstract class MockedGameTest : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected MockedGameTest()
-    {
-        Generals.AssetStore.PushScope();
-        ZeroHour.AssetStore.PushScope();
-    }
-
     private protected class TestGame : IGame
     {
         public SageGame SageGame { get; }
@@ -61,13 +56,25 @@ public abstract class MockedGameTest : IDisposable
         public TeamFactory TeamFactory { get; }
         public PartitionCellManager PartitionCellManager { get; }
         public bool InGame { get; }
+        public AudioSystem Audio { get; }
+        public SelectionSystem Selection { get; }
         public GameContext Context { get; }
 
         public TestGame(SageGame game)
         {
             SageGame = game;
             AssetStore = new AssetStore(game, null, null, null, null, null, null, OnDemandAssetLoadStrategy.None);
-            Context = new GameContext(AssetStore.LoadContext, null, null, null, null, null, null, null, Scene3D);
+            Context = new GameContext(AssetStore.LoadContext, null, null, null, null, null, null, null, Scene3D, this);
+
+            AssetStore.PushScope();
+
+            AssetStore.Ranks.Add(new RankTemplate { InternalId = 1 });
+
+            PlayerManager = new PlayerManager(this);
+            PlayerManager.OnNewGame([OpenSage.Data.Map.Player.CreateNeutralPlayer(), OpenSage.Data.Map.Player.CreateCivilianPlayer()], GameType.Skirmish);
+
+            TerrainLogic = new TerrainLogic();
+            TerrainLogic.SetHeightMapData(OpenSage.Data.Map.HeightMapData.Create(0, new ushort[2, 2] { { 0, 0 }, { 0, 0 } }));
         }
 
         public void StartCampaign(string campaignName, string missionName)

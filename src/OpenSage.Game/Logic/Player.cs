@@ -17,7 +17,7 @@ namespace OpenSage.Logic
 
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly Game _game;
+        private readonly IGame _game;
 
         public readonly SupplyManager SupplyManager;
 
@@ -133,7 +133,7 @@ namespace OpenSage.Logic
 
         public int Team { get; init; }
 
-        public Player(uint id, PlayerTemplate? template, in ColorRgb color, Game game)
+        public Player(uint id, PlayerTemplate? template, in ColorRgb color, IGame game)
         {
             _game = game;
 
@@ -702,7 +702,7 @@ namespace OpenSage.Logic
             reader.PersistBoolean(ref _unknownBool);
         }
 
-        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, Game game, bool isSkirmish)
+        public static Player FromMapData(uint index, Data.Map.Player mapPlayer, IGame game, bool isSkirmish)
         {
             var side = (string)mapPlayer.Properties["playerFaction"].Value;
 
@@ -805,12 +805,12 @@ namespace OpenSage.Logic
 
     public sealed class SupplyManager : IPersistableObject
     {
-        private readonly Game _game;
+        private readonly IGame _game;
 
         private readonly ObjectIdSet _supplyWarehouses;
         private readonly ObjectIdSet _supplyCenters;
 
-        internal SupplyManager(Game game)
+        internal SupplyManager(IGame game)
         {
             _game = game;
 
@@ -1051,7 +1051,7 @@ namespace OpenSage.Logic
         Completed = 2
     }
 
-    public sealed class BankAccount(Game game, Player owner) : IPersistableObject
+    public sealed class BankAccount(IGame game, Player owner) : IPersistableObject
     {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

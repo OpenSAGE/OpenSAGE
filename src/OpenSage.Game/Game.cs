@@ -626,6 +626,8 @@ namespace OpenSage
                 out var mapTeams,
                 out var mapScriptLists);
 
+            TerrainLogic.SetHeightMapData(mapFile.HeightMapData);
+
             new Scene3D(
                 this,
                 mapFile,

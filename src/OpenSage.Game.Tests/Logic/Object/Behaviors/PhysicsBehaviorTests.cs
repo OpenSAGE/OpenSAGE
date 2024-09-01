@@ -133,4 +133,21 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(new Vector3(9, 8, 7), behavior.Acceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
     }
+
+    [Fact]
+    public void UpdateCalculatesVelocityAndPosition()
+    {
+        var objectDefinition = new ObjectDefinition();
+        var gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+
+        var behavior = SampleModule(ZeroHour, gameObject: gameObject);
+
+        behavior.AddForce(new Vector3(1, 2, 3));
+
+        behavior.Update(null);
+
+        Assert.Equal(Vector3.Zero, behavior.Acceleration);
+        Assert.Equal(new Vector3(1, 2, 3), behavior.Velocity);
+        Assert.Equal(new Vector3(1, 2, 3), gameObject.Translation);
+    }
 }

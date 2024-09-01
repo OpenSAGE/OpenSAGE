@@ -9,13 +9,13 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.OrderGenerators;
 
-public abstract class OrderGenerator(Game game) : IOrderGenerator
+public abstract class OrderGenerator(IGame game) : IOrderGenerator
 {
     public abstract bool CanDrag { get; }
 
     protected Vector3 WorldPosition { get; private set; }
     protected GameObject? WorldObject { get; private set; }
-    protected Game Game => game;
+    protected IGame Game => game;
     protected Player? LocalPlayer => game.Scene3D.LocalPlayer;
     protected IReadOnlyCollection<GameObject>? SelectedUnits => LocalPlayer?.SelectedUnits;
 

@@ -26,6 +26,21 @@ namespace OpenSage.Data.Map
         public uint Area { get; private set; }
         public ushort[,] Elevations { get; private set; }
 
+        public static HeightMapData Create(uint borderWidth, ushort[,] elevations)
+        {
+            var width = (uint)elevations.GetLength(0);
+            var height = (uint)elevations.GetLength(1);
+
+            return new HeightMapData
+            {
+                Width = width,
+                Height = height,
+                BorderWidth = borderWidth,
+                Area = width * height,
+                Elevations = elevations,
+            };
+        }
+
         internal static HeightMapData Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>

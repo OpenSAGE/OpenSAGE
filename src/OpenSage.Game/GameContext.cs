@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenSage.Audio;
 using OpenSage.Client;
+using OpenSage.Content;
 using OpenSage.Content.Loaders;
 using OpenSage.DataStructures;
 using OpenSage.Graphics.ParticleSystems;
@@ -19,11 +20,13 @@ namespace OpenSage
         public readonly Navigation.Navigation Navigation;
         public readonly Radar Radar;
 
-        public Game Game => Scene3D.Game;
+        public readonly IGame Game;
 
-        internal GameLogic GameLogic => Scene3D.Game.GameLogic;
+        internal GameLogic GameLogic => Game.GameLogic;
 
-        internal GameClient GameClient => Scene3D.Game.GameClient;
+        internal GameClient GameClient => Game.GameClient;
+
+        public AssetStore AssetStore => AssetLoadContext.AssetStore;
 
         public readonly Random Random = new Random();
 
@@ -51,7 +54,8 @@ namespace OpenSage
             Navigation.Navigation navigation,
             Radar radar,
             IQuadtree<GameObject> quadtree,
-            Scene3D scene)
+            Scene3D scene,
+            IGame game)
         {
             AssetLoadContext = assetLoadContext;
             AudioSystem = audioSystem;
@@ -62,6 +66,7 @@ namespace OpenSage
             Radar = radar;
             Scene3D = scene;
             Quadtree = quadtree;
+            Game = game;
         }
     }
 }

@@ -81,7 +81,7 @@ namespace OpenSage.Logic.Object
             // Integrate position.
             var newTranslation = _gameObject.Translation + _velocity;
 
-            var terrainHeight = _gameObject.GameContext.Terrain.HeightMap.GetHeight(
+            var terrainHeight = _gameObject.GameContext.Game.TerrainLogic.HeightMap.GetHeight(
                 newTranslation.X,
                 newTranslation.Y);
 

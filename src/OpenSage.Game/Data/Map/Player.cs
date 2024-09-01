@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Logic;
 
 namespace OpenSage.Data.Map
 {
@@ -6,6 +7,26 @@ namespace OpenSage.Data.Map
     {
         public AssetPropertyCollection Properties { get; internal set; }
         public BuildListItem[] BuildList { get; internal set; }
+
+        internal static Player CreateNeutralPlayer() => CreatePlayer("Neutral");
+
+        internal static Player CreateCivilianPlayer() => CreatePlayer("Civilian");
+
+        private static Player CreatePlayer(string side)
+        {
+            var result = new Player
+            {
+                Properties = new AssetPropertyCollection(),
+                BuildList = []
+            };
+
+            result.Properties.AddAsciiString("playerFaction", $"Faction{side}");
+            result.Properties.AddAsciiString("playerName", $"plyr{side}");
+            result.Properties.AddAsciiString("playerDisplayName", side);
+            result.Properties.AddBoolean("playerIsHuman", false);
+
+            return result;
+        }
 
         internal static Player Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
         {
