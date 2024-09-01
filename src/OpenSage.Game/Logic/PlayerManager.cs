@@ -8,14 +8,14 @@ namespace OpenSage.Logic
 {
     public sealed class PlayerManager : IPersistableObject
     {
-        private readonly Game _game;
+        private readonly IGame _game;
 
         public IReadOnlyList<Player> Players => _players;
         private Player[] _players;
 
         public Player LocalPlayer { get; private set; }
 
-        internal PlayerManager(Game game)
+        internal PlayerManager(IGame game)
         {
             _game = game;
             _players = Array.Empty<Player>();
@@ -60,10 +60,10 @@ namespace OpenSage.Logic
                 players[player.Name] = player;
                 allies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ')
-                    .Where(s => !string.IsNullOrEmpty(s)).ToArray(); // Neutral has a player name of "", so it's important not to add empty strings
+                    .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
                 enemies[player.Name] =
                     (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ')
-                    .Where(s => !string.IsNullOrEmpty(s)).ToArray(); // Neutral has a player name of "", so it's important not to add empty strings
+                    .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
             }
 
             foreach (var (name, player) in players)

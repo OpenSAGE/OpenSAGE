@@ -888,7 +888,7 @@ namespace OpenSage.Logic.Object
             LocomotorSets[locomotorSetTemplate.Condition] = locomotorSetTemplate;
         }
 
-        public BitArray<ObjectKinds> KindOf { get; private set; }
+        public BitArray<ObjectKinds> KindOf { get; private set; } = new();
         public RadarPriority RadarPriority { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]

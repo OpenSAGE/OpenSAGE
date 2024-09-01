@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -506,7 +506,9 @@ namespace OpenSage.Logic.Object
             ModelTransform = Transform.CreateIdentity();
             _transform.Scale = Definition.Scale;
 
-            Drawable = gameContext.GameClient.CreateDrawable(objectDefinition, this);
+            // TODO: Instead of GameObject owning the drawable, which makes logic tests a little awkward,
+            // perhaps create Drawable somewhere else and attach it to this GameObject?
+            Drawable = gameContext.GameClient?.CreateDrawable(objectDefinition, this);
 
             var behaviors = new List<BehaviorModule>();
 

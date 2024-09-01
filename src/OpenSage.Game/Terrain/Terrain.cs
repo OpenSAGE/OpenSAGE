@@ -55,11 +55,11 @@ namespace OpenSage.Terrain
 
         internal RadiusCursorDecals RadiusCursorDecals => _loadContext.ShaderResources.Global.RadiusCursorDecals;
 
-        internal Terrain(MapFile mapFile, AssetLoadContext loadContext, RenderScene scene)
+        internal Terrain(MapFile mapFile, HeightMap heightMap, AssetLoadContext loadContext, RenderScene scene)
         {
             Map = mapFile;
 
-            HeightMap = new HeightMap(mapFile.HeightMapData);
+            HeightMap = heightMap;
 
             _renderBucket = scene.CreateRenderBucket("Terrain", 0);
 

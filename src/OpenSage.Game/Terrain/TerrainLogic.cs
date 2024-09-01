@@ -1,7 +1,16 @@
-﻿namespace OpenSage.Terrain
+﻿using OpenSage.Data.Map;
+
+namespace OpenSage.Terrain
 {
     public sealed class TerrainLogic : IPersistableObject
     {
+        public HeightMap HeightMap { get; private set; }
+
+        public void SetHeightMapData(HeightMapData heightMapData)
+        {
+            HeightMap = new HeightMap(heightMapData);
+        }
+
         public void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);

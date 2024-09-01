@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
@@ -29,6 +30,8 @@ public interface IGame
     PlayerManager PlayerManager { get; }
     TeamFactory TeamFactory { get; }
     PartitionCellManager PartitionCellManager { get; }
+    AudioSystem Audio { get; }
+    public SelectionSystem Selection { get; }
     bool InGame { get; }
     GameContext Context { get; }
 
