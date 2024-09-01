@@ -328,5 +328,13 @@ public class RadarTests : StatePersisterTest
         Assert.Equal(position, eventLocation);
     }
 
+    [Fact]
+    public void Radar_GetLastEventLocation_NoPreviousEvents()
+    {
+        var radar = new Radar();
+
+        Assert.False(radar.TryGetLastEventLocation(out _));
+    }
+
     #endregion
 }
