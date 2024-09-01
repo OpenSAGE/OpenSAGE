@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -258,6 +258,8 @@ namespace OpenSage
         public abstract void SkipUnknownBytes(int numBytes);
 
         public virtual void LogToSegmentEnd() { }
+
+        public virtual void LogBytes(long numBytes, string source = "") { }
     }
 
     public enum StatePersistMode
@@ -367,15 +369,22 @@ namespace OpenSage
         public override void LogToSegmentEnd()
         {
             var segment = Segments.Pop();
-            Console.WriteLine(segment.Name);
-            for (var i = _binaryReader.BaseStream.Position; i < segment.End; i++)
+            LogBytes(segment.End - _binaryReader.BaseStream.Position, segment.Name);
+            Segments.Push(segment);
+        }
+
+
+        /// <summary>
+        /// Only to be used for local debugging and should not be present in committed code.
+        /// </summary>
+        public override void LogBytes(long numBytes, string source = "")
+        {
+            Console.WriteLine(source);
+            for (var i = 0; i < numBytes; i++)
             {
-                Console.Write("0x");
-                Console.Write(_binaryReader.ReadByte().ToString("x2"));
-                Console.Write(", ");
+                Console.Write($"0x{ _binaryReader.ReadByte():x2}, ");
             }
             Console.WriteLine();
-            Segments.Push(segment);
         }
     }
 
@@ -818,6 +827,33 @@ namespace OpenSage
 
             var b = value.B;
             persister.PersistByte(ref b);
+
+            var a = value.A;
+            persister.PersistByte(ref a);
+
+            persister.EndObject();
+
+            if (persister.Mode == StatePersistMode.Read)
+            {
+                value = new ColorRgba(r, g, b, a);
+            }
+        }
+
+        /// <summary>
+        /// This is not a typo - in some places color is stored as bgr, not rgb
+        /// </summary>
+        public static void PersistColorBgra(this StatePersister persister, ref ColorRgba value, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.BeginObject(name);
+
+            var b = value.B;
+            persister.PersistByte(ref b);
+
+            var g = value.G;
+            persister.PersistByte(ref g);
+
+            var r = value.R;
+            persister.PersistByte(ref r);
 
             var a = value.A;
             persister.PersistByte(ref a);

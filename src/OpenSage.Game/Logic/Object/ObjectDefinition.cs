@@ -889,7 +889,7 @@ namespace OpenSage.Logic.Object
         }
 
         public BitArray<ObjectKinds> KindOf { get; private set; } = new();
-        public RadarPriority RadarPriority { get; private set; }
+        public RadarPriority RadarPriority { get; internal set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool EnterGuard { get; private set; }
