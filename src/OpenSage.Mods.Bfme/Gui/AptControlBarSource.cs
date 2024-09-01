@@ -73,7 +73,7 @@ namespace OpenSage.Mods.Bfme
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
                     var rect = new Rectangle(renderContext.GetBoundingBox(geom));
-                    _game.Scene3D.Radar.DrawRadarMinimap(renderContext.GetActiveDrawingContext(), rect, true);
+                    _game.Scene3D.RadarDrawUtil.DrawRadarMinimap(renderContext.GetActiveDrawingContext(), rect, true);
                 };
 
                 // This shape is used to render the overlay
@@ -82,7 +82,7 @@ namespace OpenSage.Mods.Bfme
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
                     var rect = new Rectangle(renderContext.GetBoundingBox(geom));
-                    _game.Scene3D.Radar.DrawRadarOverlay(renderContext.GetActiveDrawingContext(), rect);
+                    _game.Scene3D.RadarDrawUtil.DrawRadarOverlay(renderContext.GetActiveDrawingContext(), rect);
                 };
 
                 _minimapInitialized = true;

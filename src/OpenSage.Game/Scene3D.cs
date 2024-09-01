@@ -110,6 +110,8 @@ namespace OpenSage
 
         private readonly Scene25D _scene25D;
 
+        public readonly RadarDrawUtil RadarDrawUtil;
+
         internal Scene3D(
             Game game,
             MapFile mapFile,
@@ -313,7 +315,7 @@ namespace OpenSage
 
             ParticleSystemManager = AddDisposable(new ParticleSystemManager(this, game.AssetStore.LoadContext));
 
-            Radar = new Radar(this, game.AssetStore, mapPath);
+            Radar = new Radar();
 
             if (mapFile != null)
             {
@@ -334,6 +336,8 @@ namespace OpenSage
                 Quadtree,
                 this,
                 game);
+
+            RadarDrawUtil = new RadarDrawUtil(Radar, Terrain?.HeightMap, GameObjects, Camera, AssetLoadContext.AssetStore, mapPath);
 
             Game.GameLogic.Reset();
             Game.GameClient.Reset();

@@ -54,7 +54,7 @@ namespace OpenSage.Mods.Generals.Gui
                 return;
             }
 
-            var terrainPosition = context.Game.Scene3D.Radar.RadarToWorldSpace(
+            var terrainPosition = context.Game.Scene3D.RadarDrawUtil.RadarToWorldSpace(
                 message.MousePosition,
                 control.ClientRectangle);
 
@@ -79,7 +79,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void W3DLeftHUDDraw(Control control, DrawingContext2D drawingContext)
         {
-            control.Window.Game.Scene3D.Radar.Draw(
+            control.Window.Game.Scene3D.RadarDrawUtil.Draw(
                 drawingContext,
                 control.ClientRectangle);
         }
