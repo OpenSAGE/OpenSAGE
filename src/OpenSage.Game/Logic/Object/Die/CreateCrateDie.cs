@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
 
             if (_gameObject.TryGetLastDamage(out var lastDamageData))
             {
-                var killer = _context.GameObjects.GetObjectById(lastDamageData.Request.DamageDealer);
+                var killer = _context.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
 
                 if (KillerCanSpawnCrate(killer, crateData))
                 {

@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            context.GameContext.GameObjects.DestroyObject(_gameObject);
+            context.GameContext.GameLogic.DestroyObject(_gameObject);
         }
 
         internal override void Load(StatePersister reader)

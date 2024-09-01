@@ -197,7 +197,7 @@ namespace OpenSage.Logic.Object
 
         protected GameObject GameObjectForId(uint unitId)
         {
-            return GameObject.GameContext.GameObjects.GetObjectById(unitId);
+            return GameObject.GameContext.GameLogic.GetObjectById(unitId);
         }
 
         internal override void Load(StatePersister reader)

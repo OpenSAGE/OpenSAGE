@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _gameObject.GameContext.GameObjects.DestroyObject(_gameObject);
+            _gameObject.GameContext.GameLogic.DestroyObject(_gameObject);
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 

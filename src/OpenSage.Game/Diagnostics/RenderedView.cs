@@ -30,7 +30,7 @@ namespace OpenSage.Diagnostics
             DiagnosticViewContext context,
             in Vector3 cameraTarget = default,
             float cameraDistance = 200,
-            Action<GameObjectCollection> createGameObjects = null)
+            Action<IGameObjectCollection> createGameObjects = null)
         {
             _context = context;
 

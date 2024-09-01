@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     internal sealed class WeaponTarget
     {
-        private readonly GameObjectCollection _gameObjects;
+        private readonly IGameObjectCollection _gameObjects;
 
         public readonly WeaponTargetType TargetType;
         public readonly Vector3? TargetGroundPosition;
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
             TargetGroundPosition = targetGroundPosition;
         }
 
-        internal WeaponTarget(GameObjectCollection gameObjects, uint targetObjectId)
+        internal WeaponTarget(IGameObjectCollection gameObjects, uint targetObjectId)
         {
             _gameObjects = gameObjects;
 

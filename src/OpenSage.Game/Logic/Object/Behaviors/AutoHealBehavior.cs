@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
                 if (_moduleData.AffectsWholePlayer)
                 {
                     // USA hospital has this behavior
-                    foreach (var candidate in _gameObject.GameContext.GameObjects.Items)
+                    foreach (var candidate in _gameObject.GameContext.GameLogic.Objects)
                     {
                         if (ObjectIsOwnedBySamePlayer(candidate) && CanHealUnit(candidate))
                         {

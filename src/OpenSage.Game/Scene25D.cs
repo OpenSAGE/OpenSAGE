@@ -12,7 +12,7 @@ namespace OpenSage;
 
 public class Scene25D(Scene3D scene3D, AssetStore assetStore)
 {
-    protected GameObjectCollection GameObjects => scene3D.GameObjects;
+    protected IGameObjectCollection GameObjects => scene3D.GameObjects;
     protected Camera Camera => scene3D.Camera;
     protected GameData GameData => assetStore.GameData.Current;
 
@@ -32,7 +32,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
         {
             HashSet<uint> propagandizedUnits = [];
 
-            foreach (var obj in GameObjects.Items)
+            foreach (var obj in GameObjects.Objects)
             {
                 if (obj.FindBehavior<PropagandaTowerBehavior>() is { } behavior)
                 {
@@ -43,7 +43,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 }
             }
 
-            foreach (var obj in GameObjects.Items)
+            foreach (var obj in GameObjects.Objects)
             {
                 if (obj.Hidden)
                 {

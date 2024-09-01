@@ -22,7 +22,7 @@ namespace OpenSage.Diagnostics.AssetViews
             _renderedView = AddDisposable(new RenderedView(context,
                 createGameObjects: gameObjects =>
                 {
-                    _gameObject = gameObjects.Add(objectDefinition, null);
+                    _gameObject = gameObjects.CreateObject(objectDefinition, null);
                 }));
 
             _modelConditionStates = _gameObject.Drawable.ModelConditionStates.ToList();

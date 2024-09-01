@@ -192,7 +192,7 @@ namespace OpenSage.Logic
             var closestDepth = float.MaxValue;
             GameObject closestObject = null;
 
-            foreach (var gameObject in Game.Scene3D.GameObjects.Items)
+            foreach (var gameObject in Game.Scene3D.GameObjects.Objects)
             {
                 if (!gameObject.IsSelectable ||
                     gameObject.RoughCollider == null ||
@@ -240,7 +240,7 @@ namespace OpenSage.Logic
             uint? structure = null;
 
             // TODO: Optimize with quadtree
-            foreach (var gameObject in Game.Scene3D.GameObjects.Items)
+            foreach (var gameObject in Game.Scene3D.GameObjects.Objects)
             {
                 if (!gameObject.IsSelectable || gameObject.RoughCollider == null)
                 {

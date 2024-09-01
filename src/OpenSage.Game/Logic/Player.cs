@@ -84,10 +84,10 @@ namespace OpenSage.Logic
         public AIPlayer? AIPlayer { get; private set; }
 
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
-        public int GetEnergy(GameObjectCollection allGameObjects)
+        public int GetEnergy(IGameObjectCollection allGameObjects)
         {
             var energy = 0;
-            foreach (var gameObject in allGameObjects.Items)
+            foreach (var gameObject in allGameObjects.Objects)
             {
                 if (gameObject.Owner != this)
                 {

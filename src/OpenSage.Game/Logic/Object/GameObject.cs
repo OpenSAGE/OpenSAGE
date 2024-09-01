@@ -53,7 +53,7 @@ namespace OpenSage.Logic.Object
                 return null;
             }
 
-            var gameObject = gameContext.GameObjects.Add(gameObjectDefinition, teamTemplate?.Owner);
+            var gameObject = gameContext.GameLogic.CreateObject(gameObjectDefinition, teamTemplate?.Owner);
             gameObject.TeamTemplate = teamTemplate;
             gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
 
@@ -1019,7 +1019,7 @@ namespace OpenSage.Logic.Object
             {
                 if (intersecting.Definition.KindOf.Intersects(toDelete))
                 {
-                    GameContext.GameObjects.DestroyObject(intersecting);
+                    GameContext.GameLogic.DestroyObject(intersecting);
                 }
             }
 
@@ -1326,7 +1326,7 @@ namespace OpenSage.Logic.Object
             {
                 ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
 
-                var mostRecentConstructor = GameContext.GameObjects.GetObjectById(BuiltByObjectID);
+                var mostRecentConstructor = GameContext.GameLogic.GetObjectById(BuiltByObjectID);
                 // mostRecentConstructor is set to the unit currently or most recently building us
                 if (mostRecentConstructor.AIUpdate is IBuilderAIUpdate builderAiUpdate && builderAiUpdate.BuildTarget == this)
                 {
@@ -1367,7 +1367,7 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public void Destroy()
         {
-            GameContext.GameObjects.DestroyObject(this);
+            GameContext.GameLogic.DestroyObject(this);
         }
 
         private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
@@ -1861,7 +1861,7 @@ namespace OpenSage.Logic.Object
         {
             if (_experienceSinkObjectId > 0)
             {
-                var experienceSink = _gameObject.GameContext.GameObjects.GetObjectById(_experienceSinkObjectId);
+                var experienceSink = _gameObject.GameContext.GameLogic.GetObjectById(_experienceSinkObjectId);
                 experienceSink?.GainExperience(experience);
                 return;
             }
