@@ -22,6 +22,11 @@ public abstract class StatePersisterTest : MockedGameTest
     {
         return new MemoryStream([version, ..data]);
     }
+
+    protected virtual MemoryStream SaveDataNoVersion(byte[] data)
+    {
+        return new MemoryStream(data);
+    }
 }
 
 public abstract class MockedGameTest : IDisposable
