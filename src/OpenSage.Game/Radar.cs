@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +16,7 @@ namespace OpenSage
         public RadarItemCollection HiddenItems => _hiddenItems;
 
         // fixed-length array
-        public IReadOnlyList<RadarEvent> RadarEvents => _radarEvents;
+        public ReadOnlySpan<RadarEvent> RadarEvents => new(_radarEvents);
 
         private readonly RadarItemCollection _visibleItems = [];
         private readonly RadarItemCollection _hiddenItems = [];

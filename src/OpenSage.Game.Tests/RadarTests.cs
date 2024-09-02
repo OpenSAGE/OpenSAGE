@@ -215,7 +215,7 @@ public class RadarTests : StatePersisterTest
 
         Assert.Empty(radar.VisibleItems);
         Assert.Empty(radar.HiddenItems);
-        Assert.Equal(64, radar.RadarEvents.Count);
+        Assert.Equal(64, radar.RadarEvents.Length);
     }
 
     [Fact]
