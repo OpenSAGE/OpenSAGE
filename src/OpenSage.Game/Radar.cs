@@ -16,7 +16,7 @@ namespace OpenSage
         public RadarItemCollection HiddenItems => _hiddenItems;
 
         // fixed-length array
-        public ReadOnlySpan<RadarEvent> RadarEvents => new(_radarEvents);
+        public ReadOnlySpan<RadarEvent> RadarEvents => _radarEvents;
 
         private readonly RadarItemCollection _visibleItems = [];
         private readonly RadarItemCollection _hiddenItems = [];
