@@ -30,7 +30,7 @@ namespace OpenSage.Logic
             _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
         }
 
-        public void Apply(GameObject gameObject, in TimeInterval time)
+        public void Apply(GameObject gameObject, GameContext context, in TimeInterval time)
         {
             if (_selfExpiring)
             {
@@ -68,9 +68,9 @@ namespace OpenSage.Logic
                 }
             }
 
-            TriggerFX(_modifierList.FX, gameObject);
-            TriggerFX(_modifierList.FX2, gameObject);
-            TriggerFX(_modifierList.FX3, gameObject);
+            TriggerFX(_modifierList.FX, gameObject, context);
+            TriggerFX(_modifierList.FX2, gameObject, context);
+            TriggerFX(_modifierList.FX3, gameObject, context);
 
             Applied = true;
         }
@@ -98,7 +98,7 @@ namespace OpenSage.Logic
             }
         }
 
-        public void Remove(GameObject gameObject)
+        public void Remove(GameObject gameObject, GameContext context)
         {
             foreach (var modifier in _modifierList.Modifiers)
             {
@@ -122,17 +122,17 @@ namespace OpenSage.Logic
                 }
             }
 
-            TriggerFX(_modifierList.EndFX, gameObject);
-            TriggerFX(_modifierList.EndFX2, gameObject);
-            TriggerFX(_modifierList.EndFX3, gameObject);
+            TriggerFX(_modifierList.EndFX, gameObject, context);
+            TriggerFX(_modifierList.EndFX2, gameObject, context);
+            TriggerFX(_modifierList.EndFX3, gameObject, context);
         }
 
-        private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject)
+        private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameContext context)
         {
             fx?.Value?.Execute(new FXListExecutionContext(
                     gameObject.Rotation,
                     gameObject.Translation,
-                    gameObject.GameContext));
+                    context));
         }
     }
 

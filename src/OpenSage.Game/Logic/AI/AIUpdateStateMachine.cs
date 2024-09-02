@@ -7,6 +7,8 @@ namespace OpenSage.Logic.AI
 {
     internal class AIUpdateStateMachine : StateMachineBase
     {
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
@@ -14,8 +16,11 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIUpdateStateMachine(GameObject gameObject)
+        public AIUpdateStateMachine(GameObject gameObject, GameContext context)
         {
+            _gameObject = gameObject;
+            _context = context;
+
             AddState(IdleState.StateId, new IdleState());
             AddState(1, new MoveTowardsState());
             AddState(2, new FollowWaypointsState(true));
@@ -54,7 +59,7 @@ namespace OpenSage.Logic.AI
             {
                 var overrideStateResult = _overrideState.Update();
 
-                var currentFrame = GameObject.GameContext.GameLogic.CurrentFrame;
+                var currentFrame = _context.GameLogic.CurrentFrame;
 
                 var shouldContinueOverrideState = overrideStateResult.Type switch
                 {

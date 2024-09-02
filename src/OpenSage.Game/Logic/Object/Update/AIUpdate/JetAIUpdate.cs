@@ -55,14 +55,14 @@ namespace OpenSage.Logic.Object
             MovingBackToHangar
         }
 
-        internal JetAIUpdate(GameObject gameObject, JetAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal JetAIUpdate(GameObject gameObject, GameContext context, JetAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
             CurrentJetAIState = JetAIState.Parked;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new JetAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new JetAIUpdateStateMachine(gameObject, Context);
 
         internal override void Load(StatePersister reader)
         {
@@ -315,8 +315,8 @@ namespace OpenSage.Logic.Object
 
     internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public JetAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context)
+            : base(gameObject, context)
         {
             AddState(1013, new WaitForAirfieldState());
         }
@@ -399,7 +399,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new JetAIUpdate(gameObject, this);
+            return new JetAIUpdate(gameObject, context, this);
         }
     }
 }

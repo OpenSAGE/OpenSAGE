@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -10,14 +11,16 @@ namespace OpenSage.Logic.AI.AIStates
         public const uint StateId = 1001;
 
         private readonly GameObject _gameObject;
+        private readonly AudioSystem _audioSystem;
 
         private LogicFrameSpan _framesUntilNextHack;
 
         private HackInternetAIUpdateModuleData ModuleData => ((HackInternetAIUpdate)_gameObject.AIUpdate).ModuleData;
 
-        public HackInternetState(GameObject gameObject)
+        public HackInternetState(GameObject gameObject, AudioSystem audioSystem)
         {
             _gameObject = gameObject;
+            _audioSystem = audioSystem;
         }
 
         public override void OnEnter()
@@ -35,7 +38,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 SetFramesUntilNextHack();
 
-                _gameObject.GameContext.AudioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.UnitSpecificSounds.UnitCashPing?.Value);
+                _audioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.UnitSpecificSounds.UnitCashPing?.Value);
 
                 var amount = GetCashGrant();
 

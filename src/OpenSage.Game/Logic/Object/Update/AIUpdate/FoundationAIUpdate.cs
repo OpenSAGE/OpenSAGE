@@ -12,8 +12,8 @@ namespace OpenSage.Logic.Object
         private LogicFrameSpan _updateInterval;
 
         //TODO: rather notify this when the corresponding order is processed and update again when the object is dead/destroyed
-        internal FoundationAIUpdate(GameObject gameObject, FoundationAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal FoundationAIUpdate(GameObject gameObject, GameContext context, FoundationAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
             _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
@@ -67,7 +67,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new FoundationAIUpdate(gameObject, this);
+            return new FoundationAIUpdate(gameObject, context, this);
         }
     }
 }

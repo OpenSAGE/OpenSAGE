@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
         private readonly DozerAndWorkerState _state;
 
         internal DozerAIUpdate(GameObject gameObject, GameContext context, DozerAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+            : base(gameObject, context, moduleData)
         {
             _context = context;
             _state = new DozerAndWorkerState(gameObject, context, moduleData);

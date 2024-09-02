@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
     internal sealed class SpawnBehavior : BehaviorModule
     {
         GameObject _gameObject;
+        private readonly GameContext _context;
         SpawnBehaviorModuleData _moduleData;
 
         private List<GameObject> _spawnedUnits;
@@ -30,6 +31,7 @@ namespace OpenSage.Logic.Object
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _context = context;
 
             _spawnedUnits = new List<GameObject>();
             _initial = true;
@@ -37,7 +39,7 @@ namespace OpenSage.Logic.Object
 
         private void SpawnUnit()
         {
-            var spawnedObject = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, _gameObject.Owner);
+            var spawnedObject = _context.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, _gameObject.Owner);
             _spawnedUnits.Add(spawnedObject);
 
             spawnedObject.CreatedByObjectID = _gameObject.ID;

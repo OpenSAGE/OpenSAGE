@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
         private int _unknownInt;
         private bool _unknownBool;
 
-        internal SupplyTruckAIUpdate(GameObject gameObject, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
         }
@@ -45,7 +45,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new SupplyTruckAIUpdate(gameObject, this);
+            return new SupplyTruckAIUpdate(gameObject, context, this);
         }
     }
 }

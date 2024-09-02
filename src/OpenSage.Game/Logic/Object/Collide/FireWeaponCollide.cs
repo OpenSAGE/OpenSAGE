@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
         private readonly Weapon _collideWeapon;
         private bool _unknown2;
 
-        internal FireWeaponCollide(GameObject gameObject, FireWeaponCollideModuleData moduleData)
+        internal FireWeaponCollide(GameObject gameObject, GameContext context, FireWeaponCollideModuleData moduleData)
         {
             _moduleData = moduleData;
 
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
                 gameObject,
                 moduleData.CollideWeapon.Value,
                 WeaponSlot.Primary,
-                gameObject.GameContext);
+                context);
         }
 
         internal override void Load(StatePersister reader)
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new FireWeaponCollide(gameObject, this);
+            return new FireWeaponCollide(gameObject, context, this);
         }
     }
 }

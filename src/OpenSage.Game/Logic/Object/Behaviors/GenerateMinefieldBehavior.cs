@@ -141,7 +141,7 @@ namespace OpenSage.Logic.Object
             // now that we know where to actually spawn the mines, spawn them
             foreach (var transform in newMineTransforms)
             {
-                var newMine = _gameObject.GameContext.GameLogic.CreateObject(mineTemplate, _gameObject.Owner);
+                var newMine = _context.GameLogic.CreateObject(mineTemplate, _gameObject.Owner);
                 newMine.UpdateTransform(transform.Translation, transform.Rotation);
                 newMine.CreatedByObjectID = _gameObject.ID;
                 _generatedMineIds.Add(newMine.ID);

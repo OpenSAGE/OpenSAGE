@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     {
         private readonly AnimalAIUpdateModuleData _moduleData;
 
-        internal AnimalAIUpdate(GameObject gameObject, AnimalAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal AnimalAIUpdate(GameObject gameObject, GameContext context, AnimalAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
         }
@@ -41,7 +41,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AnimalAIUpdate(gameObject, this); ;
+            return new AnimalAIUpdate(gameObject, context, this); ;
         }
     }
 }

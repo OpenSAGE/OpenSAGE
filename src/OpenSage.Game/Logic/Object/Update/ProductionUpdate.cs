@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly ProductionUpdateModuleData _moduleData;
         private readonly List<ProductionJob> _productionQueue = new();
 
@@ -45,9 +46,10 @@ namespace OpenSage.Logic.Object
 
         public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
-        internal ProductionUpdate(GameObject gameObject, ProductionUpdateModuleData moduleData)
+        internal ProductionUpdate(GameObject gameObject, GameContext context, ProductionUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
         }
 
@@ -154,7 +156,7 @@ namespace OpenSage.Logic.Object
         {
             _doorIndex = doorIndex;
             Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
-            SetDoorStateEndFrame(DoorState.Closing, _gameObject.GameContext.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
+            SetDoorStateEndFrame(DoorState.Closing, _context.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
             // TODO: What is ModelConditionFlag.Door1WaitingToClose?
         }
 
@@ -346,13 +348,13 @@ namespace OpenSage.Logic.Object
 
             ProductionExit.ProduceUnit();
 
-            var producedUnit = _gameObject.GameContext.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
+            var producedUnit = _context.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
             producedUnit.Owner = _gameObject.Owner;
             producedUnit.ParentHorde = ParentHorde;
 
             if (playAudio)
             {
-                producedUnit.GameContext.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
+               _context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
             }
 
             if (!_moduleData.GiveNoXP)
@@ -407,7 +409,7 @@ namespace OpenSage.Logic.Object
                 producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
             }
 
-            _gameObject.GameContext.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
+            _context.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
 
             HandleHordeCreation(producedUnit);
             HandleHarvesterUnitCreation(_gameObject, producedUnit);
@@ -694,7 +696,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ProductionUpdate(gameObject, this);
+            return new ProductionUpdate(gameObject, context, this);
         }
     }
 

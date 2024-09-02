@@ -143,8 +143,6 @@ namespace OpenSage.Logic.Object
 
         private readonly GameContext _gameContext;
 
-        internal GameContext GameContext => _gameContext;
-
         private readonly BehaviorUpdateContext _behaviorUpdateContext;
 
         private readonly GameObject _rallyPointMarker;
@@ -463,7 +461,7 @@ namespace OpenSage.Logic.Object
                 // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
                 if (upgradeToApply != null)
                 {
-                    Upgrade(GameContext.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
+                    Upgrade(_gameContext.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
                 }
             }
         }
@@ -503,7 +501,7 @@ namespace OpenSage.Logic.Object
             Hidden = false;
 
             Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
-            VeterancyHelper = new ObjectVeterancyHelper(this);
+            VeterancyHelper = new ObjectVeterancyHelper(this, gameContext.GameLogic);
 
             _attributeModifiers = new Dictionary<string, AttributeModifier>();
             _gameContext = gameContext;
@@ -511,7 +509,7 @@ namespace OpenSage.Logic.Object
 
             _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
 
-            _weaponSet = new WeaponSet(this);
+            _weaponSet = new WeaponSet(this, _gameContext);
             WeaponSetConditions = new BitArray<WeaponSetConditions>();
             UpdateWeaponSet();
 
@@ -765,11 +763,11 @@ namespace OpenSage.Logic.Object
             {
                 if (!modifier.Applied)
                 {
-                    modifier.Apply(this, time);
+                    modifier.Apply(this, _gameContext, time);
                 }
                 else if (modifier.Invalid || modifier.Expired(time))
                 {
-                    modifier.Remove(this);
+                    modifier.Remove(this, _gameContext);
                     _attributeModifiers.Remove(key);
                 }
                 else
@@ -1019,7 +1017,7 @@ namespace OpenSage.Logic.Object
             {
                 if (intersecting.Definition.KindOf.Intersects(toDelete))
                 {
-                    GameContext.GameLogic.DestroyObject(intersecting);
+                    _gameContext.GameLogic.DestroyObject(intersecting);
                 }
             }
 
@@ -1083,7 +1081,7 @@ namespace OpenSage.Logic.Object
 
             var oldDamageType = _bodyDamageType;
 
-            if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
+            if (healthPercentage < (Fix64) _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
                 if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged))
                 {
@@ -1099,7 +1097,7 @@ namespace OpenSage.Logic.Object
 
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
             }
-            else if (healthPercentage < (Fix64) GameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            else if (healthPercentage < (Fix64) _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
                 if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.Damaged))
                 {
@@ -1309,7 +1307,7 @@ namespace OpenSage.Logic.Object
         // todo: this probably is not correct
         public bool IsAirborne(float groundDelta = 0.1f)
         {
-            return Translation.Z - GameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
+            return Translation.Z - _gameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
         }
 
         internal void Kill(DeathType deathType)
@@ -1326,7 +1324,7 @@ namespace OpenSage.Logic.Object
             {
                 ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
 
-                var mostRecentConstructor = GameContext.GameLogic.GetObjectById(BuiltByObjectID);
+                var mostRecentConstructor = _gameContext.GameLogic.GetObjectById(BuiltByObjectID);
                 // mostRecentConstructor is set to the unit currently or most recently building us
                 if (mostRecentConstructor.AIUpdate is IBuilderAIUpdate builderAiUpdate && builderAiUpdate.BuildTarget == this)
                 {
@@ -1367,7 +1365,7 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public void Destroy()
         {
-            GameContext.GameLogic.DestroyObject(this);
+            _gameContext.GameLogic.DestroyObject(this);
         }
 
         private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
@@ -1403,7 +1401,7 @@ namespace OpenSage.Logic.Object
 
             if (voiceDie != null)
             {
-                GameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
+                _gameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
             }
         }
 
@@ -1476,7 +1474,13 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            VeterancyHelper.GainExperience(experience);
+            var shouldPromote = VeterancyHelper.GainExperience(experience);
+
+            if (shouldPromote)
+            {
+                _gameContext.AudioSystem.PlayAudioEvent(this,
+                    _gameContext.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
+            }
         }
 
         internal void SetBeingHealed(GameObject healer, uint endFrame)
@@ -1526,7 +1530,7 @@ namespace OpenSage.Logic.Object
 
             var teamId = Team?.Id ?? 0u;
             reader.PersistUInt32(ref teamId);
-            Team = GameContext.Game.TeamFactory.FindTeamById(teamId);
+            Team = _gameContext.Game.TeamFactory.FindTeamById(teamId);
 
             Owner = Team.Template.Owner;
 
@@ -1833,7 +1837,7 @@ namespace OpenSage.Logic.Object
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            GameContext.GameClient.DestroyDrawable(Drawable);
+            _gameContext.GameClient.DestroyDrawable(Drawable);
 
             base.Dispose(disposeManagedResources);
         }
@@ -1851,19 +1855,21 @@ namespace OpenSage.Logic.Object
         public bool ShowRankUpAnimation;
 
         private readonly GameObject _gameObject;
+        private readonly IGameObjectCollection _gameObjectCollection;
 
-        internal ObjectVeterancyHelper(GameObject gameObject)
+        internal ObjectVeterancyHelper(GameObject gameObject, IGameObjectCollection gameObjectCollection)
         {
             _gameObject = gameObject;
+            _gameObjectCollection = gameObjectCollection;
         }
 
-        public void GainExperience(int experience)
+        public bool GainExperience(int experience)
         {
             if (_experienceSinkObjectId > 0)
             {
-                var experienceSink = _gameObject.GameContext.GameLogic.GetObjectById(_experienceSinkObjectId);
+                var experienceSink = _gameObjectCollection.GetObjectById(_experienceSinkObjectId);
                 experienceSink?.GainExperience(experience);
-                return;
+                return false;
             }
 
             ExperiencePoints += (int) (ExperienceScalar * experience);
@@ -1871,7 +1877,7 @@ namespace OpenSage.Logic.Object
 
             if (_gameObject.Definition.ExperienceRequired == null || nextRank >= _gameObject.Definition.ExperienceRequired.Values.Length)
             {
-                return; // nothing left for us to gain
+                return false; // nothing left for us to gain
             }
 
             var xpForNextRank =_gameObject.Definition.ExperienceRequired.Values[nextRank];
@@ -1879,9 +1885,10 @@ namespace OpenSage.Logic.Object
             {
                 VeterancyLevel = (VeterancyLevel) nextRank;
                 ShowRankUpAnimation = true;
-                _gameObject.GameContext.AudioSystem.PlayAudioEvent(_gameObject,
-                    _gameObject.GameContext.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
+                return true;
             }
+
+            return false;
         }
 
         public void Persist(StatePersister reader)

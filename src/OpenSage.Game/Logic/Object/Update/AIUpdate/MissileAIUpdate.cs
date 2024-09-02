@@ -31,8 +31,8 @@ namespace OpenSage.Logic.Object
 
         internal FXList DetonationFX { get; set; }
 
-        internal MissileAIUpdate(GameObject gameObject, MissileAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal MissileAIUpdate(GameObject gameObject, GameContext context, MissileAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
 
@@ -194,7 +194,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new MissileAIUpdate(gameObject, this);
+            return new MissileAIUpdate(gameObject, context, this);
         }
     }
 }

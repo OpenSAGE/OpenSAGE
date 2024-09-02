@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
         private int _unknown6;
         private readonly WorkerAIUpdateStateMachine3 _stateMachine3 = new();
 
-        internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _context = context;
             _moduleData = moduleData;

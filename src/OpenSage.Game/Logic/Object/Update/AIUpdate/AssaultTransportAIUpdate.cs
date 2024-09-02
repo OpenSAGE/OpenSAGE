@@ -7,8 +7,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly List<AssaultTransportMember> _members = new();
 
-        internal AssaultTransportAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal AssaultTransportAIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
         }
 
@@ -62,7 +62,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AssaultTransportAIUpdate(gameObject, this);
+            return new AssaultTransportAIUpdate(gameObject, context, this);
         }
     }
 }

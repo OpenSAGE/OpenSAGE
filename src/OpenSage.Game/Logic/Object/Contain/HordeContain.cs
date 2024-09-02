@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
     public sealed class HordeContainBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly HordeContainModuleData _moduleData;
 
         private Dictionary<int, List<HordeMemberPosition>> _formation;
@@ -18,10 +19,11 @@ namespace OpenSage.Logic.Object
         private ProductionUpdate _productionUpdate;
         private int _pendingRegistrations;
 
-        public HordeContainBehavior(GameObject gameObject, HordeContainModuleData moduleData)
+        public HordeContainBehavior(GameObject gameObject, GameContext context, HordeContainModuleData moduleData)
         {
             _moduleData = moduleData;
             _gameObject = gameObject;
+            _context = context;
 
             _payload = new List<GameObject>();
             _formation = CreateFormationOffsets();
@@ -64,7 +66,7 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var position in rank)
                 {
-                    var createdObject = _gameObject.GameContext.GameLogic.CreateObject(position.Definition, _gameObject.Owner);
+                    var createdObject = _context.GameLogic.CreateObject(position.Definition, _gameObject.Owner);
                     createdObject.ParentHorde = _gameObject;
                     position.Object = createdObject;
                     _payload.Add(createdObject);
@@ -298,7 +300,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new HordeContainBehavior(gameObject, this);
+            return new HordeContainBehavior(gameObject, context, this);
         }
     }
 
