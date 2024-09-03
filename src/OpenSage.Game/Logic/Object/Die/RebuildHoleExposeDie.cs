@@ -10,7 +10,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _context;
         private readonly RebuildHoleExposeDieModuleData _moduleData;
 
-        internal RebuildHoleExposeDie(GameObject gameObject, GameContext context, RebuildHoleExposeDieModuleData moduleData) : base(moduleData)
+        internal RebuildHoleExposeDie(GameObject gameObject, GameContext context, RebuildHoleExposeDieModuleData moduleData)
+            : base(moduleData)
         {
             _gameObject = gameObject;
             _context = context;
@@ -56,8 +57,6 @@ namespace OpenSage.Logic.Object
                 { "TransferAttackers", (parser, x) => x.TransferAttackers = parser.ParseBoolean() }
             });
 
-        public override ObjectStatus? ExemptStatus { get; protected set; } = ObjectStatus.UnderConstruction;
-
         public LazyAssetReference<ObjectDefinition> HoleDefinition { get; private set; }
         public float HoleMaxHealth { get; private set; }
 
@@ -66,6 +65,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool TransferAttackers { get; private set; }
+
+        public RebuildHoleExposeDieModuleData()
+        {
+            DieData.ExemptStatus = ObjectStatus.UnderConstruction;
+        }
 
         internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameContext context)
         {

@@ -4,7 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class KeepObjectDie : DieModule
     {
-        public KeepObjectDie(KeepObjectDieModuleData moduleData) : base(moduleData)
+        public KeepObjectDie(KeepObjectDieModuleData moduleData)
+            : base(moduleData)
         {
         }
 

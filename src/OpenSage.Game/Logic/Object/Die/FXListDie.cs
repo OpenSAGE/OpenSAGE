@@ -6,16 +6,17 @@ namespace OpenSage.Logic.Object
 {
     public sealed class FXListDie : DieModule
     {
-        private new FXListDieModuleData ModuleData { get; }
+        private readonly FXListDieModuleData _moduleData;
 
-        internal FXListDie(FXListDieModuleData moduleData) : base(moduleData)
+        internal FXListDie(FXListDieModuleData moduleData)
+            : base(moduleData)
         {
-            ModuleData = moduleData;
+            _moduleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            ModuleData.DeathFX.Value.Execute(new FXListExecutionContext(
+            _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
                 context.GameObject.Rotation,
                 context.GameObject.Translation,
                 context.GameContext));

@@ -68,6 +68,21 @@ namespace OpenSage.Data.Ini
             return result;
         }
 
+        public IniParseTable<T2> Concat<T2, TChild2>(IniParseTableChild<T2, TChild2> otherTable)
+            where T2 : T
+        {
+            var result = new IniParseTable<T2>(this.ToDictionary(
+                x => x.Key,
+                x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
+
+            foreach (var kvp in otherTable)
+            {
+                result.Add(kvp.Key, (parser, x) => otherTable.GetFieldParser(kvp.Value)(parser, x));
+            }
+
+            return result;
+        }
+
         private ParseFieldCallback<T> GetFieldParser(ParseFieldCallback<TChild> childFieldParser)
         {
             // TODO: Don't allocate this every time.

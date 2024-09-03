@@ -36,20 +36,11 @@ namespace OpenSage.Logic.Object
         }
 
         internal bool IsApplicable(DeathType deathType, BitArray<ObjectStatus> status) =>
-            (_moduleData.DeathTypes?.Get(deathType) ?? true) && IsCorrectStatus(status);
-
-        private bool IsCorrectStatus(BitArray<ObjectStatus> status)
-        {
-            var required = !_moduleData.RequiredStatus.AnyBitSet || // if nothing is required, we pass
-                                _moduleData.RequiredStatus.Intersects(status); // or if we are the one of the required statuses, we pass
-            var notExempt = !_moduleData.ExemptStatus.AnyBitSet || // if nothing is exempt, we pass
-                                !_moduleData.ExemptStatus.Intersects(status); // or if we are not one of the exempt statuses, we pass
-            return required && notExempt;
-        }
+            _moduleData.DieData.IsApplicable(deathType, status);
 
         internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
         {
-            if (!IsApplicable(deathType, status))
+            if (!_moduleData.DieData.IsApplicable(deathType, status))
             {
                 return;
             }
@@ -177,37 +168,35 @@ namespace OpenSage.Logic.Object
 
         internal static SlowDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<SlowDeathBehaviorModuleData> FieldParseTable = new IniParseTable<SlowDeathBehaviorModuleData>
-        {
-            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "DeathFlags", (parser, x) => x.DeathFlags = parser.ParseEnumFlags<DeathFlags>() },
-            { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnumBitArray<ObjectStatus>() },
-            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnumBitArray<ObjectStatus>() },
-            { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
-            { "ModifierBonusPerOverkillPercent", (parser, x) => x.ModifierBonusPerOverkillPercent = parser.ParsePercentage() },
-            { "SinkRate", (parser, x) => x.SinkRate = parser.ParseVelocityToLogicFrames() },
-            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "FlingForce", (parser, x) => x.FlingForce = parser.ParseInteger() },
-            { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
-            { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
-            { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
-            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseObjectCreationListReference() },
-            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseFXListReference() },
-            { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
-            { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
-            { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
-            { "Sound", (parser, x) => x.Sound = parser.ParseString() },
-            { "DecayBeginTime", (parser, x) => x.DecayBeginTime = parser.ParseInteger() },
-            { "ShadowWhenDead", (parser, x) => x.ShadowWhenDead = parser.ParseBoolean() },
-            { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
-        };
+        internal static readonly IniParseTable<SlowDeathBehaviorModuleData> FieldParseTable =
+            new IniParseTableChild<SlowDeathBehaviorModuleData, DieLogicData>(x => x.DieData, DieLogicData.FieldParseTable)
+            .Concat(new IniParseTable<SlowDeathBehaviorModuleData>
+            {
+                { "DeathFlags", (parser, x) => x.DeathFlags = parser.ParseEnumFlags<DeathFlags>() },
+                { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
+                { "ModifierBonusPerOverkillPercent", (parser, x) => x.ModifierBonusPerOverkillPercent = parser.ParsePercentage() },
+                { "SinkRate", (parser, x) => x.SinkRate = parser.ParseVelocityToLogicFrames() },
+                { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseTimeMillisecondsToLogicFrames() },
+                { "FlingForce", (parser, x) => x.FlingForce = parser.ParseInteger() },
+                { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
+                { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
+                { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
+                { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseObjectCreationListReference() },
+                { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseFXListReference() },
+                { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
+                { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
+                { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
+                { "Sound", (parser, x) => x.Sound = parser.ParseString() },
+                { "DecayBeginTime", (parser, x) => x.DecayBeginTime = parser.ParseInteger() },
+                { "ShadowWhenDead", (parser, x) => x.ShadowWhenDead = parser.ParseBoolean() },
+                { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
+            });
 
-        public BitArray<DeathType>? DeathTypes { get; private set; }
-        public BitArray<ObjectStatus> RequiredStatus { get; private set; } = new();
-        public BitArray<ObjectStatus> ExemptStatus { get; private set; } = new();
+        public DieLogicData DieData { get; } = new();
+
         public int ProbabilityModifier { get; private set; } = 100;
         public Percentage ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
