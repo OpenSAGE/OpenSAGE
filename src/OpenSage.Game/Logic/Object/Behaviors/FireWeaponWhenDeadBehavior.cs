@@ -10,13 +10,15 @@ namespace OpenSage.Logic.Object;
 public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule
 {
     private readonly GameObject _gameObject;
+    private readonly GameContext _context;
     private readonly FireWeaponWhenDeadBehaviorModuleData _moduleData;
 
     internal UpgradeLogic UpgradeLogic { get; }
 
-    internal FireWeaponWhenDeadBehavior(GameObject gameObject, FireWeaponWhenDeadBehaviorModuleData moduleData)
+    internal FireWeaponWhenDeadBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDeadBehaviorModuleData moduleData)
     {
         _gameObject = gameObject;
+        _context = context;
         _moduleData = moduleData;
         UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
     }
@@ -49,7 +51,7 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
                 _gameObject,
                 deathWeaponTemplate,
                 WeaponSlot.Primary,
-                _gameObject.GameContext);
+                _context);
 
             deathWeapon.Fire();
         }
@@ -92,6 +94,6 @@ public sealed class FireWeaponWhenDeadBehaviorModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new FireWeaponWhenDeadBehavior(gameObject, this);
+        return new FireWeaponWhenDeadBehavior(gameObject, context, this);
     }
 }
