@@ -1,4 +1,4 @@
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -10,7 +10,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _context;
         private readonly EjectPilotDieModuleData _moduleData;
 
-        internal EjectPilotDie(GameObject gameObject, GameContext context, EjectPilotDieModuleData moduleData) : base(moduleData)
+        internal EjectPilotDie(GameObject gameObject, GameContext context, EjectPilotDieModuleData moduleData)
+            : base(moduleData)
         {
             _gameObject = gameObject;
             _context = context;

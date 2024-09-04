@@ -1,68 +1,99 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule
 {
-    public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule
+    private readonly GameObject _gameObject;
+    private readonly GameContext _context;
+    private readonly FireWeaponWhenDeadBehaviorModuleData _moduleData;
+
+    internal UpgradeLogic UpgradeLogic { get; }
+
+    internal FireWeaponWhenDeadBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDeadBehaviorModuleData moduleData)
     {
-        private readonly UpgradeLogic _upgradeLogic;
+        _gameObject = gameObject;
+        _context = context;
+        _moduleData = moduleData;
+        UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
+    }
 
-        internal FireWeaponWhenDeadBehavior(FireWeaponWhenDeadBehaviorModuleData moduleData)
+    public bool CanUpgrade(UpgradeSet existingUpgrades) => UpgradeLogic.CanUpgrade(existingUpgrades);
+
+    public void TryUpgrade(UpgradeSet completedUpgrades) => UpgradeLogic.TryUpgrade(completedUpgrades);
+
+    private void OnUpgrade() { }
+
+    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    {
+        if (!_moduleData.DieData.IsApplicable(deathType, status))
         {
-            _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
+            return;
         }
 
-        public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
-
-        public void TryUpgrade(UpgradeSet completedUpgrades) => _upgradeLogic.TryUpgrade(completedUpgrades);
-
-        private void OnUpgrade()
+        if (!UpgradeLogic.Triggered)
         {
-            // TODO
+            return;
         }
 
-        internal override void Load(StatePersister reader)
+        // TODO: DelayTime
+        // TODO: WeaponOffset
+
+        var deathWeaponTemplate = _moduleData.DeathWeapon?.Value;
+        if (deathWeaponTemplate != null)
         {
-            reader.PersistVersion(1);
+            var deathWeapon = new Weapon(
+                _gameObject,
+                deathWeaponTemplate,
+                WeaponSlot.Primary,
+                _context);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistObject(_upgradeLogic);
+            deathWeapon.Fire();
         }
     }
 
-    public sealed class FireWeaponWhenDeadBehaviorModuleData : UpgradeModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static FireWeaponWhenDeadBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<FireWeaponWhenDeadBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<FireWeaponWhenDeadBehaviorModuleData>
-            {
-                { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() },
-                { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
-                { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseAssetReference() },
-                { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-                { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
-                { "WeaponOffset", (parser, x) => x.WeaponOffset = parser.ParseVector3() },
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        public ObjectStatus RequiredStatus { get; private set; }
-        public ObjectStatus ExemptStatus { get; private set; }
-        public string DeathWeapon { get; private set; }
-        public BitArray<DeathType> DeathTypes { get; private set; }
+        reader.PersistObject(UpgradeLogic);
+    }
+}
 
-        [AddedIn(SageGame.Bfme)]
-        public int DelayTime { get; private set; }
+public sealed class FireWeaponWhenDeadBehaviorModuleData : UpgradeModuleData
+{
+    internal static FireWeaponWhenDeadBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.Bfme)]
-        public Vector3 WeaponOffset { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<FireWeaponWhenDeadBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTableChild<FireWeaponWhenDeadBehaviorModuleData, DieLogicData>(x => x.DieData, DieLogicData.FieldParseTable))
+        .Concat(new IniParseTable<FireWeaponWhenDeadBehaviorModuleData>
         {
-            return new FireWeaponWhenDeadBehavior(this);
-        }
+            { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseWeaponTemplateReference() },
+            { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
+            { "WeaponOffset", (parser, x) => x.WeaponOffset = parser.ParseVector3() },
+        });
+
+    public DieLogicData DieData { get; } = new();
+
+    public LazyAssetReference<WeaponTemplate>? DeathWeapon { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public int DelayTime { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public Vector3 WeaponOffset { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new FireWeaponWhenDeadBehavior(gameObject, context, this);
     }
 }

@@ -8,26 +8,22 @@ namespace OpenSage.Logic.Object
     public sealed class InstantDeathBehavior : DieModule
     {
         private readonly GameObject _gameObject;
-        private new InstantDeathBehaviorModuleData ModuleData { get; }
+        private readonly InstantDeathBehaviorModuleData _moduleData;
 
-        internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData) : base(moduleData)
+        internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData)
+            : base(moduleData)
         {
             _gameObject = gameObject;
-            ModuleData = moduleData;
+            _moduleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            if (!ModuleData.DeathTypes.Get(deathType))
-            {
-                return;
-            }
-
             _gameObject.GameContext.GameLogic.DestroyObject(_gameObject);
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
-            ModuleData.FX?.Value?.Execute(new FXListExecutionContext(
+            _moduleData.FX?.Value?.Execute(new FXListExecutionContext(
                 rotation,
                 translation,
                 context.GameContext));
