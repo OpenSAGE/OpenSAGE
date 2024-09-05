@@ -177,7 +177,7 @@ namespace OpenSage.Logic
 
         public void SetRallyPoint()
         {
-            ActiveGenerator = new RallyPointOrderGenerator(Game, Game.PlayerManager.LocalPlayer.SelectedUnits.First());
+            ActiveGenerator = new RallyPointOrderGenerator(Game, Game.PlayerManager.LocalPlayer.SelectedUnits.Single());
         }
 
         public void CancelOrderGenerator()
