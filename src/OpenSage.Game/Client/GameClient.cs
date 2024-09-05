@@ -93,8 +93,8 @@ namespace OpenSage.Client
             reader.BeginArray("Drawables");
             if (reader.Mode == StatePersistMode.Read)
             {
-                _drawables.Clear();
-                _drawables.Capacity = drawablesCount;
+                DestroyAllDrawablesNow();
+                _drawables.EnsureCapacity(drawablesCount);
 
                 for (var i = 0; i < drawablesCount; i++)
                 {

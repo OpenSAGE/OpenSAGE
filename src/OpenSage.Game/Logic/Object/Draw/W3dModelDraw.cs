@@ -101,7 +101,7 @@ namespace OpenSage.Logic.Object
             _activeConditionState = conditionState;
             _activeModelDrawConditionState = modelDrawConditionState;
 
-            NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {GameObject.Definition.Name}");
+            NLog.LogManager.GetCurrentClassLogger().Info($"Set active condition state for {Drawable.Definition.Name}");
         }
 
         private bool ShouldWaitForRunningAnimationsToFinish()
@@ -160,7 +160,7 @@ namespace OpenSage.Logic.Object
                 animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
             }
 
-            NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {GameObject.Definition.Name}");
+            NLog.LogManager.GetCurrentClassLogger().Info($"Set active animation state for {Drawable.Definition.Name}");
 
             return true;
         }
@@ -364,7 +364,7 @@ namespace OpenSage.Logic.Object
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (GameObject.VerticalOffset != 0)
+            if (GameObject != null && GameObject.VerticalOffset != 0)
             {
                 var mat = worldMatrix * Matrix4x4.CreateTranslation(Vector3.UnitZ * GameObject.VerticalOffset);
                 _activeModelDrawConditionState?.SetWorldMatrix(mat);
