@@ -197,8 +197,8 @@ namespace OpenSage.Logic
             reader.BeginArray("Objects");
             if (reader.Mode == StatePersistMode.Read)
             {
-                _objects.Clear();
-                _objects.Capacity = (int)objectsCount;
+                DestroyAllObjectsNow();
+                _objects.EnsureCapacity((int)objectsCount);
 
                 for (var i = 0; i < objectsCount; i++)
                 {

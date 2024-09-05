@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -139,7 +138,7 @@ namespace OpenSage.Logic
             {
                 if (CanSetRallyPoint(objects))
                 {
-                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator(Game);
+                    Game.OrderGenerator.ActiveGenerator = new RallyPointOrderGenerator(Game, objects[0]);
                 }
                 else
                 {
