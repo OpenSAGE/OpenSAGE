@@ -1,8 +1,9 @@
 ﻿using OpenSage.Data.Ini;
+using OpenSage.Logic.Object.Damage;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class BaseRegenerateUpdate : UpdateModule, ISelfHealable
+    public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
     {
         private readonly GameObject _gameObject;
         private readonly GameContext _context;
@@ -19,7 +20,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Increments the frame after which healing is allowed.
         /// </summary>
-        public void RegisterDamage()
+        public void OnDamage(in DamageData damageData)
         {
             var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame;
             NextUpdateFrame = new UpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);

@@ -53,6 +53,7 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
                 WeaponSlot.Primary,
                 _context);
 
+            deathWeapon.SetTarget(new WeaponTarget(_gameObject.Translation));
             deathWeapon.Fire();
         }
     }

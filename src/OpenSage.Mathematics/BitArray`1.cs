@@ -7,6 +7,13 @@ namespace OpenSage.Mathematics
     public sealed class BitArray<TEnum> : IEquatable<BitArray<TEnum>>
         where TEnum : Enum
     {
+        public static BitArray<TEnum> CreateAllSet()
+        {
+            var result = new BitArray<TEnum>();
+            result.SetAll(true);
+            return result;
+        }
+
         private BitArray512 _data;
 
         public bool AnyBitSet => _data.AnyBitSet;

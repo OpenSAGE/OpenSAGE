@@ -2,7 +2,7 @@
 
 namespace OpenSage.Tests.Logic.Object.Update;
 
-public abstract class UpdateModuleTest<TModule, TData> : BehaviorModuleTest<TModule, TData> where TModule : UpdateModule where TData : UpdateModuleData, new()
+public abstract class UpdateModuleTest<TModule, TData> : BehaviorModuleTest<TModule, TData> where TModule : UpdateModule where TData : BehaviorModuleData, new()
 {
     private readonly byte[] _nextUpdateFrame = [0x00, 0x00, 0x00, 0x00];
 

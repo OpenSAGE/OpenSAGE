@@ -150,6 +150,7 @@ namespace OpenSage.Logic.Object
         private readonly GameObject _rallyPointMarker;
 
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
+        public BodyDamageType BodyDamageType => _bodyDamageType;
 
         internal BitArray<WeaponSetConditions> WeaponSetConditions;
         private readonly WeaponSet _weaponSet;
@@ -313,10 +314,13 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
             _body.DoDamage(damageType, amount, deathType, damageDealer);
-            // units can have multiple delayed heal behaviors, as the default object has an inheritable autohealbehavior provided by veterancy
-            foreach (var autoHealBehavior in FindBehaviors<ISelfHealable>())
+        }
+
+        internal void OnDamage(in DamageData damageData)
+        {
+            foreach (var damageModule in FindBehaviors<IDamageModule>())
             {
-                autoHealBehavior.RegisterDamage();
+                damageModule.OnDamage(damageData);
             }
         }
 
