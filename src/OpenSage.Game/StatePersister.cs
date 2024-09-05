@@ -964,6 +964,23 @@ namespace OpenSage
             persister.EndArray();
         }
 
+        public static void PersistArrayWithByteLength<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.BeginObject(name);
+
+            var length = (byte)value.Length;
+            persister.PersistByte(ref length);
+
+            if (length != value.Length)
+            {
+                throw new InvalidStateException();
+            }
+
+            PersistArray(persister, value, callback, "Items");
+
+            persister.EndObject();
+        }
+
         public static void PersistArrayWithUInt16Length<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback, [CallerArgumentExpression("value")] string name = "")
         {
             persister.BeginObject(name);
