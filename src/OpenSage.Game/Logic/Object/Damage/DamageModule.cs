@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.Object
+﻿using OpenSage.Logic.Object.Damage;
+
+namespace OpenSage.Logic.Object
 {
     public abstract class DamageModule : BehaviorModule
     {
@@ -10,6 +12,11 @@
             base.Load(reader);
             reader.EndObject();
         }
+    }
+
+    internal interface IDamageModule
+    {
+        void OnDamage(in DamageData damageData);
     }
 
     public abstract class DamageModuleData : ContainModuleData

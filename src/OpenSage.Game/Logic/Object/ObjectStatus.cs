@@ -75,6 +75,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("IS_AIMING_WEAPON")]
         IsAimingWeapon,
 
+        [IniEnum("NO_COLLISIONS")]
+        NoCollisions,
+
+        [IniEnum("KILLING_SELF")]
+        KillingSelf,
+
         [IniEnum("AIRBORNE_TARGET")]
         AirborneTarget,
 

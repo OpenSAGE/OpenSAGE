@@ -136,7 +136,7 @@ namespace OpenSage.Logic.Object
             reader.PersistInt32(ref _unknownInt2); // 0, 0x20000
             reader.PersistInt32(ref _unknownInt3); // 1960
 
-            if (version > 4)
+            if (version >= 6)
             {
                 reader.SkipUnknownBytes(6);
             }
