@@ -12,17 +12,16 @@ namespace OpenSage.Logic.Object
         private UnknownStateData? _packingUpData;
 
         private readonly GameContext _context;
-        private readonly HackInternetAIUpdateModuleData _moduleData;
 
-        public HackInternetAIUpdateModuleData ModuleData => _moduleData;
+        internal HackInternetAIUpdateModuleData ModuleData { get; }
 
-        internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _context = context;
-            _moduleData = moduleData;
+            ModuleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new HackInternetAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject, GameContext context) => new HackInternetAIUpdateStateMachine(gameObject, context, this);
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
@@ -75,10 +74,10 @@ namespace OpenSage.Logic.Object
             base.Stop();
         }
 
-        internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time)
+        internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameContext context)
         {
             // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-            return new LogicFrameSpan((uint)(time.Value + time.Value * ((_context.Random.NextSingle() * 2 - 1) * _moduleData.PackUnpackVariationFactor)));
+            return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * ModuleData.PackUnpackVariationFactor)));
         }
 
         internal override void Load(StatePersister reader)
@@ -101,12 +100,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public HackInternetAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject));
-            AddState(HackInternetState.StateId, new HackInternetState(gameObject));
-            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject));
+            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject, context, aiUpdate));
+            AddState(HackInternetState.StateId, new HackInternetState(gameObject, context, aiUpdate));
+            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject, context, aiUpdate));
         }
     }
 

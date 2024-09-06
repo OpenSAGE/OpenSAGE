@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class DockState : State
     {
@@ -6,9 +8,9 @@
 
         private bool _unknownBool2;
 
-        public DockState()
+        public DockState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new DockStateMachine();
+            _stateMachine = new DockStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -31,13 +33,13 @@
     {
         private uint _unknownInt;
 
-        public DockStateMachine()
+        public DockStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(0, new DockApproachDockState());
-            AddState(1, new DockUnknown1State());
-            AddState(3, new DockUnknown3State());
-            AddState(4, new DockUnknown4State());
-            AddState(5, new DockWaitForActionState());
+            AddState(0, new DockApproachDockState(gameObject, context, aiUpdate));
+            AddState(1, new DockUnknown1State(gameObject, context));
+            AddState(3, new DockUnknown3State(gameObject, context, aiUpdate));
+            AddState(4, new DockUnknown4State(gameObject, context, aiUpdate));
+            AddState(5, new DockWaitForActionState(gameObject, context));
         }
 
         public override void Persist(StatePersister reader)
@@ -53,6 +55,10 @@
 
         private sealed class DockApproachDockState : MoveTowardsState
         {
+            internal DockApproachDockState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
@@ -67,6 +73,10 @@
         {
             private uint _unknownInt;
 
+            internal DockUnknown1State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
@@ -77,15 +87,25 @@
 
         private sealed class DockUnknown3State : MoveTowardsState
         {
+            internal DockUnknown3State(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            {
+            }
         }
 
         private sealed class DockUnknown4State : MoveTowardsState
         {
+            internal DockUnknown4State(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            {
+            }
         }
 
         private sealed class DockWaitForActionState : State
         {
             // Time spent in this state matches SupplyWarehouseActionDelay
+
+            internal DockWaitForActionState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

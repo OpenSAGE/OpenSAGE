@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
 
         private readonly UnknownStateData _unknownStateData = new();
 
-        internal DeployStyleAIUpdate(GameObject gameObject, AIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal DeployStyleAIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
         }
 
@@ -102,7 +102,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new DeployStyleAIUpdate(gameObject, this);
+            return new DeployStyleAIUpdate(gameObject, context, this);
         }
     }
 }

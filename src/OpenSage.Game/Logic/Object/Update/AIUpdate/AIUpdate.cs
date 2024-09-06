@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
 
         private AIUpdateStateMachine _stateMachine;
 
-        private protected AIUpdateStateMachine StateMachine => _stateMachine ??= CreateStateMachine(GameObject);
+        private protected AIUpdateStateMachine StateMachine => _stateMachine ??= CreateStateMachine(GameObject, Context);
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -21,7 +21,8 @@ namespace OpenSage.Logic.Object
 
         private readonly AIUpdateModuleData _moduleData;
 
-        protected readonly GameObject GameObject;
+        protected GameObject GameObject { get; }
+        protected GameContext Context { get; }
 
         private readonly TurretAIUpdate _turretAIUpdate;
 
@@ -85,9 +86,10 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public List<Vector3> TargetPoints { get; set; }
 
-        internal AIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
+        internal AIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
         {
             GameObject = gameObject;
+            Context = context;
             _moduleData = moduleData;
 
             TargetPoints = new List<Vector3>();
@@ -103,7 +105,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject);
+        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject, GameContext context) => new(gameObject, context, this);
 
         internal void SetLocomotor(LocomotorSetType type)
         {
@@ -518,7 +520,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AIUpdate(gameObject, this);
+            return new AIUpdate(gameObject, context, this);
         }
     }
 

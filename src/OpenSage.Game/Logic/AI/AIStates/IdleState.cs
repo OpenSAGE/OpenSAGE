@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class IdleState : State
     {
@@ -7,6 +9,10 @@
         private ushort _unknownShort;
         private bool _unknownBool1;
         private bool _unknownBool2;
+
+        internal IdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

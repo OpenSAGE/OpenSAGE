@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates;
 
@@ -7,7 +8,7 @@ internal sealed class ChinookTakeoffAndLandingState : State
     private Vector3 _targetPosition;
     private bool _landing;
 
-    public ChinookTakeoffAndLandingState(bool landing)
+    public ChinookTakeoffAndLandingState(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate, bool landing) : base(gameObject, context)
     {
         _landing = landing;
     }

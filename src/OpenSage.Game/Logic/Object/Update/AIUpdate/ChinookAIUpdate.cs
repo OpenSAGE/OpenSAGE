@@ -8,26 +8,24 @@ namespace OpenSage.Logic.Object
 {
     public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
-        private readonly ChinookAIUpdateModuleData _moduleData;
-
-        public ChinookAIUpdateModuleData ModuleData => _moduleData;
+        internal ChinookAIUpdateModuleData ModuleData { get; }
 
         private UnknownStateData _queuedCommand;
         private ChinookState _state;
         private uint _airfieldToRepairAt;
 
-        internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal ChinookAIUpdate(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject, GameContext context) => new ChinookAIUpdateStateMachine(gameObject, context, this);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
             // this is also hardcoded in original SAGE, replaced by BonusScience and BonusScienceMultiplier (SupplyCenterDockUpdate) in later games
             var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
-            return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
+            return GameObject.HasUpgrade(upgradeDefinition) ? ModuleData.UpgradedSupplyBoost : 0;
         }
 
         internal override void Load(StatePersister reader)
@@ -67,29 +65,29 @@ namespace OpenSage.Logic.Object
 
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public ChinookAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(1001, new ChinookTakeoffAndLandingState(false)); // Takeoff
-            AddState(1002, new ChinookTakeoffAndLandingState(true));  // Landing
-            AddState(1003, new MoveTowardsState());                   // Moving towards airfield to repair at
-            AddState(1004, new MoveTowardsState());                   // Moving towards evacuation point
-            AddState(1005, new ChinookTakeoffAndLandingState(true));  // Landing for evacuation
+            AddState(1001, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, false)); // Takeoff
+            AddState(1002, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing
+            AddState(1003, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards airfield to repair at
+            AddState(1004, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards evacuation point
+            AddState(1005, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing for evacuation
             // 1006?
-            AddState(1007, new MoveTowardsState());                   // Moving towards reinforcement point
-            AddState(1008, new ChinookTakeoffAndLandingState(true));  // Landing for reinforcement
+            AddState(1007, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards reinforcement point
+            AddState(1008, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing for reinforcement
             // 1009?
-            AddState(1010, new ChinookTakeoffAndLandingState(false)); // Takeoff after reinforcement
-            AddState(1011, new ChinookExitMapState());                // Exit map after reinforcement
-            AddState(1012, new ChinookMoveToCombatDropState());       // Moving towards combat drop location
-            AddState(1013, new ChinookCombatDropState(gameObject));   // Combat drop
+            AddState(1010, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, false)); // Takeoff after reinforcement
+            AddState(1011, new ChinookExitMapState(gameObject, context, aiUpdate));                  // Exit map after reinforcement
+            AddState(1012, new ChinookMoveToCombatDropState(gameObject, context, aiUpdate));         // Moving towards combat drop location
+            AddState(1013, new ChinookCombatDropState(gameObject, context, aiUpdate));               // Combat drop
         }
     }
 
     /// <summary>
     /// Logic requires bones for either end of the rope to be defined as RopeEnd and RopeStart.
-    /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's 
-    /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for 
+    /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's
+    /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for
     /// rappelling out of the object that has the rappel code of this module.
     /// </summary>
     public sealed class ChinookAIUpdateModuleData : SupplyTruckAIUpdateModuleData
@@ -134,7 +132,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ChinookAIUpdate(gameObject, this);
+            return new ChinookAIUpdate(gameObject, context, this);
         }
     }
 }

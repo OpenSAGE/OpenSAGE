@@ -1,12 +1,14 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackTeamState : State
     {
         private readonly AttackAreaStateMachine _stateMachine;
 
-        public AttackTeamState()
+        public AttackTeamState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new AttackAreaStateMachine();
+            _stateMachine = new AttackAreaStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)

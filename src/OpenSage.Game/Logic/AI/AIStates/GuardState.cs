@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,9 +7,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardStateMachine _stateMachine;
 
-        public GuardState()
+        public GuardState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new GuardStateMachine();
+            _stateMachine = new GuardStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -29,11 +30,11 @@ namespace OpenSage.Logic.AI.AIStates
         private Vector3 _guardPosition;
         private string _guardPolygonTriggerName;
 
-        public GuardStateMachine()
+        public GuardStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(5001, new GuardIdleState());
-            AddState(5002, new GuardUnknown5002State());
-            AddState(5003, new GuardMoveState());
+            AddState(5001, new GuardIdleState(gameObject, context));
+            AddState(5002, new GuardUnknown5002State(gameObject, context));
+            AddState(5003, new GuardMoveState(gameObject, context));
         }
 
         public override void Persist(StatePersister reader)
@@ -54,6 +55,10 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
+            internal GuardIdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -64,6 +69,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardUnknown5002State : State
         {
+            internal GuardUnknown5002State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -73,6 +82,10 @@ namespace OpenSage.Logic.AI.AIStates
         private sealed class GuardMoveState : State
         {
             private uint _unknownInt;
+
+            internal GuardMoveState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

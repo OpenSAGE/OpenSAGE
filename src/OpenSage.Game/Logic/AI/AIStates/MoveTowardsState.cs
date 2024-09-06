@@ -1,10 +1,13 @@
-﻿using System.Numerics;
+using System;
+using System.Numerics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
     internal class MoveTowardsState : State
     {
+        private readonly AIUpdate _aiUpdate;
+
         private Vector3 _targetPosition;
         private uint _unknownInt1;
         private bool _unknownBool1;
@@ -12,6 +15,11 @@ namespace OpenSage.Logic.AI.AIStates
         private LogicFrame _unknownFrame;
         private uint _unknownInt3;
         private bool _unknownBool2;
+
+        internal MoveTowardsState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        {
+            _aiUpdate = aiUpdate;
+        }
 
         public override void Persist(StatePersister reader)
         {

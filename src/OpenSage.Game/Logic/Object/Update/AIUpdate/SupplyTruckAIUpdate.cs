@@ -6,19 +6,15 @@ namespace OpenSage.Logic.Object
     {
         private readonly SupplyTruckAIUpdateModuleData _moduleData;
 
-        private readonly WorkerAIUpdateStateMachine2 _stateMachine = new();
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine;
         private uint _dockId;
         private int _unknownInt;
         private bool _unknownBool;
 
-        internal SupplyTruckAIUpdate(GameObject gameObject, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
-        }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            base.Update(context);
+            _stateMachine = new WorkerAIUpdateStateMachine2(gameObject, context, this);
         }
 
         internal override void Load(StatePersister reader)
@@ -45,7 +41,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new SupplyTruckAIUpdate(gameObject, this);
+            return new SupplyTruckAIUpdate(gameObject, context, this);
         }
     }
 }

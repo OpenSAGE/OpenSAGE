@@ -1,10 +1,12 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class FaceState : State
     {
         private readonly FaceTargetType _targetType;
 
-        public FaceState(FaceTargetType targetType)
+        public FaceState(GameObject gameObject, GameContext context, FaceTargetType targetType) : base(gameObject, context)
         {
             _targetType = targetType;
         }

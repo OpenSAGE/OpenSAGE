@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,9 +7,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardInTunnelNetworkStateMachine _stateMachine;
 
-        public GuardInTunnelNetworkState()
+        public GuardInTunnelNetworkState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new GuardInTunnelNetworkStateMachine();
+            _stateMachine = new GuardInTunnelNetworkStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -31,10 +32,10 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _guardObjectId;
         private Vector3 _guardPosition;
 
-        public GuardInTunnelNetworkStateMachine()
+        public GuardInTunnelNetworkStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(5001, new GuardInTunnelNetworkIdleState());
-            AddState(5003, new GuardInTunnelNetworkEnterTunnelState());
+            AddState(5001, new GuardInTunnelNetworkIdleState(gameObject, context));
+            AddState(5003, new GuardInTunnelNetworkEnterTunnelState(gameObject, context, aiUpdate));
         }
 
         public override void Persist(StatePersister reader)
@@ -51,6 +52,10 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
+            internal GuardInTunnelNetworkIdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -62,6 +67,10 @@ namespace OpenSage.Logic.AI.AIStates
         private sealed class GuardInTunnelNetworkEnterTunnelState : EnterContainerState
         {
             private uint _unknownInt;
+
+            internal GuardInTunnelNetworkEnterTunnelState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -9,9 +10,9 @@ namespace OpenSage.Logic.AI.AIStates
         private bool _unknownBool;
         private Vector3 _unknownPosition;
 
-        public AttackState()
+        public AttackState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new AttackStateMachine();
+            _stateMachine = new AttackStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -26,12 +27,12 @@ namespace OpenSage.Logic.AI.AIStates
 
     internal sealed class AttackStateMachine : StateMachineBase
     {
-        public AttackStateMachine()
+        public AttackStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(0, new AttackMoveTowardsTargetState());
-            AddState(1, new AttackMoveTowardsTargetState());
-            AddState(2, new AttackAimWeaponState());
-            AddState(3, new AttackFireWeaponState());
+            AddState(0, new AttackMoveTowardsTargetState(gameObject, context, aiUpdate));
+            AddState(1, new AttackMoveTowardsTargetState(gameObject, context, aiUpdate));
+            AddState(2, new AttackAimWeaponState(gameObject, context));
+            AddState(3, new AttackFireWeaponState(gameObject, context));
         }
 
         public override void Persist(StatePersister reader)
@@ -51,6 +52,10 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool2;
             private bool _unknownBool3;
             private bool _unknownBool4;
+
+            internal AttackMoveTowardsTargetState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {
@@ -74,6 +79,10 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool1;
             private bool _unknownBool2;
 
+            internal AttackAimWeaponState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -85,6 +94,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackFireWeaponState : State
         {
+            internal AttackFireWeaponState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);

@@ -10,16 +10,16 @@ namespace OpenSage.Logic.Object
     {
         public GameObject? BuildTarget => _state.BuildTarget;
         public GameObject? RepairTarget => _state.RepairTarget;
+        public IBuilderAIUpdateData ModuleData => _moduleData;
 
-        private readonly GameContext _context;
-
+        private readonly DozerAIUpdateModuleData _moduleData;
         private readonly DozerAndWorkerState _state;
 
         internal DozerAIUpdate(GameObject gameObject, GameContext context, DozerAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+            : base(gameObject, context, moduleData)
         {
-            _context = context;
-            _state = new DozerAndWorkerState(gameObject, context, moduleData);
+            _moduleData = moduleData;
+            _state = new DozerAndWorkerState(gameObject, context, this);
         }
 
         internal override void Stop()
@@ -44,14 +44,14 @@ namespace OpenSage.Logic.Object
             // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
             // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
             SetTargetPoint(gameObject.Translation);
-            _state.SetBuildTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
+            _state.SetBuildTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
         }
 
         public void SetRepairTarget(GameObject gameObject)
         {
             // note that the order here is important, as SetTargetPoint will clear any existing repairTarget
             SetTargetPoint(gameObject.Translation);
-            _state.SetRepairTarget(gameObject, _context.GameLogic.CurrentFrame.Value);
+            _state.SetRepairTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
         }
 
         internal override void SetTargetPoint(Vector3 targetPoint)

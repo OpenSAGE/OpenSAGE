@@ -6,28 +6,26 @@ namespace OpenSage.Logic.AI.AIStates
     {
         public const uint StateId = 1002;
 
-        private readonly GameObject _gameObject;
+        private readonly HackInternetAIUpdate _aiUpdate;
 
         private LogicFrameSpan _framesUntilFinishedPacking;
 
-        public StopHackingInternetState(GameObject gameObject)
+        public StopHackingInternetState(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate) : base(gameObject, context)
         {
-            _gameObject = gameObject;
+            _aiUpdate = aiUpdate;
         }
 
         public override void OnEnter()
         {
-            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
-            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
 
-            _gameObject.GameContext.AudioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
+            Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
 
-            var aiUpdate = (HackInternetAIUpdate)_gameObject.AIUpdate;
+            var frames = _aiUpdate.GetVariableFrames(_aiUpdate.ModuleData.PackTime, Context);
 
-            var frames = aiUpdate.GetVariableFrames(aiUpdate.ModuleData.PackTime);
-
-            _gameObject.Drawable.SetAnimationDuration(frames);
+            GameObject.Drawable.SetAnimationDuration(frames);
 
             _framesUntilFinishedPacking = frames;
         }
@@ -44,7 +42,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         public override void OnExit()
         {
-            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
         }
 
         public override void Persist(StatePersister reader)

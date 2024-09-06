@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
     public sealed class JetAIUpdate : AIUpdate
     {
         public GameObject Base;
+        internal JetAIUpdateModuleData ModuleData => _moduleData;
 
         private readonly JetAIUpdateModuleData _moduleData;
         private Vector3 _currentTargetPoint;
@@ -56,14 +57,14 @@ namespace OpenSage.Logic.Object
             MovingBackToHangar
         }
 
-        internal JetAIUpdate(GameObject gameObject, JetAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal JetAIUpdate(GameObject gameObject, GameContext context, JetAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
             CurrentJetAIState = JetAIState.Parked;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new JetAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject, GameContext context) => new JetAIUpdateStateMachine(gameObject, context, this);
 
         internal override void Load(StatePersister reader)
         {
@@ -329,10 +330,10 @@ namespace OpenSage.Logic.Object
 
     internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public JetAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context, JetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(1013, new WaitForAirfieldState());
+            AddState(WaitForAirfieldWinchesterState.StateId, new WaitForAirfieldWinchesterState(gameObject, context, aiUpdate));
         }
     }
 
@@ -413,7 +414,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new JetAIUpdate(gameObject, this);
+            return new JetAIUpdate(gameObject, context, this);
         }
     }
 }

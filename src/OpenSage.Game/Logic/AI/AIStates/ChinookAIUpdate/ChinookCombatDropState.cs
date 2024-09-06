@@ -6,19 +6,19 @@ namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class ChinookCombatDropState : State
 {
-    private readonly GameObject _gameObject;
+    private readonly ChinookAIUpdate _aiUpdate;
     private readonly List<Rope> _ropes = new();
 
-    public ChinookCombatDropState(GameObject gameObject)
+    internal ChinookCombatDropState(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate) : base(gameObject, context)
     {
-        _gameObject = gameObject;
+        _aiUpdate = aiUpdate;
     }
 
     public override void OnEnter()
     {
         _ropes.Clear();
 
-        var numRopes = ((ChinookAIUpdate)_gameObject.AIUpdate).ModuleData.NumRopes;
+        var numRopes = _aiUpdate.ModuleData.NumRopes;
         for (var i = 0; i < numRopes; i++)
         {
             _ropes.Add(new Rope());

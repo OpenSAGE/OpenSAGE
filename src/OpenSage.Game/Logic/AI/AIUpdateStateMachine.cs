@@ -14,38 +14,38 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIUpdateStateMachine(GameObject gameObject)
+        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(IdleState.StateId, new IdleState());
-            AddState(1, new MoveTowardsState());
-            AddState(2, new FollowWaypointsState(true));
-            AddState(3, new FollowWaypointsState(false));
-            AddState(4, new FollowWaypointsExactState(true));
-            AddState(5, new FollowWaypointsExactState(false));
-            AddState(6, new AIState6());
-            AddState(7, new FollowPathState());
-            AddState(9, new AttackState());
-            AddState(10, new AttackState());
-            AddState(11, new AttackState());
-            AddState(13, new DeadState());
-            AddState(14, new DockState());
-            AddState(15, new EnterContainerState());
-            AddState(16, new GuardState());
-            AddState(17, new HuntState());
-            AddState(18, new WanderState());
-            AddState(19, new PanicState());
-            AddState(20, new AttackTeamState());
-            AddState(21, new GuardInTunnelNetworkState());
-            AddState(23, new AIState23());
-            AddState(28, new AttackAreaState());
-            AddState(30, new AttackMoveState());
-            AddState(32, new AIState32());
-            AddState(33, new FaceState(FaceTargetType.FaceNamed));
-            AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
-            AddState(35, new RappelState());
-            AddState(37, new ExitContainerState());
-            AddState(40, new WanderInPlaceState());
-            AddState(41, new DoNothingState());
+            AddState(IdleState.StateId, new IdleState(gameObject, context));
+            AddState(1, new MoveTowardsState(gameObject, context, aiUpdate));
+            AddState(2, new FollowWaypointsState(gameObject, context, aiUpdate, true));
+            AddState(3, new FollowWaypointsState(gameObject, context, aiUpdate, false));
+            AddState(4, new FollowWaypointsExactState(gameObject, context, aiUpdate, true));
+            AddState(5, new FollowWaypointsExactState(gameObject, context, aiUpdate, false));
+            AddState(6, new AIState6(gameObject, context, aiUpdate));
+            AddState(7, new FollowPathState(gameObject, context, aiUpdate));
+            AddState(9, new AttackState(gameObject, context, aiUpdate));
+            AddState(10, new AttackState(gameObject, context, aiUpdate));
+            AddState(11, new AttackState(gameObject, context, aiUpdate));
+            AddState(13, new DeadState(gameObject, context));
+            AddState(14, new DockState(gameObject, context, aiUpdate));
+            AddState(15, new EnterContainerState(gameObject, context, aiUpdate));
+            AddState(16, new GuardState(gameObject, context, aiUpdate));
+            AddState(17, new HuntState(gameObject, context, aiUpdate));
+            AddState(18, new WanderState(gameObject, context, aiUpdate));
+            AddState(19, new PanicState(gameObject, context, aiUpdate));
+            AddState(20, new AttackTeamState(gameObject, context, aiUpdate));
+            AddState(21, new GuardInTunnelNetworkState(gameObject, context, aiUpdate));
+            AddState(23, new AIState23(gameObject, context, aiUpdate));
+            AddState(28, new AttackAreaState(gameObject, context, aiUpdate));
+            AddState(30, new AttackMoveState(gameObject, context, aiUpdate));
+            AddState(32, new AIState32(gameObject, context, aiUpdate));
+            AddState(33, new FaceState(gameObject, context, FaceTargetType.FaceNamed));
+            AddState(34, new FaceState(gameObject, context, FaceTargetType.FaceWaypoint));
+            AddState(35, new RappelState(gameObject, context));
+            AddState(37, new ExitContainerState(gameObject, context));
+            AddState(40, new WanderInPlaceState(gameObject, context, aiUpdate));
+            AddState(41, new DoNothingState(gameObject, context));
         }
 
         internal override void Update()
@@ -126,6 +126,10 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
+        internal AIState6(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        {
+        }
+
         public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -140,17 +144,19 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState23 : MoveTowardsState
     {
-
+        internal AIState23(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        {
+        }
     }
 
     internal sealed class AIState32 : FollowWaypointsState
     {
         private readonly AIState32StateMachine _stateMachine;
 
-        public AIState32()
-            : base(false)
+        public AIState32(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate, false)
         {
-            _stateMachine = new AIState32StateMachine();
+            _stateMachine = new AIState32StateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -165,9 +171,9 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState32StateMachine : StateMachineBase
     {
-        public AIState32StateMachine()
+        public AIState32StateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(IdleState.StateId, new IdleState());
+            AddState(IdleState.StateId, new IdleState(gameObject, context));
         }
 
         public override void Persist(StatePersister reader)

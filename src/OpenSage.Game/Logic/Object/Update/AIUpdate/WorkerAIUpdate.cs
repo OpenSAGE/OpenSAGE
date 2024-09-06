@@ -12,23 +12,26 @@ namespace OpenSage.Logic.Object
     {
         public GameObject? BuildTarget => _state.BuildTarget;
         public GameObject? RepairTarget => _state.RepairTarget;
+        public IBuilderAIUpdateData ModuleData => _moduleData;
 
         private readonly GameContext _context;
         private readonly WorkerAIUpdateModuleData _moduleData;
 
         private readonly DozerAndWorkerState _state;
 
-        private readonly WorkerAIUpdateStateMachine2 _stateMachine2 = new();
+        private readonly WorkerAIUpdateStateMachine2 _stateMachine2;
         private uint _unknownObjectId;
         private int _unknown5;
         private int _unknown6;
-        private readonly WorkerAIUpdateStateMachine3 _stateMachine3 = new();
+        private readonly WorkerAIUpdateStateMachine3 _stateMachine3;
 
-        internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _context = context;
             _moduleData = moduleData;
-            _state = new DozerAndWorkerState(gameObject, context, moduleData);
+            _state = new DozerAndWorkerState(gameObject, context, this);
+            _stateMachine2 = new WorkerAIUpdateStateMachine2(gameObject, context, this);
+            _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, context, this);
         }
 
         internal override void Stop()
@@ -222,10 +225,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
         {
-            public WorkerAIUpdateStateMachine3()
+            public WorkerAIUpdateStateMachine3(GameObject gameObject, GameContext context, WorkerAIUpdate aiUpdate) : base(gameObject, context)
             {
-                AddState(0, new WorkerUnknown0State());
-                AddState(1, new WorkerUnknown1State());
+                AddState(0, new WorkerUnknown0State(gameObject, context));
+                AddState(1, new WorkerUnknown1State(gameObject, context));
             }
 
             public override void Persist(StatePersister reader)
@@ -239,6 +242,10 @@ namespace OpenSage.Logic.Object
 
             private sealed class WorkerUnknown0State : State
             {
+                internal WorkerUnknown0State(GameObject gameObject, GameContext context) : base(gameObject, context)
+                {
+                }
+
                 public override void Persist(StatePersister reader)
                 {
                     // No version?
@@ -247,6 +254,10 @@ namespace OpenSage.Logic.Object
 
             private sealed class WorkerUnknown1State : State
             {
+                internal WorkerUnknown1State(GameObject gameObject, GameContext context) : base(gameObject, context)
+                {
+                }
+
                 public override void Persist(StatePersister reader)
                 {
                     // No version?
@@ -257,13 +268,13 @@ namespace OpenSage.Logic.Object
 
     internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
     {
-        public WorkerAIUpdateStateMachine2()
+        public WorkerAIUpdateStateMachine2(GameObject gameObject, GameContext context, SupplyAIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(0, new WorkerUnknown0State());
-            AddState(1, new WorkerUnknown1State());
-            AddState(2, new WorkerUnknown2State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
-            AddState(3, new WorkerUnknown3State()); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
-            AddState(4, new WorkerUnknown4State());
+            AddState(0, new WorkerUnknown0State(gameObject, context));
+            AddState(1, new WorkerUnknown1State(gameObject, context));
+            AddState(2, new WorkerUnknown2State(gameObject, context)); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
+            AddState(3, new WorkerUnknown3State(gameObject, context)); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
+            AddState(4, new WorkerUnknown4State(gameObject, context));
         }
 
         public override void Persist(StatePersister reader)
@@ -277,6 +288,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown0State : State
         {
+            internal WorkerUnknown0State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
 
@@ -285,6 +300,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown1State : State
         {
+            internal WorkerUnknown1State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
 
@@ -293,6 +312,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown2State : State
         {
+            internal WorkerUnknown2State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -301,6 +324,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown3State : State
         {
+            internal WorkerUnknown3State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -309,6 +336,10 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerUnknown4State : State
         {
+            internal WorkerUnknown4State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);

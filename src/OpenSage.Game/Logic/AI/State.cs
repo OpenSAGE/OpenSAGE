@@ -1,8 +1,19 @@
-﻿namespace OpenSage.Logic.AI
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI
 {
     internal abstract class State : IPersistableObject
     {
         public uint Id { get; internal set; }
+
+        private protected GameObject GameObject { get; }
+        private protected GameContext Context { get; }
+
+        private protected State(GameObject gameObject, GameContext context)
+        {
+            GameObject = gameObject;
+            Context = context;
+        }
 
         public virtual void OnEnter() { }
 

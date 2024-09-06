@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,6 +7,10 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private Vector3 _unknownPos;
         private uint _unknownInt;
+
+        internal WanderInPlaceState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

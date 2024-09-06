@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackAreaState : State
     {
@@ -6,9 +8,9 @@
 
         private uint _unknownInt;
 
-        public AttackAreaState()
+        public AttackAreaState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            _stateMachine = new AttackAreaStateMachine();
+            _stateMachine = new AttackAreaStateMachine(gameObject, context, aiUpdate);
         }
 
         public override void Persist(StatePersister reader)
@@ -29,10 +31,10 @@
 
     internal sealed class AttackAreaStateMachine : StateMachineBase
     {
-        public AttackAreaStateMachine()
+        public AttackAreaStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
         {
-            AddState(IdleState.StateId, new IdleState());
-            AddState(10, new AttackState());
+            AddState(IdleState.StateId, new IdleState(gameObject, context));
+            AddState(10, new AttackState(gameObject, context, aiUpdate));
         }
 
         public override void Persist(StatePersister reader)

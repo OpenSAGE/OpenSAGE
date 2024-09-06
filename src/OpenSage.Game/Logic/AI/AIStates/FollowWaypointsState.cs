@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Sav;
+﻿using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -14,7 +14,7 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _waypointIdMaybe2;
         private bool _unknownBool;
 
-        public FollowWaypointsState(bool asTeam)
+        public FollowWaypointsState(GameObject gameObject, GameContext context, AIUpdate aiUpdate, bool asTeam) : base(gameObject, context, aiUpdate)
         {
             _asTeam = asTeam;
         }

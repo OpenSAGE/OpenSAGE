@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public sealed class WanderAIUpdate : AIUpdate
     {
-        internal WanderAIUpdate(GameObject gameObject, WanderAIUpdateModuleData moduleData)
-            : base(gameObject, moduleData)
+        internal WanderAIUpdate(GameObject gameObject, GameContext context, WanderAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
         }
 
@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new WanderAIUpdate(gameObject, this);
+            return new WanderAIUpdate(gameObject, context, this);
         }
     }
 }

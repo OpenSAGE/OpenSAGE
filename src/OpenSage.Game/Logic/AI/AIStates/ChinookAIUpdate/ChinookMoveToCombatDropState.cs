@@ -1,10 +1,19 @@
-﻿namespace OpenSage.Logic.AI.AIStates;
+﻿using OpenSage.Logic.Object;
+
+namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class ChinookMoveToCombatDropState : State
 {
+    private readonly ChinookAIUpdate _aiUpdate;
+
     private float _unknownFloat1;
     private float _unknownFloat2;
     private float _unknownFloat3;
+
+    internal ChinookMoveToCombatDropState(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate) : base(gameObject, context)
+    {
+        _aiUpdate = aiUpdate;
+    }
 
     public override void Persist(StatePersister reader)
     {

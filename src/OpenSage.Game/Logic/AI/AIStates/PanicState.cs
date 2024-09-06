@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Sav;
+﻿using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -7,8 +7,8 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _unknownInt1;
         private uint _unknownInt2;
 
-        public PanicState()
-            : base(false)
+        public PanicState(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate, false)
         {
 
         }

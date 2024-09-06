@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
 
         protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
 
-        internal SupplyAIUpdate(GameObject gameObject, SupplyAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal SupplyAIUpdate(GameObject gameObject, GameContext context, SupplyAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
             SupplyGatherState = SupplyGatherStates.Default;
