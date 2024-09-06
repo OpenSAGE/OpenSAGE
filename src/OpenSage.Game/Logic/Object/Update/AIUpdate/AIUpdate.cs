@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -10,7 +10,9 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private protected readonly AIUpdateStateMachine StateMachine;
+        private AIUpdateStateMachine _stateMachine;
+
+        private protected AIUpdateStateMachine StateMachine => _stateMachine ??= CreateStateMachine(GameObject);
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
@@ -89,8 +91,6 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
 
             TargetPoints = new List<Vector3>();
-
-            StateMachine = CreateStateMachine(gameObject);
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
