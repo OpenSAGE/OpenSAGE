@@ -1,4 +1,5 @@
-﻿using OpenSage.Logic.Object;
+﻿using OpenSage.Audio;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -7,12 +8,14 @@ namespace OpenSage.Logic.AI.AIStates
         public const uint StateId = 1000;
 
         private readonly GameObject _gameObject;
+        private readonly AudioSystem _audioSystem;
 
         private LogicFrameSpan _framesUntilHackingBegins;
 
-        public StartHackingInternetState(GameObject gameObject)
+        public StartHackingInternetState(GameObject gameObject, AudioSystem audioSystem)
         {
             _gameObject = gameObject;
+            _audioSystem = audioSystem;
         }
 
         public override void OnEnter()
@@ -21,7 +24,7 @@ namespace OpenSage.Logic.AI.AIStates
             _gameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
             _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
 
-            _gameObject.GameContext.AudioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
+            _audioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
 
             var aiUpdate = (HackInternetAIUpdate)_gameObject.AIUpdate;
 

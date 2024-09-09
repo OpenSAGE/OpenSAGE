@@ -8,6 +8,7 @@ namespace OpenSage.Logic.Object
     public class PhysicsBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly PhysicsBehaviorModuleData _moduleData;
         private readonly Vector3 _gravityAcceleration;
 
@@ -49,6 +50,7 @@ namespace OpenSage.Logic.Object
         internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
 
             Mass = moduleData.Mass;
@@ -81,7 +83,7 @@ namespace OpenSage.Logic.Object
             // Integrate position.
             var newTranslation = _gameObject.Translation + _velocity;
 
-            var terrainHeight = _gameObject.GameContext.Game.TerrainLogic.HeightMap.GetHeight(
+            var terrainHeight = _context.Game.TerrainLogic.HeightMap.GetHeight(
                 newTranslation.X,
                 newTranslation.Y);
 

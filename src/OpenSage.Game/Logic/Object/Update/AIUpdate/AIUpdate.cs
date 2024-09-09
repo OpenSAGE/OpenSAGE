@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
         private readonly AIUpdateModuleData _moduleData;
 
         protected readonly GameObject GameObject;
+        protected GameContext Context { get; }
 
         private readonly TurretAIUpdate _turretAIUpdate;
 
@@ -83,9 +84,10 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public List<Vector3> TargetPoints { get; set; }
 
-        internal AIUpdate(GameObject gameObject, AIUpdateModuleData moduleData)
+        internal AIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
         {
             GameObject = gameObject;
+            Context = context;
             _moduleData = moduleData;
 
             TargetPoints = new List<Vector3>();
@@ -103,7 +105,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject);
+        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject, Context);
 
         internal void SetLocomotor(LocomotorSetType type)
         {
@@ -141,7 +143,7 @@ namespace OpenSage.Logic.Object
             if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft) && targetPoint != GameObject.Translation)
             {
                 var start = GameObject.Translation;
-                var path = GameObject.GameContext.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);
+                var path = Context.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);
                 if (path.Count > 0)
                 {
                     path.RemoveAt(0);
@@ -518,7 +520,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AIUpdate(gameObject, this);
+            return new AIUpdate(gameObject, context, this);
         }
     }
 

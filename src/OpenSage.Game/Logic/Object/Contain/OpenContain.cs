@@ -82,7 +82,7 @@ namespace OpenSage.Logic.Object
             unit.AddToContainer(GameObject.ID);
             if (!initial)
             {
-                GameObject.GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+                GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
             }
         }
 
@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
 
         public void Evacuate()
         {
-            GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject,
+            GameContext.AudioSystem.PlayAudioEvent(GameObject,
                 GameObject.Definition.UnitSpecificSounds.VoiceUnload?.Value);
             foreach (var id in ContainedObjectIds)
             {
@@ -179,7 +179,7 @@ namespace OpenSage.Logic.Object
             }
             else
             {
-                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
+                GameContext.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
             }
 
             unit.RemoveFromContainer();
@@ -197,7 +197,7 @@ namespace OpenSage.Logic.Object
 
         protected GameObject GameObjectForId(uint unitId)
         {
-            return GameObject.GameContext.GameLogic.GetObjectById(unitId);
+            return GameContext.GameLogic.GetObjectById(unitId);
         }
 
         internal override void Load(StatePersister reader)

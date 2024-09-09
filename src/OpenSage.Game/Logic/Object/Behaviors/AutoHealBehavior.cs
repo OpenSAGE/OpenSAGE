@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.HealingDelay;
 
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly AutoHealBehaviorModuleData _moduleData;
         private readonly UpgradeLogic _upgradeLogic;
         /// <summary>
@@ -19,9 +20,10 @@ namespace OpenSage.Logic.Object
         /// </summary>
         private LogicFrame _endOfStartHealingDelay;
 
-        public AutoHealBehavior(GameObject gameObject, AutoHealBehaviorModuleData moduleData)
+        public AutoHealBehavior(GameObject gameObject, GameContext context, AutoHealBehaviorModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
             NextUpdateFrame.Frame = uint.MaxValue;
             _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
@@ -34,7 +36,7 @@ namespace OpenSage.Logic.Object
         private void OnUpgrade()
         {
             // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
-            NextUpdateFrame.Frame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
+            NextUpdateFrame.Frame = _context.GameLogic.CurrentFrame.Value;
         }
 
         /// <summary>
@@ -46,7 +48,7 @@ namespace OpenSage.Logic.Object
             // make sure the upgrade is triggered before resetting any frames
             if (_moduleData.StartHealingDelay != LogicFrameSpan.Zero && _upgradeLogic.Triggered)
             {
-                var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame;
+                var currentFrame = _context.GameLogic.CurrentFrame;
                 _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
                 NextUpdateFrame = new UpdateFrame(_endOfStartHealingDelay);
             }
@@ -64,7 +66,7 @@ namespace OpenSage.Logic.Object
                 if (_moduleData.AffectsWholePlayer)
                 {
                     // USA hospital has this behavior
-                    foreach (var candidate in _gameObject.GameContext.GameLogic.Objects)
+                    foreach (var candidate in _context.GameLogic.Objects)
                     {
                         if (ObjectIsOwnedBySamePlayer(candidate) && CanHealUnit(candidate))
                         {
@@ -82,7 +84,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            foreach (var candidate in _gameObject.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
+            foreach (var candidate in _context.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
             {
                 if (_moduleData.SkipSelfForHealing && candidate == _gameObject) continue;
                 if (!CanHealUnit(candidate)) continue;
@@ -258,7 +260,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoHealBehavior(gameObject, this);
+            return new AutoHealBehavior(gameObject, context, this);
         }
     }
 }

@@ -103,7 +103,7 @@ namespace OpenSage.Logic.Object
                     new FXListExecutionContext(
                         GameObject.Rotation,
                         GameObject.Translation,
-                        GameObject.GameContext));
+                        _context));
             }
 
             if (Health <= Fix64.Zero)

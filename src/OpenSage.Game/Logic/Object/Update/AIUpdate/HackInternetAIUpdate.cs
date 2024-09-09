@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.AI.AIStates;
@@ -16,13 +17,13 @@ namespace OpenSage.Logic.Object
 
         public HackInternetAIUpdateModuleData ModuleData => _moduleData;
 
-        internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _context = context;
             _moduleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new HackInternetAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new HackInternetAIUpdateStateMachine(gameObject, _context);
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
@@ -101,12 +102,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public HackInternetAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context)
+            : base(gameObject, context)
         {
-            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject));
-            AddState(HackInternetState.StateId, new HackInternetState(gameObject));
-            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject));
+            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject, context.AudioSystem));
+            AddState(HackInternetState.StateId, new HackInternetState(gameObject, context.AudioSystem));
+            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject, context.AudioSystem));
         }
     }
 

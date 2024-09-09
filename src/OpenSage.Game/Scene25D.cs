@@ -237,7 +237,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
 
         var text = _buildProgressString.Localize(gameObject.BuildProgress * 100);
         // todo: is this the correct font?
-        drawingContext.DrawText(text, gameObject.GameContext.Game.ContentManager.FontManager.GetOrCreateFont(assetStore.InGameUI.Current.MessageFont, 26, FontWeight.Normal), TextAlignment.Center, ColorRgbaF.White, buildProgressRect.Value);
+        drawingContext.DrawText(text, scene3D.Game.ContentManager.FontManager.GetOrCreateFont(assetStore.InGameUI.Current.MessageFont, 26, FontWeight.Normal), TextAlignment.Center, ColorRgbaF.White, buildProgressRect.Value);
     }
 
     private void DrawBottomLeftImage(DrawingContext2D drawingContext, GameObject gameObject, MappedImage image)

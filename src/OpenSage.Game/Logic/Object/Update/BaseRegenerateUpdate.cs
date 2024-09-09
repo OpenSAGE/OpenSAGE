@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public void OnDamage(in DamageData damageData)
         {
-            var currentFrame = _gameObject.GameContext.GameLogic.CurrentFrame;
+            var currentFrame = _context.GameLogic.CurrentFrame;
             NextUpdateFrame = new UpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
         }
 

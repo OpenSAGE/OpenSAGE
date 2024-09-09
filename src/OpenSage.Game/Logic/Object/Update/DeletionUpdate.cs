@@ -11,12 +11,12 @@ namespace OpenSage.Logic.Object
 
         private LogicFrame _frameToDelete;
 
-        public DeletionUpdate(GameObject gameObject, DeletionUpdateModuleData moduleData)
+        public DeletionUpdate(GameObject gameObject, GameContext context, DeletionUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
             _moduleData = moduleData;
 
-            _frameToDelete = gameObject.GameContext.GameLogic.CurrentFrame + gameObject.GameContext.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
+            _frameToDelete = context.GameLogic.CurrentFrame + context.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
             NextUpdateFrame = new UpdateFrame(_frameToDelete);
         }
 
@@ -60,7 +60,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new DeletionUpdate(gameObject, this);
+            return new DeletionUpdate(gameObject, context, this);
         }
     }
 }

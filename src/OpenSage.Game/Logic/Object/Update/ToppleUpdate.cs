@@ -9,6 +9,7 @@ namespace OpenSage.Logic.Object
     public sealed class ToppleUpdate : UpdateModule, ICollideModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly ToppleUpdateModuleData _moduleData;
 
         private ToppleState _toppleState;
@@ -19,9 +20,10 @@ namespace OpenSage.Logic.Object
         private float _unknownFloat;
         private uint _stumpId;
 
-        internal ToppleUpdate(GameObject gameObject, ToppleUpdateModuleData moduleData)
+        internal ToppleUpdate(GameObject gameObject, GameContext context, ToppleUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
 
             _toppleState = ToppleState.NotToppled;
@@ -84,7 +86,7 @@ namespace OpenSage.Logic.Object
                 new FXListExecutionContext(
                     _gameObject.Rotation,
                     _gameObject.Translation,
-                    _gameObject.GameContext));
+                    _context));
 
             CreateStump();
 
@@ -107,7 +109,7 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var stump = _gameObject.GameContext.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
+            var stump = _context.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
             stump.UpdateTransform(_gameObject.Translation, _gameObject.Rotation);
             _stumpId = stump.ID;
         }
@@ -172,7 +174,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ToppleUpdate(gameObject, this);
+            return new ToppleUpdate(gameObject, context, this);
         }
     }
 }

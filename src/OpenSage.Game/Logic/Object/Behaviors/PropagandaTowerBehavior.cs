@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DelayBetweenUpdates;
 
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly PropagandaTowerBehaviorModuleData _moduleData;
         private uint _unknownFrame;
         private readonly List<uint> _objectIds = new();
@@ -19,9 +20,10 @@ namespace OpenSage.Logic.Object
 
         private readonly BitArray<ObjectKinds> _allowedKinds = new();
 
-        public PropagandaTowerBehavior(GameObject gameObject, PropagandaTowerBehaviorModuleData moduleData)
+        public PropagandaTowerBehavior(GameObject gameObject, GameContext context, PropagandaTowerBehaviorModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
             _allowedKinds.Set(ObjectKinds.Infantry, true);
             _allowedKinds.Set(ObjectKinds.Vehicle, true);
@@ -50,7 +52,7 @@ namespace OpenSage.Logic.Object
 
             fx.Value.Execute(context);
 
-            foreach (var candidate in _gameObject.GameContext.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
+            foreach (var candidate in _context.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
             {
                 if (!_moduleData.AffectsSelf && candidate == _gameObject) continue;
                 if (!CanHealUnit(candidate)) continue;
@@ -61,7 +63,7 @@ namespace OpenSage.Logic.Object
 
         private GameObject GameObjectForId(uint unitId)
         {
-            return _gameObject.GameContext.GameLogic.GetObjectById(unitId);
+            return _context.GameLogic.GetObjectById(unitId);
         }
 
         private void HealUnit(GameObject gameObject)
@@ -170,7 +172,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new PropagandaTowerBehavior(gameObject, this);
+            return new PropagandaTowerBehavior(gameObject, context, this);
         }
     }
 }

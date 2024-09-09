@@ -16,12 +16,12 @@ namespace OpenSage.Logic.Object
         private ChinookState _state;
         private uint _airfieldToRepairAt;
 
-        internal ChinookAIUpdate(GameObject gameObject, ChinookAIUpdateModuleData moduleData) : base(gameObject, moduleData)
+        internal ChinookAIUpdate(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             _moduleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject);
+        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject, Context);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
@@ -67,8 +67,8 @@ namespace OpenSage.Logic.Object
 
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public ChinookAIUpdateStateMachine(GameObject gameObject)
-            : base(gameObject)
+        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context)
+            : base(gameObject, context)
         {
             AddState(1001, new ChinookTakeoffAndLandingState(false)); // Takeoff
             AddState(1002, new ChinookTakeoffAndLandingState(true));  // Landing
@@ -88,8 +88,8 @@ namespace OpenSage.Logic.Object
 
     /// <summary>
     /// Logic requires bones for either end of the rope to be defined as RopeEnd and RopeStart.
-    /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's 
-    /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for 
+    /// Infantry (or tanks) can be made to rappel down a rope by adding CAN_RAPPEL to the object's
+    /// KindOf field. Having done that, the "RAPPELLING" ModelConditionState becomes available for
     /// rappelling out of the object that has the rappel code of this module.
     /// </summary>
     public sealed class ChinookAIUpdateModuleData : SupplyTruckAIUpdateModuleData
@@ -134,7 +134,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new ChinookAIUpdate(gameObject, this);
+            return new ChinookAIUpdate(gameObject, context, this);
         }
     }
 }
