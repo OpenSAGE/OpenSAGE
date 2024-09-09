@@ -66,6 +66,21 @@ namespace OpenSage.Logic.Object
         [IniEnum("IS_BRAKING")]
         IsBraking,
 
+        [IniEnum("IS_ATTACKING")]
+        IsAttacking,
+
+        [IniEnum("IS_FIRING_WEAPON")]
+        IsFiringWeapon,
+
+        [IniEnum("IS_AIMING_WEAPON")]
+        IsAimingWeapon,
+
+        [IniEnum("NO_COLLISIONS")]
+        NoCollisions,
+
+        [IniEnum("KILLING_SELF")]
+        KillingSelf,
+
         [IniEnum("AIRBORNE_TARGET")]
         AirborneTarget,
 

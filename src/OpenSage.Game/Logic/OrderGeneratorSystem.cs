@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -176,7 +177,7 @@ namespace OpenSage.Logic
 
         public void SetRallyPoint()
         {
-            ActiveGenerator = new RallyPointOrderGenerator(Game);
+            ActiveGenerator = new RallyPointOrderGenerator(Game, Game.PlayerManager.LocalPlayer.SelectedUnits.Single());
         }
 
         public void CancelOrderGenerator()

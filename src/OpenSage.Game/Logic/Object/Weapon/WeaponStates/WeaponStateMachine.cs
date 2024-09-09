@@ -73,6 +73,8 @@ namespace OpenSage.Logic.Object
         private readonly Dictionary<WeaponState, BaseWeaponState> _states;
         private BaseWeaponState _currentState;
 
+        public bool IsInactive => _currentState is InactiveWeaponState;
+
         public WeaponStateMachine(WeaponStateContext context)
         {
             _context = context;

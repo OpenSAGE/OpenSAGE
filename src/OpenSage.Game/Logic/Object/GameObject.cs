@@ -145,9 +145,8 @@ namespace OpenSage.Logic.Object
 
         private readonly BehaviorUpdateContext _behaviorUpdateContext;
 
-        private readonly GameObject _rallyPointMarker;
-
         private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
+        public BodyDamageType BodyDamageType => _bodyDamageType;
 
         internal BitArray<WeaponSetConditions> WeaponSetConditions;
         private readonly WeaponSet _weaponSet;
@@ -159,7 +158,6 @@ namespace OpenSage.Logic.Object
 
         public readonly Geometry Geometry;
 
-        private readonly Transform _transform;
         public readonly Transform ModelTransform;
 
         private bool _objectMoved;
@@ -210,55 +208,7 @@ namespace OpenSage.Logic.Object
         private byte _weaponSomethingTertiary;
         private BitArray<SpecialPowerType> _specialPowers = new();
 
-        public Transform Transform => _transform;
-        public float Yaw => _transform.Yaw;
-        public Vector3 EulerAngles => _transform.EulerAngles;
-        public Vector3 LookDirection => _transform.LookDirection;
-        public Vector3 Translation => _transform.Translation;
-        public Quaternion Rotation => _transform.Rotation;
-        public Matrix4x4 TransformMatrix => _transform.Matrix;
-
-        public void SetTransformMatrix(Matrix4x4 matrix)
-        {
-            _transform.Matrix = matrix;
-            _objectMoved = true;
-        }
-
-        public void SetTranslation(Vector3 translation)
-        {
-            if (_transform.Translation == translation)
-            {
-                return;
-            }
-            _transform.Translation = translation;
-            OnObjectMoved();
-        }
-
-        public void SetRotation(Quaternion rotation)
-        {
-            if (_transform.Rotation == rotation)
-            {
-                return;
-            }
-            _transform.Rotation = rotation;
-            OnObjectMoved();
-        }
-
-        public void SetScale(float scale)
-        {
-            _transform.Scale = scale;
-            OnObjectMoved();
-        }
-
-        public void UpdateTransform(in Vector3? translation = null, in Quaternion? rotation = null, float scale = 1.0f)
-        {
-            _transform.Translation = translation ?? _transform.Translation;
-            _transform.Rotation = rotation ?? _transform.Rotation;
-            _transform.Scale = scale;
-            OnObjectMoved();
-        }
-
-        private void OnObjectMoved()
+        protected override void OnEntityMoved()
         {
             _objectMoved = true;
             PartitionObject?.SetDirty();
@@ -311,10 +261,13 @@ namespace OpenSage.Logic.Object
         public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
         {
             _body.DoDamage(damageType, amount, deathType, damageDealer);
-            // units can have multiple delayed heal behaviors, as the default object has an inheritable autohealbehavior provided by veterancy
-            foreach (var autoHealBehavior in FindBehaviors<ISelfHealable>())
+        }
+
+        internal void OnDamage(in DamageData damageData)
+        {
+            foreach (var damageModule in FindBehaviors<IDamageModule>())
             {
-                autoHealBehavior.RegisterDamage();
+                damageModule.OnDamage(damageData);
             }
         }
 
@@ -513,9 +466,8 @@ namespace OpenSage.Logic.Object
             WeaponSetConditions = new BitArray<WeaponSetConditions>();
             UpdateWeaponSet();
 
-            _transform = Transform.CreateIdentity();
             ModelTransform = Transform.CreateIdentity();
-            _transform.Scale = Definition.Scale;
+            Transform.Scale = Definition.Scale;
 
             // TODO: Instead of GameObject owning the drawable, which makes logic tests a little awkward,
             // perhaps create Drawable somewhere else and attach it to this GameObject?
@@ -600,7 +552,7 @@ namespace OpenSage.Logic.Object
             Colliders = new List<Collider>();
             foreach (var geometry in Geometry.Shapes)
             {
-                Colliders.Add(Collider.Create(geometry, _transform));
+                Colliders.Add(Collider.Create(geometry, Transform));
             }
 
             RoughCollider = Collider.Create(Colliders);
@@ -611,13 +563,6 @@ namespace OpenSage.Logic.Object
 
             IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
             CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
-
-            if (Definition.KindOf.Get(ObjectKinds.AutoRallyPoint))
-            {
-                var rpMarkerDef = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-                // TODO: Only create a Drawable, as suggested by DRAWABLE_ONLY.
-                _rallyPointMarker = AddDisposable(new GameObject(rpMarkerDef, gameContext, owner));
-            }
 
             if (Definition.KindOf.Get(ObjectKinds.Projectile))
             {
@@ -727,10 +672,10 @@ namespace OpenSage.Logic.Object
 
         public void UpdateColliders()
         {
-            RoughCollider.Update(_transform);
+            RoughCollider.Update(Transform);
             foreach (var collider in Colliders)
             {
-                collider.Update(_transform);
+                collider.Update(Transform);
             }
             _gameContext.Quadtree.Update(this);
         }
@@ -860,13 +805,13 @@ namespace OpenSage.Logic.Object
 
         internal Vector3 ToWorldspace(in Vector3 localPos)
         {
-            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), _transform.Matrix);
+            var worldPos = Vector4.Transform(new Vector4(localPos, 1.0f), Transform.Matrix);
             return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
         }
 
         internal Transform ToWorldspace(in Transform localPos)
         {
-            var worldPos = localPos.Matrix * _transform.Matrix;
+            var worldPos = localPos.Matrix * Transform.Matrix;
             return new Transform(worldPos);
         }
 
@@ -999,7 +944,7 @@ namespace OpenSage.Logic.Object
             _status.Set(ObjectStatus.UnderConstruction, true);
 
             // flatten terrain around object
-            var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(_transform.Translation);
+            var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(Transform.Translation);
 
             if (centerPosition == null)
             {
@@ -1009,7 +954,7 @@ namespace OpenSage.Logic.Object
             var (centerX, centerY) = centerPosition.Value;
             var maxHeight = _gameContext.Terrain.HeightMap.GetHeight(centerX, centerY);
             // on slopes, the height map isn't always exactly where our cursor is (our cursor is a float, and the heightmap is always a ushort), so snap the building to the nearest heightmap value
-            UpdateTransform(_transform.Translation with { Z = maxHeight }, _transform.Rotation);
+            UpdateTransform(Transform.Translation with { Z = maxHeight }, Transform.Rotation);
 
             // clear anything applicable in the build area (trees, rubble, etc)
             var toDelete = new BitArray<ObjectKinds>(ObjectKinds.Shrubbery, ObjectKinds.ClearedByBuild); // this may not be completely accurate
@@ -1134,7 +1079,6 @@ namespace OpenSage.Logic.Object
 
         internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
         {
-            _rallyPointMarker?.LocalLogicTick(gameTime, tickT, heightMap);
             Drawable.LogicTick();
         }
 
@@ -1153,16 +1097,8 @@ namespace OpenSage.Logic.Object
             };
 
             // This must be done after processing anything that might update this object's transform.
-            var worldMatrix = ModelTransform.Matrix * _transform.Matrix;
+            var worldMatrix = ModelTransform.Matrix * Transform.Matrix;
             Drawable.BuildRenderList(renderList, camera, gameTime, worldMatrix, renderItemConstantsPS);
-
-            if ((IsSelected || IsPlacementPreview) && _rallyPointMarker != null && RallyPoint != null)
-            {
-                _rallyPointMarker._transform.Translation = RallyPoint.Value;
-
-                // TODO: check if this should be drawn with transparency?
-                _rallyPointMarker.BuildRenderList(renderList, camera, gameTime);
-            }
         }
 
         public void ClearModelConditionFlags()
@@ -1520,7 +1456,7 @@ namespace OpenSage.Logic.Object
             }
 
             var transform = reader.Mode == StatePersistMode.Write
-                ? Matrix4x3.FromMatrix4x4(_transform.Matrix)
+                ? Matrix4x3.FromMatrix4x4(Transform.Matrix)
                 : Matrix4x3.Identity;
             reader.PersistMatrix4x3(ref transform);
             if (reader.Mode == StatePersistMode.Read)
@@ -1752,10 +1688,10 @@ namespace OpenSage.Logic.Object
             {
                 ImGui.LabelText("DisplayName", Definition.DisplayName ?? string.Empty);
 
-                var translation = _transform.Translation;
+                var translation = Transform.Translation;
                 if (ImGui.DragFloat3("Position", ref translation))
                 {
-                    _transform.Translation = translation;
+                    Transform.Translation = translation;
                 }
 
                 ImGui.LabelText("ObjectStatus", _status.DisplayName);

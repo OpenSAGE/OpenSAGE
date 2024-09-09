@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// This is RebuildHoleBehavior in the inis, but appears to be an update module
     /// </summary>
-    public sealed class RebuildHoleUpdate : UpdateModule, ISelfHealable
+    public sealed class RebuildHoleUpdate : UpdateModule
     {
         private readonly GameObject _gameObject;
         private readonly GameContext _context;
@@ -177,11 +177,6 @@ namespace OpenSage.Logic.Object
             ImGui.LabelText("Worker ID", _workerId.ToString());
             ImGui.LabelText("Structure ID", _structureId.ToString());
             ImGui.LabelText("Original Structure ID", _originalStructureId.ToString());
-        }
-
-        public void RegisterDamage()
-        {
-            // no healing delay, nothing to do here
         }
     }
 

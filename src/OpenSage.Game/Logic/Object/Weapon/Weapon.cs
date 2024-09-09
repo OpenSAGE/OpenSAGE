@@ -59,6 +59,8 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        public bool IsInactive => _stateMachine.IsInactive;
+
         public readonly WeaponSlot Slot;
 
         internal Weapon(

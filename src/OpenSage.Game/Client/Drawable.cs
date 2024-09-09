@@ -28,6 +28,8 @@ namespace OpenSage.Client
         private readonly Dictionary<string, bool> _hiddenSubObjects;
         private readonly Dictionary<string, bool> _shownSubObjects;
 
+        public override Transform Transform => GameObject?.Transform ?? base.Transform;
+
         public Dictionary<string, bool> ShownSubObjects => _shownSubObjects;
         public Dictionary<string, bool> HiddenSubObjects => _hiddenSubObjects;
 

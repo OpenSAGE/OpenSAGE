@@ -110,6 +110,8 @@ namespace OpenSage.Logic.Object
             {
                 GameObject.Die(deathType);
             }
+
+            GameObject.OnDamage(_lastDamage);
         }
 
         public override void Heal(Fix64 amount, GameObject healer)

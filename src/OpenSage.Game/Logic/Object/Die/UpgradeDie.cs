@@ -9,7 +9,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _context;
         private readonly UpgradeDieModuleData _moduleData;
 
-        internal UpgradeDieModule(GameObject gameObject, GameContext context, UpgradeDieModuleData moduleData) : base(moduleData)
+        internal UpgradeDieModule(GameObject gameObject, GameContext context, UpgradeDieModuleData moduleData)
+            : base(moduleData)
         {
             _gameObject = gameObject;
             _context = context;

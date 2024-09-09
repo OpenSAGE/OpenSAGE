@@ -1,12 +1,13 @@
-using FixedMath.NET;
+﻿using FixedMath.NET;
 using OpenSage.Data.Ini;
+using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     // It looks from the .sav files that this actually inherits from UpdateModule,
     // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
-    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, ISelfHealable
+    public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamageModule
     {
         protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.HealingDelay;
 
@@ -41,7 +42,7 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Increments the frame after which healing is allowed. If <code>_moduleData.StartHealingDelay</code> is 0, this is a no-op.
         /// </summary>
-        public void RegisterDamage()
+        public void OnDamage(in DamageData damageData)
         {
             // this seems to only apply if the unit is capable of healing itself
             // make sure the upgrade is triggered before resetting any frames

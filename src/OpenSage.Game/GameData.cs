@@ -1519,16 +1519,16 @@ namespace OpenSage
     public enum BodyDamageType
     {
         [IniEnum("PRISTINE")]
-        Pristine,
+        Pristine = 0,
 
         [IniEnum("DAMAGED")]
-        Damaged,
+        Damaged = 1,
 
         [IniEnum("REALLYDAMAGED")]
-        ReallyDamaged,
+        ReallyDamaged = 2,
 
         [IniEnum("RUBBLE")]
-        Rubble
+        Rubble = 3
     }
 
     public enum TerrainLod

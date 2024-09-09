@@ -6,7 +6,8 @@ namespace OpenSage.Logic.Object
     {
         private readonly GameObject _gameObject;
 
-        internal DestroyDie(GameObject gameObject, DestroyDieModuleData moduleData) : base(moduleData)
+        internal DestroyDie(GameObject gameObject, DestroyDieModuleData moduleData)
+            : base(moduleData)
         {
             _gameObject = gameObject;
         }

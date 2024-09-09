@@ -90,7 +90,7 @@ namespace OpenSage.Logic.Object
 
         internal override void Load(StatePersister reader)
         {
-            reader.PersistVersion(4);
+            var version = reader.PersistVersion(6);
 
             reader.BeginObject("Base");
             base.Load(reader);
@@ -135,6 +135,11 @@ namespace OpenSage.Logic.Object
             reader.PersistVector3(ref _currentPositionMaybe);
             reader.PersistInt32(ref _unknownInt2); // 0, 0x20000
             reader.PersistInt32(ref _unknownInt3); // 1960
+
+            if (version >= 6)
+            {
+                reader.SkipUnknownBytes(6);
+            }
         }
 
         private enum MissileState

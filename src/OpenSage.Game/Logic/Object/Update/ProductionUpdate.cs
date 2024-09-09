@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -222,9 +222,9 @@ namespace OpenSage.Logic.Object
 
         private bool ExitsThroughDoor(ObjectDefinition definition)
         {
-            if (ProductionExit is ParkingPlaceBehaviour parkingPlace)
+            if (ProductionExit is ParkingPlaceBehaviour)
             {
-                return !parkingPlace.ProducedAtHelipad(definition);
+                return !ProducedAtHelipad(definition);
             }
             return true;
         }
@@ -233,7 +233,7 @@ namespace OpenSage.Logic.Object
         {
             if (ProductionExit is ParkingPlaceBehaviour parkingPlace)
             {
-                _doorIndex = parkingPlace.NextFreeSlot();
+                _doorIndex = parkingPlace.NextSpawnableSlot();
             }
         }
 
@@ -281,7 +281,7 @@ namespace OpenSage.Logic.Object
 
             if (ProductionExit is ParkingPlaceBehaviour parkingPlace)
             {
-                return parkingPlace.CanProduceObject(objectDefinition, ProductionQueue);
+                return parkingPlace.HasFreeSlots();
             }
 
             return true;
@@ -372,13 +372,17 @@ namespace OpenSage.Logic.Object
 
             if (ProductionExit is ParkingPlaceBehaviour parkingPlace)
             {
-                var producedAtHelipad = parkingPlace.ProducedAtHelipad(producedUnit.Definition);
-                producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad).Matrix * _gameObject.TransformMatrix);
+                var producedAtHelipad = ProducedAtHelipad(producedUnit.Definition);
 
                 if (!producedAtHelipad)
                 {
-                    parkingPlace.AddVehicle(producedUnit);
+                    parkingPlace.ReportSpawn(producedUnit.ID);
+                    producedUnit.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
+                    var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+                    jetAIUpdate.Base = _gameObject;
+                    jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
                 }
+                producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad, producedUnit.ID).Matrix * _gameObject.TransformMatrix);
                 return producedUnit;
             }
 
@@ -389,9 +393,10 @@ namespace OpenSage.Logic.Object
 
         private void MoveProducedObjectOut(GameObject producedUnit)
         {
-            if (ProductionExit is ParkingPlaceBehaviour parkingPlace && !parkingPlace.ProducedAtHelipad(producedUnit.Definition))
+            if (ProductionExit is ParkingPlaceBehaviour && !ProducedAtHelipad(producedUnit.Definition))
             {
-                parkingPlace.ParkVehicle(producedUnit);
+                var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+                jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.JustCreated;
                 return;
             }
 
@@ -461,6 +466,10 @@ namespace OpenSage.Logic.Object
                 _moduleData.QuantityModifiers.TryGetValue(objectDefinition.Name, out var quantity) ? quantity : 1);
             _productionQueue.Add(job);
 
+            if (ProductionExit is ParkingPlaceBehaviour parkingPlaceBehaviour && NeedsParkingSpot(objectDefinition))
+            {
+                parkingPlaceBehaviour.EnqueueObject();
+            }
             // TODO: Set ModelConditionFlag.ActivelyConstructing.
         }
 
@@ -480,9 +489,20 @@ namespace OpenSage.Logic.Object
         {
             if (index < _productionQueue.Count)
             {
+                var objectToCancel = _productionQueue[index];
                 _productionQueue.RemoveAt(index);
+
+                if (ProductionExit is ParkingPlaceBehaviour parkingPlaceBehaviour && NeedsParkingSpot(objectToCancel.ObjectDefinition))
+                {
+                    parkingPlaceBehaviour.CancelQueuedObject();
+                }
             }
         }
+
+        private static bool ProducedAtHelipad(ObjectDefinition definition) => definition.KindOf.Get(ObjectKinds.ProducedAtHelipad);
+
+        private static bool NeedsParkingSpot(ObjectDefinition definition) =>
+            definition.KindOf.Get(ObjectKinds.Aircraft) && !ProducedAtHelipad(definition);
 
         internal void QueueUpgrade(UpgradeTemplate upgradeDefinition)
         {
