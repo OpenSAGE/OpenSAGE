@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
 using OpenSage.Logic.Object;
@@ -7,6 +7,8 @@ namespace OpenSage.Logic.AI
 {
     internal class AIUpdateStateMachine : StateMachineBase
     {
+        private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
@@ -54,7 +56,7 @@ namespace OpenSage.Logic.AI
             {
                 var overrideStateResult = _overrideState.Update();
 
-                var currentFrame = GameObject.GameContext.GameLogic.CurrentFrame;
+                var currentFrame = _context.GameLogic.CurrentFrame;
 
                 var shouldContinueOverrideState = overrideStateResult.Type switch
                 {

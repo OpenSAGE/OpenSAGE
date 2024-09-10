@@ -8,13 +8,15 @@ namespace OpenSage.Logic.Object
     public sealed class OverchargeBehavior : UpdateModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly OverchargeBehaviorModuleData _moduleData;
         private bool _enabled;
         public bool Enabled => _enabled;
 
-        public OverchargeBehavior(GameObject gameObject, OverchargeBehaviorModuleData moduleData)
+        public OverchargeBehavior(GameObject gameObject, GameContext context, OverchargeBehaviorModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
         }
 
@@ -29,7 +31,7 @@ namespace OpenSage.Logic.Object
             }
 
             // todo: this is fine for now, but generals seems to have some way of making sure it doesn't immediately sap health on subsequent toggles
-            NextUpdateFrame.Frame = _gameObject.GameContext.GameLogic.CurrentFrame.Value;
+            NextUpdateFrame.Frame = _context.GameLogic.CurrentFrame.Value;
         }
 
         public void Deactivate()
@@ -102,7 +104,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new OverchargeBehavior(gameObject, this);
+            return new OverchargeBehavior(gameObject, context, this);
         }
     }
 }

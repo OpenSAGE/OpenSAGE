@@ -8,18 +8,19 @@ namespace OpenSage.Logic.Object
     public sealed class InstantDeathBehavior : DieModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly InstantDeathBehaviorModuleData _moduleData;
 
-        internal InstantDeathBehavior(GameObject gameObject, InstantDeathBehaviorModuleData moduleData)
-            : base(moduleData)
+        internal InstantDeathBehavior(GameObject gameObject, GameContext context, InstantDeathBehaviorModuleData moduleData) : base(moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
         }
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
-            _gameObject.GameContext.GameLogic.DestroyObject(_gameObject);
+            _context.GameLogic.DestroyObject(_gameObject);
 
             Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
@@ -55,7 +56,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new InstantDeathBehavior(gameObject, this);
+            return new InstantDeathBehavior(gameObject, context, this);
         }
     }
 }

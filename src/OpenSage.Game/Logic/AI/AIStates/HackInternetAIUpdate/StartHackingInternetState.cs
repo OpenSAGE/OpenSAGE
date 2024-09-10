@@ -1,4 +1,5 @@
-﻿using OpenSage.Logic.Object;
+using OpenSage.Audio;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,6 +9,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         public const uint StateId = 1000;
 
+        private readonly GameObject _gameObject;
         private LogicFrameSpan _framesUntilHackingBegins;
 
         public StartHackingInternetState(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate) : base(gameObject, context)

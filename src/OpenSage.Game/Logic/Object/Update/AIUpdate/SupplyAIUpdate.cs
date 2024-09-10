@@ -28,6 +28,7 @@ namespace OpenSage.Logic.Object
             FinishedDumpingSupplies
         }
 
+        protected GameContext Context { get; }
         private SupplyAIUpdateModuleData _moduleData;
 
         public GameObject CurrentSupplySource { get; set; }
@@ -42,6 +43,7 @@ namespace OpenSage.Logic.Object
 
         internal SupplyAIUpdate(GameObject gameObject, GameContext context, SupplyAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
+            Context = context;
             _moduleData = moduleData;
             SupplyGatherState = SupplyGatherStates.Default;
             // todo: this is not always the case - workers produced from a command center do not go looking for supplies
@@ -74,7 +76,7 @@ namespace OpenSage.Logic.Object
         {
             if (_currentSourceDockUpdate?.GetBox() == true && !_currentSourceDockUpdate.HasBoxes())
             {
-                GameObject.GameContext.AudioSystem.PlayAudioEvent(GameObject, _moduleData.SuppliesDepletedVoice.Value);
+                Context.AudioSystem.PlayAudioEvent(GameObject, _moduleData.SuppliesDepletedVoice.Value);
             }
         }
 

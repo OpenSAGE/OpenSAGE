@@ -7,15 +7,17 @@ namespace OpenSage.Logic.Object
     public sealed class PowerPlantUpdate : UpdateModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly PowerPlantUpdateModuleData _moduleData;
 
         private bool _rodsExtended;
 
         private LogicFrame _rodsExtendedEndFrame;
 
-        internal PowerPlantUpdate(GameObject gameObject, PowerPlantUpdateModuleData moduleData)
+        internal PowerPlantUpdate(GameObject gameObject, GameContext context, PowerPlantUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
         }
 
@@ -25,7 +27,7 @@ namespace OpenSage.Logic.Object
 
             _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
 
-            _rodsExtendedEndFrame = _gameObject.GameContext.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
+            _rodsExtendedEndFrame = _context.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
         }
 
         // China powerplant overcharge needs to be able to turn off
@@ -96,7 +98,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new PowerPlantUpdate(gameObject, this);
+            return new PowerPlantUpdate(gameObject, context, this);
         }
     }
 }

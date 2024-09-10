@@ -5,6 +5,7 @@ namespace OpenSage.Logic.Object
     internal sealed class LifetimeUpdate : UpdateModule
     {
         private readonly GameObject _gameObject;
+        private readonly GameContext _context;
         private readonly LifetimeUpdateModuleData _moduleData;
 
         private LogicFrame _frameToDie;
@@ -16,16 +17,17 @@ namespace OpenSage.Logic.Object
             set => _frameToDie = value;
         }
 
-        public LifetimeUpdate(GameObject gameObject, LifetimeUpdateModuleData moduleData)
+        public LifetimeUpdate(GameObject gameObject, GameContext context, LifetimeUpdateModuleData moduleData)
         {
             _gameObject = gameObject;
+            _context = context;
             _moduleData = moduleData;
 
-            var lifetimeFrames = gameObject.GameContext.Random.Next(
+            var lifetimeFrames = context.Random.Next(
                 (int)moduleData.MinLifetime.Value,
                 (int)moduleData.MaxLifetime.Value);
 
-            _frameToDie = gameObject.GameContext.GameLogic.CurrentFrame + new LogicFrameSpan((uint)lifetimeFrames);
+            _frameToDie = context.GameLogic.CurrentFrame + new LogicFrameSpan((uint)lifetimeFrames);
         }
 
         internal override void Update(BehaviorUpdateContext context)
@@ -72,7 +74,7 @@ namespace OpenSage.Logic.Object
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new LifetimeUpdate(gameObject, this);
+            return new LifetimeUpdate(gameObject, context, this);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
             {
                 for (var i = 0; i < payload.Count; i++)
                 {
-                    var unit = gameObject.GameContext.GameLogic.CreateObject(payload.Object.Value, gameObject.Owner);
+                    var unit = gameContext.GameLogic.CreateObject(payload.Object.Value, gameObject.Owner);
                     Add(unit, true);
                 }
             }
@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
                     // testing with a humvee, evacuating individually, the units never use the same exit path
                     // using the evac command, two pairs of rangers will share an exit path, and the 5th ranger will use a 3rd exit path
                     // todo: this doesn't seem to be strictly random, but it's unclear how this works at the moment
-                    var pathToChoose = GameObject.GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                    var pathToChoose = GameContext.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
                     startBoneName = $"{startBoneName}{pathToChoose:00}";
                     endBoneName = $"{endBoneName}{pathToChoose:00}";
                 }

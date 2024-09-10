@@ -1,4 +1,5 @@
-﻿using OpenSage.Logic.Object;
+using OpenSage.Audio;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {

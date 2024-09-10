@@ -1,6 +1,7 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Numerics;
+using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.AI.AIStates;
