@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,7 +6,7 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly FaceTargetType _targetType;
 
-        public FaceState(GameObject gameObject, GameContext context, FaceTargetType targetType) : base(gameObject, context)
+        public FaceState(AIUpdateStateMachine stateMachine, FaceTargetType targetType) : base(stateMachine)
         {
             _targetType = targetType;
         }

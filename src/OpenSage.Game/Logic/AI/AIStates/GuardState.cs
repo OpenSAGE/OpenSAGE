@@ -1,5 +1,6 @@
-﻿using System.Numerics;
-using OpenSage.Logic.Object;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -7,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardStateMachine _stateMachine;
 
-        public GuardState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public GuardState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new GuardStateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new GuardStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -28,13 +29,13 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _guardObjectId;
         private uint _guardObjectId2;
         private Vector3 _guardPosition;
-        private string _guardPolygonTriggerName;
+        private string _guardPolygonTriggerName = "";
 
-        public GuardStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public GuardStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(5001, new GuardIdleState(gameObject, context));
-            AddState(5002, new GuardUnknown5002State(gameObject, context));
-            AddState(5003, new GuardMoveState(gameObject, context));
+            AddState(5001, new GuardIdleState(this));
+            AddState(5002, new GuardUnknown5002State(this));
+            AddState(5003, new GuardMoveState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -55,7 +56,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal GuardIdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal GuardIdleState(GuardStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -69,7 +70,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardUnknown5002State : State
         {
-            internal GuardUnknown5002State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal GuardUnknown5002State(GuardStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -83,7 +84,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal GuardMoveState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal GuardMoveState(GuardStateMachine stateMachine) : base(stateMachine)
             {
             }
 

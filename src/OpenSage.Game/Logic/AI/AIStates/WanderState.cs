@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -7,8 +7,8 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _unknownInt1;
         private uint _unknownInt2;
 
-        public WanderState(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
-            : base(gameObject, context, aiUpdate, false)
+        public WanderState(AIUpdateStateMachine stateMachine)
+            : base(stateMachine, false)
         {
         }
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -6,19 +8,19 @@ namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class ChinookCombatDropState : State
 {
-    private readonly ChinookAIUpdate _aiUpdate;
+    private readonly ChinookAIUpdateStateMachine _stateMachine;
     private readonly List<Rope> _ropes = new();
 
-    internal ChinookCombatDropState(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate) : base(gameObject, context)
+    internal ChinookCombatDropState(ChinookAIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        _aiUpdate = aiUpdate;
+        _stateMachine = stateMachine;
     }
 
     public override void OnEnter()
     {
         _ropes.Clear();
 
-        var numRopes = _aiUpdate.ModuleData.NumRopes;
+        var numRopes = _stateMachine.ModuleData.NumRopes;
         for (var i = 0; i < numRopes; i++)
         {
             _ropes.Add(new Rope());
@@ -34,7 +36,7 @@ internal sealed class ChinookCombatDropState : State
     {
         reader.PersistVersion(2);
 
-        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope item) =>
+        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope? item) =>
         {
             item ??= new Rope();
             persister.PersistObjectValue(item);

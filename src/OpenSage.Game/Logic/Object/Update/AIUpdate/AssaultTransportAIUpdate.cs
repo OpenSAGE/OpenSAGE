@@ -5,11 +5,14 @@ namespace OpenSage.Logic.Object
 {
     public sealed class AssaultTransportAIUpdate : AIUpdate
     {
+        protected override AssaultTransportAIUpdateModuleData ModuleData { get; }
+
         private readonly List<AssaultTransportMember> _members = new();
 
-        internal AssaultTransportAIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
+        internal AssaultTransportAIUpdate(GameObject gameObject, GameContext context, AssaultTransportAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
+            ModuleData = moduleData;
         }
 
         // TODO

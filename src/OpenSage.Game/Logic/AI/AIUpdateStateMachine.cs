@@ -7,8 +7,6 @@ namespace OpenSage.Logic.AI
 {
     internal class AIUpdateStateMachine : StateMachineBase
     {
-        private readonly GameObject _gameObject;
-        private readonly GameContext _context;
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
@@ -16,38 +14,38 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            AddState(IdleState.StateId, new IdleState(gameObject, context));
-            AddState(1, new MoveTowardsState(gameObject, context, aiUpdate));
-            AddState(2, new FollowWaypointsState(gameObject, context, aiUpdate, true));
-            AddState(3, new FollowWaypointsState(gameObject, context, aiUpdate, false));
-            AddState(4, new FollowWaypointsExactState(gameObject, context, aiUpdate, true));
-            AddState(5, new FollowWaypointsExactState(gameObject, context, aiUpdate, false));
-            AddState(6, new AIState6(gameObject, context, aiUpdate));
-            AddState(7, new FollowPathState(gameObject, context, aiUpdate));
-            AddState(9, new AttackState(gameObject, context, aiUpdate));
-            AddState(10, new AttackState(gameObject, context, aiUpdate));
-            AddState(11, new AttackState(gameObject, context, aiUpdate));
-            AddState(13, new DeadState(gameObject, context));
-            AddState(14, new DockState(gameObject, context, aiUpdate));
-            AddState(15, new EnterContainerState(gameObject, context, aiUpdate));
-            AddState(16, new GuardState(gameObject, context, aiUpdate));
-            AddState(17, new HuntState(gameObject, context, aiUpdate));
-            AddState(18, new WanderState(gameObject, context, aiUpdate));
-            AddState(19, new PanicState(gameObject, context, aiUpdate));
-            AddState(20, new AttackTeamState(gameObject, context, aiUpdate));
-            AddState(21, new GuardInTunnelNetworkState(gameObject, context, aiUpdate));
-            AddState(23, new AIState23(gameObject, context, aiUpdate));
-            AddState(28, new AttackAreaState(gameObject, context, aiUpdate));
-            AddState(30, new AttackMoveState(gameObject, context, aiUpdate));
-            AddState(32, new AIState32(gameObject, context, aiUpdate));
-            AddState(33, new FaceState(gameObject, context, FaceTargetType.FaceNamed));
-            AddState(34, new FaceState(gameObject, context, FaceTargetType.FaceWaypoint));
-            AddState(35, new RappelState(gameObject, context));
-            AddState(37, new ExitContainerState(gameObject, context));
-            AddState(40, new WanderInPlaceState(gameObject, context, aiUpdate));
-            AddState(41, new DoNothingState(gameObject, context));
+            AddState(IdleState.StateId, new IdleState(this));
+            AddState(1, new MoveTowardsState(this));
+            AddState(2, new FollowWaypointsState(this, true));
+            AddState(3, new FollowWaypointsState(this, false));
+            AddState(4, new FollowWaypointsExactState(this, true));
+            AddState(5, new FollowWaypointsExactState(this, false));
+            AddState(6, new AIState6(this));
+            AddState(7, new FollowPathState(this));
+            AddState(9, new AttackState(this));
+            AddState(10, new AttackState(this));
+            AddState(11, new AttackState(this));
+            AddState(13, new DeadState(this));
+            AddState(14, new DockState(this));
+            AddState(15, new EnterContainerState(this));
+            AddState(16, new GuardState(this));
+            AddState(17, new HuntState(this));
+            AddState(18, new WanderState(this));
+            AddState(19, new PanicState(this));
+            AddState(20, new AttackTeamState(this));
+            AddState(21, new GuardInTunnelNetworkState(this));
+            AddState(23, new AIState23(this));
+            AddState(28, new AttackAreaState(this));
+            AddState(30, new AttackMoveState(this));
+            AddState(32, new AIState32(this));
+            AddState(33, new FaceState(this, FaceTargetType.FaceNamed));
+            AddState(34, new FaceState(this, FaceTargetType.FaceWaypoint));
+            AddState(35, new RappelState(this));
+            AddState(37, new ExitContainerState(this));
+            AddState(40, new WanderInPlaceState(this));
+            AddState(41, new DoNothingState(this));
         }
 
         internal override void Update()
@@ -56,7 +54,7 @@ namespace OpenSage.Logic.AI
             {
                 var overrideStateResult = _overrideState.Update();
 
-                var currentFrame = _context.GameLogic.CurrentFrame;
+                var currentFrame = Context.GameLogic.CurrentFrame;
 
                 var shouldContinueOverrideState = overrideStateResult.Type switch
                 {
@@ -128,7 +126,7 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal AIState6(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        internal AIState6(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
         }
 
@@ -146,7 +144,7 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState23 : MoveTowardsState
     {
-        internal AIState23(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        internal AIState23(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
         }
     }
@@ -155,10 +153,10 @@ namespace OpenSage.Logic.AI
     {
         private readonly AIState32StateMachine _stateMachine;
 
-        public AIState32(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
-            : base(gameObject, context, aiUpdate, false)
+        public AIState32(AIUpdateStateMachine stateMachine)
+            : base(stateMachine, false)
         {
-            _stateMachine = new AIState32StateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new AIState32StateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -173,9 +171,9 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState32StateMachine : StateMachineBase
     {
-        public AIState32StateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public AIState32StateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(IdleState.StateId, new IdleState(gameObject, context));
+            AddState(IdleState.StateId, new IdleState(this));
         }
 
         public override void Persist(StatePersister reader)

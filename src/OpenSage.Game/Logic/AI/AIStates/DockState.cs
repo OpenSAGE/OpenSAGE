@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
 
         private bool _unknownBool2;
 
-        public DockState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public DockState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new DockStateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new DockStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -33,13 +33,13 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private uint _unknownInt;
 
-        public DockStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public DockStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(0, new DockApproachDockState(gameObject, context, aiUpdate));
-            AddState(1, new DockUnknown1State(gameObject, context));
-            AddState(3, new DockUnknown3State(gameObject, context, aiUpdate));
-            AddState(4, new DockUnknown4State(gameObject, context, aiUpdate));
-            AddState(5, new DockWaitForActionState(gameObject, context));
+            AddState(0, new DockApproachDockState(this));
+            AddState(1, new DockUnknown1State(this));
+            AddState(3, new DockUnknown3State(this));
+            AddState(4, new DockUnknown4State(this));
+            AddState(5, new DockWaitForActionState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -55,7 +55,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class DockApproachDockState : MoveTowardsState
         {
-            internal DockApproachDockState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            internal DockApproachDockState(DockStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -73,7 +73,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal DockUnknown1State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal DockUnknown1State(DockStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -87,14 +87,14 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class DockUnknown3State : MoveTowardsState
         {
-            internal DockUnknown3State(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            internal DockUnknown3State(DockStateMachine stateMachine) : base(stateMachine)
             {
             }
         }
 
         private sealed class DockUnknown4State : MoveTowardsState
         {
-            internal DockUnknown4State(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            internal DockUnknown4State(DockStateMachine stateMachine) : base(stateMachine)
             {
             }
         }
@@ -103,7 +103,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             // Time spent in this state matches SupplyWarehouseActionDelay
 
-            internal DockWaitForActionState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal DockWaitForActionState(DockStateMachine stateMachine) : base(stateMachine)
             {
             }
 

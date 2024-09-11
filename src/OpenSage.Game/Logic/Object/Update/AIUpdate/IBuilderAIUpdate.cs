@@ -15,5 +15,4 @@ public interface IBuilderAIUpdate
     void SetRepairTarget(GameObject gameObject);
     GameObject? BuildTarget { get; }
     GameObject? RepairTarget { get; }
-    IBuilderAIUpdateData ModuleData { get; }
 }

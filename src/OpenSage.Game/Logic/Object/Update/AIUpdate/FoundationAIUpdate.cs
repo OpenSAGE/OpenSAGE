@@ -7,7 +7,8 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class FoundationAIUpdate : AIUpdate
     {
-        private readonly FoundationAIUpdateModuleData _moduleData;
+        protected override FoundationAIUpdateModuleData ModuleData { get; }
+
         private LogicFrame _waitUntil;
         private LogicFrameSpan _updateInterval;
 
@@ -15,7 +16,7 @@ namespace OpenSage.Logic.Object
         internal FoundationAIUpdate(GameObject gameObject, GameContext context, FoundationAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
             _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
         }
 

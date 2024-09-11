@@ -28,8 +28,7 @@ namespace OpenSage.Logic.Object
             FinishedDumpingSupplies
         }
 
-        protected GameContext Context { get; }
-        private SupplyAIUpdateModuleData _moduleData;
+        protected override SupplyAIUpdateModuleData ModuleData { get; }
 
         public GameObject CurrentSupplySource { get; set; }
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;
@@ -37,14 +36,13 @@ namespace OpenSage.Logic.Object
         protected int _numBoxes;
         public bool CarryingSupplies => _numBoxes > 0;
 
-        public int SupplyWarehouseScanDistance => _moduleData.SupplyWarehouseScanDistance;
+        public int SupplyWarehouseScanDistance => ModuleData.SupplyWarehouseScanDistance;
 
         protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
 
         internal SupplyAIUpdate(GameObject gameObject, GameContext context, SupplyAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            Context = context;
-            _moduleData = moduleData;
+            ModuleData = moduleData;
             SupplyGatherState = SupplyGatherStates.Default;
             // todo: this is not always the case - workers produced from a command center do not go looking for supplies
             SupplyGatherStateToResume = SupplyGatherStates.SearchingForSupplySource;
@@ -76,7 +74,7 @@ namespace OpenSage.Logic.Object
         {
             if (_currentSourceDockUpdate?.GetBox() == true && !_currentSourceDockUpdate.HasBoxes())
             {
-                Context.AudioSystem.PlayAudioEvent(GameObject, _moduleData.SuppliesDepletedVoice.Value);
+                Context.AudioSystem.PlayAudioEvent(GameObject, ModuleData.SuppliesDepletedVoice.Value);
             }
         }
 
@@ -161,10 +159,10 @@ namespace OpenSage.Logic.Object
                             break;
                         }
                     }
-                    else if (_numBoxes < _moduleData.MaxBoxes)
+                    else if (_numBoxes < ModuleData.MaxBoxes)
                     {
                         GetBox(context);
-                        var waitTime = _moduleData.SupplyWarehouseActionDelay + GetPreparationTime();
+                        var waitTime = ModuleData.SupplyWarehouseActionDelay + GetPreparationTime();
                         _waitUntil = context.LogicFrame + waitTime;
                         SupplyGatherState = SupplyGatherStates.GatheringSupplies;
                         SetGatheringConditionFlags();
@@ -232,7 +230,7 @@ namespace OpenSage.Logic.Object
                     GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                     SupplyGatherState = SupplyGatherStates.DumpingSupplies;
                     // todo: this might not be entirely accurate since partial loads can be deposited if unloading is manually aborted early
-                    _waitUntil = context.LogicFrame + _moduleData.SupplyCenterActionDelay * _numBoxes;
+                    _waitUntil = context.LogicFrame + ModuleData.SupplyCenterActionDelay * _numBoxes;
                     break;
 
                 case SupplyGatherStates.DumpingSupplies:

@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
-        internal ChinookAIUpdateModuleData ModuleData { get; }
+        protected override ChinookAIUpdateModuleData ModuleData { get; }
 
         private UnknownStateData _queuedCommand;
         private ChinookState _state;
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             ModuleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject, GameContext context) => new ChinookAIUpdateStateMachine(gameObject, context, this);
+        private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, ModuleData);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
@@ -65,22 +65,26 @@ namespace OpenSage.Logic.Object
 
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate)
-            : base(gameObject, context, aiUpdate)
+        public override ChinookAIUpdateModuleData ModuleData { get; }
+
+        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData)
+            : base(gameObject, context, moduleData)
         {
-            AddState(1001, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, false)); // Takeoff
-            AddState(1002, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing
-            AddState(1003, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards airfield to repair at
-            AddState(1004, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards evacuation point
-            AddState(1005, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing for evacuation
+            ModuleData = moduleData;
+
+            AddState(1001, new ChinookTakeoffAndLandingState(this, false)); // Takeoff
+            AddState(1002, new ChinookTakeoffAndLandingState(this, true));  // Landing
+            AddState(1003, new MoveTowardsState(this));                     // Moving towards airfield to repair at
+            AddState(1004, new MoveTowardsState(this));                     // Moving towards evacuation point
+            AddState(1005, new ChinookTakeoffAndLandingState(this, true));  // Landing for evacuation
             // 1006?
-            AddState(1007, new MoveTowardsState(gameObject, context, aiUpdate));                     // Moving towards reinforcement point
-            AddState(1008, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, true));  // Landing for reinforcement
+            AddState(1007, new MoveTowardsState(this));                     // Moving towards reinforcement point
+            AddState(1008, new ChinookTakeoffAndLandingState(this, true));  // Landing for reinforcement
             // 1009?
-            AddState(1010, new ChinookTakeoffAndLandingState(gameObject, context, aiUpdate, false)); // Takeoff after reinforcement
-            AddState(1011, new ChinookExitMapState(gameObject, context, aiUpdate));                  // Exit map after reinforcement
-            AddState(1012, new ChinookMoveToCombatDropState(gameObject, context, aiUpdate));         // Moving towards combat drop location
-            AddState(1013, new ChinookCombatDropState(gameObject, context, aiUpdate));               // Combat drop
+            AddState(1010, new ChinookTakeoffAndLandingState(this, false)); // Takeoff after reinforcement
+            AddState(1011, new ChinookExitMapState(this));                  // Exit map after reinforcement
+            AddState(1012, new ChinookMoveToCombatDropState(this));         // Moving towards combat drop location
+            AddState(1013, new ChinookCombatDropState(this));               // Combat drop
         }
     }
 

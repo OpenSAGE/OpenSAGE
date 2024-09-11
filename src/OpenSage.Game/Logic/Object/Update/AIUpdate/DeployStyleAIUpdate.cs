@@ -5,6 +5,8 @@ namespace OpenSage.Logic.Object
 {
     public class DeployStyleAIUpdate : AIUpdate
     {
+        protected override DeployStyleAIUpdateModuleData ModuleData { get; }
+
         private bool _isMovingOrDeployed; // seems to be 1 whenever the nuke cannon is moving or deployed, even if not firing
         private LogicFrame _packCompleteFrame; // 0 when not deployed or completely deployed - used for packing and unpacking
         private DeploymentStatus _deploymentStatus;
@@ -19,8 +21,9 @@ namespace OpenSage.Logic.Object
 
         private readonly UnknownStateData _unknownStateData = new();
 
-        internal DeployStyleAIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+        internal DeployStyleAIUpdate(GameObject gameObject, GameContext context, DeployStyleAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
+            ModuleData = moduleData;
         }
 
         internal override void Load(StatePersister reader)

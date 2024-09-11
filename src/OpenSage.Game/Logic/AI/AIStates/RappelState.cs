@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates;
 
@@ -8,7 +8,7 @@ internal sealed class RappelState : State
     private float _unknownFloat2;
     private bool _unknownBool;
 
-    internal RappelState(GameObject gameObject, GameContext context) : base(gameObject, context)
+    internal RappelState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
     }
 

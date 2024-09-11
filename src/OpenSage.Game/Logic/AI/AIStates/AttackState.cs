@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
@@ -10,9 +12,9 @@ namespace OpenSage.Logic.AI.AIStates
         private bool _unknownBool;
         private Vector3 _unknownPosition;
 
-        public AttackState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public AttackState(StateMachineBase stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackStateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new AttackStateMachine(stateMachine.GameObject, stateMachine.Context, stateMachine.ModuleData);
         }
 
         public override void Persist(StatePersister reader)
@@ -27,12 +29,12 @@ namespace OpenSage.Logic.AI.AIStates
 
     internal sealed class AttackStateMachine : StateMachineBase
     {
-        public AttackStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public AttackStateMachine(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            AddState(0, new AttackMoveTowardsTargetState(gameObject, context, aiUpdate));
-            AddState(1, new AttackMoveTowardsTargetState(gameObject, context, aiUpdate));
-            AddState(2, new AttackAimWeaponState(gameObject, context));
-            AddState(3, new AttackFireWeaponState(gameObject, context));
+            AddState(0, new AttackMoveTowardsTargetState(this));
+            AddState(1, new AttackMoveTowardsTargetState(this));
+            AddState(2, new AttackAimWeaponState(this));
+            AddState(3, new AttackFireWeaponState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -53,7 +55,7 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool3;
             private bool _unknownBool4;
 
-            internal AttackMoveTowardsTargetState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            internal AttackMoveTowardsTargetState(AttackStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -79,7 +81,7 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool1;
             private bool _unknownBool2;
 
-            internal AttackAimWeaponState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal AttackAimWeaponState(AttackStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -94,7 +96,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackFireWeaponState : State
         {
-            internal AttackFireWeaponState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal AttackFireWeaponState(AttackStateMachine stateMachine) : base(stateMachine)
             {
             }
 

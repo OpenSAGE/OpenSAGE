@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
 
         private uint _unknownInt;
 
-        public HuntState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public HuntState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackAreaStateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new AttackAreaStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)

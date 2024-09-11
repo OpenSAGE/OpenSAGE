@@ -1,5 +1,6 @@
-﻿using System.Numerics;
-using OpenSage.Logic.Object;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -7,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardInTunnelNetworkStateMachine _stateMachine;
 
-        public GuardInTunnelNetworkState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public GuardInTunnelNetworkState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new GuardInTunnelNetworkStateMachine(gameObject, context, aiUpdate);
+            _stateMachine = new GuardInTunnelNetworkStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -32,10 +33,10 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _guardObjectId;
         private Vector3 _guardPosition;
 
-        public GuardInTunnelNetworkStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context)
+        public GuardInTunnelNetworkStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(5001, new GuardInTunnelNetworkIdleState(gameObject, context));
-            AddState(5003, new GuardInTunnelNetworkEnterTunnelState(gameObject, context, aiUpdate));
+            AddState(5001, new GuardInTunnelNetworkIdleState(this));
+            AddState(5003, new GuardInTunnelNetworkEnterTunnelState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -52,7 +53,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal GuardInTunnelNetworkIdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal GuardInTunnelNetworkIdleState(GuardInTunnelNetworkStateMachine stateMachine) : base(stateMachine)
             {
             }
 
@@ -68,7 +69,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
-            internal GuardInTunnelNetworkEnterTunnelState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+            internal GuardInTunnelNetworkEnterTunnelState(GuardInTunnelNetworkStateMachine stateMachine) : base(stateMachine)
             {
             }
 

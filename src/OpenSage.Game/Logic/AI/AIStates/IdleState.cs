@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -10,7 +10,7 @@ namespace OpenSage.Logic.AI.AIStates
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal IdleState(GameObject gameObject, GameContext context) : base(gameObject, context)
+        internal IdleState(StateMachineBase stateMachine) : base(stateMachine)
         {
         }
 

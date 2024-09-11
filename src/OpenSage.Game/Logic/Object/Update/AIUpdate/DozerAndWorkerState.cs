@@ -13,7 +13,7 @@ internal sealed class DozerAndWorkerState
 
     private readonly GameObject _gameObject;
     private readonly GameContext _context;
-    private readonly IBuilderAIUpdate _aiUpdate;
+    private readonly IBuilderAIUpdateData _moduleData;
 
     private readonly DozerTarget[] _dozerTargets = new DozerTarget[3];
     private readonly WorkerAIUpdateStateMachine1 _stateMachine;
@@ -21,12 +21,12 @@ internal sealed class DozerAndWorkerState
     private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9]; // these seem to be in groups of 3, one group for each target
     private int _unknown4;
 
-    public DozerAndWorkerState(GameObject gameObject, GameContext context, IBuilderAIUpdate aiUpdate)
+    public DozerAndWorkerState(GameObject gameObject, GameContext context, IBuilderAIUpdateData moduleData)
     {
         _gameObject = gameObject;
         _context = context;
-        _aiUpdate = aiUpdate;
-        _stateMachine = new WorkerAIUpdateStateMachine1(gameObject, context, aiUpdate);
+        _moduleData = moduleData;
+        _stateMachine = new WorkerAIUpdateStateMachine1(gameObject, context, (AIUpdateModuleData) moduleData); // todo: remove this cast in the future
     }
 
     // todo: This is really state _machine_ behavior, and should be moved there when we better understand the fields
@@ -79,7 +79,7 @@ internal sealed class DozerAndWorkerState
         else if (repairTarget.HealedEndFrame <= updateContext.LogicFrame.Value)
         {
             // advance repair progress
-            repairTarget.Heal(_aiUpdate.ModuleData.RepairHealthPercentPerSecond, _gameObject);
+            repairTarget.Heal(_moduleData.RepairHealthPercentPerSecond, _gameObject);
             repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond).Value;
         }
     }
@@ -201,11 +201,11 @@ internal sealed class DozerAndWorkerState
 
     private sealed class WorkerAIUpdateStateMachine1 : StateMachineBase
     {
-        public WorkerAIUpdateStateMachine1(GameObject gameObject, GameContext context, IBuilderAIUpdate aiUpdate) : base(gameObject, context)
+        public WorkerAIUpdateStateMachine1(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            AddState(0, new WorkerUnknown0State(gameObject, context));
-            AddState(1, new WorkerUnknown1State(gameObject, context));
-            AddState(2, new WorkerUnknown2State(gameObject, context));
+            AddState(0, new WorkerUnknown0State(this));
+            AddState(1, new WorkerUnknown1State(this));
+            AddState(2, new WorkerUnknown2State(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -223,7 +223,7 @@ internal sealed class DozerAndWorkerState
             private int _unknown2;
             private bool _unknown3;
 
-            internal WorkerUnknown0State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal WorkerUnknown0State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
             {
             }
 
@@ -239,7 +239,7 @@ internal sealed class DozerAndWorkerState
 
         private sealed class WorkerUnknown1State : State
         {
-            internal WorkerUnknown1State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal WorkerUnknown1State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
             {
             }
 
@@ -266,7 +266,7 @@ internal sealed class DozerAndWorkerState
             private int _unknown2;
             private bool _unknown3;
 
-            internal WorkerUnknown2State(GameObject gameObject, GameContext context) : base(gameObject, context)
+            internal WorkerUnknown2State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
             {
             }
 

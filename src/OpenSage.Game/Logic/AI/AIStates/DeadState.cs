@@ -1,10 +1,10 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class DeadState : State
     {
-        internal DeadState(GameObject gameObject, GameContext context) : base(gameObject, context)
+        internal DeadState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
         }
 

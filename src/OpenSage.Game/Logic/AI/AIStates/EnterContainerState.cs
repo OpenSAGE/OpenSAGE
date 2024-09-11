@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,7 +6,7 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private uint _containerObjectId;
 
-        internal EnterContainerState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        internal EnterContainerState(StateMachineBase stateMachine) : base(stateMachine)
         {
         }
 

@@ -11,11 +11,8 @@ internal sealed class WaitForAirfieldWinchesterState : State
 {
     public const uint StateId = 1013;
 
-    private readonly JetAIUpdate _aiUpdate;
-
-    internal WaitForAirfieldWinchesterState(GameObject gameObject, GameContext context, JetAIUpdate aiUpdate) : base(gameObject, context)
+    internal WaitForAirfieldWinchesterState(JetAIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        _aiUpdate = aiUpdate;
     }
 
     public override void Persist(StatePersister reader)

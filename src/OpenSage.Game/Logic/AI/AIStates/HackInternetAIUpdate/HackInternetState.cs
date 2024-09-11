@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Numerics;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -9,13 +11,13 @@ namespace OpenSage.Logic.AI.AIStates
     {
         public const uint StateId = 1001;
 
-        private readonly HackInternetAIUpdate _aiUpdate;
+        private readonly HackInternetAIUpdateStateMachine _stateMachine;
 
         private LogicFrameSpan _framesUntilNextHack;
 
-        public HackInternetState(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate) : base(gameObject, context)
+        public HackInternetState(HackInternetAIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _aiUpdate = aiUpdate;
+            _stateMachine = stateMachine;
         }
 
         public override void OnEnter()
@@ -41,7 +43,7 @@ namespace OpenSage.Logic.AI.AIStates
 
                 GameObject.ActiveCashEvent = new CashEvent(amount, new ColorRgb(0, 255, 0), new Vector3(0, 0, 20));
 
-                GameObject.GainExperience(_aiUpdate.ModuleData.XpPerCashUpdate);
+                GameObject.GainExperience(_stateMachine.ModuleData.XpPerCashUpdate);
             }
 
             return UpdateStateResult.Continue();
@@ -55,16 +57,16 @@ namespace OpenSage.Logic.AI.AIStates
         private void SetFramesUntilNextHack(GameObject gameObject)
         {
             _framesUntilNextHack = gameObject.ContainerId != 0
-                ? _aiUpdate.ModuleData.CashUpdateDelayFast
-                : _aiUpdate.ModuleData.CashUpdateDelay;
+                ? _stateMachine.ModuleData.CashUpdateDelayFast
+                : _stateMachine.ModuleData.CashUpdateDelay;
         }
 
         private int GetCashGrant(GameObject gameObject) => gameObject.Rank switch
         {
-            0 => _aiUpdate.ModuleData.RegularCashAmount,
-            1 => _aiUpdate.ModuleData.VeteranCashAmount,
-            2 => _aiUpdate.ModuleData.EliteCashAmount,
-            3 => _aiUpdate.ModuleData.HeroicCashAmount,
+            0 => _stateMachine.ModuleData.RegularCashAmount,
+            1 => _stateMachine.ModuleData.VeteranCashAmount,
+            2 => _stateMachine.ModuleData.EliteCashAmount,
+            3 => _stateMachine.ModuleData.HeroicCashAmount,
             _ => throw new ArgumentOutOfRangeException(nameof(GameObject.Rank)),
         };
 

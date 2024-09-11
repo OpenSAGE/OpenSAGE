@@ -1,4 +1,4 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,7 +8,7 @@ namespace OpenSage.Logic.AI.AIStates
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        internal FollowPathState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        internal FollowPathState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
         }
 

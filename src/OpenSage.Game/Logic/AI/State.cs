@@ -1,4 +1,6 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
+
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI
 {
@@ -6,13 +8,14 @@ namespace OpenSage.Logic.AI
     {
         public uint Id { get; internal set; }
 
-        private protected GameObject GameObject { get; }
-        private protected GameContext Context { get; }
+        private protected GameObject GameObject => _stateMachine.GameObject;
+        private protected GameContext Context => _stateMachine.Context;
 
-        private protected State(GameObject gameObject, GameContext context)
+        private readonly StateMachineBase _stateMachine;
+
+        private protected State(StateMachineBase stateMachine)
         {
-            GameObject = gameObject;
-            Context = context;
+            _stateMachine = stateMachine;
         }
 
         public virtual void OnEnter() { }

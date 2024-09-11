@@ -1,10 +1,10 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class DoNothingState : State
 {
-    internal DoNothingState(GameObject gameObject, GameContext context) : base(gameObject, context)
+    internal DoNothingState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
     }
 

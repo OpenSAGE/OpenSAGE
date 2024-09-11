@@ -1,14 +1,13 @@
-﻿using OpenSage.Logic.Object;
+﻿#nullable enable
+
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class ChinookExitMapState : State
 {
-    private readonly ChinookAIUpdate _aiUpdate;
-
-    internal ChinookExitMapState(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate) : base(gameObject, context)
+    internal ChinookExitMapState(ChinookAIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        _aiUpdate = aiUpdate;
     }
 
     public override void Persist(StatePersister reader) { }

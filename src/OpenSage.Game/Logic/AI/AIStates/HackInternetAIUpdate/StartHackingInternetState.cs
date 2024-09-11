@@ -1,20 +1,20 @@
-using OpenSage.Audio;
+#nullable enable
+
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class StartHackingInternetState : State
     {
-        private readonly HackInternetAIUpdate _aiUpdate;
+        private readonly HackInternetAIUpdateStateMachine _stateMachine;
 
         public const uint StateId = 1000;
 
-        private readonly GameObject _gameObject;
         private LogicFrameSpan _framesUntilHackingBegins;
 
-        public StartHackingInternetState(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate) : base(gameObject, context)
+        public StartHackingInternetState(HackInternetAIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _aiUpdate = aiUpdate;
+            _stateMachine = stateMachine;
         }
 
         public override void OnEnter()
@@ -25,7 +25,7 @@ namespace OpenSage.Logic.AI.AIStates
 
            Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
 
-            var frames = _aiUpdate.GetVariableFrames(_aiUpdate.ModuleData.UnpackTime, Context);
+            var frames = _stateMachine.GetVariableFrames(_stateMachine.ModuleData.UnpackTime, Context);
 
             GameObject.Drawable.SetAnimationDuration(frames);
 

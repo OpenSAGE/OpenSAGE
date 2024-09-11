@@ -1,5 +1,6 @@
-﻿using System.Numerics;
-using OpenSage.Logic.Object;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,7 +9,7 @@ namespace OpenSage.Logic.AI.AIStates
         private Vector3 _unknownPos;
         private uint _unknownInt;
 
-        internal WanderInPlaceState(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        internal WanderInPlaceState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
         }
 
