@@ -732,7 +732,10 @@ namespace OpenSage.Logic.Object
                 {
                     continue; // if we're dead, we should only update SlowDeathBehavior, LifetimeUpdate, or DeletionUpdate
                 }
-                behavior.Update(_behaviorUpdateContext);
+                if (behavior is IUpdateModule updateModule)
+                {
+                    updateModule.Update(_behaviorUpdateContext);
+                }
             }
         }
 

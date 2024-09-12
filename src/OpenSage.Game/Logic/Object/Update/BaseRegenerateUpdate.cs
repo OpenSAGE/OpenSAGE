@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
         {
             _gameObject = gameObject;
             _context = context;
-            NextUpdateFrame.Frame = uint.MaxValue;
+            SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
         public void OnDamage(in DamageData damageData)
         {
             var currentFrame = _context.GameLogic.CurrentFrame;
-            NextUpdateFrame = new UpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
+            SetNextUpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
         }
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
 
             if (_gameObject.IsFullHealth)
             {
-                NextUpdateFrame.Frame = uint.MaxValue;
+                SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
             }
         }
 

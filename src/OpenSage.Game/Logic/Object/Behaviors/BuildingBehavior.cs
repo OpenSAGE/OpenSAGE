@@ -4,7 +4,7 @@ using OpenSage.Data.Ini;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class BuildingBehavior : BehaviorModule
+    public class BuildingBehavior : UpdateModule
     {
         private readonly BuildingBehaviorModuleData _moduleData;
         private readonly GameObject _gameObject;

@@ -6,7 +6,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
-    public class SpecialPowerModule : BehaviorModule
+    public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
     {
         /// <summary>
         /// The next frame when this special power can be used
@@ -88,7 +88,7 @@ namespace OpenSage.Logic.Object
             return progress;
         }
 
-        internal override void Update(BehaviorUpdateContext context)
+        public virtual void TryUpgrade(Science purchasedScience)
         {
             if (!_unlocked)
             {

@@ -9,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    internal sealed class CastleBehavior : BehaviorModule
+    internal sealed class CastleBehavior : FoundationAIUpdate
     {
         private GameObject _gameObject;
         private CastleBehaviorModuleData _moduleData;
@@ -21,6 +21,7 @@ namespace OpenSage.Logic.Object
         public bool IsUnpacked { get; set; }
 
         internal CastleBehavior(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
+            : base(gameObject, moduleData)
         {
             IsUnpacked = false;
             _moduleData = moduleData;
@@ -152,34 +153,35 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public class CastleBehaviorModuleData : BehaviorModuleData
+    public class CastleBehaviorModuleData : FoundationAIUpdateModuleData
     {
-        internal static CastleBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal new static CastleBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<CastleBehaviorModuleData> FieldParseTable = new IniParseTable<CastleBehaviorModuleData>
-        {
-            { "SidesAllowed", (parser, x) => x.SidesAllowed.Add(Side.Parse(parser)) },
-            { "UseTheNewCastleSystemInsteadOfTheClunkyBuildList", (parser, x) => x.UseTheNewCastleSystemInsteadOfTheClunkyBuildList = parser.ParseBoolean() },
-            { "FilterValidOwnedEntries", (parser, x) => x.FilterValidOwnedEntries = ObjectFilter.Parse(parser) },
-            { "UseSecondaryBuildList", (parser, x) => x.UseSecondaryBuildList = parser.ParseBoolean() },
-            { "CastleToUnpackForFaction", (parser, x) => x.CastleToUnpackForFactions.Add(CastleEntry.Parse(parser)) },
-            { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseFloat() },
-            { "FadeTime", (parser, x) => x.FadeTime = parser.ParseFloat() },
-            { "ScanDistance", (parser, x) => x.ScanDistance = parser.ParseInteger() },
-            { "PreBuiltList", (parser, x) => x.PreBuiltList = PreBuildObject.Parse(parser) },
-            { "PreBuiltPlyr", (parser, x) => x.PreBuiltPlayer = parser.ParseString() },
-            { "FilterCrew", (parser, x) => x.FilterCrew = ObjectFilter.Parse(parser) },
-            { "CrewReleaseFX", (parser, x) => x.CrewReleaseFX = parser.ParseAssetReference() },
-            { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
-            { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
-            { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
-            { "FactionDecal", (parser, x) => x.FactionDecals.Add(CastleEntry.Parse(parser)) },
-            { "InstantUnpack", (parser, x) => x.InstantUnpack = parser.ParseBoolean() },
-            { "KeepDeathKillsEverything", (parser, x) => x.KeepDeathKillsEverything = parser.ParseBoolean() },
-            { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() },
-            { "UnpackDelayTime", (parser, x) => x.UnpackDelayTime = parser.ParseFloat() },
-            { "Summoned", (parser, x) => x.Summoned = parser.ParseBoolean() }
-        };
+        internal new static readonly IniParseTable<CastleBehaviorModuleData> FieldParseTable = FoundationAIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<CastleBehaviorModuleData>
+            {
+                { "SidesAllowed", (parser, x) => x.SidesAllowed.Add(Side.Parse(parser)) },
+                { "UseTheNewCastleSystemInsteadOfTheClunkyBuildList", (parser, x) => x.UseTheNewCastleSystemInsteadOfTheClunkyBuildList = parser.ParseBoolean() },
+                { "FilterValidOwnedEntries", (parser, x) => x.FilterValidOwnedEntries = ObjectFilter.Parse(parser) },
+                { "UseSecondaryBuildList", (parser, x) => x.UseSecondaryBuildList = parser.ParseBoolean() },
+                { "CastleToUnpackForFaction", (parser, x) => x.CastleToUnpackForFactions.Add(CastleEntry.Parse(parser)) },
+                { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseFloat() },
+                { "FadeTime", (parser, x) => x.FadeTime = parser.ParseFloat() },
+                { "ScanDistance", (parser, x) => x.ScanDistance = parser.ParseInteger() },
+                { "PreBuiltList", (parser, x) => x.PreBuiltList = PreBuildObject.Parse(parser) },
+                { "PreBuiltPlyr", (parser, x) => x.PreBuiltPlayer = parser.ParseString() },
+                { "FilterCrew", (parser, x) => x.FilterCrew = ObjectFilter.Parse(parser) },
+                { "CrewReleaseFX", (parser, x) => x.CrewReleaseFX = parser.ParseAssetReference() },
+                { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
+                { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
+                { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
+                { "FactionDecal", (parser, x) => x.FactionDecals.Add(CastleEntry.Parse(parser)) },
+                { "InstantUnpack", (parser, x) => x.InstantUnpack = parser.ParseBoolean() },
+                { "KeepDeathKillsEverything", (parser, x) => x.KeepDeathKillsEverything = parser.ParseBoolean() },
+                { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() },
+                { "UnpackDelayTime", (parser, x) => x.UnpackDelayTime = parser.ParseFloat() },
+                { "Summoned", (parser, x) => x.Summoned = parser.ParseBoolean() }
+            });
 
         public List<Side> SidesAllowed { get; } = new List<Side>();
         public bool UseTheNewCastleSystemInsteadOfTheClunkyBuildList { get; private set; }

@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CashHackSpecialPower : SpecialPowerModule, IUpgradableScienceModule
+    public sealed class CashHackSpecialPower : SpecialPowerModule
     {
         private readonly CashHackSpecialPowerModuleData _moduleData;
 
@@ -38,8 +38,10 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
         }
 
-        public void TryUpgrade(Science purchasedScience)
+        public override void TryUpgrade(Science purchasedScience)
         {
+            base.TryUpgrade(purchasedScience);
+
             foreach (var (science, amount) in _moduleData.UpgradeMoneyAmounts)
             {
                 if (science.Value == purchasedScience)

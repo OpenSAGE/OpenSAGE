@@ -5,6 +5,8 @@
         private uint _numShotsFiredAtLastTarget;
         private uint _lastTargetObjectId;
 
+        protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
