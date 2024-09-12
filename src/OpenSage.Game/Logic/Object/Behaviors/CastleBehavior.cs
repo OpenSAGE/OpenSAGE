@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
         public bool IsUnpacked { get; set; }
 
         internal CastleBehavior(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
-            : base(gameObject, moduleData)
+            : base(gameObject, context, moduleData)
         {
             IsUnpacked = false;
             _moduleData = moduleData;
