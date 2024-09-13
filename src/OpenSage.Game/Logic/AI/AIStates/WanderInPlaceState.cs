@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,6 +8,10 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private Vector3 _unknownPos;
         private uint _unknownInt;
+
+        internal WanderInPlaceState(AIUpdateStateMachine stateMachine) : base(stateMachine)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class IdleState : State
     {
@@ -7,6 +9,10 @@
         private ushort _unknownShort;
         private bool _unknownBool1;
         private bool _unknownBool2;
+
+        internal IdleState(StateMachineBase stateMachine) : base(stateMachine)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

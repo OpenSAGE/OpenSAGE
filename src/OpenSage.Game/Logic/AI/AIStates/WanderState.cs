@@ -1,14 +1,15 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class WanderState : FollowWaypointsState
     {
         private uint _unknownInt1;
         private uint _unknownInt2;
 
-        public WanderState()
-            : base(false)
+        public WanderState(AIUpdateStateMachine stateMachine)
+            : base(stateMachine, false)
         {
-
         }
 
         public override void Persist(StatePersister reader)

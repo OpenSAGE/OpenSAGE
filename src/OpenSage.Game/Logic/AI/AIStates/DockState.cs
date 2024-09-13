@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class DockState : State
     {
@@ -6,9 +8,9 @@
 
         private bool _unknownBool2;
 
-        public DockState()
+        public DockState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new DockStateMachine();
+            _stateMachine = new DockStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -31,13 +33,13 @@
     {
         private uint _unknownInt;
 
-        public DockStateMachine()
+        public DockStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(0, new DockApproachDockState());
-            AddState(1, new DockUnknown1State());
-            AddState(3, new DockUnknown3State());
-            AddState(4, new DockUnknown4State());
-            AddState(5, new DockWaitForActionState());
+            AddState(0, new DockApproachDockState(this));
+            AddState(1, new DockUnknown1State(this));
+            AddState(3, new DockUnknown3State(this));
+            AddState(4, new DockUnknown4State(this));
+            AddState(5, new DockWaitForActionState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -53,6 +55,10 @@
 
         private sealed class DockApproachDockState : MoveTowardsState
         {
+            internal DockApproachDockState(DockStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
@@ -67,6 +73,10 @@
         {
             private uint _unknownInt;
 
+            internal DockUnknown1State(DockStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(2);
@@ -77,15 +87,25 @@
 
         private sealed class DockUnknown3State : MoveTowardsState
         {
+            internal DockUnknown3State(DockStateMachine stateMachine) : base(stateMachine)
+            {
+            }
         }
 
         private sealed class DockUnknown4State : MoveTowardsState
         {
+            internal DockUnknown4State(DockStateMachine stateMachine) : base(stateMachine)
+            {
+            }
         }
 
         private sealed class DockWaitForActionState : State
         {
             // Time spent in this state matches SupplyWarehouseActionDelay
+
+            internal DockWaitForActionState(DockStateMachine stateMachine) : base(stateMachine)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

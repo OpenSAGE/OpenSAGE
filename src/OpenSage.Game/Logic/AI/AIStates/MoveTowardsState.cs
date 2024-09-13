@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+#nullable enable
+
+using System.Numerics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
@@ -12,6 +14,10 @@ namespace OpenSage.Logic.AI.AIStates
         private LogicFrame _unknownFrame;
         private uint _unknownInt3;
         private bool _unknownBool2;
+
+        internal MoveTowardsState(StateMachineBase stateMachine) : base(stateMachine)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

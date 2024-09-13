@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Sav;
+﻿#nullable enable
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -8,7 +8,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         private uint _waypointId;
 
-        public FollowWaypointsExactState(bool asTeam)
+        public FollowWaypointsExactState(AIUpdateStateMachine stateMachine, bool asTeam) : base(stateMachine)
         {
             _asTeam = asTeam;
         }

@@ -4,9 +4,12 @@ namespace OpenSage.Logic.Object
 {
     public sealed class WanderAIUpdate : AIUpdate
     {
+        internal override WanderAIUpdateModuleData ModuleData { get; }
+
         internal WanderAIUpdate(GameObject gameObject, GameContext context, WanderAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
+            ModuleData = moduleData;
         }
 
         internal override void Load(StatePersister reader)

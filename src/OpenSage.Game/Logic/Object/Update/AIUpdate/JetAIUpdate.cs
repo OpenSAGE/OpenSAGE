@@ -11,8 +11,8 @@ namespace OpenSage.Logic.Object
     public sealed class JetAIUpdate : AIUpdate
     {
         public GameObject Base;
+        internal override JetAIUpdateModuleData ModuleData { get; }
 
-        private readonly JetAIUpdateModuleData _moduleData;
         private Vector3 _currentTargetPoint;
         private bool _unparkingRequested;
 
@@ -59,11 +59,11 @@ namespace OpenSage.Logic.Object
         internal JetAIUpdate(GameObject gameObject, GameContext context, JetAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
             CurrentJetAIState = JetAIState.Parked;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new JetAIUpdateStateMachine(gameObject, Context);
+        private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         internal override void Load(StatePersister reader)
         {
@@ -88,7 +88,7 @@ namespace OpenSage.Logic.Object
 
         internal override void SetTargetPoint(Vector3 targetPoint)
         {
-            if (_moduleData.KeepsParkingSpaceWhenAirborne) // check if not a helicopter
+            if (ModuleData.KeepsParkingSpaceWhenAirborne) // check if not a helicopter
             {
                 switch (CurrentJetAIState)
                 {
@@ -118,7 +118,7 @@ namespace OpenSage.Logic.Object
         {
             base.Update(context);
 
-            if (!_moduleData.KeepsParkingSpaceWhenAirborne)
+            if (!ModuleData.KeepsParkingSpaceWhenAirborne)
             {
                 return; // helicopters are way more simple (at least for now)
             }
@@ -142,7 +142,7 @@ namespace OpenSage.Logic.Object
             {
                 case JetAIState.JustCreated:
                     var parkingTransform = parkingPlaceBehavior.GetParkingTransform(GameObject.ID);
-                    var parkingOffset = Vector4.Transform(new Vector4(_moduleData.ParkingOffset, 0, 0, 1),
+                    var parkingOffset = Vector4.Transform(new Vector4(ModuleData.ParkingOffset, 0, 0, 1),
                         parkingTransform.Rotation).ToVector3();
                     base.SetTargetPoint(Base.ToWorldspace(parkingTransform.Translation + parkingOffset));
                     CurrentJetAIState = JetAIState.MovingToParkingPlace;
@@ -195,7 +195,7 @@ namespace OpenSage.Logic.Object
 
                     parkingPlaceBehavior.ReportEngineRunUp(GameObject.ID);
                     CurrentJetAIState = JetAIState.PreparingStart;
-                    _waitUntil = context.LogicFrame + _moduleData.TakeoffPause;
+                    _waitUntil = context.LogicFrame + ModuleData.TakeoffPause;
                     break;
 
                 case JetAIState.PreparingStart:
@@ -220,7 +220,7 @@ namespace OpenSage.Logic.Object
                     var speedPercentage = GameObject.Speed / CurrentLocomotor.GetSpeed();
                     CurrentLocomotor.LiftFactor = speedPercentage;
 
-                    if (speedPercentage < _moduleData.TakeoffSpeedForMaxLift)
+                    if (speedPercentage < ModuleData.TakeoffSpeedForMaxLift)
                     {
                         break;
                     }
@@ -241,7 +241,7 @@ namespace OpenSage.Logic.Object
                         break;
                     }
                     CurrentJetAIState = JetAIState.ReachedTargetPoint;
-                    _waitUntil = context.LogicFrame + _moduleData.ReturnToBaseIdleTime;
+                    _waitUntil = context.LogicFrame + ModuleData.ReturnToBaseIdleTime;
                     break;
 
                 case JetAIState.ReachedTargetPoint:
@@ -285,9 +285,9 @@ namespace OpenSage.Logic.Object
 
             }
 
-            if (trans.Z - terrainHeight < _moduleData.MinHeight)
+            if (trans.Z - terrainHeight < ModuleData.MinHeight)
             {
-                trans.Z = terrainHeight + _moduleData.MinHeight;
+                trans.Z = terrainHeight + ModuleData.MinHeight;
                 GameObject.SetTranslation(trans);
             }
 
@@ -309,7 +309,7 @@ namespace OpenSage.Logic.Object
                 var nextPoint = path.Peek();
                 if (parkingPlaceBehavior.IsTaxiingPointBlocked(nextPoint))
                 {
-                    _waitUntil = context.LogicFrame + _moduleData.TakeoffPause;
+                    _waitUntil = context.LogicFrame + ModuleData.TakeoffPause;
                     return true;
                 }
                 if (context.LogicFrame < _waitUntil)
@@ -329,10 +329,14 @@ namespace OpenSage.Logic.Object
 
     internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context)
-            : base(gameObject, context)
+        public override JetAIUpdate AIUpdate { get; }
+
+        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context, JetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(1013, new WaitForAirfieldState());
+            AIUpdate = aiUpdate;
+
+            AddState(WaitForAirfieldWinchesterState.StateId, new WaitForAirfieldWinchesterState(this));
         }
     }
 

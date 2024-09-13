@@ -1,4 +1,4 @@
-﻿using OpenSage.Content;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.AI.AIStates;
@@ -8,9 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
-        private readonly ChinookAIUpdateModuleData _moduleData;
-
-        public ChinookAIUpdateModuleData ModuleData => _moduleData;
+        internal override ChinookAIUpdateModuleData ModuleData { get; }
 
         private UnknownStateData _queuedCommand;
         private ChinookState _state;
@@ -18,16 +16,16 @@ namespace OpenSage.Logic.Object
 
         internal ChinookAIUpdate(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new ChinookAIUpdateStateMachine(gameObject, Context);
+        private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
             // this is also hardcoded in original SAGE, replaced by BonusScience and BonusScienceMultiplier (SupplyCenterDockUpdate) in later games
             var upgradeDefinition = upgrades.GetByName("Upgrade_AmericaSupplyLines");
-            return GameObject.HasUpgrade(upgradeDefinition) ? _moduleData.UpgradedSupplyBoost : 0;
+            return GameObject.HasUpgrade(upgradeDefinition) ? ModuleData.UpgradedSupplyBoost : 0;
         }
 
         internal override void Load(StatePersister reader)
@@ -67,22 +65,26 @@ namespace OpenSage.Logic.Object
 
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context)
-            : base(gameObject, context)
+        public override ChinookAIUpdate AIUpdate { get; }
+
+        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(1001, new ChinookTakeoffAndLandingState(false)); // Takeoff
-            AddState(1002, new ChinookTakeoffAndLandingState(true));  // Landing
-            AddState(1003, new MoveTowardsState());                   // Moving towards airfield to repair at
-            AddState(1004, new MoveTowardsState());                   // Moving towards evacuation point
-            AddState(1005, new ChinookTakeoffAndLandingState(true));  // Landing for evacuation
+            AIUpdate = aiUpdate;
+
+            AddState(1001, new ChinookTakeoffAndLandingState(this, false)); // Takeoff
+            AddState(1002, new ChinookTakeoffAndLandingState(this, true));  // Landing
+            AddState(1003, new MoveTowardsState(this));                     // Moving towards airfield to repair at
+            AddState(1004, new MoveTowardsState(this));                     // Moving towards evacuation point
+            AddState(1005, new ChinookTakeoffAndLandingState(this, true));  // Landing for evacuation
             // 1006?
-            AddState(1007, new MoveTowardsState());                   // Moving towards reinforcement point
-            AddState(1008, new ChinookTakeoffAndLandingState(true));  // Landing for reinforcement
+            AddState(1007, new MoveTowardsState(this));                     // Moving towards reinforcement point
+            AddState(1008, new ChinookTakeoffAndLandingState(this, true));  // Landing for reinforcement
             // 1009?
-            AddState(1010, new ChinookTakeoffAndLandingState(false)); // Takeoff after reinforcement
-            AddState(1011, new ChinookExitMapState());                // Exit map after reinforcement
-            AddState(1012, new ChinookMoveToCombatDropState());       // Moving towards combat drop location
-            AddState(1013, new ChinookCombatDropState(gameObject));   // Combat drop
+            AddState(1010, new ChinookTakeoffAndLandingState(this, false)); // Takeoff after reinforcement
+            AddState(1011, new ChinookExitMapState(this));                  // Exit map after reinforcement
+            AddState(1012, new ChinookMoveToCombatDropState(this));         // Moving towards combat drop location
+            AddState(1013, new ChinookCombatDropState(this));               // Combat drop
         }
     }
 

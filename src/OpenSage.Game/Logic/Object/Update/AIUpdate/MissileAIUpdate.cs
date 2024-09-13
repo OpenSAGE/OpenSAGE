@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MissileAIUpdate : AIUpdate
     {
-        private readonly MissileAIUpdateModuleData _moduleData;
+        internal override MissileAIUpdateModuleData ModuleData { get; }
 
         private MissileState _state;
         private LogicFrame _nextStateChangeTime;
@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
         internal MissileAIUpdate(GameObject gameObject, GameContext context, MissileAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)
         {
-            _moduleData = moduleData;
+            ModuleData = moduleData;
 
             _state = MissileState.Inactive;
         }
@@ -44,23 +44,23 @@ namespace OpenSage.Logic.Object
             switch (_state)
             {
                 case MissileState.Inactive:
-                    _nextStateChangeTime = context.LogicFrame + _moduleData.IgnitionDelay;
+                    _nextStateChangeTime = context.LogicFrame + ModuleData.IgnitionDelay;
                     _state = MissileState.WaitingForIgnition;
                     goto case MissileState.WaitingForIgnition;
 
                 case MissileState.WaitingForIgnition:
                     if (context.LogicFrame >= _nextStateChangeTime)
                     {
-                        _moduleData.IgnitionFX?.Value?.Execute(
+                        ModuleData.IgnitionFX?.Value?.Execute(
                             new FXListExecutionContext(
                                 GameObject.Rotation,
                                 GameObject.Translation,
                                 context.GameContext));
 
-                        if (_moduleData.DistanceToTravelBeforeTurning > 0)
+                        if (ModuleData.DistanceToTravelBeforeTurning > 0)
                         {
                             var pointToReachBeforeTurning = context.GameObject.Translation
-                                + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix) * _moduleData.DistanceToTravelBeforeTurning;
+                                + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix) * ModuleData.DistanceToTravelBeforeTurning;
                             AddTargetPoint(pointToReachBeforeTurning);
                         }
 
@@ -70,7 +70,7 @@ namespace OpenSage.Logic.Object
                             AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
                         }
 
-                        context.GameObject.Speed = _moduleData.InitialVelocity;
+                        context.GameObject.Speed = ModuleData.InitialVelocity;
 
                         _state = MissileState.Moving;
                     }
@@ -78,7 +78,7 @@ namespace OpenSage.Logic.Object
 
                 case MissileState.Moving:
                     // TODO: TryToFollowTarget
-                    BezierProjectileBehavior.CheckForHit(context, _moduleData.DetonateCallsKill, DetonationFX);
+                    BezierProjectileBehavior.CheckForHit(context, ModuleData.DetonateCallsKill, DetonationFX);
                     break;
 
                 default:

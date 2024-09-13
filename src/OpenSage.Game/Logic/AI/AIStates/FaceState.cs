@@ -1,10 +1,12 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class FaceState : State
     {
         private readonly FaceTargetType _targetType;
 
-        public FaceState(FaceTargetType targetType)
+        public FaceState(AIUpdateStateMachine stateMachine, FaceTargetType targetType) : base(stateMachine)
         {
             _targetType = targetType;
         }

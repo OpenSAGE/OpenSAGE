@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackMoveState : MoveTowardsState
     {
@@ -7,9 +9,9 @@
         private int _unknownInt1;
         private int _unknownInt2;
 
-        public AttackMoveState()
+        public AttackMoveState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackMoveStateMachine();
+            _stateMachine = new AttackMoveStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -26,9 +28,9 @@
 
     internal sealed class AttackMoveStateMachine : StateMachineBase
     {
-        public AttackMoveStateMachine()
+        public AttackMoveStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(IdleState.StateId, new IdleState());
+            AddState(IdleState.StateId, new IdleState(this));
         }
 
         public override void Persist(StatePersister reader)

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
 using OpenSage.Logic.Object;
@@ -7,8 +7,6 @@ namespace OpenSage.Logic.AI
 {
     internal class AIUpdateStateMachine : StateMachineBase
     {
-        private readonly GameObject _gameObject;
-        private readonly GameContext _context;
         private readonly List<Vector3> _targetPositions = new();
         private string _targetWaypointName;
         private TargetTeam _targetTeam;
@@ -16,41 +14,38 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIUpdateStateMachine(GameObject gameObject, GameContext context)
+        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
-            _gameObject = gameObject;
-            _context = context;
-
-            AddState(IdleState.StateId, new IdleState());
-            AddState(1, new MoveTowardsState());
-            AddState(2, new FollowWaypointsState(true));
-            AddState(3, new FollowWaypointsState(false));
-            AddState(4, new FollowWaypointsExactState(true));
-            AddState(5, new FollowWaypointsExactState(false));
-            AddState(6, new AIState6());
-            AddState(7, new FollowPathState());
-            AddState(9, new AttackState());
-            AddState(10, new AttackState());
-            AddState(11, new AttackState());
-            AddState(13, new DeadState());
-            AddState(14, new DockState());
-            AddState(15, new EnterContainerState());
-            AddState(16, new GuardState());
-            AddState(17, new HuntState());
-            AddState(18, new WanderState());
-            AddState(19, new PanicState());
-            AddState(20, new AttackTeamState());
-            AddState(21, new GuardInTunnelNetworkState());
-            AddState(23, new AIState23());
-            AddState(28, new AttackAreaState());
-            AddState(30, new AttackMoveState());
-            AddState(32, new AIState32());
-            AddState(33, new FaceState(FaceTargetType.FaceNamed));
-            AddState(34, new FaceState(FaceTargetType.FaceWaypoint));
-            AddState(35, new RappelState());
-            AddState(37, new ExitContainerState());
-            AddState(40, new WanderInPlaceState());
-            AddState(41, new DoNothingState());
+            AddState(IdleState.StateId, new IdleState(this));
+            AddState(1, new MoveTowardsState(this));
+            AddState(2, new FollowWaypointsState(this, true));
+            AddState(3, new FollowWaypointsState(this, false));
+            AddState(4, new FollowWaypointsExactState(this, true));
+            AddState(5, new FollowWaypointsExactState(this, false));
+            AddState(6, new AIState6(this));
+            AddState(7, new FollowPathState(this));
+            AddState(9, new AttackState(this));
+            AddState(10, new AttackState(this));
+            AddState(11, new AttackState(this));
+            AddState(13, new DeadState(this));
+            AddState(14, new DockState(this));
+            AddState(15, new EnterContainerState(this));
+            AddState(16, new GuardState(this));
+            AddState(17, new HuntState(this));
+            AddState(18, new WanderState(this));
+            AddState(19, new PanicState(this));
+            AddState(20, new AttackTeamState(this));
+            AddState(21, new GuardInTunnelNetworkState(this));
+            AddState(23, new AIState23(this));
+            AddState(28, new AttackAreaState(this));
+            AddState(30, new AttackMoveState(this));
+            AddState(32, new AIState32(this));
+            AddState(33, new FaceState(this, FaceTargetType.FaceNamed));
+            AddState(34, new FaceState(this, FaceTargetType.FaceWaypoint));
+            AddState(35, new RappelState(this));
+            AddState(37, new ExitContainerState(this));
+            AddState(40, new WanderInPlaceState(this));
+            AddState(41, new DoNothingState(this));
         }
 
         internal override void Update()
@@ -59,7 +54,7 @@ namespace OpenSage.Logic.AI
             {
                 var overrideStateResult = _overrideState.Update();
 
-                var currentFrame = _context.GameLogic.CurrentFrame;
+                var currentFrame = Context.GameLogic.CurrentFrame;
 
                 var shouldContinueOverrideState = overrideStateResult.Type switch
                 {
@@ -131,6 +126,10 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
+        internal AIState6(AIUpdateStateMachine stateMachine) : base(stateMachine)
+        {
+        }
+
         public override void Persist(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -145,17 +144,19 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState23 : MoveTowardsState
     {
-
+        internal AIState23(AIUpdateStateMachine stateMachine) : base(stateMachine)
+        {
+        }
     }
 
     internal sealed class AIState32 : FollowWaypointsState
     {
         private readonly AIState32StateMachine _stateMachine;
 
-        public AIState32()
-            : base(false)
+        public AIState32(AIUpdateStateMachine stateMachine)
+            : base(stateMachine, false)
         {
-            _stateMachine = new AIState32StateMachine();
+            _stateMachine = new AIState32StateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -170,9 +171,9 @@ namespace OpenSage.Logic.AI
 
     internal sealed class AIState32StateMachine : StateMachineBase
     {
-        public AIState32StateMachine()
+        public AIState32StateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(IdleState.StateId, new IdleState());
+            AddState(IdleState.StateId, new IdleState(this));
         }
 
         public override void Persist(StatePersister reader)

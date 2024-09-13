@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class AttackAreaState : State
     {
@@ -6,9 +8,9 @@
 
         private uint _unknownInt;
 
-        public AttackAreaState()
+        public AttackAreaState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackAreaStateMachine();
+            _stateMachine = new AttackAreaStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -29,10 +31,10 @@
 
     internal sealed class AttackAreaStateMachine : StateMachineBase
     {
-        public AttackAreaStateMachine()
+        public AttackAreaStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(IdleState.StateId, new IdleState());
-            AddState(10, new AttackState());
+            AddState(IdleState.StateId, new IdleState(this));
+            AddState(10, new AttackState(this));
         }
 
         public override void Persist(StatePersister reader)

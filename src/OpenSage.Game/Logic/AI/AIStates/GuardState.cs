@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardStateMachine _stateMachine;
 
-        public GuardState()
+        public GuardState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new GuardStateMachine();
+            _stateMachine = new GuardStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -27,13 +29,13 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _guardObjectId;
         private uint _guardObjectId2;
         private Vector3 _guardPosition;
-        private string _guardPolygonTriggerName;
+        private string _guardPolygonTriggerName = "";
 
-        public GuardStateMachine()
+        public GuardStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(5001, new GuardIdleState());
-            AddState(5002, new GuardUnknown5002State());
-            AddState(5003, new GuardMoveState());
+            AddState(5001, new GuardIdleState(this));
+            AddState(5002, new GuardUnknown5002State(this));
+            AddState(5003, new GuardMoveState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -54,6 +56,10 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
+            internal GuardIdleState(GuardStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -64,6 +70,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class GuardUnknown5002State : State
         {
+            internal GuardUnknown5002State(GuardStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -73,6 +83,10 @@ namespace OpenSage.Logic.AI.AIStates
         private sealed class GuardMoveState : State
         {
             private uint _unknownInt;
+
+            internal GuardMoveState(GuardStateMachine stateMachine) : base(stateMachine)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -6,9 +8,9 @@ namespace OpenSage.Logic.AI.AIStates
     {
         private readonly GuardInTunnelNetworkStateMachine _stateMachine;
 
-        public GuardInTunnelNetworkState()
+        public GuardInTunnelNetworkState(AIUpdateStateMachine stateMachine) : base(stateMachine)
         {
-            _stateMachine = new GuardInTunnelNetworkStateMachine();
+            _stateMachine = new GuardInTunnelNetworkStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -31,10 +33,10 @@ namespace OpenSage.Logic.AI.AIStates
         private uint _guardObjectId;
         private Vector3 _guardPosition;
 
-        public GuardInTunnelNetworkStateMachine()
+        public GuardInTunnelNetworkStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
         {
-            AddState(5001, new GuardInTunnelNetworkIdleState());
-            AddState(5003, new GuardInTunnelNetworkEnterTunnelState());
+            AddState(5001, new GuardInTunnelNetworkIdleState(this));
+            AddState(5003, new GuardInTunnelNetworkEnterTunnelState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -51,6 +53,10 @@ namespace OpenSage.Logic.AI.AIStates
         {
             private uint _unknownInt;
 
+            internal GuardInTunnelNetworkIdleState(GuardInTunnelNetworkStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -62,6 +68,10 @@ namespace OpenSage.Logic.AI.AIStates
         private sealed class GuardInTunnelNetworkEnterTunnelState : EnterContainerState
         {
             private uint _unknownInt;
+
+            internal GuardInTunnelNetworkEnterTunnelState(GuardInTunnelNetworkStateMachine stateMachine) : base(stateMachine)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {

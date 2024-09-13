@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Numerics;
 using OpenSage.Audio;
@@ -10,20 +10,16 @@ namespace OpenSage.Logic.Object
 {
     public class HackInternetAIUpdate : AIUpdate
     {
+        internal override HackInternetAIUpdateModuleData ModuleData { get; }
+
         private UnknownStateData? _packingUpData;
-
-        private readonly GameContext _context;
-        private readonly HackInternetAIUpdateModuleData _moduleData;
-
-        public HackInternetAIUpdateModuleData ModuleData => _moduleData;
 
         internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
-            _context = context;
-            _moduleData = moduleData;
+            ModuleData = moduleData;
         }
 
-        private protected override AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new HackInternetAIUpdateStateMachine(gameObject, _context);
+        private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
@@ -76,12 +72,6 @@ namespace OpenSage.Logic.Object
             base.Stop();
         }
 
-        internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time)
-        {
-            // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-            return new LogicFrameSpan((uint)(time.Value + time.Value * ((_context.Random.NextSingle() * 2 - 1) * _moduleData.PackUnpackVariationFactor)));
-        }
-
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);
@@ -102,12 +92,22 @@ namespace OpenSage.Logic.Object
 
     internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context)
-            : base(gameObject, context)
+        public override HackInternetAIUpdate AIUpdate { get; }
+
+        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(gameObject, context.AudioSystem));
-            AddState(HackInternetState.StateId, new HackInternetState(gameObject, context.AudioSystem));
-            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(gameObject, context.AudioSystem));
+            AIUpdate = aiUpdate;
+
+            AddState(StartHackingInternetState.StateId, new StartHackingInternetState(this));
+            AddState(HackInternetState.StateId, new HackInternetState(this));
+            AddState(StopHackingInternetState.StateId, new StopHackingInternetState(this));
+        }
+
+        internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameContext context)
+        {
+            // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
+            return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
         }
     }
 

@@ -1,10 +1,16 @@
-﻿namespace OpenSage.Logic.AI.AIStates
+﻿#nullable enable
+
+namespace OpenSage.Logic.AI.AIStates
 {
     internal sealed class FollowPathState : MoveTowardsState
     {
         private uint _unknownInt1;
         private bool _unknownBool1;
         private bool _unknownBool2;
+
+        internal FollowPathState(AIUpdateStateMachine stateMachine) : base(stateMachine)
+        {
+        }
 
         public override void Persist(StatePersister reader)
         {

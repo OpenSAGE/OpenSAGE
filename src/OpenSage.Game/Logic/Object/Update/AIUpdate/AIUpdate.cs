@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -10,17 +10,18 @@ namespace OpenSage.Logic.Object
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private protected readonly AIUpdateStateMachine StateMachine;
+        private AIUpdateStateMachine _stateMachine;
+
+        private protected AIUpdateStateMachine StateMachine => _stateMachine ??= CreateStateMachine();
 
         private readonly LocomotorSet _locomotorSet;
         private LocomotorSetType _currentLocomotorSetType;
 
         public Locomotor CurrentLocomotor { get; protected set; }
 
-        private readonly AIUpdateModuleData _moduleData;
-
-        protected readonly GameObject GameObject;
+        protected GameObject GameObject { get; }
         protected GameContext Context { get; }
+        internal virtual AIUpdateModuleData ModuleData { get; }
 
         private readonly TurretAIUpdate _turretAIUpdate;
 
@@ -88,24 +89,22 @@ namespace OpenSage.Logic.Object
         {
             GameObject = gameObject;
             Context = context;
-            _moduleData = moduleData;
+            ModuleData = moduleData;
 
             TargetPoints = new List<Vector3>();
-
-            StateMachine = CreateStateMachine(gameObject);
 
             _locomotorSet = new LocomotorSet(gameObject);
             _currentLocomotorSetType = (LocomotorSetType)(-1);
 
             SetLocomotor(LocomotorSetType.Normal);
 
-            if (_moduleData.Turret != null)
+            if (ModuleData.Turret != null)
             {
-                _turretAIUpdate = _moduleData.Turret.CreateTurretAIUpdate(GameObject);
+                _turretAIUpdate = ModuleData.Turret.CreateTurretAIUpdate(GameObject);
             }
         }
 
-        private protected virtual AIUpdateStateMachine CreateStateMachine(GameObject gameObject) => new(gameObject, Context);
+        private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         internal void SetLocomotor(LocomotorSetType type)
         {
@@ -240,7 +239,7 @@ namespace OpenSage.Logic.Object
 
             if (_turretAIUpdate != null)
             {
-                _turretAIUpdate.Update(context, _moduleData.AutoAcquireEnemiesWhenIdle);
+                _turretAIUpdate.Update(context, ModuleData.AutoAcquireEnemiesWhenIdle);
             }
             else
             {
@@ -408,7 +407,7 @@ namespace OpenSage.Logic.Object
             reader.PersistUInt32(ref _unknownInt18); // 0 when unit stationary, 1 when moving
             reader.PersistVector3(ref _unknownPosition3);
 
-            if (_moduleData.Turret != null)
+            if (ModuleData.Turret != null)
             {
                 reader.PersistObject(_turretAIUpdate, "TurretAI");
             }

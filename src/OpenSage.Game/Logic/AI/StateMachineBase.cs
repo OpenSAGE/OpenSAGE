@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -7,25 +9,33 @@ namespace OpenSage.Logic.AI
 {
     internal abstract class StateMachineBase : IPersistableObject
     {
+        public GameObject GameObject { get; }
+        public GameContext Context { get; }
+        public virtual AIUpdate AIUpdate { get; }
+
         private readonly Dictionary<uint, State> _states;
 
         private uint _unknownFrame;
         private uint _unknownInt1;
 
         private uint _currentStateId;
-        private State _currentState;
-        internal State CurrentState => _currentState;
+        internal State? CurrentState { get; private set; }
 
         private uint _targetObjectId;
         private Vector3 _targetPosition;
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        public readonly GameObject GameObject;
-
-        protected StateMachineBase()
+        protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
         {
+            GameObject = gameObject;
+            Context = context;
+            AIUpdate = aiUpdate;
             _states = new Dictionary<uint, State>();
+        }
+
+        protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.AIUpdate)
+        {
         }
 
         public void AddState(uint id, State state)
@@ -47,21 +57,21 @@ namespace OpenSage.Logic.AI
 
         internal void SetState(uint id)
         {
-            _currentState?.OnExit();
+            CurrentState?.OnExit();
 
-            _currentState = GetState(id);
+            CurrentState = GetState(id);
 
-            _currentState.OnEnter();
+            CurrentState.OnEnter();
         }
 
         internal virtual void Update()
         {
-            if (_currentState == null)
+            if (CurrentState == null)
             {
                 return;
             }
 
-            var updateResult = _currentState.Update();
+            var updateResult = CurrentState.Update();
 
             switch (updateResult.Type)
             {
@@ -69,7 +79,7 @@ namespace OpenSage.Logic.AI
                     break;
 
                 case UpdateStateResultType.TransitionToState:
-                    SetState(updateResult.TransitionToStateId.Value);
+                    SetState(updateResult.TransitionToStateId ?? throw new InvalidStateException());
                     break;
 
                 default:
@@ -85,11 +95,11 @@ namespace OpenSage.Logic.AI
             reader.PersistUInt32(ref _unknownInt1);
 
             reader.PersistUInt32(ref _currentStateId);
-            _currentState = GetState(_currentStateId);
+            CurrentState = GetState(_currentStateId);
 
             reader.SkipUnknownBytes(1);
 
-            reader.PersistObject(_currentState);
+            reader.PersistObject(CurrentState);
             reader.PersistObjectID(ref _targetObjectId);
             reader.PersistVector3(ref _targetPosition);
             reader.PersistBoolean(ref _unknownBool1);

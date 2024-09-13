@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates
 {
@@ -9,9 +12,9 @@ namespace OpenSage.Logic.AI.AIStates
         private bool _unknownBool;
         private Vector3 _unknownPosition;
 
-        public AttackState()
+        public AttackState(StateMachineBase stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackStateMachine();
+            _stateMachine = new AttackStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -26,12 +29,12 @@ namespace OpenSage.Logic.AI.AIStates
 
     internal sealed class AttackStateMachine : StateMachineBase
     {
-        public AttackStateMachine()
+        public AttackStateMachine(StateMachineBase parentStateMachine) : base(parentStateMachine)
         {
-            AddState(0, new AttackMoveTowardsTargetState());
-            AddState(1, new AttackMoveTowardsTargetState());
-            AddState(2, new AttackAimWeaponState());
-            AddState(3, new AttackFireWeaponState());
+            AddState(0, new AttackMoveTowardsTargetState(this));
+            AddState(1, new AttackMoveTowardsTargetState(this));
+            AddState(2, new AttackAimWeaponState(this));
+            AddState(3, new AttackFireWeaponState(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -51,6 +54,10 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool2;
             private bool _unknownBool3;
             private bool _unknownBool4;
+
+            internal AttackMoveTowardsTargetState(AttackStateMachine stateMachine) : base(stateMachine)
+            {
+            }
 
             public override void Persist(StatePersister reader)
             {
@@ -74,6 +81,10 @@ namespace OpenSage.Logic.AI.AIStates
             private bool _unknownBool1;
             private bool _unknownBool2;
 
+            internal AttackAimWeaponState(AttackStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
@@ -85,6 +96,10 @@ namespace OpenSage.Logic.AI.AIStates
 
         private sealed class AttackFireWeaponState : State
         {
+            internal AttackFireWeaponState(AttackStateMachine stateMachine) : base(stateMachine)
+            {
+            }
+
             public override void Persist(StatePersister reader)
             {
                 reader.PersistVersion(1);
