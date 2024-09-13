@@ -25,7 +25,7 @@ namespace OpenSage.Logic.AI.AIStates
 
            Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
 
-            var frames = _stateMachine.GetVariableFrames(_stateMachine.ModuleData.UnpackTime, Context);
+            var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.UnpackTime, Context);
 
             GameObject.Drawable.SetAnimationDuration(frames);
 

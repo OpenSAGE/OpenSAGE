@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
 {
     public class ChinookAIUpdate : SupplyTruckAIUpdate
     {
-        protected override ChinookAIUpdateModuleData ModuleData { get; }
+        internal override ChinookAIUpdateModuleData ModuleData { get; }
 
         private UnknownStateData _queuedCommand;
         private ChinookState _state;
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             ModuleData = moduleData;
         }
 
-        private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, ModuleData);
+        private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
         {
@@ -65,12 +65,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public override ChinookAIUpdateModuleData ModuleData { get; }
+        public override ChinookAIUpdate AIUpdate { get; }
 
-        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData)
-            : base(gameObject, context, moduleData)
+        public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            ModuleData = moduleData;
+            AIUpdate = aiUpdate;
 
             AddState(1001, new ChinookTakeoffAndLandingState(this, false)); // Takeoff
             AddState(1002, new ChinookTakeoffAndLandingState(this, true));  // Landing

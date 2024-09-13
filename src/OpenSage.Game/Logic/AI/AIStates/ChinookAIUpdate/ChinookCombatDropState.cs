@@ -20,7 +20,7 @@ internal sealed class ChinookCombatDropState : State
     {
         _ropes.Clear();
 
-        var numRopes = _stateMachine.ModuleData.NumRopes;
+        var numRopes = _stateMachine.AIUpdate.ModuleData.NumRopes;
         for (var i = 0; i < numRopes; i++)
         {
             _ropes.Add(new Rope());

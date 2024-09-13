@@ -13,6 +13,7 @@ internal sealed class DozerAndWorkerState
 
     private readonly GameObject _gameObject;
     private readonly GameContext _context;
+    private readonly AIUpdate _aiUpdate;
     private readonly IBuilderAIUpdateData _moduleData;
 
     private readonly DozerTarget[] _dozerTargets = new DozerTarget[3];
@@ -21,12 +22,13 @@ internal sealed class DozerAndWorkerState
     private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9]; // these seem to be in groups of 3, one group for each target
     private int _unknown4;
 
-    public DozerAndWorkerState(GameObject gameObject, GameContext context, IBuilderAIUpdateData moduleData)
+    public DozerAndWorkerState(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
     {
         _gameObject = gameObject;
         _context = context;
-        _moduleData = moduleData;
-        _stateMachine = new WorkerAIUpdateStateMachine1(gameObject, context, (AIUpdateModuleData) moduleData); // todo: remove this cast in the future
+        _aiUpdate = aiUpdate;
+        _moduleData = (IBuilderAIUpdateData) aiUpdate.ModuleData; // todo: remove this cast in the future
+        _stateMachine = new WorkerAIUpdateStateMachine1(gameObject, context, gameObject.AIUpdate);
     }
 
     // todo: This is really state _machine_ behavior, and should be moved there when we better understand the fields
@@ -201,7 +203,7 @@ internal sealed class DozerAndWorkerState
 
     private sealed class WorkerAIUpdateStateMachine1 : StateMachineBase
     {
-        public WorkerAIUpdateStateMachine1(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+        public WorkerAIUpdateStateMachine1(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
             AddState(0, new WorkerUnknown0State(this));
             AddState(1, new WorkerUnknown1State(this));

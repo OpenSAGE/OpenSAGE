@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class FoundationAIUpdate : AIUpdate
     {
-        protected override FoundationAIUpdateModuleData ModuleData { get; }
+        internal override FoundationAIUpdateModuleData ModuleData { get; }
 
         private LogicFrame _waitUntil;
         private LogicFrameSpan _updateInterval;

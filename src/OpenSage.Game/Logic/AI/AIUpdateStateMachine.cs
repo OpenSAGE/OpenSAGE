@@ -14,7 +14,7 @@ namespace OpenSage.Logic.AI
         private State _overrideState;
         private LogicFrame _overrideStateUntilFrame;
 
-        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+        public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
             AddState(IdleState.StateId, new IdleState(this));
             AddState(1, new MoveTowardsState(this));

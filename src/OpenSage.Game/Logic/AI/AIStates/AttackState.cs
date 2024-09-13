@@ -14,7 +14,7 @@ namespace OpenSage.Logic.AI.AIStates
 
         public AttackState(StateMachineBase stateMachine) : base(stateMachine)
         {
-            _stateMachine = new AttackStateMachine(stateMachine.GameObject, stateMachine.Context, stateMachine.ModuleData);
+            _stateMachine = new AttackStateMachine(stateMachine);
         }
 
         public override void Persist(StatePersister reader)
@@ -29,7 +29,7 @@ namespace OpenSage.Logic.AI.AIStates
 
     internal sealed class AttackStateMachine : StateMachineBase
     {
-        public AttackStateMachine(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+        public AttackStateMachine(StateMachineBase parentStateMachine) : base(parentStateMachine)
         {
             AddState(0, new AttackMoveTowardsTargetState(this));
             AddState(1, new AttackMoveTowardsTargetState(this));

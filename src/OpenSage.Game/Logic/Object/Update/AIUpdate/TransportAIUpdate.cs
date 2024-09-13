@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class TransportAIUpdate : AIUpdate
     {
-        protected override TransportAIUpdateModuleData ModuleData { get; }
+        internal override TransportAIUpdateModuleData ModuleData { get; }
 
         internal TransportAIUpdate(GameObject gameObject, GameContext context, TransportAIUpdateModuleData moduleData)
             : base(gameObject, context, moduleData)

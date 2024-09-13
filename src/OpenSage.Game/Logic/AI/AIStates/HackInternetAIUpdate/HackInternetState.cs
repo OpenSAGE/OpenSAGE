@@ -43,7 +43,7 @@ namespace OpenSage.Logic.AI.AIStates
 
                 GameObject.ActiveCashEvent = new CashEvent(amount, new ColorRgb(0, 255, 0), new Vector3(0, 0, 20));
 
-                GameObject.GainExperience(_stateMachine.ModuleData.XpPerCashUpdate);
+                GameObject.GainExperience(_stateMachine.AIUpdate.ModuleData.XpPerCashUpdate);
             }
 
             return UpdateStateResult.Continue();
@@ -57,16 +57,16 @@ namespace OpenSage.Logic.AI.AIStates
         private void SetFramesUntilNextHack(GameObject gameObject)
         {
             _framesUntilNextHack = gameObject.ContainerId != 0
-                ? _stateMachine.ModuleData.CashUpdateDelayFast
-                : _stateMachine.ModuleData.CashUpdateDelay;
+                ? _stateMachine.AIUpdate.ModuleData.CashUpdateDelayFast
+                : _stateMachine.AIUpdate.ModuleData.CashUpdateDelay;
         }
 
         private int GetCashGrant(GameObject gameObject) => gameObject.Rank switch
         {
-            0 => _stateMachine.ModuleData.RegularCashAmount,
-            1 => _stateMachine.ModuleData.VeteranCashAmount,
-            2 => _stateMachine.ModuleData.EliteCashAmount,
-            3 => _stateMachine.ModuleData.HeroicCashAmount,
+            0 => _stateMachine.AIUpdate.ModuleData.RegularCashAmount,
+            1 => _stateMachine.AIUpdate.ModuleData.VeteranCashAmount,
+            2 => _stateMachine.AIUpdate.ModuleData.EliteCashAmount,
+            3 => _stateMachine.AIUpdate.ModuleData.HeroicCashAmount,
             _ => throw new ArgumentOutOfRangeException(nameof(GameObject.Rank)),
         };
 

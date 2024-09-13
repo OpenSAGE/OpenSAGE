@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
 
         protected GameObject GameObject { get; }
         protected GameContext Context { get; }
-        protected virtual AIUpdateModuleData ModuleData { get; }
+        internal virtual AIUpdateModuleData ModuleData { get; }
 
         private readonly TurretAIUpdate _turretAIUpdate;
 
@@ -104,7 +104,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, ModuleData);
+        private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         internal void SetLocomotor(LocomotorSetType type)
         {

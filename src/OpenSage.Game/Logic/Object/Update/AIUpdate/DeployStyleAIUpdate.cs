@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public class DeployStyleAIUpdate : AIUpdate
     {
-        protected override DeployStyleAIUpdateModuleData ModuleData { get; }
+        internal override DeployStyleAIUpdateModuleData ModuleData { get; }
 
         private bool _isMovingOrDeployed; // seems to be 1 whenever the nuke cannon is moving or deployed, even if not firing
         private LogicFrame _packCompleteFrame; // 0 when not deployed or completely deployed - used for packing and unpacking

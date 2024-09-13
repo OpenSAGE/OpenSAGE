@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
     {
         public GameObject? BuildTarget => _state.BuildTarget;
         public GameObject? RepairTarget => _state.RepairTarget;
-        protected override DozerAIUpdateModuleData ModuleData { get; }
+        internal override DozerAIUpdateModuleData ModuleData { get; }
 
         private readonly DozerAndWorkerState _state;
 
@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
             : base(gameObject, context, moduleData)
         {
             ModuleData = moduleData;
-            _state = new DozerAndWorkerState(gameObject, context, moduleData);
+            _state = new DozerAndWorkerState(gameObject, context, this);
         }
 
         internal override void Stop()

@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
 {
     public class HackInternetAIUpdate : AIUpdate
     {
-        protected override HackInternetAIUpdateModuleData ModuleData { get; }
+        internal override HackInternetAIUpdateModuleData ModuleData { get; }
 
         private UnknownStateData? _packingUpData;
 
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             ModuleData = moduleData;
         }
 
-        private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, ModuleData);
+        private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
@@ -92,12 +92,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public override HackInternetAIUpdateModuleData ModuleData { get; }
+        public override HackInternetAIUpdate AIUpdate { get; }
 
-        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData)
-            : base(gameObject, context, moduleData)
+        public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            ModuleData = moduleData;
+            AIUpdate = aiUpdate;
 
             AddState(StartHackingInternetState.StateId, new StartHackingInternetState(this));
             AddState(HackInternetState.StateId, new HackInternetState(this));
@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
         internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameContext context)
         {
             // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-            return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * ModuleData.PackUnpackVariationFactor)));
+            return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
         }
     }
 

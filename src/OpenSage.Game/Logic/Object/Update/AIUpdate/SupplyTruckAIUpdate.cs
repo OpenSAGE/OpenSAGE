@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public class SupplyTruckAIUpdate : SupplyAIUpdate
     {
-        protected override SupplyTruckAIUpdateModuleData ModuleData { get; }
+        internal override SupplyTruckAIUpdateModuleData ModuleData { get; }
 
         private readonly WorkerAIUpdateStateMachine2 _stateMachine;
         private uint _dockId;
@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
         internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             ModuleData = moduleData;
-            _stateMachine = new WorkerAIUpdateStateMachine2(gameObject, context, moduleData);
+            _stateMachine = new WorkerAIUpdateStateMachine2(gameObject, context, this);
         }
 
         internal override void Load(StatePersister reader)

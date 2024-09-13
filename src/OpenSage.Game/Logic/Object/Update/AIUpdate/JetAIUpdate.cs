@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
     public sealed class JetAIUpdate : AIUpdate
     {
         public GameObject Base;
-        protected override JetAIUpdateModuleData ModuleData { get; }
+        internal override JetAIUpdateModuleData ModuleData { get; }
 
         private Vector3 _currentTargetPoint;
         private bool _unparkingRequested;
@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
             CurrentJetAIState = JetAIState.Parked;
         }
 
-        private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, ModuleData);
+        private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
 
         internal override void Load(StatePersister reader)
         {
@@ -329,12 +329,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
     {
-        public override AIUpdateModuleData ModuleData { get; }
+        public override JetAIUpdate AIUpdate { get; }
 
-        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context, JetAIUpdateModuleData moduleData)
-            : base(gameObject, context, moduleData)
+        public JetAIUpdateStateMachine(GameObject gameObject, GameContext context, JetAIUpdate aiUpdate)
+            : base(gameObject, context, aiUpdate)
         {
-            ModuleData = moduleData;
+            AIUpdate = aiUpdate;
 
             AddState(WaitForAirfieldWinchesterState.StateId, new WaitForAirfieldWinchesterState(this));
         }

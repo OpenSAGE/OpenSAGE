@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
     {
         public GameObject? BuildTarget => _state.BuildTarget;
         public GameObject? RepairTarget => _state.RepairTarget;
-        protected override WorkerAIUpdateModuleData ModuleData { get; }
+        internal override WorkerAIUpdateModuleData ModuleData { get; }
 
         private readonly DozerAndWorkerState _state;
 
@@ -25,9 +25,9 @@ namespace OpenSage.Logic.Object
         internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             ModuleData = moduleData;
-            _state = new DozerAndWorkerState(gameObject, context, moduleData);
-            _stateMachine2 = new WorkerAIUpdateStateMachine2(gameObject, context, moduleData);
-            _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, context, moduleData);
+            _state = new DozerAndWorkerState(gameObject, context, this);
+            _stateMachine2 = new WorkerAIUpdateStateMachine2(gameObject, context, this);
+            _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, context, this);
         }
 
         internal override void Stop()
@@ -221,8 +221,12 @@ namespace OpenSage.Logic.Object
 
         private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
         {
-            public WorkerAIUpdateStateMachine3(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+            public override WorkerAIUpdate AIUpdate { get; }
+
+            public WorkerAIUpdateStateMachine3(GameObject gameObject, GameContext context, WorkerAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
             {
+                AIUpdate = aiUpdate;
+
                 AddState(0, new WorkerUnknown0State(this));
                 AddState(1, new WorkerUnknown1State(this));
             }
@@ -264,8 +268,12 @@ namespace OpenSage.Logic.Object
 
     internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
     {
-        public WorkerAIUpdateStateMachine2(GameObject gameObject, GameContext context, SupplyAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+        public override SupplyAIUpdate AIUpdate { get; }
+
+        public WorkerAIUpdateStateMachine2(GameObject gameObject, GameContext context, SupplyAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
+            AIUpdate = aiUpdate;
+
             AddState(0, new WorkerUnknown0State(this));
             AddState(1, new WorkerUnknown1State(this));
             AddState(2, new WorkerUnknown2State(this)); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies

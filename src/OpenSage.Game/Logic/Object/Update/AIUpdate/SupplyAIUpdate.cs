@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
             FinishedDumpingSupplies
         }
 
-        protected override SupplyAIUpdateModuleData ModuleData { get; }
+        internal override SupplyAIUpdateModuleData ModuleData { get; }
 
         public GameObject CurrentSupplySource { get; set; }
         private SupplyWarehouseDockUpdate _currentSourceDockUpdate;

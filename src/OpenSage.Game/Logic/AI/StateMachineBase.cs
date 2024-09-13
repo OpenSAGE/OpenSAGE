@@ -11,7 +11,7 @@ namespace OpenSage.Logic.AI
     {
         public GameObject GameObject { get; }
         public GameContext Context { get; }
-        public virtual AIUpdateModuleData ModuleData { get; }
+        public virtual AIUpdate AIUpdate { get; }
 
         private readonly Dictionary<uint, State> _states;
 
@@ -26,15 +26,15 @@ namespace OpenSage.Logic.AI
         private bool _unknownBool1;
         private bool _unknownBool2;
 
-        protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
+        protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
         {
             GameObject = gameObject;
             Context = context;
-            ModuleData = moduleData;
+            AIUpdate = aiUpdate;
             _states = new Dictionary<uint, State>();
         }
 
-        protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.ModuleData)
+        protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.AIUpdate)
         {
         }
 

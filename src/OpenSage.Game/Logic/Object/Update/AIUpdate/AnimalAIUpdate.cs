@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class AnimalAIUpdate : AIUpdate
     {
-        protected override AnimalAIUpdateModuleData ModuleData { get; }
+        internal override AnimalAIUpdateModuleData ModuleData { get; }
 
         internal AnimalAIUpdate(GameObject gameObject, GameContext context, AnimalAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {

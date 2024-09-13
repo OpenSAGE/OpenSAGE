@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class AssaultTransportAIUpdate : AIUpdate
     {
-        protected override AssaultTransportAIUpdateModuleData ModuleData { get; }
+        internal override AssaultTransportAIUpdateModuleData ModuleData { get; }
 
         private readonly List<AssaultTransportMember> _members = new();
 

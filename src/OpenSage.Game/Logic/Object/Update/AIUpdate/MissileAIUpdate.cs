@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class MissileAIUpdate : AIUpdate
     {
-        protected override MissileAIUpdateModuleData ModuleData { get; }
+        internal override MissileAIUpdateModuleData ModuleData { get; }
 
         private MissileState _state;
         private LogicFrame _nextStateChangeTime;
