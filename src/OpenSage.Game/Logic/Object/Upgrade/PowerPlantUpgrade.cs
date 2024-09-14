@@ -23,14 +23,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Triggers use of the <see cref="ObjectDefinition.EnergyBonus"/> setting on this object to 
+    /// Triggers use of the <see cref="ObjectDefinition.EnergyBonus"/> setting on this object to
     /// provide extra power to the faction.
     /// </summary>
     public sealed class PowerPlantUpgradeModuleData : UpgradeModuleData

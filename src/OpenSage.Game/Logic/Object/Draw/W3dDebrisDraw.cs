@@ -83,9 +83,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistAsciiString(ref _modelName);
 
@@ -98,8 +96,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Special-case draw module used by ObjectCreationList.INI when using the CreateDebris code 
-    /// which defaults to calling the GenericDebris object definition as a template for each debris 
+    /// Special-case draw module used by ObjectCreationList.INI when using the CreateDebris code
+    /// which defaults to calling the GenericDebris object definition as a template for each debris
     /// object generated.
     /// </summary>
     public sealed class W3dDebrisDrawModuleData : DrawModuleData

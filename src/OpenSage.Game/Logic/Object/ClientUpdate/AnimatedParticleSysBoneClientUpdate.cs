@@ -9,14 +9,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Allows the object to have particle system effects dynamically attached to animated 
+    /// Allows the object to have particle system effects dynamically attached to animated
     /// sub objects or bones.
     /// </summary>
     public sealed class AnimatedParticleSysBoneClientUpdateModuleData : ClientUpdateModuleData

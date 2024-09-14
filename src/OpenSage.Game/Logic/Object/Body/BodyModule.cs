@@ -36,9 +36,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistSingle(ref _armorDamageScalar); // was roughly 0.9 after changing to hold the line
         }

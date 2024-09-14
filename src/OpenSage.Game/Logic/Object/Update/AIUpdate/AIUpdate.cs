@@ -310,9 +310,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(4);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistUInt32(ref _unknownInt2);

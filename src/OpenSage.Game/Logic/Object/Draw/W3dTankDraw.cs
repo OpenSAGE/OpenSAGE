@@ -65,14 +65,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and 
+    /// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and
     /// TrackDebrisDirtLeft particle system definitions.
     /// </summary>
     public class W3dTankDrawModuleData : W3dModelDrawModuleData

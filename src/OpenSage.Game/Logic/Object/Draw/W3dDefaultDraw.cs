@@ -44,25 +44,23 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            
+
         }
 
         internal override void Update(in TimeInterval time)
         {
-            
+
         }
     }
 
     /// <summary>
-    /// All world objects should use a draw module. This module is used where an object should 
-    /// never actually be drawn due either to the nature or type of the object or because its 
+    /// All world objects should use a draw module. This module is used where an object should
+    /// never actually be drawn due either to the nature or type of the object or because its
     /// drawing is handled by other logic, e.g. bridges.
     /// </summary>
     public sealed class W3dDefaultDrawModuleData : DrawModuleData

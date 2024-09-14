@@ -62,9 +62,7 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
     {
         reader.PersistVersion(1);
 
-        reader.BeginObject("Base");
-        base.Load(reader);
-        reader.EndObject();
+        reader.PersistBase(base.Load);
 
         reader.PersistObject(UpgradeLogic);
     }
