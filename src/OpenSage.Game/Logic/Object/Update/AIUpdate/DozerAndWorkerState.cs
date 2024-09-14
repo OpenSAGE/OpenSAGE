@@ -3,10 +3,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using OpenSage.Logic.AI;
+using OpenSage.Logic.AI.AIStates;
 
 namespace OpenSage.Logic.Object;
 
-internal sealed class DozerAndWorkerState
+internal sealed class DozerAndWorkerState : IPersistableObject
 {
     public GameObject? BuildTarget => TryGetBuildTarget(out var buildTarget) ? buildTarget : null;
     public GameObject? RepairTarget => TryGetRepairTarget(out var repairTarget) ? repairTarget : null;
@@ -17,7 +18,7 @@ internal sealed class DozerAndWorkerState
     private readonly IBuilderAIUpdateData _moduleData;
 
     private readonly DozerTarget[] _dozerTargets = new DozerTarget[3];
-    private readonly WorkerAIUpdateStateMachine1 _stateMachine;
+    private readonly BuilderStateMachine _stateMachine;
     private int _unknown2;
     private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9]; // these seem to be in groups of 3, one group for each target
     private int _unknown4;
@@ -28,7 +29,7 @@ internal sealed class DozerAndWorkerState
         _context = context;
         _aiUpdate = aiUpdate;
         _moduleData = (IBuilderAIUpdateData) aiUpdate.ModuleData; // todo: remove this cast in the future
-        _stateMachine = new WorkerAIUpdateStateMachine1(gameObject, context, gameObject.AIUpdate);
+        _stateMachine = new BuilderStateMachine(gameObject, context, gameObject.AIUpdate);
     }
 
     // todo: This is really state _machine_ behavior, and should be moved there when we better understand the fields
@@ -201,13 +202,13 @@ internal sealed class DozerAndWorkerState
         }
     }
 
-    private sealed class WorkerAIUpdateStateMachine1 : StateMachineBase
+    internal sealed class BuilderStateMachine : StateMachineBase
     {
-        public WorkerAIUpdateStateMachine1(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        public BuilderStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
-            AddState(0, new WorkerUnknown0State(this));
-            AddState(1, new WorkerUnknown1State(this));
-            AddState(2, new WorkerUnknown2State(this));
+            AddState(0, new BuilderUnknown0State(this));
+            AddState(1, new BuilderUnknown1State(this));
+            AddState(2, new BuilderUnknown2State(this));
         }
 
         public override void Persist(StatePersister reader)
@@ -217,69 +218,6 @@ internal sealed class DozerAndWorkerState
             reader.BeginObject("Base");
             base.Persist(reader);
             reader.EndObject();
-        }
-
-        private sealed class WorkerUnknown0State : State
-        {
-            private LogicFrame _unknown1;
-            private int _unknown2;
-            private bool _unknown3;
-
-            internal WorkerUnknown0State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-
-                reader.PersistLogicFrame(ref _unknown1);
-                reader.PersistInt32(ref _unknown2);
-                reader.PersistBoolean(ref _unknown3);
-            }
-        }
-
-        private sealed class WorkerUnknown1State : State
-        {
-            internal WorkerUnknown1State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-
-                reader.SkipUnknownBytes(4);
-
-                var unknown2 = 1;
-                reader.PersistInt32(ref unknown2);
-                if (unknown2 != 1)
-                {
-                    throw new InvalidStateException();
-                }
-
-                reader.SkipUnknownBytes(1);
-            }
-        }
-
-        private sealed class WorkerUnknown2State : State
-        {
-            private int _unknown1;
-            private int _unknown2;
-            private bool _unknown3;
-
-            internal WorkerUnknown2State(WorkerAIUpdateStateMachine1 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-
-                reader.PersistInt32(ref _unknown1);
-                reader.PersistInt32(ref _unknown2);
-                reader.PersistBoolean(ref _unknown3);
-            }
         }
     }
 }

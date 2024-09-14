@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
+using OpenSage.Logic.AI.AIStates;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -16,7 +17,7 @@ namespace OpenSage.Logic.Object
 
         private readonly DozerAndWorkerState _state;
 
-        private readonly WorkerAIUpdateStateMachine2 _stateMachine2;
+        private readonly SupplyAIUpdateStateMachine _supplyAIUpdateStateMachine;
         private uint _unknownObjectId;
         private int _unknown5;
         private int _unknown6;
@@ -26,7 +27,7 @@ namespace OpenSage.Logic.Object
         {
             ModuleData = moduleData;
             _state = new DozerAndWorkerState(gameObject, context, this);
-            _stateMachine2 = new WorkerAIUpdateStateMachine2(gameObject, context, this);
+            _supplyAIUpdateStateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
             _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, context, this);
         }
 
@@ -208,9 +209,9 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            _state.Persist(reader);
+            reader.PersistObject(_state);
 
-            reader.PersistObject(_stateMachine2);
+            reader.PersistObject(_supplyAIUpdateStateMachine);
             reader.PersistObjectID(ref _unknownObjectId);
             reader.PersistInt32(ref _unknown5);
 
@@ -219,7 +220,7 @@ namespace OpenSage.Logic.Object
             reader.PersistObject(_stateMachine3);
         }
 
-        private sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
+        internal sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
         {
             public override WorkerAIUpdate AIUpdate { get; }
 
@@ -238,115 +239,6 @@ namespace OpenSage.Logic.Object
                 reader.BeginObject("Base");
                 base.Persist(reader);
                 reader.EndObject();
-            }
-
-            private sealed class WorkerUnknown0State : State
-            {
-                internal WorkerUnknown0State(WorkerAIUpdateStateMachine3 stateMachine) : base(stateMachine)
-                {
-                }
-
-                public override void Persist(StatePersister reader)
-                {
-                    // No version?
-                }
-            }
-
-            private sealed class WorkerUnknown1State : State
-            {
-                internal WorkerUnknown1State(WorkerAIUpdateStateMachine3 stateMachine) : base(stateMachine)
-                {
-                }
-
-                public override void Persist(StatePersister reader)
-                {
-                    // No version?
-                }
-            }
-        }
-    }
-
-    internal sealed class WorkerAIUpdateStateMachine2 : StateMachineBase
-    {
-        public override SupplyAIUpdate AIUpdate { get; }
-
-        public WorkerAIUpdateStateMachine2(GameObject gameObject, GameContext context, SupplyAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
-        {
-            AIUpdate = aiUpdate;
-
-            AddState(0, new WorkerUnknown0State(this));
-            AddState(1, new WorkerUnknown1State(this));
-            AddState(2, new WorkerUnknown2State(this)); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
-            AddState(3, new WorkerUnknown3State(this)); // occurred when loaded chinook was flying over war factory (only remaining building) attempting to drop off supplies
-            AddState(4, new WorkerUnknown4State(this));
-        }
-
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
-        }
-
-        private sealed class WorkerUnknown0State : State
-        {
-            internal WorkerUnknown0State(WorkerAIUpdateStateMachine2 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-
-            }
-        }
-
-        private sealed class WorkerUnknown1State : State
-        {
-            internal WorkerUnknown1State(WorkerAIUpdateStateMachine2 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-
-            }
-        }
-
-        private sealed class WorkerUnknown2State : State
-        {
-            internal WorkerUnknown2State(WorkerAIUpdateStateMachine2 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-            }
-        }
-
-        private sealed class WorkerUnknown3State : State
-        {
-            internal WorkerUnknown3State(WorkerAIUpdateStateMachine2 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
-            }
-        }
-
-        private sealed class WorkerUnknown4State : State
-        {
-            internal WorkerUnknown4State(WorkerAIUpdateStateMachine2 stateMachine) : base(stateMachine)
-            {
-            }
-
-            public override void Persist(StatePersister reader)
-            {
-                reader.PersistVersion(1);
             }
         }
     }

@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            _state.Persist(reader);
+            reader.PersistObject(_state);
         }
 
         public void SetBuildTarget(GameObject gameObject)
