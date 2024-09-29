@@ -202,7 +202,7 @@ namespace OpenSage.Logic.Object
         private uint _unknownFrame;
         public uint HealedByObjectId;
         public uint HealedEndFrame;
-        private uint _weaponBonusTypes;
+        private BitArray<WeaponBonusType> _weaponBonusTypes = new();
         private byte _weaponSomethingPrimary;
         private byte _weaponSomethingSecondary;
         private byte _weaponSomethingTertiary;
@@ -1436,12 +1436,12 @@ namespace OpenSage.Logic.Object
 
         public void AddWeaponBonusType(WeaponBonusType bonusType)
         {
-            _weaponBonusTypes |= (uint)bonusType;
+            _weaponBonusTypes.Set(bonusType, true);
         }
 
         public void RemoveWeaponBonusType(WeaponBonusType bonusType)
         {
-            _weaponBonusTypes &= ~(uint)bonusType;
+            _weaponBonusTypes.Set(bonusType, false);
         }
 
         public void Persist(StatePersister reader)
@@ -1621,15 +1621,7 @@ namespace OpenSage.Logic.Object
             reader.PersistObjectID(ref HealedByObjectId);
             reader.PersistFrame(ref HealedEndFrame);
             reader.PersistBitArray(ref WeaponSetConditions);
-            reader.PersistUInt32(ref _weaponBonusTypes);
-
-            var weaponBonusTypesBitArray = new BitArray<WeaponBonusType>();
-            var weaponBonusTypeCount = EnumUtility.GetEnumCount<WeaponBonusType>();
-            for (var i = 0; i < weaponBonusTypeCount; i++)
-            {
-                var weaponBonusBit = (_weaponBonusTypes >> i) & 1;
-                weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
-            }
+            reader.PersistBitArrayAsUInt32(ref _weaponBonusTypes);
 
             reader.PersistByte(ref _weaponSomethingPrimary);
             reader.PersistByte(ref _weaponSomethingSecondary);

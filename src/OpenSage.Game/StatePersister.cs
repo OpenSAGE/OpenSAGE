@@ -695,12 +695,9 @@ namespace OpenSage
             }
             else
             {
-                for (var i = 0; i < 32; i++)
+                foreach (var bit in result.GetSetBits())
                 {
-                    if (result.Get(i))
-                    {
-                        value += (uint)Math.Pow(2, i);
-                    }
+                    value += (uint)Math.Pow(2, Convert.ToInt32(bit));
                 }
             }
 
