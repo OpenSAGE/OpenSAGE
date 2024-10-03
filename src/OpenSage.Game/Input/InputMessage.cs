@@ -25,9 +25,9 @@ namespace OpenSage.Input
             return new InputMessage(InputMessageType.MouseMove, new InputMessageValue(position));
         }
 
-        public static InputMessage CreateMouseWheel(int value)
+        public static InputMessage CreateMouseWheel(int value, in Point2D position)
         {
-            return new InputMessage(InputMessageType.MouseWheel, new InputMessageValue(value));
+            return new InputMessage(InputMessageType.MouseWheel, new InputMessageValue(value, position));
         }
 
         public InputMessageType MessageType { get; }

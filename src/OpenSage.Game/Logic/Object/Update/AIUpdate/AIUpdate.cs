@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
@@ -100,7 +100,7 @@ namespace OpenSage.Logic.Object
 
             SetLocomotor(LocomotorSetType.Normal);
 
-            if (ModuleData.Turret != null)
+            if (ModuleData != null && ModuleData.Turret != null)
             {
                 _turretAIUpdate = ModuleData.Turret.CreateTurretAIUpdate(GameObject);
             }
