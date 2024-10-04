@@ -11,19 +11,19 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
         }
 
-        private LogicFrameSpan _framesTillNextScan;
+        private LogicFrameSpan _framesUntilNextScan;
 
         private protected override void RunUpdate(BehaviorUpdateContext context)
         {
-            if (_framesTillNextScan == LogicFrameSpan.Zero)
+            if (_framesUntilNextScan == LogicFrameSpan.Zero)
             {
-                _framesTillNextScan = _moduleData.ScanRate;
+                _framesUntilNextScan = _moduleData.ScanRate;
 
                 // TODO: Find healing.
             }
             else
             {
-                _framesTillNextScan--;
+                _framesUntilNextScan--;
             }
         }
 
@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistLogicFrameSpan(ref _framesTillNextScan);
+            reader.PersistLogicFrameSpan(ref _framesUntilNextScan);
         }
     }
 
