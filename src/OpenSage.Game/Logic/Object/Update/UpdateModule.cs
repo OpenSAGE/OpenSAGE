@@ -12,6 +12,11 @@ namespace OpenSage.Logic.Object
 
         protected virtual UpdateOrder UpdateOrder => UpdateOrder.Order2;
 
+        protected UpdateModule()
+        {
+            _nextUpdateFrame.UpdateOrder = UpdateOrder;
+        }
+
         private protected virtual void RunUpdate(BehaviorUpdateContext context) { }
 
         void IUpdateModule.Update(BehaviorUpdateContext context)
