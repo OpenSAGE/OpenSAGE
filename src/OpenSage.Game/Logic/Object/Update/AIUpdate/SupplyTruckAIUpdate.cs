@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini;
+using OpenSage.Logic.AI;
 
 namespace OpenSage.Logic.Object
 {
@@ -6,7 +7,7 @@ namespace OpenSage.Logic.Object
     {
         internal override SupplyTruckAIUpdateModuleData ModuleData { get; }
 
-        private readonly WorkerAIUpdateStateMachine2 _stateMachine;
+        private readonly SupplyAIUpdateStateMachine _stateMachine;
         private uint _dockId;
         private int _unknownInt;
         private bool _unknownBool;
@@ -14,7 +15,7 @@ namespace OpenSage.Logic.Object
         internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
         {
             ModuleData = moduleData;
-            _stateMachine = new WorkerAIUpdateStateMachine2(gameObject, context, this);
+            _stateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
         }
 
         internal override void Load(StatePersister reader)
