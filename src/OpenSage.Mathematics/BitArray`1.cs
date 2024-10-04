@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -171,17 +172,12 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        private static readonly Dictionary<Type, int> CachedNumValues = new Dictionary<Type, int>();
+        private static readonly ConcurrentDictionary<Type, int> CachedNumValues = new();
 
         private static int GetNumValues()
         {
             var key = typeof(TEnum);
-            if (!CachedNumValues.TryGetValue(key, out var result))
-            {
-                result = Enum.GetValues(key).Length;
-                CachedNumValues.Add(key, result);
-            }
-            return result;
+            return CachedNumValues.GetOrAdd(key, x => Enum.GetValues(x).Length);
         }
     }
 }
