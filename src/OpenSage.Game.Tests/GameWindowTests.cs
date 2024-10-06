@@ -7,7 +7,7 @@ namespace OpenSage.Tests;
 
 public class GameWindowTests : StatePersisterTest
 {
-    [Fact]
+    [WindowsOnlyFact]
     public void GameWindow_Create()
     {
         var gameWindow = new GameWindow("Generals", 0, 0, 1024, 768, false);
@@ -15,7 +15,7 @@ public class GameWindowTests : StatePersisterTest
         Assert.NotNull(gameWindow);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void GameWindow_HandleMouseWheel_When_NotZeroDelta()
     {
         var gameWindow = new GameWindow("Generals", 0, 0, 1024, 768, false);
@@ -31,7 +31,7 @@ public class GameWindowTests : StatePersisterTest
         Assert.Equal(50, inputMessage.Value.MousePosition.Y);
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void GameWindow_HandleMouseWheel_When_ZeroDelta()
     {
         var gameWindow = new GameWindow("Generals", 0, 0, 1024, 768, false);
