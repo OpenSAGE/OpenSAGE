@@ -27,6 +27,8 @@ namespace OpenSage.Logic.Object
         private byte _unknownByte1;
         private byte _unknownByte2;
 
+        protected override UpdateOrder UpdateOrder => UpdateOrder.Order1;
+
         public float Mass
         {
             get => _mass;

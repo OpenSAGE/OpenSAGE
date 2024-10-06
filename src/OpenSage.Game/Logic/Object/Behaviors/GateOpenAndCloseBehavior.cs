@@ -8,7 +8,7 @@ using SharpAudio;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class GateOpenAndCloseBehavior : BehaviorModule
+    public class GateOpenAndCloseBehavior : UpdateModule
     {
         private GameObject _gameObject;
         private GateOpenAndCloseBehaviorModuleData _moduleData;

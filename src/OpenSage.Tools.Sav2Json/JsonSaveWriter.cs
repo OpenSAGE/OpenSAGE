@@ -150,8 +150,8 @@ internal sealed class JsonSaveWriter : StatePersister
         var frame = value.Frame;
         PersistUInt32(ref frame);
 
-        var something = value.Something;
-        PersistByte(ref something);
+        var updateOrder = value.UpdateOrder;
+        PersistEnum(ref updateOrder);
     }
 
     public override void SkipUnknownBytes(int numBytes)

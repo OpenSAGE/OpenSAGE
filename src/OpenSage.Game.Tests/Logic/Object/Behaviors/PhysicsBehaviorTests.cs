@@ -7,6 +7,8 @@ namespace OpenSage.Tests.Logic.Object.Behaviors;
 
 public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBehaviorModuleData>
 {
+    protected override UpdateOrder UpdateOrder => UpdateOrder.Order1;
+
     /// <summary>
     /// When a unit is stationary, acceleration and velocity are zero.
     /// </summary>

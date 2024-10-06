@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
 
             _frameToDelete = context.GameLogic.CurrentFrame + context.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
-            NextUpdateFrame = new UpdateFrame(_frameToDelete);
+            SetNextUpdateFrame(_frameToDelete);
         }
 
         internal override void Update(BehaviorUpdateContext context)

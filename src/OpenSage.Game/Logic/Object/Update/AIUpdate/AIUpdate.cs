@@ -85,6 +85,8 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public List<Vector3> TargetPoints { get; set; }
 
+        protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
+
         internal AIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
         {
             GameObject = gameObject;

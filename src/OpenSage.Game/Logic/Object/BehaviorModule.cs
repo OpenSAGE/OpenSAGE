@@ -7,8 +7,6 @@ namespace OpenSage.Logic.Object
 {
     public abstract class BehaviorModule : ModuleBase
     {
-        internal virtual void Update(BehaviorUpdateContext context) { }
-
         internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status) { }
 
         internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
@@ -52,7 +50,7 @@ namespace OpenSage.Logic.Object
         }
     }
 
-    public readonly struct LogicFrame
+    public readonly struct LogicFrame : IEquatable<LogicFrame>
     {
         public static readonly LogicFrame Zero = default;
         public static readonly LogicFrame MaxValue = new LogicFrame(uint.MaxValue);
@@ -99,10 +97,26 @@ namespace OpenSage.Logic.Object
             return left.Value >= right.Value;
         }
 
+        public static bool operator ==(LogicFrame left, LogicFrame right)
+        {
+            return left.Value == right.Value;
+        }
+
+        public static bool operator !=(LogicFrame left, LogicFrame right)
+        {
+            return left.Value != right.Value;
+        }
+
         public override string ToString()
         {
             return Value.ToString();
         }
+
+        public override bool Equals(object obj) => obj is LogicFrame frame && Equals(frame);
+
+        public bool Equals(LogicFrame other) => Value == other.Value;
+
+        public override int GetHashCode() => Value.GetHashCode();
     }
 
     public readonly struct LogicFrameSpan

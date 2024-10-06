@@ -53,11 +53,11 @@ namespace OpenSage.Logic.Object
     }
 
 
-    public sealed class FoundationAIUpdateModuleData : AIUpdateModuleData
+    public class FoundationAIUpdateModuleData : AIUpdateModuleData
     {
         internal new static FoundationAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private new static readonly IniParseTable<FoundationAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        internal new static readonly IniParseTable<FoundationAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
             .Concat(new IniParseTable<FoundationAIUpdateModuleData>
             {
                 { "BuildVariation", (parser, x) => x.BuildVariation = parser.ParseInteger() },

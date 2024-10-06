@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
             }
 
             // todo: this is fine for now, but generals seems to have some way of making sure it doesn't immediately sap health on subsequent toggles
-            NextUpdateFrame.Frame = _context.GameLogic.CurrentFrame.Value;
+            SetNextUpdateFrame(_context.GameLogic.CurrentFrame);
         }
 
         public void Deactivate()
@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
             foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
             {
                 powerPlantUpdate.RetractRods();
-                NextUpdateFrame.Frame = uint.MaxValue;
+                SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
             }
         }
 
@@ -56,7 +56,7 @@ namespace OpenSage.Logic.Object
             }
 
             _gameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, _gameObject);
-            NextUpdateFrame.Frame += (uint)Game.LogicFramesPerSecond;
+            SetNextUpdateFrame(new LogicFrame((uint)Game.LogicFramesPerSecond));
         }
 
         internal override void Load(StatePersister reader)

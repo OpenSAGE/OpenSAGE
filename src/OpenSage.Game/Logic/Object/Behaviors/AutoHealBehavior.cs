@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
             _gameObject = gameObject;
             _context = context;
             _moduleData = moduleData;
-            NextUpdateFrame.Frame = uint.MaxValue;
+            SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
             _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
 
@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
         private void OnUpgrade()
         {
             // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
-            NextUpdateFrame.Frame = _context.GameLogic.CurrentFrame.Value;
+            SetNextUpdateFrame(_context.GameLogic.CurrentFrame);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
             {
                 var currentFrame = _context.GameLogic.CurrentFrame;
                 _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
-                NextUpdateFrame = new UpdateFrame(_endOfStartHealingDelay);
+                SetNextUpdateFrame(_endOfStartHealingDelay);
             }
         }
 

@@ -8,7 +8,7 @@ using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object
 {
-    public class OCLSpecialPowerModule : SpecialPowerModule, IUpgradableScienceModule
+    public class OCLSpecialPowerModule : SpecialPowerModule
     {
         private readonly OCLSpecialPowerModuleData _moduleData;
         private ObjectCreationList _activeOcl;
@@ -146,8 +146,10 @@ namespace OpenSage.Logic.Object
             reader.EndObject();
         }
 
-        public void TryUpgrade(Science purchasedScience)
+        public override void TryUpgrade(Science purchasedScience)
         {
+            base.TryUpgrade(purchasedScience);
+
             foreach (var (science, ocl) in _moduleData.UpgradeOCLs)
             {
                 if (science.Value == purchasedScience)

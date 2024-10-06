@@ -4,7 +4,28 @@ namespace OpenSage.Logic.Object
 {
     public sealed class AutoFindHealingUpdate : UpdateModule
     {
-        private uint _unknown;
+        private readonly AutoFindHealingUpdateModuleData _moduleData;
+
+        public AutoFindHealingUpdate(AutoFindHealingUpdateModuleData moduleData)
+        {
+            _moduleData = moduleData;
+        }
+
+        private LogicFrameSpan _framesUntilNextScan;
+
+        private protected override void RunUpdate(BehaviorUpdateContext context)
+        {
+            if (_framesUntilNextScan == LogicFrameSpan.Zero)
+            {
+                _framesUntilNextScan = _moduleData.ScanRate;
+
+                // TODO: Find healing.
+            }
+            else
+            {
+                _framesUntilNextScan--;
+            }
+        }
 
         internal override void Load(StatePersister reader)
         {
@@ -14,7 +35,7 @@ namespace OpenSage.Logic.Object
             base.Load(reader);
             reader.EndObject();
 
-            reader.PersistUInt32(ref _unknown);
+            reader.PersistLogicFrameSpan(ref _framesUntilNextScan);
         }
     }
 
@@ -27,20 +48,20 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<AutoFindHealingUpdateModuleData> FieldParseTable = new IniParseTable<AutoFindHealingUpdateModuleData>
         {
-            { "ScanRate", (parser, x) => x.ScanRate = parser.ParseInteger() },
+            { "ScanRate", (parser, x) => x.ScanRate = parser.ParseTimeMillisecondsToLogicFrames() },
             { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() },
             { "NeverHeal", (parser, x) => x.NeverHeal = parser.ParseFloat() },
             { "AlwaysHeal", (parser, x) => x.AlwaysHeal = parser.ParseFloat() }
         };
 
-        public int ScanRate { get; private set; }
+        public LogicFrameSpan ScanRate { get; private set; }
         public int ScanRange { get; private set; }
         public float NeverHeal { get; private set; }
         public float AlwaysHeal { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {
-            return new AutoFindHealingUpdate();
+            return new AutoFindHealingUpdate(this);
         }
     }
 }

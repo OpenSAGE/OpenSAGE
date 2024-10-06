@@ -3,6 +3,7 @@
     internal sealed class ObjectWeaponStatusHelper : ObjectHelperModule
     {
         // TODO
+        protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
 
         internal override void Load(StatePersister reader)
         {
