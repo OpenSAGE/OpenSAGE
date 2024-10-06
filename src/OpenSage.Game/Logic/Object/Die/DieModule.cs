@@ -18,9 +18,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
 
         internal sealed override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)

@@ -8,14 +8,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Enables use of BoneFXUpdate module on this object where an additional dynamic FX logic can 
+    /// Enables use of BoneFXUpdate module on this object where an additional dynamic FX logic can
     /// be used.
     /// </summary>
     public sealed class BoneFXDamageModuleData : DamageModuleData

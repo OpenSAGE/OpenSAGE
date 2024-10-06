@@ -61,7 +61,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
 
             reader.PersistBoolean(ref _unknown1);
             reader.PersistBoolean(ref _unknown2);

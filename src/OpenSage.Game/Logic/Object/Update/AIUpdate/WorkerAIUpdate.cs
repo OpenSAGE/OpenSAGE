@@ -205,9 +205,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistObject(_state);
 
@@ -236,9 +234,7 @@ namespace OpenSage.Logic.Object
             {
                 reader.PersistVersion(1);
 
-                reader.BeginObject("Base");
-                base.Persist(reader);
-                reader.EndObject();
+                reader.PersistBase(base.Persist);
             }
         }
     }

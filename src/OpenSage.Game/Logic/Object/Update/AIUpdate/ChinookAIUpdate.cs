@@ -32,9 +32,7 @@ namespace OpenSage.Logic.Object
         {
             var version = reader.PersistVersion(2);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             var hasQueuedCommand = _queuedCommand != null;
             reader.PersistBoolean(ref hasQueuedCommand);
