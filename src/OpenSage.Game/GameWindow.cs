@@ -190,7 +190,12 @@ namespace OpenSage
 
         private void HandleMouseWheel(MouseWheelEventArgs args)
         {
-            var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100));
+            if (args.WheelDelta == 0) {
+                return;
+            }
+
+            var point = new Point2D(args.State.X, args.State.Y);
+            var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100), point);
             MessageQueue.Enqueue(message);
         }
 
