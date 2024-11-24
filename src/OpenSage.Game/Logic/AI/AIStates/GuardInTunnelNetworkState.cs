@@ -43,7 +43,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(2);
 
-            base.Persist(reader);
+            reader.PersistBase(base.Persist);
 
             reader.PersistObjectID(ref _guardObjectId);
             reader.PersistVector3(ref _guardPosition);
@@ -77,7 +77,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                base.Persist(reader);
+                reader.PersistBase(base.Persist);
 
                 reader.PersistUInt32(ref _unknownInt);
             }
