@@ -14,9 +14,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
 
             reader.PersistObjectID(ref _containerObjectId);
         }

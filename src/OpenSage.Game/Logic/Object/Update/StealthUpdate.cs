@@ -14,9 +14,7 @@ namespace OpenSage.Logic.Object
         {
             var version = reader.PersistVersion(2);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistFrame(ref _unknownFrame1);
             reader.PersistFrame(ref _unknownFrame2);
@@ -48,8 +46,8 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Allows the use of the <see cref="ObjectDefinition.SoundStealthOn"/> and 
-    /// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to 
+    /// Allows the use of the <see cref="ObjectDefinition.SoundStealthOn"/> and
+    /// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to
     /// display MESSAGE:StealthNeutralized when the object has been discovered.
     /// </summary>
     public sealed class StealthUpdateModuleData : BehaviorModuleData

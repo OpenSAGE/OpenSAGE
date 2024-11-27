@@ -16,7 +16,7 @@ internal sealed class AIState32 : FollowWaypointsState
     {
         reader.PersistVersion(1);
 
-        base.Persist(reader);
+        reader.PersistBase(base.Persist);
 
         reader.PersistObject(_stateMachine);
     }
@@ -32,7 +32,7 @@ internal sealed class AIState32 : FollowWaypointsState
         {
             reader.PersistVersion(1);
 
-            base.Persist(reader);
+            reader.PersistBase(base.Persist);
         }
     }
 

@@ -215,9 +215,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
         }
     }
 }

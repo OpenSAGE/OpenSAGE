@@ -46,9 +46,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
 
             reader.PersistUInt32(ref _unknownInt);
         }
@@ -63,9 +61,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(2);
 
-                reader.BeginObject("Base");
-                base.Persist(reader);
-                reader.EndObject();
+                reader.PersistBase(base.Persist);
             }
         }
 
