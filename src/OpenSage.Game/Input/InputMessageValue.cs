@@ -7,17 +7,19 @@ namespace OpenSage.Input
     [StructLayout(LayoutKind.Explicit)]
     public readonly struct InputMessageValue
     {
+        // Keyboard-related values
         [FieldOffset(0)]
         public readonly Key Key;
 
+        [FieldOffset(sizeof(Key))]
+        public readonly ModifierKeys Modifiers;
+
+        // Mouse-related values
         [FieldOffset(0)]
         public readonly Point2D MousePosition;
 
-        [FieldOffset(0)]
+        [FieldOffset(sizeof(int) * 2)] // Size of Point2D, because sizeof(Point2D) doesn't work
         public readonly int ScrollWheel;
-
-        [FieldOffset(sizeof(Key))]
-        public readonly ModifierKeys Modifiers;
 
         internal InputMessageValue(Key key, ModifierKeys modifiers)
         {
@@ -35,11 +37,11 @@ namespace OpenSage.Input
             MousePosition = mousePosition;
         }
 
-        internal InputMessageValue(int scrollWheel)
+        internal InputMessageValue(int scrollWheel, in Point2D mousePosition)
         {
             Key = 0;
-            MousePosition = Point2D.Zero;
             Modifiers = 0;
+            MousePosition = mousePosition;
             ScrollWheel = scrollWheel;
         }
     }
