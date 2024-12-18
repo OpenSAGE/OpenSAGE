@@ -544,9 +544,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(3);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistArrayWithByteLength(_parkingSlots, (StatePersister persister, ref ParkingSlot item) => persister.PersistObjectValue(ref item));
 

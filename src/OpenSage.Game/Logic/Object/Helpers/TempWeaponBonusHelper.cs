@@ -8,9 +8,7 @@
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistInt32(ref _unknownInt);
             if (_unknownInt != -1 && _unknownInt != 0)

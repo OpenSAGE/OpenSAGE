@@ -16,7 +16,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            base.Persist(reader);
+            reader.PersistBase(base.Persist);
 
             reader.PersistUInt32(ref _unknownInt1);
             reader.PersistBoolean(ref _unknownBool1);

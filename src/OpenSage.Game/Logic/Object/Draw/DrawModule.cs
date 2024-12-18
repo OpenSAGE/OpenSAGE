@@ -54,9 +54,7 @@ namespace OpenSage.Logic.Object
             // Since we don't have that at the moment, just read it here.
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.EndObject();
         }

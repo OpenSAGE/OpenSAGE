@@ -68,9 +68,7 @@ namespace OpenSage.Logic.Object
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(2);
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistVector3(ref _positionSomething);
 
