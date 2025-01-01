@@ -92,9 +92,7 @@ namespace OpenSage.Logic.Object
         {
             var version = reader.PersistVersion(6);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistVector3(ref _unknownPosition);
             reader.PersistUInt32(ref _stateMaybe);

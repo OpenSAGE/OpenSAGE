@@ -17,9 +17,7 @@
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
 
             reader.PersistInt32(ref _unknownInt1);
             reader.PersistInt32(ref _unknownInt2);

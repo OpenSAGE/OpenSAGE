@@ -16,7 +16,7 @@ internal sealed class AIState6 : MoveTowardsState
     {
         reader.PersistVersion(1);
 
-        base.Persist(reader);
+        reader.PersistBase(base.Persist);
 
         reader.PersistInt32(ref _unknownInt);
         reader.PersistBoolean(ref _unknownBool1);
