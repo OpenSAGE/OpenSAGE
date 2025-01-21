@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OpenSage.FileFormats.W3d
 {
-    public abstract class W3dChunk
+    public abstract record W3dChunk(W3dChunkType ChunkType, bool HasSubChunks=false)
     {
         internal static T ParseChunk<T>(
             BinaryReader reader,
@@ -33,10 +33,6 @@ namespace OpenSage.FileFormats.W3d
 
             return result;
         }
-
-        public abstract W3dChunkType ChunkType { get; }
-
-        public virtual bool HasSubChunks{ get; } = false;
 
         public virtual IEnumerable<W3dChunk> GetSubChunks()
         {
@@ -75,10 +71,8 @@ namespace OpenSage.FileFormats.W3d
         protected abstract void WriteToOverride(BinaryWriter writer);
     }
 
-    public abstract class W3dContainerChunk : W3dChunk
+    public abstract record W3dContainerChunk(W3dChunkType ChunkType) : W3dChunk(ChunkType, true)
     {
-        public sealed override bool HasSubChunks => true;
-
         public sealed override IEnumerable<W3dChunk> GetSubChunks()
         {
             return GetSubChunksOverride();
@@ -109,7 +103,7 @@ namespace OpenSage.FileFormats.W3d
         }
     }
 
-    public abstract class W3dListChunk<TList, TItem> : W3dChunk
+    public abstract record W3dListChunk<TList, TItem>(W3dChunkType ChunkType) : W3dChunk(ChunkType)
         where TList : W3dListChunk<TList, TItem>, new()
     {
         public List<TItem> Items { get; } = new List<TItem>();
@@ -138,12 +132,10 @@ namespace OpenSage.FileFormats.W3d
         protected abstract void WriteItem(BinaryWriter writer, TItem item);
     }
 
-    public abstract class W3dStructListChunk<TList, TItem> : W3dChunk
+    public abstract record W3dStructListChunk<TList, TItem>(TItem[] Items, W3dChunkType ChunkType) : W3dChunk(ChunkType)
         where TList : W3dStructListChunk<TList, TItem>, new()
         where TItem : unmanaged
     {
-        public TItem[] Items { get; set; }
-
         internal static unsafe TList ParseList(BinaryReader reader, W3dParseContext context, Func<BinaryReader, TItem> parseItem)
         {
             var itemSize = sizeof(TItem);
@@ -177,14 +169,10 @@ namespace OpenSage.FileFormats.W3d
         protected abstract void WriteItem(BinaryWriter writer, in TItem item);
     }
 
-    public abstract class W3dListContainerChunk<TList, TItem> : W3dContainerChunk
+    public abstract record W3dListContainerChunk<TList, TItem>(List<TItem> Items, W3dChunkType ItemType, W3dChunkType ChunkType) : W3dContainerChunk(ChunkType)
         where TList : W3dListContainerChunk<TList, TItem>, new()
         where TItem : W3dChunk
     {
-        public List<TItem> Items { get; } = new List<TItem>();
-
-        protected abstract W3dChunkType ItemType { get; }
-
         internal static TList ParseList(BinaryReader reader, W3dParseContext context, Func<BinaryReader, W3dParseContext, TItem> parseItem)
         {
             return ParseChunk(reader, context, header =>
@@ -200,7 +188,7 @@ namespace OpenSage.FileFormats.W3d
 
                     result.Items.Add(parseItem(reader, context));
                 });
-                
+
                 return result;
             });
         }
