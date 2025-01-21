@@ -12,9 +12,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistUInt32(ref _numVirtualMachines);
             reader.PersistFrame(ref _unknownFrame);
@@ -40,7 +38,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// INI file comments indicate that this is not an accurate name; it's a really a 
+    /// INI file comments indicate that this is not an accurate name; it's a really a
     /// single mine behaviour.
     /// </summary>
     public sealed class MinefieldBehaviorModuleData : BehaviorModuleData

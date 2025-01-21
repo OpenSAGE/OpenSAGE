@@ -17,7 +17,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            base.Persist(reader);
+            reader.PersistBase(base.Persist);
 
             reader.PersistUInt32(ref _waypointId);
         }

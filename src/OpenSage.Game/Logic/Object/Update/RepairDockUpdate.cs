@@ -14,16 +14,14 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.SkipUnknownBytes(8);
         }
     }
 
     /// <summary>
-    /// Hardcoded to require DockWaitingN, DockEndN, DockActionN and DockStartN bones, where N 
+    /// Hardcoded to require DockWaitingN, DockEndN, DockActionN and DockStartN bones, where N
     /// should correspond to <see cref="NumberApproachPositions"/>.
     /// </summary>
     public sealed class RepairDockUpdateModuleData : DockUpdateModuleData
