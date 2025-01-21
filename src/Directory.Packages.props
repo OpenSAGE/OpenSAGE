@@ -3,7 +3,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="ConsoleTables" Version="2.6.2" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.3" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FixedMath.NET" Version="1.0.1" />
     <PackageVersion Include="ImGui.NET" Version="1.91.0.1" />
     <PackageVersion Include="LiteNetLib" Version="1.3.1" />
