@@ -143,9 +143,10 @@ namespace OpenSage.Gui.Wnd
                         break;
                     }
 
-                // For the time being, just consume middle click events so that they don't go through controls:
+                // For the time being, just consume middle click and wheel events so that they don't go through controls:
                 case InputMessageType.MouseMiddleButtonDown:
                 case InputMessageType.MouseMiddleButtonUp:
+                case InputMessageType.MouseWheel:
                     {
                         return GetControlAtPoint(message.Value.MousePosition, out var _, out var _)
                             ? InputMessageResult.Handled
