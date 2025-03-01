@@ -9,21 +9,19 @@ namespace OpenSage.Logic.Object
 
         private readonly WeaponStateMachine _stateMachine;
 
-        private int _currentRounds;
-
+        private WeaponStatus _status;
+        private int _shotsLeftInClip;
+        private LogicFrame _nextFrameToFire;
+        private LogicFrame _preAttackCompleteFrame;
+        private LogicFrame _lastFrameFired1;
+        private LogicFrame _lastFrameFired2;
+        private LogicFrame _unknownFrame;
+        private uint _unknownObjectId;
+        private int _maxShots;
         private uint _unknownInt1;
         private uint _unknownInt2;
-        private uint _unknownInt3;
-        private uint _unknownFrame1;
-        private uint _unknownFrame2;
-        private uint _unknownFrame3;
-        private uint _unknownFrame4;
-        private uint _unknownObjectId;
-        private uint _unknownInt4;
-        private uint _unknownInt5;
-        private uint _unknownInt6;
         private bool _unknownBool1;
-        private bool _unknownBool2;
+        private bool _isLeechRangeWeapon;
 
         public readonly int WeaponIndex;
 
@@ -33,8 +31,8 @@ namespace OpenSage.Logic.Object
 
         public int CurrentRounds
         {
-            get => _currentRounds;
-            internal set => _currentRounds = value;
+            get => _shotsLeftInClip;
+            internal set => _shotsLeftInClip = value;
         }
 
         internal WeaponTarget CurrentTarget { get; private set; }
@@ -63,6 +61,19 @@ namespace OpenSage.Logic.Object
 
         public readonly WeaponSlot Slot;
 
+        internal WeaponStatus Status => _status;
+        internal int ShotsLeftInClip => _shotsLeftInClip;
+        internal LogicFrame NextFrameToFire => _nextFrameToFire;
+        internal LogicFrame LastFrameFired1 => _lastFrameFired1;
+        internal LogicFrame LastFrameFired2 => _lastFrameFired2;
+        internal LogicFrame UnknownFrame => _unknownFrame;
+        internal uint UnknownObjectId => _unknownObjectId;
+        internal int MaxShots => _maxShots;
+        internal uint UnknownInt1 => _unknownInt1;
+        internal uint UnknownInt2 => _unknownInt2;
+        internal bool UnknownBool1 => _unknownBool1;
+        internal bool UnknownBool2 => _isLeechRangeWeapon;
+
         internal Weapon(
             GameObject gameObject,
             WeaponTemplate weaponTemplate,
@@ -76,7 +87,9 @@ namespace OpenSage.Logic.Object
 
             Slot = slot;
 
-            FillClip();
+            _maxShots = 0x7FFFFFFF;
+
+            Reload();
 
             _stateMachine = new WeaponStateMachine(
                 new WeaponStateContext(
@@ -91,7 +104,7 @@ namespace OpenSage.Logic.Object
 
         public bool IsClipEmpty() => UsesClip && CurrentRounds == 0;
 
-        public void FillClip()
+        public void Reload()
         {
             CurrentRounds = Template.ClipSize;
         }
@@ -142,35 +155,39 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt1);
-            reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistFrame(ref _unknownFrame1);
+            var slot = Slot;
+            reader.PersistEnum(ref slot);
+            if (slot != Slot)
+            {
+                throw new InvalidStateException();
+            }
 
-            reader.SkipUnknownBytes(4);
-
-            reader.PersistFrame(ref _unknownFrame2);
-            reader.PersistFrame(ref _unknownFrame3);
-            reader.PersistFrame(ref _unknownFrame4);
+            reader.PersistEnum(ref _status);
+            reader.PersistInt32(ref _shotsLeftInClip);
+            reader.PersistLogicFrame(ref _nextFrameToFire);
+            reader.PersistLogicFrame(ref _preAttackCompleteFrame);
+            reader.PersistLogicFrame(ref _lastFrameFired1);
+            reader.PersistLogicFrame(ref _lastFrameFired2);
+            reader.PersistLogicFrame(ref _unknownFrame);
             reader.PersistObjectID(ref _unknownObjectId);
 
             reader.SkipUnknownBytes(4);
 
-            reader.PersistUInt32(ref _unknownInt4);
-            reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistUInt32(ref _unknownInt6);
+            reader.PersistInt32(ref _maxShots);
+            reader.PersistUInt32(ref _unknownInt1);
+            reader.PersistUInt32(ref _unknownInt2);
 
             reader.SkipUnknownBytes(2);
 
             reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
+            reader.PersistBoolean(ref _isLeechRangeWeapon);
         }
 
         internal void DrawInspector()
         {
             // TODO: Weapon template
 
-            ImGui.InputInt("CurrentRounds", ref _currentRounds);
+            ImGui.InputInt("ShotsLeftInClip", ref _shotsLeftInClip);
 
             ImGui.LabelText("CurrentTarget", CurrentTarget?.TargetType.ToString() ?? "[none]");
 

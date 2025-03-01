@@ -152,6 +152,8 @@ namespace OpenSage.Logic.Object
         private readonly WeaponSet _weaponSet;
         public WeaponSet ActiveWeaponSet => _weaponSet;
 
+        private readonly WeaponModelConditionFlagSet[] _weaponModelConditionFlagSets = new WeaponModelConditionFlagSet[WeaponTemplateSet.NumWeaponSlots];
+
         public readonly ObjectDefinition Definition;
 
         public PartitionObject PartitionObject { get; internal set; }
@@ -203,9 +205,6 @@ namespace OpenSage.Logic.Object
         public uint HealedByObjectId;
         public uint HealedEndFrame;
         private uint _weaponBonusTypes;
-        private byte _weaponSomethingPrimary;
-        private byte _weaponSomethingSecondary;
-        private byte _weaponSomethingTertiary;
         private BitArray<SpecialPowerType> _specialPowers = new();
 
         protected override void OnEntityMoved()
@@ -501,25 +500,22 @@ namespace OpenSage.Logic.Object
             // Maybe KindOf = CAN_ATTACK ?
             AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
 
-            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-            // Probably only those with weapons.
-            AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper());
+            if (objectDefinition.HasWeapons)
+            {
+                AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper());
+                AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
 
-            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-            // Probably only those with weapons.
-            AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
+                if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
+                {
+                    AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper());
+                }
+            }
 
             // TODO: This shouldn't be added to all objects. I don't know what the rule is.
             if (_gameContext.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
             {
                 // this was added in bfme and is not present in generals or zero hour
                 AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
-            }
-
-            // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-            if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
-            {
-                AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper());
             }
 
             foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
@@ -1444,6 +1440,75 @@ namespace OpenSage.Logic.Object
             _weaponBonusTypes &= ~(uint)bonusType;
         }
 
+        internal float GetAngleTo(in Vector3 otherPosition)
+        {
+            return MathUtility.GetAngleBetween(Translation, otherPosition);
+        }
+
+        /// <summary>
+        /// Updates the model condition flags for the current weapon set and weapon status.
+        /// </summary>
+        internal void UpdateWeaponModelConditionFlags()
+        {
+            for (var i = 0; i < _weaponSet.Weapons.Length; i++)
+            {
+                var currentFlagSet = _weaponModelConditionFlagSets[i];
+                var newFlagSet = GetWeaponModelConditionFlag(_weaponSet.Weapons[i]);
+
+                if (currentFlagSet == newFlagSet)
+                {
+                    // If the flag set hasn't changed, there's no need to update the model condition flags.
+                    continue;
+                }
+
+                _weaponModelConditionFlagSets[i] = newFlagSet;
+
+                // Clear existing weapon flags.
+                foreach (var flag in ModelConditionFlagUtility.GetAllWeaponFlags(i))
+                {
+                    ModelConditionFlags.Set(flag, false);
+                }
+
+                // Set new weapon flags.
+                var newFlags = ModelConditionFlagUtility.GetWeaponFlags(i, newFlagSet);
+                foreach (var flag in newFlags)
+                {
+                    ModelConditionFlags.Set(flag, true);
+                }
+            }
+        }
+
+        private WeaponModelConditionFlagSet GetWeaponModelConditionFlag(Weapon weapon)
+        {
+            // If there's no weapon in this slot or this isn't the current weapon, don't set any flags.
+            if (weapon == null || weapon != _weaponSet.CurrentWeapon)
+            {
+                return WeaponModelConditionFlagSet.None;
+            }
+
+            // Have we just fired this frame?
+            if (weapon.LastFrameFired1 == GameContext.GameLogic.CurrentFrame)
+            {
+                return WeaponModelConditionFlagSet.Firing;
+            }
+
+            return weapon.Status switch
+            {
+                // In a frame where we are attacking and ready to fire, but we haven't actually fired
+                // (perhaps because we've just finished reloading and this frame we were still in the AttackAimWeaponState),
+                // the weapon status will be Ready, but we want the model condition flags to be set
+                // as though it was BetweenShots.
+                WeaponStatus.Ready when _status.Get(ObjectStatus.IsAttacking) => WeaponModelConditionFlagSet.BetweenShots,
+
+                WeaponStatus.Ready => WeaponModelConditionFlagSet.None,
+                WeaponStatus.BetweenShots => WeaponModelConditionFlagSet.BetweenShots,
+                WeaponStatus.Reloading => WeaponModelConditionFlagSet.Reloading,
+                WeaponStatus.PreAttack => WeaponModelConditionFlagSet.PreAttack,
+
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
         public void Persist(StatePersister reader)
         {
             var version = reader.PersistVersion(9);
@@ -1631,9 +1696,13 @@ namespace OpenSage.Logic.Object
                 weaponBonusTypesBitArray.Set(i, weaponBonusBit == 1);
             }
 
-            reader.PersistByte(ref _weaponSomethingPrimary);
-            reader.PersistByte(ref _weaponSomethingSecondary);
-            reader.PersistByte(ref _weaponSomethingTertiary);
+            reader.PersistSpan(
+                _weaponModelConditionFlagSets.AsSpan(0, WeaponTemplateSet.NumWeaponSlotsGenerals),
+                static (StatePersister persister, ref WeaponModelConditionFlagSet item) =>
+                {
+                    persister.PersistEnumByte(ref item);
+                });
+
             reader.PersistObject(_weaponSet);
             reader.PersistBitArray(ref _specialPowers);
 

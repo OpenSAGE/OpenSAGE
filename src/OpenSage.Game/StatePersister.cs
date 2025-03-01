@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -950,6 +950,18 @@ namespace OpenSage
             {
                 value = new RandomVariable(low, high, distributionType);
             }
+        }
+
+        public static void PersistSpan<T>(this StatePersister persister, Span<T> value, PersistListItemCallback<T> callback, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.BeginArray(name);
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                callback(persister, ref value[i]);
+            }
+
+            persister.EndArray();
         }
 
         public static void PersistArray<T>(this StatePersister persister, T[] value, PersistListItemCallback<T> callback, [CallerArgumentExpression("value")] string name = "")

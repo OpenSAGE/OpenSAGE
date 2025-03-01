@@ -87,6 +87,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("MASKED")]
         Masked,
 
+        [IniEnum("STEALTHED")]
+        Stealthed, // Colonel Burton can be in this state
+
+        [IniEnum("CAN_STEALTH")]
+        CanStealth, // Colonel Burton can be in this state
+
         [IniEnum("STATUS_RIDER8")]
         StatusRider8,
 

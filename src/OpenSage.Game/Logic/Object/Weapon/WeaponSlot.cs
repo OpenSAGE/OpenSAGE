@@ -5,19 +5,19 @@ namespace OpenSage.Logic.Object
     public enum WeaponSlot
     {
         [IniEnum("PRIMARY")]
-        Primary,
+        Primary = 0,
 
         [IniEnum("SECONDARY")]
-        Secondary,
+        Secondary = 1,
 
         [IniEnum("TERTIARY")]
-        Tertiary,
+        Tertiary = 2,
 
         [IniEnum("QUATERNARY")]
-        Quaternary,
+        Quaternary = 3,
 
         [IniEnum("QUINARY")]
-        Quinary,
+        Quinary = 4,
 
         NoWeapon,
     }

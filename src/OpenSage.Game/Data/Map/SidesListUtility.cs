@@ -166,7 +166,7 @@ namespace OpenSage.Data.Map
 
             var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
 
-            var playerNames = mapPlayers
+            var playerNames = mapFile.SidesList.Players
                 .Select(p => p.Properties.GetPropOrNull("playerFaction")?.Value.ToString())
                 .ToArray();
 
@@ -209,7 +209,7 @@ namespace OpenSage.Data.Map
                     break;
             }
 
-            if (!hadScripts && playerSettings.Length > 1)
+            if (playerSettings.Length > 1)
             {
                 var multiplayerScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\MultiplayerScripts.scb");
 

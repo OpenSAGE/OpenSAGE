@@ -6,6 +6,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class WeaponTemplateSet
     {
+        public const int NumWeaponSlotsGenerals = 3;
         public const int NumWeaponSlots = 5;
 
         internal static WeaponTemplateSet Parse(IniParser parser)

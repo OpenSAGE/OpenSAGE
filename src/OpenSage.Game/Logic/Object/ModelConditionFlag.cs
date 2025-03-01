@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices.Marshalling;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
@@ -1189,6 +1190,115 @@ namespace OpenSage.Logic.Object
 
     public static class ModelConditionFlagUtility
     {
+        private static readonly ModelConditionFlag[][] AllWeaponFlagsPerSlot =
+        [
+            // WeaponSlot.Primary
+            [
+                ModelConditionFlag.FiringA,
+                ModelConditionFlag.FiringOrPreAttackA,
+                ModelConditionFlag.FiringOrReloadingA,
+                ModelConditionFlag.BetweenShotsFiringA,
+                ModelConditionFlag.ReloadingA,
+                ModelConditionFlag.PreAttackA,
+                ModelConditionFlag.FiringOrPreAttackA,
+                ModelConditionFlag.UsingWeaponA,
+            ],
+
+            // WeaponSlot.Secondary
+            [
+                ModelConditionFlag.FiringB,
+                ModelConditionFlag.FiringOrPreAttackB,
+                ModelConditionFlag.FiringOrReloadingB,
+                ModelConditionFlag.BetweenShotsFiringB,
+                ModelConditionFlag.ReloadingB,
+                ModelConditionFlag.PreAttackB,
+                ModelConditionFlag.FiringOrPreAttackB,
+                ModelConditionFlag.UsingWeaponB,
+            ],
+
+            // WeaponSlot.Tertiary
+            [
+                ModelConditionFlag.FiringC,
+                ModelConditionFlag.FiringOrPreAttackC,
+                ModelConditionFlag.FiringOrReloadingC,
+                ModelConditionFlag.BetweenShotsFiringC,
+                ModelConditionFlag.ReloadingC,
+                ModelConditionFlag.PreAttackC,
+                ModelConditionFlag.FiringOrPreAttackC,
+                ModelConditionFlag.UsingWeaponC,
+            ],
+
+            // WeaponSlot.Quaternary
+            [
+                ModelConditionFlag.FiringD,
+                ModelConditionFlag.FiringOrPreAttackD,
+                ModelConditionFlag.FiringOrReloadingD,
+                ModelConditionFlag.BetweenShotsFiringD,
+                ModelConditionFlag.ReloadingD,
+                ModelConditionFlag.PreAttackD,
+                ModelConditionFlag.FiringOrPreAttackD,
+                ModelConditionFlag.UsingWeaponD,
+            ],
+
+            // WeaponSlot.Quinary
+            [
+                ModelConditionFlag.FiringE,
+                ModelConditionFlag.FiringOrPreAttackE,
+                ModelConditionFlag.FiringOrReloadingE,
+                ModelConditionFlag.BetweenShotsFiringE,
+                ModelConditionFlag.ReloadingE,
+                ModelConditionFlag.PreAttackE,
+                ModelConditionFlag.FiringOrPreAttackE,
+                ModelConditionFlag.UsingWeaponE,
+            ],
+        ];
+
+        private static readonly ModelConditionFlag[][][] WeaponFlagsPerSetAndSlot =
+        [
+            // WeaponModelConditionFlagSet.None
+            [[], [], [], [], []],
+
+            // WeaponModelConditionFlagSet.Firing
+            [
+                [ModelConditionFlag.FiringA, ModelConditionFlag.FiringOrPreAttackA, ModelConditionFlag.FiringOrReloadingA, ModelConditionFlag.UsingWeaponA],
+                [ModelConditionFlag.FiringB, ModelConditionFlag.FiringOrPreAttackB, ModelConditionFlag.FiringOrReloadingB, ModelConditionFlag.UsingWeaponB],
+                [ModelConditionFlag.FiringC, ModelConditionFlag.FiringOrPreAttackC, ModelConditionFlag.FiringOrReloadingC, ModelConditionFlag.UsingWeaponC],
+                [ModelConditionFlag.FiringD, ModelConditionFlag.FiringOrPreAttackD, ModelConditionFlag.FiringOrReloadingD, ModelConditionFlag.UsingWeaponD],
+                [ModelConditionFlag.FiringE, ModelConditionFlag.FiringOrPreAttackE, ModelConditionFlag.FiringOrReloadingE, ModelConditionFlag.UsingWeaponE],
+            ],
+
+            // WeaponModelConditionFlagSet.BetweenShots
+            [
+                [ModelConditionFlag.BetweenShotsFiringA, ModelConditionFlag.UsingWeaponA],
+                [ModelConditionFlag.BetweenShotsFiringB, ModelConditionFlag.UsingWeaponB],
+                [ModelConditionFlag.BetweenShotsFiringC, ModelConditionFlag.UsingWeaponC],
+                [ModelConditionFlag.BetweenShotsFiringD, ModelConditionFlag.UsingWeaponD],
+                [ModelConditionFlag.BetweenShotsFiringE, ModelConditionFlag.UsingWeaponE],
+            ],
+
+            // WeaponModelConditionFlagSet.Reloading
+            [
+                [ModelConditionFlag.ReloadingA, ModelConditionFlag.FiringOrReloadingA, ModelConditionFlag.UsingWeaponA],
+                [ModelConditionFlag.ReloadingB, ModelConditionFlag.FiringOrReloadingB, ModelConditionFlag.UsingWeaponB],
+                [ModelConditionFlag.ReloadingC, ModelConditionFlag.FiringOrReloadingC, ModelConditionFlag.UsingWeaponC],
+                [ModelConditionFlag.ReloadingD, ModelConditionFlag.FiringOrReloadingD, ModelConditionFlag.UsingWeaponD],
+                [ModelConditionFlag.ReloadingE, ModelConditionFlag.FiringOrReloadingE, ModelConditionFlag.UsingWeaponE],
+            ],
+
+            // WeaponModelConditionFlagSet.PreAttack
+            [
+                [ModelConditionFlag.PreAttackA, ModelConditionFlag.FiringOrPreAttackA, ModelConditionFlag.UsingWeaponA],
+                [ModelConditionFlag.PreAttackB, ModelConditionFlag.FiringOrPreAttackB, ModelConditionFlag.UsingWeaponB],
+                [ModelConditionFlag.PreAttackC, ModelConditionFlag.FiringOrPreAttackC, ModelConditionFlag.UsingWeaponC],
+                [ModelConditionFlag.PreAttackD, ModelConditionFlag.FiringOrPreAttackD, ModelConditionFlag.UsingWeaponD],
+                [ModelConditionFlag.PreAttackE, ModelConditionFlag.FiringOrPreAttackE, ModelConditionFlag.UsingWeaponE],
+            ],
+        ];
+
+        public static ModelConditionFlag[] GetAllWeaponFlags(int weaponIndex) => AllWeaponFlagsPerSlot[weaponIndex];
+
+        public static ModelConditionFlag[] GetWeaponFlags(int weaponIndex, WeaponModelConditionFlagSet set) => WeaponFlagsPerSetAndSlot[(int)set][weaponIndex];
+
         public static ModelConditionFlag GetFiringFlag(int weaponIndex) => weaponIndex switch
         {
             0 => ModelConditionFlag.FiringA,

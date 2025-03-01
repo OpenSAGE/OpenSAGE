@@ -32,7 +32,7 @@
         public AttackAreaStateMachine()
         {
             AddState(IdleState.StateId, new IdleState());
-            AddState(10, new AttackState());
+            AddState(10, new AttackState(this));
         }
 
         public override void Persist(StatePersister reader)

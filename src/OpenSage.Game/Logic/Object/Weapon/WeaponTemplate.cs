@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -123,7 +123,7 @@ namespace OpenSage.Logic.Object
             { "PreAttackDelay", (parser, x) => x.PreAttackDelay = new RangeDuration(parser.ParseTimeMillisecondsToLogicFrames()) },
             { "PreAttackType", (parser, x) => x.PreAttackType = parser.ParseEnum<WeaponPrefireType>() },
             { "ContinueAttackRange", (parser, x) => x.ContinueAttackRange = parser.ParseInteger() },
-            { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseFloat() },
+            { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseAngle() },
             { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
             { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
             { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
@@ -294,7 +294,7 @@ namespace OpenSage.Logic.Object
         public ObjectFilter RadiusDamageAffects { get; private set; }
         public RangeDuration CoolDownDelayBetweenShots { get; private set; }
         public int ShotsPerBarrel { get; private set; }
-        public int ClipSize { get; private set; }
+        public int ClipSize { get; internal set; }
         public RangeDuration ClipReloadTime { get; private set; }
         public RangeDuration AutoReloadWhenIdle { get; private set; }
         public WeaponReloadType AutoReloadsClip { get; private set; } = WeaponReloadType.Auto;
@@ -304,7 +304,7 @@ namespace OpenSage.Logic.Object
         public RangeDuration PreAttackDelay { get; private set; }
         public WeaponPrefireType PreAttackType { get; private set; }
         public int ContinueAttackRange { get; private set; }
-        public float AcceptableAimDelta { get; private set; }
+        public float AcceptableAimDelta { get; private set; } = MathUtility.ToRadians(2);
         public bool ShowsAmmoPips { get; private set; }
         public string LaserName { get; private set; }
 

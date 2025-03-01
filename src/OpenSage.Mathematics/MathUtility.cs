@@ -80,5 +80,10 @@ namespace OpenSage.Mathematics
 
             return value - remainder;
         }
+
+        public static float GetAngleBetween(in Vector3 position1, in Vector3 position2)
+        {
+            return MathF.Atan2(position2.Y - position1.Y, position2.X - position1.X);
+        }
     }
 }

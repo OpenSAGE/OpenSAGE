@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
         private BitArray<DamageType> _damageTypes = new();
 
         internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
-        public IEnumerable<Weapon> Weapons => _weapons;
+        public ReadOnlySpan<Weapon> Weapons => _weapons;
 
         internal WeaponSet(GameObject gameObject, GameContext context)
         {
@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Object
             // In Generals there are 3 possible weapons.
             // Later games have up to 5.
             reader.BeginArray("Weapons");
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < WeaponTemplateSet.NumWeaponSlotsGenerals; i++)
             {
                 reader.BeginObject();
 

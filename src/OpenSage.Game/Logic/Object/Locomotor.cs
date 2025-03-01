@@ -106,9 +106,14 @@ namespace OpenSage.Logic.Object
 
         public bool RotateToTargetDirection(in Vector3 targetDirection)
         {
-            var currentYaw = _gameObject.Yaw;
-
             var targetYaw = MathUtility.GetYawFromDirection(new Vector2(targetDirection.X, targetDirection.Y));
+            return RotateToTargetAngle(targetYaw);
+        }
+
+        public bool RotateToTargetAngle(float targetYaw)
+        {
+            var currentYaw = _gameObject.Yaw;
+            
             var angleDelta = MathUtility.CalculateAngleDelta(targetYaw, currentYaw);
 
             if (MathF.Abs(angleDelta) < 0.1f)

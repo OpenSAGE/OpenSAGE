@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
@@ -37,7 +38,7 @@ namespace OpenSage.Logic.Object
         private bool _unknownBool1;
         private bool _unknownBool2;
         private uint _unknownInt4;
-        private uint _unknownInt5;
+        private uint _currentAttackTargetId;
         private float _unknownFloat1;
         private uint _unknownInt6;
         private uint _unknownInt7;
@@ -73,8 +74,8 @@ namespace OpenSage.Logic.Object
         private bool _unknownBool12;
         private uint _unknownObjectId2;
         private uint _unknownInt17;
-        private uint _unknownInt18;
-        private Vector3 _unknownPosition3;
+        private LocomotorActionType _locomotorActionType;
+        private LocomotorActionData _locomotorActionData;
         private int _unknownInt19;
         private int _unknownInt20;
         private uint _unknownFrame3;
@@ -215,6 +216,12 @@ namespace OpenSage.Logic.Object
             GameObject.ModelConditionFlags.Set(ModelConditionFlag.Moving, true);
         }
 
+        internal void SetTargetAngle(float angle)
+        {
+            _locomotorActionType = LocomotorActionType.Rotate;
+            _locomotorActionData.Angle = angle;
+        }
+
         /// <summary>
         /// If the unit is currently following a waypoint path, set the next waypoint as target, otherwise stop.
         /// </summary>
@@ -321,7 +328,7 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistBoolean(ref _unknownBool2);
             reader.PersistUInt32(ref _unknownInt4);
-            reader.PersistUInt32(ref _unknownInt5);
+            reader.PersistObjectID(ref _currentAttackTargetId);
             reader.PersistSingle(ref _unknownFloat1); // 999999
             reader.PersistUInt32(ref _unknownInt6); // 2
             reader.PersistUInt32(ref _unknownInt7); // 3
@@ -405,8 +412,8 @@ namespace OpenSage.Logic.Object
                 throw new InvalidStateException();
             }
 
-            reader.PersistUInt32(ref _unknownInt18); // 0 when unit stationary, 1 when moving
-            reader.PersistVector3(ref _unknownPosition3);
+            reader.PersistEnum(ref _locomotorActionType);
+            reader.PersistVector3(ref _locomotorActionData.Position, "LocomotorActionData");
 
             if (_moduleData.Turret != null)
             {
@@ -599,5 +606,31 @@ namespace OpenSage.Logic.Object
             reader.PersistBoolean(ref _unknownBool1);
             reader.PersistUInt32(ref _nextId);
         }
+    }
+
+    public enum LocomotorActionType
+    {
+        None = 0,
+        MoveToPosition = 1,
+        Unknown2 = 2,
+
+        /// <summary>
+        /// The locomotor needs to rotate to the angle specified in <see cref="LocomotorActionData.Angle"/>.
+        /// </summary>
+        Rotate = 3,
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct LocomotorActionData
+    {
+        /// <summary>
+        /// When <see cref="AIUpdate._locomotorActionType"/> is <see cref="LocomotorActionType.Rotate"/>,
+        /// this contains the angle to rotate to.
+        /// </summary>
+        [FieldOffset(0)]
+        public float Angle;
+
+        [FieldOffset(0)]
+        public Vector3 Position;
     }
 }

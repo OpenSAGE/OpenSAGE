@@ -17,6 +17,7 @@ namespace OpenSage.Logic.AI
         internal State CurrentState => _currentState;
 
         private uint _targetObjectId;
+        internal GameObject TargetObject => GameObject.GameContext.GameLogic.GetObjectById(_targetObjectId);
         private Vector3 _targetPosition;
         private bool _unknownBool1;
         private bool _unknownBool2;

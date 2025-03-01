@@ -29,9 +29,9 @@ namespace OpenSage.Logic.AI
             AddState(5, new FollowWaypointsExactState(false));
             AddState(6, new AIState6());
             AddState(7, new FollowPathState());
-            AddState(9, new AttackState());
-            AddState(10, new AttackState());
-            AddState(11, new AttackState());
+            AddState(9, new AttackState(this));
+            AddState(10, new AttackState(this));
+            AddState(11, new AttackState(this));
             AddState(13, new DeadState());
             AddState(14, new DockState());
             AddState(15, new EnterContainerState());

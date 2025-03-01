@@ -2,7 +2,10 @@
 {
     internal sealed class ObjectWeaponStatusHelper : ObjectHelperModule
     {
-        // TODO
+        private protected override void RunUpdate(BehaviorUpdateContext context)
+        {
+            context.GameObject.UpdateWeaponModelConditionFlags();
+        }
 
         internal override void Load(StatePersister reader)
         {

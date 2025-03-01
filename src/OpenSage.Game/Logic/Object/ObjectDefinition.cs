@@ -1348,6 +1348,8 @@ namespace OpenSage.Logic.Object
 
             modules[module.Tag] = module;
         }
+
+        internal bool HasWeapons => WeaponSets.Values.Any(x => x.Slots.Any(y => y?.Weapon != null));
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

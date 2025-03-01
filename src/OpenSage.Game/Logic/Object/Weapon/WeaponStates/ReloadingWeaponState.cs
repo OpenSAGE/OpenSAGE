@@ -20,7 +20,7 @@
         {
             if (IsTimeToExitState())
             {
-                Context.Weapon.FillClip();
+                Context.Weapon.Reload();
 
                 if (!Context.Weapon.HasValidTarget)
                 {
