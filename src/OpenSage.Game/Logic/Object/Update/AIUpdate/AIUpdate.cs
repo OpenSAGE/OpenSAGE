@@ -100,9 +100,11 @@ namespace OpenSage.Logic.Object
 
             SetLocomotor(LocomotorSetType.Normal);
 
-            if (ModuleData.Turret != null)
+            // We specifically use the moduleData argument and not the property here, because the property is virtual
+            // and might be overridden in a derived class, causing it to be unintialised despite the assignment above.
+            if (moduleData.Turret != null)
             {
-                _turretAIUpdate = ModuleData.Turret.CreateTurretAIUpdate(GameObject);
+                _turretAIUpdate = moduleData.Turret.CreateTurretAIUpdate(GameObject);
             }
         }
 
@@ -493,7 +495,7 @@ namespace OpenSage.Logic.Object
         public int RampageTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int TimeToEjectPassengersOnRampage  { get; private set; }
+        public int TimeToEjectPassengersOnRampage { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string AttackPriority { get; private set; }
