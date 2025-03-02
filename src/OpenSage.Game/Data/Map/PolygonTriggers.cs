@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace OpenSage.Data.Map
@@ -7,18 +10,32 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "PolygonTriggers";
 
-        public PolygonTrigger[] Triggers { get; init; }
+        public List<PolygonTrigger> Triggers { get; init; } = [];
 
         internal static PolygonTriggers Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
                 var numTriggers = reader.ReadUInt32();
-                var triggers = new PolygonTrigger[numTriggers];
+                var triggers = new List<PolygonTrigger>((int)numTriggers);
+                var maxTriggerId = 0u;
 
                 for (var i = 0; i < numTriggers; i++)
                 {
-                    triggers[i] = PolygonTrigger.Parse(reader, version);
+                    var area = PolygonTrigger.Parse(reader, version);
+
+                    if (area != null)
+                    {
+                        triggers.Add(area);
+                        maxTriggerId = Math.Max(maxTriggerId, area.TriggerId);
+                    }
+                }
+
+                // Create default water area for version 1 maps
+                if (version == 1)
+                {
+                    var waterArea = PolygonTrigger.CreateDefaultWaterArea(maxTriggerId + 1);
+                    triggers.Add(waterArea);
                 }
 
                 return new PolygonTriggers
@@ -32,7 +49,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Triggers.Length);
+                writer.Write((uint)Triggers.Count);
 
                 foreach (var trigger in Triggers)
                 {
@@ -43,26 +60,14 @@ namespace OpenSage.Data.Map
 
         internal PolygonTrigger GetPolygonTriggerById(uint id)
         {
-            for (var i = 0; i < Triggers.Length; i++)
-            {
-                if (Triggers[i].UniqueId == id)
-                {
-                    return Triggers[i];
-                }
-            }
-            throw new InvalidOperationException();
+            var trigger = Triggers.Find(trigger => trigger.TriggerId == id) ?? throw new InvalidOperationException();
+            return trigger;
         }
 
         internal PolygonTrigger GetPolygonTriggerByName(string name)
         {
-            for (var i = 0; i < Triggers.Length; i++)
-            {
-                if (Triggers[i].Name == name)
-                {
-                    return Triggers[i];
-                }
-            }
-            throw new InvalidOperationException();
+            var trigger = Triggers.Find(trigger => trigger.Name == name) ?? throw new InvalidOperationException();
+            return trigger;
         }
     }
 }

@@ -265,16 +265,16 @@ namespace OpenSage.Logic
                 throw new InvalidStateException();
             }
 
-            reader.PersistArrayWithUInt32Length(
+            reader.PersistListWithUInt32Count(
                 _game.Scene3D.MapFile.PolygonTriggers.Triggers,
                 static (StatePersister persister, ref PolygonTrigger item) =>
                 {
                     persister.BeginObject();
 
-                    var id = item.UniqueId;
+                    var id = item.TriggerId;
                     persister.PersistUInt32(ref id);
 
-                    if (id != item.UniqueId)
+                    if (id != item.TriggerId)
                     {
                         throw new InvalidStateException();
                     }

@@ -123,13 +123,13 @@ namespace OpenSage.Terrain
 
         private int GetCausticsTextureIndex(in TimeInterval time)
         {
-            var deltaTime = (float) time.DeltaTime.TotalSeconds;
+            var deltaTime = (float)time.DeltaTime.TotalSeconds;
             _causticsIndex += 10f * deltaTime;
             if (_causticsIndex >= NumOfCausticsAnimation)
             {
                 _causticsIndex = 0;
             }
-            return (int) _causticsIndex;
+            return (int)_causticsIndex;
         }
 
         private Texture BuildCausticsTextureArray(AssetStore assetStore)
@@ -210,26 +210,26 @@ namespace OpenSage.Terrain
             var aaBounds = collider.AxisAlignedBoundingArea;
 
             // this seems like the easiest (read: laziest) way to pick up all the coordinates within the bounds?
-            for (var x = (int) aaBounds.Left; x < aaBounds.Right; x++)
-            for (var y = (int) aaBounds.Top; y < aaBounds.Bottom; y++) // top to bottom is correct
-            {
-                var testCoords = new Vector2(x, y);
-                if (!collider.Contains(testCoords))
+            for (var x = (int)aaBounds.Left; x < aaBounds.Right; x++)
+                for (var y = (int)aaBounds.Top; y < aaBounds.Bottom; y++) // top to bottom is correct
                 {
-                    continue;
-                }
+                    var testCoords = new Vector2(x, y);
+                    if (!collider.Contains(testCoords))
+                    {
+                        continue;
+                    }
 
-                // get current tile coords
-                var tilePosition = HeightMap.GetTilePosition(testCoords); // z doesn't matter
-                if (tilePosition == null)
-                {
-                    continue; // area is outside map bounds
-                }
+                    // get current tile coords
+                    var tilePosition = HeightMap.GetTilePosition(testCoords); // z doesn't matter
+                    if (tilePosition == null)
+                    {
+                        continue; // area is outside map bounds
+                    }
 
-                // set tile height
-                var (tileX, tileY) = tilePosition.Value;
-                HeightMap.LowerHeight(tileX, tileY, newHeight);
-            }
+                    // set tile height
+                    var (tileX, tileY) = tilePosition.Value;
+                    HeightMap.LowerHeight(tileX, tileY, newHeight);
+                }
 
             // update terrain patches in affected area
             OnHeightMapChanged(collider.AxisAlignedBoundingArea);
@@ -333,23 +333,23 @@ namespace OpenSage.Terrain
             {
                 for (var x = 0; x < heightMap.Width; x++)
                 {
-                    var baseTextureIndex = (byte) mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex;
+                    var baseTextureIndex = (byte)mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex;
 
                     var blendData1 = GetBlendData(mapFile, mapFile.BlendTileData.Blends[x, y], baseTextureIndex);
                     var blendData2 = GetBlendData(mapFile, mapFile.BlendTileData.ThreeWayBlends[x, y], baseTextureIndex);
 
                     uint packedTextureIndices = 0;
                     packedTextureIndices |= baseTextureIndex;
-                    packedTextureIndices |= (uint) (blendData1.TextureIndex << 8);
-                    packedTextureIndices |= (uint) (blendData2.TextureIndex << 16);
+                    packedTextureIndices |= (uint)(blendData1.TextureIndex << 8);
+                    packedTextureIndices |= (uint)(blendData2.TextureIndex << 16);
 
                     tileData[tileDataIndex++] = packedTextureIndices;
 
                     var packedBlendInfo = 0u;
                     packedBlendInfo |= blendData1.BlendDirection;
-                    packedBlendInfo |= (uint) (blendData1.Flags << 8);
-                    packedBlendInfo |= (uint) (blendData2.BlendDirection << 16);
-                    packedBlendInfo |= (uint) (blendData2.Flags << 24);
+                    packedBlendInfo |= (uint)(blendData1.Flags << 8);
+                    packedBlendInfo |= (uint)(blendData2.BlendDirection << 16);
+                    packedBlendInfo |= (uint)(blendData2.Flags << 24);
 
                     tileData[tileDataIndex++] = packedBlendInfo;
 
@@ -362,18 +362,18 @@ namespace OpenSage.Terrain
             var textureIDsByteArray = new byte[tileData.Length * sizeof(float)];
             Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(float));
 
-            var rowPitch = (uint) heightMap.Width * sizeof(float) * 4;
+            var rowPitch = (uint)heightMap.Width * sizeof(float) * 4;
 
             return graphicsDevice.CreateStaticTexture2D(
-                (uint) heightMap.Width,
-                (uint) heightMap.Height,
+                (uint)heightMap.Width,
+                (uint)heightMap.Height,
                 1u,
                 new TextureMipMapData(
                     textureIDsByteArray,
                     rowPitch,
-                    rowPitch * (uint) heightMap.Height,
-                    (uint) heightMap.Width,
-                    (uint) heightMap.Height),
+                    rowPitch * (uint)heightMap.Height,
+                    (uint)heightMap.Width,
+                    (uint)heightMap.Height),
                 PixelFormat.R32_G32_B32_A32_UInt);
         }
 
@@ -386,15 +386,15 @@ namespace OpenSage.Terrain
             {
                 var blendDescription = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
                 var flipped = blendDescription.Flags.HasFlag(BlendFlags.Flipped);
-                var flags = (byte) (flipped ? 1 : 0);
+                var flags = (byte)(flipped ? 1 : 0);
                 if (blendDescription.TwoSided)
                 {
                     flags |= 2;
                 }
                 return new BlendData
                 {
-                    TextureIndex = (byte) mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex,
-                    BlendDirection = (byte) blendDescription.BlendDirection,
+                    TextureIndex = (byte)mapFile.BlendTileData.TextureIndices[(int)blendDescription.SecondaryTextureTile].TextureIndex,
+                    BlendDirection = (byte)blendDescription.BlendDirection,
                     Flags = flags
                 };
             }
@@ -446,7 +446,7 @@ namespace OpenSage.Terrain
         {
             var graphicsDevice = loadContext.GraphicsDevice;
 
-            var numTextures = (uint) blendTileData.Textures.Length;
+            var numTextures = (uint)blendTileData.Textures.Length;
 
             var textureInfo = new (uint size, FileSystemEntry entry)[numTextures];
             var largestTextureSize = uint.MinValue;
@@ -461,7 +461,7 @@ namespace OpenSage.Terrain
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
                 var entry = loadContext.FileSystem.GetFile(texturePath);
 
-                var size = (uint) TgaFile.GetSquareTextureSize(entry);
+                var size = (uint)TgaFile.GetSquareTextureSize(entry);
 
                 textureInfo[i] = (size, entry);
 
@@ -472,7 +472,7 @@ namespace OpenSage.Terrain
 
                 textureDetails[i] = new TerrainShaderResources.TextureInfo
                 {
-                    TextureIndex = (uint) i,
+                    TextureIndex = (uint)i,
                     CellSize = mapTexture.CellSize * 2
                 };
             }
@@ -503,7 +503,7 @@ namespace OpenSage.Terrain
                 {
                     if (tgaFile.Header.Width != largestTextureSize)
                     {
-                        tgaImage.Mutate(x => x.Resize((int) largestTextureSize, (int) largestTextureSize, LanczosResampler.Lanczos3));
+                        tgaImage.Mutate(x => x.Resize((int)largestTextureSize, (int)largestTextureSize, LanczosResampler.Lanczos3));
                     }
 
                     var imageSharpTexture = new ImageSharpTexture(tgaImage);
@@ -526,8 +526,8 @@ namespace OpenSage.Terrain
                             0, 0, 0,
                             mipLevel,
                             i,
-                            (uint) imageSharpTexture.Images[mipLevel].Width,
-                            (uint) imageSharpTexture.Images[mipLevel].Height,
+                            (uint)imageSharpTexture.Images[mipLevel].Width,
+                            (uint)imageSharpTexture.Images[mipLevel].Height,
                             1,
                             1);
                     }
@@ -571,17 +571,17 @@ namespace OpenSage.Terrain
                 using (var pin = pixelSpan.Pin())
                 {
                     var map = gd.Map(staging, MapMode.Write, level);
-                    var rowWidth = (uint) (image.Width * 4);
+                    var rowWidth = (uint)(image.Width * 4);
                     if (rowWidth == map.RowPitch)
                     {
-                        Unsafe.CopyBlock(map.Data.ToPointer(), pin.Pointer, (uint) (image.Width * image.Height * 4));
+                        Unsafe.CopyBlock(map.Data.ToPointer(), pin.Pointer, (uint)(image.Width * image.Height * 4));
                     }
                     else
                     {
                         for (uint y = 0; y < image.Height; y++)
                         {
-                            var dstStart = (byte*) map.Data.ToPointer() + y * map.RowPitch;
-                            var srcStart = (byte*) pin.Pointer + y * rowWidth;
+                            var dstStart = (byte*)map.Data.ToPointer() + y * map.RowPitch;
+                            var srcStart = (byte*)pin.Pointer + y * rowWidth;
                             Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
                         }
                     }
@@ -611,6 +611,18 @@ namespace OpenSage.Terrain
             }
 
             return ray.Position + (ray.Direction * closestIntersection.Value);
+        }
+
+        public float? GetGroundHeight(Vector2 worldPosition)
+        {
+            var tilePosition = HeightMap.GetTilePosition(worldPosition);
+            if (tilePosition == null)
+            {
+                return null;
+            }
+
+            var (x, y) = tilePosition.Value;
+            return HeightMap.GetHeight(x, y);
         }
 
         internal void Update(WaterSettings waterSettings, in TimeInterval time)
