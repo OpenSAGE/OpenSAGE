@@ -32,12 +32,12 @@ namespace OpenSage.Logic
 
             foreach (var mapTeam in mapTeams)
             {
-                var name = mapTeam.Properties["teamName"].Value as string;
+                var name = mapTeam.Name;
 
-                var ownerName = mapTeam.Properties["teamOwner"].Value as string;
+                var ownerName = mapTeam.Owner;
                 var owner = _game.PlayerManager.GetPlayerByName(ownerName);
 
-                var isSingleton = (bool) mapTeam.Properties["teamIsSingleton"].Value;
+                var isSingleton = mapTeam.IsSingleton;
 
                 AddTeamTemplate(name, owner, isSingleton);
             }
@@ -45,7 +45,7 @@ namespace OpenSage.Logic
 
         private void AddTeamTemplate(string name, Player owner, bool isSingleton)
         {
-            var id = (uint) (_teamTemplatesById.Count + 1);
+            var id = (uint)(_teamTemplatesById.Count + 1);
 
             var teamTemplate = new TeamTemplate(
                 this,
