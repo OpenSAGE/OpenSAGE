@@ -6,6 +6,9 @@ using OpenSage.FileFormats.RefPack;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.IO;
+using System.Collections.Generic;
+using OpenSage.Scripting;
+using System.Linq;
 
 namespace OpenSage.Data.Map
 {
@@ -91,9 +94,11 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Bfme)]
         public SkyboxSettings SkyboxSettings { get; private set; }
 
-        public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
+        // TODO(Port): This used to be simpler when PlayerScripts (incorrectly) lived in SidesList.
+        // This will probably change as we port more stuff.
+        public IEnumerable<ScriptList> GetPlayerScriptsList() => SidesList.Players.Select(player => player.Scripts) ?? PlayerScriptsList.ScriptLists;
 
-        public Team[] GetTeams() => SidesList.Teams ?? Teams.Items;
+        public List<Team> GetTeams() => SidesList.Teams ?? Teams.Items;
 
         public static Stream Decompress(Stream stream)
         {
@@ -131,7 +136,7 @@ namespace OpenSage.Data.Map
                     // DeflateStream doesn't support .Position or .Length, so to simplify
                     // the rest of the map loading process, we decompress it to a MemoryStream
                     // here. Not optimal, but only used on one 187kb map so it doesn't matter.
-                    var result = new MemoryStream((int) decompressedSize);
+                    var result = new MemoryStream((int)decompressedSize);
                     using (var deflateStream = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
                     {
                         deflateStream.CopyTo(result);

@@ -2,9 +2,11 @@
 
 using System.Diagnostics;
 using System.IO;
+using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
 {
+    // This corresponds to the SidesInfo class in Generals
     [DebuggerDisplay("Player '{Name}'")]
     public sealed class Player
     {
@@ -16,6 +18,7 @@ namespace OpenSage.Data.Map
         public Player() { }
 
         public BuildListInfo[] BuildList { get; internal set; } = [];
+        public ScriptList Scripts { get; internal set; } = new ScriptList();
 
         /// <summary>
         /// internal identifier for player.
