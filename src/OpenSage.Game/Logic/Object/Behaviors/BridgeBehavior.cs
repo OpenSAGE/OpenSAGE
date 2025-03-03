@@ -11,9 +11,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistArray(
                 _towerIds,
@@ -27,7 +25,7 @@ namespace OpenSage.Logic.Object
     }
 
     /// <summary>
-    /// Special-case logic allows for ParentObject to be specified as a bone name to allow other 
+    /// Special-case logic allows for ParentObject to be specified as a bone name to allow other
     /// objects to appear on the bridge.
     /// </summary>
     public sealed class BridgeBehaviorModuleData : BehaviorModuleData

@@ -45,9 +45,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             var currentUpdateOrder = _nextUpdateFrame.UpdateOrder;
             reader.PersistUpdateFrame(ref _nextUpdateFrame);

@@ -76,9 +76,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             var hasPackingUpData = _packingUpData != null;
             reader.PersistBoolean(ref hasPackingUpData);
