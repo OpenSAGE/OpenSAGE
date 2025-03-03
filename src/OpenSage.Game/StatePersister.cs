@@ -48,7 +48,7 @@ namespace OpenSage
         public virtual void PersistFieldName(string name) { }
 
 
-        public void PersistByte(ref byte value, [CallerArgumentExpression("value")]string name = "")
+        public void PersistByte(ref byte value, [CallerArgumentExpression("value")] string name = "")
         {
             PersistFieldName(name);
 
@@ -382,7 +382,7 @@ namespace OpenSage
             Console.WriteLine(source);
             for (var i = 0; i < numBytes; i++)
             {
-                Console.Write($"0x{ _binaryReader.ReadByte():x2}, ");
+                Console.Write($"0x{_binaryReader.ReadByte():x2}, ");
             }
             Console.WriteLine();
         }
@@ -734,6 +734,16 @@ namespace OpenSage
             persister.PersistSingle(ref value.X, "X");
             persister.PersistSingle(ref value.Y, "Y");
             persister.PersistSingle(ref value.Z, "Z");
+
+            persister.EndObject();
+        }
+
+        public static void PersistVector2(this StatePersister persister, ref Vector2 value, [CallerArgumentExpression("value")] string name = "")
+        {
+            persister.BeginObject(name);
+
+            persister.PersistSingle(ref value.X, "X");
+            persister.PersistSingle(ref value.Y, "Y");
 
             persister.EndObject();
         }

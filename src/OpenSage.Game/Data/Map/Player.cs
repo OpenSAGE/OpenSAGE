@@ -15,7 +15,7 @@ namespace OpenSage.Data.Map
 
         public Player() { }
 
-        public BuildListItem[] BuildList { get; internal set; } = [];
+        public BuildListInfo[] BuildList { get; internal set; } = [];
 
         /// <summary>
         /// internal identifier for player.
@@ -145,11 +145,11 @@ namespace OpenSage.Data.Map
         {
             var player = new Player(AssetPropertyCollection.Parse(reader, context));
             var numBuildListItems = reader.ReadUInt32();
-            var buildListItems = new BuildListItem[numBuildListItems];
+            var buildListItems = new BuildListInfo[numBuildListItems];
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                buildListItems[i] = BuildListItem.Parse(reader, version, 6, mapHasAssetList);
+                buildListItems[i] = BuildListInfo.Parse(reader, version, 6, mapHasAssetList);
             }
 
             player.BuildList = buildListItems;
