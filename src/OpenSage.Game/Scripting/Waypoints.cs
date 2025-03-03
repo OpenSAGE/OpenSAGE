@@ -8,22 +8,22 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Scripting
 {
-    public sealed class WaypointCollection  
+    public sealed class WaypointCollection
     {
-        private readonly Dictionary<uint, Waypoint> _waypointsByID;
+        private readonly Dictionary<int, Waypoint> _waypointsByID;
         private readonly Dictionary<string, Waypoint> _waypointsByName;
         private readonly Dictionary<string, HashSet<Waypoint>> _waypointsByPathLabel;
 
         public Waypoint this[string name] => _waypointsByName[name];
-        public Waypoint this[uint id] => _waypointsByID[id];
+        public Waypoint this[int id] => _waypointsByID[id];
 
         public WaypointCollection()
         {
             // Note that we explicitly allow duplicate waypoint names.
 
-            _waypointsByName = new Dictionary<string, Waypoint>();
-            _waypointsByID = new Dictionary<uint, Waypoint>();
-            _waypointsByPathLabel = new Dictionary<string, HashSet<Waypoint>>();
+            _waypointsByName = [];
+            _waypointsByID = [];
+            _waypointsByPathLabel = [];
         }
 
         public WaypointCollection(IEnumerable<Waypoint> waypoints, IEnumerable<WaypointPath> paths)
@@ -38,7 +38,7 @@ namespace OpenSage.Scripting
                 {
                     if (!_waypointsByPathLabel.TryGetValue(pathLabel, out var collection))
                     {
-                        collection = new HashSet<Waypoint>();
+                        collection = [];
                         _waypointsByPathLabel.Add(pathLabel, collection);
                     }
 
@@ -63,9 +63,7 @@ namespace OpenSage.Scripting
 
         public IReadOnlyCollection<Waypoint> GetByPathLabel(string pathLabel)
         {
-            return _waypointsByPathLabel.TryGetValue(pathLabel, out var waypoints) ?
-                (IReadOnlyCollection<Waypoint>) waypoints :
-                Array.Empty<Waypoint>();
+            return _waypointsByPathLabel.TryGetValue(pathLabel, out var waypoints) ? waypoints : Array.Empty<Waypoint>();
         }
     }
 
@@ -76,7 +74,7 @@ namespace OpenSage.Scripting
 
         private List<Waypoint> _connectedWaypoints;
 
-        public uint ID { get; }
+        public int ID { get; }
         public string Name { get; }
         public Vector3 Position { get; }
 
@@ -84,8 +82,8 @@ namespace OpenSage.Scripting
 
         internal Waypoint(MapObject mapObject)
         {
-            ID = (uint) mapObject.Properties["waypointID"].Value;
-            Name = (string) mapObject.Properties["waypointName"].Value;
+            ID = (int)mapObject.Properties["waypointID"].Value;
+            Name = (string)mapObject.Properties["waypointName"].Value;
             Position = mapObject.Position;
 
             // It seems that if one of the label properties exists, all of them do
@@ -100,7 +98,7 @@ namespace OpenSage.Scripting
             }
             else
             {
-                PathLabels = Enumerable.Empty<string>();
+                PathLabels = [];
             }
         }
 
@@ -111,7 +109,7 @@ namespace OpenSage.Scripting
         }
 
         public IReadOnlyList<Waypoint> ConnectedWaypoints =>
-            (IReadOnlyList<Waypoint>) _connectedWaypoints ?? Array.Empty<Waypoint>();
+            (IReadOnlyList<Waypoint>)_connectedWaypoints ?? Array.Empty<Waypoint>();
 
         /// <summary>
         /// Follows a waypoint path starting with this waypoint.

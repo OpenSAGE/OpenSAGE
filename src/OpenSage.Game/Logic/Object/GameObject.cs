@@ -68,7 +68,7 @@ namespace OpenSage.Logic.Object
             if (_body != null)
             {
                 var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
-                    ? (uint) health.Value / 100.0f
+                    ? (int)health.Value / 100.0f
                     : 1.0f;
 
                 _body.SetInitialHealth(healthMultiplier);
@@ -76,12 +76,12 @@ namespace OpenSage.Logic.Object
 
             if (mapObject.Properties.TryGetValue("objectName", out var objectName))
             {
-                Name = (string) objectName.Value;
+                Name = (string)objectName.Value;
             }
 
             if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
             {
-                IsSelectable = (bool) selectable.Value;
+                IsSelectable = (bool)selectable.Value;
             }
 
             // TODO: handle "align to terrain" property
@@ -367,7 +367,7 @@ namespace OpenSage.Logic.Object
         {
             get
             {
-                var healthPercentage = (float) _body.HealthPercentage;
+                var healthPercentage = (float)_body.HealthPercentage;
                 var damagedThreshold = _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
                 return healthPercentage <= damagedThreshold;
             }
@@ -399,7 +399,7 @@ namespace OpenSage.Logic.Object
 
         public int Rank
         {
-            get => (int) VeterancyHelper.VeterancyLevel;
+            get => (int)VeterancyHelper.VeterancyLevel;
             set
             {
                 var rank = (VeterancyLevel)value;
@@ -524,7 +524,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
             {
-                var behaviorModuleData = (BehaviorModuleData) behaviorDataContainer.Data;
+                var behaviorModuleData = (BehaviorModuleData)behaviorDataContainer.Data;
                 var module = AddDisposable(behaviorModuleData.CreateModule(this, gameContext));
 
                 // TODO: This will never be null once we've implemented all the behaviors.
@@ -1029,7 +1029,7 @@ namespace OpenSage.Logic.Object
 
             var oldDamageType = _bodyDamageType;
 
-            if (healthPercentage < (Fix64) _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
+            if (healthPercentage < (Fix64)_gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
             {
                 if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged))
                 {
@@ -1045,7 +1045,7 @@ namespace OpenSage.Logic.Object
 
                 ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
             }
-            else if (healthPercentage < (Fix64) _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+            else if (healthPercentage < (Fix64)_gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
             {
                 if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.Damaged))
                 {
@@ -1803,7 +1803,7 @@ namespace OpenSage.Logic.Object
                 return false;
             }
 
-            ExperiencePoints += (int) (ExperienceScalar * experience);
+            ExperiencePoints += (int)(ExperienceScalar * experience);
             var nextRank = (int)VeterancyLevel + 1;
 
             if (_gameObject.Definition.ExperienceRequired == null || nextRank >= _gameObject.Definition.ExperienceRequired.Values.Length)
@@ -1811,10 +1811,10 @@ namespace OpenSage.Logic.Object
                 return false; // nothing left for us to gain
             }
 
-            var xpForNextRank =_gameObject.Definition.ExperienceRequired.Values[nextRank];
+            var xpForNextRank = _gameObject.Definition.ExperienceRequired.Values[nextRank];
             if (ExperiencePoints >= xpForNextRank)
             {
-                VeterancyLevel = (VeterancyLevel) nextRank;
+                VeterancyLevel = (VeterancyLevel)nextRank;
                 ShowRankUpAnimation = true;
                 return true;
             }

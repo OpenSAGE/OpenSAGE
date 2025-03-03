@@ -43,16 +43,14 @@ namespace OpenSage.Data.Map
             }
 
             // TODO: Probably don't add replay observer player and team when viewing a replay?
-            var replayObserverPlayerProperties = new AssetPropertyCollection();
-            replayObserverPlayerProperties.AddAsciiString("playerFaction", "FactionObserver");
-            replayObserverPlayerProperties.AddAsciiString("playerName", "ReplayObserver");
-            replayObserverPlayerProperties.AddAsciiString("playerDisplayName", "Observer");
-            replayObserverPlayerProperties.AddBoolean("playerIsHuman", false);
-            replayObserverPlayerProperties.AddAsciiString("playerAllies", "");
-            replayObserverPlayerProperties.AddAsciiString("playerEnemies", "");
             tempMapPlayers.Add(new Player
             {
-                Properties = replayObserverPlayerProperties
+                Faction = "FactionObserver",
+                Name = "ReplayObserver",
+                DisplayName = "Observer",
+                IsHuman = false,
+                Allies = "",
+                Enemies = ""
             });
 
             tempMapScriptLists.Add(new ScriptList());
@@ -64,13 +62,11 @@ namespace OpenSage.Data.Map
 
         private static Team CreateTeam(string name, string owner, bool isSingleton)
         {
-            var properties = new AssetPropertyCollection();
-            properties.AddAsciiString("teamName", name);
-            properties.AddAsciiString("teamOwner", owner);
-            properties.AddBoolean("teamIsSingleton", isSingleton);
             return new Team
             {
-                Properties = properties
+                Name = name,
+                Owner = owner,
+                IsSingleton = isSingleton,
             };
         }
 
@@ -95,39 +91,36 @@ namespace OpenSage.Data.Map
 
             // Civilian player. It isn't necessarily the second player.
             // TODO: There might be more than one civilian player.
-            mapPlayers.Add(originalMapPlayers.FirstOrDefault(x => (string)x.Properties["playerFaction"].Value == "FactionCivilian"));
+            mapPlayers.Add(originalMapPlayers.FirstOrDefault(x => x.Faction == "FactionCivilian"));
 
             //var hasAIPlayer = false;
             for (var i = 0; i < playerSettings.Length; i++)
             {
                 var playerSetting = playerSettings[i];
 
-                var factionPlayer = originalMapPlayers.FirstOrDefault(x => (string) x.Properties["playerFaction"].Value == playerSetting.SideName);
+                var factionPlayer = originalMapPlayers.FirstOrDefault(x => x.Faction == playerSetting.SideName);
 
                 var isHuman = playerSetting.Owner == PlayerOwner.Player;
 
                 var playerName = isHuman
                     ? $"player{i}"
-                    : $"{factionPlayer.Properties["playerName"].Value}{i}";
+                    : $"{factionPlayer.Name}{i}";
 
                 //if (!isHuman)
                 //{
                 //    hasAIPlayer = true;
                 //}
 
-                var playerProperties = new AssetPropertyCollection();
-                playerProperties.AddAsciiString("playerFaction", (string) factionPlayer.Properties["playerFaction"].Value);
-                playerProperties.AddAsciiString("playerName", playerName);
-                playerProperties.AddAsciiString("playerDisplayName", (string) factionPlayer.Properties["playerDisplayName"].Value);
-                playerProperties.AddBoolean("playerIsHuman", isHuman);
-                playerProperties.AddInteger("playerColor", playerSetting.Color.ToUInt32());
-
-                // TODO: Other player properties.
 
                 mapPlayers.Add(new Player
                 {
-                    Properties = playerProperties,
                     BuildList = factionPlayer.BuildList,
+                    Faction = factionPlayer.Faction,
+                    Name = playerName,
+                    DisplayName = factionPlayer.DisplayName,
+                    IsHuman = isHuman,
+                    Color = playerSetting.Color.ToInt32(),
+                    // TODO: Other player properties.
                 });
             }
 
@@ -148,27 +141,27 @@ namespace OpenSage.Data.Map
                     var innerPlayer = playerSettings[j];
                     if (outerPlayer.Team == innerPlayer.Team && outerPlayer.Team != -1) // -1 is team None
                     {
-                        playerAllies[i].Add(mapPlayers[j + 2].Properties["playerName"].Value.ToString());
-                        playerAllies[j].Add(mapPlayers[i + 2].Properties["playerName"].Value.ToString());
+                        playerAllies[i].Add(mapPlayers[j + 2].Name);
+                        playerAllies[j].Add(mapPlayers[i + 2].Name);
                     }
                     else
                     {
-                        playerEnemies[i].Add(mapPlayers[j + 2].Properties["playerName"].Value.ToString());
-                        playerEnemies[j].Add(mapPlayers[i + 2].Properties["playerName"].Value.ToString());
+                        playerEnemies[i].Add(mapPlayers[j + 2].Name);
+                        playerEnemies[j].Add(mapPlayers[i + 2].Name);
                     }
                 }
             }
             for (var i = 0; i < playerSettings.Length; i++)
             {
-                mapPlayers[i + 2].Properties.AddAsciiString("playerAllies", string.Join(' ', playerAllies[i]));
-                mapPlayers[i + 2].Properties.AddAsciiString("playerEnemies", string.Join(' ', playerEnemies[i]));
+                mapPlayers[i + 2].Allies = string.Join(' ', playerAllies[i]);
+                mapPlayers[i + 2].Enemies = string.Join(' ', playerEnemies[i]);
             }
 
             var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
 
-            var playerNames = mapPlayers
-                .Select(p => p.Properties.GetPropOrNull("playerFaction")?.Value.ToString())
-                .ToArray();
+            // TODO: Is this really correct? The variable name refers to player names and CopyScripts expects player names,
+            // but the list contains factions.
+            var playerNames = mapPlayers.Select(p => p.Faction).ToArray();
 
             while (mapScriptLists.Count < mapPlayers.Count)
             {
@@ -176,7 +169,7 @@ namespace OpenSage.Data.Map
             }
 
             // Copy neutral player scripts.
-            var neutralPlayerName = (string) mapPlayers[0].Properties["playerName"].Value;
+            var neutralPlayerName = mapPlayers[0].Name;
             CopyScripts(
                 originalMapScriptLists,
                 playerNames,
@@ -186,7 +179,7 @@ namespace OpenSage.Data.Map
                 appendIndex: false);
 
             // Copy civilian player scripts.
-            var civilianPlayerName = (string) mapPlayers[1].Properties["playerName"].Value;
+            var civilianPlayerName = mapPlayers[1].Name;
             CopyScripts(
                 originalMapScriptLists,
                 playerNames,
@@ -295,7 +288,7 @@ namespace OpenSage.Data.Map
                 // ... but we still need to create teams.
                 for (var i = 2; i < mapPlayers.Count; i++)
                 {
-                    if ((bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                    if (mapPlayers[i].IsHuman)
                     {
                         // Copy the scripts from the civilian player to all human players.
                         CopyScripts(
@@ -306,7 +299,7 @@ namespace OpenSage.Data.Map
                             i,
                             appendIndex: true);
 
-                        mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                        mapTeams.Add(CreateDefaultTeam(mapPlayers[i].Name));
                     }
                 }
 
@@ -317,7 +310,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 2; i < mapPlayers.Count; i++)
                 {
-                    if (!(bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                    if (!mapPlayers[i].IsHuman)
                     {
                         var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
                         var sourcePlayerName = $"Faction{playerSide}";
@@ -331,7 +324,7 @@ namespace OpenSage.Data.Map
                             i,
                             appendIndex: true);
 
-                        mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                        mapTeams.Add(CreateDefaultTeam(mapPlayers[i].Name));
                     }
                 }
 
@@ -344,7 +337,7 @@ namespace OpenSage.Data.Map
             var skirmishScripts = ScbFile.FromStream(stream);
 
             // This probably isn't right, but it does make the teams match those in .sav files.
-            // We first add human player(s) teams, then the replay observer team, 
+            // We first add human player(s) teams, then the replay observer team,
             // then neutral and civilian teams, and then finally AI skirmish players.
 
             var skirmishScriptsPlayerNames = skirmishScripts.ScriptsPlayers.Players.Select(p => p.Name).ToArray();
@@ -352,7 +345,7 @@ namespace OpenSage.Data.Map
             // Skip neutral and civilian players.
             for (var i = 2; i < mapPlayers.Count; i++)
             {
-                if ((bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                if (mapPlayers[i].IsHuman)
                 {
                     // Copy the scripts from the civilian player to all human players.
                     CopyScripts(
@@ -363,7 +356,7 @@ namespace OpenSage.Data.Map
                         i,
                         appendIndex: true);
 
-                    mapTeams.Add(CreateDefaultTeam((string)mapPlayers[i].Properties["playerName"].Value));
+                    mapTeams.Add(CreateDefaultTeam(mapPlayers[i].Name));
                 }
             }
 
@@ -375,7 +368,7 @@ namespace OpenSage.Data.Map
             // Skip neutral and civilian players.
             for (var i = 2; i < mapPlayers.Count; i++)
             {
-                if (!(bool)mapPlayers[i].Properties["playerIsHuman"].Value)
+                if (!mapPlayers[i].IsHuman)
                 {
                     var playerSide = game.AssetStore.PlayerTemplates.GetByName(playerSettings[i - 2].SideName).Side;
                     var sourcePlayerName = $"Skirmish{playerSide}";
@@ -392,14 +385,11 @@ namespace OpenSage.Data.Map
                     // TODO: Not sure about the order the teams are added.
                     foreach (var team in skirmishScripts.Teams.Teams)
                     {
-                        var teamOwner = (string)team.Properties["teamOwner"].Value;
+                        var teamOwner = team.Owner;
                         if (teamOwner == sourcePlayerName)
                         {
-                            var teamName = $"{team.Properties["teamName"].Value}{i}";
-                            mapTeams.Add(CreateTeam(
-                                teamName,
-                                (string)mapPlayers[i].Properties["playerName"].Value,
-                                (bool)team.Properties["teamIsSingleton"].Value));
+                            var teamName = $"{team.Name}{i}";
+                            mapTeams.Add(CreateTeam(teamName, mapPlayers[i].Name, team.IsSingleton));
                         }
                     }
                 }
