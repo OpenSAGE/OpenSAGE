@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
@@ -6,7 +8,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class AnimationState : IConditionState
+    public class AnimationState : IConditionState<ModelConditionFlag>
     {
         internal static AnimationState Parse(IniParser parser, ParseConditionStateType type)
         {
@@ -45,6 +47,8 @@ namespace OpenSage.Logic.Object
         };
 
         public List<BitArray<ModelConditionFlag>> ConditionFlags { get; } = new();
+
+        ReadOnlySpan<BitArray<ModelConditionFlag>> IConditionState<ModelConditionFlag>.ConditionFlags => CollectionsMarshal.AsSpan(ConditionFlags);
 
         public List<AnimationStateAnimation> Animations { get; private set; } = new List<AnimationStateAnimation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();

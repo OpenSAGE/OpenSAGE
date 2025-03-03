@@ -22,6 +22,8 @@ namespace OpenSage.Logic.Object
             internal set { }
         }
 
+        public override void SetArmorSetFlag(ArmorSetCondition armorSetCondition) { }
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

@@ -30,6 +30,11 @@ namespace OpenSage.Logic.Object
 
         public virtual void SetSupplyBoxesRemaining(float boxPercentage) { }
 
+        public virtual void SetTerrainDecal(ObjectDecalType decalType)
+        {
+            // TODO(Port): Implement this for subclasses.
+        }
+
         internal abstract void Update(in TimeInterval time);
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);

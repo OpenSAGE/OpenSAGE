@@ -224,6 +224,7 @@ namespace OpenSage.Logic.Object
         private FrozenDictionary<Type, List<object>> _behaviorCache;
 
         private readonly BodyModule _body;
+        public BodyModule BodyModule => _body;
         public bool HasActiveBody() => _body is ActiveBody;
 
         public bool TryGetLastDamage(out DamageData damageData)
@@ -427,9 +428,6 @@ namespace OpenSage.Logic.Object
         public int ExperienceRequiredForNextLevel { get; set; }
 
         public int EnergyProduction { get; internal set; }
-
-        // TODO
-        public ArmorTemplateSet CurrentArmorSet => Definition.ArmorSets.Values.First();
 
         public readonly Drawable Drawable;
 

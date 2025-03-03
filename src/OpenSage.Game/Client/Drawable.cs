@@ -82,7 +82,7 @@ namespace OpenSage.Client
         private ColorFlashHelper? _selectionFlashHelper;
         private ColorFlashHelper? _scriptedFlashHelper;
 
-        public ObjectDecalType ObjectDecalType;
+        private ObjectDecalType _terrainDecalType;
 
         private float _unknownFloat2;
         private float _unknownFloat3;
@@ -397,6 +397,25 @@ namespace OpenSage.Client
             }
         }
 
+        public void SetTerrainDecal(ObjectDecalType decalType)
+        {
+            if (_terrainDecalType == decalType)
+            {
+                return;
+            }
+
+            _terrainDecalType = decalType;
+
+            foreach (var drawModule in DrawModules)
+            {
+                // Only the first draw module gets a decal to prevent stacking.
+                // Should be okay as long as we keep the primary object in the
+                // first module.
+                drawModule.SetTerrainDecal(decalType);
+                break;
+            }
+        }
+
         internal void Destroy()
         {
             foreach (var drawModule in DrawModules)
@@ -441,7 +460,18 @@ namespace OpenSage.Client
                 reader.PersistObject(_scriptedFlashHelper);
             }
 
-            reader.PersistEnum(ref ObjectDecalType);
+            var decalType = _terrainDecalType;
+            reader.PersistEnum(ref decalType);
+            if (reader.SageGame == SageGame.CncGenerals && (int)decalType == 6)
+            {
+                // The existing enum value for "None" was changed between Generals and ZH.
+                // In Generals, "None" == 6.
+                decalType = ObjectDecalType.None;
+            }
+            if (reader.Mode == StatePersistMode.Read)
+            {
+                SetTerrainDecal(decalType);
+            }
 
             var unknownFloat1 = 1.0f;
             reader.PersistSingle(ref unknownFloat1);
@@ -638,8 +668,9 @@ namespace OpenSage.Client
         HordeVehicle = 3, // exhordeb.dds
         NationalismVehicle = 4, // exhordeb_up.dds
         Crate = 5, // exjunkcrate.dds
-        None = 6,
-        Unknown1 = 7,
-        Unknown2 = 8,
+        HordeWithFanaticismUpgrade = 6,
+        ChemSuit = 7,
+        None = 8,
+        ShadowTexture = 9,
     }
 }

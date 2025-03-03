@@ -105,7 +105,20 @@ namespace OpenSage.Logic.Object
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
             { "WeaponSet", (parser, x) => { var wts = WeaponTemplateSet.Parse(parser); wts.ObjectDefinition = x; x.WeaponSets[wts.Conditions] = wts; } },
-            { "ArmorSet", (parser, x) => { var ams = ArmorTemplateSet.Parse(parser); x.ArmorSets[ams.Conditions] = ams; } },
+
+            {
+                "ArmorSet",
+                (parser, x) =>
+                {
+                    if (x._armorCopiedFromDefault)
+                    {
+                        x.ArmorSets.Clear();
+                        x._armorCopiedFromDefault = false;
+                    }
+                    x.ArmorSets.Add(ArmorTemplateSet.Parse(parser));
+                }
+            },
+
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseCommandSetReference() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
@@ -417,6 +430,8 @@ namespace OpenSage.Logic.Object
 
         private ModuleInheritanceMode _currentInheritanceMode = ModuleInheritanceMode.Default;
 
+        private bool _armorCopiedFromDefault;
+
         private void ParseModuleWithInheritanceMode(IniParser parser, ModuleInheritanceMode inheritanceMode)
         {
             var existingInheritanceMode = _currentInheritanceMode;
@@ -495,7 +510,7 @@ namespace OpenSage.Logic.Object
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
         public Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet> WeaponSets { get; internal set; } = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>();
-        public Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet> ArmorSets { get; internal set; } = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>();
+        public List<ArmorTemplateSet> ArmorSets { get; internal set; } = [];
         public LazyAssetReference<CommandSet> CommandSet { get; set; }
         public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
@@ -1243,7 +1258,7 @@ namespace OpenSage.Logic.Object
             result.ClientUpdates = new Dictionary<string, ModuleDataContainer>(result.ClientUpdates);
             result.ClientBehaviors = new Dictionary<string, ModuleDataContainer>(result.ClientBehaviors);
             result.WeaponSets = new Dictionary<BitArray<WeaponSetConditions>, WeaponTemplateSet>(result.WeaponSets);
-            result.ArmorSets = new Dictionary<BitArray<ArmorSetCondition>, ArmorTemplateSet>(result.ArmorSets);
+            result.ArmorSets = new List<ArmorTemplateSet>(result.ArmorSets);
             result.LocomotorSets = new Dictionary<LocomotorSetType, LocomotorSetTemplate>(result.LocomotorSets);
 
             foreach (var pair in result.Behaviors.ToList())
@@ -1262,6 +1277,8 @@ namespace OpenSage.Logic.Object
             {
                 result.ClientBehaviors[pair.Key] = pair.Value.WithInherited();
             }
+
+            result._armorCopiedFromDefault = true;
 
             return result;
         }

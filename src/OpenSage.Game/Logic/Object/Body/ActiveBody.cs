@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using FixedMath.NET;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object
 {
@@ -24,7 +26,11 @@ namespace OpenSage.Logic.Object
         private uint _unknownFrame3;
         private bool _unknownBool;
         private bool _indestructible;
-        private BitArray<ArmorSetCondition> _armorSetConditions = new();
+
+        private BitArray<ArmorSetCondition> _currentArmorSetFlags = new();
+        private ArmorTemplateSet _currentArmorSet;
+        private ArmorTemplate _currentArmor;
+        private DamageFX _currentDamageFX;
 
         public override Fix64 MaxHealth { get; internal set; }
 
@@ -36,6 +42,8 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
 
             MaxHealth = (Fix64) moduleData.MaxHealth;
+
+            ValidateArmorAndDamageFX();
 
             SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
         }
@@ -73,11 +81,10 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            var armorSet = GameObject.CurrentArmorSet;
+            ValidateArmorAndDamageFX();
 
             // Actual amount of damage depends on armor.
-            var armor = armorSet.Armor.Value;
-            var damagePercent = armor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
+            var damagePercent = _currentArmor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
             var actualDamage = amount * (Fix64) (float) damagePercent;
 
             var takingDamage = damageType is not DamageType.Healing;
@@ -93,13 +100,13 @@ namespace OpenSage.Logic.Object
             _lastDamagedAt = _context.GameLogic.CurrentFrame;
 
             // TODO: DamageFX
-            if (armorSet.DamageFX?.Value != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
+            if (_currentDamageFX != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
             {
-                var damageFXGroup = armorSet.DamageFX.Value.GetGroup(damageType);
+                var damageFXGroup = _currentDamageFX.GetGroup(damageType);
 
                 // TODO: MajorFX
-                var damageFX = damageFXGroup.MinorFX?.Value;
-                damageFX?.Execute(
+                var minorFX = damageFXGroup.MinorFX?.Value;
+                minorFX?.Execute(
                     new FXListExecutionContext(
                         GameObject.Rotation,
                         GameObject.Translation,
@@ -123,6 +130,25 @@ namespace OpenSage.Logic.Object
         {
             var newHealth = Health + amount;
             SetHealth(newHealth);
+        }
+
+        public override void SetArmorSetFlag(ArmorSetCondition armorSetCondition)
+        {
+            _currentArmorSetFlags.Set(armorSetCondition, true);
+        }
+
+        private void ValidateArmorAndDamageFX()
+        {
+            var set = BitArrayMatchFinder.FindBest(
+                CollectionsMarshal.AsSpan(GameObject.Definition.ArmorSets),
+                _currentArmorSetFlags);
+
+            if (set != null && set != _currentArmorSet)
+            {
+                _currentArmor = set.Armor.Value;
+                _currentDamageFX = set.DamageFX?.Value;
+                _currentArmorSet = set;
+            }
         }
 
         internal override void Load(StatePersister reader)
@@ -173,7 +199,7 @@ namespace OpenSage.Logic.Object
                     persister.PersistUInt32Value(ref item);
                 });
 
-            reader.PersistBitArray(ref _armorSetConditions);
+            reader.PersistBitArray(ref _currentArmorSetFlags);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -8,7 +9,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
-    public class ModelConditionState : IConditionState
+    public class ModelConditionState : IConditionState<ModelConditionFlag>
     {
         internal static void Parse(IniParser parser, ModelConditionState result)
         {
@@ -73,6 +74,8 @@ namespace OpenSage.Logic.Object
         }
 
         public List<BitArray<ModelConditionFlag>> ConditionFlags { get; private set; } = new();
+
+        ReadOnlySpan<BitArray<ModelConditionFlag>> IConditionState<ModelConditionFlag>.ConditionFlags => CollectionsMarshal.AsSpan(ConditionFlags);
 
         public LazyAssetReference<Model> Model;
 
