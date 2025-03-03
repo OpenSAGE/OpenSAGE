@@ -157,7 +157,7 @@ internal static class SidesListUtility
             mapPlayers[i + 2].Enemies = string.Join(' ', playerEnemies[i]);
         }
 
-        var originalMapScriptLists = mapFile.GetPlayerScriptsList().ScriptLists;
+        var originalMapScriptLists = mapFile.GetPlayerScriptsList().ToArray();
 
         // TODO: Is this really correct? The variable name refers to player names and CopyScripts expects player names,
         // but the list contains factions.
@@ -263,11 +263,12 @@ internal static class SidesListUtility
     {
         mapPlayers.AddRange(mapFile.SidesList.Players);
         mapTeams.AddRange(mapFile.GetTeams());
-        mapScriptLists.AddRange(mapFile.GetPlayerScriptsList().ScriptLists);
+        mapScriptLists.AddRange(mapFile.GetPlayerScriptsList());
 
         mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
     }
 
+    // TODO(Port): SidesList.PrepareForMpOrSkirmish contains a ported near-equivalent of this function
     private static void CreateTeamsFromScbFile(
         Game game,
         ScriptList[] originalMapScriptLists,

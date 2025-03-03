@@ -738,6 +738,16 @@ public static class StatePersisterExtensions
         persister.EndObject();
     }
 
+    public static void PersistVector2(this StatePersister persister, ref Vector2 value, [CallerArgumentExpression("value")] string name = "")
+    {
+        persister.BeginObject(name);
+
+        persister.PersistSingle(ref value.X, "X");
+        persister.PersistSingle(ref value.Y, "Y");
+
+        persister.EndObject();
+    }
+
     public static void PersistPoint2D(this StatePersister persister, ref Point2D value, [CallerArgumentExpression("value")] string name = "")
     {
         persister.BeginObject(name);

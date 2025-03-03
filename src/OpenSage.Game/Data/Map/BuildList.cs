@@ -1,27 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map;
 
+[AddedIn(SageGame.Bfme)]
 public sealed class BuildList
 {
-    /// <summary>
-    /// Used in BFME
-    /// </summary>
+    [AddedIn(SageGame.Bfme)]
     public AssetPropertyKey FactionNameProperty { get; private set; }
 
-    /// <summary>
-    /// Used in >= C&C3
-    /// </summary>
     [AddedIn(SageGame.Cnc3)]
     public string FactionName { get; private set; }
 
-    public BuildListItem[] Items { get; private set; }
+    public BuildListInfo[] Items { get; private set; }
 
-    internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
+    internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort buildListsVersion, bool mapHasAssetList)
     {
         var result = new BuildList();
 
@@ -37,17 +30,18 @@ public sealed class BuildList
         }
 
         var numBuildListItems = reader.ReadUInt32();
-        result.Items = new BuildListItem[numBuildListItems];
+        result.Items = new BuildListInfo[numBuildListItems];
+        var buildListInfoFields = GetBuildListInfoFields(buildListsVersion, mapHasAssetList);
 
         for (var i = 0; i < numBuildListItems; i++)
         {
-            result.Items[i] = BuildListItem.Parse(reader, version, 1, mapHasAssetList);
+            result.Items[i] = BuildListInfo.Parse(reader, buildListInfoFields);
         }
 
         return result;
     }
 
-    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version, bool mapHasAssetList)
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort buildListsVersion, bool mapHasAssetList)
     {
         if (mapHasAssetList)
         {
@@ -60,9 +54,21 @@ public sealed class BuildList
 
         writer.Write((uint)Items.Length);
 
+        var buildListInfoFields = GetBuildListInfoFields(buildListsVersion, mapHasAssetList);
+
         foreach (var buildListItem in Items)
         {
-            buildListItem.WriteTo(writer, version, 1, mapHasAssetList);
+            buildListItem.WriteTo(writer, buildListInfoFields);
         }
+    }
+
+    private static BuildListInfo.IncludeFields GetBuildListInfoFields(ushort sidesListVersion, bool mapHasAssetList)
+    {
+        // BFME and C&C3 both used v1 for this chunk, but C&C3's version of BuildListInfo has an extra boolean
+        return (sidesListVersion, mapHasAssetList) switch
+        {
+            ( >= 1, true) => BuildListInfo.IncludeFields.Cnc3UnknownBoolean,
+            _ => BuildListInfo.IncludeFields.Default
+        };
     }
 }

@@ -23,7 +23,7 @@ public sealed class Team
     /// <summary>
     /// name of the player-or-team that owns this team.
     /// </summary>
-    public string Owner { get; set; } = string.Empty;
+    public string? Owner { get; set; }
 
     /// <summary>
     /// if true, only one instance of this team can be made.
@@ -288,7 +288,7 @@ public sealed class Team
     private void ParseProperties(AssetPropertyCollection properties)
     {
         Name = properties.GetPropOrNull("teamName")?.GetAsciiString() ?? string.Empty;
-        Owner = properties.GetPropOrNull("teamOwner")?.GetAsciiString() ?? string.Empty;
+        Owner = properties.GetPropOrNull("teamOwner")?.GetAsciiString();
         IsSingleton = properties.GetPropOrNull("teamIsSingleton")?.GetBoolean() ?? false;
         Home = properties.GetPropOrNull("teamHome")?.GetAsciiString() ?? string.Empty;
         UnitType1 = properties.GetPropOrNull("teamUnitType1")?.GetAsciiString();
@@ -346,7 +346,7 @@ public sealed class Team
     private void SerializeProperties(AssetPropertyCollection properties)
     {
         properties.AddAsciiString("teamName", Name);
-        properties.AddAsciiString("teamOwner", Owner);
+        properties.AddNullableAsciiString("teamOwner", Owner);
         properties.AddBoolean("teamIsSingleton", IsSingleton);
         properties.AddAsciiString("teamHome", Home);
         properties.AddNullableAsciiString("teamUnitType1", UnitType1);

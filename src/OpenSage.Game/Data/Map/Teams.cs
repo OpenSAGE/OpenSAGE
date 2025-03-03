@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.Map;
 
@@ -6,18 +7,18 @@ public sealed class Teams : Asset
 {
     public const string AssetName = "Teams";
 
-    public Team[] Items { get; private set; }
+    public List<Team> Items { get; private set; }
 
     internal static Teams Parse(BinaryReader reader, MapParseContext context)
     {
         return ParseAsset(reader, context, version =>
         {
-            var numTeams = reader.ReadUInt32();
-            var teams = new Team[numTeams];
+            var numTeams = reader.ReadInt32();
+            var teams = new List<Team>(numTeams);
 
             for (var i = 0; i < numTeams; i++)
             {
-                teams[i] = Team.Parse(reader, context);
+                teams.Add(Team.Parse(reader, context));
             }
 
             return new Teams
@@ -31,7 +32,7 @@ public sealed class Teams : Asset
     {
         WriteAssetTo(writer, () =>
         {
-            writer.Write((uint)Items.Length);
+            writer.Write((uint)Items.Count);
 
             foreach (var team in Items)
             {

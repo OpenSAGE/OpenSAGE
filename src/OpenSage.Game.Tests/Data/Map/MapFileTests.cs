@@ -309,7 +309,7 @@ public class MapFileTests
     {
         var mapFile = GetMapFile();
 
-        Assert.Equal(5, mapFile.SidesList.Players.Length);
+        Assert.Equal(5, mapFile.SidesList.Players.Count);
 
         //var player0 = mapFile.SidesList.Players[0];
         //Assert.Equal("", player0.Name);
@@ -356,7 +356,7 @@ public class MapFileTests
         //Assert.Equal("", player4.Enemies);
         //Assert.Equal(new MapColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
 
-        Assert.Equal(11, mapFile.SidesList.Teams.Length);
+        Assert.Equal(11, mapFile.SidesList.Teams.Count);
     }
 
     [Fact]
