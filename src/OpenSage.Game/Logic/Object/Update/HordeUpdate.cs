@@ -55,14 +55,14 @@ namespace OpenSage.Logic.Object
         private void AddToHorde()
         {
             _isInHorde = true;
-            _gameObject.Drawable.ObjectDecalType = GameObjectDecalType;
+            _gameObject.Drawable.SetTerrainDecal(GameObjectDecalType);
             _gameObject.AddWeaponBonusType(_moduleData.Action);
         }
 
         private void RemoveFromHorde()
         {
             _isInHorde = false;
-            _gameObject.Drawable.ObjectDecalType = ObjectDecalType.None;
+            _gameObject.Drawable.SetTerrainDecal(ObjectDecalType.None);
             _gameObject.RemoveWeaponBonusType(_moduleData.Action);
         }
 

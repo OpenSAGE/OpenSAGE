@@ -32,6 +32,8 @@ namespace OpenSage.Logic.Object
 
         public virtual void Heal(Fix64 amount, GameObject healer) { }
 
+        public abstract void SetArmorSetFlag(ArmorSetCondition armorSetCondition);
+
         internal override void Load(StatePersister reader)
         {
             reader.PersistVersion(1);

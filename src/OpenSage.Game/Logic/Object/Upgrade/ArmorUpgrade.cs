@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using OpenSage.Client;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,6 +11,18 @@ namespace OpenSage.Logic.Object
             : base(gameObject, moduleData)
         {
             _moduleData = moduleData;
+        }
+
+        protected override void OnUpgrade()
+        {
+            GameObject.BodyModule?.SetArmorSetFlag(ArmorSetCondition.PlayerUpgrade);
+
+            // Added in Zero Hour. Seems like quite a big hack.
+            // Unique case for AMERICA to test for upgrade to set flag
+            if (IsTriggeredBy("Upgrade_AmericaChemicalSuits"))
+            {
+                GameObject.Drawable.SetTerrainDecal(ObjectDecalType.ChemSuit);
+            }
         }
 
         internal override void Load(StatePersister reader)
@@ -36,6 +49,7 @@ namespace OpenSage.Logic.Object
                 { "IgnoreArmorUpgrade", (parser, x) => x.IgnoreArmorUpgrade = parser.ParseBoolean() }
             });
 
+        [AddedIn(SageGame.Bfme)]
         public ArmorSetCondition ArmorSetFlag { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
