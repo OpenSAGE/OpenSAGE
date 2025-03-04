@@ -13,7 +13,7 @@ namespace OpenSage.Data.Map
         public const uint MaxResourceGatherers = 10;
         public const uint UnlimitedRebuilds = 0xFFFFFFFF;
 
-        private string _buildingName;
+        private string _buildingName = "";
         public string BuildingName { get => _buildingName; private set => _buildingName = value; }
 
         private string _templateName;
@@ -34,24 +34,24 @@ namespace OpenSage.Data.Map
         private uint _numRebuilds;
         public uint NumRebuilds { get => _numRebuilds; private set => _numRebuilds = value; }
 
-        private string _script;
+        private string _script = "";
         public string Script { get => _script; private set => _script = value; }
 
-        private int _health;
+        private int _health = 100;
         public int Health { get => _health; private set => _health = value; }
 
         // Unused in Generals / ZH
         // No idea what it was supposed to be used for.
-        private bool _whiner;
+        private bool _whiner = true;
         public bool Whiner { get => _whiner; private set => _whiner = value; }
 
         private bool _unsellable;
         public bool Unsellable { get => _unsellable; private set => _unsellable = value; }
 
-        private bool _repairable;
+        private bool _repairable = true;
         public bool Repairable { get => _repairable; private set => _repairable = value; }
 
-        private bool _automaticallyBuild;
+        private bool _automaticallyBuild = true;
         public bool AutomaticallyBuild { get => _automaticallyBuild; private set => _automaticallyBuild = value; }
 
         private uint _objectId;
