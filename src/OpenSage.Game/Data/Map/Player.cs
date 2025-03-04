@@ -2,9 +2,11 @@
 
 using System.Diagnostics;
 using System.IO;
+using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
 {
+    // This corresponds to the SidesInfo class in Generals
     [DebuggerDisplay("Player '{Name}'")]
     public sealed class Player
     {
@@ -15,7 +17,8 @@ namespace OpenSage.Data.Map
 
         public Player() { }
 
-        public BuildListItem[] BuildList { get; internal set; } = [];
+        public BuildListInfo[] BuildList { get; internal set; } = [];
+        public ScriptList Scripts { get; internal set; } = new ScriptList();
 
         /// <summary>
         /// internal identifier for player.
@@ -145,11 +148,11 @@ namespace OpenSage.Data.Map
         {
             var player = new Player(AssetPropertyCollection.Parse(reader, context));
             var numBuildListItems = reader.ReadUInt32();
-            var buildListItems = new BuildListItem[numBuildListItems];
+            var buildListItems = new BuildListInfo[numBuildListItems];
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                buildListItems[i] = BuildListItem.Parse(reader, version, 6, mapHasAssetList);
+                buildListItems[i] = BuildListInfo.Parse(reader, version, 6, mapHasAssetList);
             }
 
             player.BuildList = buildListItems;

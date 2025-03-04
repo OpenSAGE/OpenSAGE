@@ -39,7 +39,7 @@ namespace OpenSage.Logic
         private bool _unknown2;
         private uint _unknown3;
         private bool _hasInsufficientPower;
-        private readonly List<BuildListItem> _buildListItems = new();
+        private readonly List<BuildListInfo> _buildListItems = new();
         private TunnelManager? _tunnelManager;
         public TunnelManager? TunnelManager => _tunnelManager;
         private uint _unknown4;
@@ -588,9 +588,9 @@ namespace OpenSage.Logic
 
             reader.PersistList(
                 _buildListItems,
-                static (StatePersister persister, ref BuildListItem item) =>
+                static (StatePersister persister, ref BuildListInfo item) =>
                 {
-                    item ??= new BuildListItem();
+                    item ??= new BuildListInfo();
                     persister.PersistObjectValue(item);
                 });
 

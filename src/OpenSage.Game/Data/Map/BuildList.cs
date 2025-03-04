@@ -1,25 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.IO;
 using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {
+    [AddedIn(SageGame.Bfme)]
     public sealed class BuildList
     {
-        /// <summary>
-        /// Used in BFME
-        /// </summary>
+        [AddedIn(SageGame.Bfme)]
         public AssetPropertyKey FactionNameProperty { get; private set; }
 
-        /// <summary>
-        /// Used in >= C&C3
-        /// </summary>
         [AddedIn(SageGame.Cnc3)]
         public string FactionName { get; private set; }
 
-        public BuildListItem[] Items { get; private set; }
+        public BuildListInfo[] Items { get; private set; }
 
         internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
         {
@@ -37,11 +30,11 @@ namespace OpenSage.Data.Map
             }
 
             var numBuildListItems = reader.ReadUInt32();
-            result.Items = new BuildListItem[numBuildListItems];
+            result.Items = new BuildListInfo[numBuildListItems];
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                result.Items[i] = BuildListItem.Parse(reader, version, 1, mapHasAssetList);
+                result.Items[i] = BuildListInfo.Parse(reader, version, 1, mapHasAssetList);
             }
 
             return result;
@@ -58,7 +51,7 @@ namespace OpenSage.Data.Map
                 FactionNameProperty.WriteTo(writer, assetNames);
             }
 
-            writer.Write((uint) Items.Length);
+            writer.Write((uint)Items.Length);
 
             foreach (var buildListItem in Items)
             {
