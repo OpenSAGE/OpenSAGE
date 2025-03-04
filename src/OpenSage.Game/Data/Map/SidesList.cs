@@ -10,7 +10,7 @@ using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class SidesList : Asset
+    public sealed class SidesList : Asset, IPersistableObject
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -21,9 +21,11 @@ namespace OpenSage.Data.Map
 
         // In Generals players are almost universally called "sides"
         // Hence the name of this class
-        public List<Player> Players { get; private set; } = [];
-        public List<Team> Teams { get; private set; } = [];
+        private List<Player> _players = [];
+        public List<Player> Players { get => _players; private set => _players = value; }
 
+        private List<Team> _teams = [];
+        public List<Team> Teams { get => _teams; private set => _teams = value; }
         internal static SidesList Parse(BinaryReader reader, MapParseContext context, bool mapHasAssetList)
         {
             return ParseAsset(reader, context, version =>
@@ -138,16 +140,7 @@ namespace OpenSage.Data.Map
                 }
 
                 // Gather scripts lists from players and serialize them
-                var playerScripts = new PlayerScriptsList
-                {
-                    ScriptLists = new ScriptList[Players.Count]
-                };
-
-                for (var i = 0; i < Players.Count; i++)
-                {
-                    playerScripts.ScriptLists[i] = Players[i].Scripts;
-                }
-
+                var playerScripts = GetPlayerScriptsList();
                 writer.Write(assetNames.GetOrCreateAssetIndex(PlayerScriptsList.AssetName));
                 playerScripts.WriteTo(writer, assetNames);
             });
@@ -156,14 +149,33 @@ namespace OpenSage.Data.Map
             // Writing the sides list should not modify the sides list
         }
 
-        // TODO: Persist method
+        public void Persist(StatePersister persister)
+        {
+            // Port note: in Generals this method's equivalent contains the PlayerScriptsList xfer logic directly
+            var playerScriptsList = GetPlayerScriptsList();
+            playerScriptsList.Persist(persister);
+        }
+
+        private PlayerScriptsList GetPlayerScriptsList()
+        {
+            var playerScripts = new PlayerScriptsList
+            {
+                ScriptLists = new ScriptList[Players.Count]
+            };
+
+            for (var i = 0; i < Players.Count; i++)
+            {
+                playerScripts.ScriptLists[i] = Players[i].Scripts;
+            }
+
+            return playerScripts;
+        }
 
         enum ValidationResult
         {
             Valid,
             InvalidButFixed,
-            // If we don't want to throw inside the validation method in the future
-            // consider adding a third value here
+            // If we don't want to throw inside the validation method in the future consider adding a third value here
         }
 
         // Port note: Original C++ version returns a bool, and confusingly "true" means "invalid"
