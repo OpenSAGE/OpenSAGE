@@ -1,28 +1,27 @@
 ﻿#nullable enable
 
-namespace OpenSage.Logic.AI.AIStates
+namespace OpenSage.Logic.AI.AIStates;
+
+internal sealed class AttackTeamState : State
 {
-    internal sealed class AttackTeamState : State
+    private readonly AttackAreaStateMachine _stateMachine;
+
+    public AttackTeamState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        private readonly AttackAreaStateMachine _stateMachine;
+        _stateMachine = new AttackAreaStateMachine(stateMachine);
+    }
 
-        public AttackTeamState(AIUpdateStateMachine stateMachine) : base(stateMachine)
+    public override void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        var unknownBool1 = true;
+        reader.PersistBoolean(ref unknownBool1);
+        if (!unknownBool1)
         {
-            _stateMachine = new AttackAreaStateMachine(stateMachine);
+            throw new InvalidStateException();
         }
 
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            var unknownBool1 = true;
-            reader.PersistBoolean(ref unknownBool1);
-            if (!unknownBool1)
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.PersistObject(_stateMachine);
-        }
+        reader.PersistObject(_stateMachine);
     }
 }

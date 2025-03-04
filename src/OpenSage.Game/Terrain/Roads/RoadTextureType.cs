@@ -1,14 +1,13 @@
-﻿namespace OpenSage.Terrain.Roads
+﻿namespace OpenSage.Terrain.Roads;
+
+public enum RoadTextureType
 {
-    public enum RoadTextureType
-    {
-        Straight,
-        BroadCurve,
-        TightCurve,
-        TCrossing,
-        XCrossing,
-        SymmetricYCrossing,
-        AsymmetricYCrossing,
-        EndCap
-    }
+    Straight,
+    BroadCurve,
+    TightCurve,
+    TCrossing,
+    XCrossing,
+    SymmetricYCrossing,
+    AsymmetricYCrossing,
+    EndCap
 }

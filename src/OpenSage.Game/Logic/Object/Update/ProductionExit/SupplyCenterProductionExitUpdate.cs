@@ -1,62 +1,61 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
 {
-    public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
+    public RallyPointManager RallyPointManager { get; } = new();
+
+    private readonly SupplyCenterProductionExitUpdateModuleData _moduleData;
+
+    internal SupplyCenterProductionExitUpdate(SupplyCenterProductionExitUpdateModuleData moduleData)
     {
-        public RallyPointManager RallyPointManager { get; } = new();
-
-        private readonly SupplyCenterProductionExitUpdateModuleData _moduleData;
-
-        internal SupplyCenterProductionExitUpdate(SupplyCenterProductionExitUpdateModuleData moduleData)
-        {
-            _moduleData = moduleData;
-        }
-
-        Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
-
-        Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistObject(RallyPointManager);
-        }
+        _moduleData = moduleData;
     }
 
-    /// <summary>
-    /// Requires the <see cref="ObjectKinds.SupplySource"/> KindOf defined in order to work properly.
-    /// </summary>
-    public sealed class SupplyCenterProductionExitUpdateModuleData : UpdateModuleData
+    Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
+
+    Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+    internal override void Load(StatePersister reader)
     {
-        internal static SupplyCenterProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static readonly IniParseTable<SupplyCenterProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<SupplyCenterProductionExitUpdateModuleData>
-        {
-            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
-            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
-            { "GrantTemporaryStealth", (parser, x) => x.GrantTemporaryStealth = parser.ParseInteger() },
-        };
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        public Vector3 UnitCreatePoint { get; private set; }
+        reader.PersistObject(RallyPointManager);
+    }
+}
 
-        /// <summary>
-        /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
-        /// </summary>
-        public Vector3 NaturalRallyPoint { get; private set; }
+/// <summary>
+/// Requires the <see cref="ObjectKinds.SupplySource"/> KindOf defined in order to work properly.
+/// </summary>
+public sealed class SupplyCenterProductionExitUpdateModuleData : UpdateModuleData
+{
+    internal static SupplyCenterProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public int GrantTemporaryStealth { get; private set; }
+    private static readonly IniParseTable<SupplyCenterProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<SupplyCenterProductionExitUpdateModuleData>
+    {
+        { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
+        { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
+        { "GrantTemporaryStealth", (parser, x) => x.GrantTemporaryStealth = parser.ParseInteger() },
+    };
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new SupplyCenterProductionExitUpdate(this);
-        }
+    public Vector3 UnitCreatePoint { get; private set; }
+
+    /// <summary>
+    /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
+    /// </summary>
+    public Vector3 NaturalRallyPoint { get; private set; }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public int GrantTemporaryStealth { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new SupplyCenterProductionExitUpdate(this);
     }
 }

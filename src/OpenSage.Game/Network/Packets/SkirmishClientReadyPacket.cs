@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Network.Packets
+﻿namespace OpenSage.Network.Packets;
+
+public class SkirmishClientReadyPacket
 {
-    public class SkirmishClientReadyPacket
-    {
-        public int Index { get; set; }
-    }
+    public int Index { get; set; }
 }

@@ -1,29 +1,28 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain;
+
+[AddedIn(SageGame.Bfme)]
+public enum WeatherType
 {
-    [AddedIn(SageGame.Bfme)]
-    public enum WeatherType
-    {
-        [IniEnum("NONE")]
-        None,
+    [IniEnum("NONE")]
+    None,
 
-        [IniEnum("RAINY")]
-        Rainy,
+    [IniEnum("RAINY")]
+    Rainy,
 
-        [IniEnum("CLOUDYRAINY")]
-        CloudyRainy,
+    [IniEnum("CLOUDYRAINY")]
+    CloudyRainy,
 
-        [IniEnum("SUNNY")]
-        Sunny,
+    [IniEnum("SUNNY")]
+    Sunny,
 
-        [IniEnum("CLOUDY")]
-        Cloudy,
+    [IniEnum("CLOUDY")]
+    Cloudy,
 
-        [IniEnum("NORMAL"), AddedIn(SageGame.Bfme2)]
-        Normal,
+    [IniEnum("NORMAL"), AddedIn(SageGame.Bfme2)]
+    Normal,
 
-        [IniEnum("SNOWY"), AddedIn(SageGame.Bfme2)]
-        Snowy,
-    }
+    [IniEnum("SNOWY"), AddedIn(SageGame.Bfme2)]
+    Snowy,
 }

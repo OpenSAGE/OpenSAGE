@@ -1,9 +1,8 @@
-﻿namespace OpenSage.Data.Csf
-{
-    public enum CsfVersion : uint
-    {
-        Unknown = 0,
+﻿namespace OpenSage.Data.Csf;
 
-        Generals = 3
-    }
+public enum CsfVersion : uint
+{
+    Unknown = 0,
+
+    Generals = 3
 }

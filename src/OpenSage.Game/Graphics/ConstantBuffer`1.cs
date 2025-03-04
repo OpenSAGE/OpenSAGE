@@ -1,35 +1,34 @@
 ﻿using Veldrid;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics;
+
+public sealed class ConstantBuffer<T> : DisposableBase
+    where T : unmanaged
 {
-    public sealed class ConstantBuffer<T> : DisposableBase
-        where T : unmanaged
+    public DeviceBuffer Buffer { get; }
+
+    public T Value;
+
+    public unsafe ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
     {
-        public DeviceBuffer Buffer { get; }
+        Buffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
+            new BufferDescription(
+                (uint)sizeof(T),
+                BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-        public T Value;
-
-        public unsafe ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
+        if (name != null)
         {
-            Buffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(
-                    (uint)sizeof(T),
-                    BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
-
-            if (name != null)
-            {
-                Buffer.Name = name;
-            }
+            Buffer.Name = name;
         }
+    }
 
-        public void Update(CommandList commandList)
-        {
-            commandList.UpdateBuffer(Buffer, 0, ref Value);
-        }
+    public void Update(CommandList commandList)
+    {
+        commandList.UpdateBuffer(Buffer, 0, ref Value);
+    }
 
-        public void Update(GraphicsDevice graphicsDevice)
-        {
-            graphicsDevice.UpdateBuffer(Buffer, 0, ref Value);
-        }
+    public void Update(GraphicsDevice graphicsDevice)
+    {
+        graphicsDevice.UpdateBuffer(Buffer, 0, ref Value);
     }
 }

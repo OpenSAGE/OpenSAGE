@@ -1,44 +1,43 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+[AddedIn(SageGame.Ra3)]
+public sealed class MissionObjectives : Asset
 {
-    [AddedIn(SageGame.Ra3)]
-    public sealed class MissionObjectives : Asset
+    public const string AssetName = "MissionObjectives";
+
+    public MissionObjective[] Items { get; private set; }
+
+    internal static MissionObjectives Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "MissionObjectives";
-
-        public MissionObjective[] Items { get; private set; }
-
-        internal static MissionObjectives Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            var numItems = reader.ReadUInt32();
+            var items = new MissionObjective[numItems];
+
+            for (var i = 0; i < numItems; i++)
             {
-                var numItems = reader.ReadUInt32();
-                var items = new MissionObjective[numItems];
+                items[i] = MissionObjective.Parse(reader);
+            }
 
-                for (var i = 0; i < numItems; i++)
-                {
-                    items[i] = MissionObjective.Parse(reader);
-                }
+            return new MissionObjectives
+            {
+                Items = items
+            };
+        });
+    }
 
-                return new MissionObjectives
-                {
-                    Items = items
-                };
-            });
-        }
-
-        internal void WriteTo(BinaryWriter writer)
+    internal void WriteTo(BinaryWriter writer)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                writer.Write((uint)Items.Length);
+            writer.Write((uint)Items.Length);
 
-                foreach (var item in Items)
-                {
-                    item.WriteTo(writer);
-                }
-            });
-        }
+            foreach (var item in Items)
+            {
+                item.WriteTo(writer);
+            }
+        });
     }
 }

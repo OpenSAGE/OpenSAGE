@@ -2,50 +2,49 @@
 
 using OpenSage.Logic.Object;
 
-namespace OpenSage.Logic.AI
+namespace OpenSage.Logic.AI;
+
+internal abstract class State : IPersistableObject
 {
-    internal abstract class State : IPersistableObject
+    public uint Id { get; internal set; }
+
+    private protected GameObject GameObject => _stateMachine.GameObject;
+    private protected GameContext Context => _stateMachine.Context;
+
+    private readonly StateMachineBase _stateMachine;
+
+    private protected State(StateMachineBase stateMachine)
     {
-        public uint Id { get; internal set; }
-
-        private protected GameObject GameObject => _stateMachine.GameObject;
-        private protected GameContext Context => _stateMachine.Context;
-
-        private readonly StateMachineBase _stateMachine;
-
-        private protected State(StateMachineBase stateMachine)
-        {
-            _stateMachine = stateMachine;
-        }
-
-        public virtual void OnEnter() { }
-
-        public virtual UpdateStateResult Update() => UpdateStateResult.Continue();
-
-        public virtual void OnExit() { }
-
-        public abstract void Persist(StatePersister reader);
+        _stateMachine = stateMachine;
     }
 
-    public readonly struct UpdateStateResult
+    public virtual void OnEnter() { }
+
+    public virtual UpdateStateResult Update() => UpdateStateResult.Continue();
+
+    public virtual void OnExit() { }
+
+    public abstract void Persist(StatePersister reader);
+}
+
+public readonly struct UpdateStateResult
+{
+    public static UpdateStateResult Continue() => new(UpdateStateResultType.Continue, null);
+
+    public static UpdateStateResult TransitionToState(uint stateId) => new(UpdateStateResultType.TransitionToState, stateId);
+
+    public readonly UpdateStateResultType Type;
+    public readonly uint? TransitionToStateId;
+
+    private UpdateStateResult(UpdateStateResultType type, uint? transitionToStateId)
     {
-        public static UpdateStateResult Continue() => new(UpdateStateResultType.Continue, null);
-
-        public static UpdateStateResult TransitionToState(uint stateId) => new(UpdateStateResultType.TransitionToState, stateId);
-
-        public readonly UpdateStateResultType Type;
-        public readonly uint? TransitionToStateId;
-
-        private UpdateStateResult(UpdateStateResultType type, uint? transitionToStateId)
-        {
-            Type = type;
-            TransitionToStateId = transitionToStateId;
-        }
+        Type = type;
+        TransitionToStateId = transitionToStateId;
     }
+}
 
-    public enum UpdateStateResultType
-    {
-        Continue,
-        TransitionToState,
-    }
+public enum UpdateStateResultType
+{
+    Continue,
+    TransitionToState,
 }

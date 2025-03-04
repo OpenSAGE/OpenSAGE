@@ -1,46 +1,45 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace OpenSage.FileFormats.W3d
+namespace OpenSage.FileFormats.W3d;
+
+public sealed class W3dAggregateInfo : W3dChunk
 {
-    public sealed class W3dAggregateInfo : W3dChunk
+    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AGGREGATE_INFO;
+
+    public string BaseModelName { get; private set; }
+
+    public uint SubObjectCount { get; private set; }
+
+    public List<W3dAggregateSubObject> SubObjects { get; private set; }
+
+    internal static W3dAggregateInfo Parse(BinaryReader reader, W3dParseContext context)
     {
-        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AGGREGATE_INFO;
-
-        public string BaseModelName { get; private set; }
-
-        public uint SubObjectCount { get; private set; }
-
-        public List<W3dAggregateSubObject> SubObjects { get; private set; }
-
-        internal static W3dAggregateInfo Parse(BinaryReader reader, W3dParseContext context)
+        return ParseChunk(reader, context, header =>
         {
-            return ParseChunk(reader, context, header =>
+            var result = new W3dAggregateInfo
             {
-                var result = new W3dAggregateInfo
-                {
-                    BaseModelName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2),
-                    SubObjectCount = reader.ReadUInt32()
-                };
+                BaseModelName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2),
+                SubObjectCount = reader.ReadUInt32()
+            };
 
-                result.SubObjects = new List<W3dAggregateSubObject>();
-                for (var i = 0; i < result.SubObjectCount; i++)
-                {
-                    result.SubObjects.Add(W3dAggregateSubObject.Parse(reader));
-                }
-
-                return result;
-            });
-        }
-
-        protected override void WriteToOverride(BinaryWriter writer)
-        {
-            writer.WriteFixedLengthString(BaseModelName, W3dConstants.NameLength * 2);
-            writer.Write(SubObjectCount);
-            foreach (var subObject in SubObjects)
+            result.SubObjects = new List<W3dAggregateSubObject>();
+            for (var i = 0; i < result.SubObjectCount; i++)
             {
-                subObject.WriteTo(writer);
+                result.SubObjects.Add(W3dAggregateSubObject.Parse(reader));
             }
+
+            return result;
+        });
+    }
+
+    protected override void WriteToOverride(BinaryWriter writer)
+    {
+        writer.WriteFixedLengthString(BaseModelName, W3dConstants.NameLength * 2);
+        writer.Write(SubObjectCount);
+        foreach (var subObject in SubObjects)
+        {
+            subObject.WriteTo(writer);
         }
     }
 }

@@ -1,23 +1,22 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme)]
+public class SpawnAndFadeNugget : WeaponEffectNugget
 {
-    [AddedIn(SageGame.Bfme)]
-    public class SpawnAndFadeNugget : WeaponEffectNugget
-    {
-        internal static SpawnAndFadeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static SpawnAndFadeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SpawnAndFadeNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
-            .Concat(new IniParseTable<SpawnAndFadeNugget>
-            {
-                { "ObjectTargetFilter", (parser, x) => x.ObjectTargetFilter = ObjectFilter.Parse(parser) },
-                { "SpawnedObjectName", (parser, x) => x.SpawnedObjectName = parser.ParseAssetReference() },
-                { "SpawnOffset", (parser, x) => x.SpawnOffset = parser.ParseVector3() }
-            });
+    private static new readonly IniParseTable<SpawnAndFadeNugget> FieldParseTable = WeaponEffectNugget.FieldParseTable
+        .Concat(new IniParseTable<SpawnAndFadeNugget>
+        {
+            { "ObjectTargetFilter", (parser, x) => x.ObjectTargetFilter = ObjectFilter.Parse(parser) },
+            { "SpawnedObjectName", (parser, x) => x.SpawnedObjectName = parser.ParseAssetReference() },
+            { "SpawnOffset", (parser, x) => x.SpawnOffset = parser.ParseVector3() }
+        });
 
-        public ObjectFilter ObjectTargetFilter { get; private set; }
-        public string SpawnedObjectName { get; private set; }
-        public Vector3 SpawnOffset { get; private set; }
-    }
+    public ObjectFilter ObjectTargetFilter { get; private set; }
+    public string SpawnedObjectName { get; private set; }
+    public Vector3 SpawnOffset { get; private set; }
 }

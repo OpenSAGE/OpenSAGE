@@ -3,84 +3,83 @@ using System.IO;
 using System.Text;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Ani
+namespace OpenSage.Data.Ani;
+
+public sealed class IconChunkContent : RiffChunkContent
 {
-    public sealed class IconChunkContent : RiffChunkContent
+    public IconType IconType { get; private set; }
+    public ushort NumImages { get; private set; }
+    public IconDirEntry[] IconDirEntries { get; private set; }
+    public IconImage[] Images { get; private set; }
+
+    internal static IconChunkContent Parse(BinaryReader reader, long endPosition)
     {
-        public IconType IconType { get; private set; }
-        public ushort NumImages { get; private set; }
-        public IconDirEntry[] IconDirEntries { get; private set; }
-        public IconImage[] Images { get; private set; }
+        var startPosition = reader.BaseStream.Position;
 
-        internal static IconChunkContent Parse(BinaryReader reader, long endPosition)
+        // Should be 0, but isn't always.
+        var _ = reader.ReadUInt16();
+
+        var type = reader.ReadUInt16AsEnum<IconType>();
+
+        var numImages = reader.ReadUInt16();
+        if (numImages != 1)
         {
-            var startPosition = reader.BaseStream.Position;
+            throw new NotSupportedException();
+        }
 
-            // Should be 0, but isn't always.
-            var _ = reader.ReadUInt16();
+        var iconDirEntries = new IconDirEntry[numImages];
+        for (var i = 0; i < numImages; i++)
+        {
+            iconDirEntries[i] = IconDirEntry.Parse(reader);
+        }
 
-            var type = reader.ReadUInt16AsEnum<IconType>();
+        var currentPosition = reader.BaseStream.Position;
+        var startingOffset = currentPosition - startPosition;
 
-            var numImages = reader.ReadUInt16();
-            if (numImages != 1)
+        var rasterDataBytes = reader.ReadBytes((int)(endPosition - currentPosition));
+
+        var images = new IconImage[numImages];
+
+        for (var i = 0; i < numImages; i++)
+        {
+            using (var rasterDataStream = new MemoryStream(rasterDataBytes, (int)(iconDirEntries[i].DataOffset - startingOffset), (int)iconDirEntries[i].DataSize))
+            using (var rasterDataReader = new BinaryReader(rasterDataStream, Encoding.ASCII, true))
             {
-                throw new NotSupportedException();
-            }
+                images[i] = IconImage.Parse(rasterDataReader);
 
-            var iconDirEntries = new IconDirEntry[numImages];
-            for (var i = 0; i < numImages; i++)
-            {
-                iconDirEntries[i] = IconDirEntry.Parse(reader);
-            }
-
-            var currentPosition = reader.BaseStream.Position;
-            var startingOffset = currentPosition - startPosition;
-
-            var rasterDataBytes = reader.ReadBytes((int)(endPosition - currentPosition));
-
-            var images = new IconImage[numImages];
-
-            for (var i = 0; i < numImages; i++)
-            {
-                using (var rasterDataStream = new MemoryStream(rasterDataBytes, (int)(iconDirEntries[i].DataOffset - startingOffset), (int)iconDirEntries[i].DataSize))
-                using (var rasterDataReader = new BinaryReader(rasterDataStream, Encoding.ASCII, true))
+                if (rasterDataStream.Position != rasterDataStream.Length)
                 {
-                    images[i] = IconImage.Parse(rasterDataReader);
-
-                    if (rasterDataStream.Position != rasterDataStream.Length)
-                    {
-                        throw new InvalidDataException();
-                    }
+                    throw new InvalidDataException();
                 }
             }
-
-            return new IconChunkContent
-            {
-                IconType = type,
-                NumImages = numImages,
-                IconDirEntries = iconDirEntries,
-                Images = images
-            };
         }
 
-        public CursorImage GetImage(int index)
+        return new IconChunkContent
         {
-            var iconDirEntry = IconDirEntries[index];
-
-            var pixels = Images[index].GetBgraPixels();
-
-            return new CursorImage(
-                iconDirEntry.Width,
-                iconDirEntry.Height,
-                iconDirEntry.HotspotX,
-                iconDirEntry.HotspotY,
-                pixels);
-        }
+            IconType = type,
+            NumImages = numImages,
+            IconDirEntries = iconDirEntries,
+            Images = images
+        };
     }
 
-    public enum IconType : ushort
+    public CursorImage GetImage(int index)
     {
-        Ico = 1,
-        Cur = 2
+        var iconDirEntry = IconDirEntries[index];
+
+        var pixels = Images[index].GetBgraPixels();
+
+        return new CursorImage(
+            iconDirEntry.Width,
+            iconDirEntry.Height,
+            iconDirEntry.HotspotX,
+            iconDirEntry.HotspotY,
+            pixels);
     }
+}
+
+public enum IconType : ushort
+{
+    Ico = 1,
+    Cur = 2
 }

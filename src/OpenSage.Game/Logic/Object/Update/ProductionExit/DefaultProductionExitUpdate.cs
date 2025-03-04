@@ -1,59 +1,58 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class DefaultProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
 {
-    public sealed class DefaultProductionExitUpdate : UpdateModule, IHasRallyPoint, IProductionExit
+    public RallyPointManager RallyPointManager { get; } = new();
+
+    private readonly DefaultProductionExitUpdateModuleData _moduleData;
+
+    internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
     {
-        public RallyPointManager RallyPointManager { get; } = new();
-
-        private readonly DefaultProductionExitUpdateModuleData _moduleData;
-
-        internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
-        {
-            _moduleData = moduleData;
-        }
-
-        Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
-
-        Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistObject(RallyPointManager);
-        }
+        _moduleData = moduleData;
     }
 
-    public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData
+    Vector3 IProductionExit.GetUnitCreatePoint() => _moduleData.UnitCreatePoint;
+
+    Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
+
+    internal override void Load(StatePersister reader)
     {
-        internal static DefaultProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static readonly IniParseTable<DefaultProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<DefaultProductionExitUpdateModuleData>
-        {
-            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
-            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
-            { "UseSpawnRallyPoint", (parser, x) => x.UseSpawnRallyPoint = parser.ParseBoolean() },
-        };
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        public Vector3 UnitCreatePoint { get; private set; }
+        reader.PersistObject(RallyPointManager);
+    }
+}
 
-        /// <summary>
-        /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
-        /// </summary>
-        public Vector3 NaturalRallyPoint { get; private set; }
+public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData
+{
+    internal static DefaultProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public bool UseSpawnRallyPoint { get; private set; }
+    private static readonly IniParseTable<DefaultProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<DefaultProductionExitUpdateModuleData>
+    {
+        { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
+        { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
+        { "UseSpawnRallyPoint", (parser, x) => x.UseSpawnRallyPoint = parser.ParseBoolean() },
+    };
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new DefaultProductionExitUpdate(this);
-        }
+    public Vector3 UnitCreatePoint { get; private set; }
+
+    /// <summary>
+    /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
+    /// </summary>
+    public Vector3 NaturalRallyPoint { get; private set; }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public bool UseSpawnRallyPoint { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new DefaultProductionExitUpdate(this);
     }
 }

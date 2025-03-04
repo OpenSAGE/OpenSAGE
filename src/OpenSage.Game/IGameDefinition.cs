@@ -8,35 +8,34 @@ using OpenSage.Gui;
 using OpenSage.Gui.CommandListOverlay;
 using OpenSage.Gui.ControlBar;
 
-namespace OpenSage
+namespace OpenSage;
+
+public interface IGameDefinition
 {
-    public interface IGameDefinition
-    {
-        SageGame Game { get; }
-        string DisplayName { get; }
-        IGameDefinition? BaseGame { get; }
+    SageGame Game { get; }
+    string DisplayName { get; }
+    IGameDefinition? BaseGame { get; }
 
-        bool LauncherImagePrefixLang { get; }
-        string LauncherImagePath { get; }
-        string LauncherExecutable { get; }
+    bool LauncherImagePrefixLang { get; }
+    string LauncherImagePath { get; }
+    string LauncherExecutable { get; }
 
-        IEnumerable<RegistryKeyPath> RegistryKeys { get; }
-        IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+    IEnumerable<RegistryKeyPath> RegistryKeys { get; }
+    IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
 
-        IMainMenuSource MainMenu { get; }
-        IControlBarSource? ControlBar { get; }
-        ICommandListOverlaySource? CommandListOverlay { get; }
+    IMainMenuSource MainMenu { get; }
+    IControlBarSource? ControlBar { get; }
+    ICommandListOverlaySource? CommandListOverlay { get; }
 
-        string Identifier { get; }
+    string Identifier { get; }
 
-        uint ScriptingTicksPerSecond { get; }
+    uint ScriptingTicksPerSecond { get; }
 
-        string GetLocalizedStringsPath(string language);
+    string GetLocalizedStringsPath(string language);
 
-        OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
+    OnDemandAssetLoadStrategy CreateAssetLoadStrategy();
 
-        Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore);
+    Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore);
 
-        bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
-    }
+    bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
 }

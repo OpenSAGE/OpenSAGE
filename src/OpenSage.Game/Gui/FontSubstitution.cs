@@ -1,46 +1,45 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui;
+
+[AddedIn(SageGame.Bfme)]
+public sealed class FontSubstitution : BaseAsset
 {
-    [AddedIn(SageGame.Bfme)]
-    public sealed class FontSubstitution : BaseAsset
+    internal static FontSubstitution Parse(IniParser parser)
     {
-        internal static FontSubstitution Parse(IniParser parser)
-        {
-            var fontName = parser.ParseQuotedString();
+        var fontName = parser.ParseQuotedString();
 
-            var result = parser.ParseTopLevelBlock(FieldParseTable);
+        var result = parser.ParseTopLevelBlock(FieldParseTable);
 
-            result.SetNameAndInstanceId("FontSubstitution", fontName);
+        result.SetNameAndInstanceId("FontSubstitution", fontName);
 
-            return result;
-        }
-
-        private static readonly IniParseTable<FontSubstitution> FieldParseTable = new IniParseTable<FontSubstitution>
-        {
-            { "Size", (parser, x) => x.Substitutions.Add(Substitution.Parse(parser)) }
-        };
-
-        public List<Substitution> Substitutions { get; } = new List<Substitution>();
+        return result;
     }
 
-    [AddedIn(SageGame.Bfme)]
-    public sealed class Substitution
+    private static readonly IniParseTable<FontSubstitution> FieldParseTable = new IniParseTable<FontSubstitution>
     {
-        public int Size { get; private set; }
+        { "Size", (parser, x) => x.Substitutions.Add(Substitution.Parse(parser)) }
+    };
 
-        public int ReplacementFontSize { get; private set; }
-        public string ReplacementFontName { get; private set; }
+    public List<Substitution> Substitutions { get; } = new List<Substitution>();
+}
 
-        internal static Substitution Parse(IniParser parser)
+[AddedIn(SageGame.Bfme)]
+public sealed class Substitution
+{
+    public int Size { get; private set; }
+
+    public int ReplacementFontSize { get; private set; }
+    public string ReplacementFontName { get; private set; }
+
+    internal static Substitution Parse(IniParser parser)
+    {
+        return new Substitution
         {
-            return new Substitution
-            {
-                Size = parser.ParseInteger(),
-                ReplacementFontSize = parser.ParseInteger(),
-                ReplacementFontName = parser.ParseString()
-            };
-        }
+            Size = parser.ParseInteger(),
+            ReplacementFontSize = parser.ParseInteger(),
+            ReplacementFontName = parser.ParseString()
+        };
     }
 }

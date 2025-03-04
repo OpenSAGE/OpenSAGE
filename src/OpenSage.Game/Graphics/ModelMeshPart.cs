@@ -1,50 +1,49 @@
 ﻿using OpenSage.Rendering;
 using Veldrid;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics;
+
+public sealed class ModelMeshPart
 {
-    public sealed class ModelMeshPart
+    public readonly ModelMesh ModelMesh;
+
+    public readonly uint StartIndex;
+    public readonly uint IndexCount;
+
+    public readonly DeviceBuffer TexCoordVertexBuffer;
+
+    public readonly bool BlendEnabled;
+    public readonly MaterialPass Material;
+    public readonly MaterialPass MaterialBlend;
+
+    internal ModelMeshPart(
+        ModelMesh modelMesh,
+        DeviceBuffer texCoordVertexBuffer,
+        uint startIndex,
+        uint indexCount,
+        bool blendEnabled,
+        MaterialPass material,
+        MaterialPass materialBlend)
     {
-        public readonly ModelMesh ModelMesh;
+        ModelMesh = modelMesh;
 
-        public readonly uint StartIndex;
-        public readonly uint IndexCount;
+        TexCoordVertexBuffer = texCoordVertexBuffer;
 
-        public readonly DeviceBuffer TexCoordVertexBuffer;
+        StartIndex = startIndex;
+        IndexCount = indexCount;
 
-        public readonly bool BlendEnabled;
-        public readonly MaterialPass Material;
-        public readonly MaterialPass MaterialBlend;
+        BlendEnabled = blendEnabled;
+        Material = material;
+        MaterialBlend = materialBlend;
+    }
 
-        internal ModelMeshPart(
-            ModelMesh modelMesh,
-            DeviceBuffer texCoordVertexBuffer,
-            uint startIndex,
-            uint indexCount,
-            bool blendEnabled,
-            MaterialPass material,
-            MaterialPass materialBlend)
+    internal void BeforeRender(CommandList commandList)
+    {
+        commandList.SetVertexBuffer(0, ModelMesh.VertexBuffer);
+
+        if (TexCoordVertexBuffer != null)
         {
-            ModelMesh = modelMesh;
-
-            TexCoordVertexBuffer = texCoordVertexBuffer;
-
-            StartIndex = startIndex;
-            IndexCount = indexCount;
-
-            BlendEnabled = blendEnabled;
-            Material = material;
-            MaterialBlend = materialBlend;
-        }
-
-        internal void BeforeRender(CommandList commandList)
-        {
-            commandList.SetVertexBuffer(0, ModelMesh.VertexBuffer);
-
-            if (TexCoordVertexBuffer != null)
-            {
-                commandList.SetVertexBuffer(1, TexCoordVertexBuffer);
-            }
+            commandList.SetVertexBuffer(1, TexCoordVertexBuffer);
         }
     }
 }

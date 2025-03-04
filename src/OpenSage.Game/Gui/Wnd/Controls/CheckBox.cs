@@ -2,98 +2,97 @@
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Wnd.Controls
+namespace OpenSage.Gui.Wnd.Controls;
+
+public class CheckBox : Control
 {
-    public class CheckBox : Control
+    private static readonly Size CheckBoxSize = new Size(22, 22);
+
+    public Image UncheckedImage { get; set; }
+    public Image CheckedImage { get; set; }
+
+    public Image HoverUncheckedImage { get; set; }
+    public Image HoverCheckedImage { get; set; }
+
+    public Image DisabledUncheckedImage { get; set; }
+    public Image DisabledCheckedImage { get; set; }
+
+    public bool Checked { get; set; }
+
+    public CheckBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
     {
-        private static readonly Size CheckBoxSize = new Size(22, 22);
+        UncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 1);
+        CheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 2);
 
-        public Image UncheckedImage { get; set; }
-        public Image CheckedImage { get; set; }
+        HoverUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 1);
+        HoverCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 2);
 
-        public Image HoverUncheckedImage { get; set; }
-        public Image HoverCheckedImage { get; set; }
+        DisabledUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 1);
+        DisabledCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 2);
+    }
 
-        public Image DisabledUncheckedImage { get; set; }
-        public Image DisabledCheckedImage { get; set; }
+    protected override void LayoutOverride()
+    {
+        UncheckedImage?.SetSize(CheckBoxSize);
+        CheckedImage?.SetSize(CheckBoxSize);
 
-        public bool Checked { get; set; }
+        HoverUncheckedImage?.SetSize(CheckBoxSize);
+        HoverCheckedImage?.SetSize(CheckBoxSize);
 
-        public CheckBox(WndWindowDefinition wndWindow, ImageLoader imageLoader)
+        DisabledUncheckedImage?.SetSize(CheckBoxSize);
+        DisabledCheckedImage?.SetSize(CheckBoxSize);
+    }
+
+    protected override void DefaultInputOverride(WndWindowMessage message, ControlCallbackContext context)
+    {
+        switch (message.MessageType)
         {
-            UncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 1);
-            CheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.EnabledDrawData, 2);
-
-            HoverUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 1);
-            HoverCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.HiliteDrawData, 2);
-
-            DisabledUncheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 1);
-            DisabledCheckedImage = imageLoader.CreateFromWndDrawData(wndWindow.DisabledDrawData, 2);
+            case WndWindowMessageType.MouseUp:
+                Checked = !Checked;
+                break;
         }
+    }
 
-        protected override void LayoutOverride()
+    protected override void DrawOverride(DrawingContext2D drawingContext)
+    {
+        var checkboxRect = new Rectangle(Point2D.Zero, CheckBoxSize);
+        GetImage().Draw(drawingContext, checkboxRect);
+
+        var textLeft = checkboxRect.Right + 3;
+        var textRect = new Rectangle(textLeft, 0, ClientSize.Width - textLeft, CheckBoxSize.Height);
+        DrawText(drawingContext, TextAlignment.Leading, textRect);
+    }
+
+    private Image GetImage()
+    {
+        if (Checked)
         {
-            UncheckedImage?.SetSize(CheckBoxSize);
-            CheckedImage?.SetSize(CheckBoxSize);
-
-            HoverUncheckedImage?.SetSize(CheckBoxSize);
-            HoverCheckedImage?.SetSize(CheckBoxSize);
-
-            DisabledUncheckedImage?.SetSize(CheckBoxSize);
-            DisabledCheckedImage?.SetSize(CheckBoxSize);
-        }
-
-        protected override void DefaultInputOverride(WndWindowMessage message, ControlCallbackContext context)
-        {
-            switch (message.MessageType)
+            if (!Enabled)
             {
-                case WndWindowMessageType.MouseUp:
-                    Checked = !Checked;
-                    break;
+                return DisabledCheckedImage;
             }
-        }
-
-        protected override void DrawOverride(DrawingContext2D drawingContext)
-        {
-            var checkboxRect = new Rectangle(Point2D.Zero, CheckBoxSize);
-            GetImage().Draw(drawingContext, checkboxRect);
-
-            var textLeft = checkboxRect.Right + 3;
-            var textRect = new Rectangle(textLeft, 0, ClientSize.Width - textLeft, CheckBoxSize.Height);
-            DrawText(drawingContext, TextAlignment.Leading, textRect);
-        }
-
-        private Image GetImage()
-        {
-            if (Checked)
+            else if (IsMouseOver)
             {
-                if (!Enabled)
-                {
-                    return DisabledCheckedImage;
-                }
-                else if (IsMouseOver)
-                {
-                    return HoverCheckedImage;
-                }
-                else
-                {
-                    return CheckedImage;
-                }
+                return HoverCheckedImage;
             }
             else
             {
-                if (!Enabled)
-                {
-                    return DisabledUncheckedImage;
-                }
-                else if (IsMouseOver)
-                {
-                    return HoverUncheckedImage;
-                }
-                else
-                {
-                    return UncheckedImage;
-                }
+                return CheckedImage;
+            }
+        }
+        else
+        {
+            if (!Enabled)
+            {
+                return DisabledUncheckedImage;
+            }
+            else if (IsMouseOver)
+            {
+                return HoverUncheckedImage;
+            }
+            else
+            {
+                return UncheckedImage;
             }
         }
     }

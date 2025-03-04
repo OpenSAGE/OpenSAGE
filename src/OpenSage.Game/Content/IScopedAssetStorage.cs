@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenSage.Content
+namespace OpenSage.Content;
+
+internal interface IScopedAssetStorage
 {
-    internal interface IScopedAssetStorage
-    {
-        void PushScope();
-        void PopScope();
+    void PushScope();
+    void PopScope();
 
-        IEnumerable<BaseAsset> GetAssets();
-    }
+    IEnumerable<BaseAsset> GetAssets();
+}
 
-    internal interface IScopedSingleAssetStorage : IScopedAssetStorage
-    {
-        BaseAsset Current { get; set; }
-    }
+internal interface IScopedSingleAssetStorage : IScopedAssetStorage
+{
+    BaseAsset Current { get; set; }
+}
 
-    internal interface IScopedAssetCollection : IScopedAssetStorage
-    {
-        void Add(object asset);
-    }
+internal interface IScopedAssetCollection : IScopedAssetStorage
+{
+    void Add(object asset);
 }

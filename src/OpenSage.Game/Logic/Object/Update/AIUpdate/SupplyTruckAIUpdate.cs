@@ -1,48 +1,47 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public class SupplyTruckAIUpdate : SupplyAIUpdate
 {
-    public class SupplyTruckAIUpdate : SupplyAIUpdate
+    internal override SupplyTruckAIUpdateModuleData ModuleData { get; }
+
+    private readonly SupplyAIUpdateStateMachine _stateMachine;
+    private uint _dockId;
+    private int _unknownInt;
+    private bool _unknownBool;
+
+    internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
-        internal override SupplyTruckAIUpdateModuleData ModuleData { get; }
-
-        private readonly SupplyAIUpdateStateMachine _stateMachine;
-        private uint _dockId;
-        private int _unknownInt;
-        private bool _unknownBool;
-
-        internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
-        {
-            ModuleData = moduleData;
-            _stateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistObject(_stateMachine);
-            reader.PersistObjectID(ref _dockId);
-            reader.PersistInt32(ref _unknownInt);
-            reader.PersistBoolean(ref _unknownBool);
-        }
+        ModuleData = moduleData;
+        _stateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
     }
 
-    public class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal new static SupplyTruckAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        internal new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData> { });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new SupplyTruckAIUpdate(gameObject, context, this);
-        }
+        reader.PersistObject(_stateMachine);
+        reader.PersistObjectID(ref _dockId);
+        reader.PersistInt32(ref _unknownInt);
+        reader.PersistBoolean(ref _unknownBool);
+    }
+}
+
+public class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
+{
+    internal new static SupplyTruckAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    internal new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
+        .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData> { });
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new SupplyTruckAIUpdate(gameObject, context, this);
     }
 }

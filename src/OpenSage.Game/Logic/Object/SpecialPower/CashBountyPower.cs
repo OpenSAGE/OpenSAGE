@@ -1,37 +1,36 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class CashBountyPower : SpecialPowerModule
 {
-    public sealed class CashBountyPower : SpecialPowerModule
+    internal CashBountyPower(GameObject gameObject, GameContext context, CashBountyPowerModuleData moduleData) : base(gameObject, context, moduleData)
     {
-        internal CashBountyPower(GameObject gameObject, GameContext context, CashBountyPowerModuleData moduleData) : base(gameObject, context, moduleData)
-        {
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            base.Load(reader);
-        }
     }
 
-    public sealed class CashBountyPowerModuleData : SpecialPowerModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static new CashBountyPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<CashBountyPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
-            .Concat(new IniParseTable<CashBountyPowerModuleData>
-            {
-                { "Bounty", (parser, x) => x.Bounty = parser.ParsePercentage() },
-            });
+        base.Load(reader);
+    }
+}
 
-        public Percentage Bounty { get; private set; }
+public sealed class CashBountyPowerModuleData : SpecialPowerModuleData
+{
+    internal static new CashBountyPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal override CashBountyPower CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<CashBountyPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+        .Concat(new IniParseTable<CashBountyPowerModuleData>
         {
-            return new CashBountyPower(gameObject, context, this);
-        }
+            { "Bounty", (parser, x) => x.Bounty = parser.ParsePercentage() },
+        });
+
+    public Percentage Bounty { get; private set; }
+
+    internal override CashBountyPower CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new CashBountyPower(gameObject, context, this);
     }
 }

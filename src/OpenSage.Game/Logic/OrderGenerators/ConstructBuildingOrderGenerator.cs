@@ -8,162 +8,161 @@ using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.OrderGenerators
+namespace OpenSage.Logic.OrderGenerators;
+
+// TODO: Cancel this when:
+// 1. Builder dies
+// 2. We lose access to the building
+// 3. Player right-clicks
+public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposable
 {
-    // TODO: Cancel this when:
-    // 1. Builder dies
-    // 2. We lose access to the building
-    // 3. Player right-clicks
-    public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposable
+    private readonly ObjectDefinition _buildingDefinition;
+    private readonly int _definitionIndex;
+    private readonly GameData _config;
+    private readonly Scene3D _scene;
+
+    private readonly GameObject _previewObject;
+
+    private float _angle;
+
+    public override bool CanDrag => true;
+
+    internal ConstructBuildingOrderGenerator(
+        ObjectDefinition buildingDefinition,
+        int definitionIndex,
+        GameData config,
+        Player player,
+        GameContext gameContext,
+        Scene3D scene) : base(gameContext.Game)
     {
-        private readonly ObjectDefinition _buildingDefinition;
-        private readonly int _definitionIndex;
-        private readonly GameData _config;
-        private readonly Scene3D _scene;
+        _buildingDefinition = buildingDefinition;
+        _definitionIndex = definitionIndex;
+        _config = config;
+        _scene = scene;
 
-        private readonly GameObject _previewObject;
+        // TODO: Should this be relative to the current camera angle?
+        _angle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
 
-        private float _angle;
-
-        public override bool CanDrag => true;
-
-        internal ConstructBuildingOrderGenerator(
-            ObjectDefinition buildingDefinition,
-            int definitionIndex,
-            GameData config,
-            Player player,
-            GameContext gameContext,
-            Scene3D scene) : base(gameContext.Game)
+        _previewObject = new GameObject(
+            buildingDefinition,
+            gameContext,
+            player)
         {
-            _buildingDefinition = buildingDefinition;
-            _definitionIndex = definitionIndex;
-            _config = config;
-            _scene = scene;
+            IsPlacementPreview = true
+        };
 
-            // TODO: Should this be relative to the current camera angle?
-            _angle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
+        _scene.BuildPreviewObject = _previewObject;
 
-            _previewObject = new GameObject(
-                buildingDefinition,
-                gameContext,
-                player)
-            {
-                IsPlacementPreview = true
-            };
+        UpdatePreviewObjectPosition();
+        UpdatePreviewObjectAngle();
+        UpdateValidity();
+    }
 
-            _scene.BuildPreviewObject = _previewObject;
+    public override void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+    {
+        // TODO: Draw arrow (locater02.w3d) to visualise rotation angle.
 
-            UpdatePreviewObjectPosition();
-            UpdatePreviewObjectAngle();
-            UpdateValidity();
+        _previewObject.LocalLogicTick(gameTime, 0, null);
+        _previewObject.BuildRenderList(renderList, camera, gameTime);
+    }
+
+    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    {
+        if (scene.Game.SageGame == SageGame.Bfme)
+        {
+            return OrderGeneratorResult.Inapplicable();
         }
 
-        public override void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
-        {
-            // TODO: Draw arrow (locater02.w3d) to visualise rotation angle.
+        // TODO: Probably not right way to get dozer object.
+        var dozer = scene.LocalPlayer.SelectedUnits.First();
 
-            _previewObject.LocalLogicTick(gameTime, 0, null);
-            _previewObject.BuildRenderList(renderList, camera, gameTime);
+        if (!IsValidPosition())
+        {
+            scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceNoBuild?.Value);
+
+            // TODO: Display correct message:
+            // - GUI:CantBuildRestrictedTerrain
+            // - GUI:CantBuildNotFlatEnough
+            // - GUI:CantBuildObjectsInTheWay
+            // - GUI:CantBuildNoClearPath
+            // - GUI:CantBuildShroud
+            // - GUI:CantBuildThere
+
+            return OrderGeneratorResult.Failure("Invalid position.");
         }
 
-        public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+        var player = scene.LocalPlayer;
+        if (player.BankAccount.Money < _buildingDefinition.BuildCost)
         {
-            if (scene.Game.SageGame == SageGame.Bfme)
-            {
-                return OrderGeneratorResult.Inapplicable();
-            }
-
-            // TODO: Probably not right way to get dozer object.
-            var dozer = scene.LocalPlayer.SelectedUnits.First();
-
-            if (!IsValidPosition())
-            {
-                scene.Audio.PlayAudioEvent(dozer, dozer.Definition.UnitSpecificSounds?.VoiceNoBuild?.Value);
-
-                // TODO: Display correct message:
-                // - GUI:CantBuildRestrictedTerrain
-                // - GUI:CantBuildNotFlatEnough
-                // - GUI:CantBuildObjectsInTheWay
-                // - GUI:CantBuildNoClearPath
-                // - GUI:CantBuildShroud
-                // - GUI:CantBuildThere
-
-                return OrderGeneratorResult.Failure("Invalid position.");
-            }
-
-            var player = scene.LocalPlayer;
-            if (player.BankAccount.Money < _buildingDefinition.BuildCost)
-            {
-                return OrderGeneratorResult.Failure("Not enough cash for construction");
-            }
-
-            var playerIdx = scene.GetPlayerIndex(player);
-            var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, WorldPosition, _angle);
-
-            return OrderGeneratorResult.SuccessAndExit(new[] { buildOrder });
+            return OrderGeneratorResult.Failure("Not enough cash for construction");
         }
 
-        private bool IsValidPosition()
-        {
-            // TODO: Check that the target area has been explored
-            // TODO: Check that the builder can reach target position
-            // TODO: Check that the terrain is even enough at the target position
+        var playerIdx = scene.GetPlayerIndex(player);
+        var buildOrder = Order.CreateBuildObject(playerIdx, _definitionIndex, WorldPosition, _angle);
 
-            var existingObjects = _scene.Game.PartitionCellManager.QueryObjects(
-                _previewObject,
-                _previewObject.Translation,
-                _previewObject.Geometry.BoundingSphereRadius,
-                new PartitionQueries.CollidesWithObjectQuery(_previewObject));
+        return OrderGeneratorResult.SuccessAndExit(new[] { buildOrder });
+    }
 
-            // as long as the items in our way are not structures and not owned by our enemy, we can build here
-            return !_scene.Quadtree.FindIntersecting(_previewObject).Any(u =>
-                u.Definition.KindOf.Get(ObjectKinds.Structure) ||
-                _scene.LocalPlayer.Enemies.Contains(u.Owner));
-        }
+    private bool IsValidPosition()
+    {
+        // TODO: Check that the target area has been explored
+        // TODO: Check that the builder can reach target position
+        // TODO: Check that the terrain is even enough at the target position
 
-        public override void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
-        {
-            base.UpdatePosition(mousePosition, worldPosition);
+        var existingObjects = _scene.Game.PartitionCellManager.QueryObjects(
+            _previewObject,
+            _previewObject.Translation,
+            _previewObject.Geometry.BoundingSphereRadius,
+            new PartitionQueries.CollidesWithObjectQuery(_previewObject));
 
-            UpdatePreviewObjectPosition();
-            UpdateValidity();
-        }
+        // as long as the items in our way are not structures and not owned by our enemy, we can build here
+        return !_scene.Quadtree.FindIntersecting(_previewObject).Any(u =>
+            u.Definition.KindOf.Get(ObjectKinds.Structure) ||
+            _scene.LocalPlayer.Enemies.Contains(u.Owner));
+    }
 
-        private void UpdatePreviewObjectPosition()
-        {
-            _previewObject.SetTranslation(WorldPosition);
-            _previewObject.UpdateColliders();
-            _previewObject.BuildProgress = 1.0f;
-        }
+    public override void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition)
+    {
+        base.UpdatePosition(mousePosition, worldPosition);
 
-        public override void UpdateDrag(Vector3 position)
-        {
-            // Calculate angle from building position to current unprojected mouse position.
-            var direction = position.Vector2XY() - WorldPosition.Vector2XY();
-            _angle = MathUtility.GetYawFromDirection(direction);
+        UpdatePreviewObjectPosition();
+        UpdateValidity();
+    }
 
-            UpdatePreviewObjectAngle();
-            UpdateValidity();
-        }
+    private void UpdatePreviewObjectPosition()
+    {
+        _previewObject.SetTranslation(WorldPosition);
+        _previewObject.UpdateColliders();
+        _previewObject.BuildProgress = 1.0f;
+    }
 
-        private void UpdatePreviewObjectAngle()
-        {
-            _previewObject.SetRotation(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
-        }
+    public override void UpdateDrag(Vector3 position)
+    {
+        // Calculate angle from building position to current unprojected mouse position.
+        var direction = position.Vector2XY() - WorldPosition.Vector2XY();
+        _angle = MathUtility.GetYawFromDirection(direction);
 
-        private void UpdateValidity()
-        {
-            _previewObject.IsPlacementInvalid = !IsValidPosition();
-        }
+        UpdatePreviewObjectAngle();
+        UpdateValidity();
+    }
 
-        // Use radial cursor.
-        public override string GetCursor(KeyModifiers keyModifiers) => null;
+    private void UpdatePreviewObjectAngle()
+    {
+        _previewObject.SetRotation(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
+    }
 
-        public void Dispose()
-        {
-            _scene.Quadtree.Remove(_previewObject);
-            _previewObject.Dispose();
-            _scene.BuildPreviewObject = null;
-        }
+    private void UpdateValidity()
+    {
+        _previewObject.IsPlacementInvalid = !IsValidPosition();
+    }
+
+    // Use radial cursor.
+    public override string GetCursor(KeyModifiers keyModifiers) => null;
+
+    public void Dispose()
+    {
+        _scene.Quadtree.Remove(_previewObject);
+        _previewObject.Dispose();
+        _scene.BuildPreviewObject = null;
     }
 }

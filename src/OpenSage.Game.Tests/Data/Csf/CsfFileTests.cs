@@ -2,26 +2,25 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Csf
+namespace OpenSage.Tests.Data.Csf;
+
+public class CsfFileTests
 {
-    public class CsfFileTests
+    private readonly ITestOutputHelper _output;
+
+    public CsfFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public CsfFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanReadCsfFiles()
+    {
+        InstalledFilesTestData.ReadFiles(".csf", _output, entry =>
         {
-            _output = output;
-        }
+            var csfFile = CsfFile.FromFileSystemEntry(entry);
 
-        [Fact]
-        public void CanReadCsfFiles()
-        {
-            InstalledFilesTestData.ReadFiles(".csf", _output, entry =>
-            {
-                var csfFile = CsfFile.FromFileSystemEntry(entry);
-
-                Assert.NotNull(csfFile);
-            });
-        }
+            Assert.NotNull(csfFile);
+        });
     }
 }

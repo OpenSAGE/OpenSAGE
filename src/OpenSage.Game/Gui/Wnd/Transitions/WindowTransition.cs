@@ -2,136 +2,135 @@
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Wnd.Transitions
+namespace OpenSage.Gui.Wnd.Transitions;
+
+public sealed class WindowTransition : BaseAsset
 {
-    public sealed class WindowTransition : BaseAsset
+    internal static WindowTransition Parse(IniParser parser)
     {
-        internal static WindowTransition Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                 (x, name) => x.SetNameAndInstanceId("WindowTransition", name),
-                 FieldParseTable);
-        }
-
-        private static readonly IniParseTable<WindowTransition> FieldParseTable = new IniParseTable<WindowTransition>
-        {
-            { "Window", (parser, x) => x.Windows.Add(WindowTransitionWindow.Parse(parser)) },
-            { "FireOnce", (parser, x) => x.FireOnce = parser.ParseBoolean() }
-        };
-
-        public List<WindowTransitionWindow> Windows { get; } = new List<WindowTransitionWindow>();
-        public bool FireOnce { get; private set; }
+        return parser.ParseNamedBlock(
+             (x, name) => x.SetNameAndInstanceId("WindowTransition", name),
+             FieldParseTable);
     }
 
-    public sealed class WindowTransitionWindow
+    private static readonly IniParseTable<WindowTransition> FieldParseTable = new IniParseTable<WindowTransition>
     {
-        internal static WindowTransitionWindow Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "Window", (parser, x) => x.Windows.Add(WindowTransitionWindow.Parse(parser)) },
+        { "FireOnce", (parser, x) => x.FireOnce = parser.ParseBoolean() }
+    };
 
-        private static readonly IniParseTable<WindowTransitionWindow> FieldParseTable = new IniParseTable<WindowTransitionWindow>
-        {
-            { "WinName", (parser, x) => x.WinName = parser.ParseAssetReference() },
-            { "Style", (parser, x) => x.Style = parser.ParseEnum<WindowTransitionStyle>() },
-            { "FrameDelay", (parser, x) => x.FrameDelay = parser.ParseInteger() },
-            { "Transition", (parser, x) => x.Transition = WindowTransitionTransition.Parse(parser) }
-        };
+    public List<WindowTransitionWindow> Windows { get; } = new List<WindowTransitionWindow>();
+    public bool FireOnce { get; private set; }
+}
 
-        public string WinName { get; private set; }
-        public WindowTransitionStyle Style { get; private set; }
-        public int FrameDelay { get; private set; }
+public sealed class WindowTransitionWindow
+{
+    internal static WindowTransitionWindow Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.Bfme)]
-        public WindowTransitionTransition Transition { get; private set; }
-    }
+    private static readonly IniParseTable<WindowTransitionWindow> FieldParseTable = new IniParseTable<WindowTransitionWindow>
+    {
+        { "WinName", (parser, x) => x.WinName = parser.ParseAssetReference() },
+        { "Style", (parser, x) => x.Style = parser.ParseEnum<WindowTransitionStyle>() },
+        { "FrameDelay", (parser, x) => x.FrameDelay = parser.ParseInteger() },
+        { "Transition", (parser, x) => x.Transition = WindowTransitionTransition.Parse(parser) }
+    };
+
+    public string WinName { get; private set; }
+    public WindowTransitionStyle Style { get; private set; }
+    public int FrameDelay { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class WindowTransitionTransition
+    public WindowTransitionTransition Transition { get; private set; }
+}
+
+[AddedIn(SageGame.Bfme)]
+public sealed class WindowTransitionTransition
+{
+    internal static WindowTransitionTransition Parse(IniParser parser)
     {
-        internal static WindowTransitionTransition Parse(IniParser parser)
-        {
-            var type = parser.ParseEnum<WindowTransitionStyle>();
-            var result = parser.ParseBlock(FieldParseTable);
-            result.Type = type;
-            return result;
-        }
-
-        private static readonly IniParseTable<WindowTransitionTransition> FieldParseTable = new IniParseTable<WindowTransitionTransition>
-        {
-            { "StartFrame", (parser, x) => x.StartFrame = parser.ParseInteger() },
-            { "EndFrame", (parser, x) => x.EndFrame = parser.ParseInteger() },
-            { "ViewsToFade", (parser, x) => x.ViewsToFade = parser.ParseAssetReference() },
-            { "LeaveSilent", (parser, x) => x.LeaveSilent = parser.ParseBoolean() },
-            { "FadeInUnfrozenSounds", (parser, x) => x.FadeInUnfrozenSounds = parser.ParseBoolean() },
-            { "FadeImage", (parser, x) => x.FadeImage = parser.ParseAssetReference() },
-            { "CrossFadeImage", (parser, x) => x.CrossFadeImage = parser.ParseAssetReference() },
-            { "FadeColor", (parser, x) => x.FadeColor = parser.ParseColorRgb() }
-        };
-
-        public WindowTransitionStyle Type { get; private set; }
-
-        public int StartFrame { get; private set; }
-        public int EndFrame { get; private set; }
-        public string ViewsToFade { get; private set; }
-        public bool LeaveSilent { get; private set; }
-        public bool FadeInUnfrozenSounds { get; private set; }
-        public string FadeImage { get; private set; }
-        public string CrossFadeImage { get; private set; }
-        public ColorRgb FadeColor { get; private set; }
+        var type = parser.ParseEnum<WindowTransitionStyle>();
+        var result = parser.ParseBlock(FieldParseTable);
+        result.Type = type;
+        return result;
     }
 
-    public enum WindowTransitionStyle
+    private static readonly IniParseTable<WindowTransitionTransition> FieldParseTable = new IniParseTable<WindowTransitionTransition>
     {
-        [IniEnum("WINFADE")]
-        WinFade,
+        { "StartFrame", (parser, x) => x.StartFrame = parser.ParseInteger() },
+        { "EndFrame", (parser, x) => x.EndFrame = parser.ParseInteger() },
+        { "ViewsToFade", (parser, x) => x.ViewsToFade = parser.ParseAssetReference() },
+        { "LeaveSilent", (parser, x) => x.LeaveSilent = parser.ParseBoolean() },
+        { "FadeInUnfrozenSounds", (parser, x) => x.FadeInUnfrozenSounds = parser.ParseBoolean() },
+        { "FadeImage", (parser, x) => x.FadeImage = parser.ParseAssetReference() },
+        { "CrossFadeImage", (parser, x) => x.CrossFadeImage = parser.ParseAssetReference() },
+        { "FadeColor", (parser, x) => x.FadeColor = parser.ParseColorRgb() }
+    };
 
-        [IniEnum("FLASH")]
-        Flash,
+    public WindowTransitionStyle Type { get; private set; }
 
-        [IniEnum("BUTTONFLASH")]
-        ButtonFlash,
+    public int StartFrame { get; private set; }
+    public int EndFrame { get; private set; }
+    public string ViewsToFade { get; private set; }
+    public bool LeaveSilent { get; private set; }
+    public bool FadeInUnfrozenSounds { get; private set; }
+    public string FadeImage { get; private set; }
+    public string CrossFadeImage { get; private set; }
+    public ColorRgb FadeColor { get; private set; }
+}
 
-        [IniEnum("REVERSESOUND")]
-        ReverseSound,
+public enum WindowTransitionStyle
+{
+    [IniEnum("WINFADE")]
+    WinFade,
 
-        [IniEnum("WINSCALEUP")]
-        WinScaleUp,
+    [IniEnum("FLASH")]
+    Flash,
 
-        [IniEnum("MAINMENUSCALEUP")]
-        MainMenuScaleUp,
+    [IniEnum("BUTTONFLASH")]
+    ButtonFlash,
 
-        [IniEnum("MAINMENUMEDIUMSCALEUP")]
-        MainMenuMediumScaleUp,
+    [IniEnum("REVERSESOUND")]
+    ReverseSound,
 
-        [IniEnum("TYPETEXT")]
-        TypeText,
+    [IniEnum("WINSCALEUP")]
+    WinScaleUp,
 
-        [IniEnum("SCREENFADE")]
-        ScreenFade,
+    [IniEnum("MAINMENUSCALEUP")]
+    MainMenuScaleUp,
 
-        [IniEnum("TEXTONFRAME")]
-        TextOnFrame,
+    [IniEnum("MAINMENUMEDIUMSCALEUP")]
+    MainMenuMediumScaleUp,
 
-        [IniEnum("SCORESCALEUP")]
-        ScoreScaleUp,
+    [IniEnum("TYPETEXT")]
+    TypeText,
 
-        [IniEnum("COUNTUP"), AddedIn(SageGame.Bfme)]
-        CountUp,
+    [IniEnum("SCREENFADE")]
+    ScreenFade,
 
-        [IniEnum("FULLFADE"), AddedIn(SageGame.Bfme)]
-        FullFade,
+    [IniEnum("TEXTONFRAME")]
+    TextOnFrame,
 
-        [IniEnum("CONTROLBARARROW"), AddedIn(SageGame.Bfme)]
-        ControlBarArrow,
+    [IniEnum("SCORESCALEUP")]
+    ScoreScaleUp,
 
-        [IniEnum("SOUNDFADE"), AddedIn(SageGame.Bfme)]
-        SoundFade,
+    [IniEnum("COUNTUP"), AddedIn(SageGame.Bfme)]
+    CountUp,
 
-        [IniEnum("FREEZE_POST_LOAD_SOUNDS"), AddedIn(SageGame.Bfme)]
-        FreezePostLoadSounds,
+    [IniEnum("FULLFADE"), AddedIn(SageGame.Bfme)]
+    FullFade,
 
-        [IniEnum("IMAGEFADE"), AddedIn(SageGame.Bfme)]
-        ImageFade,
+    [IniEnum("CONTROLBARARROW"), AddedIn(SageGame.Bfme)]
+    ControlBarArrow,
 
-        [IniEnum("IMAGECROSSFADE"), AddedIn(SageGame.Bfme)]
-        ImageCrossFade,
-    }
+    [IniEnum("SOUNDFADE"), AddedIn(SageGame.Bfme)]
+    SoundFade,
+
+    [IniEnum("FREEZE_POST_LOAD_SOUNDS"), AddedIn(SageGame.Bfme)]
+    FreezePostLoadSounds,
+
+    [IniEnum("IMAGEFADE"), AddedIn(SageGame.Bfme)]
+    ImageFade,
+
+    [IniEnum("IMAGECROSSFADE"), AddedIn(SageGame.Bfme)]
+    ImageCrossFade,
 }

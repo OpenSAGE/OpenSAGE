@@ -1,13 +1,13 @@
 ﻿using MoonSharp.Interpreter;
 
-namespace OpenSage.Scripting.Lua
+namespace OpenSage.Scripting.Lua;
+
+/// <summary>
+/// Compability code for LUA 4.0.1
+/// </summary>
+public class LuaCompatibility
 {
-    /// <summary>
-    /// Compability code for LUA 4.0.1
-    /// </summary>
-    public class LuaCompatibility
-    {
-        private const string _compabilityCode = @"
+    private const string _compabilityCode = @"
                 globals = _G
                 function getn(table) return #table end
                 closefile = io.close
@@ -89,12 +89,11 @@ namespace OpenSage.Scripting.Lua
                 function rawsetglobal(index, value) return rawset(_G, index, value) end
                 function _ALERT(...) print('error') end
                 function _ERRORMESSAGE(...) print('error') end";
-        //unsupported (and never used in any SAGE game and it's mods): debug and tag methods, %upvalues
-        //DEPRECATED and actually removed from original SAGE: rawgetglobal, rawsetglobal, foreachvar, nextvar
+    //unsupported (and never used in any SAGE game and it's mods): debug and tag methods, %upvalues
+    //DEPRECATED and actually removed from original SAGE: rawgetglobal, rawsetglobal, foreachvar, nextvar
 
-        public static void Apply(MoonSharp.Interpreter.Script script)
-        {
-            script.DoString(_compabilityCode);
-        }
+    public static void Apply(MoonSharp.Interpreter.Script script)
+    {
+        script.DoString(_compabilityCode);
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace OpenSage.Audio
+﻿namespace OpenSage.Audio;
+
+public enum AudioLodType
 {
-    public enum AudioLodType
-    {
-        Low,
-        High
-    }
+    Low,
+    High
 }

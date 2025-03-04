@@ -1,21 +1,20 @@
-﻿namespace OpenSage.Gui.Wnd
+﻿namespace OpenSage.Gui.Wnd;
+
+public enum WndWindowMessageType
 {
-    public enum WndWindowMessageType
-    {
-        MouseEnter,
-        MouseExit,
+    MouseEnter,
+    MouseExit,
 
-        MouseMove,
+    MouseMove,
 
-        MouseDown,
-        MouseUp,
+    MouseDown,
+    MouseUp,
 
-        MouseRightDown,
-        MouseRightUp,
+    MouseRightDown,
+    MouseRightUp,
 
-        SelectedButton,
+    SelectedButton,
 
-        KeyDown,
-        KeyUp
-    }
+    KeyDown,
+    KeyUp
 }

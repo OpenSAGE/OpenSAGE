@@ -6,136 +6,135 @@ using OpenSage.Gui.DebugUI;
 using OpenSage.Mathematics;
 using Veldrid;
 
-namespace OpenSage.Graphics.Rendering.Shadows
+namespace OpenSage.Graphics.Rendering.Shadows;
+
+internal sealed class ShadowMapRenderer : DisposableBase
 {
-    internal sealed class ShadowMapRenderer : DisposableBase
+    private readonly ShadowFrustumCalculator _shadowFrustumCalculator;
+    private readonly BoundingFrustum _lightFrustum;
+
+    private ShadowData _shadowData;
+
+    private readonly ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> _shadowConstantsPSBuffer;
+    private GlobalShaderResources.ShadowConstantsPS _shadowConstants;
+
+    public Texture ShadowMap => _shadowData?.ShadowMap;
+
+    public ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> ShadowConstantsPSBuffer => _shadowConstantsPSBuffer;
+
+    public ShadowMapRenderer(GraphicsDevice graphicsDevice)
     {
-        private readonly ShadowFrustumCalculator _shadowFrustumCalculator;
-        private readonly BoundingFrustum _lightFrustum;
+        _shadowFrustumCalculator = new ShadowFrustumCalculator();
+        _lightFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
-        private ShadowData _shadowData;
+        _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.ShadowConstantsPS>(
+            graphicsDevice,
+            "ShadowConstantsPS"));
+    }
 
-        private readonly ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> _shadowConstantsPSBuffer;
-        private GlobalShaderResources.ShadowConstantsPS _shadowConstants;
+    public void RenderShadowMap(
+        Scene3D scene,
+        GraphicsDevice graphicsDevice,
+        CommandList commandList,
+        Action<Framebuffer, BoundingFrustum> drawSceneCallback)
+    {
+        // TODO: Use terrain light for terrain self-shadowing?
+        var light = scene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0;
 
-        public Texture ShadowMap => _shadowData?.ShadowMap;
+        // Calculate size of shadow map.
+        var shadowMapSize = scene.Shadows.ShadowMapSize;
+        var numCascades = (uint)scene.Shadows.ShadowMapCascades;
 
-        public ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> ShadowConstantsPSBuffer => _shadowConstantsPSBuffer;
-
-        public ShadowMapRenderer(GraphicsDevice graphicsDevice)
+        if (_shadowData != null && _shadowData.ShadowMap != null
+            && (_shadowData.ShadowMap.Width != shadowMapSize
+            || _shadowData.ShadowMap.Height != shadowMapSize
+            || _shadowData.NearPlaneDistance != scene.Camera.NearPlaneDistance
+            || _shadowData.FarPlaneDistance != scene.Camera.FarPlaneDistance
+            || _shadowData.NumSplits != numCascades))
         {
-            _shadowFrustumCalculator = new ShadowFrustumCalculator();
-            _lightFrustum = new BoundingFrustum(Matrix4x4.Identity);
-
-            _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.ShadowConstantsPS>(
-                graphicsDevice,
-                "ShadowConstantsPS"));
+            RemoveAndDispose(ref _shadowData);
         }
 
-        public void RenderShadowMap(
-            Scene3D scene,
-            GraphicsDevice graphicsDevice,
-            CommandList commandList,
-            Action<Framebuffer, BoundingFrustum> drawSceneCallback)
+        if (_shadowData == null)
         {
-            // TODO: Use terrain light for terrain self-shadowing?
-            var light = scene.Lighting.CurrentLightingConfiguration.LightsPS.Object.Light0;
-
-            // Calculate size of shadow map.
-            var shadowMapSize = scene.Shadows.ShadowMapSize;
-            var numCascades = (uint)scene.Shadows.ShadowMapCascades;
-
-            if (_shadowData != null && _shadowData.ShadowMap != null
-                && (_shadowData.ShadowMap.Width != shadowMapSize
-                || _shadowData.ShadowMap.Height != shadowMapSize
-                || _shadowData.NearPlaneDistance != scene.Camera.NearPlaneDistance
-                || _shadowData.FarPlaneDistance != scene.Camera.FarPlaneDistance
-                || _shadowData.NumSplits != numCascades))
-            {
-                RemoveAndDispose(ref _shadowData);
-            }
-
-            if (_shadowData == null)
-            {
-                _shadowData = AddDisposable(new ShadowData(
-                    numCascades,
-                    scene.Camera.NearPlaneDistance,
-                    scene.Camera.FarPlaneDistance,
-                    shadowMapSize,
-                    graphicsDevice));
-            }
-
-            if (scene.Shadows.ShadowsType != ShadowsType.None)
-            {
-                _shadowFrustumCalculator.CalculateShadowData(
-                    light,
-                    scene.Camera,
-                    _shadowData,
-                    scene.Shadows);
-
-                _shadowConstants.Set(numCascades, scene.Shadows, _shadowData);
-
-                // Render scene geometry to each split of the cascade.
-                for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
-                {
-                    _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
-
-                    drawSceneCallback(
-                        _shadowData.ShadowMapFramebuffers[splitIndex],
-                        _lightFrustum);
-                }
-            }
-            else
-            {
-                _shadowConstants.ShadowsType = ShadowsType.None;
-            }
-
-            _shadowConstantsPSBuffer.Value = _shadowConstants;
-            _shadowConstantsPSBuffer.Update(commandList);
+            _shadowData = AddDisposable(new ShadowData(
+                numCascades,
+                scene.Camera.NearPlaneDistance,
+                scene.Camera.FarPlaneDistance,
+                shadowMapSize,
+                graphicsDevice));
         }
 
-        private static readonly ColorRgbaF[] CascadeColors =
+        if (scene.Shadows.ShadowsType != ShadowsType.None)
         {
-            new ColorRgbaF(1, 0, 0, 1),
-            new ColorRgbaF(0, 1, 0, 1),
-            new ColorRgbaF(0, 0, 1, 1),
-            new ColorRgbaF(1, 1, 1, 1),
-        };
+            _shadowFrustumCalculator.CalculateShadowData(
+                light,
+                scene.Camera,
+                _shadowData,
+                scene.Shadows);
 
-        public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
-        {
-            if (scene?.Shadows.VisualizeShadowFrustums is not true)
-            {
-                return;
-            }
+            _shadowConstants.Set(numCascades, scene.Shadows, _shadowData);
 
+            // Render scene geometry to each split of the cascade.
             for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
             {
                 _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
 
-                var corners = _lightFrustum.Corners;
-                var color = CascadeColors[splitIndex];
-
-                void DrawLine(int start, int end)
-                {
-                    DebugDrawingUtils.DrawLine(drawingContext, scene.Camera, corners[start], corners[end], color);
-                }
-
-                DrawLine(0, 1);
-                DrawLine(1, 2);
-                DrawLine(2, 3);
-                DrawLine(3, 0);
-
-                DrawLine(4, 5);
-                DrawLine(5, 6);
-                DrawLine(6, 7);
-                DrawLine(7, 4);
-
-                DrawLine(0, 4);
-                DrawLine(1, 5);
-                DrawLine(2, 6);
-                DrawLine(3, 7);
+                drawSceneCallback(
+                    _shadowData.ShadowMapFramebuffers[splitIndex],
+                    _lightFrustum);
             }
+        }
+        else
+        {
+            _shadowConstants.ShadowsType = ShadowsType.None;
+        }
+
+        _shadowConstantsPSBuffer.Value = _shadowConstants;
+        _shadowConstantsPSBuffer.Update(commandList);
+    }
+
+    private static readonly ColorRgbaF[] CascadeColors =
+    {
+        new ColorRgbaF(1, 0, 0, 1),
+        new ColorRgbaF(0, 1, 0, 1),
+        new ColorRgbaF(0, 0, 1, 1),
+        new ColorRgbaF(1, 1, 1, 1),
+    };
+
+    public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
+    {
+        if (scene?.Shadows.VisualizeShadowFrustums is not true)
+        {
+            return;
+        }
+
+        for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
+        {
+            _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
+
+            var corners = _lightFrustum.Corners;
+            var color = CascadeColors[splitIndex];
+
+            void DrawLine(int start, int end)
+            {
+                DebugDrawingUtils.DrawLine(drawingContext, scene.Camera, corners[start], corners[end], color);
+            }
+
+            DrawLine(0, 1);
+            DrawLine(1, 2);
+            DrawLine(2, 3);
+            DrawLine(3, 0);
+
+            DrawLine(4, 5);
+            DrawLine(5, 6);
+            DrawLine(6, 7);
+            DrawLine(7, 4);
+
+            DrawLine(0, 4);
+            DrawLine(1, 5);
+            DrawLine(2, 6);
+            DrawLine(3, 7);
         }
     }
 }

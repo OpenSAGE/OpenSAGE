@@ -1,13 +1,12 @@
-﻿namespace OpenSage.FileFormats.W3d
+﻿namespace OpenSage.FileFormats.W3d;
+
+public enum W3dRingShaderFunc : byte
 {
-    public enum W3dRingShaderFunc : byte
-    {
-        Opaque = 0,
+    Opaque = 0,
 
-        Additive,
+    Additive,
 
-        Multiplicative,
+    Multiplicative,
 
-        Alpha = 5,
-    }
+    Alpha = 5,
 }

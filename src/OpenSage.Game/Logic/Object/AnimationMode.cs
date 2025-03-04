@@ -1,25 +1,24 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public enum AnimationMode
 {
-    public enum AnimationMode
-    {
-        [IniEnum("ONCE")]
-        Once,
+    [IniEnum("ONCE")]
+    Once,
 
-        [IniEnum("ONCE_BACKWARDS")]
-        OnceBackwards,
+    [IniEnum("ONCE_BACKWARDS")]
+    OnceBackwards,
 
-        [IniEnum("LOOP")]
-        Loop,
+    [IniEnum("LOOP")]
+    Loop,
 
-        [IniEnum("LOOP_BACKWARDS")]
-        LoopBackwards,
+    [IniEnum("LOOP_BACKWARDS")]
+    LoopBackwards,
 
-        [IniEnum("PING_PONG")]
-        PingPong,
+    [IniEnum("PING_PONG")]
+    PingPong,
 
-        [IniEnum("MANUAL")]
-        Manual
-    }
+    [IniEnum("MANUAL")]
+    Manual
 }

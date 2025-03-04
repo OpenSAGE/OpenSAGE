@@ -1,25 +1,24 @@
-﻿namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers;
+
+internal sealed class ObjectDefectionHelper : ObjectHelperModule
 {
-    internal sealed class ObjectDefectionHelper : ObjectHelperModule
+    private uint _frameStart;
+    private uint _frameEnd;
+    private bool _unknown;
+
+    internal override void Load(StatePersister reader)
     {
-        private uint _frameStart;
-        private uint _frameEnd;
-        private bool _unknown;
+        reader.PersistVersion(1);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+        reader.PersistUInt32(ref _frameStart);
+        reader.PersistUInt32(ref _frameEnd);
 
-            reader.PersistUInt32(ref _frameStart);
-            reader.PersistUInt32(ref _frameEnd);
+        reader.SkipUnknownBytes(4);
 
-            reader.SkipUnknownBytes(4);
-
-            reader.PersistBoolean(ref _unknown);
-        }
+        reader.PersistBoolean(ref _unknown);
     }
 }

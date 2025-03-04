@@ -1,45 +1,44 @@
-﻿namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object;
+
+public abstract class CreateModule : BehaviorModule, ICreateModule
 {
-    public abstract class CreateModule : BehaviorModule, ICreateModule
+    private bool _shouldCallOnBuildComplete = true;
+
+    public virtual void OnCreate() { }
+
+    public void OnBuildComplete()
     {
-        private bool _shouldCallOnBuildComplete = true;
-
-        public virtual void OnCreate() { }
-
-        public void OnBuildComplete()
+        if (!_shouldCallOnBuildComplete)
         {
-            if (!_shouldCallOnBuildComplete)
-            {
-                return;
-            }
-
-            _shouldCallOnBuildComplete = false;
-
-            OnBuildCompleteImpl();
+            return;
         }
 
-        protected virtual void OnBuildCompleteImpl() { }
+        _shouldCallOnBuildComplete = false;
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistBoolean(ref _shouldCallOnBuildComplete);
-        }
+        OnBuildCompleteImpl();
     }
 
-    public abstract class CreateModuleData : BehaviorModuleData
+    protected virtual void OnBuildCompleteImpl() { }
+
+    internal override void Load(StatePersister reader)
     {
-        public override ModuleKinds ModuleKinds => ModuleKinds.Create;
-    }
+        reader.PersistVersion(1);
 
-    public interface ICreateModule
-    {
-        void OnCreate();
-        void OnBuildComplete();
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+
+        reader.PersistBoolean(ref _shouldCallOnBuildComplete);
     }
+}
+
+public abstract class CreateModuleData : BehaviorModuleData
+{
+    public override ModuleKinds ModuleKinds => ModuleKinds.Create;
+}
+
+public interface ICreateModule
+{
+    void OnCreate();
+    void OnBuildComplete();
 }

@@ -1,11 +1,10 @@
-﻿namespace OpenSage.Graphics.Animation
+﻿namespace OpenSage.Graphics.Animation;
+
+public enum AnimationClipType
 {
-    public enum AnimationClipType
-    {
-        TranslationX,
-        TranslationY,
-        TranslationZ,
-        Quaternion,
-        Visibility
-    }
+    TranslationX,
+    TranslationY,
+    TranslationZ,
+    Quaternion,
+    Visibility
 }

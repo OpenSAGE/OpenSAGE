@@ -1,26 +1,25 @@
 ﻿using OpenSage.Logic.Object.Damage;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public abstract class DamageModule : BehaviorModule
 {
-    public abstract class DamageModule : BehaviorModule
+    internal override void Load(StatePersister reader)
     {
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
     }
+}
 
-    internal interface IDamageModule
-    {
-        void OnDamage(in DamageData damageData);
-    }
+internal interface IDamageModule
+{
+    void OnDamage(in DamageData damageData);
+}
 
-    public abstract class DamageModuleData : ContainModuleData
-    {
-        public override ModuleKinds ModuleKinds => ModuleKinds.Damage;
-    }
+public abstract class DamageModuleData : ContainModuleData
+{
+    public override ModuleKinds ModuleKinds => ModuleKinds.Damage;
 }

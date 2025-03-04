@@ -1,14 +1,13 @@
-﻿namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers;
+
+internal sealed class ObjectRepulsorHelper : ObjectHelperModule
 {
-    internal sealed class ObjectRepulsorHelper : ObjectHelperModule
+    // TODO
+
+    internal override void Load(StatePersister reader)
     {
-        // TODO
+        reader.PersistVersion(1);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            base.Load(reader);
-        }
+        base.Load(reader);
     }
 }

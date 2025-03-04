@@ -2,60 +2,59 @@
 using ImGuiNET;
 using Veldrid;
 
-namespace OpenSage.Diagnostics
+namespace OpenSage.Diagnostics;
+
+internal abstract class DiagnosticView : DisposableBase
 {
-    internal abstract class DiagnosticView : DisposableBase
+    private bool _isVisible;
+
+    protected DiagnosticViewContext Context { get; }
+    protected Game Game { get; }
+    protected GameWindow Window { get; }
+    protected ImGuiRenderer ImGuiRenderer { get; }
+
+    public string Name => $"DiagnosticView {DisplayName}";
+
+    public abstract string DisplayName { get; }
+    public virtual Vector2 DefaultSize { get; } = new Vector2(400, 300);
+    public virtual bool Closable { get; } = true;
+
+    public bool IsVisible
     {
-        private bool _isVisible;
+        get => _isVisible;
+        set => _isVisible = value;
+    }
 
-        protected DiagnosticViewContext Context { get; }
-        protected Game Game { get; }
-        protected GameWindow Window { get; }
-        protected ImGuiRenderer ImGuiRenderer { get; }
+    protected DiagnosticView(DiagnosticViewContext context)
+    {
+        Context = context;
+        Game = context.Game;
+        Window = context.Window;
+        ImGuiRenderer = context.ImGuiRenderer;
+    }
 
-        public string Name => $"DiagnosticView {DisplayName}";
-
-        public abstract string DisplayName { get; }
-        public virtual Vector2 DefaultSize { get; } = new Vector2(400, 300);
-        public virtual bool Closable { get; } = true;
-
-        public bool IsVisible
+    public void Draw(ref bool isGameViewFocused)
+    {
+        if (_isVisible)
         {
-            get => _isVisible;
-            set => _isVisible = value;
-        }
+            ImGui.SetNextWindowSize(DefaultSize, ImGuiCond.FirstUseEver);
 
-        protected DiagnosticView(DiagnosticViewContext context)
-        {
-            Context = context;
-            Game = context.Game;
-            Window = context.Window;
-            ImGuiRenderer = context.ImGuiRenderer;
-        }
-
-        public void Draw(ref bool isGameViewFocused)
-        {
-            if (_isVisible)
+            if (Closable)
             {
-                ImGui.SetNextWindowSize(DefaultSize, ImGuiCond.FirstUseEver);
-
-                if (Closable)
+                if (ImGui.Begin($"{DisplayName}##{Name}", ref _isVisible))
                 {
-                    if (ImGui.Begin($"{DisplayName}##{Name}", ref _isVisible))
-                    {
-                        DrawOverride(ref isGameViewFocused);
-                    }
-                    ImGui.End();
-                }
-                else
-                {
-                    ImGui.Begin(DisplayName);
                     DrawOverride(ref isGameViewFocused);
-                    ImGui.End();
                 }
+                ImGui.End();
+            }
+            else
+            {
+                ImGui.Begin(DisplayName);
+                DrawOverride(ref isGameViewFocused);
+                ImGui.End();
             }
         }
-
-        protected abstract void DrawOverride(ref bool isGameViewFocused);
     }
+
+    protected abstract void DrawOverride(ref bool isGameViewFocused);
 }

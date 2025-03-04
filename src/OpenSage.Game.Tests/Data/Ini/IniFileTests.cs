@@ -15,136 +15,135 @@ using OpenSage.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Ini
+namespace OpenSage.Tests.Data.Ini;
+
+public class IniFileTests
 {
-    public class IniFileTests
+    private static readonly Encoding LocaleSpecificEncoding;
+
+    static IniFileTests()
     {
-        private static readonly Encoding LocaleSpecificEncoding;
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        LocaleSpecificEncoding = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.ANSICodePage);
+    }
 
-        static IniFileTests()
+    private readonly ITestOutputHelper _output;
+
+    public IniFileTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
+    [Fact, Trait("Category", "Interactive")]
+    public void CanReadIniFiles()
+    {
+        var gameDefinitions = new[]
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            LocaleSpecificEncoding = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.ANSICodePage);
-        }
+            GameDefinition.FromGame(SageGame.CncGenerals),
+            GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+            GameDefinition.FromGame(SageGame.Bfme),
+            GameDefinition.FromGame(SageGame.Bfme2),
+            GameDefinition.FromGame(SageGame.Bfme2Rotwk),
+        };
 
-        private readonly ITestOutputHelper _output;
+        using var graphicsDevice = GraphicsDeviceUtility.CreateGraphicsDevice(null, null);
 
-        public IniFileTests(ITestOutputHelper output)
+        using var standardGraphicsResources = new StandardGraphicsResources(graphicsDevice);
+        using var shaderSetStore = new ShaderSetStore(graphicsDevice, RenderPipeline.GameOutputDescription);
+        using var shaderResources = new ShaderResourceManager(graphicsDevice, standardGraphicsResources, shaderSetStore);
+        var graphicsLoadContext = new GraphicsLoadContext(graphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
+
+        foreach (var gameDefinition in gameDefinitions)
         {
-            _output = output;
-        }
-
-        [Fact, Trait("Category", "Interactive")]
-        public void CanReadIniFiles()
-        {
-            var gameDefinitions = new[]
+            foreach (var installation in InstallationLocators.FindAllInstallations(gameDefinition))
             {
-                GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
-                GameDefinition.FromGame(SageGame.Bfme),
-                GameDefinition.FromGame(SageGame.Bfme2),
-                GameDefinition.FromGame(SageGame.Bfme2Rotwk),
-            };
+                using var fileSystem = installation.CreateFileSystem();
 
-            using var graphicsDevice = GraphicsDeviceUtility.CreateGraphicsDevice(null, null);
+                var assetStore = new AssetStore(
+                    gameDefinition.Game,
+                    fileSystem,
+                    LanguageUtility.ReadCurrentLanguage(gameDefinition, fileSystem),
+                    graphicsDevice,
+                    standardGraphicsResources,
+                    shaderResources,
+                    shaderSetStore,
+                    gameDefinition.CreateAssetLoadStrategy());
 
-            using var standardGraphicsResources = new StandardGraphicsResources(graphicsDevice);
-            using var shaderSetStore = new ShaderSetStore(graphicsDevice, RenderPipeline.GameOutputDescription);
-            using var shaderResources = new ShaderResourceManager(graphicsDevice, standardGraphicsResources, shaderSetStore);
-            var graphicsLoadContext = new GraphicsLoadContext(graphicsDevice, standardGraphicsResources, shaderResources, shaderSetStore);
+                assetStore.PushScope();
 
-            foreach (var gameDefinition in gameDefinitions)
-            {
-                foreach (var installation in InstallationLocators.FindAllInstallations(gameDefinition))
+                var dataContext = new IniDataContext();
+
+                void LoadIniFile(FileSystemEntry entry)
                 {
-                    using var fileSystem = installation.CreateFileSystem();
-
-                    var assetStore = new AssetStore(
+                    var parser = new IniParser(
+                        entry,
+                        assetStore,
                         gameDefinition.Game,
-                        fileSystem,
-                        LanguageUtility.ReadCurrentLanguage(gameDefinition, fileSystem),
-                        graphicsDevice,
-                        standardGraphicsResources,
-                        shaderResources,
-                        shaderSetStore,
-                        gameDefinition.CreateAssetLoadStrategy());
+                        dataContext,
+                        LocaleSpecificEncoding);
 
-                    assetStore.PushScope();
+                    parser.ParseFile();
+                }
 
-                    var dataContext = new IniDataContext();
+                switch (gameDefinition.Game)
+                {
+                    case SageGame.Bfme:
+                    case SageGame.Bfme2:
+                    case SageGame.Bfme2Rotwk:
+                        LoadIniFile(fileSystem.GetFile(@"Data\INI\GameData.ini"));
+                        break;
+                }
 
-                    void LoadIniFile(FileSystemEntry entry)
+                foreach (var file in fileSystem.GetFilesInDirectory("", $"*.ini", SearchOption.AllDirectories))
+                {
+                    var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
+
+                    switch (filename)
                     {
-                        var parser = new IniParser(
-                            entry,
-                            assetStore,
-                            gameDefinition.Game,
-                            dataContext,
-                            LocaleSpecificEncoding);
+                        case "webpages.ini": // Don't care about this
 
-                        parser.ParseFile();
-                    }
+                        case "buttonsets.ini": // Doesn't seem to be used?
+                        case "scripts.ini": // Only needed by World Builder?
+                        case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
+                        case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
+                        case "lightpoints.ini": // Don't know if this is used.
 
-                    switch (gameDefinition.Game)
-                    {
-                        case SageGame.Bfme:
-                        case SageGame.Bfme2:
-                        case SageGame.Bfme2Rotwk:
-                            LoadIniFile(fileSystem.GetFile(@"Data\INI\GameData.ini"));
+                        //added in BFME and subsequent games
+                        case "optionregistry.ini": // Don't know if this is used
+                        case "localization.ini": // Don't know if we need this
+                            continue;
+
+                        case "credits.ini":
+                            if (gameDefinition.Game == SageGame.Bfme2Rotwk) //corrupted in rotwk (start of the block is commented out)
+                            {
+                                continue;
+                            }
+                            break;
+
+                        //mods specific
+
+                        //edain mod
+                        case "einstellungen.ini":
+                        case "einstellungendeakt.ini":
+                        case "einstellungenedain.ini":
+                        case "news.ini":
+                            continue;
+
+                        //unofficial patch 2.02
+                        case "desktop.ini": //got into a big file somehow
+                        case "2.01.ini":
+                        case "disable timer.ini":
+                        case "enable timer.ini":
+                        case "old music.ini":
+                            continue;
+                        default:
+                            if (filename.StartsWith("2.02")) { continue; }
                             break;
                     }
 
-                    foreach (var file in fileSystem.GetFilesInDirectory("", $"*.ini", SearchOption.AllDirectories))
-                    {
-                        var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
+                    _output.WriteLine($"Reading file {file.FilePath}.");
 
-                        switch (filename)
-                        {
-                            case "webpages.ini": // Don't care about this
-
-                            case "buttonsets.ini": // Doesn't seem to be used?
-                            case "scripts.ini": // Only needed by World Builder?
-                            case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
-                            case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
-                            case "lightpoints.ini": // Don't know if this is used.
-
-                            //added in BFME and subsequent games
-                            case "optionregistry.ini": // Don't know if this is used
-                            case "localization.ini": // Don't know if we need this
-                                continue;
-
-                            case "credits.ini":
-                                if (gameDefinition.Game == SageGame.Bfme2Rotwk) //corrupted in rotwk (start of the block is commented out)
-                                {
-                                    continue;
-                                }
-                                break;
-
-                            //mods specific
-
-                            //edain mod
-                            case "einstellungen.ini":
-                            case "einstellungendeakt.ini":
-                            case "einstellungenedain.ini":
-                            case "news.ini":
-                                continue;
-
-                            //unofficial patch 2.02
-                            case "desktop.ini": //got into a big file somehow
-                            case "2.01.ini":
-                            case "disable timer.ini":
-                            case "enable timer.ini":
-                            case "old music.ini":
-                                continue;
-                            default:
-                                if (filename.StartsWith("2.02")) { continue; }
-                                break;
-                        }
-
-                        _output.WriteLine($"Reading file {file.FilePath}.");
-
-                        LoadIniFile(file);
-                    }
+                    LoadIniFile(file);
                 }
             }
         }

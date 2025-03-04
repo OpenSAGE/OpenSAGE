@@ -1,11 +1,10 @@
 ﻿using System;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public interface IConditionState<T>
+    where T : Enum
 {
-    public interface IConditionState<T>
-        where T : Enum
-    {
-        ReadOnlySpan<BitArray<T>> ConditionFlags { get; }
-    }
+    ReadOnlySpan<BitArray<T>> ConditionFlags { get; }
 }

@@ -1,20 +1,19 @@
 ﻿#nullable enable
 
-namespace OpenSage.Logic.AI.AIStates
+namespace OpenSage.Logic.AI.AIStates;
+
+internal sealed class ExitContainerState : State
 {
-    internal sealed class ExitContainerState : State
+    private uint _containerObjectId;
+
+    internal ExitContainerState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        private uint _containerObjectId;
+    }
 
-        internal ExitContainerState(AIUpdateStateMachine stateMachine) : base(stateMachine)
-        {
-        }
+    public override void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.PersistObjectID(ref _containerObjectId);
-        }
+        reader.PersistObjectID(ref _containerObjectId);
     }
 }

@@ -11,641 +11,640 @@ using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
-namespace OpenSage.Graphics.ParticleSystems
+namespace OpenSage.Graphics.ParticleSystems;
+
+[DebuggerDisplay("ParticleSystem {Template.Name}")]
+public sealed class ParticleSystem : RenderObject, IPersistableObject
 {
-    [DebuggerDisplay("ParticleSystem {Template.Name}")]
-    public sealed class ParticleSystem : RenderObject, IPersistableObject
+    public const int KeyframeCount = 8;
+
+    public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
+
+    private readonly GetMatrixReferenceDelegate _getWorldMatrix;
+    private readonly Matrix4x4 _worldMatrix;
+
+    private readonly FXParticleEmissionVelocityBase _velocityType;
+    private readonly FXParticleEmissionVolumeBase _volumeType;
+
+    private readonly Material _particleMaterial;
+
+    private int _initialDelay;
+
+    private readonly float _startSizeRate;
+
+    private float _startSize;
+
+    internal readonly ParticleColorKeyframe[] ColorKeyframes = new ParticleColorKeyframe[KeyframeCount];
+
+    private TimeSpan _nextUpdate;
+
+    private int _timer;
+    private int _nextBurst;
+
+    private uint _systemId;
+
+    private uint _attachedToDrawableId;
+    private uint _attachedToObjectId;
+
+    private bool _localTransformIsIdentity = true;
+    private Matrix4x3 _localTransform = Matrix4x3.Identity;
+
+    private bool _worldTransformIsIdentity = true;
+    private Matrix4x3 _worldTransform = Matrix4x3.Identity;
+
+    private uint _unknownInt1;
+    private uint _unknownInt2;
+    private uint _unknownInt3;
+    private uint _unknownInt4;
+    private uint _unknownInt5;
+    private bool _hasInfiniteLifetime;
+    private float _unknownFloat1;
+    private bool _unknownBool1;
+    private Vector3 _position;
+    private Vector3 _positionPrevious;
+    private bool _unknownBool2;
+    private uint _slaveSystemId;
+    private uint _masterSystemId;
+
+    private Particle[] _particles;
+    private readonly List<int> _deadList;
+
+    private readonly DeviceBuffer _vertexBuffer;
+    private readonly ParticleShaderResources.ParticleVertex[] _vertices;
+
+    private readonly DeviceBuffer _indexBuffer;
+    private readonly uint _numIndices;
+
+    public FXParticleSystemTemplate Template { get; }
+
+    public ParticleSystemState State { get; private set; }
+
+    public int CurrentParticleCount { get; private set; }
+
+    public override string DebugName { get; }
+
+    public override MaterialPass MaterialPass { get; }
+
+    public override AxisAlignedBoundingBox BoundingBox =>
+        AxisAlignedBoundingBox.CreateFromSphere(
+            new BoundingSphere(
+                _worldTransform.Translation,
+                10)); // TODO
+
+    internal ParticleSystem(
+        FXParticleSystemTemplate template,
+        AssetLoadContext loadContext,
+        GetMatrixReferenceDelegate getWorldMatrix)
+        : this(template, loadContext)
     {
-        public const int KeyframeCount = 8;
+        _getWorldMatrix = getWorldMatrix;
+    }
 
-        public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
+    internal ParticleSystem(
+        FXParticleSystemTemplate template,
+        AssetLoadContext loadContext,
+        in Matrix4x4 worldMatrix)
+        : this(template, loadContext)
+    {
+        _worldMatrix = worldMatrix;
+    }
 
-        private readonly GetMatrixReferenceDelegate _getWorldMatrix;
-        private readonly Matrix4x4 _worldMatrix;
+    private ParticleSystem(
+        FXParticleSystemTemplate template,
+        AssetLoadContext loadContext)
+    {
+        Template = template;
 
-        private readonly FXParticleEmissionVelocityBase _velocityType;
-        private readonly FXParticleEmissionVolumeBase _volumeType;
+        var maxParticles = CalculateMaxParticles();
 
-        private readonly Material _particleMaterial;
-
-        private int _initialDelay;
-
-        private readonly float _startSizeRate;
-
-        private float _startSize;
-
-        internal readonly ParticleColorKeyframe[] ColorKeyframes = new ParticleColorKeyframe[KeyframeCount];
-
-        private TimeSpan _nextUpdate;
-
-        private int _timer;
-        private int _nextBurst;
-
-        private uint _systemId;
-
-        private uint _attachedToDrawableId;
-        private uint _attachedToObjectId;
-
-        private bool _localTransformIsIdentity = true;
-        private Matrix4x3 _localTransform = Matrix4x3.Identity;
-
-        private bool _worldTransformIsIdentity = true;
-        private Matrix4x3 _worldTransform = Matrix4x3.Identity;
-
-        private uint _unknownInt1;
-        private uint _unknownInt2;
-        private uint _unknownInt3;
-        private uint _unknownInt4;
-        private uint _unknownInt5;
-        private bool _hasInfiniteLifetime;
-        private float _unknownFloat1;
-        private bool _unknownBool1;
-        private Vector3 _position;
-        private Vector3 _positionPrevious;
-        private bool _unknownBool2;
-        private uint _slaveSystemId;
-        private uint _masterSystemId;
-
-        private Particle[] _particles;
-        private readonly List<int> _deadList;
-
-        private readonly DeviceBuffer _vertexBuffer;
-        private readonly ParticleShaderResources.ParticleVertex[] _vertices;
-
-        private readonly DeviceBuffer _indexBuffer;
-        private readonly uint _numIndices;
-
-        public FXParticleSystemTemplate Template { get; }
-
-        public ParticleSystemState State { get; private set; }
-
-        public int CurrentParticleCount { get; private set; }
-
-        public override string DebugName { get; }
-
-        public override MaterialPass MaterialPass { get; }
-
-        public override AxisAlignedBoundingBox BoundingBox =>
-            AxisAlignedBoundingBox.CreateFromSphere(
-                new BoundingSphere(
-                    _worldTransform.Translation,
-                    10)); // TODO
-
-        internal ParticleSystem(
-            FXParticleSystemTemplate template,
-            AssetLoadContext loadContext,
-            GetMatrixReferenceDelegate getWorldMatrix)
-            : this(template, loadContext)
+        // If this system never emits any particles, there's no reason to fully initialise it.
+        if (maxParticles == 0)
         {
-            _getWorldMatrix = getWorldMatrix;
+            return;
         }
 
-        internal ParticleSystem(
-            FXParticleSystemTemplate template,
-            AssetLoadContext loadContext,
-            in Matrix4x4 worldMatrix)
-            : this(template, loadContext)
+        // TODO: This might not always be the right thing to do?
+        if (template.ParticleTexture?.Value == null)
         {
-            _worldMatrix = worldMatrix;
+            return;
         }
 
-        private ParticleSystem(
-            FXParticleSystemTemplate template,
-            AssetLoadContext loadContext)
+        DebugName = $"ParticleSystem_{Template.Name}";
+
+        var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
+
+        _particleMaterial = particleShaderSet.GetMaterial(Template);
+
+        MaterialPass = new MaterialPass(_particleMaterial, null);
+
+        _velocityType = Template.EmissionVelocity;
+        _volumeType = Template.EmissionVolume;
+
+        _initialDelay = Template.InitialDelay.GetRandomInt();
+
+        _startSizeRate = Template.StartSizeRate.GetRandomFloat();
+        _startSize = 0;
+
+        for (var i = 0; i < KeyframeCount; i++)
         {
-            Template = template;
+            ColorKeyframes[i] = new ParticleColorKeyframe(Template.Colors.ColorKeyframes[i]);
+        }
 
-            var maxParticles = CalculateMaxParticles();
+        _particles = new Particle[maxParticles];
+        for (var i = 0; i < _particles.Length; i++)
+        {
+            _particles[i] = new Particle(this);
+        }
 
-            // If this system never emits any particles, there's no reason to fully initialise it.
-            if (maxParticles == 0)
-            {
-                return;
-            }
+        _deadList = new List<int>();
+        _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
-            // TODO: This might not always be the right thing to do?
-            if (template.ParticleTexture?.Value == null)
-            {
-                return;
-            }
+        var numVertices = maxParticles * 4;
+        _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
+            new BufferDescription(
+                (uint)(ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
+                BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
-            DebugName = $"ParticleSystem_{Template.Name}";
+        _vertices = new ParticleShaderResources.ParticleVertex[numVertices];
 
-            var particleShaderSet = loadContext.ShaderSetStore.GetParticleShaderSet();
+        _indexBuffer = AddDisposable(CreateIndexBuffer(
+            loadContext.GraphicsDevice,
+            maxParticles,
+            out _numIndices));
 
-            _particleMaterial = particleShaderSet.GetMaterial(Template);
+        State = ParticleSystemState.Active;
+    }
 
-            MaterialPass = new MaterialPass(_particleMaterial, null);
-
-            _velocityType = Template.EmissionVelocity;
-            _volumeType = Template.EmissionVolume;
-
-            _initialDelay = Template.InitialDelay.GetRandomInt();
-
-            _startSizeRate = Template.StartSizeRate.GetRandomFloat();
-            _startSize = 0;
-
-            for (var i = 0; i < KeyframeCount; i++)
-            {
-                ColorKeyframes[i] = new ParticleColorKeyframe(Template.Colors.ColorKeyframes[i]);
-            }
-
-            _particles = new Particle[maxParticles];
-            for (var i = 0; i < _particles.Length; i++)
-            {
-                _particles[i] = new Particle(this);
-            }
-
-            _deadList = new List<int>();
-            _deadList.AddRange(Enumerable.Range(0, maxParticles));
-
-            var numVertices = maxParticles * 4;
-            _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(
-                    (uint)(ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
-                    BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
-
-            _vertices = new ParticleShaderResources.ParticleVertex[numVertices];
-
-            _indexBuffer = AddDisposable(CreateIndexBuffer(
-                loadContext.GraphicsDevice,
-                maxParticles,
-                out _numIndices));
-
+    public void Activate()
+    {
+        if (State == ParticleSystemState.Inactive)
+        {
             State = ParticleSystemState.Active;
         }
+    }
 
-        public void Activate()
+    public void Deactivate()
+    {
+        if (State == ParticleSystemState.Active)
         {
-            if (State == ParticleSystemState.Inactive)
-            {
-                State = ParticleSystemState.Active;
-            }
+            State = ParticleSystemState.Inactive;
+        }
+    }
+
+    public void Finish()
+    {
+        State = ParticleSystemState.Finished;
+    }
+
+    private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
+    {
+        numIndices = (uint)maxParticles * 2 * 3; // Two triangles per particle.
+        var indices = new ushort[numIndices];
+        var indexCounter = 0;
+        for (ushort i = 0; i < maxParticles * 4; i += 4)
+        {
+            indices[indexCounter++] = (ushort)(i + 0);
+            indices[indexCounter++] = (ushort)(i + 2);
+            indices[indexCounter++] = (ushort)(i + 1);
+
+            indices[indexCounter++] = (ushort)(i + 1);
+            indices[indexCounter++] = (ushort)(i + 2);
+            indices[indexCounter++] = (ushort)(i + 3);
         }
 
-        public void Deactivate()
+        var result = graphicsDevice.CreateStaticBuffer(
+            indices,
+            BufferUsage.IndexBuffer);
+
+        return result;
+    }
+
+    private int CalculateMaxParticles()
+    {
+        // TODO: Is this right?
+        // How about IsOneShot?
+        var maxLifetime = Template.SystemLifetime > 0
+            ? Math.Min(Template.Lifetime.High, Template.SystemLifetime)
+            : Template.Lifetime.High;
+        return (int)Template.BurstCount.High + (int)MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
+    }
+
+    internal bool Update(in TimeInterval gameTime)
+    {
+        if (_particles == null)
         {
-            if (State == ParticleSystemState.Active)
-            {
-                State = ParticleSystemState.Inactive;
-            }
+            return false;
         }
 
-        public void Finish()
+        if (gameTime.TotalTime < _nextUpdate)
+        {
+            return false;
+        }
+
+        if (_nextUpdate == TimeSpan.Zero)
+        {
+            _nextUpdate = gameTime.TotalTime;
+        }
+
+        _nextUpdate += TimeSpan.FromSeconds(1 / 30.0f);
+
+        if (_initialDelay > 0)
+        {
+            _initialDelay -= 1;
+            return false;
+        }
+
+        ref readonly var worldMatrix = ref GetWorldMatrix();
+
+        // TODO: Use _localTransform too.
+        worldMatrix.ToMatrix4x3(out _worldTransform);
+
+        if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
         {
             State = ParticleSystemState.Finished;
         }
 
-        private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
+        for (var i = 0; i < _particles.Length; i++)
         {
-            numIndices = (uint)maxParticles * 2 * 3; // Two triangles per particle.
-            var indices = new ushort[numIndices];
-            var indexCounter = 0;
-            for (ushort i = 0; i < maxParticles * 4; i += 4)
-            {
-                indices[indexCounter++] = (ushort)(i + 0);
-                indices[indexCounter++] = (ushort)(i + 2);
-                indices[indexCounter++] = (ushort)(i + 1);
+            ref var particle = ref _particles[i];
 
-                indices[indexCounter++] = (ushort)(i + 1);
-                indices[indexCounter++] = (ushort)(i + 2);
-                indices[indexCounter++] = (ushort)(i + 3);
+            if (particle.Dead)
+            {
+                continue;
             }
 
-            var result = graphicsDevice.CreateStaticBuffer(
-                indices,
-                BufferUsage.IndexBuffer);
-
-            return result;
-        }
-
-        private int CalculateMaxParticles()
-        {
-            // TODO: Is this right?
-            // How about IsOneShot?
-            var maxLifetime = Template.SystemLifetime > 0
-                ? Math.Min(Template.Lifetime.High, Template.SystemLifetime)
-                : Template.Lifetime.High;
-            return (int)Template.BurstCount.High + (int)MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
-        }
-
-        internal bool Update(in TimeInterval gameTime)
-        {
-            if (_particles == null)
+            if (particle.Timer > particle.Lifetime)
             {
-                return false;
-            }
-
-            if (gameTime.TotalTime < _nextUpdate)
-            {
-                return false;
-            }
-
-            if (_nextUpdate == TimeSpan.Zero)
-            {
-                _nextUpdate = gameTime.TotalTime;
-            }
-
-            _nextUpdate += TimeSpan.FromSeconds(1 / 30.0f);
-
-            if (_initialDelay > 0)
-            {
-                _initialDelay -= 1;
-                return false;
-            }
-
-            ref readonly var worldMatrix = ref GetWorldMatrix();
-
-            // TODO: Use _localTransform too.
-            worldMatrix.ToMatrix4x3(out _worldTransform);
-
-            if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
-            {
-                State = ParticleSystemState.Finished;
-            }
-
-            for (var i = 0; i < _particles.Length; i++)
-            {
-                ref var particle = ref _particles[i];
-
-                if (particle.Dead)
-                {
-                    continue;
-                }
-
-                if (particle.Timer > particle.Lifetime)
-                {
-                    particle.Dead = true;
-                    _deadList.Add(i);
-                }
-            }
-
-            if (State == ParticleSystemState.Active)
-            {
-                EmitParticles();
-            }
-
-            var particleCount = 0;
-
-            for (var i = 0; i < _particles.Length; i++)
-            {
-                ref var particle = ref _particles[i];
-
-                if (particle.Dead)
-                {
-                    continue;
-                }
-
-                UpdateParticle(ref particle);
-
-                particleCount++;
-            }
-
-            CurrentParticleCount = particleCount;
-
-            if (particleCount == 0 && State == ParticleSystemState.Finished)
-            {
-                State = ParticleSystemState.Dead;
-            }
-
-            _timer += 1;
-
-            return true;
-        }
-
-        private void EmitParticles()
-        {
-            if (_nextBurst > 0)
-            {
-                _nextBurst -= 1;
-                return;
-            }
-
-            _nextBurst = Template.BurstDelay.GetRandomInt();
-
-            var burstCount = Template.BurstCount.GetRandomInt();
-
-            for (var i = 0; i < burstCount; i++)
-            {
-                var ray = _volumeType.GetRay();
-
-                var velocity = _velocityType?.GetVelocity(ray.Direction, Template.EmissionVolume) ?? Vector3.Zero;
-
-                // TODO: Look at Definition.Type == Streak, etc.
-
-                ref var newParticle = ref FindDeadParticleOrCreateNewOne();
-
-                var worldPosition = Vector3Utility.Transform(ray.Position, _worldTransform);
-
-                var worldVelocity = Vector3Utility.TransformNormal(velocity, _worldTransform);
-
-                InitializeParticle(
-                    ref newParticle,
-                    worldPosition,
-                    worldVelocity,
-                    _startSize);
-
-                // TODO: Is this definitely incremented per particle, not per burst?
-                _startSize = Math.Min(_startSize + _startSizeRate, 50);
+                particle.Dead = true;
+                _deadList.Add(i);
             }
         }
 
-        private void InitializeParticle(
-            ref Particle particle,
-            in Vector3 position,
-            in Vector3 velocity,
-            float startSize)
+        if (State == ParticleSystemState.Active)
         {
-            particle.Dead = false;
-            particle.Timer = 0;
-
-            particle.Position = position;
-            particle.Velocity = velocity;
-
-            var update = (FXParticleUpdateDefault)Template.Update;
-
-            particle.AngleZ = update.AngleZ.GetRandomFloat();
-            particle.AngularRateZ = update.AngularRateZ.GetRandomFloat();
-            particle.AngularDamping = update.AngularDamping.GetRandomFloat();
-
-            particle.Lifetime = Template.Lifetime.GetRandomInt();
-
-            particle.ColorScale = Template.Colors.ColorScale.GetRandomFloat();
-
-            particle.Size = startSize + Template.Size.GetRandomFloat();
-            particle.SizeRate = update.SizeRate.GetRandomFloat();
-            particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
-
-            var physics = (FXParticleDefaultPhysics)Template.Physics;
-            particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
-
-            if (Template.Alpha is not null)
-            {
-                for (var i = 0; i < KeyframeCount; i++)
-                {
-                    particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
-                }
-            }
+            EmitParticles();
         }
 
-        private ref Particle FindDeadParticleOrCreateNewOne()
+        var particleCount = 0;
+
+        for (var i = 0; i < _particles.Length; i++)
         {
-            if (_deadList.Count == 0)
+            ref var particle = ref _particles[i];
+
+            if (particle.Dead)
             {
-                throw new InvalidOperationException("Ran out of available particles; this should never happen.");
+                continue;
             }
 
-            var first = _deadList[0];
+            UpdateParticle(ref particle);
 
-            _deadList.RemoveAt(0);
-
-            return ref _particles[first];
+            particleCount++;
         }
 
-        private void UpdateParticle(ref Particle particle)
+        CurrentParticleCount = particleCount;
+
+        if (particleCount == 0 && State == ParticleSystemState.Finished)
         {
-            var physics = (FXParticleDefaultPhysics)Template.Physics;
+            State = ParticleSystemState.Dead;
+        }
 
-            particle.Velocity *= particle.VelocityDamping;
+        _timer += 1;
 
-            if (physics != null)
+        return true;
+    }
+
+    private void EmitParticles()
+    {
+        if (_nextBurst > 0)
+        {
+            _nextBurst -= 1;
+            return;
+        }
+
+        _nextBurst = Template.BurstDelay.GetRandomInt();
+
+        var burstCount = Template.BurstCount.GetRandomInt();
+
+        for (var i = 0; i < burstCount; i++)
+        {
+            var ray = _volumeType.GetRay();
+
+            var velocity = _velocityType?.GetVelocity(ray.Direction, Template.EmissionVolume) ?? Vector3.Zero;
+
+            // TODO: Look at Definition.Type == Streak, etc.
+
+            ref var newParticle = ref FindDeadParticleOrCreateNewOne();
+
+            var worldPosition = Vector3Utility.Transform(ray.Position, _worldTransform);
+
+            var worldVelocity = Vector3Utility.TransformNormal(velocity, _worldTransform);
+
+            InitializeParticle(
+                ref newParticle,
+                worldPosition,
+                worldVelocity,
+                _startSize);
+
+            // TODO: Is this definitely incremented per particle, not per burst?
+            _startSize = Math.Min(_startSize + _startSizeRate, 50);
+        }
+    }
+
+    private void InitializeParticle(
+        ref Particle particle,
+        in Vector3 position,
+        in Vector3 velocity,
+        float startSize)
+    {
+        particle.Dead = false;
+        particle.Timer = 0;
+
+        particle.Position = position;
+        particle.Velocity = velocity;
+
+        var update = (FXParticleUpdateDefault)Template.Update;
+
+        particle.AngleZ = update.AngleZ.GetRandomFloat();
+        particle.AngularRateZ = update.AngularRateZ.GetRandomFloat();
+        particle.AngularDamping = update.AngularDamping.GetRandomFloat();
+
+        particle.Lifetime = Template.Lifetime.GetRandomInt();
+
+        particle.ColorScale = Template.Colors.ColorScale.GetRandomFloat();
+
+        particle.Size = startSize + Template.Size.GetRandomFloat();
+        particle.SizeRate = update.SizeRate.GetRandomFloat();
+        particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
+
+        var physics = (FXParticleDefaultPhysics)Template.Physics;
+        particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
+
+        if (Template.Alpha is not null)
+        {
+            for (var i = 0; i < KeyframeCount; i++)
             {
-                particle.Velocity.Z += physics.Gravity;
+                particle.AlphaKeyframes[i] = new ParticleAlphaKeyframe(Template.Alpha.AlphaKeyframes[i]);
             }
+        }
+    }
 
-            var totalVelocity = particle.Velocity;
+    private ref Particle FindDeadParticleOrCreateNewOne()
+    {
+        if (_deadList.Count == 0)
+        {
+            throw new InvalidOperationException("Ran out of available particles; this should never happen.");
+        }
 
-            if (physics != null)
+        var first = _deadList[0];
+
+        _deadList.RemoveAt(0);
+
+        return ref _particles[first];
+    }
+
+    private void UpdateParticle(ref Particle particle)
+    {
+        var physics = (FXParticleDefaultPhysics)Template.Physics;
+
+        particle.Velocity *= particle.VelocityDamping;
+
+        if (physics != null)
+        {
+            particle.Velocity.Z += physics.Gravity;
+        }
+
+        var totalVelocity = particle.Velocity;
+
+        if (physics != null)
+        {
+            totalVelocity += physics.DriftVelocity;
+        }
+
+        particle.Position += totalVelocity;
+
+        particle.Size = Math.Max(particle.Size + particle.SizeRate, 0.001f);
+        particle.SizeRate *= particle.SizeRateDamping;
+
+        particle.AngleZ += particle.AngularRateZ;
+        particle.AngularRateZ *= particle.AngularDamping;
+
+        FindKeyframes(particle.Timer, ColorKeyframes, out var nextC, out var prevC);
+
+        if (!prevC.Equals(nextC))
+        {
+            var colorInterpoland = (float)(particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
+            particle.Color = Vector3.Lerp(prevC.Color, nextC.Color, colorInterpoland);
+        }
+        else
+        {
+            particle.Color = prevC.Color;
+        }
+        var colorVal = particle.ColorScale * particle.Timer / 255.0f;
+        particle.Color.X += colorVal;
+        particle.Color.Y += colorVal;
+        particle.Color.Z += colorVal;
+
+        if (particle.AlphaKeyframes.Length > 1)
+        {
+            FindKeyframes(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
+
+            if (!prevA.Equals(nextA))
             {
-                totalVelocity += physics.DriftVelocity;
-            }
-
-            particle.Position += totalVelocity;
-
-            particle.Size = Math.Max(particle.Size + particle.SizeRate, 0.001f);
-            particle.SizeRate *= particle.SizeRateDamping;
-
-            particle.AngleZ += particle.AngularRateZ;
-            particle.AngularRateZ *= particle.AngularDamping;
-
-            FindKeyframes(particle.Timer, ColorKeyframes, out var nextC, out var prevC);
-
-            if (!prevC.Equals(nextC))
-            {
-                var colorInterpoland = (float)(particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
-                particle.Color = Vector3.Lerp(prevC.Color, nextC.Color, colorInterpoland);
+                var alphaInterpoland = (float)(particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
+                particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
             }
             else
             {
-                particle.Color = prevC.Color;
-            }
-            var colorVal = particle.ColorScale * particle.Timer / 255.0f;
-            particle.Color.X += colorVal;
-            particle.Color.Y += colorVal;
-            particle.Color.Z += colorVal;
-
-            if (particle.AlphaKeyframes.Length > 1)
-            {
-                FindKeyframes(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
-
-                if (!prevA.Equals(nextA))
-                {
-                    var alphaInterpoland = (float)(particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
-                    particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
-                }
-                else
-                {
-                    particle.Alpha = prevA.Alpha;
-                }
-            }
-            else
-            {
-                particle.Alpha = 1;
-            }
-
-            particle.Timer += 1;
-        }
-
-        private static void FindKeyframes<T>(
-            int timer,
-            T[] keyFrames,
-            out T next, out T prev)
-            where T : struct, IParticleKeyframe
-        {
-            prev = keyFrames[0];
-            next = prev;
-
-            foreach (var keyFrame in keyFrames)
-            {
-                if (keyFrame.Time >= timer)
-                {
-                    next = keyFrame;
-                    break;
-                }
-
-                prev = keyFrame;
+                particle.Alpha = prevA.Alpha;
             }
         }
-
-        private void UpdateVertexBuffer(CommandList commandList)
+        else
         {
-            var vertexIndex = 0;
-
-            for (var i = 0; i < _particles.Length; i++)
-            {
-                ref var particle = ref _particles[i];
-
-                var particleVertex = new ParticleShaderResources.ParticleVertex
-                {
-                    Position = particle.Position,
-                    Size = particle.Dead ? 0 : particle.Size,
-                    Color = particle.Color,
-                    Alpha = particle.Alpha,
-                    AngleZ = particle.AngleZ,
-                };
-
-                // Repeat vertices 4 times; in the vertex shader, these will be transformed
-                // into the 4 corners of a quad.
-                _vertices[vertexIndex++] = particleVertex;
-                _vertices[vertexIndex++] = particleVertex;
-                _vertices[vertexIndex++] = particleVertex;
-                _vertices[vertexIndex++] = particleVertex;
-            }
-
-            commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
+            particle.Alpha = 1;
         }
 
-        public override void Render(CommandList commandList)
+        particle.Timer += 1;
+    }
+
+    private static void FindKeyframes<T>(
+        int timer,
+        T[] keyFrames,
+        out T next, out T prev)
+        where T : struct, IParticleKeyframe
+    {
+        prev = keyFrames[0];
+        next = prev;
+
+        foreach (var keyFrame in keyFrames)
         {
-            if (State == ParticleSystemState.Inactive)
+            if (keyFrame.Time >= timer)
             {
-                return;
+                next = keyFrame;
+                break;
             }
 
-            UpdateVertexBuffer(commandList);
+            prev = keyFrame;
+        }
+    }
 
-            commandList.SetVertexBuffer(0, _vertexBuffer);
+    private void UpdateVertexBuffer(CommandList commandList)
+    {
+        var vertexIndex = 0;
 
-            commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+        for (var i = 0; i < _particles.Length; i++)
+        {
+            ref var particle = ref _particles[i];
 
-            commandList.DrawIndexed(_numIndices, 1, 0, 0, 0);
+            var particleVertex = new ParticleShaderResources.ParticleVertex
+            {
+                Position = particle.Position,
+                Size = particle.Dead ? 0 : particle.Size,
+                Color = particle.Color,
+                Alpha = particle.Alpha,
+                AngleZ = particle.AngleZ,
+            };
+
+            // Repeat vertices 4 times; in the vertex shader, these will be transformed
+            // into the 4 corners of a quad.
+            _vertices[vertexIndex++] = particleVertex;
+            _vertices[vertexIndex++] = particleVertex;
+            _vertices[vertexIndex++] = particleVertex;
+            _vertices[vertexIndex++] = particleVertex;
         }
 
-        private ref readonly Matrix4x4 GetWorldMatrix()
+        commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
+    }
+
+    public override void Render(CommandList commandList)
+    {
+        if (State == ParticleSystemState.Inactive)
         {
-            if (_getWorldMatrix != null)
+            return;
+        }
+
+        UpdateVertexBuffer(commandList);
+
+        commandList.SetVertexBuffer(0, _vertexBuffer);
+
+        commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+
+        commandList.DrawIndexed(_numIndices, 1, 0, 0, 0);
+    }
+
+    private ref readonly Matrix4x4 GetWorldMatrix()
+    {
+        if (_getWorldMatrix != null)
+        {
+            return ref _getWorldMatrix();
+        }
+        else
+        {
+            return ref _worldMatrix;
+        }
+    }
+
+    public void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        reader.PersistObject(Template.LegacyTemplate, "TemplateData");
+
+        reader.PersistUInt32(ref _systemId);
+        reader.PersistUInt32(ref _attachedToDrawableId);
+        reader.PersistObjectID(ref _attachedToObjectId);
+        reader.PersistBoolean(ref _localTransformIsIdentity);
+        reader.PersistMatrix4x3(ref _localTransform, readVersion: false);
+        reader.PersistBoolean(ref _worldTransformIsIdentity);
+        reader.PersistMatrix4x3(ref _worldTransform, readVersion: false);
+        reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
+        reader.PersistUInt32(ref _unknownInt2);
+        reader.PersistUInt32(ref _unknownInt3);
+        reader.PersistUInt32(ref _unknownInt4);
+        reader.PersistUInt32(ref _unknownInt5);
+        reader.PersistBoolean(ref _hasInfiniteLifetime);
+        reader.PersistSingle(ref _unknownFloat1);
+        reader.PersistBoolean(ref _unknownBool1);
+
+        reader.BeginArray("UnknownFloats");
+        for (var i = 0; i < 6; i++)
+        {
+            var unknown25 = 1.0f;
+            reader.PersistSingleValue(ref unknown25);
+            if (unknown25 != 1.0f)
             {
-                return ref _getWorldMatrix();
+                throw new InvalidStateException();
             }
-            else
+        }
+        reader.EndArray();
+
+        reader.PersistVector3(ref _position);
+        reader.PersistVector3(ref _positionPrevious);
+        reader.PersistBoolean(ref _unknownBool2);
+        reader.PersistUInt32(ref _slaveSystemId);
+        reader.PersistUInt32(ref _masterSystemId);
+
+        var numParticles = (uint)(_particles?.Length ?? 0);
+        reader.PersistUInt32(ref numParticles);
+
+        if (reader.Mode == StatePersistMode.Read)
+        {
+            // TODO: Shouldn't do this.
+            _particles = new Particle[Math.Max(_particles.Length, numParticles)];
+
+            for (var i = numParticles; i < _particles.Length; i++)
             {
-                return ref _worldMatrix;
+                _particles[i] = new Particle(this);
             }
         }
 
-        public void Persist(StatePersister reader)
+        reader.BeginArray("Particles");
+        for (var i = 0; i < numParticles; i++)
         {
-            reader.PersistVersion(1);
-
-            reader.PersistObject(Template.LegacyTemplate, "TemplateData");
-
-            reader.PersistUInt32(ref _systemId);
-            reader.PersistUInt32(ref _attachedToDrawableId);
-            reader.PersistObjectID(ref _attachedToObjectId);
-            reader.PersistBoolean(ref _localTransformIsIdentity);
-            reader.PersistMatrix4x3(ref _localTransform, readVersion: false);
-            reader.PersistBoolean(ref _worldTransformIsIdentity);
-            reader.PersistMatrix4x3(ref _worldTransform, readVersion: false);
-            reader.PersistUInt32(ref _unknownInt1); // Maybe _nextBurst
-            reader.PersistUInt32(ref _unknownInt2);
-            reader.PersistUInt32(ref _unknownInt3);
-            reader.PersistUInt32(ref _unknownInt4);
-            reader.PersistUInt32(ref _unknownInt5);
-            reader.PersistBoolean(ref _hasInfiniteLifetime);
-            reader.PersistSingle(ref _unknownFloat1);
-            reader.PersistBoolean(ref _unknownBool1);
-
-            reader.BeginArray("UnknownFloats");
-            for (var i = 0; i < 6; i++)
-            {
-                var unknown25 = 1.0f;
-                reader.PersistSingleValue(ref unknown25);
-                if (unknown25 != 1.0f)
-                {
-                    throw new InvalidStateException();
-                }
-            }
-            reader.EndArray();
-
-            reader.PersistVector3(ref _position);
-            reader.PersistVector3(ref _positionPrevious);
-            reader.PersistBoolean(ref _unknownBool2);
-            reader.PersistUInt32(ref _slaveSystemId);
-            reader.PersistUInt32(ref _masterSystemId);
-
-            var numParticles = (uint)(_particles?.Length ?? 0);
-            reader.PersistUInt32(ref numParticles);
-
             if (reader.Mode == StatePersistMode.Read)
             {
-                // TODO: Shouldn't do this.
-                _particles = new Particle[Math.Max(_particles.Length, numParticles)];
-
-                for (var i = numParticles; i < _particles.Length; i++)
-                {
-                    _particles[i] = new Particle(this);
-                }
+                _particles[i] = new Particle(this);
             }
-
-            reader.BeginArray("Particles");
-            for (var i = 0; i < numParticles; i++)
-            {
-                if (reader.Mode == StatePersistMode.Read)
-                {
-                    _particles[i] = new Particle(this);
-                }
-                reader.PersistObjectValue(ref _particles[i]);
-            }
-            reader.EndArray();
+            reader.PersistObjectValue(ref _particles[i]);
         }
+        reader.EndArray();
     }
+}
 
-    public enum ParticleSystemState
+public enum ParticleSystemState
+{
+    Inactive,
+    Active,
+    Finished,
+    Dead
+}
+
+internal struct ParticleColorKeyframe : IParticleKeyframe, IPersistableObject
+{
+    public uint Time;
+    public Vector3 Color;
+
+    uint IParticleKeyframe.Time => Time;
+
+    public ParticleColorKeyframe(RgbColorKeyframe keyframe)
     {
-        Inactive,
-        Active,
-        Finished,
-        Dead
+        Time = keyframe.Time;
+        Color = keyframe.Color.ToVector3();
     }
 
-    internal struct ParticleColorKeyframe : IParticleKeyframe, IPersistableObject
+    public ParticleColorKeyframe(uint time, in Vector3 color)
     {
-        public uint Time;
-        public Vector3 Color;
-
-        uint IParticleKeyframe.Time => Time;
-
-        public ParticleColorKeyframe(RgbColorKeyframe keyframe)
-        {
-            Time = keyframe.Time;
-            Color = keyframe.Color.ToVector3();
-        }
-
-        public ParticleColorKeyframe(uint time, in Vector3 color)
-        {
-            Time = time;
-            Color = color;
-        }
-
-        public void Persist(StatePersister persister)
-        {
-            persister.PersistVector3(ref Color);
-            persister.PersistUInt32(ref Time);
-        }
+        Time = time;
+        Color = color;
     }
 
-    internal interface IParticleKeyframe
+    public void Persist(StatePersister persister)
     {
-        uint Time { get; }
+        persister.PersistVector3(ref Color);
+        persister.PersistUInt32(ref Time);
     }
+}
+
+internal interface IParticleKeyframe
+{
+    uint Time { get; }
 }

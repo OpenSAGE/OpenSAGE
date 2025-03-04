@@ -2,31 +2,30 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Dds
+namespace OpenSage.Tests.Data.Dds;
+
+public class DdsFileTests
 {
-    public class DdsFileTests
+    private readonly ITestOutputHelper _output;
+
+    public DdsFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public DdsFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanReadDdsTextures()
+    {
+        InstalledFilesTestData.ReadFiles(".dds", _output, entry =>
         {
-            _output = output;
-        }
-
-        [Fact]
-        public void CanReadDdsTextures()
-        {
-            InstalledFilesTestData.ReadFiles(".dds", _output, entry =>
+            if (!DdsFile.IsDdsFile(entry))
             {
-                if (!DdsFile.IsDdsFile(entry))
-                {
-                    return;
-                }
+                return;
+            }
 
-                var ddsFile = DdsFile.FromFileSystemEntry(entry);
+            var ddsFile = DdsFile.FromFileSystemEntry(entry);
 
-                Assert.True(ddsFile.MipMaps.Length > 0);
-            });
-        }
+            Assert.True(ddsFile.MipMaps.Length > 0);
+        });
     }
 }

@@ -1,21 +1,20 @@
 ﻿using OpenSage.Navigation;
 using Xunit;
 
-namespace OpenSage.Tests.Navigation
+namespace OpenSage.Tests.Navigation;
+
+public class PathOptimizerTest
 {
-    public class PathOptimizerTest
+    [Fact]
+    public void RedundantNodeRemoval()
     {
-        [Fact]
-        public void RedundantNodeRemoval()
-        {
-            var graph = new Graph(100, 100);
-            var start = graph.GetNode(10, 10);
-            var end = graph.GetNode(90, 90);
+        var graph = new Graph(100, 100);
+        var start = graph.GetNode(10, 10);
+        var end = graph.GetNode(90, 90);
 
-            var result = graph.Search(start, end);
-            PathOptimizer.RemoveRedundantNodes(result);
+        var result = graph.Search(start, end);
+        PathOptimizer.RemoveRedundantNodes(result);
 
-            Assert.Equal(2, result.Count);
-        }
+        Assert.Equal(2, result.Count);
     }
 }

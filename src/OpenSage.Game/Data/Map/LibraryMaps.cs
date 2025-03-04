@@ -1,42 +1,41 @@
 ﻿using System.IO;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class LibraryMaps : Asset
 {
-    public sealed class LibraryMaps : Asset
+    public const string AssetName = "LibraryMaps";
+
+    public string[] Values { get; private init; }
+
+    internal static LibraryMaps Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "LibraryMaps";
-
-        public string[] Values { get; private init; }
-
-        internal static LibraryMaps Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, _ =>
         {
-            return ParseAsset(reader, context, _ =>
+            var values = new string[reader.ReadUInt32()];
+            for (var i = 0; i < values.Length; i++)
             {
-                var values = new string[reader.ReadUInt32()];
-                for (var i = 0; i < values.Length; i++)
-                {
-                    values[i] = reader.ReadUInt16PrefixedAsciiString();
-                }
+                values[i] = reader.ReadUInt16PrefixedAsciiString();
+            }
 
-                return new LibraryMaps
-                {
-                    Values = values
-                };
-            });
-        }
+            return new LibraryMaps
+            {
+                Values = values
+            };
+        });
+    }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                writer.Write((uint)Values.Length);
+            writer.Write((uint)Values.Length);
 
-                foreach (var value in Values)
-                {
-                    writer.WriteUInt16PrefixedAsciiString(value);
-                }
-            });
-        }
+            foreach (var value in Values)
+            {
+                writer.WriteUInt16PrefixedAsciiString(value);
+            }
+        });
     }
 }

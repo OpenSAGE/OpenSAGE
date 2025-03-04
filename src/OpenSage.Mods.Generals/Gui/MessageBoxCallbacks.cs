@@ -1,24 +1,23 @@
 ﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 
-namespace OpenSage.Mods.Generals.Gui
+namespace OpenSage.Mods.Generals.Gui;
+
+[WndCallbacks]
+public static class MessageBoxCallbacks
 {
-    [WndCallbacks]
-    public static class MessageBoxCallbacks
+    public static void MessageBoxSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
-        public static void MessageBoxSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        switch (message.MessageType)
         {
-            switch (message.MessageType)
-            {
-                case WndWindowMessageType.SelectedButton:
-                    switch (message.Element.Name)
-                    {
-                        case "MessageBox.wnd:ButtonOk":
-                            context.WindowManager.PopWindow();
-                            break;
-                    }
-                    break;
-            }
+            case WndWindowMessageType.SelectedButton:
+                switch (message.Element.Name)
+                {
+                    case "MessageBox.wnd:ButtonOk":
+                        context.WindowManager.PopWindow();
+                        break;
+                }
+                break;
         }
     }
 }

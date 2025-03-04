@@ -2,18 +2,17 @@
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme)]
+public class OathbreakersFadeAwayBehaviorModuleData : BehaviorModuleData
 {
-    [AddedIn(SageGame.Bfme)]
-    public class OathbreakersFadeAwayBehaviorModuleData : BehaviorModuleData
+    internal static OathbreakersFadeAwayBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    internal static readonly IniParseTable<OathbreakersFadeAwayBehaviorModuleData> FieldParseTable = new IniParseTable<OathbreakersFadeAwayBehaviorModuleData>
     {
-        internal static OathbreakersFadeAwayBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "FadeOutTime", (parser, x) => x.FadeOutTime = parser.ParseInteger() },
+    };
 
-        internal static readonly IniParseTable<OathbreakersFadeAwayBehaviorModuleData> FieldParseTable = new IniParseTable<OathbreakersFadeAwayBehaviorModuleData>
-        {
-            { "FadeOutTime", (parser, x) => x.FadeOutTime = parser.ParseInteger() },
-        };
-
-        public int FadeOutTime { get; private set; }
-    }
+    public int FadeOutTime { get; private set; }
 }

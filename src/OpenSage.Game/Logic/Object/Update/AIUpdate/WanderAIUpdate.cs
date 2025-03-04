@@ -1,40 +1,39 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class WanderAIUpdate : AIUpdate
 {
-    public sealed class WanderAIUpdate : AIUpdate
+    internal override WanderAIUpdateModuleData ModuleData { get; }
+
+    internal WanderAIUpdate(GameObject gameObject, GameContext context, WanderAIUpdateModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        internal override WanderAIUpdateModuleData ModuleData { get; }
-
-        internal WanderAIUpdate(GameObject gameObject, GameContext context, WanderAIUpdateModuleData moduleData)
-            : base(gameObject, context, moduleData)
-        {
-            ModuleData = moduleData;
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        ModuleData = moduleData;
     }
 
-    /// <summary>
-    /// Allows this object to move randomly about its point of origin using a SET_WANDER locomotor.
-    /// </summary>
-    public sealed class WanderAIUpdateModuleData : AIUpdateModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal new static WanderAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private new static readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<WanderAIUpdateModuleData>());
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new WanderAIUpdate(gameObject, context, this);
-        }
+/// <summary>
+/// Allows this object to move randomly about its point of origin using a SET_WANDER locomotor.
+/// </summary>
+public sealed class WanderAIUpdateModuleData : AIUpdateModuleData
+{
+    internal new static WanderAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private new static readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        .Concat(new IniParseTable<WanderAIUpdateModuleData>());
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new WanderAIUpdate(gameObject, context, this);
     }
 }

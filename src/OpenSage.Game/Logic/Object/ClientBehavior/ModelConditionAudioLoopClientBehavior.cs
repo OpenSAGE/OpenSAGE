@@ -1,38 +1,37 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme2)]
+public class ModelConditionAudioLoopClientBehaviorData : ClientBehaviorModuleData
 {
-    [AddedIn(SageGame.Bfme2)]
-    public class ModelConditionAudioLoopClientBehaviorData : ClientBehaviorModuleData
+    internal static ModelConditionAudioLoopClientBehaviorData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    internal static readonly IniParseTable<ModelConditionAudioLoopClientBehaviorData> FieldParseTable = new IniParseTable<ModelConditionAudioLoopClientBehaviorData>
     {
-        internal static ModelConditionAudioLoopClientBehaviorData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "ModelCondition", (parser, x) => x.ModelCondition = ModelCondition.Parse(parser) }
+    };
 
-        internal static readonly IniParseTable<ModelConditionAudioLoopClientBehaviorData> FieldParseTable = new IniParseTable<ModelConditionAudioLoopClientBehaviorData>
-        {
-            { "ModelCondition", (parser, x) => x.ModelCondition = ModelCondition.Parse(parser) }
-        };
+    public ModelCondition ModelCondition { get; private set; }
+}
 
-        public ModelCondition ModelCondition { get; private set; }
-    }
+public sealed class ModelCondition
+{
+    internal static ModelCondition Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
 
-    public sealed class ModelCondition
+    internal static readonly IniParseTable<ModelCondition> FieldParseTable = new IniParseTable<ModelCondition>
     {
-        internal static ModelCondition Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+        { "REQUIRED", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+        { "Required", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
 
-        internal static readonly IniParseTable<ModelCondition> FieldParseTable = new IniParseTable<ModelCondition>
-        {
-            { "REQUIRED", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
-            { "Required", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+        { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
 
-            { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
+        { "EXCLUDED", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+        { "Excluded", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() }
+    };
 
-            { "EXCLUDED", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
-            { "Excluded", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() }
-        };
-
-        public BitArray<ModelConditionFlag> Required { get; private set; }
-        public BitArray<ModelConditionFlag> Excluded { get; private set; }
-        public string Sound { get; private set; }
-    }
+    public BitArray<ModelConditionFlag> Required { get; private set; }
+    public BitArray<ModelConditionFlag> Excluded { get; private set; }
+    public string Sound { get; private set; }
 }

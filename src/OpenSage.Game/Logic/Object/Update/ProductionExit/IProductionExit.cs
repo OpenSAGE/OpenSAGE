@@ -1,12 +1,11 @@
 ﻿using System.Numerics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+interface IProductionExit
 {
-    interface IProductionExit
-    {
-        bool CanProduce => true;
-        Vector3 GetUnitCreatePoint();
-        Vector3? GetNaturalRallyPoint();
-        void ProduceUnit() { }
-    }
+    bool CanProduce => true;
+    Vector3 GetUnitCreatePoint();
+    Vector3? GetNaturalRallyPoint();
+    void ProduceUnit() { }
 }

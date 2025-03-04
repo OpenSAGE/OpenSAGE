@@ -2,29 +2,28 @@
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.Data.Apt;
+
+public sealed class Export
 {
-    public sealed class Export
+    public string Name { get; private set; }
+    public uint Character { get; private set; }
+
+    public static Export Parse(BinaryReader reader)
     {
-        public string Name { get; private set; }
-        public uint Character { get; private set; }
-
-        public static Export Parse(BinaryReader reader)
+        return new Export
         {
-            return new Export
-            {
-                Name = reader.ReadStringAtOffset(),
-                Character = reader.ReadUInt32()
-            };
-        }
+            Name = reader.ReadStringAtOffset(),
+            Character = reader.ReadUInt32()
+        };
+    }
 
-        public static Export Create(string name, int character)
+    public static Export Create(string name, int character)
+    {
+        return new Export
         {
-            return new Export
-            {
-                Name = name,
-                Character = (uint)character
-            };
-        }
+            Name = name,
+            Character = (uint)character
+        };
     }
 }

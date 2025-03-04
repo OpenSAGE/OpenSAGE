@@ -3,41 +3,40 @@ using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Apt
+namespace OpenSage.Tests.Data.Apt;
+
+public class AptFileTests
 {
-    public class AptFileTests
+    private readonly ITestOutputHelper _output;
+
+    public AptFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public AptFileTests(ITestOutputHelper output)
+    [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk, Skip = "Not all bytecode instructions are implemented yet")]
+    public void CanReadAptFiles()
+    {
+        InstalledFilesTestData.ReadFiles(".apt", _output, entry =>
         {
-            _output = output;
-        }
-
-        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk, Skip = "Not all bytecode instructions are implemented yet")]
-        public void CanReadAptFiles()
-        {
-            InstalledFilesTestData.ReadFiles(".apt", _output, entry =>
+            if (entry.FilePath.Contains("MOD SDK"))
             {
-                if (entry.FilePath.Contains("MOD SDK"))
-                {
-                    return;
-                }
+                return;
+            }
 
-                var aptFile = AptFile.FromFileSystemEntry(entry);
+            var aptFile = AptFile.FromFileSystemEntry(entry);
 
-                Assert.NotNull(aptFile);
-            });
-        }
+            Assert.NotNull(aptFile);
+        });
+    }
 
-        [GameFact(SageGame.Bfme2)]
-        public void CheckEntryCount()
-        {
-            var fileSystem = new BigFileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
-            var entry = fileSystem.GetFile(@"MainMenu.apt");
+    [GameFact(SageGame.Bfme2)]
+    public void CheckEntryCount()
+    {
+        var fileSystem = new BigFileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
+        var entry = fileSystem.GetFile(@"MainMenu.apt");
 
-            var data = AptFile.FromFileSystemEntry(entry);
-            Assert.NotNull(data);
-        }
+        var data = AptFile.FromFileSystemEntry(entry);
+        Assert.NotNull(data);
     }
 }

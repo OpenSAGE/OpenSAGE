@@ -1,100 +1,99 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class GlobalLightingConfiguration
 {
-    public sealed class GlobalLightingConfiguration
+    public GlobalLight TerrainSun { get; private set; }
+    public GlobalLight TerrainAccent1 { get; private set; }
+    public GlobalLight TerrainAccent2 { get; private set; }
+
+    public GlobalLight ObjectSun { get; private set; }
+    public GlobalLight ObjectAccent1 { get; private set; }
+    public GlobalLight ObjectAccent2 { get; private set; }
+
+    public GlobalLight InfantrySun { get; private set; }
+    public GlobalLight InfantryAccent1 { get; private set; }
+    public GlobalLight InfantryAccent2 { get; private set; }
+
+    internal static GlobalLightingConfiguration Parse(BinaryReader reader, uint version)
     {
-        public GlobalLight TerrainSun { get; private set; }
-        public GlobalLight TerrainAccent1 { get; private set; }
-        public GlobalLight TerrainAccent2 { get; private set; }
+        var result = new GlobalLightingConfiguration();
 
-        public GlobalLight ObjectSun { get; private set; }
-        public GlobalLight ObjectAccent1 { get; private set; }
-        public GlobalLight ObjectAccent2 { get; private set; }
+        result.TerrainSun = GlobalLight.Parse(reader);
 
-        public GlobalLight InfantrySun { get; private set; }
-        public GlobalLight InfantryAccent1 { get; private set; }
-        public GlobalLight InfantryAccent2 { get; private set; }
-
-        internal static GlobalLightingConfiguration Parse(BinaryReader reader, uint version)
+        if (version < 10)
         {
-            var result = new GlobalLightingConfiguration();
+            result.ObjectSun = GlobalLight.Parse(reader);
 
-            result.TerrainSun = GlobalLight.Parse(reader);
-
-            if (version < 10)
+            if (version >= 7)
             {
-                result.ObjectSun = GlobalLight.Parse(reader);
-
-                if (version >= 7)
-                {
-                    result.InfantrySun = GlobalLight.Parse(reader);
-                }
+                result.InfantrySun = GlobalLight.Parse(reader);
             }
-
-            result.TerrainAccent1 = GlobalLight.Parse(reader);
-
-            if (version < 10)
-            {
-                result.ObjectAccent1 = GlobalLight.Parse(reader);
-
-                if (version >= 7)
-                {
-                    result.InfantryAccent1 = GlobalLight.Parse(reader);
-                }
-            }
-
-            result.TerrainAccent2 = GlobalLight.Parse(reader);
-
-            if (version < 10)
-            {
-                result.ObjectAccent2 = GlobalLight.Parse(reader);
-
-                if (version >= 7)
-                {
-                    result.InfantryAccent2 = GlobalLight.Parse(reader);
-                }
-            }
-
-            return result;
         }
 
-        internal void WriteTo(BinaryWriter writer, uint version)
+        result.TerrainAccent1 = GlobalLight.Parse(reader);
+
+        if (version < 10)
         {
-            TerrainSun.WriteTo(writer);
+            result.ObjectAccent1 = GlobalLight.Parse(reader);
 
-            if (version < 10)
+            if (version >= 7)
             {
-                ObjectSun.WriteTo(writer);
-
-                if (version >= 7)
-                {
-                    InfantrySun.WriteTo(writer);
-                }
+                result.InfantryAccent1 = GlobalLight.Parse(reader);
             }
+        }
 
-            TerrainAccent1.WriteTo(writer);
+        result.TerrainAccent2 = GlobalLight.Parse(reader);
 
-            if (version < 10)
+        if (version < 10)
+        {
+            result.ObjectAccent2 = GlobalLight.Parse(reader);
+
+            if (version >= 7)
             {
-                ObjectAccent1.WriteTo(writer);
-
-                if (version >= 7)
-                {
-                    InfantryAccent1.WriteTo(writer);
-                }
+                result.InfantryAccent2 = GlobalLight.Parse(reader);
             }
+        }
 
-            TerrainAccent2.WriteTo(writer);
+        return result;
+    }
 
-            if (version < 10)
+    internal void WriteTo(BinaryWriter writer, uint version)
+    {
+        TerrainSun.WriteTo(writer);
+
+        if (version < 10)
+        {
+            ObjectSun.WriteTo(writer);
+
+            if (version >= 7)
             {
-                ObjectAccent2.WriteTo(writer);
+                InfantrySun.WriteTo(writer);
+            }
+        }
 
-                if (version >= 7)
-                {
-                    InfantryAccent2.WriteTo(writer);
-                }
+        TerrainAccent1.WriteTo(writer);
+
+        if (version < 10)
+        {
+            ObjectAccent1.WriteTo(writer);
+
+            if (version >= 7)
+            {
+                InfantryAccent1.WriteTo(writer);
+            }
+        }
+
+        TerrainAccent2.WriteTo(writer);
+
+        if (version < 10)
+        {
+            ObjectAccent2.WriteTo(writer);
+
+            if (version >= 7)
+            {
+                InfantryAccent2.WriteTo(writer);
             }
         }
     }

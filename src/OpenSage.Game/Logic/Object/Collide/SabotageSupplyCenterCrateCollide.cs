@@ -1,21 +1,20 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+/// <summary>
+/// Hardcoded to play the SabotageBuilding sound definition when triggered.
+/// </summary>
+[AddedIn(SageGame.CncGeneralsZeroHour)]
+public sealed class SabotageSupplyCenterCrateCollideModuleData : CrateCollideModuleData
 {
-    /// <summary>
-    /// Hardcoded to play the SabotageBuilding sound definition when triggered.
-    /// </summary>
-    [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class SabotageSupplyCenterCrateCollideModuleData : CrateCollideModuleData
-    {
-        internal static SabotageSupplyCenterCrateCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static SabotageSupplyCenterCrateCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SabotageSupplyCenterCrateCollideModuleData> FieldParseTable = CrateCollideModuleData.FieldParseTable
-            .Concat(new IniParseTable<SabotageSupplyCenterCrateCollideModuleData>
-            {
-                { "StealCashAmount", (parser, x) => x.StealCashAmount = parser.ParseInteger() },
-            });
+    private static new readonly IniParseTable<SabotageSupplyCenterCrateCollideModuleData> FieldParseTable = CrateCollideModuleData.FieldParseTable
+        .Concat(new IniParseTable<SabotageSupplyCenterCrateCollideModuleData>
+        {
+            { "StealCashAmount", (parser, x) => x.StealCashAmount = parser.ParseInteger() },
+        });
 
-        public int StealCashAmount { get; private set; }
-    }
+    public int StealCashAmount { get; private set; }
 }

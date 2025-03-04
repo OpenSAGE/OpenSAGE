@@ -1,8 +1,7 @@
-﻿namespace OpenSage.FileFormats.W3d
+﻿namespace OpenSage.FileFormats.W3d;
+
+public enum W3dAdaptiveDeltaBitCount
 {
-    public enum W3dAdaptiveDeltaBitCount
-    {
-        FourBits = 4,
-        EightBits = 8
-    }
+    FourBits = 4,
+    EightBits = 8
 }

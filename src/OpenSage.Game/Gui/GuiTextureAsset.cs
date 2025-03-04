@@ -1,17 +1,16 @@
 ﻿using Veldrid;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui;
+
+public sealed class GuiTextureAsset : BaseAsset
 {
-    public sealed class GuiTextureAsset : BaseAsset
+    public Texture Texture { get; }
+
+    internal GuiTextureAsset(Texture texture, string name)
     {
-        public Texture Texture { get; }
-
-        internal GuiTextureAsset(Texture texture, string name)
-        {
-            SetNameAndInstanceId("GUITexture", name);
-            Texture = AddDisposable(texture);
-        }
-
-        public static implicit operator Texture(GuiTextureAsset asset) => asset.Texture;
+        SetNameAndInstanceId("GUITexture", name);
+        Texture = AddDisposable(texture);
     }
+
+    public static implicit operator Texture(GuiTextureAsset asset) => asset.Texture;
 }

@@ -2,171 +2,170 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Data.Ini;
+
+internal interface IIniFieldParserProvider<T>
 {
-    internal interface IIniFieldParserProvider<T>
+    bool TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser);
+}
+
+internal delegate void ParseFieldCallback<T>(IniParser parser, T result);
+internal delegate void ParseNamedFieldCallback<T>(IniParser parser, T result, string field);
+
+internal sealed class IniParseTable<T> : Dictionary<string, ParseFieldCallback<T>>, IIniFieldParserProvider<T>
+{
+    public IniParseTable(IDictionary<string, ParseFieldCallback<T>> dictionary)
+        : base(dictionary)
     {
-        bool TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser);
+
     }
 
-    internal delegate void ParseFieldCallback<T>(IniParser parser, T result);
-    internal delegate void ParseNamedFieldCallback<T>(IniParser parser, T result, string field);
+    public IniParseTable() { }
 
-    internal sealed class IniParseTable<T> : Dictionary<string, ParseFieldCallback<T>>, IIniFieldParserProvider<T>
+    public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
+        where T2 : T
     {
-        public IniParseTable(IDictionary<string, ParseFieldCallback<T>> dictionary)
-            : base(dictionary)
-        {
+        var result = new IniParseTable<T2>(this.ToDictionary(
+            x => x.Key,
+            x => new ParseFieldCallback<T2>((parser, y) => x.Value(parser, y))));
 
+        foreach (var kvp in otherTable)
+        {
+            result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
         }
 
-        public IniParseTable() { }
-
-        public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
-            where T2 : T
-        {
-            var result = new IniParseTable<T2>(this.ToDictionary(
-                x => x.Key,
-                x => new ParseFieldCallback<T2>((parser, y) => x.Value(parser, y))));
-
-            foreach (var kvp in otherTable)
-            {
-                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
-            }
-
-            return result;
-        }
-
-        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
-        {
-            return TryGetValue(fieldName, out fieldParser);
-        }
+        return result;
     }
 
-    internal sealed class IniParseTableChild<T, TChild> : Dictionary<string, ParseFieldCallback<TChild>>, IIniFieldParserProvider<T>
+    bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
     {
-        private readonly Func<T, TChild> _getChild;
+        return TryGetValue(fieldName, out fieldParser);
+    }
+}
 
-        public IniParseTableChild(Func<T, TChild> getChild, IDictionary<string, ParseFieldCallback<TChild>> childDictionary)
-            : base(childDictionary)
-        {
-            _getChild = getChild;
-        }
+internal sealed class IniParseTableChild<T, TChild> : Dictionary<string, ParseFieldCallback<TChild>>, IIniFieldParserProvider<T>
+{
+    private readonly Func<T, TChild> _getChild;
 
-        public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
-            where T2 : T
-        {
-            var result = new IniParseTable<T2>(this.ToDictionary(
-                x => x.Key,
-                x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
-
-            foreach (var kvp in otherTable)
-            {
-                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
-            }
-
-            return result;
-        }
-
-        public IniParseTable<T2> Concat<T2, TChild2>(IniParseTableChild<T2, TChild2> otherTable)
-            where T2 : T
-        {
-            var result = new IniParseTable<T2>(this.ToDictionary(
-                x => x.Key,
-                x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
-
-            foreach (var kvp in otherTable)
-            {
-                result.Add(kvp.Key, (parser, x) => otherTable.GetFieldParser(kvp.Value)(parser, x));
-            }
-
-            return result;
-        }
-
-        private ParseFieldCallback<T> GetFieldParser(ParseFieldCallback<TChild> childFieldParser)
-        {
-            // TODO: Don't allocate this every time.
-            return (parser, x) =>
-            {
-                var childObject = _getChild(x);
-                childFieldParser(parser, childObject);
-            };
-        }
-
-        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
-        {
-            if (TryGetValue(fieldName, out var childFieldParser))
-            {
-                fieldParser = GetFieldParser(childFieldParser);
-                return true;
-            }
-
-            fieldParser = null;
-            return false;
-        }
+    public IniParseTableChild(Func<T, TChild> getChild, IDictionary<string, ParseFieldCallback<TChild>> childDictionary)
+        : base(childDictionary)
+    {
+        _getChild = getChild;
     }
 
-    internal sealed class IniArbitraryFieldParserProvider<T> : IIniFieldParserProvider<T>
+    public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
+        where T2 : T
     {
-        private readonly Action<T, string> _parseFieldCallback;
+        var result = new IniParseTable<T2>(this.ToDictionary(
+            x => x.Key,
+            x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
 
-        public IniArbitraryFieldParserProvider(Action<T, string> parseFieldCallback)
+        foreach (var kvp in otherTable)
         {
-            _parseFieldCallback = parseFieldCallback;
+            result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
         }
 
-        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        return result;
+    }
+
+    public IniParseTable<T2> Concat<T2, TChild2>(IniParseTableChild<T2, TChild2> otherTable)
+        where T2 : T
+    {
+        var result = new IniParseTable<T2>(this.ToDictionary(
+            x => x.Key,
+            x => new ParseFieldCallback<T2>((parser, y) => GetFieldParser(x.Value)(parser, y))));
+
+        foreach (var kvp in otherTable)
         {
-            fieldParser = (parser, result) => _parseFieldCallback(result, fieldName);
+            result.Add(kvp.Key, (parser, x) => otherTable.GetFieldParser(kvp.Value)(parser, x));
+        }
+
+        return result;
+    }
+
+    private ParseFieldCallback<T> GetFieldParser(ParseFieldCallback<TChild> childFieldParser)
+    {
+        // TODO: Don't allocate this every time.
+        return (parser, x) =>
+        {
+            var childObject = _getChild(x);
+            childFieldParser(parser, childObject);
+        };
+    }
+
+    bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+    {
+        if (TryGetValue(fieldName, out var childFieldParser))
+        {
+            fieldParser = GetFieldParser(childFieldParser);
             return true;
         }
+
+        fieldParser = null;
+        return false;
+    }
+}
+
+internal sealed class IniArbitraryFieldParserProvider<T> : IIniFieldParserProvider<T>
+{
+    private readonly Action<T, string> _parseFieldCallback;
+
+    public IniArbitraryFieldParserProvider(Action<T, string> parseFieldCallback)
+    {
+        _parseFieldCallback = parseFieldCallback;
     }
 
-    internal sealed class PartialFieldParserProvider<T> : IIniFieldParserProvider<T> where T : class
+    bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
     {
-        private readonly Func<string, bool> _matchesField;
-        private readonly ParseNamedFieldCallback<T> _parseNamedFieldCallback;
+        fieldParser = (parser, result) => _parseFieldCallback(result, fieldName);
+        return true;
+    }
+}
 
-        public PartialFieldParserProvider(Func<string, bool> matchesField, ParseNamedFieldCallback<T> namedFieldCallback)
+internal sealed class PartialFieldParserProvider<T> : IIniFieldParserProvider<T> where T : class
+{
+    private readonly Func<string, bool> _matchesField;
+    private readonly ParseNamedFieldCallback<T> _parseNamedFieldCallback;
+
+    public PartialFieldParserProvider(Func<string, bool> matchesField, ParseNamedFieldCallback<T> namedFieldCallback)
+    {
+        _matchesField = matchesField;
+        _parseNamedFieldCallback = namedFieldCallback;
+    }
+
+    bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+    {
+        if (_matchesField(fieldName))
         {
-            _matchesField = matchesField;
-            _parseNamedFieldCallback = namedFieldCallback;
+            fieldParser = (parser, result) => _parseNamedFieldCallback(parser, result, fieldName);
+            return true;
         }
 
-        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        fieldParser = null;
+        return false;
+    }
+}
+
+internal sealed class CompositeFieldParserProvider<T> : IIniFieldParserProvider<T>
+{
+    private readonly IIniFieldParserProvider<T>[] _providers;
+
+    public CompositeFieldParserProvider(params IIniFieldParserProvider<T>[] providers)
+    {
+        _providers = providers;
+    }
+
+    bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+    {
+        foreach (var provider in _providers)
         {
-            if (_matchesField(fieldName))
+            if (provider.TryGetFieldParser(fieldName, out fieldParser))
             {
-                fieldParser = (parser, result) => _parseNamedFieldCallback(parser, result, fieldName);
                 return true;
             }
-
-            fieldParser = null;
-            return false;
-        }
-    }
-
-    internal sealed class CompositeFieldParserProvider<T> : IIniFieldParserProvider<T>
-    {
-        private readonly IIniFieldParserProvider<T>[] _providers;
-
-        public CompositeFieldParserProvider(params IIniFieldParserProvider<T>[] providers)
-        {
-            _providers = providers;
         }
 
-        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
-        {
-            foreach (var provider in _providers)
-            {
-                if (provider.TryGetFieldParser(fieldName, out fieldParser))
-                {
-                    return true;
-                }
-            }
-
-            fieldParser = null;
-            return false;
-        }
+        fieldParser = null;
+        return false;
     }
 }

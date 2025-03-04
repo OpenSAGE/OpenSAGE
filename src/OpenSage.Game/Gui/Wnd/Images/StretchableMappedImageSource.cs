@@ -3,64 +3,63 @@ using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
-namespace OpenSage.Gui.Wnd.Images
+namespace OpenSage.Gui.Wnd.Images;
+
+internal sealed class StretchableMappedImageSource : CachedImageSource
 {
-    internal sealed class StretchableMappedImageSource : CachedImageSource
+    private readonly MappedImage _left, _middle, _right;
+
+    public override Size NaturalSize { get; }
+
+    protected override string CacheKey { get; }
+
+    public StretchableMappedImageSource(MappedImage left, MappedImage middle, MappedImage right, ImageTextureCache cache)
+        : base(cache)
     {
-        private readonly MappedImage _left, _middle, _right;
+        _left = left;
+        _middle = middle;
+        _right = right;
 
-        public override Size NaturalSize { get; }
+        NaturalSize = new Size(
+            _left.Coords.Width + _middle.Coords.Width + _right.Coords.Width,
+            _left.Coords.Height);
 
-        protected override string CacheKey { get; }
+        CacheKey = $"Stretchable:{left.Name}:{middle.Name}:{right.Name}";
+    }
 
-        public StretchableMappedImageSource(MappedImage left, MappedImage middle, MappedImage right, ImageTextureCache cache)
-            : base(cache)
+    protected override Texture CreateTexture(Size size, GraphicsLoadContext loadContext)
+    {
+        return MappedImageUtility.CreateTexture(loadContext, size, spriteBatch =>
         {
-            _left = left;
-            _middle = middle;
-            _right = right;
+            var requiresFlip = !loadContext.GraphicsDevice.IsUvOriginTopLeft;
 
-            NaturalSize = new Size(
-                _left.Coords.Width + _middle.Coords.Width + _right.Coords.Width,
-                _left.Coords.Height);
+            var leftWidth = _left.Coords.Width;
+            var rightWidth = _right.Coords.Width;
 
-            CacheKey = $"Stretchable:{left.Name}:{middle.Name}:{right.Name}";
-        }
+            var leftRect = new Rectangle(0, 0, leftWidth, size.Height);
 
-        protected override Texture CreateTexture(Size size, GraphicsLoadContext loadContext)
-        {
-            return MappedImageUtility.CreateTexture(loadContext, size, spriteBatch =>
-            {
-                var requiresFlip = !loadContext.GraphicsDevice.IsUvOriginTopLeft;
+            spriteBatch.DrawImage(
+               _left.Texture.Value,
+               _left.Coords,
+               leftRect.ToRectangleF(),
+               ColorRgbaF.White,
+               requiresFlip);
 
-                var leftWidth = _left.Coords.Width;
-                var rightWidth = _right.Coords.Width;
+            var middleRect = new Rectangle(leftRect.Right, 0, size.Width - leftWidth - rightWidth, size.Height);
+            spriteBatch.DrawImage(
+               _middle.Texture.Value,
+               _middle.Coords,
+               middleRect.ToRectangleF(),
+               ColorRgbaF.White,
+               requiresFlip);
 
-                var leftRect = new Rectangle(0, 0, leftWidth, size.Height);
-
-                spriteBatch.DrawImage(
-                   _left.Texture.Value,
-                   _left.Coords,
-                   leftRect.ToRectangleF(),
-                   ColorRgbaF.White,
-                   requiresFlip);
-
-                var middleRect = new Rectangle(leftRect.Right, 0, size.Width - leftWidth - rightWidth, size.Height);
-                spriteBatch.DrawImage(
-                   _middle.Texture.Value,
-                   _middle.Coords,
-                   middleRect.ToRectangleF(),
-                   ColorRgbaF.White,
-                   requiresFlip);
-
-                var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, size.Height);
-                spriteBatch.DrawImage(
-                   _right.Texture.Value,
-                   _right.Coords,
-                   rightRect.ToRectangleF(),
-                   ColorRgbaF.White,
-                   requiresFlip);
-            });
-        }
+            var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, size.Height);
+            spriteBatch.DrawImage(
+               _right.Texture.Value,
+               _right.Coords,
+               rightRect.ToRectangleF(),
+               ColorRgbaF.White,
+               requiresFlip);
+        });
     }
 }

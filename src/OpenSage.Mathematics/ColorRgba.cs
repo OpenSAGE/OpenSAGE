@@ -1,59 +1,58 @@
 ﻿using System;
 using System.Numerics;
 
-namespace OpenSage.Mathematics
+namespace OpenSage.Mathematics;
+
+public readonly record struct ColorRgba(byte R, byte G, byte B, byte A)
 {
-    public readonly record struct ColorRgba(byte R, byte G, byte B, byte A)
+    public static readonly ColorRgba Transparent = new ColorRgba(255, 255, 255, 0);
+    public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
+    public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
+
+    public static ColorRgba operator *(ColorRgba value, float scale)
     {
-        public static readonly ColorRgba Transparent = new ColorRgba(255, 255, 255, 0);
-        public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
-        public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
+        return new ColorRgba((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
+    }
 
-        public static ColorRgba operator *(ColorRgba value, float scale)
+    public Vector4 ToVector4()
+    {
+        return new Vector4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
+    }
+
+    public ColorRgbaF ToColorRgbaF()
+    {
+        return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
+    }
+
+    public string ToHex()
+    {
+        byte[] data = { R, G, B, A };
+
+        string hex = BitConverter.ToString(data).Replace("-", string.Empty);
+        return hex;
+    }
+
+    public override string ToString()
+    {
+        return $"({R},{G},{B},{A})";
+    }
+
+    public static ColorRgba FromHex(in ColorRgba original, string hexString)
+    {
+        var hexVal = Convert.ToUInt32(hexString, 16);
+        bool hasAlpha = hexString.Length > 8;
+
+        var a = original.A;
+
+        var b = (byte)(hexVal & 0xFF);
+        var g = (byte)(hexVal >> 8 & 0xFF);
+        var r = (byte)(hexVal >> 16 & 0xFF);
+
+        if (hasAlpha)
         {
-            return new ColorRgba((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
+            a = (byte)(hexVal >> 24 & 0xFF);
         }
 
-        public Vector4 ToVector4()
-        {
-            return new Vector4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
-        }
-
-        public ColorRgbaF ToColorRgbaF()
-        {
-            return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
-        }
-
-        public string ToHex()
-        {
-            byte[] data = { R, G, B, A };
-
-            string hex = BitConverter.ToString(data).Replace("-", string.Empty);
-            return hex;
-        }
-
-        public override string ToString()
-        {
-            return $"({R},{G},{B},{A})";
-        }
-
-        public static ColorRgba FromHex(in ColorRgba original, string hexString)
-        {
-            var hexVal = Convert.ToUInt32(hexString, 16);
-            bool hasAlpha = hexString.Length > 8;
-
-            var a = original.A;
-
-            var b = (byte)(hexVal & 0xFF);
-            var g = (byte)(hexVal >> 8 & 0xFF);
-            var r = (byte)(hexVal >> 16 & 0xFF);
-
-            if (hasAlpha)
-            {
-                a = (byte)(hexVal >> 24 & 0xFF);
-            }
-
-            return new ColorRgba(r, g, b, a);
-        }
+        return new ColorRgba(r, g, b, a);
     }
 }

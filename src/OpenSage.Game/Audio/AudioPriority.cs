@@ -1,22 +1,21 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Audio
+namespace OpenSage.Audio;
+
+public enum AudioPriority
 {
-    public enum AudioPriority
-    {
-        [IniEnum("lowest")]
-        Lowest,
+    [IniEnum("lowest")]
+    Lowest,
 
-        [IniEnum("low")]
-        Low,
+    [IniEnum("low")]
+    Low,
 
-        [IniEnum("normal")]
-        Normal,
+    [IniEnum("normal")]
+    Normal,
 
-        [IniEnum("high")]
-        High,
+    [IniEnum("high")]
+    High,
 
-        [IniEnum("critical")]
-        Critical
-    }
+    [IniEnum("critical")]
+    Critical
 }

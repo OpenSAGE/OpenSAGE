@@ -2,24 +2,23 @@
 using System.Text;
 using OpenSage.IO;
 
-namespace OpenSage.Data.Ani
+namespace OpenSage.Data.Ani;
+
+public sealed class CurFile
 {
-    public sealed class CurFile
+    public CursorImage Image { get; private set; }
+
+    public static CurFile FromFileSystemEntry(FileSystemEntry entry)
     {
-        public CursorImage Image { get; private set; }
-
-        public static CurFile FromFileSystemEntry(FileSystemEntry entry)
+        using (var stream = entry.Open())
+        using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
         {
-            using (var stream = entry.Open())
-            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
-            {
-                var content = IconChunkContent.Parse(reader, stream.Length);
+            var content = IconChunkContent.Parse(reader, stream.Length);
 
-                return new CurFile
-                {
-                    Image = content.GetImage(0)
-                };
-            }
+            return new CurFile
+            {
+                Image = content.GetImage(0)
+            };
         }
     }
 }

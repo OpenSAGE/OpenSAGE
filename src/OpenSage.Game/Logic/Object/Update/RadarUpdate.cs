@@ -1,41 +1,40 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class RadarUpdate : UpdateModule
 {
-    public sealed class RadarUpdate : UpdateModule
+    private uint _radarExtendEndFrame;
+    private bool _isRadarExtending;
+    private bool _isRadarExtended;
+
+    internal override void Load(StatePersister reader)
     {
-        private uint _radarExtendEndFrame;
-        private bool _isRadarExtending;
-        private bool _isRadarExtended;
+        reader.PersistVersion(1);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistUInt32(ref _radarExtendEndFrame);
-            reader.PersistBoolean(ref _isRadarExtended);
-            reader.PersistBoolean(ref _isRadarExtending);
-        }
+        reader.PersistUInt32(ref _radarExtendEndFrame);
+        reader.PersistBoolean(ref _isRadarExtended);
+        reader.PersistBoolean(ref _isRadarExtending);
     }
+}
 
-    public sealed class RadarUpdateModuleData : UpdateModuleData
+public sealed class RadarUpdateModuleData : UpdateModuleData
+{
+    internal static RadarUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<RadarUpdateModuleData> FieldParseTable = new IniParseTable<RadarUpdateModuleData>
     {
-        internal static RadarUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "RadarExtendTime", (parser, x) => x.RadarExtendTime = parser.ParseInteger() }
+    };
 
-        private static readonly IniParseTable<RadarUpdateModuleData> FieldParseTable = new IniParseTable<RadarUpdateModuleData>
-        {
-            { "RadarExtendTime", (parser, x) => x.RadarExtendTime = parser.ParseInteger() }
-        };
+    public int RadarExtendTime { get; private set; }
 
-        public int RadarExtendTime { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new RadarUpdate();
-        }
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new RadarUpdate();
     }
 }

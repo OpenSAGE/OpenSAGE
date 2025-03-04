@@ -1,13 +1,12 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Input
-{
-    public enum KeyTransition
-    {
-        [IniEnum("DOWN")]
-        Down,
+namespace OpenSage.Input;
 
-        [IniEnum("UP")]
-        Up
-    }
+public enum KeyTransition
+{
+    [IniEnum("DOWN")]
+    Down,
+
+    [IniEnum("UP")]
+    Up
 }

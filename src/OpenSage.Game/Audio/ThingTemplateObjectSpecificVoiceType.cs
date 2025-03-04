@@ -1,12 +1,11 @@
-﻿namespace OpenSage.Audio
+﻿namespace OpenSage.Audio;
+
+public enum ThingTemplateObjectSpecificVoiceType
 {
-    public enum ThingTemplateObjectSpecificVoiceType
-    {
-        VoiceAttackUnit,
-        VoiceEnterStateAttackUnit,
-        VoiceEnterUnit,
-        VoiceEnterStateEnterUnit,
-        VoiceCreatedFrom,
-        VoiceFullyCreatedFrom
-    }
+    VoiceAttackUnit,
+    VoiceEnterStateAttackUnit,
+    VoiceEnterUnit,
+    VoiceEnterStateEnterUnit,
+    VoiceCreatedFrom,
+    VoiceFullyCreatedFrom
 }

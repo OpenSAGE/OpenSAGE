@@ -1,46 +1,45 @@
 ﻿using System.IO;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class WorldInfo : Asset
 {
-    public sealed class WorldInfo : Asset
+    public const string AssetName = "WorldInfo";
+
+    public AssetPropertyCollection Properties { get; private set; }
+
+    internal static WorldInfo Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "WorldInfo";
-
-        public AssetPropertyCollection Properties { get; private set; }
-
-        internal static WorldInfo Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            return new WorldInfo
             {
-                return new WorldInfo
-                {
-                    Properties = AssetPropertyCollection.Parse(reader, context)
-                };
-            });
-        }
+                Properties = AssetPropertyCollection.Parse(reader, context)
+            };
+        });
+    }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                Properties.WriteTo(writer, assetNames);
-            });
-        }
+            Properties.WriteTo(writer, assetNames);
+        });
     }
+}
 
-    public enum MapWeatherType : uint
-    {
-        [IniEnum("NORMAL")]
-        Normal,
+public enum MapWeatherType : uint
+{
+    [IniEnum("NORMAL")]
+    Normal,
 
-        [IniEnum("SNOWY")]
-        Snowy
-    }
+    [IniEnum("SNOWY")]
+    Snowy
+}
 
-    public enum MapCompressionType : uint
-    {
-        None,
-        RefPack
-    }
+public enum MapCompressionType : uint
+{
+    None,
+    RefPack
 }

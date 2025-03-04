@@ -6,102 +6,101 @@ using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
 
-namespace OpenSage.Gui.Apt
+namespace OpenSage.Gui.Apt;
+
+public sealed class RenderItem : TexturedItem
 {
-    public sealed class RenderItem : TexturedItem
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private TimeInterval _lastUpdate;
+
+    public LocalizedString? TextValue { get; private set; }
+    private bool IsHovered { get; set; }
+
+    public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
+    public CustomRenderCallback? RenderCallback;
+
+    public override void Create(Character character, AptContext context, SpriteItem? parent = null)
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private TimeInterval _lastUpdate;
+        Character = character;
+        Context = context;
+        Parent = parent;
+        ScriptObject = new ObjectContext(this);
+        Name = "";
+        Visible = true;
+        TextValue = character is Text text ? LocalizedString.CreateApt(text.Content) : null;
+        IsHovered = false;
+    }
 
-        public LocalizedString? TextValue { get; private set; }
-        private bool IsHovered { get; set; }
-
-        public delegate void CustomRenderCallback(AptRenderingContext context, Geometry geometry, Texture originalTexture);
-        public CustomRenderCallback? RenderCallback;
-
-        public override void Create(Character character, AptContext context, SpriteItem? parent = null)
+    public override void Update(TimeInterval gt)
+    {
+        // Currently only Text needs to be updated
+        if (Character is not Text t)
         {
-            Character = character;
-            Context = context;
-            Parent = parent;
-            ScriptObject = new ObjectContext(this);
-            Name = "";
-            Visible = true;
-            TextValue = character is Text text ? LocalizedString.CreateApt(text.Content) : null;
-            IsHovered = false;
+            return;
         }
 
-        public override void Update(TimeInterval gt)
+        if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds < Context.MillisecondsPerFrame)
         {
-            // Currently only Text needs to be updated
-            if (Character is not Text t)
-            {
-                return;
-            }
-
-            if ((gt.TotalTime - _lastUpdate.TotalTime).TotalMilliseconds < Context.MillisecondsPerFrame)
-            {
-                return;
-            }
-
-            _lastUpdate = gt;
-            if (t.Value.Length > 0)
-            {
-                string? textValue = null;
-                try
-                {
-                    var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
-                    if (val.Type != ValueType.Undefined)
-                    {
-                        textValue = val.ToString();
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    Logger.Warn($"Failed to resolve text value: {e}");
-                }
-
-                if (TextValue?.Original != textValue)
-                {
-                    TextValue = LocalizedString.CreateApt(textValue ?? "");
-                }
-            }
+            return;
         }
 
-        protected override void RenderImpl(AptRenderingContext renderingContext)
+        _lastUpdate = gt;
+        if (t.Value.Length > 0)
         {
-            if (!Visible)
+            string? textValue = null;
+            try
             {
-                return;
+                var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
+                if (val.Type != ValueType.Undefined)
+                {
+                    textValue = val.ToString();
+                }
+            }
+            catch (System.Exception e)
+            {
+                Logger.Warn($"Failed to resolve text value: {e}");
             }
 
-            renderingContext.PushTransform(Transform);
-
-            switch (Character)
+            if (TextValue?.Original != textValue)
             {
-                case Shape s:
-                    var geometry = Context.GetGeometry(s.Geometry, Character);
-                    if (RenderCallback != null)
-                    {
-                        RenderCallback(renderingContext, geometry, Texture);
-                    }
-                    else
-                    {
-                        renderingContext.RenderGeometry(geometry, Texture);
-                    }
-
-                    if (Highlight)
-                    {
-                        renderingContext.RenderOutline(geometry);
-                    }
-                    break;
-
-                case Text t:
-                    renderingContext.RenderText(t, TextValue?.Localize());
-                    break;
+                TextValue = LocalizedString.CreateApt(textValue ?? "");
             }
-
-            renderingContext.PopTransform();
         }
+    }
+
+    protected override void RenderImpl(AptRenderingContext renderingContext)
+    {
+        if (!Visible)
+        {
+            return;
+        }
+
+        renderingContext.PushTransform(Transform);
+
+        switch (Character)
+        {
+            case Shape s:
+                var geometry = Context.GetGeometry(s.Geometry, Character);
+                if (RenderCallback != null)
+                {
+                    RenderCallback(renderingContext, geometry, Texture);
+                }
+                else
+                {
+                    renderingContext.RenderGeometry(geometry, Texture);
+                }
+
+                if (Highlight)
+                {
+                    renderingContext.RenderOutline(geometry);
+                }
+                break;
+
+            case Text t:
+                renderingContext.RenderText(t, TextValue?.Localize());
+                break;
+        }
+
+        renderingContext.PopTransform();
     }
 }

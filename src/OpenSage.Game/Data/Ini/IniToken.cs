@@ -1,14 +1,13 @@
-﻿namespace OpenSage.Data.Ini
-{
-    internal readonly struct IniToken
-    {
-        public readonly string Text;
-        public readonly IniTokenPosition Position;
+﻿namespace OpenSage.Data.Ini;
 
-        public IniToken(string text, in IniTokenPosition position)
-        {
-            Text = text;
-            Position = position;
-        }
+internal readonly struct IniToken
+{
+    public readonly string Text;
+    public readonly IniTokenPosition Position;
+
+    public IniToken(string text, in IniTokenPosition position)
+    {
+        Text = text;
+        Position = position;
     }
 }

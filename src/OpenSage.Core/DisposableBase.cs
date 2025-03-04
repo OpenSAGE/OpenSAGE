@@ -24,139 +24,138 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OpenSage
+namespace OpenSage;
+
+/// <summary>
+/// Base class for objects that implement <see cref="IDisposable"/>.
+/// Provides utility functions to easily disposable of child objects.
+/// </summary>
+public abstract class DisposableBase : IDisposable
 {
+    private readonly List<IDisposable> _disposables = new List<IDisposable>();
+
     /// <summary>
-    /// Base class for objects that implement <see cref="IDisposable"/>.
-    /// Provides utility functions to easily disposable of child objects.
+    /// Gets a value indicating whether this instance is disposed.
     /// </summary>
-    public abstract class DisposableBase : IDisposable
+    protected internal bool IsDisposed { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is currently being disposed.
+    /// </summary>
+    protected internal bool IsDisposing { get; private set; }
+
+    /// <summary>
+    /// Releases unmanaged and - optionally - managed resources
+    /// </summary>
+    public void Dispose()
     {
-        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+        if (!IsDisposed)
+        {
+            IsDisposing = true;
+            Dispose(true);
+            IsDisposed = true;
+        }
+    }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is disposed.
-        /// </summary>
-        protected internal bool IsDisposed { get; private set; }
+    /// <summary>
+    /// Disposes of object resources.
+    /// </summary>
+    /// <param name="disposeManagedResources">If true, managed resources should be
+    /// disposed of in addition to unmanaged resources.</param>
+    protected virtual void Dispose(bool disposeManagedResources)
+    {
+        if (disposeManagedResources)
+        {
+            for (var i = _disposables.Count - 1; i >= 0; i--)
+            {
+                _disposables[i].Dispose();
+            }
+        }
+    }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is currently being disposed.
-        /// </summary>
-        protected internal bool IsDisposing { get; private set; }
+    /// <summary>
+    /// Adds a disposable object to the list of the objects to dispose.
+    /// </summary>
+    /// <param name="toDisposeArg">To dispose.</param>
+    [return: NotNullIfNotNull(nameof(toDisposeArg))]
+    protected internal T? AddDisposable<T>(T? toDisposeArg)
+        where T : IDisposable
+    {
+        if (toDisposeArg is not null)
+        {
+            _disposables.Add(toDisposeArg);
+        }
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
+        return toDisposeArg;
+    }
+
+    // TODO: Might not need this.
+    protected void AddDisposeAction(Action callback)
+    {
+        _disposables.Add(new ActionDisposable(callback));
+    }
+
+    private sealed class ActionDisposable : IDisposable
+    {
+        private readonly Action _action;
+
+        public ActionDisposable(Action action)
+        {
+            _action = action;
+        }
+
         public void Dispose()
         {
-            if (!IsDisposed)
-            {
-                IsDisposing = true;
-                Dispose(true);
-                IsDisposed = true;
-            }
+            _action();
         }
+    }
 
-        /// <summary>
-        /// Disposes of object resources.
-        /// </summary>
-        /// <param name="disposeManagedResources">If true, managed resources should be
-        /// disposed of in addition to unmanaged resources.</param>
-        protected virtual void Dispose(bool disposeManagedResources)
+    /// <summary>
+    /// Dispose a disposable object and set the reference to null. 
+    /// Removes this object from the ToDispose list.
+    /// </summary>
+    /// <param name="objectToDispose">Object to dispose.</param>
+    protected internal void RemoveAndDispose<T>(ref T? objectToDispose)
+        where T : class, IDisposable
+    {
+        if (objectToDispose is not null)
         {
-            if (disposeManagedResources)
-            {
-                for (var i = _disposables.Count - 1; i >= 0; i--)
-                {
-                    _disposables[i].Dispose();
-                }
-            }
+            _disposables.Remove(objectToDispose);
+            objectToDispose.Dispose();
+
+            objectToDispose = null;
         }
+    }
 
-        /// <summary>
-        /// Adds a disposable object to the list of the objects to dispose.
-        /// </summary>
-        /// <param name="toDisposeArg">To dispose.</param>
-        [return: NotNullIfNotNull(nameof(toDisposeArg))]
-        protected internal T? AddDisposable<T>(T? toDisposeArg)
-            where T : IDisposable
+    /// <summary>
+    /// Dispose a disposable object and set a new value to the variable.
+    /// Remove the old object from the ToDispose list, and add the new
+    /// object to the list.
+    /// Useful to make properties a bit cleaner.
+    /// </summary>
+    /// <param name="objectToDispose">Object to dispose.</param>
+    protected internal void DisposeAndAssign<T>(ref T? objectToDispose, T newValue)
+        where T : class, IDisposable
+    {
+        if (objectToDispose is not null)
         {
-            if (toDisposeArg is not null)
-            {
-                _disposables.Add(toDisposeArg);
-            }
-
-            return toDisposeArg;
+            _disposables.Remove(objectToDispose);
+            objectToDispose.Dispose();
         }
+        objectToDispose = AddDisposable(newValue);
+    }
 
-        // TODO: Might not need this.
-        protected void AddDisposeAction(Action callback)
+    /// <summary>
+    /// Removes a disposable object to the list of the objects to dispose.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="toDisposeArg">To dispose.</param>
+    protected internal void RemoveToDispose<T>(T toDisposeArg)
+        where T : IDisposable
+    {
+        if (toDisposeArg is not null)
         {
-            _disposables.Add(new ActionDisposable(callback));
-        }
-
-        private sealed class ActionDisposable : IDisposable
-        {
-            private readonly Action _action;
-
-            public ActionDisposable(Action action)
-            {
-                _action = action;
-            }
-
-            public void Dispose()
-            {
-                _action();
-            }
-        }
-
-        /// <summary>
-        /// Dispose a disposable object and set the reference to null. 
-        /// Removes this object from the ToDispose list.
-        /// </summary>
-        /// <param name="objectToDispose">Object to dispose.</param>
-        protected internal void RemoveAndDispose<T>(ref T? objectToDispose)
-            where T : class, IDisposable
-        {
-            if (objectToDispose is not null)
-            {
-                _disposables.Remove(objectToDispose);
-                objectToDispose.Dispose();
-
-                objectToDispose = null;
-            }
-        }
-
-        /// <summary>
-        /// Dispose a disposable object and set a new value to the variable.
-        /// Remove the old object from the ToDispose list, and add the new
-        /// object to the list.
-        /// Useful to make properties a bit cleaner.
-        /// </summary>
-        /// <param name="objectToDispose">Object to dispose.</param>
-        protected internal void DisposeAndAssign<T>(ref T? objectToDispose, T newValue)
-            where T : class, IDisposable
-        {
-            if (objectToDispose is not null)
-            {
-                _disposables.Remove(objectToDispose);
-                objectToDispose.Dispose();
-            }
-            objectToDispose = AddDisposable(newValue);
-        }
-
-        /// <summary>
-        /// Removes a disposable object to the list of the objects to dispose.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="toDisposeArg">To dispose.</param>
-        protected internal void RemoveToDispose<T>(T toDisposeArg)
-            where T : IDisposable
-        {
-            if (toDisposeArg is not null)
-            {
-                _disposables.Remove(toDisposeArg);
-            }
+            _disposables.Remove(toDisposeArg);
         }
     }
 }

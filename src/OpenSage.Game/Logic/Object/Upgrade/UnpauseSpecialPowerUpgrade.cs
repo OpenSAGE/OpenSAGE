@@ -1,59 +1,58 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
 {
-    internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
+    private readonly UnpauseSpecialPowerUpgradeModuleData _moduleData;
+
+    internal UnpauseSpecialPowerUpgrade(GameObject gameObject, UnpauseSpecialPowerUpgradeModuleData moduleData)
+        : base(gameObject, moduleData)
     {
-        private readonly UnpauseSpecialPowerUpgradeModuleData _moduleData;
+        _moduleData = moduleData;
+    }
 
-        internal UnpauseSpecialPowerUpgrade(GameObject gameObject, UnpauseSpecialPowerUpgradeModuleData moduleData)
-            : base(gameObject, moduleData)
+    protected override void OnUpgrade()
+    {
+        var powerToUnpause = _moduleData.SpecialPowerTemplate.Value;
+        foreach (var specialPowerModule in _gameObject.FindBehaviors<SpecialPowerModule>())
         {
-            _moduleData = moduleData;
-        }
-
-        protected override void OnUpgrade()
-        {
-            var powerToUnpause = _moduleData.SpecialPowerTemplate.Value;
-            foreach (var specialPowerModule in _gameObject.FindBehaviors<SpecialPowerModule>())
+            if (specialPowerModule.Matches(powerToUnpause))
             {
-                if (specialPowerModule.Matches(powerToUnpause))
-                {
-                    specialPowerModule.Unpause();
-                }
+                specialPowerModule.Unpause();
             }
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
         }
     }
 
-    public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static UnpauseSpecialPowerUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<UnpauseSpecialPowerUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<UnpauseSpecialPowerUpgradeModuleData>
-            {
-                { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseSpecialPowerReference() },
-                { "ObeyRechageOnTrigger", (parser, x) => x.ObeyRechageOnTrigger = parser.ParseBoolean() },
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        public LazyAssetReference<SpecialPower> SpecialPowerTemplate { get; private set; }
+public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
+{
+    internal static UnpauseSpecialPowerUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.Bfme2)]
-        public bool ObeyRechageOnTrigger { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<UnpauseSpecialPowerUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<UnpauseSpecialPowerUpgradeModuleData>
         {
-            return new UnpauseSpecialPowerUpgrade(gameObject, this);
-        }
+            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseSpecialPowerReference() },
+            { "ObeyRechageOnTrigger", (parser, x) => x.ObeyRechageOnTrigger = parser.ParseBoolean() },
+        });
+
+    public LazyAssetReference<SpecialPower> SpecialPowerTemplate { get; private set; }
+
+    [AddedIn(SageGame.Bfme2)]
+    public bool ObeyRechageOnTrigger { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new UnpauseSpecialPowerUpgrade(gameObject, this);
     }
 }

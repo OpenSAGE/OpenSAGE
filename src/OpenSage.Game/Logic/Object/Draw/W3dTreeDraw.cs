@@ -11,141 +11,140 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme)]
+public sealed class W3dTreeDraw : DrawModule
 {
-    [AddedIn(SageGame.Bfme)]
-    public sealed class W3dTreeDraw : DrawModule
+    private readonly GameContext _gameContext;
+    private ModelInstance _modelInstance;
+    private readonly W3dTreeDrawModuleData _moduleData;
+
+    public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
+
+    internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, GameContext context)
     {
-        private readonly GameContext _gameContext;
-        private ModelInstance _modelInstance;
-        private readonly W3dTreeDrawModuleData _moduleData;
-
-        public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
-
-        internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, GameContext context)
-        {
-            _gameContext = context;
-            _moduleData = moduleData;
-            _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
-            //TODO: overwrite texture somehow & take care of other fields
-        }
-
-        internal override void BuildRenderList(
-                RenderList renderList,
-                Camera camera,
-                bool castsShadow,
-                MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-                Dictionary<string, bool> shownSubObjects = null,
-                Dictionary<string, bool> hiddenSubObjects = null)
-        {
-            _modelInstance.BuildRenderList(
-                renderList,
-                camera,
-                castsShadow,
-                renderItemConstantsPS,
-                shownSubObjects,
-                hiddenSubObjects);
-        }
-
-        internal override (ModelInstance, ModelBone) FindBone(string boneName)
-        {
-            throw new NotSupportedException();
-        }
-
-        internal override string GetWeaponFireFXBone(WeaponSlot slot)
-        {
-            throw new NotSupportedException();
-        }
-
-        internal override string GetWeaponLaunchBone(WeaponSlot slot)
-        {
-            throw new NotSupportedException();
-        }
-
-        internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
-        {
-            _modelInstance.SetWorldMatrix(worldMatrix);
-        }
-
-        internal override void Update(in TimeInterval time)
-        {
-            _modelInstance.Update(time);
-        }
+        _gameContext = context;
+        _moduleData = moduleData;
+        _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
+        //TODO: overwrite texture somehow & take care of other fields
     }
 
-    public sealed class W3dTreeDrawModuleData : DrawModuleData
+    internal override void BuildRenderList(
+            RenderList renderList,
+            Camera camera,
+            bool castsShadow,
+            MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
+            Dictionary<string, bool> shownSubObjects = null,
+            Dictionary<string, bool> hiddenSubObjects = null)
     {
-        internal static W3dTreeDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        _modelInstance.BuildRenderList(
+            renderList,
+            camera,
+            castsShadow,
+            renderItemConstantsPS,
+            shownSubObjects,
+            hiddenSubObjects);
+    }
 
-        private static readonly IniParseTable<W3dTreeDrawModuleData> FieldParseTable = new IniParseTable<W3dTreeDrawModuleData>
-        {
-            { "ModelName", (parser, x) => x.Model = parser.ParseModelReference() },
-            { "TextureName", (parser, x) => x.Texture = parser.ParseTextureReference() },
+    internal override (ModelInstance, ModelBone) FindBone(string boneName)
+    {
+        throw new NotSupportedException();
+    }
 
-            { "DoTopple", (parser, x) => x.DoTopple = parser.ParseBoolean() },
-            { "DoShadow", (parser, x) => x.DoShadow = parser.ParseBoolean() },
-            { "ToppleFX", (parser, x) => x.ToppleFX = parser.ParseFXListReference() },
-            { "BounceFX", (parser, x) => x.BounceFX = parser.ParseFXListReference() },
-            { "KillWhenFinishedToppling", (parser, x) => x.KillWhenFinishedToppling = parser.ParseBoolean() },
-            { "SinkDistance", (parser, x) => x.SinkDistance = parser.ParseInteger() },
-            { "SinkTime", (parser, x) => x.SinkTime = parser.ParseInteger() },
+    internal override string GetWeaponFireFXBone(WeaponSlot slot)
+    {
+        throw new NotSupportedException();
+    }
 
-            { "MoveOutwardTime", (parser, x) => x.MoveOutwardTime = parser.ParseInteger() },
-            { "MoveInwardTime", (parser, x) => x.MoveInwardTime = parser.ParseInteger() },
-            { "MoveOutwardDistanceFactor", (parser, x) => x.MoveOutwardDistanceFactor = parser.ParseFloat() },
-            { "DarkeningFactor", (parser, x) => x.DarkeningFactor = parser.ParseFloat() },
-            { "MorphTime", (parser, x) => x.MorphTime = parser.ParseInteger() },
-            { "TaintedTree", (parser, x) => x.TaintedTree = parser.ParseBoolean() },
-            { "FadeDistance", (parser, x) => x.FadeDistance = parser.ParseInteger() },
-            { "FadeTarget", (parser, x) => x.FadeTarget = parser.ParseInteger() },
-            { "MorphFX", (parser, x) => x.MorphFX = parser.ParseFXListReference() },
-            { "MorphTree", (parser, x) => x.MorphTree = parser.ParseIdentifier() }
-        };
+    internal override string GetWeaponLaunchBone(WeaponSlot slot)
+    {
+        throw new NotSupportedException();
+    }
 
-        public LazyAssetReference<Model> Model { get; private set; }
-        public LazyAssetReference<TextureAsset> Texture { get; private set; }
+    internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
+    {
+        _modelInstance.SetWorldMatrix(worldMatrix);
+    }
 
-        public bool DoTopple { get; private set; }
-        public bool DoShadow { get; private set; }
-        public LazyAssetReference<FXList> ToppleFX { get; private set; }
-        public LazyAssetReference<FXList> BounceFX { get; private set; }
-        public bool KillWhenFinishedToppling { get; private set; }
-        public int SinkDistance { get; private set; }
-        public int SinkTime { get; private set; }
+    internal override void Update(in TimeInterval time)
+    {
+        _modelInstance.Update(time);
+    }
+}
 
-        [AddedIn(SageGame.Bfme)]
-        public int MoveOutwardTime { get; private set; }
+public sealed class W3dTreeDrawModuleData : DrawModuleData
+{
+    internal static W3dTreeDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.Bfme)]
-        public int MoveInwardTime { get; private set; }
+    private static readonly IniParseTable<W3dTreeDrawModuleData> FieldParseTable = new IniParseTable<W3dTreeDrawModuleData>
+    {
+        { "ModelName", (parser, x) => x.Model = parser.ParseModelReference() },
+        { "TextureName", (parser, x) => x.Texture = parser.ParseTextureReference() },
 
-        [AddedIn(SageGame.Bfme)]
-        public float MoveOutwardDistanceFactor { get; private set; }
+        { "DoTopple", (parser, x) => x.DoTopple = parser.ParseBoolean() },
+        { "DoShadow", (parser, x) => x.DoShadow = parser.ParseBoolean() },
+        { "ToppleFX", (parser, x) => x.ToppleFX = parser.ParseFXListReference() },
+        { "BounceFX", (parser, x) => x.BounceFX = parser.ParseFXListReference() },
+        { "KillWhenFinishedToppling", (parser, x) => x.KillWhenFinishedToppling = parser.ParseBoolean() },
+        { "SinkDistance", (parser, x) => x.SinkDistance = parser.ParseInteger() },
+        { "SinkTime", (parser, x) => x.SinkTime = parser.ParseInteger() },
 
-        [AddedIn(SageGame.Bfme)]
-        public float DarkeningFactor { get; private set; }
+        { "MoveOutwardTime", (parser, x) => x.MoveOutwardTime = parser.ParseInteger() },
+        { "MoveInwardTime", (parser, x) => x.MoveInwardTime = parser.ParseInteger() },
+        { "MoveOutwardDistanceFactor", (parser, x) => x.MoveOutwardDistanceFactor = parser.ParseFloat() },
+        { "DarkeningFactor", (parser, x) => x.DarkeningFactor = parser.ParseFloat() },
+        { "MorphTime", (parser, x) => x.MorphTime = parser.ParseInteger() },
+        { "TaintedTree", (parser, x) => x.TaintedTree = parser.ParseBoolean() },
+        { "FadeDistance", (parser, x) => x.FadeDistance = parser.ParseInteger() },
+        { "FadeTarget", (parser, x) => x.FadeTarget = parser.ParseInteger() },
+        { "MorphFX", (parser, x) => x.MorphFX = parser.ParseFXListReference() },
+        { "MorphTree", (parser, x) => x.MorphTree = parser.ParseIdentifier() }
+    };
 
-        [AddedIn(SageGame.Bfme)]
-        public int MorphTime { get; private set; }
+    public LazyAssetReference<Model> Model { get; private set; }
+    public LazyAssetReference<TextureAsset> Texture { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public bool TaintedTree { get; private set; }
+    public bool DoTopple { get; private set; }
+    public bool DoShadow { get; private set; }
+    public LazyAssetReference<FXList> ToppleFX { get; private set; }
+    public LazyAssetReference<FXList> BounceFX { get; private set; }
+    public bool KillWhenFinishedToppling { get; private set; }
+    public int SinkDistance { get; private set; }
+    public int SinkTime { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public int FadeDistance { get; private set; }
+    [AddedIn(SageGame.Bfme)]
+    public int MoveOutwardTime { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public int FadeTarget { get; private set; }
+    [AddedIn(SageGame.Bfme)]
+    public int MoveInwardTime { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public LazyAssetReference<FXList> MorphFX { get; private set; }
+    [AddedIn(SageGame.Bfme)]
+    public float MoveOutwardDistanceFactor { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public string MorphTree { get; private set; }
+    [AddedIn(SageGame.Bfme)]
+    public float DarkeningFactor { get; private set; }
 
-        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
-        {
-            return new W3dTreeDraw(this, context);
-        }
+    [AddedIn(SageGame.Bfme)]
+    public int MorphTime { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public bool TaintedTree { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public int FadeDistance { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public int FadeTarget { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public LazyAssetReference<FXList> MorphFX { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public string MorphTree { get; private set; }
+
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    {
+        return new W3dTreeDraw(this, context);
     }
 }

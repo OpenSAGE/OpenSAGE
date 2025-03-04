@@ -2,39 +2,38 @@
 using System.Collections.Generic;
 using OpenSage.Tests.Data;
 
-namespace OpenSage.Tests
+namespace OpenSage.Tests;
+
+public class GameFixture : IDisposable
 {
-    public class GameFixture : IDisposable
+    private readonly Dictionary<SageGame, Game> _games = new();
+
+    public GameFixture()
     {
-        private readonly Dictionary<SageGame, Game> _games = new();
+        Platform.Start();
+    }
 
-        public GameFixture()
+    public Game GetGame(SageGame sageGame)
+    {
+        if (!_games.TryGetValue(sageGame, out var game))
         {
-            Platform.Start();
+            var installation = InstalledFilesTestData.GetInstallation(sageGame);
+
+            game = new Game(installation);
+
+            _games.Add(sageGame, game);
         }
 
-        public Game GetGame(SageGame sageGame)
+        return game;
+    }
+
+    public void Dispose()
+    {
+        foreach (var kvp in _games)
         {
-            if (!_games.TryGetValue(sageGame, out var game))
-            {
-                var installation = InstalledFilesTestData.GetInstallation(sageGame);
-
-                game = new Game(installation);
-
-                _games.Add(sageGame, game);
-            }
-
-            return game;
+            kvp.Value.Dispose();
         }
 
-        public void Dispose()
-        {
-            foreach (var kvp in _games)
-            {
-                kvp.Value.Dispose();
-            }
-
-            Platform.Stop();
-        }
+        Platform.Stop();
     }
 }

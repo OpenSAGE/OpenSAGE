@@ -4,64 +4,63 @@ using System.Runtime.InteropServices;
 using OpenSage.Rendering;
 using Veldrid;
 
-namespace OpenSage.Graphics.Shaders
+namespace OpenSage.Graphics.Shaders;
+
+internal sealed class RoadShaderResources : ShaderSetBase
 {
-    internal sealed class RoadShaderResources : ShaderSetBase
+    public readonly Pipeline Pipeline;
+
+    private readonly Dictionary<Texture, Material> _cachedMaterials = new();
+
+    public RoadShaderResources(ShaderSetStore store)
+        : base(store, "Road", RoadVertex.VertexDescriptor)
     {
-        public readonly Pipeline Pipeline;
+        Pipeline = AddDisposable(
+            store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                new GraphicsPipelineDescription(
+                    BlendStateDescription.SingleAlphaBlend,
+                    DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                    RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
+                    PrimitiveTopology.TriangleList,
+                    Description,
+                    ResourceLayouts,
+                    store.OutputDescription)));
+    }
 
-        private readonly Dictionary<Texture, Material> _cachedMaterials = new();
-
-        public RoadShaderResources(ShaderSetStore store)
-            : base(store, "Road", RoadVertex.VertexDescriptor)
+    public Material GetMaterial(Texture texture)
+    {
+        if (!_cachedMaterials.TryGetValue(texture, out var result))
         {
-            Pipeline = AddDisposable(
-                store.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                    new GraphicsPipelineDescription(
-                        BlendStateDescription.SingleAlphaBlend,
-                        DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                        RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
-                        PrimitiveTopology.TriangleList,
-                        Description,
-                        ResourceLayouts,
-                        store.OutputDescription)));
+            var materialResourceSet = AddDisposable(
+                GraphicsDevice.ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        MaterialResourceLayout,
+                        texture,
+                        GraphicsDevice.Aniso4xSampler)));
+
+            result = AddDisposable(
+                new Material(
+                    this,
+                    Pipeline,
+                    materialResourceSet,
+                    SurfaceType.Transparent));
+
+            _cachedMaterials.Add(texture, result);
         }
 
-        public Material GetMaterial(Texture texture)
-        {
-            if (!_cachedMaterials.TryGetValue(texture, out var result))
-            {
-                var materialResourceSet = AddDisposable(
-                    GraphicsDevice.ResourceFactory.CreateResourceSet(
-                        new ResourceSetDescription(
-                            MaterialResourceLayout,
-                            texture,
-                            GraphicsDevice.Aniso4xSampler)));
+        return result;
+    }
 
-                result = AddDisposable(
-                    new Material(
-                        this,
-                        Pipeline,
-                        materialResourceSet,
-                        SurfaceType.Transparent));
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RoadVertex
+    {
+        public Vector3 Position;
+        public Vector3 Normal;
+        public Vector2 UV;
 
-                _cachedMaterials.Add(texture, result);
-            }
-
-            return result;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RoadVertex
-        {
-            public Vector3 Position;
-            public Vector3 Normal;
-            public Vector2 UV;
-
-            public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-                new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
-        }
+        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
+            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
     }
 }

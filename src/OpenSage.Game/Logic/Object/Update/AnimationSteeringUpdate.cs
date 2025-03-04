@@ -1,17 +1,16 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.CncGeneralsZeroHour)]
+public sealed class AnimationSteeringUpdateModuleData : UpdateModuleData
 {
-    [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class AnimationSteeringUpdateModuleData : UpdateModuleData
+    internal static AnimationSteeringUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<AnimationSteeringUpdateModuleData> FieldParseTable = new IniParseTable<AnimationSteeringUpdateModuleData>
     {
-        internal static AnimationSteeringUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "MinTransitionTime", (parser, x) => x.MinTransitionTime = parser.ParseInteger() }
+    };
 
-        private static readonly IniParseTable<AnimationSteeringUpdateModuleData> FieldParseTable = new IniParseTable<AnimationSteeringUpdateModuleData>
-        {
-            { "MinTransitionTime", (parser, x) => x.MinTransitionTime = parser.ParseInteger() }
-        };
-
-        public int MinTransitionTime { get; private set; }
-    }
+    public int MinTransitionTime { get; private set; }
 }

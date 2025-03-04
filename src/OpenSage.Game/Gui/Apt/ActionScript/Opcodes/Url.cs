@@ -1,35 +1,34 @@
-﻿namespace OpenSage.Gui.Apt.ActionScript.Opcodes
+﻿namespace OpenSage.Gui.Apt.ActionScript.Opcodes;
+
+/// <summary>
+/// Used to get variables from the engine (?)
+/// </summary>
+public sealed class GetUrl : InstructionBase
 {
-    /// <summary>
-    /// Used to get variables from the engine (?)
-    /// </summary>
-    public sealed class GetUrl : InstructionBase
+    public override InstructionType Type => InstructionType.GetURL;
+    public override uint Size => 8;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.GetURL;
-        public override uint Size => 8;
+        var url = Parameters[0].ToString();
+        var target = Parameters[1].ToString();
 
-        public override void Execute(ActionContext context)
-        {
-            var url = Parameters[0].ToString();
-            var target = Parameters[1].ToString();
-
-            context.Apt.Avm.Handle(context, url, target);
-        }
+        context.Apt.Avm.Handle(context, url, target);
     }
+}
 
-    /// <summary>
-    /// Used to get variables from the engine (?) (stack based)
-    /// </summary>
-    public sealed class GetUrl2 : InstructionBase
+/// <summary>
+/// Used to get variables from the engine (?) (stack based)
+/// </summary>
+public sealed class GetUrl2 : InstructionBase
+{
+    public override InstructionType Type => InstructionType.GetURL2;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.GetURL2;
+        var target = context.Pop();
+        var url = context.Pop().ToString();
 
-        public override void Execute(ActionContext context)
-        {
-            var target = context.Pop();
-            var url = context.Pop().ToString();
-
-            context.Apt.Avm.Handle(context, url, target.ToString());
-        }
+        context.Apt.Avm.Handle(context, url, target.ToString());
     }
 }

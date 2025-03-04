@@ -1,20 +1,19 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+/// <summary>
+/// Dynamically adjusts the "bomb" so it hits its designated target instead of missing it.
+/// </summary>
+[AddedIn(SageGame.CncGeneralsZeroHour)]
+public sealed class SmartBombTargetHomingUpdateModuleData : UpdateModuleData
 {
-    /// <summary>
-    /// Dynamically adjusts the "bomb" so it hits its designated target instead of missing it.
-    /// </summary>
-    [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class SmartBombTargetHomingUpdateModuleData : UpdateModuleData
+    internal static SmartBombTargetHomingUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<SmartBombTargetHomingUpdateModuleData> FieldParseTable = new IniParseTable<SmartBombTargetHomingUpdateModuleData>
     {
-        internal static SmartBombTargetHomingUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "CourseCorrectionScalar", (parser, x) => x.CourseCorrectionScalar = parser.ParseFloat() },
+    };
 
-        private static readonly IniParseTable<SmartBombTargetHomingUpdateModuleData> FieldParseTable = new IniParseTable<SmartBombTargetHomingUpdateModuleData>
-        {
-            { "CourseCorrectionScalar", (parser, x) => x.CourseCorrectionScalar = parser.ParseFloat() },
-        };
-
-        public float CourseCorrectionScalar { get; private set; }
-    }
+    public float CourseCorrectionScalar { get; private set; }
 }

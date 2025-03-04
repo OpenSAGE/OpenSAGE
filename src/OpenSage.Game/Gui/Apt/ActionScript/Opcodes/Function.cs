@@ -2,367 +2,366 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenSage.Gui.Apt.ActionScript.Opcodes
+namespace OpenSage.Gui.Apt.ActionScript.Opcodes;
+
+public static class FunctionCommon
 {
-    public static class FunctionCommon
+
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+    public static Value[] GetArgumentsFromStack(ActionContext context)
     {
+        var argCount = context.Pop().ToInteger();
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public static Value[] GetArgumentsFromStack(ActionContext context)
+        var args = new Value[argCount];
+        for (int i = 0; i < argCount; ++i)
         {
-            var argCount = context.Pop().ToInteger();
-
-            var args = new Value[argCount];
-            for (int i = 0; i < argCount; ++i)
-            {
-                args[i] = context.Pop();
-            }
-
-            return args;
+            args[i] = context.Pop();
         }
 
-        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+        return args;
+    }
+
+    public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, VM vm)
+    {
+        if (funcVal.Type != ValueType.Undefined)
         {
-            if (funcVal.Type != ValueType.Undefined)
-            {
-                var func = funcVal.ToFunction();
-                var ret = vm.Execute(func, args, scope);
-            }
-            else
-            {
-                logger.Warn($"Function val is wrong is wrong type: {funcVal}");
-            }
+            var func = funcVal.ToFunction();
+            var ret = vm.Execute(func, args, scope);
         }
-
-        public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
+        else
         {
-            if (funcVal.Type != ValueType.Undefined)
-            {
-                var func = funcVal.ToFunction();
-                var vm = context.Apt.Avm;
-                var ret = vm.Execute(func, args, scope);
-
-                if (ret != null)
-                    context.Push(ret);
-            }
-            else
-            {
-                logger.Warn($"Function val is wrong is wrong type: {funcVal}");
-            }
-        }
-
-        public static void ExecuteFunction(string funcName, Value[] args, ObjectContext scope, ActionContext context)
-        {
-            if (scope == null)
-            {
-                logger.Error($"Cannot execute function \"{funcName}\" on null object");
-                return;
-            }
-
-            if (scope.IsBuiltInFunction(funcName))
-            {
-                scope.CallBuiltInFunction(context, funcName, args);
-            }
-            else
-            {
-                var funcVal = scope.GetMember(funcName);
-                ExecuteFunction(funcVal, args, scope, context);
-            }
+            logger.Warn($"Function val is wrong is wrong type: {funcVal}");
         }
     }
 
-    /// <summary>
-    /// Declare a new named or anonymous function (depending on function name) that will either be
-    /// pushed to stack or set as a variable. 
-    /// </summary>
-    public sealed class DefineFunction : InstructionBase
+    public static void ExecuteFunction(Value funcVal, Value[] args, ObjectContext scope, ActionContext context)
     {
-        public override InstructionType Type => InstructionType.DefineFunction;
-        public override uint Size => 24;
-
-        public override void Execute(ActionContext context)
+        if (funcVal.Type != ValueType.Undefined)
         {
-            var name = Parameters[0].ToString();
-            var nParams = Parameters[1].ToInteger();
-            var size = Parameters[2 + nParams].ToInteger();
+            var func = funcVal.ToFunction();
+            var vm = context.Apt.Avm;
+            var ret = vm.Execute(func, args, scope);
 
-            //create a list of parameters
-            var paramList = Parameters
-                .Skip(2)
-                .Take(nParams)
-                .ToList();
-
-            //get all the instructions
-            var code = context.Stream.GetInstructions(size);
-
-            var func = new Function()
-            {
-                Parameters = paramList,
-                Instructions = code,
-                NumberRegisters = 4,
-                Constants = new List<Value>(context.Scope.Constants),
-                IsNewVersion = false
-            };
-
-            var funcVal = Value.FromFunction(func);
-
-            if (name.Length > 0)
-                context.Scope.Variables[name] = funcVal;
-            //anonymous function/lambda function
-            else
-                context.Push(funcVal);
+            if (ret != null)
+                context.Push(ret);
+        }
+        else
+        {
+            logger.Warn($"Function val is wrong is wrong type: {funcVal}");
         }
     }
 
-    /// <summary>
-    /// Declare a new named or anonymous function (depending on function name) that will either be
-    /// pushed to stack or set as a variable. 
-    /// </summary>
-    public sealed class DefineFunction2 : InstructionBase
+    public static void ExecuteFunction(string funcName, Value[] args, ObjectContext scope, ActionContext context)
     {
-        public override InstructionType Type => InstructionType.DefineFunction2;
-        public override uint Size => 28;
-
-        public override void Execute(ActionContext context)
+        if (scope == null)
         {
-            var name = Parameters[0].ToString();
-            var nParams = Parameters[1].ToInteger();
-            var nRegisters = Parameters[2].ToInteger();
-            FunctionPreloadFlags flags = (FunctionPreloadFlags)Parameters[3].ToInteger();
-            var size = Parameters[4 + nParams * 2].ToInteger();
+            logger.Error($"Cannot execute function \"{funcName}\" on null object");
+            return;
+        }
 
-            //create a list of parameters
-            var paramList = Parameters
-                .Skip(4)
-                .Take(nParams * 2)
-                .ToList();
-
-            //get all the instructions
-            var code = context.Stream.GetInstructions(size);
-
-            var func = new Function()
-            {
-                Parameters = paramList,
-                Instructions = code,
-                NumberRegisters = nRegisters,
-                Constants = new List<Value>(context.Scope.Constants),
-                Flags = flags,
-                IsNewVersion = true
-            };
-
-            var funcVal = Value.FromFunction(func);
-
-            if (name.Length > 0)
-                context.Scope.Variables[name] = funcVal;
-            //anonymous function/lambda function
-            else
-                context.Push(funcVal);
+        if (scope.IsBuiltInFunction(funcName))
+        {
+            scope.CallBuiltInFunction(context, funcName, args);
+        }
+        else
+        {
+            var funcVal = scope.GetMember(funcName);
+            ExecuteFunction(funcVal, args, scope, context);
         }
     }
+}
 
+/// <summary>
+/// Declare a new named or anonymous function (depending on function name) that will either be
+/// pushed to stack or set as a variable. 
+/// </summary>
+public sealed class DefineFunction : InstructionBase
+{
+    public override InstructionType Type => InstructionType.DefineFunction;
+    public override uint Size => 24;
 
-    /// <summary>
-    /// Return out of the current function back to the calling point
-    /// </summary>
-    public sealed class Return : InstructionBase
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.Return;
+        var name = Parameters[0].ToString();
+        var nParams = Parameters[1].ToInteger();
+        var size = Parameters[2 + nParams].ToInteger();
 
-        public override void Execute(ActionContext context)
+        //create a list of parameters
+        var paramList = Parameters
+            .Skip(2)
+            .Take(nParams)
+            .ToList();
+
+        //get all the instructions
+        var code = context.Stream.GetInstructions(size);
+
+        var func = new Function()
         {
-            context.Return = true;
-        }
+            Parameters = paramList,
+            Instructions = code,
+            NumberRegisters = 4,
+            Constants = new List<Value>(context.Scope.Constants),
+            IsNewVersion = false
+        };
+
+        var funcVal = Value.FromFunction(func);
+
+        if (name.Length > 0)
+            context.Scope.Variables[name] = funcVal;
+        //anonymous function/lambda function
+        else
+            context.Push(funcVal);
     }
+}
 
-    /// <summary>
-    /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
-    /// </summary>
-    public sealed class CallMethod : InstructionBase
+/// <summary>
+/// Declare a new named or anonymous function (depending on function name) that will either be
+/// pushed to stack or set as a variable. 
+/// </summary>
+public sealed class DefineFunction2 : InstructionBase
+{
+    public override InstructionType Type => InstructionType.DefineFunction2;
+    public override uint Size => 28;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.CallMethod;
+        var name = Parameters[0].ToString();
+        var nParams = Parameters[1].ToInteger();
+        var nRegisters = Parameters[2].ToInteger();
+        FunctionPreloadFlags flags = (FunctionPreloadFlags)Parameters[3].ToInteger();
+        var size = Parameters[4 + nParams * 2].ToInteger();
 
-        public override void Execute(ActionContext context)
+        //create a list of parameters
+        var paramList = Parameters
+            .Skip(4)
+            .Take(nParams * 2)
+            .ToList();
+
+        //get all the instructions
+        var code = context.Stream.GetInstructions(size);
+
+        var func = new Function()
         {
-            var funcName = context.Pop().ToString();
+            Parameters = paramList,
+            Instructions = code,
+            NumberRegisters = nRegisters,
+            Constants = new List<Value>(context.Scope.Constants),
+            Flags = flags,
+            IsNewVersion = true
+        };
 
-            // If funcname is defined we need get the function from an object
-            if (funcName.Length > 0)
-            {
-                var obj = context.Pop().ToObject();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
+        var funcVal = Value.FromFunction(func);
 
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
-            }
-            // Else the function is on the stack
-            else
-            {
-                var funcVal = context.Pop();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
-            }
-        }
+        if (name.Length > 0)
+            context.Scope.Variables[name] = funcVal;
+        //anonymous function/lambda function
+        else
+            context.Push(funcVal);
     }
+}
 
-    /// <summary>
-    /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
-    /// </summary>
-    public sealed class CallMethodPop : InstructionBase
+
+/// <summary>
+/// Return out of the current function back to the calling point
+/// </summary>
+public sealed class Return : InstructionBase
+{
+    public override InstructionType Type => InstructionType.Return;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.EA_CallMethodPop;
-
-        public override void Execute(ActionContext context)
-        {
-            var funcName = context.Pop().ToString();
-
-            // If funcname is defined we need get the function from an object
-            if (funcName.Length > 0)
-            {
-                var obj = context.Pop().ToObject();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcName, args, obj, context);
-            }
-            // Else the function is on the stack
-            else
-            {
-                var funcVal = context.Pop();
-                var args = FunctionCommon.GetArgumentsFromStack(context);
-
-                FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
-            }
-        }
+        context.Return = true;
     }
+}
 
-    /// <summary>
-    /// Call a named method that is in the current scope. Function arguments are popped from the stack
-    /// </summary>
-    public sealed class CallNamedMethodPop : InstructionBase
+/// <summary>
+/// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
+/// </summary>
+public sealed class CallMethod : InstructionBase
+{
+    public override InstructionType Type => InstructionType.CallMethod;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.EA_CallNamedMethodPop;
-        public override uint Size => 1;
+        var funcName = context.Pop().ToString();
 
-        public override void Execute(ActionContext context)
+        // If funcname is defined we need get the function from an object
+        if (funcName.Length > 0)
         {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
         }
-    }
-
-    /// <summary>
-    /// Call a named method that is in the current scope. Has no arguments
-    /// </summary>
-    public sealed class CallNamedFunc : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_CallNamedFunc;
-        public override uint Size => 1;
-
-        public override void Execute(ActionContext context)
+        // Else the function is on the stack
+        else
         {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
-            var argCount = context.Pop().ToInteger();
-
-            var args = new Value[argCount];
-            for (int i = 0; i < argCount; ++i)
-            {
-                args[i] = context.Pop();
-            }
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
-        }
-    }
-
-    /// <summary>
-    /// Call a named method that is in the current scope. Function arguments are popped from the stack
-    /// </summary>
-    public sealed class CallNamedFuncPop : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_CallNamedFuncPop;
-        public override uint Size => 1;
-
-        public override void Execute(ActionContext context)
-        {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
+            var funcVal = context.Pop();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
         }
     }
+}
 
-    /// <summary>
-    /// Call a function that is defined in the current scope
-    /// </summary>
-    public sealed class CallFunction : InstructionBase
+/// <summary>
+/// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
+/// </summary>
+public sealed class CallMethodPop : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallMethodPop;
+
+    public override void Execute(ActionContext context)
     {
-        public override InstructionType Type => InstructionType.CallFunction;
-        public override uint Size => 0;
+        var funcName = context.Pop().ToString();
 
-        public override void Execute(ActionContext context)
+        // If funcname is defined we need get the function from an object
+        if (funcName.Length > 0)
         {
-            var funcName = context.Pop().ToString();
-            var args = FunctionCommon.GetArgumentsFromStack(context);
-
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
-        }
-    }
-
-    /// <summary>
-    /// Call a function that is defined in the current scope
-    /// </summary>
-    public sealed class CallFunc : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_CallFunc;
-        public override uint Size => 0;
-
-        public override void Execute(ActionContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Call a function that is defined in the current scope
-    /// </summary>
-    public sealed class CallNamedMethod : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_CallNamedMethod;
-        public override uint Size => 1;
-
-        public override void Execute(ActionContext context)
-        {
-            var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();
             var obj = context.Pop().ToObject();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
-
-            var result = context.Pop();
-            var varName = context.Pop();
-            context.Locals[varName.ToString()] = result;
         }
-    }
-
-    /// <summary>
-    /// Call an function which its name is on the stack. Function arguments are also popped from the stack
-    /// </summary>
-    public sealed class CallFunctionPop : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_CallFuncPop;
-
-        public override void Execute(ActionContext context)
+        // Else the function is on the stack
+        else
         {
-            var funcName = context.Pop().ToString();
+            var funcVal = context.Pop();
             var args = FunctionCommon.GetArgumentsFromStack(context);
 
-            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+            FunctionCommon.ExecuteFunction(funcVal, args, context.Scope, context);
         }
+    }
+}
+
+/// <summary>
+/// Call a named method that is in the current scope. Function arguments are popped from the stack
+/// </summary>
+public sealed class CallNamedMethodPop : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallNamedMethodPop;
+    public override uint Size => 1;
+
+    public override void Execute(ActionContext context)
+    {
+        var id = Parameters[0].ToInteger();
+        var funcName = context.Scope.Constants[id].ToString();
+        var obj = context.Pop().ToObject();
+        var args = FunctionCommon.GetArgumentsFromStack(context);
+
+        FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+    }
+}
+
+/// <summary>
+/// Call a named method that is in the current scope. Has no arguments
+/// </summary>
+public sealed class CallNamedFunc : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallNamedFunc;
+    public override uint Size => 1;
+
+    public override void Execute(ActionContext context)
+    {
+        var id = Parameters[0].ToInteger();
+        var funcName = context.Scope.Constants[id].ToString();
+        var argCount = context.Pop().ToInteger();
+
+        var args = new Value[argCount];
+        for (int i = 0; i < argCount; ++i)
+        {
+            args[i] = context.Pop();
+        }
+
+        FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+    }
+}
+
+/// <summary>
+/// Call a named method that is in the current scope. Function arguments are popped from the stack
+/// </summary>
+public sealed class CallNamedFuncPop : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallNamedFuncPop;
+    public override uint Size => 1;
+
+    public override void Execute(ActionContext context)
+    {
+        var id = Parameters[0].ToInteger();
+        var funcName = context.Scope.Constants[id].ToString();
+        var args = FunctionCommon.GetArgumentsFromStack(context);
+
+        FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+    }
+}
+
+/// <summary>
+/// Call a function that is defined in the current scope
+/// </summary>
+public sealed class CallFunction : InstructionBase
+{
+    public override InstructionType Type => InstructionType.CallFunction;
+    public override uint Size => 0;
+
+    public override void Execute(ActionContext context)
+    {
+        var funcName = context.Pop().ToString();
+        var args = FunctionCommon.GetArgumentsFromStack(context);
+
+        FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+    }
+}
+
+/// <summary>
+/// Call a function that is defined in the current scope
+/// </summary>
+public sealed class CallFunc : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallFunc;
+    public override uint Size => 0;
+
+    public override void Execute(ActionContext context)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Call a function that is defined in the current scope
+/// </summary>
+public sealed class CallNamedMethod : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallNamedMethod;
+    public override uint Size => 1;
+
+    public override void Execute(ActionContext context)
+    {
+        var id = Parameters[0].ToInteger();
+        var funcName = context.Scope.Constants[id].ToString();
+        var obj = context.Pop().ToObject();
+        var args = FunctionCommon.GetArgumentsFromStack(context);
+
+        FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+
+        var result = context.Pop();
+        var varName = context.Pop();
+        context.Locals[varName.ToString()] = result;
+    }
+}
+
+/// <summary>
+/// Call an function which its name is on the stack. Function arguments are also popped from the stack
+/// </summary>
+public sealed class CallFunctionPop : InstructionBase
+{
+    public override InstructionType Type => InstructionType.EA_CallFuncPop;
+
+    public override void Execute(ActionContext context)
+    {
+        var funcName = context.Pop().ToString();
+        var args = FunctionCommon.GetArgumentsFromStack(context);
+
+        FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
     }
 }

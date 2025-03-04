@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace OpenSage.Gui.Apt
-{
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public sealed class AptCallbacksAttribute : Attribute
-    {
-        public SageGame[] Games { get; }
+namespace OpenSage.Gui.Apt;
 
-        public AptCallbacksAttribute(params SageGame[] games)
-        {
-            Games = games;
-        }
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public sealed class AptCallbacksAttribute : Attribute
+{
+    public SageGame[] Games { get; }
+
+    public AptCallbacksAttribute(params SageGame[] games)
+    {
+        Games = games;
     }
 }

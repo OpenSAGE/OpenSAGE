@@ -1,174 +1,173 @@
 ﻿using System;
 using System.Linq;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Data.Ini;
+
+internal sealed class TokenReader
 {
-    internal sealed class TokenReader
+    private readonly string _source;
+    private readonly string _fileName;
+
+    private int _sourceTextIndex;
+    private string _currentLineText;
+    private int _currentLine;
+    private int _currentLineCharIndex;
+
+    public bool EndOfFile { get; private set; }
+
+    private IniToken? _peekedToken;
+    private char[] _peekedTokenSeparators;
+    private int _nextCharIndex;
+
+    public IniTokenPosition CurrentPosition => new IniTokenPosition(
+        _fileName,
+        _currentLine + 1,
+        _currentLineCharIndex + 1);
+
+    public TokenReader(string source, string fileName)
     {
-        private readonly string _source;
-        private readonly string _fileName;
+        _source = source;
+        _fileName = fileName;
 
-        private int _sourceTextIndex;
-        private string _currentLineText;
-        private int _currentLine;
-        private int _currentLineCharIndex;
+        _currentLine = -1;
+    }
 
-        public bool EndOfFile { get; private set; }
+    private void SetCurrentLine(string text)
+    {
+        _currentLineText = text;
+        _currentLineCharIndex = 0;
+        _peekedToken = null;
+    }
 
-        private IniToken? _peekedToken;
-        private char[] _peekedTokenSeparators;
-        private int _nextCharIndex;
-
-        public IniTokenPosition CurrentPosition => new IniTokenPosition(
-            _fileName,
-            _currentLine + 1,
-            _currentLineCharIndex + 1);
-
-        public TokenReader(string source, string fileName)
+    public void GoToNextLine()
+    {
+        if (EndOfFile)
         {
-            _source = source;
-            _fileName = fileName;
-
-            _currentLine = -1;
+            SetCurrentLine(string.Empty);
+            return;
         }
 
-        private void SetCurrentLine(string text)
+        var startIndex = _sourceTextIndex;
+        var length = 0;
+
+        var afterComment = false;
+        while (true)
         {
-            _currentLineText = text;
-            _currentLineCharIndex = 0;
-            _peekedToken = null;
-        }
-
-        public void GoToNextLine()
-        {
-            if (EndOfFile)
+            if (_sourceTextIndex >= _source.Length)
             {
-                SetCurrentLine(string.Empty);
-                return;
+                EndOfFile = true;
+                break;
             }
 
-            var startIndex = _sourceTextIndex;
-            var length = 0;
+            var c = _source[_sourceTextIndex++];
 
-            var afterComment = false;
-            while (true)
+            // Reached end of line.
+            if (c == '\n')
             {
-                if (_sourceTextIndex >= _source.Length)
-                {
-                    EndOfFile = true;
-                    break;
-                }
-
-                var c = _source[_sourceTextIndex++];
-
-                // Reached end of line.
-                if (c == '\n')
-                {
-                    break;
-                }
-
-                // Handle comments.
-                if (c == ';' || (c == '/' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '/')
-                    || (c == '-' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '-'))
-                {
-                    afterComment = true;
-                }
-                else if (!afterComment)
-                {
-                    length++;
-                }
+                break;
             }
 
-            SetCurrentLine(_source.AsSpan(startIndex, length).ToString());
-
-            _currentLine++;
-        }
-
-        private (IniToken?, int nextCharIndex) ReadToken(char[] separators)
-        {
-            if (_currentLineCharIndex >= _currentLineText.Length)
+            // Handle comments.
+            if (c == ';' || (c == '/' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '/')
+                || (c == '-' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '-'))
             {
-                return (null, _currentLineCharIndex);
+                afterComment = true;
             }
-
-            var nextCharIndex = _currentLineCharIndex;
-
-            // Skip leading trivia.
-            while (nextCharIndex < _currentLineText.Length
-                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
-            {
-                nextCharIndex++;
-            }
-
-            var startIndex = nextCharIndex;
-            var length = 0;
-
-            var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
-
-            while (nextCharIndex < _currentLineText.Length
-                   && Array.IndexOf(separators, _currentLineText[nextCharIndex]) == -1)
+            else if (!afterComment)
             {
                 length++;
-                nextCharIndex++;
             }
-
-            // Skip trailing separator.
-            if (nextCharIndex < _currentLineText.Length
-                && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
-            {
-                nextCharIndex++;
-            }
-
-            var result = _currentLineText.AsSpan(startIndex, length).ToString();
-
-            if (result.Length == 0)
-            {
-                return (null, nextCharIndex);
-            }
-
-            return (new IniToken(result, position), nextCharIndex);
         }
 
-        public IniToken? PeekToken(char[] separators)
+        SetCurrentLine(_source.AsSpan(startIndex, length).ToString());
+
+        _currentLine++;
+    }
+
+    private (IniToken?, int nextCharIndex) ReadToken(char[] separators)
+    {
+        if (_currentLineCharIndex >= _currentLineText.Length)
         {
-            if (TryGetPeekedToken(separators, out var peekedToken))
-            {
-                return peekedToken;
-            }
-
-            var (token, nextIndex) = ReadToken(separators);
-            _peekedToken = token;
-            _peekedTokenSeparators = separators;
-            _nextCharIndex = nextIndex;
-            return token;
+            return (null, _currentLineCharIndex);
         }
 
-        public IniToken? NextToken(char[] separators)
+        var nextCharIndex = _currentLineCharIndex;
+
+        // Skip leading trivia.
+        while (nextCharIndex < _currentLineText.Length
+               && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
         {
-            if (TryGetPeekedToken(separators, out var peekedToken))
-            {
-                _currentLineCharIndex = _nextCharIndex;
-                _peekedToken = null;
-                return peekedToken;
-            }
-
-            var (token, nextIndex) = ReadToken(separators);
-            _currentLineCharIndex = nextIndex;
-            return token;
+            nextCharIndex++;
         }
 
-        private bool TryGetPeekedToken(char[] separators, out IniToken? token)
+        var startIndex = nextCharIndex;
+        var length = 0;
+
+        var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
+
+        while (nextCharIndex < _currentLineText.Length
+               && Array.IndexOf(separators, _currentLineText[nextCharIndex]) == -1)
         {
-            // Note that this is a reference equality check.
-            // We assume we'll use the same separator arrays for the entire parsing session.
-            if (_peekedToken.HasValue && _peekedTokenSeparators == separators)
-            {
-                token = _peekedToken;
-                return true;
-            }
-
-            token = null;
-            return false;
+            length++;
+            nextCharIndex++;
         }
+
+        // Skip trailing separator.
+        if (nextCharIndex < _currentLineText.Length
+            && Array.IndexOf(separators, _currentLineText[nextCharIndex]) != -1)
+        {
+            nextCharIndex++;
+        }
+
+        var result = _currentLineText.AsSpan(startIndex, length).ToString();
+
+        if (result.Length == 0)
+        {
+            return (null, nextCharIndex);
+        }
+
+        return (new IniToken(result, position), nextCharIndex);
+    }
+
+    public IniToken? PeekToken(char[] separators)
+    {
+        if (TryGetPeekedToken(separators, out var peekedToken))
+        {
+            return peekedToken;
+        }
+
+        var (token, nextIndex) = ReadToken(separators);
+        _peekedToken = token;
+        _peekedTokenSeparators = separators;
+        _nextCharIndex = nextIndex;
+        return token;
+    }
+
+    public IniToken? NextToken(char[] separators)
+    {
+        if (TryGetPeekedToken(separators, out var peekedToken))
+        {
+            _currentLineCharIndex = _nextCharIndex;
+            _peekedToken = null;
+            return peekedToken;
+        }
+
+        var (token, nextIndex) = ReadToken(separators);
+        _currentLineCharIndex = nextIndex;
+        return token;
+    }
+
+    private bool TryGetPeekedToken(char[] separators, out IniToken? token)
+    {
+        // Note that this is a reference equality check.
+        // We assume we'll use the same separator arrays for the entire parsing session.
+        if (_peekedToken.HasValue && _peekedTokenSeparators == separators)
+        {
+            token = _peekedToken;
+            return true;
+        }
+
+        token = null;
+        return false;
     }
 }

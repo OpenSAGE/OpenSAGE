@@ -4,102 +4,101 @@ using System.Threading;
 using System.Threading.Tasks;
 using Open.Nat;
 
-namespace OpenSage.Network
+namespace OpenSage.Network;
+
+public enum UPnPStatus
 {
-    public enum UPnPStatus
+    Uninitialized,
+    Disabled,
+    Enabled,
+    PortsForwarded
+}
+
+public static class UPnP
+{
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private static NatDevice NatDevice;
+    private static Mapping SkirmishHostMapping;
+    private static Mapping SkirmishGameMapping;
+
+    public static UPnPStatus Status { get; private set; } = UPnPStatus.Uninitialized;
+    public static IPAddress ExternalIP { get; private set; }
+
+    public static async Task InitializeAsync(TimeSpan timeout)
     {
-        Uninitialized,
-        Disabled,
-        Enabled,
-        PortsForwarded
+        if (Status != UPnPStatus.Uninitialized)
+        {
+            throw new InvalidOperationException($"{nameof(InitializeAsync)} can only be called in status {UPnPStatus.Uninitialized}.");
+        }
+
+        var natDiscoverer = new NatDiscoverer();
+        var token = new CancellationTokenSource(timeout);
+
+        try
+        {
+            NatDevice = await natDiscoverer.DiscoverDeviceAsync(PortMapper.Upnp, token);
+            Status = UPnPStatus.Enabled;
+        }
+        catch (NatDeviceNotFoundException)
+        {
+            Logger.Info("Failed to find UPnP device.");
+            Status = UPnPStatus.Disabled;
+            return;
+        }
+
+        ExternalIP = await NatDevice.GetExternalIPAsync();
     }
 
-    public static class UPnP
+    public static async Task<bool> ForwardPortsAsync()
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        private static NatDevice NatDevice;
-        private static Mapping SkirmishHostMapping;
-        private static Mapping SkirmishGameMapping;
-
-        public static UPnPStatus Status { get; private set; } = UPnPStatus.Uninitialized;
-        public static IPAddress ExternalIP { get; private set; }
-
-        public static async Task InitializeAsync(TimeSpan timeout)
+        if (Status != UPnPStatus.Enabled)
         {
-            if (Status != UPnPStatus.Uninitialized)
-            {
-                throw new InvalidOperationException($"{nameof(InitializeAsync)} can only be called in status {UPnPStatus.Uninitialized}.");
-            }
-
-            var natDiscoverer = new NatDiscoverer();
-            var token = new CancellationTokenSource(timeout);
-
-            try
-            {
-                NatDevice = await natDiscoverer.DiscoverDeviceAsync(PortMapper.Upnp, token);
-                Status = UPnPStatus.Enabled;
-            }
-            catch (NatDeviceNotFoundException)
-            {
-                Logger.Info("Failed to find UPnP device.");
-                Status = UPnPStatus.Disabled;
-                return;
-            }
-
-            ExternalIP = await NatDevice.GetExternalIPAsync();
+            throw new InvalidOperationException($"{nameof(ForwardPortsAsync)} can only be called in status {UPnPStatus.Enabled}.");
         }
 
-        public static async Task<bool> ForwardPortsAsync()
+        try
         {
-            if (Status != UPnPStatus.Enabled)
+            SkirmishHostMapping = new Mapping(Protocol.Udp, Ports.SkirmishHost, Ports.SkirmishHost, 0, "OpenSAGE Skirmish Host");
+            await NatDevice.CreatePortMapAsync(SkirmishHostMapping);
+
+            SkirmishGameMapping = new Mapping(Protocol.Udp, Ports.SkirmishGame, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
+            await NatDevice.CreatePortMapAsync(SkirmishGameMapping);
+
+            Status = UPnPStatus.PortsForwarded;
+            Logger.Info("Created port forwarding.");
+            return true;
+        }
+        catch (Exception e)
+        {
+            if (SkirmishHostMapping != null)
             {
-                throw new InvalidOperationException($"{nameof(ForwardPortsAsync)} can only be called in status {UPnPStatus.Enabled}.");
+                await NatDevice.DeletePortMapAsync(SkirmishHostMapping);
             }
 
-            try
+            if (SkirmishGameMapping != null)
             {
-                SkirmishHostMapping = new Mapping(Protocol.Udp, Ports.SkirmishHost, Ports.SkirmishHost, 0, "OpenSAGE Skirmish Host");
-                await NatDevice.CreatePortMapAsync(SkirmishHostMapping);
-
-                SkirmishGameMapping = new Mapping(Protocol.Udp, Ports.SkirmishGame, Ports.SkirmishGame, 0, "OpenSAGE Skirmish Game");
-                await NatDevice.CreatePortMapAsync(SkirmishGameMapping);
-
-                Status = UPnPStatus.PortsForwarded;
-                Logger.Info("Created port forwarding.");
-                return true;
+                await NatDevice.DeletePortMapAsync(SkirmishGameMapping);
             }
-            catch (Exception e)
-            {
-                if (SkirmishHostMapping != null)
-                {
-                    await NatDevice.DeletePortMapAsync(SkirmishHostMapping);
-                }
 
-                if (SkirmishGameMapping != null)
-                {
-                    await NatDevice.DeletePortMapAsync(SkirmishGameMapping);
-                }
+            Logger.Error(e, "Failed to forward port.");
+            return false;
+        }
+    }
 
-                Logger.Error(e, "Failed to forward port.");
-                return false;
-            }
+    public static async Task RemovePortForwardingAsync()
+    {
+        if (Status != UPnPStatus.PortsForwarded)
+        {
+            throw new InvalidOperationException($"{nameof(RemovePortForwardingAsync)} can only be called in status {UPnPStatus.PortsForwarded}.");
         }
 
-        public static async Task RemovePortForwardingAsync()
-        {
-            if (Status != UPnPStatus.PortsForwarded)
-            {
-                throw new InvalidOperationException($"{nameof(RemovePortForwardingAsync)} can only be called in status {UPnPStatus.PortsForwarded}.");
-            }
+        await NatDevice.DeletePortMapAsync(SkirmishHostMapping);
+        SkirmishHostMapping = null;
+        await NatDevice.DeletePortMapAsync(SkirmishGameMapping);
+        SkirmishGameMapping = null;
 
-            await NatDevice.DeletePortMapAsync(SkirmishHostMapping);
-            SkirmishHostMapping = null;
-            await NatDevice.DeletePortMapAsync(SkirmishGameMapping);
-            SkirmishGameMapping = null;
-
-            Status = UPnPStatus.Enabled;
-            Logger.Info("Removed port forwarding.");
-        }
+        Status = UPnPStatus.Enabled;
+        Logger.Info("Removed port forwarding.");
     }
 }

@@ -1,38 +1,37 @@
 ﻿using OpenSage.Client;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class W3dScienceModelDraw : W3dModelDraw
 {
-    public sealed class W3dScienceModelDraw : W3dModelDraw
+    internal W3dScienceModelDraw(W3dScienceModelDrawModuleData data, Drawable drawable, GameContext context)
+        : base(data, drawable, context)
     {
-        internal W3dScienceModelDraw(W3dScienceModelDrawModuleData data, Drawable drawable, GameContext context)
-            : base(data, drawable, context)
-        {
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            base.Load(reader);
-        }
     }
 
-    public sealed class W3dScienceModelDrawModuleData : W3dModelDrawModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static W3dScienceModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<W3dScienceModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
-            .Concat(new IniParseTable<W3dScienceModelDrawModuleData>
-            {
-                { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() }
-            });
+        base.Load(reader);
+    }
+}
 
-        public string RequiredScience { get; private set; }
+public sealed class W3dScienceModelDrawModuleData : W3dModelDrawModuleData
+{
+    internal static W3dScienceModelDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    private static new readonly IniParseTable<W3dScienceModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
+        .Concat(new IniParseTable<W3dScienceModelDrawModuleData>
         {
-            return new W3dScienceModelDraw(this, drawable, context);
-        }
+            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() }
+        });
+
+    public string RequiredScience { get; private set; }
+
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    {
+        return new W3dScienceModelDraw(this, drawable, context);
     }
 }

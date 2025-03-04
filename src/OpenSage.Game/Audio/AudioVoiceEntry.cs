@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Audio
+﻿namespace OpenSage.Audio;
+
+public sealed class AudioVoiceEntry : SoundOrEvaEvent
 {
-    public sealed class AudioVoiceEntry : SoundOrEvaEvent
-    {
-        public ThingTemplateVoiceType AudioType { get; internal set; }
-    }
+    public ThingTemplateVoiceType AudioType { get; internal set; }
 }

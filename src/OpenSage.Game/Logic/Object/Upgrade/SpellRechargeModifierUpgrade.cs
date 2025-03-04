@@ -2,21 +2,20 @@
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme2)]
+public sealed class SpellRechargeModifierUpgradeModuleData : UpgradeModuleData
 {
-    [AddedIn(SageGame.Bfme2)]
-    public sealed class SpellRechargeModifierUpgradeModuleData : UpgradeModuleData
-    {
-        internal static SpellRechargeModifierUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static SpellRechargeModifierUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SpellRechargeModifierUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<SpellRechargeModifierUpgradeModuleData>
-            {
-                { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
-                { "Percentage", (parser, x) => x.Percentages.Add(parser.ParsePercentage()) }
-            });
+    private static new readonly IniParseTable<SpellRechargeModifierUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<SpellRechargeModifierUpgradeModuleData>
+        {
+            { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
+            { "Percentage", (parser, x) => x.Percentages.Add(parser.ParsePercentage()) }
+        });
 
-        public string LabelForPalantirString { get; private set; }
-        public List<Percentage> Percentages { get; } = new List<Percentage>();
-    }
+    public string LabelForPalantirString { get; private set; }
+    public List<Percentage> Percentages { get; } = new List<Percentage>();
 }

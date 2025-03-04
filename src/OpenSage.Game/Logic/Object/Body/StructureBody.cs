@@ -1,41 +1,40 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class StructureBody : ActiveBody
 {
-    public sealed class StructureBody : ActiveBody
+    private uint _unknown;
+
+    internal StructureBody(GameObject gameObject, GameContext context, StructureBodyModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        private uint _unknown;
-
-        internal StructureBody(GameObject gameObject, GameContext context, StructureBodyModuleData moduleData)
-            : base(gameObject, context, moduleData)
-        {
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistUInt32(ref _unknown);
-        }
     }
 
-    /// <summary>
-    /// Used by objects with STRUCTURE and IMMOBILE KindOfs defined.
-    /// </summary>
-    public sealed class StructureBodyModuleData : ActiveBodyModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static new StructureBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
-            .Concat(new IniParseTable<StructureBodyModuleData>());
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new StructureBody(gameObject, context, this);
-        }
+        reader.PersistUInt32(ref _unknown);
+    }
+}
+
+/// <summary>
+/// Used by objects with STRUCTURE and IMMOBILE KindOfs defined.
+/// </summary>
+public sealed class StructureBodyModuleData : ActiveBodyModuleData
+{
+    internal static new StructureBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
+        .Concat(new IniParseTable<StructureBodyModuleData>());
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new StructureBody(gameObject, context, this);
     }
 }

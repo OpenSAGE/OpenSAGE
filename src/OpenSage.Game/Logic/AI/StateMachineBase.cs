@@ -5,105 +5,104 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.Object;
 
-namespace OpenSage.Logic.AI
+namespace OpenSage.Logic.AI;
+
+internal abstract class StateMachineBase : IPersistableObject
 {
-    internal abstract class StateMachineBase : IPersistableObject
+    public GameObject GameObject { get; }
+    public GameContext Context { get; }
+    public virtual AIUpdate AIUpdate { get; }
+
+    private readonly Dictionary<uint, State> _states;
+
+    private uint _unknownFrame;
+    private uint _unknownInt1;
+
+    private uint _currentStateId;
+    internal State? CurrentState { get; private set; }
+
+    private uint _targetObjectId;
+    private Vector3 _targetPosition;
+    private bool _unknownBool1;
+    private bool _unknownBool2;
+
+    protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
     {
-        public GameObject GameObject { get; }
-        public GameContext Context { get; }
-        public virtual AIUpdate AIUpdate { get; }
+        GameObject = gameObject;
+        Context = context;
+        AIUpdate = aiUpdate;
+        _states = new Dictionary<uint, State>();
+    }
 
-        private readonly Dictionary<uint, State> _states;
+    protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.AIUpdate)
+    {
+    }
 
-        private uint _unknownFrame;
-        private uint _unknownInt1;
+    public void AddState(uint id, State state)
+    {
+        state.Id = id;
 
-        private uint _currentStateId;
-        internal State? CurrentState { get; private set; }
+        _states.Add(id, state);
+    }
 
-        private uint _targetObjectId;
-        private Vector3 _targetPosition;
-        private bool _unknownBool1;
-        private bool _unknownBool2;
-
-        protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
+    protected State GetState(uint id)
+    {
+        if (_states.TryGetValue(id, out var result))
         {
-            GameObject = gameObject;
-            Context = context;
-            AIUpdate = aiUpdate;
-            _states = new Dictionary<uint, State>();
+            return result;
         }
 
-        protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.AIUpdate)
+        throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
+    }
+
+    internal void SetState(uint id)
+    {
+        CurrentState?.OnExit();
+
+        CurrentState = GetState(id);
+
+        CurrentState.OnEnter();
+    }
+
+    internal virtual void Update()
+    {
+        if (CurrentState == null)
         {
+            return;
         }
 
-        public void AddState(uint id, State state)
+        var updateResult = CurrentState.Update();
+
+        switch (updateResult.Type)
         {
-            state.Id = id;
+            case UpdateStateResultType.Continue:
+                break;
 
-            _states.Add(id, state);
+            case UpdateStateResultType.TransitionToState:
+                SetState(updateResult.TransitionToStateId ?? throw new InvalidStateException());
+                break;
+
+            default:
+                break;
         }
+    }
 
-        protected State GetState(uint id)
-        {
-            if (_states.TryGetValue(id, out var result))
-            {
-                return result;
-            }
+    public virtual void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-            throw new InvalidOperationException($"State {id} is not defined in {GetType().Name}");
-        }
+        reader.PersistFrame(ref _unknownFrame);
+        reader.PersistUInt32(ref _unknownInt1);
 
-        internal void SetState(uint id)
-        {
-            CurrentState?.OnExit();
+        reader.PersistUInt32(ref _currentStateId);
+        CurrentState = GetState(_currentStateId);
 
-            CurrentState = GetState(id);
+        reader.SkipUnknownBytes(1);
 
-            CurrentState.OnEnter();
-        }
-
-        internal virtual void Update()
-        {
-            if (CurrentState == null)
-            {
-                return;
-            }
-
-            var updateResult = CurrentState.Update();
-
-            switch (updateResult.Type)
-            {
-                case UpdateStateResultType.Continue:
-                    break;
-
-                case UpdateStateResultType.TransitionToState:
-                    SetState(updateResult.TransitionToStateId ?? throw new InvalidStateException());
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        public virtual void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.PersistFrame(ref _unknownFrame);
-            reader.PersistUInt32(ref _unknownInt1);
-
-            reader.PersistUInt32(ref _currentStateId);
-            CurrentState = GetState(_currentStateId);
-
-            reader.SkipUnknownBytes(1);
-
-            reader.PersistObject(CurrentState);
-            reader.PersistObjectID(ref _targetObjectId);
-            reader.PersistVector3(ref _targetPosition);
-            reader.PersistBoolean(ref _unknownBool1);
-            reader.PersistBoolean(ref _unknownBool2);
-        }
+        reader.PersistObject(CurrentState);
+        reader.PersistObjectID(ref _targetObjectId);
+        reader.PersistVector3(ref _targetPosition);
+        reader.PersistBoolean(ref _unknownBool1);
+        reader.PersistBoolean(ref _unknownBool2);
     }
 }

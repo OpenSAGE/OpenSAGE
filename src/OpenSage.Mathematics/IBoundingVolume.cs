@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Mathematics
+﻿namespace OpenSage.Mathematics;
+
+public interface IBoundingVolume
 {
-    public interface IBoundingVolume
-    {
-        bool Intersects(RectangleF bounds);
-    }
+    bool Intersects(RectangleF bounds);
 }

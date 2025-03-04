@@ -3,18 +3,17 @@ using OpenSage.Data.Dds;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics;
+
+public sealed class TextureAsset : BaseAsset
 {
-    public sealed class TextureAsset : BaseAsset
+    public Texture Texture { get; }
+
+    internal TextureAsset(Texture texture, string name)
     {
-        public Texture Texture { get; }
-
-        internal TextureAsset(Texture texture, string name)
-        {
-            SetNameAndInstanceId("Texture", name);
-            Texture = AddDisposable(texture);
-        }
-
-        public static implicit operator Texture(TextureAsset asset) => asset?.Texture;
+        SetNameAndInstanceId("Texture", name);
+        Texture = AddDisposable(texture);
     }
+
+    public static implicit operator Texture(TextureAsset asset) => asset?.Texture;
 }

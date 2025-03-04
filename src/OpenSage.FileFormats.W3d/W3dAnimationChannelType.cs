@@ -1,15 +1,14 @@
-﻿namespace OpenSage.FileFormats.W3d
-{
-    public enum W3dAnimationChannelType : ushort
-    {
-        TranslationX,
-        TranslationY,
-        TranslationZ,
-        XR,
-        YR,
-        ZR,
-        Quaternion,
+﻿namespace OpenSage.FileFormats.W3d;
 
-        UnknownBfme = 15, //probably Opacity
-    }
+public enum W3dAnimationChannelType : ushort
+{
+    TranslationX,
+    TranslationY,
+    TranslationZ,
+    XR,
+    YR,
+    ZR,
+    Quaternion,
+
+    UnknownBfme = 15, //probably Opacity
 }

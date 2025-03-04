@@ -1,8 +1,7 @@
-﻿namespace OpenSage.Input
+﻿namespace OpenSage.Input;
+
+public enum InputMessageResult
 {
-    public enum InputMessageResult
-    {
-        NotHandled,
-        Handled
-    }
+    NotHandled,
+    Handled
 }

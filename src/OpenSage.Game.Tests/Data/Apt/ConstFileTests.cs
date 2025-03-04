@@ -5,43 +5,42 @@ using OpenSage.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Apt
+namespace OpenSage.Tests.Data.Apt;
+
+public class ConstFileTests
 {
-    public class ConstFileTests
+    private readonly ITestOutputHelper _output;
+
+    public ConstFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public ConstFileTests(ITestOutputHelper output)
+    [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk, Skip = "Const parsing is not fully implemented")]
+    public void CanReadConstFiles()
+    {
+        InstalledFilesTestData.ReadFiles(".const", _output, entry =>
         {
-            _output = output;
-        }
+            var constFile = ConstantData.FromFileSystemEntry(entry);
 
-        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk, Skip = "Const parsing is not fully implemented")]
-        public void CanReadConstFiles()
+            Assert.NotNull(constFile);
+        });
+    }
+
+    [GameFact(SageGame.Bfme2)]
+    public void CheckEntryCount()
+    {
+        var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2), "apt/MainMenu.big");
+
+        using (var bigArchive = new BigArchive(bigFilePath))
         {
-            InstalledFilesTestData.ReadFiles(".const", _output, entry =>
-            {
-                var constFile = ConstantData.FromFileSystemEntry(entry);
+            var entry = bigArchive.GetEntry(@"MainMenu.const");
 
-                Assert.NotNull(constFile);
-            });
-        }
+            var data = ConstantData.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
+            Assert.NotNull(data);
 
-        [GameFact(SageGame.Bfme2)]
-        public void CheckEntryCount()
-        {
-            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2), "apt/MainMenu.big");
-
-            using (var bigArchive = new BigArchive(bigFilePath))
-            {
-                var entry = bigArchive.GetEntry(@"MainMenu.const");
-
-                var data = ConstantData.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
-                Assert.NotNull(data);
-
-                //requires unmodified main menu
-                Assert.Equal(412, data.Entries.Count);
-            }
+            //requires unmodified main menu
+            Assert.Equal(412, data.Entries.Count);
         }
     }
 }

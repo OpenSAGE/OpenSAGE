@@ -1,36 +1,35 @@
 ﻿using System.IO;
 
-namespace OpenSage.FileFormats.W3d
+namespace OpenSage.FileFormats.W3d;
+
+public sealed class W3dSphereOpacity
 {
-    public sealed class W3dSphereOpacity
+    public uint ChunkType { get; private set; }
+
+    public uint ChunkSize { get; private set; }
+
+    public float Opacity { get; private set; }
+
+    public float Position { get; private set; }
+
+    internal static W3dSphereOpacity Parse(BinaryReader reader)
     {
-        public uint ChunkType { get; private set; }
-
-        public uint ChunkSize { get; private set; }
-
-        public float Opacity { get; private set; }
-
-        public float Position { get; private set; }
-
-        internal static W3dSphereOpacity Parse(BinaryReader reader)
+        var result = new W3dSphereOpacity
         {
-            var result = new W3dSphereOpacity
-            {
-                ChunkType = reader.ReadByte(),
-                ChunkSize = reader.ReadByte(),
-                Opacity = reader.ReadSingle(),
-                Position = reader.ReadSingle()
-            };
+            ChunkType = reader.ReadByte(),
+            ChunkSize = reader.ReadByte(),
+            Opacity = reader.ReadSingle(),
+            Position = reader.ReadSingle()
+        };
 
-            return result;
-        }
+        return result;
+    }
 
-        public void Write(BinaryWriter writer)
-        {
-            writer.Write(ChunkType);
-            writer.Write(ChunkSize);
-            writer.Write(Opacity);
-            writer.Write(Position);
-        }
+    public void Write(BinaryWriter writer)
+    {
+        writer.Write(ChunkType);
+        writer.Write(ChunkSize);
+        writer.Write(Opacity);
+        writer.Write(Position);
     }
 }

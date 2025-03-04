@@ -1,167 +1,166 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OpenSage.Logic
+namespace OpenSage.Logic;
+
+public sealed class TeamFactory : IPersistableObject
 {
-    public sealed class TeamFactory : IPersistableObject
+    private readonly Game _game;
+
+    private readonly List<TeamTemplate> _teamTemplates;
+    private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
+    private readonly Dictionary<string, TeamTemplate> _teamTemplatesByName;
+
+    private uint _lastTeamId;
+
+    public TeamFactory(Game game)
     {
-        private readonly Game _game;
+        _game = game;
 
-        private readonly List<TeamTemplate> _teamTemplates;
-        private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
-        private readonly Dictionary<string, TeamTemplate> _teamTemplatesByName;
+        _teamTemplates = new List<TeamTemplate>();
+        _teamTemplatesById = new Dictionary<uint, TeamTemplate>();
+        _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
 
-        private uint _lastTeamId;
+        _lastTeamId = 0;
+    }
 
-        public TeamFactory(Game game)
+    public void Initialize(Data.Map.Team[] mapTeams)
+    {
+        _teamTemplates.Clear();
+        _teamTemplatesById.Clear();
+        _teamTemplatesByName.Clear();
+
+        foreach (var mapTeam in mapTeams)
         {
-            _game = game;
+            var name = mapTeam.Name;
 
-            _teamTemplates = new List<TeamTemplate>();
-            _teamTemplatesById = new Dictionary<uint, TeamTemplate>();
-            _teamTemplatesByName = new Dictionary<string, TeamTemplate>();
+            var ownerName = mapTeam.Owner;
+            var owner = _game.PlayerManager.GetPlayerByName(ownerName);
 
-            _lastTeamId = 0;
+            var isSingleton = mapTeam.IsSingleton;
+
+            AddTeamTemplate(name, owner, isSingleton);
         }
+    }
 
-        public void Initialize(Data.Map.Team[] mapTeams)
+    private void AddTeamTemplate(string name, Player owner, bool isSingleton)
+    {
+        var id = (uint)(_teamTemplatesById.Count + 1);
+
+        var teamTemplate = new TeamTemplate(
+            this,
+            id,
+            name,
+            owner,
+            isSingleton);
+
+        _teamTemplates.Add(teamTemplate);
+        _teamTemplatesById.Add(id, teamTemplate);
+        _teamTemplatesByName.Add(name, teamTemplate);
+
+        if (isSingleton)
         {
-            _teamTemplates.Clear();
-            _teamTemplatesById.Clear();
-            _teamTemplatesByName.Clear();
+            AddTeam(teamTemplate);
+        }
+    }
 
-            foreach (var mapTeam in mapTeams)
+    internal Team AddTeam(TeamTemplate teamTemplate)
+    {
+        _lastTeamId++;
+
+        var team = new Team(teamTemplate, _lastTeamId);
+
+        teamTemplate.AddTeam(team);
+
+        return team;
+    }
+
+    internal Team AddTeamWithId(TeamTemplate teamTemplate, uint id)
+    {
+        _lastTeamId = Math.Max(_lastTeamId, id);
+
+        var team = new Team(teamTemplate, id);
+
+        teamTemplate.AddTeam(team);
+
+        return team;
+    }
+
+    public TeamTemplate FindTeamTemplateByName(string name)
+    {
+        if (_teamTemplatesByName.TryGetValue(name, out var result))
+        {
+            return result;
+        }
+        return null;
+    }
+
+    public TeamTemplate FindTeamTemplateById(uint id)
+    {
+        if (_teamTemplatesById.TryGetValue(id, out var result))
+        {
+            return result;
+        }
+        return null;
+    }
+
+    public Team FindTeamById(uint id)
+    {
+        foreach (var teamTemplate in _teamTemplates)
+        {
+            var team = teamTemplate.FindTeamById(id);
+            if (team != null)
             {
-                var name = mapTeam.Name;
-
-                var ownerName = mapTeam.Owner;
-                var owner = _game.PlayerManager.GetPlayerByName(ownerName);
-
-                var isSingleton = mapTeam.IsSingleton;
-
-                AddTeamTemplate(name, owner, isSingleton);
+                return team;
             }
         }
+        return null;
+    }
 
-        private void AddTeamTemplate(string name, Player owner, bool isSingleton)
+    public void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        reader.PersistUInt32(ref _lastTeamId);
+
+        var count = (ushort)_teamTemplates.Count;
+        reader.PersistUInt16(ref count, "TeamTemplatesCount");
+
+        if (count != _teamTemplates.Count)
         {
-            var id = (uint)(_teamTemplatesById.Count + 1);
+            throw new InvalidStateException();
+        }
 
-            var teamTemplate = new TeamTemplate(
-                this,
-                id,
-                name,
-                owner,
-                isSingleton);
-
-            _teamTemplates.Add(teamTemplate);
-            _teamTemplatesById.Add(id, teamTemplate);
-            _teamTemplatesByName.Add(name, teamTemplate);
-
-            if (isSingleton)
+        reader.BeginArray("TeamTemplates");
+        if (reader.Mode == StatePersistMode.Read)
+        {
+            for (var i = 0; i < count; i++)
             {
-                AddTeam(teamTemplate);
+                reader.BeginObject();
+
+                var id = 0u;
+                reader.PersistUInt32(ref id);
+
+                var teamTemplate = _teamTemplatesById[id];
+                reader.PersistObject(teamTemplate);
+
+                reader.EndObject();
             }
         }
-
-        internal Team AddTeam(TeamTemplate teamTemplate)
-        {
-            _lastTeamId++;
-
-            var team = new Team(teamTemplate, _lastTeamId);
-
-            teamTemplate.AddTeam(team);
-
-            return team;
-        }
-
-        internal Team AddTeamWithId(TeamTemplate teamTemplate, uint id)
-        {
-            _lastTeamId = Math.Max(_lastTeamId, id);
-
-            var team = new Team(teamTemplate, id);
-
-            teamTemplate.AddTeam(team);
-
-            return team;
-        }
-
-        public TeamTemplate FindTeamTemplateByName(string name)
-        {
-            if (_teamTemplatesByName.TryGetValue(name, out var result))
-            {
-                return result;
-            }
-            return null;
-        }
-
-        public TeamTemplate FindTeamTemplateById(uint id)
-        {
-            if (_teamTemplatesById.TryGetValue(id, out var result))
-            {
-                return result;
-            }
-            return null;
-        }
-
-        public Team FindTeamById(uint id)
+        else
         {
             foreach (var teamTemplate in _teamTemplates)
             {
-                var team = teamTemplate.FindTeamById(id);
-                if (team != null)
-                {
-                    return team;
-                }
+                reader.BeginObject();
+
+                var id = teamTemplate.ID;
+                reader.PersistUInt32(ref id);
+
+                reader.PersistObject(teamTemplate);
+
+                reader.EndObject();
             }
-            return null;
         }
-
-        public void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.PersistUInt32(ref _lastTeamId);
-
-            var count = (ushort)_teamTemplates.Count;
-            reader.PersistUInt16(ref count, "TeamTemplatesCount");
-
-            if (count != _teamTemplates.Count)
-            {
-                throw new InvalidStateException();
-            }
-
-            reader.BeginArray("TeamTemplates");
-            if (reader.Mode == StatePersistMode.Read)
-            {
-                for (var i = 0; i < count; i++)
-                {
-                    reader.BeginObject();
-
-                    var id = 0u;
-                    reader.PersistUInt32(ref id);
-
-                    var teamTemplate = _teamTemplatesById[id];
-                    reader.PersistObject(teamTemplate);
-
-                    reader.EndObject();
-                }
-            }
-            else
-            {
-                foreach (var teamTemplate in _teamTemplates)
-                {
-                    reader.BeginObject();
-
-                    var id = teamTemplate.ID;
-                    reader.PersistUInt32(ref id);
-
-                    reader.PersistObject(teamTemplate);
-
-                    reader.EndObject();
-                }
-            }
-            reader.EndArray();
-        }
+        reader.EndArray();
     }
 }

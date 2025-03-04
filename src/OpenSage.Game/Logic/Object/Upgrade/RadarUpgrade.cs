@@ -1,43 +1,42 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class RadarUpgrade : UpgradeModule
 {
-    internal sealed class RadarUpgrade : UpgradeModule
+    internal RadarUpgrade(GameObject gameObject, RadarUpgradeModuleData moduleData)
+        : base(gameObject, moduleData)
     {
-        internal RadarUpgrade(GameObject gameObject, RadarUpgradeModuleData moduleData)
-            : base(gameObject, moduleData)
-        {
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
     }
 
-    /// <summary>
-    /// Triggers use of <see cref="RadarUpdateModuleData"/> module on this object if present and enables the 
-    /// Radar in the command bar.
-    /// </summary>
-    public sealed class RadarUpgradeModuleData : UpgradeModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static RadarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<RadarUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<RadarUpgradeModuleData>
-            {
-                { "DisableProof", (parser, x) => x.DisableProof = parser.ParseBoolean() }
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        public bool DisableProof { get; private set; }
+/// <summary>
+/// Triggers use of <see cref="RadarUpdateModuleData"/> module on this object if present and enables the 
+/// Radar in the command bar.
+/// </summary>
+public sealed class RadarUpgradeModuleData : UpgradeModuleData
+{
+    internal static RadarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<RadarUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<RadarUpgradeModuleData>
         {
-            return new RadarUpgrade(gameObject, this);
-        }
+            { "DisableProof", (parser, x) => x.DisableProof = parser.ParseBoolean() }
+        });
+
+    public bool DisableProof { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new RadarUpgrade(gameObject, this);
     }
 }

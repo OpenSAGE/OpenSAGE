@@ -2,128 +2,127 @@
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic
+namespace OpenSage.Logic;
+
+[AddedIn(SageGame.Bfme)]
+public sealed class EmotionNugget : BaseAsset
 {
-    [AddedIn(SageGame.Bfme)]
-    public sealed class EmotionNugget : BaseAsset
+    internal static EmotionNugget Parse(IniParser parser)
     {
-        internal static EmotionNugget Parse(IniParser parser)
-        {
-            return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("EmotionNugget", name),
-                FieldParseTable);
-        }
-
-        private static readonly IniParseTable<EmotionNugget> FieldParseTable = new IniParseTable<EmotionNugget>
-        {
-            { "Type", (parser, x) => x.Type = parser.ParseEnum<EmotionType>() },
-            { "IgnoreIfUnitIdle", (parser, x) => x.IgnoreIfUnitIdle = parser.ParseBoolean() },
-            { "IgnoreIfUnitBusy", (parser, x) => x.IgnoreIfUnitBusy = parser.ParseBoolean() },
-            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
-            { "InactiveDuration", (parser, x) => x.InactiveDuration = parser.ParseInteger() },
-            { "InactiveDurationSameObject", (parser, x) => x.InactiveDurationSameObject = parser.ParseInteger() },
-            { "InactiveDurationSameType", (parser, x) => x.InactiveDurationSameType = parser.ParseInteger() },
-            { "OnlyIfEnemyThreatBelow", (parser, x) => x.OnlyIfEnemyThreatBelow = parser.ParseInteger() },
-            { "StartFXList", (parser, x) => x.StartFXList = parser.ParseAssetReference() },
-            { "UpdateFXList", (parser, x) => x.UpdateFXList = parser.ParseAssetReference() },
-            { "EndFXList", (parser, x) => x.EndFXList = parser.ParseAssetReference() },
-            { "AttributeModifierWhileEmotionActive", (parser, x) => x.AttributeModifierWhileEmotionActive = parser.ParseBoolean() },
-            { "AttributeStartDelay", (parser, x) => x.AttributeStartDelay = parser.ParseInteger() },
-            { "AILockDuration", (parser, x) => x.AILockDuration = parser.ParseInteger() },
-            { "AIState", (parser, x) => x.AIState = parser.ParseEnum<EmotionAIType>() },
-            { "ModelConditions", (parser, x) => x.ModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
-            { "ModelConditionsClear", (parser, x) => x.ModelConditionsClear = parser.ParseEnumBitArray<ModelConditionFlag>() },
-            { "PreventPlayerCommands", (parser, x) => x.PreventPlayerCommands = parser.ParseBoolean() }
-        };
-
-        public EmotionType Type { get; private set; }
-        public bool IgnoreIfUnitIdle { get; private set; }
-        public bool IgnoreIfUnitBusy { get; private set; }
-        public int Duration { get; private set; }
-        public int InactiveDuration { get; private set; }
-        public int InactiveDurationSameObject { get; private set; }
-        public int InactiveDurationSameType { get; private set; }
-        public int OnlyIfEnemyThreatBelow { get; private set; }
-        public string StartFXList { get; private set; }
-        public string UpdateFXList { get; private set; }
-        public string EndFXList { get; private set; }
-        public bool AttributeModifierWhileEmotionActive { get; private set; }
-        public int AttributeStartDelay { get; private set; }
-        public int AILockDuration { get; private set; }
-        public EmotionAIType AIState { get; private set; }
-        public BitArray<ModelConditionFlag> ModelConditions { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public BitArray<ModelConditionFlag> ModelConditionsClear { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool PreventPlayerCommands { get; private set; }
+        return parser.ParseNamedBlock(
+            (x, name) => x.SetNameAndInstanceId("EmotionNugget", name),
+            FieldParseTable);
     }
 
-    public enum EmotionType
+    private static readonly IniParseTable<EmotionNugget> FieldParseTable = new IniParseTable<EmotionNugget>
     {
-        None = 0,
+        { "Type", (parser, x) => x.Type = parser.ParseEnum<EmotionType>() },
+        { "IgnoreIfUnitIdle", (parser, x) => x.IgnoreIfUnitIdle = parser.ParseBoolean() },
+        { "IgnoreIfUnitBusy", (parser, x) => x.IgnoreIfUnitBusy = parser.ParseBoolean() },
+        { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
+        { "InactiveDuration", (parser, x) => x.InactiveDuration = parser.ParseInteger() },
+        { "InactiveDurationSameObject", (parser, x) => x.InactiveDurationSameObject = parser.ParseInteger() },
+        { "InactiveDurationSameType", (parser, x) => x.InactiveDurationSameType = parser.ParseInteger() },
+        { "OnlyIfEnemyThreatBelow", (parser, x) => x.OnlyIfEnemyThreatBelow = parser.ParseInteger() },
+        { "StartFXList", (parser, x) => x.StartFXList = parser.ParseAssetReference() },
+        { "UpdateFXList", (parser, x) => x.UpdateFXList = parser.ParseAssetReference() },
+        { "EndFXList", (parser, x) => x.EndFXList = parser.ParseAssetReference() },
+        { "AttributeModifierWhileEmotionActive", (parser, x) => x.AttributeModifierWhileEmotionActive = parser.ParseBoolean() },
+        { "AttributeStartDelay", (parser, x) => x.AttributeStartDelay = parser.ParseInteger() },
+        { "AILockDuration", (parser, x) => x.AILockDuration = parser.ParseInteger() },
+        { "AIState", (parser, x) => x.AIState = parser.ParseEnum<EmotionAIType>() },
+        { "ModelConditions", (parser, x) => x.ModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+        { "ModelConditionsClear", (parser, x) => x.ModelConditionsClear = parser.ParseEnumBitArray<ModelConditionFlag>() },
+        { "PreventPlayerCommands", (parser, x) => x.PreventPlayerCommands = parser.ParseBoolean() }
+    };
 
-        [IniEnum("TAUNT")]
-        Taunt,
+    public EmotionType Type { get; private set; }
+    public bool IgnoreIfUnitIdle { get; private set; }
+    public bool IgnoreIfUnitBusy { get; private set; }
+    public int Duration { get; private set; }
+    public int InactiveDuration { get; private set; }
+    public int InactiveDurationSameObject { get; private set; }
+    public int InactiveDurationSameType { get; private set; }
+    public int OnlyIfEnemyThreatBelow { get; private set; }
+    public string StartFXList { get; private set; }
+    public string UpdateFXList { get; private set; }
+    public string EndFXList { get; private set; }
+    public bool AttributeModifierWhileEmotionActive { get; private set; }
+    public int AttributeStartDelay { get; private set; }
+    public int AILockDuration { get; private set; }
+    public EmotionAIType AIState { get; private set; }
+    public BitArray<ModelConditionFlag> ModelConditions { get; private set; }
 
-        [IniEnum("CHEER")]
-        Cheer,
+    [AddedIn(SageGame.Bfme2)]
+    public BitArray<ModelConditionFlag> ModelConditionsClear { get; private set; }
 
-        [IniEnum("HERO_CHEER")]
-        HeroCheer,
+    [AddedIn(SageGame.Bfme2)]
+    public bool PreventPlayerCommands { get; private set; }
+}
 
-        [IniEnum("POINT")]
-        Point,
+public enum EmotionType
+{
+    None = 0,
 
-        [IniEnum("FEAR")]
-        Fear,
+    [IniEnum("TAUNT")]
+    Taunt,
 
-        [IniEnum("UNCONTROLLABLE_FEAR")]
-        UncontrollableFear,
+    [IniEnum("CHEER")]
+    Cheer,
 
-        [IniEnum("TERROR")]
-        Terror,
+    [IniEnum("HERO_CHEER")]
+    HeroCheer,
 
-        [IniEnum("DOOM")]
-        Doom,
+    [IniEnum("POINT")]
+    Point,
 
-        [IniEnum("ALERT")]
-        Alert,
+    [IniEnum("FEAR")]
+    Fear,
 
-        [IniEnum("QUARRELSOME")]
-        Quarrelsome,
+    [IniEnum("UNCONTROLLABLE_FEAR")]
+    UncontrollableFear,
 
-        [IniEnum("OVERRIDE"), AddedIn(SageGame.Bfme)]
-        Override,
+    [IniEnum("TERROR")]
+    Terror,
 
-        [IniEnum("CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
-        CheerForAboutToCrush,
+    [IniEnum("DOOM")]
+    Doom,
 
-        [IniEnum("BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
-        BraceForBeingCrushed,
-    }
+    [IniEnum("ALERT")]
+    Alert,
 
-    public enum EmotionAIType
-    {
-        None,
+    [IniEnum("QUARRELSOME")]
+    Quarrelsome,
 
-        [IniEnum("BACK_AWAY")]
-        BackAway,
+    [IniEnum("OVERRIDE"), AddedIn(SageGame.Bfme)]
+    Override,
 
-        [IniEnum("AVOID_SCARER")]
-        AvoidScarer,
+    [IniEnum("CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
+    CheerForAboutToCrush,
 
-        [IniEnum("IDLE")]
-        Idle,
+    [IniEnum("BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
+    BraceForBeingCrushed,
+}
 
-        [IniEnum("RUN_AWAY_PANIC")]
-        RunAwayPanic,
+public enum EmotionAIType
+{
+    None,
 
-        [IniEnum("FACE_OBJECT")]
-        FaceObject,
+    [IniEnum("BACK_AWAY")]
+    BackAway,
 
-        [IniEnum("QUARREL")]
-        Quarrel,
-    }
+    [IniEnum("AVOID_SCARER")]
+    AvoidScarer,
+
+    [IniEnum("IDLE")]
+    Idle,
+
+    [IniEnum("RUN_AWAY_PANIC")]
+    RunAwayPanic,
+
+    [IniEnum("FACE_OBJECT")]
+    FaceObject,
+
+    [IniEnum("QUARREL")]
+    Quarrel,
 }

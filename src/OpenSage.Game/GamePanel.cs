@@ -3,40 +3,39 @@ using OpenSage.Graphics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
-namespace OpenSage
+namespace OpenSage;
+
+public sealed class GamePanel : DisposableBase
 {
-    public sealed class GamePanel : DisposableBase
+    private readonly RenderTarget _renderTarget;
+
+    public Framebuffer Framebuffer => _renderTarget.Framebuffer;
+
+    public OutputDescription OutputDescription { get; } = RenderTarget.OutputDescription;
+
+    public event EventHandler ClientSizeChanged;
+
+    public Rectangle Frame { get; private set; }
+
+    public Rectangle ClientBounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
+
+    internal GamePanel(GraphicsDevice graphicsDevice)
     {
-        private readonly RenderTarget _renderTarget;
+        _renderTarget = AddDisposable(new RenderTarget(graphicsDevice));
+    }
 
-        public Framebuffer Framebuffer => _renderTarget.Framebuffer;
-
-        public OutputDescription OutputDescription { get; } = RenderTarget.OutputDescription;
-
-        public event EventHandler ClientSizeChanged;
-
-        public Rectangle Frame { get; private set; }
-
-        public Rectangle ClientBounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
-
-        internal GamePanel(GraphicsDevice graphicsDevice)
+    public void EnsureFrame(in Rectangle frame)
+    {
+        if (frame == Frame)
         {
-            _renderTarget = AddDisposable(new RenderTarget(graphicsDevice));
+            return;
         }
 
-        public void EnsureFrame(in Rectangle frame)
+        Frame = frame;
+
+        if (_renderTarget.EnsureSize(frame.Size))
         {
-            if (frame == Frame)
-            {
-                return;
-            }
-
-            Frame = frame;
-
-            if (_renderTarget.EnsureSize(frame.Size))
-            {
-                ClientSizeChanged?.Invoke(this, EventArgs.Empty);
-            }
+            ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

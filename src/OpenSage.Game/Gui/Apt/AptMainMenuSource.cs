@@ -1,24 +1,23 @@
-﻿namespace OpenSage.Gui.Apt
+﻿namespace OpenSage.Gui.Apt;
+
+public class AptMainMenuSource : IMainMenuSource
 {
-    public class AptMainMenuSource : IMainMenuSource
+    private readonly string _aptFileName;
+    private readonly string _fallbackShell;
+
+    public AptMainMenuSource(string aptFileName)
     {
-        private readonly string _aptFileName;
-        private readonly string _fallbackShell;
+        _aptFileName = aptFileName;
+        _fallbackShell = "ShellMapLowLOD";
+    }
 
-        public AptMainMenuSource(string aptFileName)
+    public void AddToScene(Game game, Scene2D scene, bool useShellMap)
+    {
+        var aptWindow = game.LoadAptWindow(_aptFileName);
+        if (!useShellMap)
         {
-            _aptFileName = aptFileName;
-            _fallbackShell = "ShellMapLowLOD";
+            aptWindow.BackgroundImage = game.AssetStore.MappedImages.GetByName(_fallbackShell);
         }
-
-        public void AddToScene(Game game, Scene2D scene, bool useShellMap)
-        {
-            var aptWindow = game.LoadAptWindow(_aptFileName);
-            if (!useShellMap)
-            {
-                aptWindow.BackgroundImage = game.AssetStore.MappedImages.GetByName(_fallbackShell);
-            }
-            scene.AptWindowManager.PushWindow(aptWindow);
-        }
+        scene.AptWindowManager.PushWindow(aptWindow);
     }
 }

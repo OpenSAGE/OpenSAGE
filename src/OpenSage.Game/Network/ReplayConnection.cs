@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using OpenSage.Data.Rep;
 using OpenSage.Logic.Orders;
 
-namespace OpenSage.Network
+namespace OpenSage.Network;
+
+public sealed class ReplayConnection : IConnection
 {
-    public sealed class ReplayConnection : IConnection
+    private readonly Queue<ReplayChunk> _chunks = new Queue<ReplayChunk>();
+
+    public ReplayConnection(ReplayFile replayFile)
     {
-        private readonly Queue<ReplayChunk> _chunks = new Queue<ReplayChunk>();
-
-        public ReplayConnection(ReplayFile replayFile)
+        foreach (var chunk in replayFile.Chunks)
         {
-            foreach (var chunk in replayFile.Chunks)
-            {
-                _chunks.Enqueue(chunk);
-            }
+            _chunks.Enqueue(chunk);
         }
-
-        // Ignore locally generated orders.
-        public void Send(uint frame, List<Order> orders) { }
-
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public void Receive(uint frame, Action<uint, Order> packetFn)
-        {
-            logger.Trace($"Replay frame {frame}");
-            while (_chunks.Count != 0 && _chunks.Peek().Header.Timecode <= frame)
-            {
-                var chunk = _chunks.Dequeue();
-                packetFn(chunk.Header.Timecode, chunk.Order);
-            }
-        }
-
-        public void Dispose() { }
     }
+
+    // Ignore locally generated orders.
+    public void Send(uint frame, List<Order> orders) { }
+
+    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+    public void Receive(uint frame, Action<uint, Order> packetFn)
+    {
+        logger.Trace($"Replay frame {frame}");
+        while (_chunks.Count != 0 && _chunks.Peek().Header.Timecode <= frame)
+        {
+            var chunk = _chunks.Dequeue();
+            packetFn(chunk.Header.Timecode, chunk.Order);
+        }
+    }
+
+    public void Dispose() { }
 }

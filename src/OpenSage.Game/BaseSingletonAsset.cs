@@ -1,10 +1,9 @@
-﻿namespace OpenSage
+﻿namespace OpenSage;
+
+public abstract class BaseSingletonAsset : BaseAsset
 {
-    public abstract class BaseSingletonAsset : BaseAsset
+    protected BaseSingletonAsset()
     {
-        protected BaseSingletonAsset()
-        {
-            SetNameAndInstanceId(GetType().Name, GetType().Name);
-        }
+        SetNameAndInstanceId(GetType().Name, GetType().Name);
     }
 }

@@ -2,65 +2,64 @@
 using ImGuiNET;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal class DeletionUpdate : UpdateModule
 {
-    internal class DeletionUpdate : UpdateModule
+    private readonly GameObject _gameObject;
+    private readonly DeletionUpdateModuleData _moduleData;
+
+    private LogicFrame _frameToDelete;
+
+    public DeletionUpdate(GameObject gameObject, GameContext context, DeletionUpdateModuleData moduleData)
     {
-        private readonly GameObject _gameObject;
-        private readonly DeletionUpdateModuleData _moduleData;
+        _gameObject = gameObject;
+        _moduleData = moduleData;
 
-        private LogicFrame _frameToDelete;
+        _frameToDelete = context.GameLogic.CurrentFrame + context.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
+        SetNextUpdateFrame(_frameToDelete);
+    }
 
-        public DeletionUpdate(GameObject gameObject, GameContext context, DeletionUpdateModuleData moduleData)
+    internal override void Update(BehaviorUpdateContext context)
+    {
+        if (context.LogicFrame >= _frameToDelete)
         {
-            _gameObject = gameObject;
-            _moduleData = moduleData;
-
-            _frameToDelete = context.GameLogic.CurrentFrame + context.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
-            SetNextUpdateFrame(_frameToDelete);
-        }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            if (context.LogicFrame >= _frameToDelete)
-            {
-                context.GameContext.GameLogic.DestroyObject(_gameObject);
-            }
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            base.Load(reader);
-
-            reader.PersistLogicFrame(ref _frameToDelete);
-        }
-
-        internal override void DrawInspector()
-        {
-            base.DrawInspector();
-            ImGui.LabelText("Frame to delete", _frameToDelete.ToString());
+            context.GameContext.GameLogic.DestroyObject(_gameObject);
         }
     }
 
-
-    public sealed class DeletionUpdateModuleData : UpdateModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static DeletionUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static readonly IniParseTable<DeletionUpdateModuleData> FieldParseTable = new IniParseTable<DeletionUpdateModuleData>
-        {
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() }
-        };
+        base.Load(reader);
 
-        public LogicFrameSpan MinLifetime { get; private set; }
-        public LogicFrameSpan MaxLifetime { get; private set; }
+        reader.PersistLogicFrame(ref _frameToDelete);
+    }
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new DeletionUpdate(gameObject, context, this);
-        }
+    internal override void DrawInspector()
+    {
+        base.DrawInspector();
+        ImGui.LabelText("Frame to delete", _frameToDelete.ToString());
+    }
+}
+
+
+public sealed class DeletionUpdateModuleData : UpdateModuleData
+{
+    internal static DeletionUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<DeletionUpdateModuleData> FieldParseTable = new IniParseTable<DeletionUpdateModuleData>
+    {
+        { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseTimeMillisecondsToLogicFrames() },
+        { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseTimeMillisecondsToLogicFrames() }
+    };
+
+    public LogicFrameSpan MinLifetime { get; private set; }
+    public LogicFrameSpan MaxLifetime { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new DeletionUpdate(gameObject, context, this);
     }
 }

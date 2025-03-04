@@ -1,27 +1,26 @@
 ﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 
-namespace OpenSage.Mods.Generals.Gui
+namespace OpenSage.Mods.Generals.Gui;
+
+[WndCallbacks]
+public static class QuitMessageBoxCallbacks
 {
-    [WndCallbacks]
-    public static class QuitMessageBoxCallbacks
+    public static void QuitMessageBoxSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
-        public static void QuitMessageBoxSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        switch (message.MessageType)
         {
-            switch (message.MessageType)
-            {
-                case WndWindowMessageType.SelectedButton:
-                    switch (message.Element.Name)
-                    {
-                        case "QuitMessageBox.wnd:ButtonCancel":
-                            context.WindowManager.PopWindow();
-                            break;
-                        case "QuitMessageBox.wnd:ButtonOk":
-                            context.Game.Exit();
-                            break;
-                    }
-                    break;
-            }
+            case WndWindowMessageType.SelectedButton:
+                switch (message.Element.Name)
+                {
+                    case "QuitMessageBox.wnd:ButtonCancel":
+                        context.WindowManager.PopWindow();
+                        break;
+                    case "QuitMessageBox.wnd:ButtonOk":
+                        context.Game.Exit();
+                        break;
+                }
+                break;
         }
     }
 }

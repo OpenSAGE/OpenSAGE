@@ -7,183 +7,182 @@ using OpenSage.Data.Ini;
 using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableModule, IDamageModule
 {
-    public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableModule, IDamageModule
+    static FireWeaponWhenDamagedBehavior()
     {
-        static FireWeaponWhenDamagedBehavior()
+        Debug.Assert(Enum.GetValues<BodyDamageType>().Length == 4, "Expected 4 values in BodyDamageType enum.");
+    }
+
+    private readonly GameObject _gameObject;
+    private readonly GameContext _context;
+    private readonly FireWeaponWhenDamagedBehaviorModuleData _moduleData;
+
+    private readonly Weapon?[] _reactionWeapons = new Weapon?[4];
+    private readonly Weapon?[] _continuousWeapons = new Weapon?[4];
+
+    internal Weapon?[] ReactionWeapons => _reactionWeapons;
+    internal Weapon?[] ContinuousWeapons => _continuousWeapons;
+
+    internal UpgradeLogic UpgradeLogic { get; }
+
+    public FireWeaponWhenDamagedBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDamagedBehaviorModuleData moduleData)
+    {
+        _gameObject = gameObject;
+        _context = context;
+        _moduleData = moduleData;
+
+        UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
+
+        _reactionWeapons[0] = CreateWeapon(moduleData.ReactionWeaponPristine);
+        _reactionWeapons[1] = CreateWeapon(moduleData.ReactionWeaponDamaged);
+        _reactionWeapons[2] = CreateWeapon(moduleData.ReactionWeaponReallyDamaged);
+        _reactionWeapons[3] = CreateWeapon(moduleData.ReactionWeaponRubble);
+
+        _continuousWeapons[0] = CreateWeapon(moduleData.ContinuousWeaponPristine);
+        _continuousWeapons[1] = CreateWeapon(moduleData.ContinuousWeaponDamaged);
+        _continuousWeapons[2] = CreateWeapon(moduleData.ContinuousWeaponReallyDamaged);
+        _continuousWeapons[3] = CreateWeapon(moduleData.ContinuousWeaponRubble);
+    }
+
+    private Weapon? CreateWeapon(LazyAssetReference<WeaponTemplate>? weaponTemplateReference)
+    {
+        var weaponTemplate = weaponTemplateReference?.Value;
+
+        if (weaponTemplate == null)
         {
-            Debug.Assert(Enum.GetValues<BodyDamageType>().Length == 4, "Expected 4 values in BodyDamageType enum.");
+            return null;
         }
 
-        private readonly GameObject _gameObject;
-        private readonly GameContext _context;
-        private readonly FireWeaponWhenDamagedBehaviorModuleData _moduleData;
+        return new Weapon(
+            _gameObject,
+            weaponTemplate,
+            WeaponSlot.Primary,
+            _context);
+    }
 
-        private readonly Weapon?[] _reactionWeapons = new Weapon?[4];
-        private readonly Weapon?[] _continuousWeapons = new Weapon?[4];
+    public bool CanUpgrade(UpgradeSet existingUpgrades) => UpgradeLogic.CanUpgrade(existingUpgrades);
 
-        internal Weapon?[] ReactionWeapons => _reactionWeapons;
-        internal Weapon?[] ContinuousWeapons => _continuousWeapons;
+    public void TryUpgrade(UpgradeSet completedUpgrades) => UpgradeLogic.TryUpgrade(completedUpgrades);
 
-        internal UpgradeLogic UpgradeLogic { get; }
+    private void OnUpgrade() { }
 
-        public FireWeaponWhenDamagedBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDamagedBehaviorModuleData moduleData)
+    public void OnDamage(in DamageData damageData)
+    {
+        if (!UpgradeLogic.Triggered)
         {
-            _gameObject = gameObject;
-            _context = context;
-            _moduleData = moduleData;
-
-            UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
-
-            _reactionWeapons[0] = CreateWeapon(moduleData.ReactionWeaponPristine);
-            _reactionWeapons[1] = CreateWeapon(moduleData.ReactionWeaponDamaged);
-            _reactionWeapons[2] = CreateWeapon(moduleData.ReactionWeaponReallyDamaged);
-            _reactionWeapons[3] = CreateWeapon(moduleData.ReactionWeaponRubble);
-
-            _continuousWeapons[0] = CreateWeapon(moduleData.ContinuousWeaponPristine);
-            _continuousWeapons[1] = CreateWeapon(moduleData.ContinuousWeaponDamaged);
-            _continuousWeapons[2] = CreateWeapon(moduleData.ContinuousWeaponReallyDamaged);
-            _continuousWeapons[3] = CreateWeapon(moduleData.ContinuousWeaponRubble);
+            return;
         }
 
-        private Weapon? CreateWeapon(LazyAssetReference<WeaponTemplate>? weaponTemplateReference)
+        if (!_moduleData.DamageTypes.Get(damageData.Request.DamageType))
         {
-            var weaponTemplate = weaponTemplateReference?.Value;
-
-            if (weaponTemplate == null)
-            {
-                return null;
-            }
-
-            return new Weapon(
-                _gameObject,
-                weaponTemplate,
-                WeaponSlot.Primary,
-                _context);
+            return;
         }
 
-        public bool CanUpgrade(UpgradeSet existingUpgrades) => UpgradeLogic.CanUpgrade(existingUpgrades);
-
-        public void TryUpgrade(UpgradeSet completedUpgrades) => UpgradeLogic.TryUpgrade(completedUpgrades);
-
-        private void OnUpgrade() { }
-
-        public void OnDamage(in DamageData damageData)
+        if (damageData.Result.DamageAfterArmorCalculation < _moduleData.DamageAmount)
         {
-            if (!UpgradeLogic.Triggered)
-            {
-                return;
-            }
-
-            if (!_moduleData.DamageTypes.Get(damageData.Request.DamageType))
-            {
-                return;
-            }
-
-            if (damageData.Result.DamageAfterArmorCalculation < _moduleData.DamageAmount)
-            {
-                return;
-            }
-
-            FireWeaponIfPresentAndReady(_reactionWeapons);
+            return;
         }
 
-        private protected override void RunUpdate(BehaviorUpdateContext context)
-        {
-            if (!UpgradeLogic.Triggered)
-            {
-                return;
-            }
+        FireWeaponIfPresentAndReady(_reactionWeapons);
+    }
 
-            FireWeaponIfPresentAndReady(_continuousWeapons);
+    private protected override void RunUpdate(BehaviorUpdateContext context)
+    {
+        if (!UpgradeLogic.Triggered)
+        {
+            return;
         }
 
-        private void FireWeaponIfPresentAndReady(Weapon?[] weapons)
+        FireWeaponIfPresentAndReady(_continuousWeapons);
+    }
+
+    private void FireWeaponIfPresentAndReady(Weapon?[] weapons)
+    {
+        var weapon = weapons[(int)_gameObject.BodyDamageType];
+
+        if (weapon == null || !weapon.IsInactive)
         {
-            var weapon = weapons[(int)_gameObject.BodyDamageType];
-
-            if (weapon == null || !weapon.IsInactive)
-            {
-                return;
-            }
-
-            weapon.SetTarget(new WeaponTarget(_gameObject.Translation));
-            weapon.Fire();
+            return;
         }
 
-        internal override void Load(StatePersister reader)
+        weapon.SetTarget(new WeaponTarget(_gameObject.Translation));
+        weapon.Fire();
+    }
+
+    internal override void Load(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        base.Load(reader);
+
+        reader.PersistObject(UpgradeLogic);
+
+        for (var i = 0; i < _reactionWeapons.Length; i++)
         {
-            reader.PersistVersion(1);
-
-            base.Load(reader);
-
-            reader.PersistObject(UpgradeLogic);
-
-            for (var i = 0; i < _reactionWeapons.Length; i++)
-            {
-                PersistWeapon(reader, _reactionWeapons[i]);
-            }
-
-            for (var i = 0; i < _continuousWeapons.Length; i++)
-            {
-                PersistWeapon(reader, _continuousWeapons[i]);
-            }
+            PersistWeapon(reader, _reactionWeapons[i]);
         }
 
-        private static void PersistWeapon(StatePersister persister, Weapon? weapon)
+        for (var i = 0; i < _continuousWeapons.Length; i++)
         {
-            var isWeaponPresent = weapon != null;
-            persister.PersistBoolean(ref isWeaponPresent);
-
-            if (isWeaponPresent)
-            {
-                persister.PersistObject(weapon);
-            }
+            PersistWeapon(reader, _continuousWeapons[i]);
         }
     }
 
-    public sealed class FireWeaponWhenDamagedBehaviorModuleData : UpgradeModuleData
+    private static void PersistWeapon(StatePersister persister, Weapon? weapon)
     {
-        internal static FireWeaponWhenDamagedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        var isWeaponPresent = weapon != null;
+        persister.PersistBoolean(ref isWeaponPresent);
 
-        private static new readonly IniParseTable<FireWeaponWhenDamagedBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<FireWeaponWhenDamagedBehaviorModuleData>
-            {
-                { "ContinuousWeaponPristine", (parser, x) => x.ContinuousWeaponPristine = parser.ParseWeaponTemplateReference() },
-                { "ContinuousWeaponDamaged", (parser, x) => x.ContinuousWeaponDamaged = parser.ParseWeaponTemplateReference() },
-                { "ContinuousWeaponReallyDamaged", (parser, x) => x.ContinuousWeaponReallyDamaged = parser.ParseWeaponTemplateReference() },
-                { "ContinuousWeaponRubble", (parser, x) => x.ContinuousWeaponRubble = parser.ParseWeaponTemplateReference() },
-
-                { "ReactionWeaponPristine", (parser, x) => x.ReactionWeaponPristine = parser.ParseWeaponTemplateReference() },
-                { "ReactionWeaponDamaged", (parser, x) => x.ReactionWeaponDamaged = parser.ParseWeaponTemplateReference() },
-                { "ReactionWeaponReallyDamaged", (parser, x) => x.ReactionWeaponReallyDamaged = parser.ParseWeaponTemplateReference() },
-                { "ReactionWeaponRubble", (parser, x) => x.ReactionWeaponRubble = parser.ParseWeaponTemplateReference() },
-
-                { "DamageTypes", (parser, x) => x.DamageTypes = parser.ParseEnumBitArray<DamageType>() },
-                { "DamageAmount", (parser, x) => x.DamageAmount = parser.ParseFloat() }
-            });
-
-        public LazyAssetReference<WeaponTemplate>? ContinuousWeaponPristine { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ContinuousWeaponDamaged { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ContinuousWeaponReallyDamaged { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ContinuousWeaponRubble { get; internal set; }
-
-        public LazyAssetReference<WeaponTemplate>? ReactionWeaponPristine { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ReactionWeaponDamaged { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ReactionWeaponReallyDamaged { get; internal set; }
-        public LazyAssetReference<WeaponTemplate>? ReactionWeaponRubble { get; internal set; }
-
-        public BitArray<DamageType> DamageTypes { get; private set; } = BitArray<DamageType>.CreateAllSet();
-
-        /// <summary>
-        /// If damage >= this value, the weapon will be fired.
-        /// </summary>
-        public float DamageAmount { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+        if (isWeaponPresent)
         {
-            return new FireWeaponWhenDamagedBehavior(gameObject, context, this);
+            persister.PersistObject(weapon);
         }
+    }
+}
+
+public sealed class FireWeaponWhenDamagedBehaviorModuleData : UpgradeModuleData
+{
+    internal static FireWeaponWhenDamagedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static new readonly IniParseTable<FireWeaponWhenDamagedBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<FireWeaponWhenDamagedBehaviorModuleData>
+        {
+            { "ContinuousWeaponPristine", (parser, x) => x.ContinuousWeaponPristine = parser.ParseWeaponTemplateReference() },
+            { "ContinuousWeaponDamaged", (parser, x) => x.ContinuousWeaponDamaged = parser.ParseWeaponTemplateReference() },
+            { "ContinuousWeaponReallyDamaged", (parser, x) => x.ContinuousWeaponReallyDamaged = parser.ParseWeaponTemplateReference() },
+            { "ContinuousWeaponRubble", (parser, x) => x.ContinuousWeaponRubble = parser.ParseWeaponTemplateReference() },
+
+            { "ReactionWeaponPristine", (parser, x) => x.ReactionWeaponPristine = parser.ParseWeaponTemplateReference() },
+            { "ReactionWeaponDamaged", (parser, x) => x.ReactionWeaponDamaged = parser.ParseWeaponTemplateReference() },
+            { "ReactionWeaponReallyDamaged", (parser, x) => x.ReactionWeaponReallyDamaged = parser.ParseWeaponTemplateReference() },
+            { "ReactionWeaponRubble", (parser, x) => x.ReactionWeaponRubble = parser.ParseWeaponTemplateReference() },
+
+            { "DamageTypes", (parser, x) => x.DamageTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "DamageAmount", (parser, x) => x.DamageAmount = parser.ParseFloat() }
+        });
+
+    public LazyAssetReference<WeaponTemplate>? ContinuousWeaponPristine { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ContinuousWeaponDamaged { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ContinuousWeaponReallyDamaged { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ContinuousWeaponRubble { get; internal set; }
+
+    public LazyAssetReference<WeaponTemplate>? ReactionWeaponPristine { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ReactionWeaponDamaged { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ReactionWeaponReallyDamaged { get; internal set; }
+    public LazyAssetReference<WeaponTemplate>? ReactionWeaponRubble { get; internal set; }
+
+    public BitArray<DamageType> DamageTypes { get; private set; } = BitArray<DamageType>.CreateAllSet();
+
+    /// <summary>
+    /// If damage >= this value, the weapon will be fired.
+    /// </summary>
+    public float DamageAmount { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new FireWeaponWhenDamagedBehavior(gameObject, context, this);
     }
 }

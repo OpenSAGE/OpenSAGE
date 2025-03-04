@@ -1,17 +1,16 @@
-﻿namespace OpenSage.Data.Wnd.Parser
+﻿namespace OpenSage.Data.Wnd.Parser;
+
+internal enum WndTokenType
 {
-    internal enum WndTokenType
-    {
-        Identifier,
-        Equals,
-        IntegerLiteral,
-        Semicolon,
-        Colon,
-        StringLiteral,
-        Plus,
-        OpenSquareBracket,
-        CloseSquareBracket,
-        Comma,
-        EndOfFile
-    }
+    Identifier,
+    Equals,
+    IntegerLiteral,
+    Semicolon,
+    Colon,
+    StringLiteral,
+    Plus,
+    OpenSquareBracket,
+    CloseSquareBracket,
+    Comma,
+    EndOfFile
 }

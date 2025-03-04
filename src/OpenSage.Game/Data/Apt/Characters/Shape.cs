@@ -4,65 +4,64 @@ using System.Numerics;
 using MoonSharp.Interpreter.Execution.VM;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt.Characters
+namespace OpenSage.Data.Apt.Characters;
+
+public sealed class Shape : Character
 {
-    public sealed class Shape : Character
+    public Vector4 Bounds { get; private set; }
+    public uint Geometry { get; private set; }
+
+    public static Shape Parse(BinaryReader reader)
     {
-        public Vector4 Bounds { get; private set; }
-        public uint Geometry { get; private set; }
+        var shape = new Shape();
+        shape.Bounds = reader.ReadVector4();
+        shape.Geometry = reader.ReadUInt32();
+        return shape;
+    }
 
-        public static Shape Parse(BinaryReader reader)
+    public static Shape Create(AptFile container, uint geometryId)
+    {
+        if (!container.GeometryMap.TryGetValue(geometryId, out var geometry))
         {
-            var shape = new Shape();
-            shape.Bounds = reader.ReadVector4();
-            shape.Geometry = reader.ReadUInt32();
-            return shape;
+            throw new ArgumentException(null, nameof(geometryId));
         }
-
-        public static Shape Create(AptFile container, uint geometryId)
+        var box = geometry.BoundingBox;
+        var bounds = new Vector4
         {
-            if (!container.GeometryMap.TryGetValue(geometryId, out var geometry))
-            {
-                throw new ArgumentException(null, nameof(geometryId));
-            }
-            var box = geometry.BoundingBox;
-            var bounds = new Vector4
-            {
-                X = box.Left,
-                Y = box.Top,
-                Z = box.Right,
-                W = box.Bottom
-            };
-            return new Shape
-            {
-                Container = container,
-                Bounds = bounds,
-                Geometry = geometryId
-            };
+            X = box.Left,
+            Y = box.Top,
+            Z = box.Right,
+            W = box.Bottom
+        };
+        return new Shape
+        {
+            Container = container,
+            Bounds = bounds,
+            Geometry = geometryId
+        };
+    }
+
+    public void Modify(uint newGeometryId, bool modifyBounds = false, Vector4? newBounds = null)
+    {
+        if (!Container.GeometryMap.TryGetValue(newGeometryId, out var geometry))
+        {
+            throw new ArgumentException(null, nameof(newGeometryId));
         }
-
-        public void Modify(uint newGeometryId, bool modifyBounds = false, Vector4? newBounds = null)
+        if (modifyBounds)
         {
-            if (!Container.GeometryMap.TryGetValue(newGeometryId, out var geometry))
+            if (!newBounds.HasValue)
             {
-                throw new ArgumentException(null, nameof(newGeometryId));
-            }
-            if (modifyBounds)
-            {
-                if (!newBounds.HasValue)
+                var box = geometry.BoundingBox;
+                newBounds = new Vector4
                 {
-                    var box = geometry.BoundingBox;
-                    newBounds = new Vector4
-                    {
-                        X = box.Left,
-                        Y = box.Top,
-                        Z = box.Right,
-                        W = box.Bottom
-                    };
-                }
-                Bounds = newBounds.Value;
+                    X = box.Left,
+                    Y = box.Top,
+                    Z = box.Right,
+                    W = box.Bottom
+                };
             }
-            Geometry = newGeometryId;
+            Bounds = newBounds.Value;
         }
+        Geometry = newGeometryId;
     }
 }

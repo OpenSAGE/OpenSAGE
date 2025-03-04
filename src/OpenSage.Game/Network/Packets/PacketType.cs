@@ -1,11 +1,10 @@
-﻿namespace OpenSage.Network.Packets
+﻿namespace OpenSage.Network.Packets;
+
+public enum PacketType
 {
-    public enum PacketType
-    {
-        SkirmishClientConnect,
-        SkirmishClientUpdate,
-        SkirmishClientReady,
-        SkirmishSlotStatus,
-        SkirmishStartGame
-    }
+    SkirmishClientConnect,
+    SkirmishClientUpdate,
+    SkirmishClientReady,
+    SkirmishSlotStatus,
+    SkirmishStartGame
 }

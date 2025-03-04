@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
-namespace OpenSage.Terrain.Roads
+namespace OpenSage.Terrain.Roads;
+
+internal interface IRoadSegment
 {
-    internal interface IRoadSegment
-    {
-        public Vector3 StartPosition { get; }
-        public Vector3 EndPosition { get; }
+    public Vector3 StartPosition { get; }
+    public Vector3 EndPosition { get; }
 
-        public RoadTextureType Type { get; }
-        public bool MirrorTexture { get; }
+    public RoadTextureType Type { get; }
+    public bool MirrorTexture { get; }
 
-        IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
+    IEnumerable<RoadSegmentEndPoint> EndPoints { get; }
 
-        RoadSegmentMesher CreateMesher(RoadTemplate template);
-    }
+    RoadSegmentMesher CreateMesher(RoadTemplate template);
 }

@@ -1,32 +1,31 @@
 ﻿using System;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class InactivePendingReloadWeaponState : FixedDurationWeaponState
 {
-    internal sealed class InactivePendingReloadWeaponState : FixedDurationWeaponState
+    protected override RangeDuration Duration => Context.Weapon.Template.AutoReloadWhenIdle;
+
+    public InactivePendingReloadWeaponState(WeaponStateContext context)
+        : base(context)
     {
-        protected override RangeDuration Duration => Context.Weapon.Template.AutoReloadWhenIdle;
+    }
 
-        public InactivePendingReloadWeaponState(WeaponStateContext context)
-            : base(context)
+    protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
+        Array.Empty<ModelConditionFlag>();
+
+    public override WeaponState? GetNextState()
+    {
+        if (Context.Weapon.HasValidTarget)
         {
+            return WeaponState.PreAttack;
         }
 
-        protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
-            Array.Empty<ModelConditionFlag>();
-
-        public override WeaponState? GetNextState()
+        if (IsTimeToExitState())
         {
-            if (Context.Weapon.HasValidTarget)
-            {
-                return WeaponState.PreAttack;
-            }
-
-            if (IsTimeToExitState())
-            {
-                return WeaponState.Reloading;
-            }
-
-            return null;
+            return WeaponState.Reloading;
         }
+
+        return null;
     }
 }

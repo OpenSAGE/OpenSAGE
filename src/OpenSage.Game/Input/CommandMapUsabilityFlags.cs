@@ -1,18 +1,17 @@
 ﻿using System;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Input
+namespace OpenSage.Input;
+
+[Flags]
+public enum CommandMapUsabilityFlags
 {
-    [Flags]
-    public enum CommandMapUsabilityFlags
-    {
-        [IniEnum("NONE")]
-        None = 0,
+    [IniEnum("NONE")]
+    None = 0,
 
-        [IniEnum("GAME")]
-        Game = 1,
+    [IniEnum("GAME")]
+    Game = 1,
 
-        [IniEnum("SHELL")]
-        Shell = 2
-    }
+    [IniEnum("SHELL")]
+    Shell = 2
 }

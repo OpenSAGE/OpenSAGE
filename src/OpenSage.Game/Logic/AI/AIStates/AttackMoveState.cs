@@ -1,43 +1,42 @@
 ﻿#nullable enable
 
-namespace OpenSage.Logic.AI.AIStates
+namespace OpenSage.Logic.AI.AIStates;
+
+internal sealed class AttackMoveState : MoveTowardsState
 {
-    internal sealed class AttackMoveState : MoveTowardsState
+    private readonly AttackMoveStateMachine _stateMachine;
+
+    private int _unknownInt1;
+    private int _unknownInt2;
+
+    public AttackMoveState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        private readonly AttackMoveStateMachine _stateMachine;
-
-        private int _unknownInt1;
-        private int _unknownInt2;
-
-        public AttackMoveState(AIUpdateStateMachine stateMachine) : base(stateMachine)
-        {
-            _stateMachine = new AttackMoveStateMachine(stateMachine);
-        }
-
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(2);
-
-            base.Persist(reader);
-
-            reader.PersistInt32(ref _unknownInt1);
-            reader.PersistInt32(ref _unknownInt2);
-            reader.PersistObject(_stateMachine);
-        }
+        _stateMachine = new AttackMoveStateMachine(stateMachine);
     }
 
-    internal sealed class AttackMoveStateMachine : StateMachineBase
+    public override void Persist(StatePersister reader)
     {
-        public AttackMoveStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
-        {
-            AddState(IdleState.StateId, new IdleState(this));
-        }
+        reader.PersistVersion(2);
 
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        base.Persist(reader);
 
-            base.Persist(reader);
-        }
+        reader.PersistInt32(ref _unknownInt1);
+        reader.PersistInt32(ref _unknownInt2);
+        reader.PersistObject(_stateMachine);
+    }
+}
+
+internal sealed class AttackMoveStateMachine : StateMachineBase
+{
+    public AttackMoveStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
+    {
+        AddState(IdleState.StateId, new IdleState(this));
+    }
+
+    public override void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        base.Persist(reader);
     }
 }

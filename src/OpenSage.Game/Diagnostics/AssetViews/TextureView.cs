@@ -4,119 +4,118 @@ using ImGuiNET;
 using OpenSage.Mathematics;
 using Veldrid;
 
-namespace OpenSage.Diagnostics.AssetViews
+namespace OpenSage.Diagnostics.AssetViews;
+
+[AssetView(typeof(Texture))]
+internal sealed class TextureView : AssetView
 {
-    [AssetView(typeof(Texture))]
-    internal sealed class TextureView : AssetView
+    private readonly Texture _texture;
+    private readonly Dictionary<TextureViewDescription, Veldrid.TextureView> _textureViews;
+
+    private uint _mipLevel;
+    private BackgroundColor _backgroundColor;
+    private bool _scaleToFit = true;
+
+    public TextureView(DiagnosticViewContext context, Texture texture)
+        : base(context)
     {
-        private readonly Texture _texture;
-        private readonly Dictionary<TextureViewDescription, Veldrid.TextureView> _textureViews;
+        _texture = texture;
+        _textureViews = new Dictionary<TextureViewDescription, Veldrid.TextureView>();
+    }
 
-        private uint _mipLevel;
-        private BackgroundColor _backgroundColor;
-        private bool _scaleToFit = true;
-
-        public TextureView(DiagnosticViewContext context, Texture texture)
-            : base(context)
+    public override void Draw()
+    {
+        ImGui.BeginChild("sidebar", new Vector2(150, 0));
         {
-            _texture = texture;
-            _textureViews = new Dictionary<TextureViewDescription, Veldrid.TextureView>();
-        }
-
-        public override void Draw()
-        {
-            ImGui.BeginChild("sidebar", new Vector2(150, 0));
+            ImGui.BeginChild("mip level", new Vector2(150, 200), ImGuiChildFlags.Border, 0);
             {
-                ImGui.BeginChild("mip level", new Vector2(150, 200), ImGuiChildFlags.Border, 0);
+                for (var i = 0u; i < _texture.MipLevels; i++)
                 {
-                    for (var i = 0u; i < _texture.MipLevels; i++)
+                    if (ImGui.Selectable($"MipMap {i}", i == _mipLevel))
                     {
-                        if (ImGui.Selectable($"MipMap {i}", i == _mipLevel))
-                        {
-                            _mipLevel = i;
-                        }
+                        _mipLevel = i;
                     }
                 }
-                ImGui.EndChild();
-
-                ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
-                {
-                    ImGui.Text("Background color");
-                    {
-                        if (ImGui.RadioButton("None", _backgroundColor == BackgroundColor.None))
-                        {
-                            _backgroundColor = BackgroundColor.None;
-                        }
-
-                        if (ImGui.RadioButton("Black", _backgroundColor == BackgroundColor.Black))
-                        {
-                            _backgroundColor = BackgroundColor.Black;
-                        }
-
-                        if (ImGui.RadioButton("White", _backgroundColor == BackgroundColor.White))
-                        {
-                            _backgroundColor = BackgroundColor.White;
-                        }
-                    }
-
-                    ImGui.Checkbox("Scale to fit", ref _scaleToFit);
-                }
-                ImGui.EndChild();
             }
             ImGui.EndChild();
 
-            ImGui.SameLine();
-
-            var textureViewDescription = new TextureViewDescription(_texture, _mipLevel, 1, 0, 1);
-
-            if (!_textureViews.TryGetValue(textureViewDescription, out var textureView))
+            ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
             {
-                _textureViews.Add(textureViewDescription, textureView = AddDisposable(Context.Game.GraphicsDevice.ResourceFactory.CreateTextureView(ref textureViewDescription)));
-            }
+                ImGui.Text("Background color");
+                {
+                    if (ImGui.RadioButton("None", _backgroundColor == BackgroundColor.None))
+                    {
+                        _backgroundColor = BackgroundColor.None;
+                    }
 
-            var imagePointer = Context.ImGuiRenderer.GetOrCreateImGuiBinding(
-                Context.Game.GraphicsDevice.ResourceFactory,
-                textureView);
+                    if (ImGui.RadioButton("Black", _backgroundColor == BackgroundColor.Black))
+                    {
+                        _backgroundColor = BackgroundColor.Black;
+                    }
 
-            var availableSize = ImGui.GetContentRegionAvail();
+                    if (ImGui.RadioButton("White", _backgroundColor == BackgroundColor.White))
+                    {
+                        _backgroundColor = BackgroundColor.White;
+                    }
+                }
 
-            var size = _scaleToFit
-                ? SizeF.CalculateSizeFittingAspectRatio(
-                    new SizeF(_texture.Width, _texture.Height),
-                    new Size((int)availableSize.X, (int)availableSize.Y)
-                )
-                : new Size((int)_texture.Width, (int)_texture.Height);
-
-            var uiSize = _scaleToFit ? size.ToVector2() : new Vector2(_texture.Width, _texture.Height);
-
-            ImGui.PushStyleColor(ImGuiCol.ChildBg, _backgroundColor switch
-            {
-                BackgroundColor.None => Vector4.Zero,
-                BackgroundColor.Black => new Vector4(0, 0, 0, 1),
-                BackgroundColor.White => new Vector4(1, 1, 1, 1),
-                _ => throw new System.InvalidOperationException()
-            });
-
-            ImGui.BeginChild("texture", _scaleToFit ? Vector2.Zero : size.ToVector2());
-            {
-                ImGui.Image(
-                    imagePointer,
-                    new Vector2(size.Width, size.Height),
-                    Vector2.Zero,
-                    Vector2.One,
-                    Vector4.One,
-                    Vector4.Zero);
+                ImGui.Checkbox("Scale to fit", ref _scaleToFit);
             }
             ImGui.EndChild();
-
-            ImGui.PopStyleColor();
         }
+        ImGui.EndChild();
 
-        private enum BackgroundColor
+        ImGui.SameLine();
+
+        var textureViewDescription = new TextureViewDescription(_texture, _mipLevel, 1, 0, 1);
+
+        if (!_textureViews.TryGetValue(textureViewDescription, out var textureView))
         {
-            None,
-            Black,
-            White
+            _textureViews.Add(textureViewDescription, textureView = AddDisposable(Context.Game.GraphicsDevice.ResourceFactory.CreateTextureView(ref textureViewDescription)));
         }
+
+        var imagePointer = Context.ImGuiRenderer.GetOrCreateImGuiBinding(
+            Context.Game.GraphicsDevice.ResourceFactory,
+            textureView);
+
+        var availableSize = ImGui.GetContentRegionAvail();
+
+        var size = _scaleToFit
+            ? SizeF.CalculateSizeFittingAspectRatio(
+                new SizeF(_texture.Width, _texture.Height),
+                new Size((int)availableSize.X, (int)availableSize.Y)
+            )
+            : new Size((int)_texture.Width, (int)_texture.Height);
+
+        var uiSize = _scaleToFit ? size.ToVector2() : new Vector2(_texture.Width, _texture.Height);
+
+        ImGui.PushStyleColor(ImGuiCol.ChildBg, _backgroundColor switch
+        {
+            BackgroundColor.None => Vector4.Zero,
+            BackgroundColor.Black => new Vector4(0, 0, 0, 1),
+            BackgroundColor.White => new Vector4(1, 1, 1, 1),
+            _ => throw new System.InvalidOperationException()
+        });
+
+        ImGui.BeginChild("texture", _scaleToFit ? Vector2.Zero : size.ToVector2());
+        {
+            ImGui.Image(
+                imagePointer,
+                new Vector2(size.Width, size.Height),
+                Vector2.Zero,
+                Vector2.One,
+                Vector4.One,
+                Vector4.Zero);
+        }
+        ImGui.EndChild();
+
+        ImGui.PopStyleColor();
+    }
+
+    private enum BackgroundColor
+    {
+        None,
+        Black,
+        White
     }
 }

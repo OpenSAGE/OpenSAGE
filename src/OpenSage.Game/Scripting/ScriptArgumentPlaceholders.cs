@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Scripting
+﻿namespace OpenSage.Scripting;
+
+public static class ScriptArgumentPlaceholders
 {
-    public static class ScriptArgumentPlaceholders
-    {
-        public const string LocalPlayer = "<Local Player>";
-    }
+    public const string LocalPlayer = "<Local Player>";
 }

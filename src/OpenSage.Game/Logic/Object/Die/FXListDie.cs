@@ -2,65 +2,64 @@
 using OpenSage.Data.Ini;
 using OpenSage.FX;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class FXListDie : DieModule
 {
-    public sealed class FXListDie : DieModule
+    private readonly FXListDieModuleData _moduleData;
+
+    internal FXListDie(FXListDieModuleData moduleData)
+        : base(moduleData)
     {
-        private readonly FXListDieModuleData _moduleData;
-
-        internal FXListDie(FXListDieModuleData moduleData)
-            : base(moduleData)
-        {
-            _moduleData = moduleData;
-        }
-
-        private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
-        {
-            _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
-                context.GameObject.Rotation,
-                context.GameObject.Translation,
-                context.GameContext));
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        _moduleData = moduleData;
     }
 
-    public sealed class FXListDieModuleData : DieModuleData
+    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        internal static FXListDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
+            context.GameObject.Rotation,
+            context.GameObject.Translation,
+            context.GameContext));
+    }
 
-        private static new readonly IniParseTable<FXListDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
-            .Concat(new IniParseTable<FXListDieModuleData>
-            {
-                { "DeathFX", (parser, x) => x.DeathFX = parser.ParseFXListReference() },
-                { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() },
-                { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
-                { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
-                { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() }
-            });
+    internal override void Load(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-        public LazyAssetReference<FXList> DeathFX { get; private set; }
-        public bool OrientToObject { get; private set; }
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public bool StartsActive { get; private set; }
+public sealed class FXListDieModuleData : DieModuleData
+{
+    internal static FXListDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public string[] ConflictsWith { get; private set; }
-
-        [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public string[] TriggeredBy { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<FXListDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+        .Concat(new IniParseTable<FXListDieModuleData>
         {
-            return new FXListDie(this);
-        }
+            { "DeathFX", (parser, x) => x.DeathFX = parser.ParseFXListReference() },
+            { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() },
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() }
+        });
+
+    public LazyAssetReference<FXList> DeathFX { get; private set; }
+    public bool OrientToObject { get; private set; }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public bool StartsActive { get; private set; }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public string[] ConflictsWith { get; private set; }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public string[] TriggeredBy { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new FXListDie(this);
     }
 }

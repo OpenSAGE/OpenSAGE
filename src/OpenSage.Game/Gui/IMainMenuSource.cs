@@ -1,9 +1,8 @@
 ﻿using OpenSage.Content;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui;
+
+public interface IMainMenuSource
 {
-    public interface IMainMenuSource
-    {
-        void AddToScene(Game game, Scene2D scene, bool useShellMap);
-    }
+    void AddToScene(Game game, Scene2D scene, bool useShellMap);
 }
