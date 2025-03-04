@@ -1,6 +1,6 @@
-﻿using Veldrid;
+﻿using OpenSage.Tools.BigEditor.UI;
+using Veldrid;
 using Veldrid.StartupUtilities;
-using OpenSage.Tools.BigEditor.UI;
 
 namespace OpenSage.Tools.BigEditor
 {
@@ -26,7 +26,7 @@ namespace OpenSage.Tools.BigEditor
             {
                 window.Resized += () =>
                 {
-                    graphicsDevice.ResizeMainWindow((uint) window.Width, (uint) window.Height);
+                    graphicsDevice.ResizeMainWindow((uint)window.Width, (uint)window.Height);
                     imGuiRenderer.WindowResized(window.Width, window.Height);
                 };
 
@@ -50,7 +50,7 @@ namespace OpenSage.Tools.BigEditor
                         commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
                         imGuiRenderer.Update(
-                            (float) gameTimer.CurrentGameTime.DeltaTime.TotalSeconds,
+                            (float)gameTimer.CurrentGameTime.DeltaTime.TotalSeconds,
                             inputSnapshot);
 
                         mainForm.Draw(window);

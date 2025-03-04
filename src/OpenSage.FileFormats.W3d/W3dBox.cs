@@ -33,8 +33,8 @@ namespace OpenSage.FileFormats.W3d
 
                 var flags = reader.ReadUInt32();
 
-                result.BoxType = (W3dBoxType) (flags & 0b11);
-                result.CollisionTypes = (W3dBoxCollisionTypes) (flags & 0xFF0);
+                result.BoxType = (W3dBoxType)(flags & 0b11);
+                result.CollisionTypes = (W3dBoxCollisionTypes)(flags & 0xFF0);
 
                 result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
                 result.Color = reader.ReadColorRgb(true);
@@ -49,7 +49,7 @@ namespace OpenSage.FileFormats.W3d
         {
             writer.Write(Version);
 
-            var flags = (uint) BoxType | (uint) CollisionTypes;
+            var flags = (uint)BoxType | (uint)CollisionTypes;
             writer.Write(flags);
 
             writer.WriteFixedLengthString(Name, W3dConstants.NameLength * 2);

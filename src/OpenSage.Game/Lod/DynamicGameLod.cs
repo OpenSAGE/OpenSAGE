@@ -11,7 +11,7 @@ namespace OpenSage.Lod
             return parser.ParseNamedBlock(
                 (x, name) =>
                 {
-                    x.Level = (LodType) Enum.Parse(typeof(LodType), name);
+                    x.Level = (LodType)Enum.Parse(typeof(LodType), name);
                     x.SetNameAndInstanceId("DynamicGameLod", x.Level.ToString());
                 },
                 FieldParseTable);

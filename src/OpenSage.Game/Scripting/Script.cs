@@ -276,7 +276,7 @@ namespace OpenSage.Scripting
                     if (Version == 5)
                     {
                         writer.Write(UsesEvaluationIntervalType);
-                        writer.Write((uint) EvaluationIntervalType);
+                        writer.Write((uint)EvaluationIntervalType);
                     }
                 }
 
@@ -285,7 +285,7 @@ namespace OpenSage.Scripting
                     writer.Write(ActionsFireSequentially);
                     writer.Write(LoopActions);
                     writer.Write(LoopCount);
-                    writer.Write((byte) SequentialTargetType);
+                    writer.Write((byte)SequentialTargetType);
                     writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
                 }
 

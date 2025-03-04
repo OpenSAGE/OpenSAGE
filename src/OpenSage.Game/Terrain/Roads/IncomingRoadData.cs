@@ -17,7 +17,7 @@ namespace OpenSage.Terrain.Roads
         }
 
         public RoadTopologyEdge TopologyEdge { get; }
-        public RoadSegmentEndPoint TargetEndPoint { get;}
+        public RoadSegmentEndPoint TargetEndPoint { get; }
         public Vector3 OutDirection { get; }
         public float AngleToAxis { get; }
         public IncomingRoadData Previous { get; internal set; }

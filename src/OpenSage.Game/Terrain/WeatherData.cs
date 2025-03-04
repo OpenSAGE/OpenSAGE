@@ -11,7 +11,7 @@ namespace OpenSage.Terrain
             var result = parser.ParseTopLevelBlock(FieldParseTable);
             result.SetNameAndInstanceId("WeatherData", type.ToString());
             result.WeatherType = type;
-            return result; 
+            return result;
         }
 
         private static readonly IniParseTable<WeatherData> FieldParseTable = new IniParseTable<WeatherData>

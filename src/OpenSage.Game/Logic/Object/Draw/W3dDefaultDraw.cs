@@ -51,12 +51,12 @@ namespace OpenSage.Logic.Object
 
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            
+
         }
 
         internal override void Update(in TimeInterval time)
         {
-            
+
         }
     }
 

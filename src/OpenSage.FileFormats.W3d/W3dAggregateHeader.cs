@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
-namespace OpenSage.FileFormats.W3d { 
+namespace OpenSage.FileFormats.W3d
+{
 
     public sealed class W3dAggregateHeader : W3dChunk
     {

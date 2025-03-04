@@ -74,7 +74,7 @@ namespace OpenSage.Data.Map
 
             // Back up and write data size.
             writer.BaseStream.Position = dataSizePosition;
-            writer.Write((uint) dataSize);
+            writer.Write((uint)dataSize);
             writer.BaseStream.Position = endPosition;
         }
     }

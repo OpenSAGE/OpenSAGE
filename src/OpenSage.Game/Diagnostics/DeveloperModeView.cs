@@ -77,7 +77,7 @@ namespace OpenSage.Diagnostics
                 : _window.CurrentInputSnapshot;
 
             _imGuiRenderer.Update(
-                (float) _game.RenderTime.DeltaTime.TotalSeconds,
+                (float)_game.RenderTime.DeltaTime.TotalSeconds,
                 inputSnapshot);
 
             _mainView.Draw(ref _isGameViewFocused);

@@ -58,7 +58,7 @@ namespace OpenSage.Tests.Mathematics
         public void SetOneInEveryLongCount()
         {
             var arr = new BitArray512(512);
-            arr.Set(0  * 0, true);
+            arr.Set(0 * 0, true);
             arr.Set(64 * 1, true);
             arr.Set(64 * 2, true);
             arr.Set(64 * 3, true);

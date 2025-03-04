@@ -21,8 +21,8 @@ namespace OpenSage.Terrain
         }
 
         public DeviceBuffer GetIndexBuffer(
-            int width, 
-            int height, 
+            int width,
+            int height,
             out ushort[] indices)
         {
             var size = new TerrainPatchSize
@@ -45,7 +45,7 @@ namespace OpenSage.Terrain
             return result.Buffer;
         }
 
-        private uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
+        private uint CalculateNumIndices(int width, int height) => (uint)((width - 1) * (height - 1) * 6);
 
         private DeviceBuffer CreateIndexBuffer(
             TerrainPatchSize size,
@@ -65,14 +65,14 @@ namespace OpenSage.Terrain
                 for (var x = 0; x < size.Width - 1; x++)
                 {
                     // Triangle 1
-                    indices[indexIndex++] = (ushort) (yThis + x);
-                    indices[indexIndex++] = (ushort) (yThis + x + 1);
-                    indices[indexIndex++] = (ushort) (yNext + x);
+                    indices[indexIndex++] = (ushort)(yThis + x);
+                    indices[indexIndex++] = (ushort)(yThis + x + 1);
+                    indices[indexIndex++] = (ushort)(yNext + x);
 
                     // Triangle 2
-                    indices[indexIndex++] = (ushort) (yNext + x);
-                    indices[indexIndex++] = (ushort) (yThis + x + 1);
-                    indices[indexIndex++] = (ushort) (yNext + x + 1);
+                    indices[indexIndex++] = (ushort)(yNext + x);
+                    indices[indexIndex++] = (ushort)(yThis + x + 1);
+                    indices[indexIndex++] = (ushort)(yNext + x + 1);
                 }
             }
 

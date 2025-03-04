@@ -101,7 +101,7 @@ namespace OpenSage.Scripting
                 var script = Game.Scene3D.PlayerScripts.ScriptLists[i].FindScript(name);
                 if (script != null)
                 {
-                   return script;
+                    return script;
                 }
             }
 

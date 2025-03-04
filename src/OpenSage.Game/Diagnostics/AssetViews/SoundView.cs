@@ -23,7 +23,7 @@ namespace OpenSage.Diagnostics.AssetViews
             ImGui.Text("SampleRate: " + _source.Format.SampleRate);
             ImGui.Spacing();
             ImGui.Text("Duration: " + _source.Duration);
-            var progress = (float) (_source.Position / _source.Duration);
+            var progress = (float)(_source.Position / _source.Duration);
             ImGui.SliderFloat("", ref progress, 0.0f, 1.0f, "Position");
             ImGui.Spacing();
 

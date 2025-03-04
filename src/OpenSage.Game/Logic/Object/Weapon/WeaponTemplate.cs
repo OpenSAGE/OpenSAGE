@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -544,7 +544,7 @@ namespace OpenSage.Logic.Object
         {
             var offset = parser.ParseVector2();
             var t = parser.ParseAttributeFloat("T");
-            return new LinearTarget { Offset = offset, T = t};
+            return new LinearTarget { Offset = offset, T = t };
         }
 
         public Vector2 Offset { get; private set; }
@@ -729,17 +729,17 @@ namespace OpenSage.Logic.Object
     [Flags]
     public enum WeaponAntiFlags
     {
-        None                 = 0,
-        AntiAirborneVehicle  = 1 << 0,
-        AntiGround           = 1 << 1,
-        AntiProjectile       = 1 << 2,
-        AntiSmallMissile     = 1 << 3,
-        AntiMine             = 1 << 4,
+        None = 0,
+        AntiAirborneVehicle = 1 << 0,
+        AntiGround = 1 << 1,
+        AntiProjectile = 1 << 2,
+        AntiSmallMissile = 1 << 3,
+        AntiMine = 1 << 4,
         AntiAirborneInfantry = 1 << 5,
         AntiBallisticMissile = 1 << 6,
-        AntiParachute        = 1 << 7,
-        AntiStructure        = 1 << 8,
-        AntiAirborneMonster  = 1 << 9,
+        AntiParachute = 1 << 7,
+        AntiStructure = 1 << 8,
+        AntiAirborneMonster = 1 << 9,
     }
 
     public static class WeaponAntiFlagsExtensions

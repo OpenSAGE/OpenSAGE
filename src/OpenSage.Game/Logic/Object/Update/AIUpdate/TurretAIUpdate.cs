@@ -133,7 +133,7 @@ namespace OpenSage.Logic.Object
                 case TurretAIStates.Recentering:
                     if (context.LogicFrame >= _waitUntil)
                     {
-                        targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle) ;
+                        targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
                         if (!Rotate(targetYaw))
                         {
                             _turretAIstate = TurretAIStates.Idle;
@@ -193,7 +193,7 @@ namespace OpenSage.Logic.Object
             //    _gameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
             //    return true;
             //}
-            
+
             //return false;
         }
 

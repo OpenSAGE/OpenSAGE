@@ -101,7 +101,7 @@ namespace OpenSage.Terrain.Roads
                 var additionalLength = template.RoadWidth / 10f; // we don't have to touch roads to be able to join them
                 var totalLength = toCornerLength + additionalLength;
                 var toCorner = toCornerDirection * totalLength;
-                
+
                 var boundingBox = AxisAlignedBoundingBox.CreateFromPoints(
                     segment.StartPosition + toCorner,
                     segment.StartPosition - toCorner,

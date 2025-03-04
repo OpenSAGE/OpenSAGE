@@ -58,7 +58,7 @@ namespace OpenSage.Scripting
 
             if (CurrentFrame < FramesIncrease)
             {
-                var s = CurrentFrame / (float) FramesIncrease;
+                var s = CurrentFrame / (float)FramesIncrease;
                 CurrentValue = MathUtility.Lerp(From, To, s);
             }
             else if (CurrentFrame < FramesIncrease + FramesHold)
@@ -67,7 +67,7 @@ namespace OpenSage.Scripting
             }
             else if (CurrentFrame < FramesIncrease + FramesHold + FramesDecrease)
             {
-                var s = (CurrentFrame - FramesIncrease - FramesHold) / (float) FramesDecrease;
+                var s = (CurrentFrame - FramesIncrease - FramesHold) / (float)FramesDecrease;
                 CurrentValue = MathUtility.Lerp(To, From, s);
             }
             else

@@ -46,8 +46,8 @@ namespace OpenSage.Logic
 
             var extra = _game.SageGame >= SageGame.CncGeneralsZeroHour ? 1.0f : 0.0f;
 
-            _numCellsX = (int) MathF.Ceiling((_terrainBoundary.Width * 10.0f) / _partitionCellSize + extra);
-            _numCellsY = (int) MathF.Ceiling((_terrainBoundary.Height * 10.0f) / _partitionCellSize + extra);
+            _numCellsX = (int)MathF.Ceiling((_terrainBoundary.Width * 10.0f) / _partitionCellSize + extra);
+            _numCellsY = (int)MathF.Ceiling((_terrainBoundary.Height * 10.0f) / _partitionCellSize + extra);
 
             _cells = new PartitionCell[_numCellsX * _numCellsY];
 

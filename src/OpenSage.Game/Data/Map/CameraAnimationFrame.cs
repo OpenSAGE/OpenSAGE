@@ -47,7 +47,7 @@ namespace OpenSage.Data.Map
 
         internal static FreeCameraAnimationCameraFrame Parse(BinaryReader reader)
         {
-            return Parse< FreeCameraAnimationCameraFrame>(reader, x =>
+            return Parse<FreeCameraAnimationCameraFrame>(reader, x =>
             {
                 x.Position = reader.ReadVector3();
                 x.Rotation = reader.ReadQuaternion();

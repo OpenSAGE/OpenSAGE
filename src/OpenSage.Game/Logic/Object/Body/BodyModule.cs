@@ -51,16 +51,16 @@ namespace OpenSage.Logic.Object
 
         internal override void DrawInspector()
         {
-            var maxHealth = (float) MaxHealth;
+            var maxHealth = (float)MaxHealth;
             if (ImGui.InputFloat("MaxHealth", ref maxHealth))
             {
-                MaxHealth = (Fix64) maxHealth;
+                MaxHealth = (Fix64)maxHealth;
             }
 
-            var health = (float) Health;
+            var health = (float)Health;
             if (ImGui.InputFloat("Health", ref health))
             {
-                Health = (Fix64) health;
+                Health = (Fix64)health;
             }
 
             ImGui.Separator();
@@ -70,7 +70,7 @@ namespace OpenSage.Logic.Object
             ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
             if (ImGui.Button("Apply Damage"))
             {
-                GameObject.DoDamage(_inspectorDamageType, (Fix64) _inspectorDamageAmount, _inspectorDeathType, null);
+                GameObject.DoDamage(_inspectorDamageType, (Fix64)_inspectorDamageAmount, _inspectorDeathType, null);
             }
         }
     }

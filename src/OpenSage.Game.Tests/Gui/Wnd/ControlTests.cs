@@ -49,7 +49,7 @@ namespace OpenSage.Tests.Gui.Wnd
         {
             var owner = new Control();
             owner.Name = "Window";
-            
+
             var tb1 = new TextBox();
             tb1.Name = "TextBox.1";
             var tb2 = new TextBox();

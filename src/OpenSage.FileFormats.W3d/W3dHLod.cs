@@ -68,7 +68,7 @@ namespace OpenSage.FileFormats.W3d
 
     public sealed class W3dHLodAggregateArray : W3dHLodArrayBase<W3dHLodAggregateArray>
     {
-        
+
     }
 
     public sealed class W3dHLodProxyArray : W3dHLodArrayBase<W3dHLodProxyArray>

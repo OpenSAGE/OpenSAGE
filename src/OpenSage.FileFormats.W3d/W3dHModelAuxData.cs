@@ -43,7 +43,7 @@ namespace OpenSage.FileFormats.W3d
                 result.LodMin = reader.ReadSingle();
                 result.LodMax = reader.ReadSingle();
 
-                result.FutureUse = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position);
+                result.FutureUse = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
                 // TODO: Determine If FutureUse are used anywhere or are different between games?
 
@@ -62,7 +62,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 writer.Write(FutureCounts[i]);
             }
-           
+
             writer.Write(LodMin);
             writer.Write(LodMax);
             writer.Write(LodMax);

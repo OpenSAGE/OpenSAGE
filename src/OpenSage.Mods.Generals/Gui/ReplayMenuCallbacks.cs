@@ -62,7 +62,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                             using (var fileSystem = GetReplaysFileSystem(context.Game))
                             {
-                                var replayFileEntry = fileSystem.GetFile((string) listBox.Items[listBox.SelectedIndex].DataItem);
+                                var replayFileEntry = fileSystem.GetFile((string)listBox.Items[listBox.SelectedIndex].DataItem);
 
                                 context.Game.Scene2D.WndWindowManager.PopWindow();
 
@@ -79,7 +79,8 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.ShowDialogBox("GUI:DeleteFile".Translate(), "GUI:AreYouSureDelete".Translate(), out yesButton, out noButton);
 
-                            yesButton.SystemCallback = (_, _, _) => {
+                            yesButton.SystemCallback = (_, _, _) =>
+                            {
                                 using (var fileSystem = GetReplaysFileSystem(context.Game))
                                 {
                                     var replayFileEntry = fileSystem.GetFile((string)listBox.Items[listBox.SelectedIndex].DataItem);
@@ -103,7 +104,8 @@ namespace OpenSage.Mods.Generals.Gui
                             }
 
                             context.Game.Scene2D.WndWindowManager.ShowDialogBox("GUI:CopyReplay".Translate(), "GUI:AreYouSureCopy".Translate(), out yesButton, out noButton);
-                            yesButton.SystemCallback = (_, _, _) => {
+                            yesButton.SystemCallback = (_, _, _) =>
+                            {
                                 using (var fileSystem = GetReplaysFileSystem(context.Game))
                                 {
                                     var replayFileEntry = fileSystem.GetFile((string)listBox.Items[listBox.SelectedIndex].DataItem);

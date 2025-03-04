@@ -25,7 +25,7 @@ namespace OpenSage.Tests.Mathematics
         [MemberData(nameof(IsPointInsideData))]
         public void IsPointInsideTest(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 point, bool expectedResult)
         {
-            Assert.Equal(expectedResult, TriangleUtility.IsPointInside(v1,  v2,  v3,  point));
+            Assert.Equal(expectedResult, TriangleUtility.IsPointInside(v1, v2, v3, point));
         }
         #endregion
     }

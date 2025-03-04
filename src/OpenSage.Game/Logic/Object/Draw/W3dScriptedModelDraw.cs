@@ -109,5 +109,6 @@ namespace OpenSage.Logic.Object
 
         public string First { get; private set; }
         public int Unknown { get; private set; }
-        public string Second { get; private set; }}
+        public string Second { get; private set; }
+    }
 }

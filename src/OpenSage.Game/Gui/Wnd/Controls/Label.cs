@@ -12,11 +12,11 @@ namespace OpenSage.Gui.Wnd.Controls
                 ? TextAlignment.Center
                 : TextAlignment.Leading;
 
-            if(wndWindow.EnabledDrawData.Items.Length > 0)
+            if (wndWindow.EnabledDrawData.Items.Length > 0)
             {
                 BorderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
             }
-            
+
             BorderWidth = 1;
         }
 

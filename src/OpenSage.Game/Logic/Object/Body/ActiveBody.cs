@@ -41,11 +41,11 @@ namespace OpenSage.Logic.Object
             _context = context;
             _moduleData = moduleData;
 
-            MaxHealth = (Fix64) moduleData.MaxHealth;
+            MaxHealth = (Fix64)moduleData.MaxHealth;
 
             ValidateArmorAndDamageFX();
 
-            SetHealth((Fix64) (moduleData.InitialHealth ?? moduleData.MaxHealth));
+            SetHealth((Fix64)(moduleData.InitialHealth ?? moduleData.MaxHealth));
         }
 
         private void SetHealth(Fix64 value)
@@ -70,7 +70,7 @@ namespace OpenSage.Logic.Object
 
         public override void SetInitialHealth(float multiplier)
         {
-            SetHealth((Fix64) ((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
+            SetHealth((Fix64)((_moduleData.InitialHealth ?? _moduleData.MaxHealth) * multiplier));
             _lastHealthBeforeDamage = _currentHealth;
         }
 
@@ -85,11 +85,11 @@ namespace OpenSage.Logic.Object
 
             // Actual amount of damage depends on armor.
             var damagePercent = _currentArmor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
-            var actualDamage = amount * (Fix64) (float) damagePercent;
+            var actualDamage = amount * (Fix64)(float)damagePercent;
 
             var takingDamage = damageType is not DamageType.Healing;
 
-            var newHealth = takingDamage ? Health - actualDamage: Health + actualDamage;
+            var newHealth = takingDamage ? Health - actualDamage : Health + actualDamage;
 
             SetHealth(newHealth);
 

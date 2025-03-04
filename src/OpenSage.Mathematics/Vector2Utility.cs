@@ -12,7 +12,7 @@ namespace OpenSage.Mathematics
             var cos = MathF.Cos(angle);
 
             point -= center;
-            var rotated = new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y  * cos);
+            var rotated = new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y * cos);
             return rotated + center;
         }
 

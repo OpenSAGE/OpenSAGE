@@ -463,7 +463,7 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
         Death3,
-        
+
         [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
         Death4,
 

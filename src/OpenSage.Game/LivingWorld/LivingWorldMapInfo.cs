@@ -1,7 +1,7 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using System.Collections.Generic;
 
 namespace OpenSage.LivingWorld
 {
@@ -164,14 +164,14 @@ namespace OpenSage.LivingWorld
         public int AnimRaysEffectDiameter { get; private set; }
         public int AnimRaysEffectLifetime { get; private set; }
         public string AnimRaysCreateSound { get; private set; }
-  
+
         public string AnimCloud { get; private set; }
         public string AnimCloudPartSys { get; private set; }
         public int NumAnimClouds { get; private set; }
         public Vector3 AnimCloudRegionMin { get; private set; }
         public Vector3 AnimCloudRegionMax { get; private set; }
         public int AnimCloudLifetime { get; private set; }
-  
+
         public string MordorCloud { get; private set; }
         public string EmbersPartSys { get; private set; }
         public Vector3 CloudPos { get; private set; }

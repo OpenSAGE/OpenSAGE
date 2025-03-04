@@ -38,7 +38,7 @@ namespace OpenSage.Graphics
             _intermediateSpriteBatch.DrawImage(
                 source,
                 null,
-                new RectangleF(0, 0, (int) source.Width, (int) source.Height),
+                new RectangleF(0, 0, (int)source.Width, (int)source.Height),
                 ColorRgbaF.White);
 
             _intermediateSpriteBatch.End();

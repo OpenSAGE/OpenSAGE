@@ -30,12 +30,12 @@ namespace OpenSage.Utilities
 
         public static uint CalculateMipMapCount(uint width, uint height)
         {
-            return 1u + (uint) MathF.Floor(MathF.Log(Math.Max(width, height), 2));
+            return 1u + (uint)MathF.Floor(MathF.Log(Math.Max(width, height), 2));
         }
 
         public static uint CalculateMipSize(uint mipLevel, uint baseSize)
         {
-            baseSize >>= (int) mipLevel;
+            baseSize >>= (int)mipLevel;
             return baseSize > 0 ? baseSize : 1;
         }
     }

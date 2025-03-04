@@ -50,7 +50,7 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(VIndex1);
             writer.Write(VIndex2);
 
-            writer.Write((uint) SurfaceType);
+            writer.Write((uint)SurfaceType);
 
             writer.Write(Normal);
 

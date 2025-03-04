@@ -26,7 +26,7 @@ namespace OpenSage.Data.Ini
             where T2 : T
         {
             var result = new IniParseTable<T2>(this.ToDictionary(
-                x => x.Key, 
+                x => x.Key,
                 x => new ParseFieldCallback<T2>((parser, y) => x.Value(parser, y))));
 
             foreach (var kvp in otherTable)

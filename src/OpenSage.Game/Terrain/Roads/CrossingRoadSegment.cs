@@ -70,7 +70,7 @@ namespace OpenSage.Terrain.Roads
             IReadOnlyDictionary<RoadTopologyEdge, StraightRoadSegment> edgeSegments)
         {
             var type = ChooseCrossingType(roads);
-            switch(type)
+            switch (type)
             {
                 case RoadTextureType.TCrossing:
                     CreateTCrossing(roads, crossingPosition, template, edgeSegments);
@@ -117,7 +117,7 @@ namespace OpenSage.Terrain.Roads
 
                 default:
                     throw new ArgumentException($"Cannot create crossing for {angles.Count} incoming roads", nameof(incomingRoads));
-            }            
+            }
         }
 
         private static CrossingRoadSegment CreateTCrossing(
@@ -211,7 +211,7 @@ namespace OpenSage.Terrain.Roads
         {
             var maxAngle = roads.OrderBy(road => road.AngleToPreviousEdge).Last();
             var mirror = maxAngle.Previous.AngleToPreviousEdge < maxAngle.Previous.Previous.AngleToPreviousEdge;
-            
+
             var upDirection = Vector3.Normalize(maxAngle.Previous.TargetNodePosition - maxAngle.TargetNodePosition);
             var rightDirection = Vector3.Cross(upDirection, Vector3.UnitZ);
             var mirrorFactor = mirror ? -1 : 1;
@@ -302,7 +302,7 @@ namespace OpenSage.Terrain.Roads
                 start,
                 end,
                 RoadTextureType.SymmetricYCrossing);
-            
+
             Connect(crossingSegment, topEdge.TopologyEdge, top, upDirection, RoadConstants.OverlapLength * template.RoadWidth, edgeSegments);
             Connect(crossingSegment, leftEdge.TopologyEdge, leftSide, leftSideDirection, 0, edgeSegments);
             Connect(crossingSegment, rightEdge.TopologyEdge, rightSide, rightSideDirection, 0, edgeSegments);

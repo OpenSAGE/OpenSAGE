@@ -31,7 +31,7 @@ namespace OpenSage.FileFormats.W3d
                     Header = W3dSphereHeader.Parse(reader)
                 };
 
-                result.Shader = (W3dRingShaderFunc) (reader.ReadUInt32() >> 24);
+                result.Shader = (W3dRingShaderFunc)(reader.ReadUInt32() >> 24);
                 result.UnknownFlag = (reader.ReadUInt32() >> 24);  // TODO: Determine What this Flag is/does.
 
                 result.Placeholder = W3dSpherePlaceholder.Parse(reader);

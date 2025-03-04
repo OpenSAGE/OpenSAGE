@@ -31,7 +31,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Cameras.Length);
+                writer.Write((uint)Cameras.Length);
 
                 foreach (var camera in Cameras)
                 {

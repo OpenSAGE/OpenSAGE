@@ -7,9 +7,9 @@ namespace OpenSage.Logic.AI
     {
         internal static AIDozerAssignment Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("AIDozerAssignment", name),
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.SetNameAndInstanceId("AIDozerAssignment", name),
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<AIDozerAssignment> FieldParseTable = new IniParseTable<AIDozerAssignment>

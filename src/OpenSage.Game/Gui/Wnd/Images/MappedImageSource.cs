@@ -21,7 +21,7 @@ namespace OpenSage.Gui.Wnd.Images
 
         protected override Texture CreateTexture(Size size, GraphicsLoadContext loadContext)
         {
-            return MappedImageUtility.CreateTexture(loadContext, _mappedImage); 
+            return MappedImageUtility.CreateTexture(loadContext, _mappedImage);
         }
     }
 }

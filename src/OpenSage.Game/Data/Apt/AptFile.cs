@@ -18,7 +18,7 @@ namespace OpenSage.Data.Apt
         public Dictionary<uint, Geometry> GeometryMap { get; private set; }
 
         internal bool IsEmpty = true;
-        
+
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -34,7 +34,7 @@ namespace OpenSage.Data.Apt
             reader.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
 
             //proceed loading the characters
-            Movie = (Movie) Character.Create(reader, this);
+            Movie = (Movie)Character.Create(reader, this);
 
             //set first character to itself
             Movie.Characters[0] = Movie;
@@ -70,7 +70,7 @@ namespace OpenSage.Data.Apt
                 {
                     var importPath = Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt"));
                     var importEntry = FileSystem.GetFile(importPath);
-                    if(importEntry == null)
+                    if (importEntry == null)
                     {
                         throw new FileNotFoundException("Cannot find imported file", importPath);
                     }
@@ -82,7 +82,7 @@ namespace OpenSage.Data.Apt
                 var export = importApt.Movie.Exports.Find(x => x.Name == import.Name);
 
                 //place the exported character inside our movie
-                Movie.Characters[(int) import.Character] = importApt.Movie.Characters[(int) export.Character];
+                Movie.Characters[(int)import.Character] = importApt.Movie.Characters[(int)export.Character];
             }
         }
 

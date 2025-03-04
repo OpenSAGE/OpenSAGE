@@ -204,7 +204,7 @@ namespace OpenSage.Content.Util
             {
                 case W3dShaderDetailColorFunc.Disable:
                     return FixedFunctionShaderResources.SecondaryTextureBlend.Disable;
-                    
+
                 case W3dShaderDetailColorFunc.Detail:
                     return FixedFunctionShaderResources.SecondaryTextureBlend.Detail;
 

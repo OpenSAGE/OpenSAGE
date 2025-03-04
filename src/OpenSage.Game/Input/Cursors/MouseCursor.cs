@@ -1,5 +1,5 @@
-﻿using OpenSage.Data.Ini;
-using System.Numerics;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Input.Cursors
 {

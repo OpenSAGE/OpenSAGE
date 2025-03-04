@@ -21,7 +21,7 @@ namespace OpenSage.FileFormats.W3d
                     Version = reader.ReadUInt32()
                 };
 
-                result.Name = reader.ReadFixedLengthString((int) context.CurrentEndPosition - (int) reader.BaseStream.Position - 4);
+                result.Name = reader.ReadFixedLengthString((int)context.CurrentEndPosition - (int)reader.BaseStream.Position - 4);
                 result.RenderObjectCount = reader.ReadUInt32();
 
                 return result;

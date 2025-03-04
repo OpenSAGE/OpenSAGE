@@ -35,7 +35,7 @@ namespace OpenSage.Content.Loaders
                 }
             }
 
-            if(entry == null)
+            if (entry == null)
             {
                 logger.Warn("Failed to load animation: " + key);
                 return null;

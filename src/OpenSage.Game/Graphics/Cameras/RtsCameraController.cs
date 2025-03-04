@@ -26,7 +26,7 @@ namespace OpenSage.Graphics.Cameras
         private CameraAnimation _animation;
 
         public bool CanPlayerInputChangePitch { get; set; }
-        
+
         private float _yaw;
         public void SetLookDirection(Vector3 lookDirection)
         {

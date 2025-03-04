@@ -37,11 +37,11 @@ namespace OpenSage.Data.Map
             {
                 if (Version >= 2)
                 {
-                    writer.Write((uint) PostEffects.Length);
+                    writer.Write((uint)PostEffects.Length);
                 }
                 else
                 {
-                    writer.Write((byte) PostEffects.Length);
+                    writer.Write((byte)PostEffects.Length);
                 }
 
                 foreach (var postEffect in PostEffects)

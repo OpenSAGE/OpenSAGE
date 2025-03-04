@@ -61,7 +61,7 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);
             writer.Write(VectorLength);
-            writer.Write((byte) ChannelType);
+            writer.Write((byte)ChannelType);
             writer.Write(Scale);
 
             Data.WriteTo(writer, ChannelType);
@@ -69,7 +69,7 @@ namespace OpenSage.FileFormats.W3d
             // Skip
             for (var i = 0; i < 3; i++)
             {
-                writer.Write((byte) 0);
+                writer.Write((byte)0);
             }
         }
     }

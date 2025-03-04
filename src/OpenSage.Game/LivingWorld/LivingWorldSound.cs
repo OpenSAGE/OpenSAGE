@@ -25,8 +25,8 @@ namespace OpenSage.LivingWorld
         public Vector3 Position { get; private set; }
         public string Sound { get; private set; }
         public LivingWorldSoundFlags Flags { get; private set; }
-        public Vector2 ZoomRegionLow  { get; private set; }
-        public Vector2 ZoomRegionHigh  { get; private set; }
+        public Vector2 ZoomRegionLow { get; private set; }
+        public Vector2 ZoomRegionHigh { get; private set; }
     }
 
     public enum LivingWorldSoundFlags

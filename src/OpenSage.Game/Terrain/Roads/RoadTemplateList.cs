@@ -49,10 +49,10 @@ namespace OpenSage.Terrain.Roads
                 _orderedTemplates.Remove(subsequent);
                 _orderedTemplates.AddLast(subsequent);
             }
-        }        
+        }
 
         public IEnumerator<RoadTemplate> GetEnumerator() => _orderedTemplates.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }    
+    }
 }

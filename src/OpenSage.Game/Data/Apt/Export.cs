@@ -23,7 +23,7 @@ namespace OpenSage.Data.Apt
             return new Export
             {
                 Name = name,
-                Character = (uint) character
+                Character = (uint)character
             };
         }
     }

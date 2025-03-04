@@ -67,7 +67,7 @@ namespace OpenSage.Mathematics
 
         public override bool Equals(object? obj)
         {
-            return obj is ColorRgbaF && Equals((ColorRgbaF) obj);
+            return obj is ColorRgbaF && Equals((ColorRgbaF)obj);
         }
 
         public bool Equals(ColorRgbaF other)
@@ -91,7 +91,7 @@ namespace OpenSage.Mathematics
 
         public ColorRgba ToColorRgba()
         {
-            static byte Transform(float f) => (byte) (f * 255.0f);
+            static byte Transform(float f) => (byte)(f * 255.0f);
             return new ColorRgba(Transform(R), Transform(G), Transform(B), Transform(A));
         }
     }

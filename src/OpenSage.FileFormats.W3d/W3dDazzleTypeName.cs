@@ -14,7 +14,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 var result = new W3dDazzleTypeName
                 {
-                    TypeName = reader.ReadFixedLengthString((int) context.CurrentEndPosition - (int) reader.BaseStream.Position),
+                    TypeName = reader.ReadFixedLengthString((int)context.CurrentEndPosition - (int)reader.BaseStream.Position),
                 };
 
                 return result;

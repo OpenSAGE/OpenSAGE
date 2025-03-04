@@ -83,12 +83,12 @@ namespace OpenSage.Content.Translation.Providers
                     {
                         case SageGame.CncGenerals:
                         case SageGame.CncGeneralsZeroHour:
-                            language = ((LanguageGenerals) languageCode).GetName();
+                            language = ((LanguageGenerals)languageCode).GetName();
                             break;
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                            language = ((LanguageBFME) languageCode).GetName();
+                            language = ((LanguageBFME)languageCode).GetName();
                             break;
                         default:
                             throw new InvalidOperationException();

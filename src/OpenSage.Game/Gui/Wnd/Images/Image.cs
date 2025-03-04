@@ -35,7 +35,7 @@ namespace OpenSage.Gui.Wnd.Images
             }
 
             _texture = _source.GetTexture(actualSize);
-            if(size.Width == 0 || size.Height == 0)
+            if (size.Width == 0 || size.Height == 0)
             {
                 return;
             }

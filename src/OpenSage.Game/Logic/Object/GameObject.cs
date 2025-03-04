@@ -4,24 +4,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Data.Map;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
+using OpenSage.Diagnostics.Util;
+using OpenSage.FileFormats;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
+using OpenSage.Logic.Object.Damage;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
-using FixedMath.NET;
-using OpenSage.Diagnostics.Util;
 using OpenSage.Terrain;
-using OpenSage.FileFormats;
-using OpenSage.Logic.Object.Damage;
 
 namespace OpenSage.Logic.Object
 {

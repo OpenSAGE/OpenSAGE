@@ -22,5 +22,5 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int CrusherLevelResisted { get; private set; }
-     }
+    }
 }

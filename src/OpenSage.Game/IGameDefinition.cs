@@ -1,12 +1,12 @@
 ﻿#nullable enable
 
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
-using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage
 {

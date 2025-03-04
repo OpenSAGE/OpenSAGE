@@ -36,7 +36,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected override void DrawOverride(DrawingContext2D drawingContext)
         {
-            var valueWidth = (Value - MinimumValue) / (float) (MaximumValue - MinimumValue) * ClientSize.Width;
+            var valueWidth = (Value - MinimumValue) / (float)(MaximumValue - MinimumValue) * ClientSize.Width;
 
             var x = 0;
             while (x < ClientRectangle.Right)
@@ -58,8 +58,8 @@ namespace OpenSage.Gui.Wnd.Controls
             switch (message.MessageType)
             {
                 case WndWindowMessageType.MouseUp:
-                    var value = message.MousePosition.X / (float) ClientSize.Width;
-                    Value = (int) MathF.Round(MinimumValue + (MaximumValue - MinimumValue) * value);
+                    var value = message.MousePosition.X / (float)ClientSize.Width;
+                    Value = (int)MathF.Round(MinimumValue + (MaximumValue - MinimumValue) * value);
                     break;
             }
         }

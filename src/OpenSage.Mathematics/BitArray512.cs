@@ -1,7 +1,7 @@
-using System;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -40,7 +40,7 @@ namespace OpenSage.Mathematics
         public int NumBitsSet
         {
             get
-             {
+            {
                 // Refresh the cache if required.
                 if (_setBits == -1)
                 {
@@ -73,11 +73,11 @@ namespace OpenSage.Mathematics
             }
 
             var offset = bit >> 6; // bit / 64
-            var mask = (ulong) 1 << bit;
+            var mask = (ulong)1 << bit;
 
             unsafe
             {
-                var pointer = (ulong*) Unsafe.AsPointer(ref this);
+                var pointer = (ulong*)Unsafe.AsPointer(ref this);
                 if (value)
                 {
                     *(pointer + offset) |= mask;
@@ -101,11 +101,11 @@ namespace OpenSage.Mathematics
             }
 
             var offset = bit >> 6; // bit / 64
-            var mask = (ulong) 1 << bit;
+            var mask = (ulong)1 << bit;
 
             unsafe
             {
-                var pointer = (ulong*) Unsafe.AsPointer(ref this);
+                var pointer = (ulong*)Unsafe.AsPointer(ref this);
                 return (pointer[offset] & mask) != 0;
             }
         }
@@ -142,7 +142,7 @@ namespace OpenSage.Mathematics
 
             unsafe
             {
-                var fieldsPointer = (byte*) Unsafe.AsPointer(ref this);
+                var fieldsPointer = (byte*)Unsafe.AsPointer(ref this);
 
                 // Set as many bits at a time as you can.
 
@@ -176,7 +176,7 @@ namespace OpenSage.Mathematics
 
                 // This is a mask consisting of `remainingBits´ ones.
                 var remainingMask = (1 << remainingBits) - 1;
-                *(fieldsPointer + byteOffset) |= (byte) remainingMask;
+                *(fieldsPointer + byteOffset) |= (byte)remainingMask;
             }
 
             _setBits = Length;
@@ -215,7 +215,8 @@ namespace OpenSage.Mathematics
 
         public BitArray512 And(in BitArray512 other)
         {
-            return new BitArray512(Math.Max(Length, other.Length)) {
+            return new BitArray512(Math.Max(Length, other.Length))
+            {
                 _a0 = _a0 & other._a0,
                 _a1 = _a1 & other._a1,
                 _a2 = _a2 & other._a2,
@@ -230,7 +231,8 @@ namespace OpenSage.Mathematics
 
         public BitArray512 Or(in BitArray512 other)
         {
-            return new BitArray512(Math.Max(Length, other.Length)) {
+            return new BitArray512(Math.Max(Length, other.Length))
+            {
                 _a0 = _a0 | other._a0,
                 _a1 = _a1 | other._a1,
                 _a2 = _a2 | other._a2,

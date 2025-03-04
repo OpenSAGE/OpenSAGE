@@ -70,7 +70,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var relPos = GetRelativePosition(mapCache, i);
 
-                var newPos = new Point2D((int) (relPos.X * mapWindow.Width) - 8, (int) ((1.0 - relPos.Y) * mapWindow.Height) - 8);
+                var newPos = new Point2D((int)(relPos.X * mapWindow.Width) - 8, (int)((1.0 - relPos.Y) * mapWindow.Height) - 8);
 
                 startPosCtrl.Bounds = new Rectangle(newPos, new Size(16));
             }

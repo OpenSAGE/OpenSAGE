@@ -234,7 +234,7 @@ namespace OpenSage.Tests.Data.Map
 
                 var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
 
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int)blend.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blend.BlendDirection);
 
@@ -273,7 +273,7 @@ namespace OpenSage.Tests.Data.Map
 
                 var blendDescription = mapFile.BlendTileData.BlendDescriptions[threeWayBlend - 1];
 
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex);
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int)blendDescription.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blendDescription.BlendDirection);
             }
@@ -743,7 +743,7 @@ namespace OpenSage.Tests.Data.Map
             Assert.Equal(393.5f, mapFile.SkyboxSettings.Position.Y);
             Assert.Equal(97.5f, mapFile.SkyboxSettings.Position.Z);
             Assert.Equal(2.5f, mapFile.SkyboxSettings.Scale);
-            Assert.Equal(10.5 * (float) Math.PI / 180, mapFile.SkyboxSettings.Rotation);
+            Assert.Equal(10.5 * (float)Math.PI / 180, mapFile.SkyboxSettings.Rotation);
             Assert.Equal("MountainSnow", mapFile.SkyboxSettings.TextureScheme);
         }
 

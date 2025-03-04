@@ -70,23 +70,23 @@ namespace OpenSage.FileFormats.W3d
 
         internal void WriteTo(BinaryWriter writer)
         {
-            writer.Write((byte) DepthCompare);
-            writer.Write((byte) DepthMask);
+            writer.Write((byte)DepthCompare);
+            writer.Write((byte)DepthMask);
             writer.Write(ColorMask);
-            writer.Write((byte) DestBlend);
+            writer.Write((byte)DestBlend);
             writer.Write(FogFunc);
-            writer.Write((byte) PrimaryGradient);
-            writer.Write((byte) SecondaryGradient);
-            writer.Write((byte) SrcBlend);
-            writer.Write((byte) Texturing);
-            writer.Write((byte) DetailColorFunc);
-            writer.Write((byte) DetailAlphaFunc);
+            writer.Write((byte)PrimaryGradient);
+            writer.Write((byte)SecondaryGradient);
+            writer.Write((byte)SrcBlend);
+            writer.Write((byte)Texturing);
+            writer.Write((byte)DetailColorFunc);
+            writer.Write((byte)DetailAlphaFunc);
             writer.Write(ShaderPreset);
-            writer.Write((byte) AlphaTest);
-            writer.Write((byte) PostDetailColorFunc);
-            writer.Write((byte) PostDetailAlphaFunc);
+            writer.Write((byte)AlphaTest);
+            writer.Write((byte)PostDetailColorFunc);
+            writer.Write((byte)PostDetailAlphaFunc);
 
-            writer.Write((byte) 0); // Padding
+            writer.Write((byte)0); // Padding
         }
     }
 }

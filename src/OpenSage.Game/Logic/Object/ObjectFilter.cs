@@ -99,7 +99,7 @@ namespace OpenSage.Logic.Object
                 if (stringToValueMap.TryGetValue(stringValue, out var enumValue))
                 {
                     var bitArray = isInclude ? result.Include : result.Exclude;
-                    bitArray.Set((ObjectKinds) enumValue, true);
+                    bitArray.Set((ObjectKinds)enumValue, true);
                 }
                 else
                 {
@@ -117,12 +117,12 @@ namespace OpenSage.Logic.Object
         public bool Matches(GameObject gameObject)
         {
             // TODO: should never be null, must be taken from DefaultThings
-            if(gameObject.Definition.KindOf == null)
+            if (gameObject.Definition.KindOf == null)
             {
                 return false;
             }
 
-            if(Exclude.Intersects(gameObject.Definition.KindOf))
+            if (Exclude.Intersects(gameObject.Definition.KindOf))
             {
                 return false;
             }

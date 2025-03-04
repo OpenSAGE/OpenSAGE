@@ -14,7 +14,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 var result = new W3dMorphAnimKeyData
                 {
-                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dMorphAnimKeyData Chunk Structure (Currently Unknown)

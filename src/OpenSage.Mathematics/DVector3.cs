@@ -97,7 +97,7 @@ namespace OpenSage.Mathematics
             {
                 fixed (DVector3* vecAddr = &this)
                 {
-                    return *(Vector3*) vecAddr;
+                    return *(Vector3*)vecAddr;
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace OpenSage.Mathematics
             {
                 fixed (Vector3* vecAddr = &vector)
                 {
-                    return *(DVector3*) vecAddr;
+                    return *(DVector3*)vecAddr;
                 }
             }
         }

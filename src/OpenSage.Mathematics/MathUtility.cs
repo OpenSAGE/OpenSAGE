@@ -10,7 +10,7 @@ namespace OpenSage.Mathematics
         public const float TwoPi = MathF.PI * 2.0f;
         public const float DegreesToRadiansRatio = MathF.PI / 180;
 
-        public static int FloorToInt(float f) => (int) MathF.Floor(f);
+        public static int FloorToInt(float f) => (int)MathF.Floor(f);
 
         public static float Lerp(float x, float y, float s)
         {
@@ -73,7 +73,7 @@ namespace OpenSage.Mathematics
         public static uint GetClosestDivisible(uint value, uint divisor)
         {
             var remainder = value % divisor;
-            if(remainder >= divisor / 2)
+            if (remainder >= divisor / 2)
             {
                 return value + (divisor - remainder);
             }

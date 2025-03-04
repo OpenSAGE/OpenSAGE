@@ -18,5 +18,5 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool CanRespawn { get; private set; }
-     }
+    }
 }

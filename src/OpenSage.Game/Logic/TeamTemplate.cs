@@ -63,7 +63,7 @@ namespace OpenSage.Logic
             reader.PersistBoolean(ref _unknown1);
             reader.PersistObject(_templateData);
 
-            var teamCount = (ushort) _teams.Count;
+            var teamCount = (ushort)_teams.Count;
             reader.PersistUInt16(ref teamCount);
 
             reader.BeginArray("Teams");

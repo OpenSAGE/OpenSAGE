@@ -33,7 +33,7 @@ namespace OpenSage.Gui.Wnd
                     return true;
                 }
 
-                controlRelativePosition = Point2D.Zero;;
+                controlRelativePosition = Point2D.Zero; ;
                 return false;
             }
 
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Wnd
                 case InputMessageType.MouseMove:
                     {
                         var mouseOverControls = _windowManager.GetControlsAtPoint(message.Value.MousePosition).ToList();
-                        if(mouseOverControls.Count > 0)
+                        if (mouseOverControls.Count > 0)
                         {
                             _game.Cursors.SetCursor("Arrow", _game.CurrentGameTime);
                             _game.Cursors.IsCursorLocked = true;
@@ -155,7 +155,7 @@ namespace OpenSage.Gui.Wnd
                 case InputMessageType.KeyDown:
                     {
                         var control = _windowManager.FocussedControl;
-                        if(control != null)
+                        if (control != null)
                         {
                             control?.InputCallback.Invoke(
                                 control,

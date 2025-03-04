@@ -331,11 +331,11 @@ namespace OpenSage.Data.Map
 
                 writer.Write(TextureCellCount);
 
-                writer.Write((uint) BlendDescriptions.Length + 1);
+                writer.Write((uint)BlendDescriptions.Length + 1);
 
                 writer.Write(ParsedCliffTextureMappingsCount);
 
-                writer.Write((uint) Textures.Length);
+                writer.Write((uint)Textures.Length);
 
                 foreach (var texture in Textures)
                 {

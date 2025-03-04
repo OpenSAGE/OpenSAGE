@@ -142,8 +142,8 @@ namespace OpenSage.Logic.Object
         private enum ToppleState
         {
             NotToppled = 0,
-            Toppling   = 1,
-            Toppled    = 2,
+            Toppling = 1,
+            Toppled = 2,
         }
     }
 

@@ -477,7 +477,7 @@ namespace OpenSage.Gui.InGame
     {
         internal static RadiusCursor Parse(IniParser parser)
         {
-            return  new RadiusCursor
+            return new RadiusCursor
             {
                 Name = parser.ParseString(),
                 DecalTemplate = RadiusDecalTemplate.Parse(parser)

@@ -18,7 +18,7 @@ namespace OpenSage.Data.Map
                 {
                     values[i] = reader.ReadUInt16PrefixedAsciiString();
                 }
-                
+
                 return new LibraryMaps
                 {
                     Values = values
@@ -30,7 +30,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Values.Length);
+                writer.Write((uint)Values.Length);
 
                 foreach (var value in Values)
                 {

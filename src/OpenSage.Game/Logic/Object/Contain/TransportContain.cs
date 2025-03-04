@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
         private LogicFrame _nextEvacAllowedAfter; // unsure if this is correct, but seems plausible from testing?
 
-        internal TransportContain(GameObject gameObject, GameContext gameContext, TransportContainModuleData moduleData): base(gameObject, gameContext, moduleData)
+        internal TransportContain(GameObject gameObject, GameContext gameContext, TransportContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
         {
             _moduleData = moduleData;
 

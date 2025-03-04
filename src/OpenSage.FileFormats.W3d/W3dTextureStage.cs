@@ -13,14 +13,14 @@ namespace OpenSage.FileFormats.W3d
             {
                 var textureId = r.ReadInt32();
                 return textureId != -1
-                    ? (uint) textureId
-                    : (uint?) null;
+                    ? (uint)textureId
+                    : (uint?)null;
             });
         }
 
         protected override void WriteItem(BinaryWriter writer, uint? item)
         {
-            writer.Write(item != null ? (int) item.Value : -1);
+            writer.Write(item != null ? (int)item.Value : -1);
         }
     }
 

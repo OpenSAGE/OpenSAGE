@@ -20,7 +20,7 @@ namespace OpenSage
         internal BaseAsset DeepClone()
         {
             // TODO: Deep-clone asset so that it can be overridden.
-            return (BaseAsset) MemberwiseClone();
+            return (BaseAsset)MemberwiseClone();
         }
     }
 }

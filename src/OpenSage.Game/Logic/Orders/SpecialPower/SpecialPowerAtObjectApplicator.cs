@@ -23,7 +23,7 @@ internal abstract class SpecialPowerAtObjectApplicator
 {
     internal static void Execute(SpecialPowerType specialPower, in ObjectArguments arguments, IReadOnlyCollection<GameObject> selectedObjects)
     {
-        Action<ObjectArguments, IReadOnlyCollection<GameObject>> executor =  specialPower switch
+        Action<ObjectArguments, IReadOnlyCollection<GameObject>> executor = specialPower switch
         {
             SpecialPowerType.CashHack => ExecuteCashHack,
             SpecialPowerType.MissileDefenderLaserGuidedMissiles => throw new NotImplementedException(),

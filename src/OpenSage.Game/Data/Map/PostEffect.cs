@@ -51,7 +51,7 @@ namespace OpenSage.Data.Map
 
             if (version >= 2)
             {
-                writer.Write((uint) Parameters.Length);
+                writer.Write((uint)Parameters.Length);
                 foreach (var parameter in Parameters)
                 {
                     parameter.WriteTo(writer);
@@ -113,19 +113,19 @@ namespace OpenSage.Data.Map
             switch (Type)
             {
                 case "Float":
-                    writer.Write((float) Data);
+                    writer.Write((float)Data);
                     break;
 
                 case "Float4":
-                    writer.Write((Vector4) Data);
+                    writer.Write((Vector4)Data);
                     break;
 
                 case "Int":
-                    writer.Write((int) Data);
+                    writer.Write((int)Data);
                     break;
 
                 case "Texture":
-                    writer.WriteUInt16PrefixedAsciiString((string) Data);
+                    writer.WriteUInt16PrefixedAsciiString((string)Data);
                     break;
 
                 default:

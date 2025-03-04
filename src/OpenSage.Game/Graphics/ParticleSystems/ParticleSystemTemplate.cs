@@ -226,7 +226,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 {
                     case ParticleVolumeType.None:
                         return null;
-                        
+
                     case ParticleVolumeType.Point:
                         return new FXParticleEmissionVolumePoint
                         {
@@ -240,7 +240,7 @@ namespace OpenSage.Graphics.ParticleSystems
                             EndPoint = VolLineEnd,
                             IsHollow = IsHollow
                         };
-                        
+
                     case ParticleVolumeType.Cylinder:
                         return new FXParticleEmissionVolumeCylinder
                         {
@@ -248,14 +248,14 @@ namespace OpenSage.Graphics.ParticleSystems
                             Length = VolCylinderLength,
                             IsHollow = IsHollow
                         };
-                        
+
                     case ParticleVolumeType.Sphere:
                         return new FXParticleEmissionVolumeSphere
                         {
                             Radius = VolSphereRadius,
                             IsHollow = IsHollow
                         };
-                        
+
                     case ParticleVolumeType.Box:
                         return new FXParticleEmissionVolumeBox
                         {
@@ -337,7 +337,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     WindZeroStrengthDist = WindZeroStrengthDist
                 },
                 EmissionVelocity = GetEmissionVelocity(),
-                EmissionVolume = GetEmissionVolume(),  
+                EmissionVolume = GetEmissionVolume(),
             };
         }
 

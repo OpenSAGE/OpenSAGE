@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
-using System.IO;
+using OpenSage.Gui.ControlBar;
 
 namespace OpenSage.Mods.Bfme2
 {

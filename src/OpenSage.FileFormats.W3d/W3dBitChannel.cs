@@ -35,7 +35,7 @@ namespace OpenSage.FileFormats.W3d
                 };
 
                 var numElements = result.LastFrame - result.FirstFrame + 1;
-                result.Data = reader.ReadSingleBitBooleanArray((uint) numElements);
+                result.Data = reader.ReadSingleBitBooleanArray((uint)numElements);
 
                 return result;
             });
@@ -45,7 +45,7 @@ namespace OpenSage.FileFormats.W3d
         {
             writer.Write(FirstFrame);
             writer.Write(LastFrame);
-            writer.Write((ushort) ChannelType);
+            writer.Write((ushort)ChannelType);
             writer.Write(Pivot);
             writer.Write(DefaultValue);
             writer.WriteSingleBitBooleanArray(Data);

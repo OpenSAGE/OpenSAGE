@@ -1,5 +1,5 @@
-﻿using OpenSage.Data.Ini;
-using FixedMath.NET;
+﻿using FixedMath.NET;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object
 {
@@ -18,17 +18,17 @@ namespace OpenSage.Logic.Object
             switch (_moduleData.ChangeType)
             {
                 case MaxHealthChangeType.PreserveRatio:
-                    _gameObject.Health += _gameObject.HealthPercentage * (Fix64) _moduleData.AddMaxHealth;
+                    _gameObject.Health += _gameObject.HealthPercentage * (Fix64)_moduleData.AddMaxHealth;
                     break;
                 case MaxHealthChangeType.AddCurrentHealthToo:
-                    _gameObject.Health += (Fix64) _moduleData.AddMaxHealth;
+                    _gameObject.Health += (Fix64)_moduleData.AddMaxHealth;
                     break;
                 case MaxHealthChangeType.SameCurrentHealth:
                     // Don't add any new health
                     break;
             }
 
-            _gameObject.MaxHealth += (Fix64) _moduleData.AddMaxHealth;
+            _gameObject.MaxHealth += (Fix64)_moduleData.AddMaxHealth;
         }
 
         internal override void Load(StatePersister reader)

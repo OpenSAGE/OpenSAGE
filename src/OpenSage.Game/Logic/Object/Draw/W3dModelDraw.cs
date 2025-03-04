@@ -111,10 +111,10 @@ namespace OpenSage.Logic.Object
             return false;
 
             //return _activeConditionState != null;
-                // TODO
-                //&& animationState.WaitForStateToFinishIfPossible != null
-                //&& _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible
-                //&& (_activeModelDrawConditionState?.StillActive() ?? false);
+            // TODO
+            //&& animationState.WaitForStateToFinishIfPossible != null
+            //&& _activeConditionState.TransitionKey == conditionState.WaitForStateToFinishIfPossible
+            //&& (_activeModelDrawConditionState?.StillActive() ?? false);
         }
 
         protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)

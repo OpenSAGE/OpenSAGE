@@ -44,9 +44,9 @@ namespace OpenSage.Scripting
         internal static ScriptArgument Parse(BinaryReader reader)
         {
             // TODO: Need to make game-specific ScriptArgumentType enums.
-            var argumentType = (ScriptArgumentType) reader.ReadUInt32();
+            var argumentType = (ScriptArgumentType)reader.ReadUInt32();
             //var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();
-            
+
             int? uintValue = null;
             float? floatValue = null;
             string stringValue = null;
@@ -77,7 +77,7 @@ namespace OpenSage.Scripting
 
         internal void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) ArgumentType);
+            writer.Write((uint)ArgumentType);
 
             if (ArgumentType == ScriptArgumentType.PositionCoordinate)
             {

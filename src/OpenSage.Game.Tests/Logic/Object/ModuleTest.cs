@@ -8,6 +8,6 @@ public abstract class ModuleTest : StatePersisterTest
 
     protected override MemoryStream SaveData(byte[] data, byte version = V1)
     {
-        return new MemoryStream([version, .. ModuleData(), ..data]);
+        return new MemoryStream([version, .. ModuleData(), .. data]);
     }
 }

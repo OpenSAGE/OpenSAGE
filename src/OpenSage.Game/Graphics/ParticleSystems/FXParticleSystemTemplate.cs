@@ -250,7 +250,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         [AddedIn(SageGame.Bfme2)]
         public RandomVariable AngularDampingXY { get; private set; }
-        
+
     }
 
     [AddedIn(SageGame.Bfme)]

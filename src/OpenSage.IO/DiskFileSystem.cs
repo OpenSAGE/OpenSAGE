@@ -57,7 +57,7 @@
             return new FileSystemEntry(
                 this,
                 relativePath,
-                (uint) fileInfo.Length,
+                (uint)fileInfo.Length,
                 () => File.OpenRead(fullPath));
         }
 

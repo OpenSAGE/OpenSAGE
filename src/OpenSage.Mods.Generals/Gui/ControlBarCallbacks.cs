@@ -25,16 +25,19 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "ControlBar.wnd:ButtonLarge":
-                            ((GeneralsControlBar) context.Game.Scene2D.ControlBar).ToggleSize();
+                            ((GeneralsControlBar)context.Game.Scene2D.ControlBar).ToggleSize();
                             break;
                         case "ControlBar.wnd:ButtonOptions":
                             context.WindowManager.PushWindow(Path.Combine("Menus", "QuitMenu.wnd"));
                             break;
                         case "ControlBar.wnd:ButtonGeneral":
-                            if (context.WindowManager.TopWindow?.Name == GeneralsExpPointsWnd) {
+                            if (context.WindowManager.TopWindow?.Name == GeneralsExpPointsWnd)
+                            {
                                 GeneralsExpPointsCallbacks.SetWindow(null);
                                 context.WindowManager.PopWindow();
-                            } else {
+                            }
+                            else
+                            {
                                 var window = context.WindowManager.PushWindow(GeneralsExpPointsWnd);
                                 window.Name = GeneralsExpPointsWnd;
                                 GeneralsExpPointsCallbacks.SetWindow(window);

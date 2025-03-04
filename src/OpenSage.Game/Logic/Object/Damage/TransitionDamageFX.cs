@@ -209,7 +209,7 @@ namespace OpenSage.Logic.Object
         }
 
         public Vector3 Offset { get; private set; }
-        public List<string> SubObjects { get; }= new List<string>();
+        public List<string> SubObjects { get; } = new List<string>();
         public string OCL { get; private set; }
     }
 }

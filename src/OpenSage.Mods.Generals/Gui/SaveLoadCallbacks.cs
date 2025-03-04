@@ -15,7 +15,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SaveLoadMenuFullScreenInit(Window window, Game game)
         {
-            var listBox = (ListBox) window.Controls.FindControl("SaveLoad.wnd:ListboxGames");
+            var listBox = (ListBox)window.Controls.FindControl("SaveLoad.wnd:ListboxGames");
 
             using (var fileSystem = GetSavesFileSystem(game))
             {
@@ -55,10 +55,10 @@ namespace OpenSage.Mods.Generals.Gui
                         case "SaveLoad.wnd:ButtonLoad":
                             // TODO: Handle no selected item.
 
-                            var listBox = (ListBox) control.Window.Controls.FindControl("SaveLoad.wnd:ListboxGames");
+                            var listBox = (ListBox)control.Window.Controls.FindControl("SaveLoad.wnd:ListboxGames");
                             using (var fileSystem = GetSavesFileSystem(context.Game))
                             {
-                                var saveFileEntry = fileSystem.GetFile((string) listBox.Items[listBox.SelectedIndex].DataItem);
+                                var saveFileEntry = fileSystem.GetFile((string)listBox.Items[listBox.SelectedIndex].DataItem);
 
                                 context.Game.Scene2D.WndWindowManager.PopWindow();
 

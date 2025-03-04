@@ -20,7 +20,7 @@ namespace OpenSage.Input
                     return (char)('0' + (k - Key.Number0));
                 default:
                     return '\0';
-            }      
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ namespace OpenSage.Diagnostics
             var currentSize = ImGui.GetContentRegionAvail();
             if (geometryChanged || _cachedSize != currentSize)
             {
-                var newSize = new Size((int) currentSize.X, (int) currentSize.Y);
+                var newSize = new Size((int)currentSize.X, (int)currentSize.Y);
 
                 _shapeRenderer.Update(
                     Context.Game.GraphicsDevice,

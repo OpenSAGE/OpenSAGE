@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt
         private readonly SortedDictionary<int, DisplayItem> _reverseItems;
 
         public IReadOnlyDictionary<int, DisplayItem> Items => _items;
-        public IReadOnlyDictionary<int, DisplayItem> ReverseItems => _reverseItems; 
+        public IReadOnlyDictionary<int, DisplayItem> ReverseItems => _reverseItems;
 
         class DescendingComparer<T> : IComparer<T> where T : IComparable<T>
         {

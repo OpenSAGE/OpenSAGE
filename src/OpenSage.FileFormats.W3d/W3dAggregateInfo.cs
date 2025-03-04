@@ -37,7 +37,7 @@ namespace OpenSage.FileFormats.W3d
         {
             writer.WriteFixedLengthString(BaseModelName, W3dConstants.NameLength * 2);
             writer.Write(SubObjectCount);
-            foreach(var subObject in SubObjects)
+            foreach (var subObject in SubObjects)
             {
                 subObject.WriteTo(writer);
             }

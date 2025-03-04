@@ -39,9 +39,9 @@ namespace OpenSage.Data.Map
             }
             else
             {
-                writer.Write((int) Position.X);
-                writer.Write((int) Position.Y);
-                writer.Write((int) Position.Z);
+                writer.Write((int)Position.X);
+                writer.Write((int)Position.Y);
+                writer.Write((int)Position.Z);
             }
         }
     }

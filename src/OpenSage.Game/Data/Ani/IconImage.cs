@@ -24,12 +24,12 @@ namespace OpenSage.Data.Ani
             {
                 case 4:
                 case 8:
-                    numColorTableEntries = (int) MathF.Pow(2, infoHeader.BitCount);
+                    numColorTableEntries = (int)MathF.Pow(2, infoHeader.BitCount);
                     break;
 
                 case 24:
                 case 32:
-                    numColorTableEntries = (int) infoHeader.ColorsUsed;
+                    numColorTableEntries = (int)infoHeader.ColorsUsed;
                     break;
 
                 default:
@@ -102,7 +102,7 @@ namespace OpenSage.Data.Ani
 
                     var isTransparent = AndMask.Pixels[andMaskIndex++] == 1;
 
-                    pixels[dstIndex++] = isTransparent ? (byte) 0 : (byte) alpha;
+                    pixels[dstIndex++] = isTransparent ? (byte)0 : (byte)alpha;
                 }
             }
 

@@ -294,8 +294,8 @@ namespace OpenSage.Logic.Object
                     var deltaX = normal.X;
                     var deltaY = normal.Y;
 
-                    worldPitch = (float) Math.Asin(deltaX);
-                    worldRoll = (float) Math.Asin(deltaY);
+                    worldPitch = (float)Math.Asin(deltaX);
+                    worldRoll = (float)Math.Asin(deltaY);
                     break;
             }
 

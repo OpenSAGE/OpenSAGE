@@ -26,7 +26,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void OptionsMenuInit(Window window, Game game)
         {
-            var comboBoxIP = (ComboBox) window.Controls.FindControl(ComboBoxIPPrefix);
+            var comboBoxIP = (ComboBox)window.Controls.FindControl(ComboBoxIPPrefix);
             var items = new List<ListBoxDataItem>();
 
             comboBoxIP.Items = items.ToArray();

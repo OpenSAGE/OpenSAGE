@@ -17,7 +17,7 @@ namespace OpenSage.Data.Map
         private static readonly TimeOfDay[] TimeOfDayValues = Enum.GetValues(typeof(TimeOfDay)).Cast<TimeOfDay>().ToArray();
 
         public TimeOfDay Time { get; private set; }
-        
+
         public Dictionary<TimeOfDay, GlobalLightingConfiguration> LightingConfigurations { get; private set; }
 
         public MapColorArgb ShadowColor { get; private set; }
@@ -85,7 +85,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Time);
+                writer.Write((uint)Time);
 
                 for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {

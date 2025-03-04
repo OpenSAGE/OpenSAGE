@@ -28,7 +28,7 @@ namespace OpenSage.Data.Tga
             {
                 IdLength = idLength,
                 HasColorMap = reader.ReadByte() == 1,
-                ImageType = (TgaImageType) reader.ReadByte(),
+                ImageType = (TgaImageType)reader.ReadByte(),
                 ColorMapOrigin = reader.ReadInt16(),
                 ColorMapLength = reader.ReadInt16(),
                 ColorMapEntrySize = reader.ReadByte(),

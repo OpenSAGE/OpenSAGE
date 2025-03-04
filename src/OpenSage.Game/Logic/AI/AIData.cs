@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
 using System.Numerics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.AI
 {

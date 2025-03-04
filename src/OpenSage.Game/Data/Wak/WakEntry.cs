@@ -32,7 +32,7 @@ namespace OpenSage.Data.Wak
             writer.Write(EndX);
             writer.Write(EndY);
 
-            writer.Write((uint) WaveType);
+            writer.Write((uint)WaveType);
         }
     }
 }

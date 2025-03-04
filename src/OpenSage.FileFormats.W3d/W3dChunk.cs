@@ -36,7 +36,7 @@ namespace OpenSage.FileFormats.W3d
 
         public abstract W3dChunkType ChunkType { get; }
 
-        public virtual bool HasSubChunks{ get; } = false;
+        public virtual bool HasSubChunks { get; } = false;
 
         public virtual IEnumerable<W3dChunk> GetSubChunks()
         {
@@ -49,7 +49,7 @@ namespace OpenSage.FileFormats.W3d
 
         internal void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) ChunkType);
+            writer.Write((uint)ChunkType);
 
             var headerPosition = writer.BaseStream.Position;
 
@@ -65,7 +65,7 @@ namespace OpenSage.FileFormats.W3d
             var dataSize = endPosition - startPosition;
 
             // Back up and write header.
-            var header = new W3dChunkHeader((uint) dataSize, HasSubChunks);
+            var header = new W3dChunkHeader((uint)dataSize, HasSubChunks);
 
             writer.BaseStream.Position = headerPosition;
             header.WriteTo(writer);
@@ -200,7 +200,7 @@ namespace OpenSage.FileFormats.W3d
 
                     result.Items.Add(parseItem(reader, context));
                 });
-                
+
                 return result;
             });
         }

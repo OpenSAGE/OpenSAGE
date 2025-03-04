@@ -38,7 +38,7 @@ namespace OpenSage.Scripting
                 var result = new TDerived();
 
                 // TODO: Need to make game-specific TContentType enums.
-                result.ContentType = (TContentType) (object) reader.ReadUInt32();
+                result.ContentType = (TContentType)(object)reader.ReadUInt32();
                 //result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
 
                 if (version >= minimumVersionThatHasInternalName)
@@ -75,14 +75,14 @@ namespace OpenSage.Scripting
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) (object) ContentType);
+                writer.Write((uint)(object)ContentType);
 
                 if (Version >= minimumVersionThatHasInternalName)
                 {
                     InternalName.WriteTo(writer, assetNames);
                 }
 
-                writer.Write((uint) Arguments.Length);
+                writer.Write((uint)Arguments.Length);
 
                 foreach (var argument in Arguments)
                 {

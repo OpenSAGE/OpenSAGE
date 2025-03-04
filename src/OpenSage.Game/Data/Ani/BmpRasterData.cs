@@ -70,7 +70,7 @@ namespace OpenSage.Data.Ani
                                 var shift = 8 - ((i + 1) * bitsPerPixel);
 
                                 // Invert y, because DIB data is stored bottom-to-top.
-                                pixels[((height - 1 - y) * width) + x + i] = (byte) ((byteValue >> shift) & bitMask);
+                                pixels[((height - 1 - y) * width) + x + i] = (byte)((byteValue >> shift) & bitMask);
                             }
                             readBytes++;
                         }

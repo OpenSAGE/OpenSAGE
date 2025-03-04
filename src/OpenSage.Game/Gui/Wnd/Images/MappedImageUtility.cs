@@ -22,12 +22,12 @@ namespace OpenSage.Gui.Wnd.Images
             var src = mappedImage.Coords;
 
             var left = (uint)src.Left;
-            var top = (uint)src.Top;    
-            var width = (uint) src.Width;
-            var height = (uint) src.Height;
+            var top = (uint)src.Top;
+            var width = (uint)src.Width;
+            var height = (uint)src.Height;
 
             var format = mappedImage.Texture.Value.Texture.Format;
-            if(format.IsBlockCompressed())
+            if (format.IsBlockCompressed())
             {
                 var blockDivisor = format.GetBlockDivisor();
 
@@ -79,8 +79,8 @@ namespace OpenSage.Gui.Wnd.Images
 
             var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
-                    (uint) size.Width,
-                    (uint) size.Height,
+                    (uint)size.Width,
+                    (uint)size.Height,
                     1,
                     1,
                     PixelFormat.R8_G8_B8_A8_UNorm,

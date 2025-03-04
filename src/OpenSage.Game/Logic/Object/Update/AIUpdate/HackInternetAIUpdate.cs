@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Numerics;
 using OpenSage.Audio;
@@ -66,7 +66,7 @@ namespace OpenSage.Logic.Object
                 case HackInternetState:
                     StateMachine.SetState(StopHackingInternetState.StateId);
                     break;
-                // If we're in StopHackingInternetState, we need to see that through
+                    // If we're in StopHackingInternetState, we need to see that through
             }
 
             base.Stop();

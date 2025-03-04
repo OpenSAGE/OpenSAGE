@@ -149,7 +149,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 return new W3dEmitterExtraInfo
                 {
-                    Unknown = reader.ReadBytes((int) header.ChunkSize)
+                    Unknown = reader.ReadBytes((int)header.ChunkSize)
                 };
             });
         }

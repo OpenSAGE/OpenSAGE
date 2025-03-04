@@ -69,7 +69,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
                 }
 
                 // Render the meshes to each cascade.
-                var numCascades = (int) settings.ShadowMapCascades;
+                var numCascades = (int)settings.ShadowMapCascades;
                 for (var cascadeIdx = 0; cascadeIdx < numCascades; cascadeIdx++)
                 {
                     // Get the 8 points of the view frustum in world space
@@ -146,7 +146,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
                         // Adjust the min/max to accommodate the filtering size
                         var kernelSize = GetFixedFilterKernelSize(settings.ShadowsType);
-                        var scale = (shadowData.ShadowMapSize + kernelSize) / (float) shadowData.ShadowMapSize;
+                        var scale = (shadowData.ShadowMapSize + kernelSize) / (float)shadowData.ShadowMapSize;
                         minExtents.X *= scale;
                         minExtents.Y *= scale;
                         maxExtents.X *= scale;

@@ -204,10 +204,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                     Item.Visible = val.ToBoolean();
                     break;
                 case PropertyType.XScale:
-                    Item.Transform.Scale((float) val.ToFloat(), 0.0f);
+                    Item.Transform.Scale((float)val.ToFloat(), 0.0f);
                     break;
                 case PropertyType.YScale:
-                    Item.Transform.Scale(0.0f, (float) val.ToFloat());
+                    Item.Transform.Scale(0.0f, (float)val.ToFloat());
                     break;
                 default:
                     throw new NotImplementedException();

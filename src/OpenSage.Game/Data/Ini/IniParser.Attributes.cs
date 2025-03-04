@@ -35,7 +35,7 @@ namespace OpenSage.Data.Ini
                     _currentBlockOrFieldStack.Push(fieldName);
 
                     fieldParser(this, result);
-                        
+
                     _currentBlockOrFieldStack.Pop();
                 }
                 else

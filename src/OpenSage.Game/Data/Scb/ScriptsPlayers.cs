@@ -47,7 +47,7 @@ namespace OpenSage.Data.Scb
                     writer.WriteBooleanUInt32(HasPlayerProperties);
                 }
 
-                writer.Write((uint) Players.Length);
+                writer.Write((uint)Players.Length);
 
                 foreach (var player in Players)
                 {

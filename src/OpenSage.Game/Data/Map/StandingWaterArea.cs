@@ -61,7 +61,7 @@ namespace OpenSage.Data.Map
             writer.WriteUInt16PrefixedAsciiString(BumpMapTexture);
             writer.WriteUInt16PrefixedAsciiString(SkyTexture);
 
-            writer.Write((uint) Points.Length);
+            writer.Write((uint)Points.Length);
             foreach (var point in Points)
             {
                 writer.Write(point);

@@ -7,9 +7,9 @@ namespace OpenSage.Logic.AI
     {
         internal static AIBase Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("AIBase", name),
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.SetNameAndInstanceId("AIBase", name),
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<AIBase> FieldParseTable = new IniParseTable<AIBase>

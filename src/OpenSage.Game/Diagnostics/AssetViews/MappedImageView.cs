@@ -31,7 +31,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
             var size = SizeF.CalculateSizeFittingAspectRatio(
                 new SizeF(_texture.Width, _texture.Height),
-                new Size((int) availableSize.X, (int) availableSize.Y));
+                new Size((int)availableSize.X, (int)availableSize.Y));
 
             ImGui.Image(
                 imagePointer,

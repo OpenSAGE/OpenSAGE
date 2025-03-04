@@ -28,18 +28,18 @@ namespace OpenSage.Logic.Object
     [Flags]
     public enum ModuleKinds
     {
-        None         = 0x0,
-        Body         = 0x1,
+        None = 0x0,
+        Body = 0x1,
         ClientUpdate = 0x2,
-        Collide      = 0x4,
-        Contain      = 0x8,
-        Create       = 0x10,
-        Damage       = 0x20,
-        Die          = 0x40,
-        Draw         = 0x80,
+        Collide = 0x4,
+        Contain = 0x8,
+        Create = 0x10,
+        Damage = 0x20,
+        Die = 0x40,
+        Draw = 0x80,
         SpecialPower = 0x100,
-        Update       = 0x200,
-        Upgrade      = 0x400,
+        Update = 0x200,
+        Upgrade = 0x400,
     }
 
     public readonly struct ModuleDataContainer

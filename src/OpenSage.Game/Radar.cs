@@ -132,7 +132,7 @@ namespace OpenSage
         {
             reader.PersistVersion(1);
 
-            var count = (ushort) Count;
+            var count = (ushort)Count;
             reader.PersistUInt16(ref count);
 
             reader.BeginArray("Items");

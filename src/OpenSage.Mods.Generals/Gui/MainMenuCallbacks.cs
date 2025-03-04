@@ -75,7 +75,7 @@ namespace OpenSage.Mods.Generals.Gui
                 _currentSide = side;
                 _currentSideWindowSuffix = sideWindowSuffix;
 
-                var selectDifficultyLabel = (Label) control.Window.Controls.FindControl("MainMenu.wnd:StaticTextSelectDifficulty");
+                var selectDifficultyLabel = (Label)control.Window.Controls.FindControl("MainMenu.wnd:StaticTextSelectDifficulty");
                 // TODO: This should be animated as part of the transition.
                 selectDifficultyLabel.Opacity = 1;
                 selectDifficultyLabel.TextOpacity = 1;
@@ -184,7 +184,7 @@ namespace OpenSage.Mods.Generals.Gui
                         case "MainMenu.wnd:ButtonExit":
                             var exitWindow = context.WindowManager.PushWindow(@"Menus\QuitMessageBox.wnd");
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle").Text = "GUI:QuitPopupTitle".Translate();
-                            ((Label) exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
+                            ((Label)exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextMessage").Text = "GUI:QuitPopupMessage".Translate();
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Show();
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Text = "GUI:Yes".Translate();

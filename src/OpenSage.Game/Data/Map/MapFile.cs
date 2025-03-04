@@ -2,9 +2,9 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using OpenSage.FileFormats.RefPack;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.FileFormats.RefPack;
 using OpenSage.IO;
 
 namespace OpenSage.Data.Map
@@ -131,7 +131,7 @@ namespace OpenSage.Data.Map
                     // DeflateStream doesn't support .Position or .Length, so to simplify
                     // the rest of the map loading process, we decompress it to a MemoryStream
                     // here. Not optimal, but only used on one 187kb map so it doesn't matter.
-                    var result = new MemoryStream((int) decompressedSize);
+                    var result = new MemoryStream((int)decompressedSize);
                     using (var deflateStream = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
                     {
                         deflateStream.CopyTo(result);

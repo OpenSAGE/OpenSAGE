@@ -54,7 +54,7 @@ namespace OpenSage.Data.Map
                 }
                 else
                 {
-                    var timestamp = DateTime.FromFileTime((((long) mapCache.TimestampHi) << 32) | (uint) mapCache.TimestampLo);
+                    var timestamp = DateTime.FromFileTime((((long)mapCache.TimestampHi) << 32) | (uint)mapCache.TimestampLo);
 
                     // TODO: Should we check the CRC here as well?
                     // If yes, which implementation should we use?
@@ -92,7 +92,7 @@ namespace OpenSage.Data.Map
             mapCacheIniEntry = new FileSystemEntry(
                 _contentManager.UserDataFileSystem,
                 MapCacheIniPath,
-                (uint) new FileInfo(fullMapCacheIniPath).Length,
+                (uint)new FileInfo(fullMapCacheIniPath).Length,
                 () => File.OpenRead(fullMapCacheIniPath));
 
             //_contentManager.UserDataFileSystem.Update(mapCacheIniEntry);
@@ -113,9 +113,9 @@ namespace OpenSage.Data.Map
 
             var mapCache = new MapCache()
             {
-                FileSize = (int) fileInfo.Length,
-                TimestampLo = (int) timestamp,
-                TimestampHi = (int) (timestamp >> 32),
+                FileSize = (int)fileInfo.Length,
+                TimestampLo = (int)timestamp,
+                TimestampHi = (int)(timestamp >> 32),
                 IsOfficial = false,
                 NameLookupTag = null
             };
@@ -135,7 +135,7 @@ namespace OpenSage.Data.Map
                     // handle special waypoints
                     if (mapObject.TypeName == Waypoint.ObjectTypeName)
                     {
-                        var waypointName = (string) mapObject.Properties["waypointName"].Value;
+                        var waypointName = (string)mapObject.Properties["waypointName"].Value;
                         switch (waypointName)
                         {
                             case "InitialCameraPosition":
@@ -292,7 +292,7 @@ namespace OpenSage.Data.Map
                                 break;
                             default:
                                 writer.Write('_');
-                                writer.Write(((short) path[i]).ToString("X2"));
+                                writer.Write(((short)path[i]).ToString("X2"));
                                 break;
                         }
                     }

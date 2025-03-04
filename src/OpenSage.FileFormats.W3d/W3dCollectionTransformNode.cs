@@ -14,7 +14,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 var result = new W3dCollectionTransformNode
                 {
-                    Name = reader.ReadFixedLengthString((int) header.ChunkSize),
+                    Name = reader.ReadFixedLengthString((int)header.ChunkSize),
                 };
 
                 return result;

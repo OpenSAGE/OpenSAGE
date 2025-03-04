@@ -12,7 +12,7 @@ namespace OpenSage.Audio
                 (x, name) =>
                 {
                     x.SetNameAndInstanceId("AudioLOD", name);
-                    x.Level = (AudioLodType) Enum.Parse(typeof(AudioLodType), name);
+                    x.Level = (AudioLodType)Enum.Parse(typeof(AudioLodType), name);
                 },
                 FieldParseTable);
         }

@@ -6,8 +6,8 @@ namespace OpenSage.FileFormats.Big
 {
     public enum BigArchiveMode
     {
-        Read    = 0,
-        Create  = 1,
-        Update  = 2
+        Read = 0,
+        Create = 1,
+        Update = 2
     }
 }

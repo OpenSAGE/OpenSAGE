@@ -44,9 +44,9 @@ namespace OpenSage.Data.Apt.Characters
                 Characters = new List<Character>(),
                 Imports = new List<Import>(),
                 Exports = new List<Export>(),
-                ScreenWidth = (uint) width,
-                ScreenHeight = (uint) height,
-                MillisecondsPerFrame = (uint) millisecondsPerFrame
+                ScreenWidth = (uint)width,
+                ScreenHeight = (uint)height,
+                MillisecondsPerFrame = (uint)millisecondsPerFrame
             };
             movie.Characters.Add(movie);
             movie.Container = container;

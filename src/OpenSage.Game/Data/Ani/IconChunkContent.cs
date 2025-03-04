@@ -36,13 +36,13 @@ namespace OpenSage.Data.Ani
             var currentPosition = reader.BaseStream.Position;
             var startingOffset = currentPosition - startPosition;
 
-            var rasterDataBytes = reader.ReadBytes((int) (endPosition - currentPosition));
+            var rasterDataBytes = reader.ReadBytes((int)(endPosition - currentPosition));
 
             var images = new IconImage[numImages];
 
             for (var i = 0; i < numImages; i++)
             {
-                using (var rasterDataStream = new MemoryStream(rasterDataBytes, (int) (iconDirEntries[i].DataOffset - startingOffset), (int) iconDirEntries[i].DataSize))
+                using (var rasterDataStream = new MemoryStream(rasterDataBytes, (int)(iconDirEntries[i].DataOffset - startingOffset), (int)iconDirEntries[i].DataSize))
                 using (var rasterDataReader = new BinaryReader(rasterDataStream, Encoding.ASCII, true))
                 {
                     images[i] = IconImage.Parse(rasterDataReader);

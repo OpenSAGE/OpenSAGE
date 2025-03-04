@@ -64,18 +64,18 @@ namespace OpenSage.Tests.Data.W3d
                         continue;
                     }
 
-                    Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Items.Length);
+                    Assert.Equal((int)mesh.Header.NumVertices, mesh.Vertices.Items.Length);
 
-                    Assert.Equal((int) mesh.Header.NumTris, mesh.Triangles.Items.Length);
+                    Assert.Equal((int)mesh.Header.NumTris, mesh.Triangles.Items.Length);
 
                     if (mesh.Influences != null)
                     {
                         Assert.Equal(mesh.Vertices.Items.Length, mesh.Influences.Items.Length);
                     }
 
-                    Assert.Equal((int) mesh.MaterialInfo.PassCount, mesh.MaterialPasses.Count);
+                    Assert.Equal((int)mesh.MaterialInfo.PassCount, mesh.MaterialPasses.Count);
 
-                    Assert.Equal((int) mesh.MaterialInfo.ShaderCount, mesh.Shaders?.Items.Count ?? 0);
+                    Assert.Equal((int)mesh.MaterialInfo.ShaderCount, mesh.Shaders?.Items.Count ?? 0);
 
                     Assert.Equal(mesh.Vertices.Items.Length, mesh.ShadeIndices.Items.Length);
 
@@ -161,7 +161,7 @@ namespace OpenSage.Tests.Data.W3d
         public void LoadW3dFromBigFile()
         {
             var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
-        
+
             using (var bigArchive = new BigArchive(bigFilePath))
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");

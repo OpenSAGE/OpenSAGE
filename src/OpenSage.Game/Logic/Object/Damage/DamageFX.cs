@@ -68,7 +68,7 @@ namespace OpenSage.Logic.Object
             else
             {
                 var damageType = IniParser.ParseEnum<DamageType>(damageTypeString);
-                callback(Groups[(int) damageType], value);
+                callback(Groups[(int)damageType], value);
             }
         }
     }

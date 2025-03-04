@@ -10,7 +10,7 @@ namespace OpenSage.Graphics.Animation
         internal W3DAnimation(W3dAnimation w3dAnimation)
         {
             SetNameAndInstanceId("W3DAnimation", w3dAnimation.Header.HierarchyName + "." + w3dAnimation.Header.Name);
-            Duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
+            Duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double)w3dAnimation.Header.FrameRate);
 
             var channels = w3dAnimation.Channels
                 .OfType<W3dAnimationChannel>()
@@ -44,7 +44,7 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < numKeyframes; i++)
             {
-                var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double)w3dAnimation.Header.FrameRate);
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, data[i]);
             }
 
@@ -101,7 +101,7 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < numKeyframes; i++)
             {
-                var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double)w3dAnimation.Header.FrameRate);
 
                 switch (w3dChannel.ChannelType)
                 {
@@ -116,7 +116,7 @@ namespace OpenSage.Graphics.Animation
 
             if (w3dChannel.LastFrame != w3dAnimation.Header.NumFrames - 1)
             {
-                var time = TimeSpan.FromSeconds((w3dChannel.LastFrame + 1) / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds((w3dChannel.LastFrame + 1) / (double)w3dAnimation.Header.FrameRate);
                 keyframes[keyframeIndex++] = new Keyframe(time, new KeyframeValue { BoolValue = w3dChannel.DefaultValue });
             }
 

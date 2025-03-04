@@ -36,7 +36,7 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(Random);
             writer.Write(OrientationRandom);
 
-            writer.Write((uint) 0); // Pad
+            writer.Write((uint)0); // Pad
         }
     }
 }

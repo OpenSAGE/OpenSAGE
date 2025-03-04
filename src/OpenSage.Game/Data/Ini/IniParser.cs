@@ -35,7 +35,7 @@ namespace OpenSage.Data.Ini
         private static readonly char[] SeparatorsPercent = { ' ', '\n', '\r', '\t', '=', '%' };
         public static readonly char[] SeparatorsColon = { ' ', '\n', '\r', '\t', '=', ':' };
         private static readonly char[] SeparatorsQuote = { '"', '\n', '=' };
-        private static readonly char[] SeparatorsLine = { ' ', '\n', '\r', '\t'};
+        private static readonly char[] SeparatorsLine = { ' ', '\n', '\r', '\t' };
 
         public const string EndToken = "END";
 
@@ -68,7 +68,7 @@ namespace OpenSage.Data.Ini
                 // https://github.com/OpenSAGE/OpenSAGE/issues/405
                 var localeSpecificFileName = Path.ChangeExtension(entry.FilePath, null) + "9x.ini";
                 var localeSpecificEntry = entry.FileSystem.GetFile(localeSpecificFileName);
-                if(localeSpecificEntry != null)
+                if (localeSpecificEntry != null)
                 {
                     entry = localeSpecificEntry;
                     iniEncoding = localeSpecificEncoding;
@@ -190,13 +190,13 @@ namespace OpenSage.Data.Ini
                 {
                     var firstNibble = ConvertHexNibble(encoded[i + 1]);
                     var secondNibble = ConvertHexNibble(encoded[i + 2]);
-                    var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
+                    var decodedByte = (byte)((firstNibble << 4) | secondNibble);
                     result.Add(decodedByte);
                     i += 3;
                 }
                 else
                 {
-                    result.Add((byte) encoded[i]);
+                    result.Add((byte)encoded[i]);
                     i += 1;
                 }
             }
@@ -335,7 +335,7 @@ namespace OpenSage.Data.Ini
 
         public long ParseLong() => ScanLong(GetNextToken());
 
-        public byte ScanByte(in IniToken token) => (byte) ScanInteger(token);
+        public byte ScanByte(in IniToken token) => (byte)ScanInteger(token);
 
         public byte ParseByte() => ScanByte(GetNextToken());
 
@@ -404,7 +404,7 @@ namespace OpenSage.Data.Ini
 
         private float ScanPercentage(in IniToken token)
         {
-            return  ScanFloat(token) / 100.0f;
+            return ScanFloat(token) / 100.0f;
         }
 
         public Percentage ParsePercentage() => new(ScanPercentage(GetNextToken()));
@@ -646,7 +646,7 @@ namespace OpenSage.Data.Ini
             {
                 result.Add(new AudioFileWithWeight
                 {
-                       AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
+                    AudioFile = _assetStore.AudioFiles.GetLazyAssetReferenceByName(token.Value.Text)
                 });
             }
 
@@ -735,7 +735,7 @@ namespace OpenSage.Data.Ini
             var b = ParseAttributeByte("B");
 
             var aToken = GetNextTokenOptional(SeparatorsColon);
-            var a = (byte) 255;
+            var a = (byte)255;
             if (aToken != null)
             {
                 if (aToken.Value.Text != "A")

@@ -133,7 +133,7 @@ namespace OpenSage.Navigation
 
                 var xy = getNodePosition(node);
                 var xyz = new Vector3(xy, getHeight(xy.X, xy.Y));
-                
+
                 if (!camera.BoundingFrustum.Contains(xyz)) continue;
 
                 var xy_screen = camera.WorldToScreenPoint(xyz).Vector2XY();

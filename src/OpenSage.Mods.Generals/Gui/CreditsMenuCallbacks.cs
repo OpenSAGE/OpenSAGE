@@ -104,7 +104,7 @@ namespace OpenSage.Mods.Generals.Gui
         public static void CreditsMenuUpdate(Window window, Game game)
         {
             var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
-            var data = (CreditsMenuData) control.Tag;
+            var data = (CreditsMenuData)control.Tag;
 
             var credits = game.AssetStore.Credits.Current;
 
@@ -133,7 +133,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void W3DCreditsMenuDraw(Control control, DrawingContext2D drawingContext)
         {
-            var data = (CreditsMenuData) control.Tag;
+            var data = (CreditsMenuData)control.Tag;
 
             foreach (var item in data.Items)
             {

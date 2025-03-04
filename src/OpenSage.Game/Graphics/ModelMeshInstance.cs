@@ -33,7 +33,7 @@ namespace OpenSage.Graphics
 
             BeforeRenderCallback = (CommandList cl, in RenderItem renderItem) =>
             {
-                OnBeforeRender(cl,  renderItem);
+                OnBeforeRender(cl, renderItem);
             };
 
             BeforeRenderCallbackDepth = (CommandList cl, in RenderItem renderItem) =>

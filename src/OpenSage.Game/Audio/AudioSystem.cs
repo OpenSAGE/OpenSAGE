@@ -69,19 +69,19 @@ namespace OpenSage.Audio
         {
             // Create all available mixers
             _mixers[AudioVolumeSlider.SoundFX] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.SoundFX].Volume = (float) _settings.DefaultSoundVolume;
+            _mixers[AudioVolumeSlider.SoundFX].Volume = (float)_settings.DefaultSoundVolume;
 
             _mixers[AudioVolumeSlider.Music] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Music].Volume = (float) _settings.DefaultMusicVolume;
+            _mixers[AudioVolumeSlider.Music].Volume = (float)_settings.DefaultMusicVolume;
 
             _mixers[AudioVolumeSlider.Ambient] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Ambient].Volume = (float) _settings.DefaultAmbientVolume;
+            _mixers[AudioVolumeSlider.Ambient].Volume = (float)_settings.DefaultAmbientVolume;
 
             _mixers[AudioVolumeSlider.Voice] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Voice].Volume = (float) _settings.DefaultVoiceVolume;
+            _mixers[AudioVolumeSlider.Voice].Volume = (float)_settings.DefaultVoiceVolume;
 
             _mixers[AudioVolumeSlider.Movie] = _engine.CreateSubmixer();
-            _mixers[AudioVolumeSlider.Movie].Volume = (float) _settings.DefaultMovieVolume;
+            _mixers[AudioVolumeSlider.Movie].Volume = (float)_settings.DefaultMovieVolume;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -201,7 +201,7 @@ namespace OpenSage.Audio
             }
 
             var source = GetSound(entry, audioEvent.SubmixSlider, looping || audioEvent.Control.HasFlag(AudioControlFlags.Loop));
-            source.Volume = (float) audioEvent.Volume;
+            source.Volume = (float)audioEvent.Volume;
             return source;
         }
 
@@ -258,7 +258,7 @@ namespace OpenSage.Audio
 
             _currentTrackName = musicTrack.Name;
             _currentTrack = GetStream(musicTrack.File.Value.Entry);
-            _currentTrack.Volume = (float) musicTrack.Volume;
+            _currentTrack.Volume = (float)musicTrack.Volume;
             _currentTrack.Play();
         }
 

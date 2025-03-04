@@ -81,7 +81,7 @@ namespace OpenSage
 #pragma warning disable RS1024 // Compare symbols correctly
             return sageGameType.GetMembers()
                 .Where(x => x.Kind == SymbolKind.Field)
-                .ToDictionary(x => (int) ((IFieldSymbol) x).ConstantValue, x => x.Name);
+                .ToDictionary(x => (int)((IFieldSymbol)x).ConstantValue, x => x.Name);
 #pragma warning restore RS1024 // Compare symbols correctly
         }
 
@@ -101,7 +101,7 @@ namespace OpenSage
 #pragma warning disable RS1024 // Compare symbols correctly
             return contentTypeType.GetMembers()
                 .Where(x => x.Kind == SymbolKind.Field)
-                .ToDictionary(x => (uint) ((IFieldSymbol) x).ConstantValue, x => x.Name);
+                .ToDictionary(x => (uint)((IFieldSymbol)x).ConstantValue, x => x.Name);
 #pragma warning restore RS1024 // Compare symbols correctly
         }
 

@@ -38,7 +38,7 @@ namespace OpenSage.Tests.Scripting
             var condition = new ScriptCondition(
                 ScriptConditionType.Counter,
                 new ScriptArgument(ScriptArgumentType.CounterName, "MyCounter"),
-                new ScriptArgument(ScriptArgumentType.Comparison, (int) comparison),
+                new ScriptArgument(ScriptArgumentType.Comparison, (int)comparison),
                 new ScriptArgument(ScriptArgumentType.Integer, compareValue));
 
             var result = game.Scripting.EvaluateScriptCondition(condition);

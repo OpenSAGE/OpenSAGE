@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Numerics;
+using FixedMath.NET;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
-using FixedMath.NET;
-using OpenSage.Content;
 
 namespace OpenSage.Logic.Object
 {
@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
             var offsetToMaster = _master.Translation - _gameObject.Translation;
             var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
-            if (!masterIsMoving && (masterHealthPercent < (Fix64) (_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
+            if (!masterIsMoving && (masterHealthPercent < (Fix64)(_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
             {
                 // repair master
                 var isMoving = _gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
@@ -87,9 +87,9 @@ namespace OpenSage.Logic.Object
                     case RepairStatus.READY:
                         if (context.LogicFrame >= _waitUntil)
                         {
-                            var range = (float) (context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
-                            var height = (float) (context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
-                            var angle = (float) (context.GameContext.Random.NextDouble() * (Math.PI * 2));
+                            var range = (float)(context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
+                            var height = (float)(context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
+                            var angle = (float)(context.GameContext.Random.NextDouble() * (Math.PI * 2));
 
                             var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                             _gameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
@@ -127,7 +127,7 @@ namespace OpenSage.Logic.Object
                     case RepairStatus.ZIP_AROUND:
                     case RepairStatus.IN_TRANSITION:
                     case RepairStatus.WELDING:
-                        _master.Health += (Fix64) (_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
+                        _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
                         if (_master.Health > _master.MaxHealth)
                         {
                             _master.Health = _master.MaxHealth;

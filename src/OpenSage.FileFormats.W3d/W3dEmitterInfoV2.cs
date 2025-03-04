@@ -45,13 +45,13 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(OutwardVel);
             writer.Write(VelInherit);
             Shader.WriteTo(writer);
-            writer.Write((uint) RenderMode);
-            writer.Write((uint) FrameMode);
+            writer.Write((uint)RenderMode);
+            writer.Write((uint)FrameMode);
 
             // Pad
             for (var i = 0; i < 6; i++)
             {
-                writer.Write((uint) 0);
+                writer.Write((uint)0);
             }
         }
     }

@@ -47,7 +47,7 @@ namespace OpenSage.Logic.OrderGenerators
                 _ => null,
             };
 
-            return order != null ? OrderGeneratorResult.SuccessAndContinue([ order ]) : OrderGeneratorResult.Inapplicable();
+            return order != null ? OrderGeneratorResult.SuccessAndContinue([order]) : OrderGeneratorResult.Inapplicable();
         }
 
         private OrderType? GetOrderTypeForState(KeyModifiers keyModifiers)
@@ -157,7 +157,7 @@ namespace OpenSage.Logic.OrderGenerators
                 return OrderType.ForceAttackGround;
             }
 
-            if (SelectedUnits is {Count: 1} && SelectedUnits.Single() == WorldObject)
+            if (SelectedUnits is { Count: 1 } && SelectedUnits.Single() == WorldObject)
             {
                 // units can't force-attack themselves
                 return OrderType.SetSelection;
@@ -279,7 +279,7 @@ namespace OpenSage.Logic.OrderGenerators
         {
             structure = default;
 
-            if (SelectedUnits is not {Count: 1})
+            if (SelectedUnits is not { Count: 1 })
             {
                 return false;
             }

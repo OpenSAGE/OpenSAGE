@@ -19,7 +19,7 @@ namespace OpenSage.Data.Dds
             return new DdsPixelFormat
             {
                 Size = reader.ReadUInt32(),
-                Flags = (DdsPixelFormatFlags) reader.ReadUInt32(),
+                Flags = (DdsPixelFormatFlags)reader.ReadUInt32(),
                 FourCc = reader.ReadUInt32(),
                 RgbBitCount = reader.ReadUInt32(),
                 RBitMask = reader.ReadUInt32(),

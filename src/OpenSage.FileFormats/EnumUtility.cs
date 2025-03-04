@@ -9,7 +9,7 @@ namespace OpenSage.FileFormats
            where TValue : struct
            where TEnum : struct
         {
-            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+            var enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
             if (!IsValueDefined(enumValue))
             {
                 throw new InvalidDataException($"Unexpected value for {typeof(TEnum).Name}: {value}");

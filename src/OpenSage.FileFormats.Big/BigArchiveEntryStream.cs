@@ -22,7 +22,7 @@ namespace OpenSage.FileFormats.Big
         {
             if (_write)
             {
-                _entry.Length = (uint) this.Length;
+                _entry.Length = (uint)this.Length;
             }
             _archive.WriteToDisk();
         }
@@ -36,7 +36,7 @@ namespace OpenSage.FileFormats.Big
                 _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
                 if (count > (Length - Position))
                 {
-                    count = (int) (Length - Position);
+                    count = (int)(Length - Position);
                 }
 
                 result = _archive.Stream.Read(buffer, offset, count);

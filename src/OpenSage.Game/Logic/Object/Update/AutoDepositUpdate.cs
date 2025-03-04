@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             }
 
             _nextAwardFrame = context.LogicFrame + _moduleData.DepositTiming;
-            var amount = (uint) (_moduleData.DepositAmount * _gameObject.ProductionModifier);
+            var amount = (uint)(_moduleData.DepositAmount * _gameObject.ProductionModifier);
 
             if (_moduleData.UpgradedBoost.HasValue && _gameObject.HasUpgrade(_moduleData.UpgradedBoost.Value.UpgradeType.Value))
             {

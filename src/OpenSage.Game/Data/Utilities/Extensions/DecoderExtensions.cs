@@ -18,15 +18,15 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             var decodedValue = DecodeValue(token, start, end);
             if (typeof(T).GetTypeInfo().IsEnum)
-                return (T) Enum.ToObject(typeof(T), decodedValue);
-            return (T) Convert.ChangeType(decodedValue, typeof(T));
+                return (T)Enum.ToObject(typeof(T), decodedValue);
+            return (T)Convert.ChangeType(decodedValue, typeof(T));
         }
 
         private static uint GenerateMask(byte start, byte end)
         {
             uint mask = 0;
             for (int i = start; i <= end; i++)
-                mask |= (uint) MathF.Pow(2, i);
+                mask |= (uint)MathF.Pow(2, i);
             return mask;
         }
 
@@ -34,11 +34,11 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             if (string.IsNullOrEmpty(fourCc) || fourCc.Length != 4)
                 throw new ArgumentOutOfRangeException(nameof(fourCc), "Invalid FOURCC: " + fourCc);
-            var a = (byte) fourCc[0];
-            var b = (byte) fourCc[1];
-            var c = (byte) fourCc[2];
-            var d = (byte) fourCc[3];
-            return a | ((uint) (b << 8)) | ((uint) c << 16) | ((uint) d << 24);
+            var a = (byte)fourCc[0];
+            var b = (byte)fourCc[1];
+            var c = (byte)fourCc[2];
+            var d = (byte)fourCc[3];
+            return a | ((uint)(b << 8)) | ((uint)c << 16) | ((uint)d << 24);
         }
 
         public static string ToFourCcString(this uint fourCc)

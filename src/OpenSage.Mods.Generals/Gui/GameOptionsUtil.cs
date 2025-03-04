@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -77,7 +77,7 @@ namespace OpenSage.Mods.Generals.Gui
             if (game.AssetStore.MultiplayerColors.Count > 0)
             {
                 var colors = game.AssetStore.MultiplayerColors
-                    .Select((c, i) => new Tuple<sbyte, string, ColorRgbaF>((sbyte) i, c.TooltipName, c.RgbColor.ToColorRgbaF()))
+                    .Select((c, i) => new Tuple<sbyte, string, ColorRgbaF>((sbyte)i, c.TooltipName, c.RgbColor.ToColorRgbaF()))
                     .ToList();
                 var randomColor = new Tuple<sbyte, string, ColorRgbaF>(-1, "GUI:???", ColorRgbaF.White);
                 colors.Insert(0, randomColor);
@@ -106,7 +106,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                     if (comboBox != null)
                     {
-                        var listBox = (ListBox) comboBox.Controls[2];
+                        var listBox = (ListBox)comboBox.Controls[2];
                         listBox.SelectedIndexChanged += (sender, e) => OnSlotIndexChanged(i, prefix, comboBox.SelectedIndex, comboBox.Items[comboBox.SelectedIndex].DataItem);
                     }
                     else
@@ -121,7 +121,7 @@ namespace OpenSage.Mods.Generals.Gui
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
                 var startPosition = (byte)(i + 1);
-                ((Button) mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
+                ((Button)mapWindow.Controls[i]).Click += (s, e) => StartingPositionClicked(_game.SkirmishManager.Settings, startPosition);
             }
 
             _window.Controls.FindControl(_optionsPath + ButtonSelectMap).Enabled = _game.SkirmishManager.IsHosting;
@@ -190,7 +190,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 case ComboBoxColorPrefix:
                     Logger.Trace($"Changed the color box to {value}");
-                    slot.ColorIndex = (sbyte) dataItem;
+                    slot.ColorIndex = (sbyte)dataItem;
                     break;
                 case ComboBoxPlayerPrefix:
                     Logger.Trace($"Changed the player type box to {value}");
@@ -221,17 +221,17 @@ namespace OpenSage.Mods.Generals.Gui
 
                     if (wasHumanPlayer)
                     {
-                        ((HostSkirmishManager) _game.SkirmishManager).Disconnect(slot);
+                        ((HostSkirmishManager)_game.SkirmishManager).Disconnect(slot);
                     }
 
                     break;
                 case ComboBoxPlayerTemplatePrefix:
                     Logger.Trace($"Changed the faction box to {value}");
-                    slot.FactionIndex = (byte) value;
+                    slot.FactionIndex = (byte)value;
                     break;
                 case ComboBoxTeamPrefix:
                     Logger.Trace($"Changed the team box to {value}");
-                    slot.Team = (sbyte) dataItem;
+                    slot.Team = (sbyte)dataItem;
                     break;
             }
         }
@@ -291,12 +291,12 @@ namespace OpenSage.Mods.Generals.Gui
 
                                     if (slot.FactionIndex == 0)
                                     {
-                                        slot.FactionIndex = (byte) random.Next(1, _game.GetPlayableSides().Count() + 1);
+                                        slot.FactionIndex = (byte)random.Next(1, _game.GetPlayableSides().Count() + 1);
                                     }
 
                                     if (slot.ColorIndex == -1)
                                     {
-                                        slot.ColorIndex = (sbyte) random.Next(slot.ColorIndex, _game.AssetStore.MultiplayerColors.Count);
+                                        slot.ColorIndex = (sbyte)random.Next(slot.ColorIndex, _game.AssetStore.MultiplayerColors.Count);
                                     }
                                 }
                             }
@@ -327,10 +327,10 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            var mapWindow = _window.Controls.FindControl(_optionsPath+ MapWindow);
+            var mapWindow = _window.Controls.FindControl(_optionsPath + MapWindow);
             for (int i = 0; i < SkirmishGameSettings.MaxNumberOfPlayers; i++)
             {
-                var startPositionButton = (Button) mapWindow.Controls[i];
+                var startPositionButton = (Button)mapWindow.Controls[i];
                 startPositionButton.Text = string.Empty;
                 startPositionButton.Enabled = _game.SkirmishManager.Settings.LocalSlot?.Ready != true;
             }
@@ -339,23 +339,23 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 if (slot.StartPosition > 0)
                 {
-                    ((Button) mapWindow.Controls[slot.StartPosition - 1]).Text = (slot.Index + 1).ToString();
+                    ((Button)mapWindow.Controls[slot.StartPosition - 1]).Text = (slot.Index + 1).ToString();
                 }
 
-                var colorCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
-                if ((sbyte) colorCombo.Items[colorCombo.SelectedIndex].DataItem != slot.ColorIndex)
-                    colorCombo.SelectedIndex = Array.FindIndex(colorCombo.Items, x => (sbyte) x.DataItem == slot.ColorIndex - 1);
+                var colorCombo = (ComboBox)window.Controls.FindControl($"{_optionsPath}{ComboBoxColorPrefix}{slot.Index}");
+                if ((sbyte)colorCombo.Items[colorCombo.SelectedIndex].DataItem != slot.ColorIndex)
+                    colorCombo.SelectedIndex = Array.FindIndex(colorCombo.Items, x => (sbyte)x.DataItem == slot.ColorIndex - 1);
 
-                var teamCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxTeamPrefix}{slot.Index}");
-                if ((sbyte) teamCombo.Items[teamCombo.SelectedIndex].DataItem != slot.Team)
-                    teamCombo.SelectedIndex = Array.FindIndex(teamCombo.Items, x => (sbyte) x.DataItem == slot.Team - 1);
+                var teamCombo = (ComboBox)window.Controls.FindControl($"{_optionsPath}{ComboBoxTeamPrefix}{slot.Index}");
+                if ((sbyte)teamCombo.Items[teamCombo.SelectedIndex].DataItem != slot.Team)
+                    teamCombo.SelectedIndex = Array.FindIndex(teamCombo.Items, x => (sbyte)x.DataItem == slot.Team - 1);
 
-                var playerTemplateCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerTemplatePrefix}{slot.Index}");
+                var playerTemplateCombo = (ComboBox)window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerTemplatePrefix}{slot.Index}");
                 if (playerTemplateCombo.SelectedIndex != slot.FactionIndex)
                     playerTemplateCombo.SelectedIndex = slot.FactionIndex;
 
-                var buttonAccept = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonAcceptPrefix}{slot.Index}");
-                var playerCombo = (ComboBox) window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
+                var buttonAccept = (Button)window.Controls.FindControl($"{_optionsPath}{ButtonAcceptPrefix}{slot.Index}");
+                var playerCombo = (ComboBox)window.Controls.FindControl($"{_optionsPath}{ComboBoxPlayerPrefix}{slot.Index}");
 
                 var isLocalSlot = slot == _game.SkirmishManager.Settings.LocalSlot;
                 // if there is no player or AI in the slot, the other boxes should be disabled
@@ -389,7 +389,7 @@ namespace OpenSage.Mods.Generals.Gui
                 playerTemplateCombo.Enabled = editable;
             };
 
-            var buttonStart = (Button) window.Controls.FindControl($"{_optionsPath}{ButtonStart}");
+            var buttonStart = (Button)window.Controls.FindControl($"{_optionsPath}{ButtonStart}");
             buttonStart.Enabled = _game.SkirmishManager.IsStartButtonEnabled();
         }
 

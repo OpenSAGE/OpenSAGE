@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using Xunit;
 using OpenSage.FileFormats.Big;
+using Xunit;
 
 namespace OpenSage.Tests.Data.Big
 {

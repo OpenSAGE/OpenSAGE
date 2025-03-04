@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -111,16 +111,16 @@ namespace OpenSage.Logic.Object
                                 ProduceAndMoveOut(front.ObjectDefinition, front.UnitsProduced <= 1);
                                 break;
                             case ProductionJobType.Upgrade:
-                            {
-                                front.UpgradeDefinition.GrantUpgrade(_gameObject);
-                                if (front.UpgradeDefinition.ResearchSound != null)
                                 {
-                                    // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
-                                    context.GameContext.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
-                                }
+                                    front.UpgradeDefinition.GrantUpgrade(_gameObject);
+                                    if (front.UpgradeDefinition.ResearchSound != null)
+                                    {
+                                        // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
+                                        context.GameContext.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
+                                    }
 
-                                break;
-                            }
+                                    break;
+                                }
                         }
                     }
 
@@ -354,7 +354,7 @@ namespace OpenSage.Logic.Object
 
             if (playAudio)
             {
-               _context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
+                _context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
             }
 
             if (!_moduleData.GiveNoXP)

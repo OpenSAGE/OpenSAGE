@@ -14,7 +14,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 var result = new W3dMorphAnimPoseName
                 {
-                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dMorphAnimPoseName Chunk Structure (Currently Unknown)

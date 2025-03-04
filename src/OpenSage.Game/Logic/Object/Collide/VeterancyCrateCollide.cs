@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
                 { "AffectsUpToLevel", (parser, x) => x.AffectsUpToLevel = parser.ParseInteger() },
             });
 
-       
+
         public int EffectRange { get; private set; }
         public bool AddsOwnerVeterancy { get; private set; }
         public bool IsPilot { get; private set; }

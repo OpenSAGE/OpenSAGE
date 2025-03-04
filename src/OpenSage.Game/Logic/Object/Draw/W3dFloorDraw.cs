@@ -112,7 +112,7 @@ namespace OpenSage.Logic.Object
 
         internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
         {
-            return Model.Value == null ? null : (DrawModule) new W3dFloorDraw(this, context, drawable);
+            return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, context, drawable);
         }
     }
 

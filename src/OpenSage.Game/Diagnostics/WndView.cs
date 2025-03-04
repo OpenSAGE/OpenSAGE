@@ -17,7 +17,7 @@ namespace OpenSage.Diagnostics
         public WndView(DiagnosticViewContext context)
             : base(context)
         {
-            
+
         }
 
         protected override void DrawOverride(ref bool isGameViewFocused)
@@ -34,7 +34,7 @@ namespace OpenSage.Diagnostics
         private void DrawControlTreeItemRecursive(Control control)
         {
             var treeNodeFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick;
-            if(control.Controls.Count == 0)
+            if (control.Controls.Count == 0)
             {
                 treeNodeFlags = ImGuiTreeNodeFlags.Leaf;
             }

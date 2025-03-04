@@ -85,7 +85,7 @@ namespace OpenSage.Data.Map
             writer.WriteUInt16PrefixedAsciiString(AlphaEdgeTexture);
             writer.WriteUInt16PrefixedAsciiString(SparkleTexture);
             writer.Write(Color);
-            writer.Write((byte) 0);
+            writer.Write((byte)0);
             writer.Write(Alpha);
             writer.Write(WaterHeight);
 
@@ -96,7 +96,7 @@ namespace OpenSage.Data.Map
 
             writer.WriteUInt16PrefixedAsciiString(MinimumWaterLod);
 
-            writer.Write((uint) Lines.Length);
+            writer.Write((uint)Lines.Length);
             foreach (var line in Lines)
             {
                 writer.Write(line);

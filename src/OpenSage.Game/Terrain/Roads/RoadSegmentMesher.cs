@@ -20,7 +20,7 @@ namespace OpenSage.Terrain.Roads
             var endNoZ = Segment.EndPosition.WithZ(0);
             DirectionNoZ = Vector3.Normalize(endNoZ - startNoZ);
             DirectionNormalNoZ = Vector3.Cross(DirectionNoZ, Vector3.UnitZ);
-            
+
             TextureBounds = TextureAtlas.ForRoadWidth(Template.RoadWidthInTexture)[Segment.Type];
         }
 
@@ -36,13 +36,13 @@ namespace OpenSage.Terrain.Roads
         {
             for (var i = initialVertexCount; i < vertices.Count - 2; i += 2)
             {
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 1));
-                indices.Add((ushort) (i + 3));
+                indices.Add((ushort)(i + 0));
+                indices.Add((ushort)(i + 1));
+                indices.Add((ushort)(i + 3));
 
-                indices.Add((ushort) (i + 0));
-                indices.Add((ushort) (i + 2));
-                indices.Add((ushort) (i + 3));
+                indices.Add((ushort)(i + 0));
+                indices.Add((ushort)(i + 2));
+                indices.Add((ushort)(i + 3));
             }
         }
     }
@@ -135,13 +135,13 @@ namespace OpenSage.Terrain.Roads
             var segmentVector = endWithZ - startWithZ;
             var distanceWithZ = Vector3.Distance(startWithZ, endWithZ);
 
-            var sectionCount = Math.Max(1, (int) (distanceWithZ / 10));
+            var sectionCount = Math.Max(1, (int)(distanceWithZ / 10));
 
             // generate candidate positions for cutting the road segment
             var positionCandidates = new List<InsertPosition>();
             for (var i = 0; i <= sectionCount; ++i)
             {
-                var relativeProgress = (float) i / (float) sectionCount;
+                var relativeProgress = (float)i / (float)sectionCount;
                 var position = startWithZ + relativeProgress * segmentVector;
                 var newPoint = new InsertPosition()
                 {
@@ -194,13 +194,13 @@ namespace OpenSage.Terrain.Roads
             var toBorder = ToTopBorder(p.RelativeProgress);
 
             // find relevant height of points along this cross section of the road
-            var sections = Math.Max(1, (int) (toBorder.Length() / 10));
+            var sections = Math.Max(1, (int)(toBorder.Length() / 10));
             var maxHeight = heightMap.GetUpperHeight(mid.X, mid.Y);
             var pTop = p.Position;
             var pBottom = p.Position;
             for (var i = 1; i <= sections; ++i)
             {
-                var scaledVector = (float) i / sections * toBorder;
+                var scaledVector = (float)i / sections * toBorder;
                 pTop = mid + scaledVector;
                 pBottom = mid - scaledVector;
                 maxHeight = MathF.Max(maxHeight, heightMap.GetUpperHeight(pTop.X, pTop.Y));
@@ -275,7 +275,7 @@ namespace OpenSage.Terrain.Roads
         protected override Vector3 ToCorner(RoadSegmentEndPoint neighbor, bool atEnd)
         {
             var neighborNormal = GetNeighborNormal(neighbor, atEnd);
-            var segment = (StraightRoadSegment) Segment;
+            var segment = (StraightRoadSegment)Segment;
             var oppositeNeighbor = atEnd ? segment.Start.To : segment.End.To;
 
             var toCornerDirection = neighbor.To switch
@@ -283,9 +283,9 @@ namespace OpenSage.Terrain.Roads
                 null when oppositeNeighbor is CrossingRoadSegment crossing =>   // special handling to reproduce (somewhat strange) behavior of the original engine
                     OriginalNormal(crossing.Position),
                 null =>                                                         // if I have no neighbor, use my own normal
-                    DirectionNormalNoZ,                                         
+                    DirectionNormalNoZ,
                 StraightRoadSegment _ =>                                        // if my neighbor is also a straight road segment, meet in the middle
-                    Vector3.Normalize(DirectionNormalNoZ + neighborNormal),     
+                    Vector3.Normalize(DirectionNormalNoZ + neighborNormal),
                 _ => neighborNormal,                                            // otherwise use my unflexible neighbor's normal
             };
 

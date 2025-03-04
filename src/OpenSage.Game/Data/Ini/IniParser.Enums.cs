@@ -180,7 +180,7 @@ namespace OpenSage.Data.Ini
 
             if (stringToValueMap.TryGetValue(token.Text.ToUpperInvariant(), out var enumValue))
             {
-                return (T) enumValue;
+                return (T)enumValue;
             }
 
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
@@ -193,7 +193,7 @@ namespace OpenSage.Data.Ini
 
             if (stringToValueMap.TryGetValue(value.ToUpperInvariant(), out var enumValue))
             {
-                return (T) enumValue;
+                return (T)enumValue;
             }
             return default;
         }
@@ -203,7 +203,7 @@ namespace OpenSage.Data.Ini
         {
             var stringToValueMap = GetEnumMap<T>();
 
-            var result = (T) (object) 0;
+            var result = (T)(object)0;
 
             IniToken? token;
             while ((token = GetNextTokenOptional()) != null)
@@ -298,7 +298,7 @@ namespace OpenSage.Data.Ini
             var result = new BitArray<T>();
 
             var values = valuesString.Trim().Replace("\"", "").Split(' ');
-            for(var i = 0; i < values.Length; i++)
+            for (var i = 0; i < values.Length; i++)
             {
                 var stringValue = values[i];
                 ParseBitValue(stringToValueMap, result, stringValue, currentPosition);
@@ -328,7 +328,7 @@ namespace OpenSage.Data.Ini
 
                 default:
                     var value = true;
-                        
+
                     if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
                     {
                         value = stringValue[0] == '+';
@@ -347,7 +347,7 @@ namespace OpenSage.Data.Ini
                     }
 
                     // Ugh.
-                    result.Set((T) enumValue, value);
+                    result.Set((T)enumValue, value);
 
                     break;
             }

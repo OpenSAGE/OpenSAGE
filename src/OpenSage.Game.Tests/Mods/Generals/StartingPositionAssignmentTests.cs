@@ -119,7 +119,7 @@ namespace OpenSage.Tests.Mods.Generals
             settings.Slots[1].StartPosition = 2;
 
             GameOptionsUtil.StartingPositionClicked(settings, 1);
-            
+
             Assert.Equal(0, settings.Slots[0].StartPosition);
             Assert.Equal(2, settings.Slots[1].StartPosition);
         }

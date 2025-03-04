@@ -1,11 +1,11 @@
 ﻿using System;
-using Microsoft.Win32;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Win32;
+using OpenSage.IO;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
-using OpenSage.IO;
 
 namespace OpenSage.Data
 {
@@ -82,10 +82,10 @@ namespace OpenSage.Data
             }
             if (path == null || !Directory.Exists(path))
             {
-                return new GameInstallation[]{};
+                return new GameInstallation[] { };
             }
 
-            var installations = new GameInstallation[]{new GameInstallation(game, path, game.BaseGame != null ? FindInstallations(game.BaseGame).First() : null )};
+            var installations = new GameInstallation[] { new GameInstallation(game, path, game.BaseGame != null ? FindInstallations(game.BaseGame).First() : null) };
 
             return installations;
         }

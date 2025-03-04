@@ -23,7 +23,7 @@ namespace OpenSage.Scripting
             {
                 if (CachedEnumMap.TryGetValue(condition.InternalName.Name, out var untypedConditionType))
                 {
-                    conditionType = (ScriptConditionType) untypedConditionType;
+                    conditionType = (ScriptConditionType)untypedConditionType;
                 }
             }
 

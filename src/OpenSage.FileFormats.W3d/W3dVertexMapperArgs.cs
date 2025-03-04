@@ -78,7 +78,7 @@ namespace OpenSage.FileFormats.W3d
         {
             return ParseChunk(reader, context, header =>
             {
-                var value = reader.ReadFixedLengthString((int) header.ChunkSize);
+                var value = reader.ReadFixedLengthString((int)header.ChunkSize);
 
                 var result = new W3dVertexMapperArgs(chunkType)
                 {
@@ -103,7 +103,7 @@ namespace OpenSage.FileFormats.W3d
                     var mapperArgName = splitMapperArg[0].Trim();
 
                     // enb contains assets that use ":" as comments start as well as some that contain no value or comment dilimeter.
-                    if (!mapperArgName.Contains(";") && !mapperArgName.Contains(":") && splitMapperArg.Length == 2) 
+                    if (!mapperArgName.Contains(";") && !mapperArgName.Contains(":") && splitMapperArg.Length == 2)
                     {
                         var mapperArgValue = splitMapperArg[1].Trim();
                         if (mapperArgValue.Contains(";"))

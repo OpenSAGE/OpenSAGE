@@ -1,6 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using System.Numerics;
 
 namespace OpenSage.Terrain
 {

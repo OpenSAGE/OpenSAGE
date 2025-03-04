@@ -42,8 +42,8 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.Write((ushort) Attributes);
-            writer.Write((ushort) AnimationType);
+            writer.Write((ushort)Attributes);
+            writer.Write((ushort)AnimationType);
             writer.Write(FrameCount);
             writer.Write(FrameRate);
         }

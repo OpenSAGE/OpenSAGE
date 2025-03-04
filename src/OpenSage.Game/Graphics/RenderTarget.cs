@@ -35,8 +35,8 @@ namespace OpenSage.Graphics
             RemoveAndDispose(ref _framebuffer);
             RemoveAndDispose(ref _colorTarget);
 
-            var width = (uint) _size.Width;
-            var height = (uint) _size.Height;
+            var width = (uint)_size.Width;
+            var height = (uint)_size.Height;
 
             _colorTarget = AddDisposable(_graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(

@@ -120,7 +120,7 @@ namespace OpenSage.Content
 
             public override int GetHashCode()
             {
-                return HashCode.Combine(_fontName, _fontSize, (int) _fontWeight);
+                return HashCode.Combine(_fontName, _fontSize, (int)_fontWeight);
             }
 
             public static bool operator ==(FontKey left, FontKey right)

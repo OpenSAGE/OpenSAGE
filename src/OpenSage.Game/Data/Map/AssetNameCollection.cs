@@ -55,7 +55,7 @@ namespace OpenSage.Data.Map
             if (_assetNameToIndex.TryGetValue(assetName, out var assetIndex))
                 return assetIndex;
 
-            assetIndex = (uint) _assetIndexToName.Count + 1;
+            assetIndex = (uint)_assetIndexToName.Count + 1;
             AddAssetName(assetIndex, assetName);
 
             return assetIndex;
@@ -63,7 +63,7 @@ namespace OpenSage.Data.Map
 
         public void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) _assetIndexToName.Count);
+            writer.Write((uint)_assetIndexToName.Count);
 
             foreach (var assetIndex in _assetIndexToName.Keys.OrderByDescending(x => x))
             {

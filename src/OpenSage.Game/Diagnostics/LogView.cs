@@ -23,7 +23,7 @@ namespace OpenSage.Diagnostics
             {
                 var color = Vector4.One;
 
-                if(msg.Level == LogLevel.Warn)
+                if (msg.Level == LogLevel.Warn)
                 {
                     color = new Vector4(1, 1, 0, 1);
                 }

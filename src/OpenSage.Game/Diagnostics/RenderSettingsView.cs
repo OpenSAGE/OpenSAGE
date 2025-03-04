@@ -125,13 +125,13 @@ namespace OpenSage.Diagnostics
 
                 if (Game.Graphics.ShadowMap != null)
                 {
-                    for (var i = 0; i < (int) Game.Graphics.ShadowMap.ArrayLayers; i++)
+                    for (var i = 0; i < (int)Game.Graphics.ShadowMap.ArrayLayers; i++)
                     {
                         var shadowMapTuple = Tuple.Create(Game.Graphics.ShadowMap, i);
                         if (!_cachedTextureViews.TryGetValue(shadowMapTuple, out var shadowMapView))
                         {
                             shadowMapView = AddDisposable(Game.GraphicsDevice.ResourceFactory.CreateTextureView(
-                                new TextureViewDescription(Game.Graphics.ShadowMap, 0, 1, (uint) i, 1)));
+                                new TextureViewDescription(Game.Graphics.ShadowMap, 0, 1, (uint)i, 1)));
                             _cachedTextureViews.Add(shadowMapTuple, shadowMapView);
                         }
 

@@ -67,7 +67,7 @@ namespace OpenSage.FileFormats.W3d
 
             for (var i = 0; i < 4; i++) // Pad
             {
-                writer.Write((uint) 0);
+                writer.Write((uint)0);
             }
 
             foreach (var keyframe in ColorKeyframes)

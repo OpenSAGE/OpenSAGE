@@ -129,7 +129,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
             var nRegisters = Parameters[2].ToInteger();
-            FunctionPreloadFlags flags = (FunctionPreloadFlags) Parameters[3].ToInteger();
+            FunctionPreloadFlags flags = (FunctionPreloadFlags)Parameters[3].ToInteger();
             var size = Parameters[4 + nParams * 2].ToInteger();
 
             //create a list of parameters

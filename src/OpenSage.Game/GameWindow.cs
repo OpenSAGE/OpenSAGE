@@ -107,8 +107,8 @@ namespace OpenSage
         private void HandleResized()
         {
             Swapchain.Resize(
-                (uint) _window.Bounds.Width,
-                (uint) _window.Bounds.Height);
+                (uint)_window.Bounds.Width,
+                (uint)_window.Bounds.Height);
 
             RaiseClientSizeChanged();
         }
@@ -190,7 +190,7 @@ namespace OpenSage
 
         private void HandleMouseWheel(MouseWheelEventArgs args)
         {
-            var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100));
+            var message = InputMessage.CreateMouseWheel((int)(args.WheelDelta * 100));
             MessageQueue.Enqueue(message);
         }
 

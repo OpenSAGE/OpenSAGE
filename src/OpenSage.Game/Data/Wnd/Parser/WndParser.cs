@@ -666,10 +666,10 @@ namespace OpenSage.Data.Wnd.Parser
         private ColorRgba ParseColor()
         {
             return new ColorRgba(
-                (byte) NextIntegerLiteralTokenValue(),
-                (byte) NextIntegerLiteralTokenValue(),
-                (byte) NextIntegerLiteralTokenValue(),
-                (byte) NextIntegerLiteralTokenValue());
+                (byte)NextIntegerLiteralTokenValue(),
+                (byte)NextIntegerLiteralTokenValue(),
+                (byte)NextIntegerLiteralTokenValue(),
+                (byte)NextIntegerLiteralTokenValue());
         }
 
         private WndDrawData ParseDrawData()

@@ -30,7 +30,7 @@ namespace OpenSage.Logic.Object
         {
             { "RadarExtendTime", (parser, x) => x.RadarExtendTime = parser.ParseInteger() }
         };
-        
+
         public int RadarExtendTime { get; private set; }
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)

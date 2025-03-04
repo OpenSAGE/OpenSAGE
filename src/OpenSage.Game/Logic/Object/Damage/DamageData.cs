@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 namespace OpenSage.Logic.Object.Damage
 {

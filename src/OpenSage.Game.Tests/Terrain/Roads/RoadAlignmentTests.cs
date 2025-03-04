@@ -43,7 +43,7 @@ namespace OpenSage.Tests.Terrain.Roads
             AssertCurveType(topology.Nodes[3], Straight);
         }
 
-        private RoadTopology LoadTopologyFromMapFile([CallerMemberName]string mapName = "")
+        private RoadTopology LoadTopologyFromMapFile([CallerMemberName] string mapName = "")
         {
             var fileSystem = new DiskFileSystem(Path.Combine(Environment.CurrentDirectory, "Terrain", "Roads", "RoadAlignmentTests"));
             var mapFile = MapFile.FromFileSystemEntry(fileSystem.GetFile(mapName + ".map"));

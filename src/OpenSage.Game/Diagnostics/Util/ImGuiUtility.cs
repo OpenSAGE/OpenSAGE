@@ -20,7 +20,7 @@ namespace OpenSage.Diagnostics.Util
 
         public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
         {
-            var temp = ImGui.InputText(label, textBuffer, (uint) textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
+            var temp = ImGui.InputText(label, textBuffer, (uint)textBuffer.Length, ImGuiInputTextFlags.None, data => 0);
 
             result = Encoding.UTF8.GetString(textBuffer).TrimEnd('\0');
 
@@ -120,11 +120,11 @@ namespace OpenSage.Diagnostics.Util
         public static bool ComboEnum<TEnum>(string label, ref TEnum currentValue)
             where TEnum : struct, Enum
         {
-            var currentObjectValue = (Enum) currentValue;
+            var currentObjectValue = (Enum)currentValue;
             var result = ComboEnum(typeof(TEnum), label, ref currentObjectValue);
             if (result)
             {
-                currentValue = (TEnum) currentObjectValue;
+                currentValue = (TEnum)currentObjectValue;
             }
             return result;
         }
@@ -136,7 +136,7 @@ namespace OpenSage.Diagnostics.Util
 
             if (ImGui.Combo(label, ref currentItem, names, names.Length))
             {
-                currentValue = (Enum) Enum.Parse(enumType, names[currentItem]);
+                currentValue = (Enum)Enum.Parse(enumType, names[currentItem]);
                 return true;
             }
 

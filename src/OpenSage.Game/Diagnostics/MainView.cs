@@ -250,11 +250,11 @@ namespace OpenSage.Diagnostics
                         {
                             renderDoc.APIValidation = validation;
                         }
-                        int delayForDebugger = (int) renderDoc.DelayForDebugger;
+                        int delayForDebugger = (int)renderDoc.DelayForDebugger;
                         if (ImGui.InputInt("Debugger Delay", ref delayForDebugger))
                         {
                             delayForDebugger = Math.Clamp(delayForDebugger, 0, int.MaxValue);
-                            renderDoc.DelayForDebugger = (uint) delayForDebugger;
+                            renderDoc.DelayForDebugger = (uint)delayForDebugger;
                         }
                         bool verifyBufferAccess = renderDoc.VerifyBufferAccess;
                         if (ImGui.Checkbox("Verify Buffer Access", ref verifyBufferAccess))
@@ -313,7 +313,7 @@ namespace OpenSage.Diagnostics
 
                 var launcherImageSize = SizeF.CalculateSizeFittingAspectRatio(
                     new SizeF(launcherImage.Width, launcherImage.Height),
-                    new Size((int) launcherImageMaxSize.X, (int) launcherImageMaxSize.Y));
+                    new Size((int)launcherImageMaxSize.X, (int)launcherImageMaxSize.Y));
 
                 const int launcherImagePadding = 10;
                 ImGui.SetNextWindowPos(new Vector2(

@@ -20,7 +20,7 @@ namespace OpenSage.Content
         BaseAsset IScopedSingleAssetStorage.Current
         {
             get => Current;
-            set => Current = (TAsset) value;
+            set => Current = (TAsset)value;
         }
 
         internal ScopedSingleAsset()
@@ -34,7 +34,7 @@ namespace OpenSage.Content
             if (_assetStack.Count > 0)
             {
                 var current = _assetStack.Peek();
-                toPush = (TAsset) current.DeepClone();
+                toPush = (TAsset)current.DeepClone();
             }
             else
             {

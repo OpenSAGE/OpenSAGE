@@ -46,8 +46,8 @@ namespace OpenSage.Mathematics
         /// <param name="vector">Value for the width and height components.</param>
         public Size(Vector2 vector)
         {
-            Width = (int) vector.X;
-            Height = (int) vector.Y;
+            Width = (int)vector.X;
+            Height = (int)vector.Y;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace OpenSage.Mathematics
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Size && Equals((Size) obj);
+            return obj is Size && Equals((Size)obj);
         }
 
         /// <inheritdoc />

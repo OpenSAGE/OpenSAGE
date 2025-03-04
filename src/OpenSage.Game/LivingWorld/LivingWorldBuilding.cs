@@ -34,15 +34,15 @@ namespace OpenSage.LivingWorld
 
         public string AvailableTo { get; private set; }
         public string BattleThingTemplate { get; private set; }
-        public string BuildingIcon { get; private set; } 
-        public int TurnsToBuild { get; private set; } 
-        public string ConstructButtonImage { get; private set; } 
-        public string ConstructButtonTitle { get; private set; } 
-        public string ConstructButtonHelp { get; private set; } 
-        public string DisplayNameTag { get; private set; } 
-        public string DisplayDescriptionTag { get; private set; } 
-        public bool CreateUnitDuringAutoResolve { get; private set; } 
-        public bool CanDefendTerritory { get; private set; } 
+        public string BuildingIcon { get; private set; }
+        public int TurnsToBuild { get; private set; }
+        public string ConstructButtonImage { get; private set; }
+        public string ConstructButtonTitle { get; private set; }
+        public string ConstructButtonHelp { get; private set; }
+        public string DisplayNameTag { get; private set; }
+        public string DisplayDescriptionTag { get; private set; }
+        public bool CreateUnitDuringAutoResolve { get; private set; }
+        public bool CanDefendTerritory { get; private set; }
         public string Type { get; private set; }
         public List<BuildingNugget> BuildingNuggets { get; } = new List<BuildingNugget>();
 

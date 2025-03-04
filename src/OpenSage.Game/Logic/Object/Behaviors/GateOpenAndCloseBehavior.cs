@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
 
         public void Toggle()
         {
-            switch(_state)
+            switch (_state)
             {
                 case DoorState.Idle:
                     _state = _open ? DoorState.StartClosing : DoorState.StartOpening;
@@ -72,7 +72,7 @@ namespace OpenSage.Logic.Object
 
                     _openingSoundLoop = audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundOpeningGateLoop?.Value, true);
                     _finishedSoundTime = context.LogicFrame + _moduleData.TimeBeforePlayingOpenSound;
-                    
+
                     _state = DoorState.Opening;
                     _toggledColliders = false;
                     _playedFinishedSound = false;

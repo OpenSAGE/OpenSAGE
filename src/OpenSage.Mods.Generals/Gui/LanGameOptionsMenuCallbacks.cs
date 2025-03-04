@@ -64,16 +64,16 @@ namespace OpenSage.Mods.Generals.Gui
             var textChat = (TextBox)window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
-            
-            var buttonStart = (Button) window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
+
+            var buttonStart = (Button)window.Controls.FindControl($"LanGameOptionsMenu.wnd:ButtonStart");
             //TODO: Use the right language strings
             buttonStart.Text = game.SkirmishManager.IsHosting ? "Play Game" : "Accept";
 
             if (window.Tag == NetworkUtils.OnlineTag && game.SkirmishManager.IsHosting)
             {
-                var listBoxChat = (ListBox) window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
+                var listBoxChat = (ListBox)window.Controls.FindControl(ListboxChatWindowLanGamePrefix);
                 var listBoxItem = new ListBoxDataItem(null, new string[] { "Checking UPnP status..." }, ColorRgbaF.White);
-                listBoxChat.Items = new[] { listBoxItem }; 
+                listBoxChat.Items = new[] { listBoxItem };
 
                 if (UPnP.Status == UPnPStatus.Enabled)
                 {

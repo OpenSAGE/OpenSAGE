@@ -43,7 +43,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
             // Calculate size of shadow map.
             var shadowMapSize = scene.Shadows.ShadowMapSize;
-            var numCascades = (uint) scene.Shadows.ShadowMapCascades;
+            var numCascades = (uint)scene.Shadows.ShadowMapCascades;
 
             if (_shadowData != null && _shadowData.ShadowMap != null
                 && (_shadowData.ShadowMap.Width != shadowMapSize

@@ -175,7 +175,7 @@ namespace OpenSage
 
             foreach (var slot in slots)
             {
-                var colorIndex = (int) slot.Color;
+                var colorIndex = (int)slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
                     availableColors.Remove(AssetStore.MultiplayerColors.GetByIndex(colorIndex));
@@ -205,7 +205,7 @@ namespace OpenSage
 
                 ColorRgb color;
 
-                var colorIndex = (int) slot.Color;
+                var colorIndex = (int)slot.Color;
                 if (colorIndex >= 0 && colorIndex < AssetStore.MultiplayerColors.Count)
                 {
                     color = AssetStore.MultiplayerColors.GetByIndex(slot.Color).RgbColor;
@@ -858,7 +858,7 @@ namespace OpenSage
             }
 
             // How close are we to the next logic frame?
-            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
+            var tickT = (float)(1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
                                      .TotalMilliseconds / LogicUpdateInterval);
 
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.

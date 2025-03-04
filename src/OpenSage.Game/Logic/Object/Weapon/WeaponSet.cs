@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
         private bool _unknown4;
         private BitArray<DamageType> _damageTypes = new();
 
-        internal Weapon CurrentWeapon => _weapons[(int) _currentWeaponSlot];
+        internal Weapon CurrentWeapon => _weapons[(int)_currentWeaponSlot];
         public IEnumerable<Weapon> Weapons => _weapons;
 
         internal WeaponSet(GameObject gameObject, GameContext context)
@@ -53,9 +53,9 @@ namespace OpenSage.Logic.Object
                 var weaponTemplate = _currentWeaponTemplateSet.Slots[i]?.Weapon.Value;
                 if (weaponTemplate != null)
                 {
-                    _weapons[i] = new Weapon(_gameObject, weaponTemplate, (WeaponSlot) i, _context);
+                    _weapons[i] = new Weapon(_gameObject, weaponTemplate, (WeaponSlot)i, _context);
 
-                    _filledWeaponSlots |= (uint) (1 << i);
+                    _filledWeaponSlots |= (uint)(1 << i);
                     _combinedAntiMask |= weaponTemplate.AntiMask;
                 }
             }

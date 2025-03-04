@@ -54,12 +54,12 @@ namespace OpenSage.Terrain.Roads
                 vertices.ToArray(),
                 BufferUsage.VertexBuffer));
 
-            _numIndices = (uint) indices.Count;
+            _numIndices = (uint)indices.Count;
 
             _indexBuffer = AddDisposable(loadContext.GraphicsDevice.CreateStaticBuffer(
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
-            
+
             _material = loadContext.ShaderResources.Road.GetMaterial(network.Template.Texture.Value);
 
             MaterialPass = new MaterialPass(_material, null);
@@ -89,8 +89,8 @@ namespace OpenSage.Terrain.Roads
         }
 
         internal void DebugDraw(DrawingContext2D context, Camera camera)
-        {            
-#if DEBUG            
+        {
+#if DEBUG
             var strokeColor = new ColorRgbaF(180, 176, 165, 255);
 
             foreach (var line in _debugLines)

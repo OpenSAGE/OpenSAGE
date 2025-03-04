@@ -71,8 +71,8 @@ namespace OpenSage.Graphics.Shaders
                 valueBytes,
                 0,
                 _constantsBytes,
-                (int) constantBufferField.Offset,
-                (int) constantBufferField.Size);
+                (int)constantBufferField.Offset,
+                (int)constantBufferField.Size);
         }
 
         public ResourceSet CreateResourceSet()

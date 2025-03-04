@@ -9,9 +9,9 @@ namespace OpenSage.Mathematics
         public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
         public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
 
-        public static ColorRgba operator*(ColorRgba value, float scale)
+        public static ColorRgba operator *(ColorRgba value, float scale)
         {
-            return new ColorRgba((byte) (value.R * scale), (byte) (value.G * scale), (byte) (value.B * scale), (byte) (value.A * scale));
+            return new ColorRgba((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
         }
 
         public Vector4 ToVector4()
@@ -26,7 +26,7 @@ namespace OpenSage.Mathematics
 
         public string ToHex()
         {
-            byte[] data = { R,G,B,A };
+            byte[] data = { R, G, B, A };
 
             string hex = BitConverter.ToString(data).Replace("-", string.Empty);
             return hex;
@@ -44,13 +44,13 @@ namespace OpenSage.Mathematics
 
             var a = original.A;
 
-            var b = (byte) (hexVal        & 0xFF);
-            var g = (byte) (hexVal >>   8 & 0xFF);
-            var r = (byte) (hexVal >>  16 & 0xFF);
+            var b = (byte)(hexVal & 0xFF);
+            var g = (byte)(hexVal >> 8 & 0xFF);
+            var r = (byte)(hexVal >> 16 & 0xFF);
 
             if (hasAlpha)
             {
-                a = (byte) (hexVal >> 24 & 0xFF);
+                a = (byte)(hexVal >> 24 & 0xFF);
             }
 
             return new ColorRgba(r, g, b, a);

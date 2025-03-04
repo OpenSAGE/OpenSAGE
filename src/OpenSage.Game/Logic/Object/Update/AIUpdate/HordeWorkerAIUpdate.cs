@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
                 { "ComboLocomotorSet", (parser, x) => x.ComboLocomotorSet = parser.ParseAssetReference() },
                 { "ComboLocoAttackDistance", (parser, x) => x.ComboLocoAttackDistance = parser.ParseInteger() }
             });
-        
+
         public string ComboLocomotorSet { get; private set; }
         public int ComboLocoAttackDistance { get; private set; }
     }

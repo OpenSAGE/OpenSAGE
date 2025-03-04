@@ -6,9 +6,9 @@ namespace OpenSage.Gui
     {
         internal static HeaderTemplate Parse(IniParser parser)
         {
-           return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("HeaderTemplate", name),
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+                 (x, name) => x.SetNameAndInstanceId("HeaderTemplate", name),
+                 FieldParseTable);
         }
 
         private static readonly IniParseTable<HeaderTemplate> FieldParseTable = new IniParseTable<HeaderTemplate>

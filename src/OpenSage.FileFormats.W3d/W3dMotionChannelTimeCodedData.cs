@@ -53,7 +53,7 @@ namespace OpenSage.FileFormats.W3d
             if (TimeCodes.Length % 2 != 0)
             {
                 // Align to 4-byte boundary.
-                writer.Write((ushort) 0);
+                writer.Write((ushort)0);
             }
 
             for (var i = 0; i < Values.Length; i++)

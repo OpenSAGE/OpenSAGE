@@ -36,7 +36,7 @@ namespace OpenSage.Navigation
 
         public Vector2 GetNodePosition(Node node)
         {
-            var xyz =_heightMap.GetPosition(node.X, node.Y);
+            var xyz = _heightMap.GetPosition(node.X, node.Y);
             return new Vector2(xyz.X, xyz.Y);
         }
 
@@ -61,9 +61,9 @@ namespace OpenSage.Navigation
             var direction = Vector3.Normalize(offset);
             var currentNode = GetClosestNode(start);
 
-            var maxSteps = (int) offset.Vector2XY().Length() + 1;
+            var maxSteps = (int)offset.Vector2XY().Length() + 1;
 
-            while(!currentNode.IsPassable && maxSteps > 0)
+            while (!currentNode.IsPassable && maxSteps > 0)
             {
                 start += direction;
                 currentNode = GetClosestNode(start);

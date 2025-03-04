@@ -40,7 +40,7 @@ namespace OpenSage.Input
                         continue;
                     }
 
-                    if (handler.Priority == (HandlingPriority) requiredPriority)
+                    if (handler.Priority == (HandlingPriority)requiredPriority)
                     {
                         yield return handler;
                     }

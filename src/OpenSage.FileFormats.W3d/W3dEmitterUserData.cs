@@ -19,11 +19,11 @@ namespace OpenSage.FileFormats.W3d
                 var result = new W3dEmitterUserData
                 {
                     Type = reader.ReadUInt32AsEnum<W3dEmitterUserDataType>(),
-                    Value = reader.ReadFixedLengthString((int) reader.ReadUInt32())
+                    Value = reader.ReadFixedLengthString((int)reader.ReadUInt32())
                 };
 
-                result.NumPadBytes = (uint) (context.CurrentEndPosition - reader.BaseStream.Position);
-                reader.ReadBytes((int) result.NumPadBytes);
+                result.NumPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
+                reader.ReadBytes((int)result.NumPadBytes);
 
                 return result;
             });
@@ -31,7 +31,7 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.Write((uint) Type);
+            writer.Write((uint)Type);
             if (Value.Length > 0)
             {
                 writer.Write(Value.Length + 1);
@@ -44,7 +44,7 @@ namespace OpenSage.FileFormats.W3d
 
             for (var i = 0; i < NumPadBytes; i++)
             {
-                writer.Write((byte) 0);
+                writer.Write((byte)0);
             }
         }
     }

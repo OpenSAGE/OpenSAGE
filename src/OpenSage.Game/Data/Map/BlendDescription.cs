@@ -37,7 +37,7 @@ namespace OpenSage.Data.Map
 
             // TODO: Figure out these flags for BFME I maps.
             // TODO: This is 221 for at least one RA3 map.
-            var flags = (BlendFlags) reader.ReadByte();
+            var flags = (BlendFlags)reader.ReadByte();
             //var flags = reader.ReadByteAsEnum<BlendFlags>();
 
             // TODO: This is 221 for at least one RA3 map.
@@ -84,18 +84,18 @@ namespace OpenSage.Data.Map
                 }
             }
 
-            return (BlendDirection) result;
+            return (BlendDirection)result;
         }
 
         private static byte[] ToBytes(BlendDirection value)
         {
             var result = new byte[4];
 
-            var byteValue = (byte) value;
+            var byteValue = (byte)value;
 
             for (var i = 0; i < result.Length; i++)
             {
-                result[i] = (byte) (value.HasFlag((BlendDirection) (1 << i)) ? 1 : 0);
+                result[i] = (byte)(value.HasFlag((BlendDirection)(1 << i)) ? 1 : 0);
             }
 
             return result;
@@ -107,7 +107,7 @@ namespace OpenSage.Data.Map
 
             writer.Write(RawBlendDirection);
 
-            writer.Write((byte) Flags);
+            writer.Write((byte)Flags);
 
             writer.Write(TwoSided);
 

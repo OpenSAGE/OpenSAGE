@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
         {
             var weaponSlot = parser.ParseEnum<WeaponSlot>();
 
-            ref var slot = ref Slots[(int) weaponSlot];
+            ref var slot = ref Slots[(int)weaponSlot];
             if (slot == null)
             {
                 slot = new WeaponSetSlot();

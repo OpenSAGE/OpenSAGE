@@ -1,6 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using FixedMath.NET;
+using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using FixedMath.NET;
 
 namespace OpenSage.Logic.Object
 {
@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
                 //TODO: increase damage with context.Weapon.Template.WeaponBonuses
             }
 
-            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64) Damage, DeathType, context.Weapon.ParentGameObject);
+            context.Weapon.CurrentTarget.DoDamage(DamageType, (Fix64)Damage, DeathType, context.Weapon.ParentGameObject);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace OpenSage.Content.Loaders
                         {
                             entry = new FileSystemEntry(context.FileSystem, possibleFilePath, (uint)info.Length, info.OpenRead);
                             break;
-                        }                        
+                        }
                     }
                 }
 

@@ -1243,7 +1243,7 @@ namespace OpenSage.Logic.Object
 
         internal ObjectDefinition Clone()
         {
-            var result = (ObjectDefinition) MemberwiseClone();
+            var result = (ObjectDefinition)MemberwiseClone();
 
             // TODO: Clone any other lists.
 

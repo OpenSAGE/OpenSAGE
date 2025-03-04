@@ -52,7 +52,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Official maps
             var mapCaches = game.AssetStore.MapCaches;
-            var listBoxMaps = (ListBox) window.Controls.FindControl(ListBoxMapPrefix);
+            var listBoxMaps = (ListBox)window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
 
             foreach (var mapCache in mapCaches)
@@ -84,7 +84,7 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             drawingContext.DrawImage(
-                (Texture) mapPreviewTexture,
+                (Texture)mapPreviewTexture,
                 null,
                 control.ClientRectangle.ToRectangleF());
         }

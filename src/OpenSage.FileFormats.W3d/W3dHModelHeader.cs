@@ -26,7 +26,7 @@ namespace OpenSage.FileFormats.W3d
                     Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
                     HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength),
                     ConnectionsCount = reader.ReadUInt16(),
-                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dHModelHeader UnknownBytes

@@ -18,10 +18,10 @@ namespace OpenSage.Terrain.Roads
         public Vector3 TopRight { get; }
         public Vector3 BottomLeft { get; }
         public Vector3 BottomRight { get; }
-        
+
         public bool MirrorTexture => false;
         public RoadTextureType Type { get; }
-        
+
         public CurvedRoadSegment(
             in Vector3 topLeft,
             in Vector3 topRight,
@@ -105,7 +105,7 @@ namespace OpenSage.Terrain.Roads
                 // render as angled connection
                 return;
             }
-            
+
             var halfRoadWidth = template.RoadWidth * template.RoadWidthInTexture / 2f;
 
             var radius = (type == RoadTextureType.TightCurve ? RoadConstants.TightCurveRadius : 3.3f) * halfRoadWidth;
@@ -186,7 +186,7 @@ namespace OpenSage.Terrain.Roads
                 var topRightToBottomRight = bottomRight - topRight;
 
                 var startPoint = new RoadSegmentEndPoint(centerLeft);
-                var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth); 
+                var endPoint = new RoadSegmentEndPoint(topRight + Vector3.Normalize(topRightToBottomRight) * halfRoadWidth);
 
                 return new CurvedRoadSegment(topLeft, topRight, bottomLeft, bottomRight, startPoint, endPoint, type);
             }

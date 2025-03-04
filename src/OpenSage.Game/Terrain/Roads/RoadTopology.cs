@@ -61,7 +61,7 @@ namespace OpenSage.Terrain.Roads
                 // If we already aligned this edge, skip to the next.
                 if (edge.AlignedLikeIndex >= 0)
                     continue;
-                
+
                 edge.AlignedLikeIndex = edge.Index;
 
                 // Walk along connected edges in both directions,

@@ -59,10 +59,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             switch (entry.Type)
             {
                 case ConstantEntryType.String:
-                    result = FromString((string) entry.Value);
+                    result = FromString((string)entry.Value);
                     break;
                 case ConstantEntryType.Register:
-                    result = FromRegister((uint) entry.Value);
+                    result = FromRegister((uint)entry.Value);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -99,7 +99,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             var v = new Value();
             v.Type = ValueType.Register;
-            v._number = (int) num;
+            v._number = (int)num;
             return v;
         }
 
@@ -107,7 +107,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             var v = new Value();
             v.Type = ValueType.Constant;
-            v._number = (int) id;
+            v._number = (int)id;
             return v;
         }
 
@@ -182,22 +182,23 @@ namespace OpenSage.Gui.Apt.ActionScript
                 return 0;
             }
 
-            return Math.Sign(floatNumber) * (int) Math.Abs(floatNumber);
+            return Math.Sign(floatNumber) * (int)Math.Abs(floatNumber);
         }
 
         /// Used by AptEditor to get actual id of constant / register
         public uint GetIDValue()
         {
-            if(Type != ValueType.Constant && Type != ValueType.Register)
+            if (Type != ValueType.Constant && Type != ValueType.Register)
                 throw new InvalidOperationException();
-            
+
             return (uint)_number;
         }
 
         // TODO: implement integer conversion etc.
         public double ToReal()
         {
-            if(Type == ValueType.Float) {
+            if (Type == ValueType.Float)
+            {
                 return _decimal;
             }
 

@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
             { "GenerateUncontrollableFear", (parser, x) => x.GenerateUncontrollableFear = parser.ParseBoolean() },
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() }
         };
-        
+
         public bool InitiallyActive { get; private set; }
         public string TriggeredBy { get; private set; }
         public int WhichSpecialPower { get; private set; }

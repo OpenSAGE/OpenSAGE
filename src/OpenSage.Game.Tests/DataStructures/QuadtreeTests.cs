@@ -155,7 +155,7 @@ namespace OpenSage.Tests.DataStructures
 
             quadtree.Remove(notInsertedItem);
 
-            Assert.Equal(new[] {item}, quadtree.FindIntersecting(quadtree.Bounds));
+            Assert.Equal(new[] { item }, quadtree.FindIntersecting(quadtree.Bounds));
         }
 
         #region Searcher

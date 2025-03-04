@@ -77,7 +77,7 @@ namespace OpenSage.Mods.Bfme
                 };
 
                 // This shape is used to render the overlay
-                var radarChild = ((SpriteItem) radar.Item).Content.Items[1] as SpriteItem;
+                var radarChild = ((SpriteItem)radar.Item).Content.Items[1] as SpriteItem;
                 shape = radarChild.Content.Items[1] as RenderItem;
                 shape.RenderCallback = (AptRenderingContext renderContext, Geometry geom, Texture orig) =>
                 {
@@ -211,12 +211,12 @@ namespace OpenSage.Mods.Bfme
 
         private void ApplyPortrait(GameObject unit, ObjectContext frame)
         {
-            if (frame == null || ((SpriteItem) frame.Item).Content.Items.Count == 0)
+            if (frame == null || ((SpriteItem)frame.Item).Content.Items.Count == 0)
             {
                 return;
             }
 
-            var shape = ((SpriteItem) frame.Item).Content.Items[1] as RenderItem;
+            var shape = ((SpriteItem)frame.Item).Content.Items[1] as RenderItem;
 
             if (shape.RenderCallback != null && _selectedUnit == unit)
             {

@@ -30,11 +30,11 @@ namespace OpenSage.Logic.Object
         };
 
         public bool StartsActive { get; private set; }
-        public string BonusName	{ get; private set; }
+        public string BonusName { get; private set; }
         public string TriggeredBy { get; private set; }
         public long RefreshDelay { get; private set; }
         public float Range { get; private set; }
-        public bool TargetEnemy	{ get; private set; }
+        public bool TargetEnemy { get; private set; }
         public string ObjectFilter { get; private set; }
         public string[] ConflictsWith { get; private set; }
         public bool RunWhileDead { get; private set; }

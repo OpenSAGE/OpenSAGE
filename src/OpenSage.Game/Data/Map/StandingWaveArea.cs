@@ -93,13 +93,13 @@ namespace OpenSage.Data.Map
             writer.Write(UvScrollSpeed);
             writer.Write(UseAdditiveBlending);
 
-            writer.Write((uint) Points.Length);
+            writer.Write((uint)Points.Length);
             foreach (var point in Points)
             {
                 writer.Write(point);
             }
 
-            writer.Write((uint) 0);
+            writer.Write((uint)0);
 
             if (version < 3)
             {

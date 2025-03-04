@@ -22,7 +22,7 @@ namespace OpenSage.Utilities
             {
                 if (gameDefinition.LanguageRegistryKeys != null && gameDefinition.LanguageRegistryKeys.Any())
                 {
-                    if(ReadFromRegistry(gameDefinition.LanguageRegistryKeys, out var language))
+                    if (ReadFromRegistry(gameDefinition.LanguageRegistryKeys, out var language))
                     {
                         return language;
                     }

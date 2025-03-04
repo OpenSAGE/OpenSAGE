@@ -7,10 +7,10 @@ namespace OpenSage.FileFormats.W3d
     {
         None = 0,
 
-        Physical   = 0x10,
+        Physical = 0x10,
         Projectile = 0x20,
-        Vis        = 0x40,
-        Camera     = 0x80,
-        Vehicle    = 0x100
+        Vis = 0x40,
+        Camera = 0x80,
+        Vehicle = 0x100
     }
 }

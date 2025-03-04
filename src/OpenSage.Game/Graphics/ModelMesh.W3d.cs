@@ -29,7 +29,7 @@ namespace OpenSage.Graphics
                     throw new NotSupportedException();
                 }
                 var shaderMaterialID = w3dMesh.MaterialPasses[0].ShaderMaterialIds.Items[0];
-                w3dShaderMaterial = w3dMesh.ShaderMaterials.Items[(int) shaderMaterialID];
+                w3dShaderMaterial = w3dMesh.ShaderMaterials.Items[(int)shaderMaterialID];
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
                 shaderResources = loadContext.ShaderResources.GetShaderMaterialResources(effectName);
@@ -48,7 +48,7 @@ namespace OpenSage.Graphics
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
                     w3dShaderMaterial,
-                    (ShaderMaterialShaderResources) shaderResources));
+                    (ShaderMaterialShaderResources)shaderResources));
             }
             else
             {
@@ -132,7 +132,7 @@ namespace OpenSage.Graphics
                 return null;
             }
 
-            var w3dTexture = w3dMesh.Textures.Items[(int) textureIndex];
+            var w3dTexture = w3dMesh.Textures.Items[(int)textureIndex];
 
             if (w3dTexture.TextureInfo != null && w3dTexture.TextureInfo.FrameCount != 1)
             {
@@ -146,7 +146,7 @@ namespace OpenSage.Graphics
             W3dMesh w3dMesh,
             bool isSkinned)
         {
-            var numVertices = (uint) w3dMesh.Vertices.Items.Length;
+            var numVertices = (uint)w3dMesh.Vertices.Items.Length;
             var vertices = new MeshShaderResources.MeshVertex.Basic[numVertices];
 
             for (var i = 0; i < numVertices; i++)
@@ -188,14 +188,14 @@ namespace OpenSage.Graphics
         private static ushort[] CreateIndices(W3dMesh w3dMesh)
         {
             var triangles = w3dMesh.Triangles.Items.AsSpan();
-            var indices = new ushort[(uint) triangles.Length * 3];
+            var indices = new ushort[(uint)triangles.Length * 3];
 
             var indexIndex = 0;
             foreach (ref readonly var triangle in triangles)
             {
-                indices[indexIndex++] = (ushort) triangle.VIndex0;
-                indices[indexIndex++] = (ushort) triangle.VIndex1;
-                indices[indexIndex++] = (ushort) triangle.VIndex2;
+                indices[indexIndex++] = (ushort)triangle.VIndex0;
+                indices[indexIndex++] = (ushort)triangle.VIndex1;
+                indices[indexIndex++] = (ushort)triangle.VIndex2;
             }
 
             return indices;
@@ -371,9 +371,9 @@ namespace OpenSage.Graphics
                         for (var i = 0; i < w3dMesh.Header.NumTris; i++)
                         {
                             var triangle = w3dMesh.Triangles.Items[i];
-                            var materialID0 = ids[(int) triangle.VIndex0];
-                            var materialID1 = ids[(int) triangle.VIndex1];
-                            var materialID2 = ids[(int) triangle.VIndex2];
+                            var materialID0 = ids[(int)triangle.VIndex0];
+                            var materialID1 = ids[(int)triangle.VIndex1];
+                            var materialID2 = ids[(int)triangle.VIndex2];
                             if (materialID0 != materialID1 || materialID1 != materialID2)
                             {
                                 throw new NotSupportedException();
@@ -457,7 +457,7 @@ namespace OpenSage.Graphics
                     return false;
                 }
 
-                var permutation = (CombinedMaterialPermutation) obj;
+                var permutation = (CombinedMaterialPermutation)obj;
 
                 return this == permutation;
             }
@@ -497,7 +497,7 @@ namespace OpenSage.Graphics
             uint? textureIndex0,
             uint? textureIndex1)
         {
-            var w3dShader = w3dMesh.Shaders.Items[(int) shaderID];
+            var w3dShader = w3dMesh.Shaders.Items[(int)shaderID];
 
             var cullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
                 ? FaceCullMode.None

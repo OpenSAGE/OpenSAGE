@@ -92,11 +92,11 @@ namespace OpenSage.Graphics.Cameras
 
         internal void Update(RtsCameraController camera, in TimeInterval gameTime)
         {
-            var currentTimeFraction = (float) ((gameTime.TotalTime - _startTime).TotalSeconds / _duration.TotalSeconds);
+            var currentTimeFraction = (float)((gameTime.TotalTime - _startTime).TotalSeconds / _duration.TotalSeconds);
             currentTimeFraction = Math.Min(currentTimeFraction, 1);
 
             var pos = currentTimeFraction * (_points.Count - 1);
-            var integralPart = (int) MathF.Truncate(pos);
+            var integralPart = (int)MathF.Truncate(pos);
             var decimalPart = pos - integralPart;
 
             // TODO: Not sure how right this is

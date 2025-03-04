@@ -36,6 +36,6 @@ namespace OpenSage.Terrain.Roads
         public float RoadWidth { get; private set; }
         public float RoadWidthInTexture { get; private set; }
 
-        public override string ToString() => FullName;        
+        public override string ToString() => FullName;
     }
 }

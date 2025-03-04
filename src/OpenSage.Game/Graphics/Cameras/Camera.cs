@@ -234,7 +234,7 @@ namespace OpenSage.Graphics.Cameras
             }
 
             var size = bottomRight - topLeft;
-            return new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) size.X, (int) size.Y);
+            return new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)size.X, (int)size.Y);
         }
     }
 }

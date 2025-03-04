@@ -79,7 +79,7 @@ namespace OpenSage.Data.Map
 
         internal override void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) Frames.Length);
+            writer.Write((uint)Frames.Length);
             foreach (var frame in Frames)
             {
                 frame.WriteTo(writer);
@@ -115,13 +115,13 @@ namespace OpenSage.Data.Map
 
         internal override void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) CameraFrames.Length);
+            writer.Write((uint)CameraFrames.Length);
             foreach (var frame in CameraFrames)
             {
                 frame.WriteTo(writer);
             }
 
-            writer.Write((uint) LookAtFrames.Length);
+            writer.Write((uint)LookAtFrames.Length);
             foreach (var frame in LookAtFrames)
             {
                 frame.WriteTo(writer);

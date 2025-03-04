@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Logic.AI.AIStates;
 using OpenSage.Logic.Object;

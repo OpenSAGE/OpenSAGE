@@ -14,7 +14,7 @@ namespace OpenSage.Data.Map
             {
                 var numBuildLists = reader.ReadUInt32();
                 var buildLists = new BuildList[numBuildLists];
-                
+
                 for (var i = 0; i < numBuildLists; i++)
                 {
                     buildLists[i] = BuildList.Parse(reader, context, version, mapHasAssetList);
@@ -31,7 +31,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Items.Length);
+                writer.Write((uint)Items.Length);
 
                 foreach (var buildList in Items)
                 {

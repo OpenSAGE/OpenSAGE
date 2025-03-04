@@ -19,7 +19,7 @@ namespace OpenSage.Graphics
         internal ModelMeshPart(
             ModelMesh modelMesh,
             DeviceBuffer texCoordVertexBuffer,
-            uint startIndex, 
+            uint startIndex,
             uint indexCount,
             bool blendEnabled,
             MaterialPass material,

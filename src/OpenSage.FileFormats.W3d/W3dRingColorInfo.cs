@@ -34,7 +34,7 @@ namespace OpenSage.FileFormats.W3d
 
             return result;
         }
-    
+
         internal void Write(BinaryWriter writer)
         {
             writer.Write(ChunkType);

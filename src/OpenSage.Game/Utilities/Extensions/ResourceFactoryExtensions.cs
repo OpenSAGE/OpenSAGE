@@ -39,7 +39,7 @@ namespace OpenSage.Utilities.Extensions
             uint structureByteStride = 0u)
             where T : struct
         {
-            var bufferSize = (uint) (data.Length * Marshal.SizeOf<T>());
+            var bufferSize = (uint)(data.Length * Marshal.SizeOf<T>());
 
             if (usage == BufferUsage.UniformBuffer)
             {
@@ -59,7 +59,7 @@ namespace OpenSage.Utilities.Extensions
 
             var map = graphicsDevice.Map(staging, MapMode.Write, 0);
 
-            var destinationSpan = new Span<T>(map.Data.ToPointer(), (int) bufferSize);
+            var destinationSpan = new Span<T>(map.Data.ToPointer(), (int)bufferSize);
             data.CopyTo(destinationSpan);
 
             graphicsDevice.Unmap(staging, 0);
@@ -94,7 +94,7 @@ namespace OpenSage.Utilities.Extensions
             return graphicsDevice.CreateStaticBuffer(
                 data,
                 BufferUsage.StructuredBufferReadOnly,
-                (uint) Marshal.SizeOf<T>());
+                (uint)Marshal.SizeOf<T>());
         }
 
         public unsafe static Texture CreateStaticTexture2D(
@@ -120,7 +120,7 @@ namespace OpenSage.Utilities.Extensions
             PixelFormat pixelFormat,
             bool isCubemap)
         {
-            var mipMapLevels = (uint) mipMapData.Length / arrayLayers;
+            var mipMapLevels = (uint)mipMapData.Length / arrayLayers;
 
             var staging = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(

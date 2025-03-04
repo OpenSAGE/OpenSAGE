@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
 
         public float FinalHeight { get; private set; }
         public float FinalMajorRadius { get; private set; }
-        
+
         public int TransitionTime { get; private set; }
         public bool ReverseAtTransitionTime { get; private set; }
 

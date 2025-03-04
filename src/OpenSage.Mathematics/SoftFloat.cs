@@ -44,20 +44,20 @@ namespace OpenSage.Mathematics
             {
                 if (RawExponent != 0)
                 {
-                    var sign = (uint) ((int) _raw >> 31);
-                    return (int) (((RawMantissa | 0x800000) ^ sign) - sign);
+                    var sign = (uint)((int)_raw >> 31);
+                    return (int)(((RawMantissa | 0x800000) ^ sign) - sign);
                 }
                 else
                 {
-                    var sign = (uint) ((int) _raw >> 31);
-                    return (int) (((RawMantissa) ^ sign) - sign);
+                    var sign = (uint)((int)_raw >> 31);
+                    return (int)(((RawMantissa) ^ sign) - sign);
                 }
             }
         }
 
-        private sbyte Exponent { get { return (sbyte) (RawExponent - ExponentBias); } }
+        private sbyte Exponent { get { return (sbyte)(RawExponent - ExponentBias); } }
 
-        private byte RawExponent { get { return (byte) (_raw >> MantissaBits); } }
+        private byte RawExponent { get { return (byte)(_raw >> MantissaBits); } }
 
 
         private const uint SignMask = 0x80000000;
@@ -89,7 +89,7 @@ namespace OpenSage.Mathematics
 
         public override string ToString()
         {
-            return ((float) this).ToString();
+            return ((float)this).ToString();
         }
 
         public static explicit operator SoftFloat(float f)
@@ -129,17 +129,17 @@ namespace OpenSage.Mathematics
                     {
                         //man1 = f1.Mantissa
                         //http://graphics.stanford.edu/~seander/bithacks.html#ConditionalNegate
-                        var sign1 = (uint) ((int) f1._raw >> 31);
-                        man1 = (int) (((f1.RawMantissa | 0x800000) ^ sign1) - sign1);
+                        var sign1 = (uint)((int)f1._raw >> 31);
+                        man1 = (int)(((f1.RawMantissa | 0x800000) ^ sign1) - sign1);
                         //man2 = f2.Mantissa
-                        var sign2 = (uint) ((int) f2._raw >> 31);
-                        man2 = (int) (((f2.RawMantissa | 0x800000) ^ sign2) - sign2);
+                        var sign2 = (uint)((int)f2._raw >> 31);
+                        man2 = (int)(((f2.RawMantissa | 0x800000) ^ sign2) - sign2);
                     }
                     else
                     {//Subnorm
                      //man2 = f2.Mantissa
-                        var sign2 = (uint) ((int) f2._raw >> 31);
-                        man2 = (int) ((f2.RawMantissa ^ sign2) - sign2);
+                        var sign2 = (uint)((int)f2._raw >> 31);
+                        man2 = (int)((f2.RawMantissa ^ sign2) - sign2);
 
                         man1 = f1.Mantissa;
 
@@ -152,7 +152,7 @@ namespace OpenSage.Mathematics
                         deltaExp = rawExp1 - rawExp2;
                     }
                     var man = (man1 << 6) + ((man2 << 6) >> deltaExp);
-                    var absMan = (uint) Math.Abs(man);
+                    var absMan = (uint)Math.Abs(man);
                     if (absMan == 0)
                     {
                         return Zero;
@@ -169,9 +169,9 @@ namespace OpenSage.Mathematics
                     var msbIndex = BitScanReverse8(msb);
                     rawExp += msbIndex;
                     absMan >>= msbIndex;
-                    if ((uint) (rawExp - 1) < 254)
+                    if ((uint)(rawExp - 1) < 254)
                     {
-                        var raw = (uint) man & 0x80000000 | (uint) rawExp << 23 | (absMan & 0x7FFFFF);
+                        var raw = (uint)man & 0x80000000 | (uint)rawExp << 23 | (absMan & 0x7FFFFF);
                         return new SoftFloat(raw);
                     }
                     else
@@ -189,7 +189,7 @@ namespace OpenSage.Mathematics
                         }
                         if (rawExp >= -24)//Fixme
                         {
-                            var raw = (uint) man & 0x80000000 | absMan >> (-rawExp + 1);
+                            var raw = (uint)man & 0x80000000 | absMan >> (-rawExp + 1);
                             return new SoftFloat(raw);
                         }
                         return Zero;
@@ -235,7 +235,7 @@ namespace OpenSage.Mathematics
             if (rawExp1 == 0)
             {//SubNorm
              //man1 = f1.Mantissa
-                sign1 = (uint) ((int) f1._raw >> 31);
+                sign1 = (uint)((int)f1._raw >> 31);
                 var rawMan1 = f1.RawMantissa;
                 if (rawMan1 == 0 && f2.IsFinite())
                 {
@@ -249,13 +249,13 @@ namespace OpenSage.Mathematics
                     rawExp1--;
                 }
                 Debug.Assert(rawMan1 >> 23 == 1);
-                man1 = (int) ((rawMan1 ^ sign1) - sign1);
+                man1 = (int)((rawMan1 ^ sign1) - sign1);
             }
             else if (rawExp1 != 255)
             {//Norm
              //man1 = f1.Mantissa
-                sign1 = (uint) ((int) f1._raw >> 31);
-                man1 = (int) (((f1.RawMantissa | 0x800000) ^ sign1) - sign1);
+                sign1 = (uint)((int)f1._raw >> 31);
+                man1 = (int)(((f1.RawMantissa | 0x800000) ^ sign1) - sign1);
             }
             else
             {//Non finite
@@ -271,7 +271,7 @@ namespace OpenSage.Mathematics
                         return f2;
                     }
 
-                    if ((int) f2._raw >= 0)
+                    if ((int)f2._raw >= 0)
                     {
                         return PositiveInfinity;
                     }
@@ -292,7 +292,7 @@ namespace OpenSage.Mathematics
                         return f2;
                     }
 
-                    if ((int) f2._raw < 0)
+                    if ((int)f2._raw < 0)
                     {
                         return PositiveInfinity;
                     }
@@ -312,7 +312,7 @@ namespace OpenSage.Mathematics
             if (rawExp2 == 0)
             {//SubNorm
              //man2 = f2.Mantissa
-                sign2 = (uint) ((int) f2._raw >> 31);
+                sign2 = (uint)((int)f2._raw >> 31);
                 var rawMan2 = f2.RawMantissa;
                 if (rawMan2 == 0)
                 {
@@ -326,13 +326,13 @@ namespace OpenSage.Mathematics
                     rawExp2--;
                 }
                 Debug.Assert(rawMan2 >> 23 == 1);
-                man2 = (int) ((rawMan2 ^ sign2) - sign2);
+                man2 = (int)((rawMan2 ^ sign2) - sign2);
             }
             else if (rawExp2 != 255)
             {//Norm
              //man2 = f2.Mantissa
-                sign2 = (uint) ((int) f2._raw >> 31);
-                man2 = (int) (((f2.RawMantissa | 0x800000) ^ sign2) - sign2);
+                sign2 = (uint)((int)f2._raw >> 31);
+                man2 = (int)(((f2.RawMantissa | 0x800000) ^ sign2) - sign2);
             }
             else
             {//Non finite
@@ -343,7 +343,7 @@ namespace OpenSage.Mathematics
                         return NaN;
                     }
 
-                    if ((int) f1._raw >= 0)
+                    if ((int)f1._raw >= 0)
                     {
                         return PositiveInfinity;
                     }
@@ -359,7 +359,7 @@ namespace OpenSage.Mathematics
                         return NaN;
                     }
 
-                    if ((int) f1._raw < 0)
+                    if ((int)f1._raw < 0)
                     {
                         return PositiveInfinity;
                     }
@@ -374,12 +374,12 @@ namespace OpenSage.Mathematics
                 }
             }
 
-            var longMan = man1 * (long) man2;
-            var man = (int) (longMan >> 23);
+            var longMan = man1 * (long)man2;
+            var man = (int)(longMan >> 23);
             Debug.Assert(man != 0);
-            var absMan = (uint) Math.Abs(man);
+            var absMan = (uint)Math.Abs(man);
             var rawExp = rawExp1 + rawExp2 - ExponentBias;
-            var sign = (uint) man & 0x80000000;
+            var sign = (uint)man & 0x80000000;
             if ((absMan & 0x1000000) != 0)
             {
                 absMan >>= 1;
@@ -402,7 +402,7 @@ namespace OpenSage.Mathematics
                 rawExp = 0;
             }
 
-            var raw = sign | (uint) rawExp << 23 | absMan & 0x7FFFFF;
+            var raw = sign | (uint)rawExp << 23 | absMan & 0x7FFFFF;
             return new SoftFloat(raw);
         }
 
@@ -414,12 +414,12 @@ namespace OpenSage.Mathematics
 
         private static unsafe uint ReinterpretFloatToInt32(float f)
         {
-            return *(uint*) &f;
+            return *(uint*)&f;
         }
 
         private static unsafe float ReinterpretIntToFloat32(uint i)
         {
-            return *(float*) &i;
+            return *(float*)&i;
         }
 
         public override bool Equals(object? obj)
@@ -428,7 +428,7 @@ namespace OpenSage.Mathematics
             {
                 return false;
             }
-            return Equals((SoftFloat) obj);
+            return Equals((SoftFloat)obj);
         }
 
         public bool Equals(SoftFloat other)
@@ -460,11 +460,11 @@ namespace OpenSage.Mathematics
 
             if (!IsNaN(this))
             {
-                return (int) _raw;
+                return (int)_raw;
             }
             else
             {
-                return unchecked((int) RawNaN);//All NaNs are equal
+                return unchecked((int)RawNaN);//All NaNs are equal
             }
         }
 
@@ -590,11 +590,11 @@ namespace OpenSage.Mathematics
                 return 0;
             }
 
-            var sign1 = (uint) ((int) _raw >> 31);
-            var val1 = (int) (((_raw) ^ (sign1 & 0x7FFFFFFF)) - sign1);
+            var sign1 = (uint)((int)_raw >> 31);
+            var val1 = (int)(((_raw) ^ (sign1 & 0x7FFFFFFF)) - sign1);
 
-            var sign2 = (uint) ((int) other._raw >> 31);
-            var val2 = (int) (((other._raw) ^ (sign2 & 0x7FFFFFFF)) - sign2);
+            var sign2 = (uint)((int)other._raw >> 31);
+            var val2 = (int)(((other._raw) ^ (sign2 & 0x7FFFFFFF)) - sign2);
             return val1.CompareTo(val2);
         }
 
@@ -665,22 +665,22 @@ namespace OpenSage.Mathematics
 
         public string ToString(string? format, IFormatProvider? formatProvider)
         {
-            return ((float) this).ToString(format, formatProvider);
+            return ((float)this).ToString(format, formatProvider);
         }
 
         public string ToString(string format)
         {
-            return ((float) this).ToString(format);
+            return ((float)this).ToString(format);
         }
 
         public string ToString(IFormatProvider provider)
         {
-            return ((float) this).ToString(provider);
+            return ((float)this).ToString(provider);
         }
 
         public string ToStringInv()
         {
-            return ((float) this).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return ((float)this).ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public static SoftFloat Abs(SoftFloat f)
@@ -740,7 +740,7 @@ namespace OpenSage.Mathematics
             {
                 return 0;
             }
-            else if ((int) value >= 0)
+            else if ((int)value >= 0)
             {
                 return 1;
             }
@@ -770,13 +770,13 @@ namespace OpenSage.Mathematics
             }
             else
             {
-                var sign1 = (uint) ((int) f1._raw >> 31);
-                var val1 = (int) (((f1._raw) ^ (sign1 & 0x7FFFFFFF)) - sign1);
+                var sign1 = (uint)((int)f1._raw >> 31);
+                var val1 = (int)(((f1._raw) ^ (sign1 & 0x7FFFFFFF)) - sign1);
 
-                var sign2 = (uint) ((int) f2._raw >> 31);
-                var val2 = (int) (((f2._raw) ^ (sign2 & 0x7FFFFFFF)) - sign2);
+                var sign2 = (uint)((int)f2._raw >> 31);
+                var val2 = (int)(((f2._raw) ^ (sign2 & 0x7FFFFFFF)) - sign2);
 
-                return Math.Abs(val1 - (long) val2);
+                return Math.Abs(val1 - (long)val2);
             }
         }
 

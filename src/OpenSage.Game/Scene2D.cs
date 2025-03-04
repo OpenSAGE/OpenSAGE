@@ -1,7 +1,7 @@
 ﻿using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd;
 using OpenSage.Logic;
 

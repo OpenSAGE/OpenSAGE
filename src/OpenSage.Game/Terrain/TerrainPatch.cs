@@ -40,7 +40,7 @@ namespace OpenSage.Terrain
                 patchBounds.Height,
                 out var indices);
 
-            _numIndices = (uint) indices.Length;
+            _numIndices = (uint)indices.Length;
 
             _vertexBuffer = AddDisposable(CreateVertexBuffer(
                 graphicsDevice,

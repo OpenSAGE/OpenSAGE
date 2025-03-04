@@ -12,7 +12,7 @@ namespace OpenSage.FileFormats.W3d
             return ParseChunk(reader, context, header =>
             {
                 var nameCount = header.ChunkSize / W3dConstants.NameLength;
-                var result = new W3dCollectionObjName{};
+                var result = new W3dCollectionObjName { };
 
                 result.Names = new string[nameCount];
                 for (int i = 0; i < nameCount; i++)

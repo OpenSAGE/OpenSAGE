@@ -83,13 +83,14 @@ namespace OpenSage.Diagnostics.AssetViews
             var size = _scaleToFit
                 ? SizeF.CalculateSizeFittingAspectRatio(
                     new SizeF(_texture.Width, _texture.Height),
-                    new Size((int) availableSize.X, (int) availableSize.Y)
+                    new Size((int)availableSize.X, (int)availableSize.Y)
                 )
                 : new Size((int)_texture.Width, (int)_texture.Height);
 
             var uiSize = _scaleToFit ? size.ToVector2() : new Vector2(_texture.Width, _texture.Height);
 
-            ImGui.PushStyleColor(ImGuiCol.ChildBg, _backgroundColor switch {
+            ImGui.PushStyleColor(ImGuiCol.ChildBg, _backgroundColor switch
+            {
                 BackgroundColor.None => Vector4.Zero,
                 BackgroundColor.Black => new Vector4(0, 0, 0, 1),
                 BackgroundColor.White => new Vector4(1, 1, 1, 1),

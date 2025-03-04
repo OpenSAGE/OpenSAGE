@@ -29,8 +29,8 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(KeyframeCount);
             writer.Write(Random);
 
-            writer.Write((uint) 0); // Pad
-            writer.Write((uint) 0);
+            writer.Write((uint)0); // Pad
+            writer.Write((uint)0);
         }
     }
 }

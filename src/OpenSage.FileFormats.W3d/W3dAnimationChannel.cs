@@ -57,8 +57,8 @@ namespace OpenSage.FileFormats.W3d
 
                 result.Data = data;
 
-                result.NumPadBytes = (uint) (context.CurrentEndPosition - reader.BaseStream.Position);
-                reader.BaseStream.Seek((int) result.NumPadBytes, SeekOrigin.Current);
+                result.NumPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
+                reader.BaseStream.Seek((int)result.NumPadBytes, SeekOrigin.Current);
 
                 return result;
             });
@@ -101,7 +101,7 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(FirstFrame);
             writer.Write(LastFrame);
             writer.Write(VectorLength);
-            writer.Write((ushort) ChannelType);
+            writer.Write((ushort)ChannelType);
             writer.Write(Pivot);
             writer.Write(Unknown);
 
@@ -112,7 +112,7 @@ namespace OpenSage.FileFormats.W3d
 
             for (var i = 0; i < NumPadBytes; i++)
             {
-                writer.Write((byte) 0);
+                writer.Write((byte)0);
             }
         }
     }

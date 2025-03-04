@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
            { "UnitWeight", (parser, x) => x.UnitWeight = parser.ParseInteger() },
         };
 
-       public List<string> Keys { get; } = new List<string>();
-       public int UnitWeight { get; private set; }
+        public List<string> Keys { get; } = new List<string>();
+        public int UnitWeight { get; private set; }
     }
 }

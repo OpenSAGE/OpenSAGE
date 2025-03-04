@@ -16,12 +16,12 @@ namespace OpenSage.Data.Map
         internal static SkyboxSettings Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version => new SkyboxSettings
-                {
-                    Position = reader.ReadVector3(),
-                    Scale = reader.ReadSingle(),
-                    Rotation = reader.ReadSingle(),
-                    TextureScheme = reader.ReadUInt16PrefixedAsciiString()
-                });
+            {
+                Position = reader.ReadVector3(),
+                Scale = reader.ReadSingle(),
+                Rotation = reader.ReadSingle(),
+                TextureScheme = reader.ReadUInt16PrefixedAsciiString()
+            });
         }
 
         internal void WriteTo(BinaryWriter writer)

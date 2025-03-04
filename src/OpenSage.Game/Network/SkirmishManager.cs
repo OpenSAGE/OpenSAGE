@@ -228,7 +228,7 @@ namespace OpenSage.Network
 
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
             {
-                var type = (PacketType) dataReader.GetByte();
+                var type = (PacketType)dataReader.GetByte();
                 Logger.Trace($"Received packet with type {type}");
                 switch (type)
                 {
@@ -334,7 +334,7 @@ namespace OpenSage.Network
                         if (localSlot.IsDirty)
                         {
                             Logger.Trace($"Local slot is dirty, sending...");
-                            _writer.Put((byte) PacketType.SkirmishClientUpdate);
+                            _writer.Put((byte)PacketType.SkirmishClientUpdate);
                             _processor.Write(_writer, new SkirmishClientUpdatePacket()
                             {
                                 PlayerName = localSlot.PlayerName,
@@ -352,7 +352,7 @@ namespace OpenSage.Network
                         {
                             Logger.Trace($"Sending ready...");
                             _writer.Reset();
-                            _writer.Put((byte) PacketType.SkirmishClientReady);
+                            _writer.Put((byte)PacketType.SkirmishClientReady);
                             _manager.SendToAll(_writer, DeliveryMethod.ReliableOrdered);
 
                             localSlot.ReadyUpdated = false;
@@ -453,7 +453,7 @@ namespace OpenSage.Network
 
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
             {
-                var type = (PacketType) dataReader.GetByte();
+                var type = (PacketType)dataReader.GetByte();
                 var slot = _slotLookup[fromPeer.Id];
                 switch (type)
                 {
@@ -520,7 +520,7 @@ namespace OpenSage.Network
                 case SkirmishGameStatus.Configuring:
                     if (Settings.IsDirty)
                     {
-                        _writer.Put((byte) PacketType.SkirmishSlotStatus);
+                        _writer.Put((byte)PacketType.SkirmishSlotStatus);
                         _processor.Write(_writer, new SkirmishGameStatusPacket()
                         {
                             MapName = Settings.MapName,
@@ -541,7 +541,7 @@ namespace OpenSage.Network
                     {
                         if (slot.ReadyUpdated)
                         {
-                            _writer.Put((byte) PacketType.SkirmishClientReady);
+                            _writer.Put((byte)PacketType.SkirmishClientReady);
                             _processor.Write(_writer, new SkirmishClientReadyPacket()
                             {
                                 Index = slot.Index
@@ -556,7 +556,7 @@ namespace OpenSage.Network
                     break;
 
                 case SkirmishGameStatus.SendingStartSignal:
-                    _writer.Put((byte) PacketType.SkirmishStartGame);
+                    _writer.Put((byte)PacketType.SkirmishStartGame);
                     _processor.Write(_writer, new SkirmishStartGamePacket()
                     {
                         Seed = Settings.Seed

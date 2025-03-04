@@ -175,13 +175,13 @@ namespace OpenSage.Gui.ControlBar
         public Point2D UAttackLR { get; private set; }
 
         public Point2D OptionsUL { get; private set; }
-        public Point2D  OptionsLR { get; private set; }
-        public Point2D  WorkerUL { get; private set; }
-        public Point2D  WorkerLR { get; private set; }
-        public Point2D  ChatUL { get; private set; }
-        public Point2D  ChatLR { get; private set; }
-        public Point2D  BeaconUL { get; private set; }
-        public Point2D  BeaconLR { get; private set; }
+        public Point2D OptionsLR { get; private set; }
+        public Point2D WorkerUL { get; private set; }
+        public Point2D WorkerLR { get; private set; }
+        public Point2D ChatUL { get; private set; }
+        public Point2D ChatLR { get; private set; }
+        public Point2D BeaconUL { get; private set; }
+        public Point2D BeaconLR { get; private set; }
 
         public Point2D PowerBarUL { get; private set; }
         public Point2D PowerBarLR { get; private set; }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -824,21 +824,21 @@ namespace OpenSage.Logic.Object
     [Flags]
     public enum SpecialPowerOrderFlags
     {
-        NeedTargetEnemyObject       = 1 << 0,
-        NeedTargetNeutralObject     = 1 << 1,
-        NeedTargetAllyObject        = 1 << 2,
-        Unknown1                    = 1 << 3,
-        Unknown2                    = 1 << 4,
-        NeedTargetPosition          = 1 << 5,
-        NeedUpgrade                 = 1 << 6,
-        NeedSpecialPowerScience     = 1 << 7,
-        OkForMultiSelect            = 1 << 8,
-        ContextModeCommand          = 1 << 9,
-        CheckLike                   = 1 << 10,
-        Unknown3                    = 1 << 11,
-        Unknown4                    = 1 << 12,
-        OptionOne                   = 1 << 13,
-        OptionTwo                   = 1 << 14,
-        OptionThree                 = 1 << 15,
+        NeedTargetEnemyObject = 1 << 0,
+        NeedTargetNeutralObject = 1 << 1,
+        NeedTargetAllyObject = 1 << 2,
+        Unknown1 = 1 << 3,
+        Unknown2 = 1 << 4,
+        NeedTargetPosition = 1 << 5,
+        NeedUpgrade = 1 << 6,
+        NeedSpecialPowerScience = 1 << 7,
+        OkForMultiSelect = 1 << 8,
+        ContextModeCommand = 1 << 9,
+        CheckLike = 1 << 10,
+        Unknown3 = 1 << 11,
+        Unknown4 = 1 << 12,
+        OptionOne = 1 << 13,
+        OptionTwo = 1 << 14,
+        OptionThree = 1 << 15,
     }
 }

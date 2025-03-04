@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.Shaders
         private readonly Dictionary<string, Material> _materialCache = new();
 
         public readonly Dictionary<string, ResourceBinding> MaterialResourceBindings;
-        
+
         public readonly Pipeline Pipeline;
 
         protected ShaderMaterialShaderResources(

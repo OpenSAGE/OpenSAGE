@@ -283,8 +283,8 @@ namespace OpenSage.Graphics.Animation
             in Keyframe next,
             TimeSpan currentTime)
         {
-            var progress = (float) (currentTime - previous.Time).TotalMilliseconds;
-            var duration = (float) (next.Time - previous.Time).TotalMilliseconds;
+            var progress = (float)(currentTime - previous.Time).TotalMilliseconds;
+            var duration = (float)(next.Time - previous.Time).TotalMilliseconds;
 
             var amount = (duration != 0)
                 ? progress / duration

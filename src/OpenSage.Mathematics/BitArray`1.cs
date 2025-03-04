@@ -36,7 +36,7 @@ namespace OpenSage.Mathematics
         /// Constructs a new bit array with the provided values set to true.
         /// </summary>
         /// <param name="values"></param>
-        public BitArray(params TEnum[] values): this()
+        public BitArray(params TEnum[] values) : this()
         {
             foreach (var value in values)
             {
@@ -126,7 +126,7 @@ namespace OpenSage.Mathematics
             {
                 if (_data.Get(i))
                 {
-                    yield return (TEnum) (object) i;
+                    yield return (TEnum)(object)i;
                 }
             }
         }

@@ -152,7 +152,7 @@ namespace OpenSage.Logic.Object
             reader.PersistFrame(ref _lastUpdatedFrame);
             var animationDirection = (ushort)_animationDirection;
             reader.PersistUInt16(ref animationDirection);
-            _animationDirection = (AnimationDirection) animationDirection;
+            _animationDirection = (AnimationDirection)animationDirection;
 
             reader.SkipUnknownBytes(1);
 
@@ -168,7 +168,7 @@ namespace OpenSage.Logic.Object
         }
 
         // todo: forwards and backwards may be reversed: verify
-        private enum AnimationDirection: ushort
+        private enum AnimationDirection : ushort
         {
             Forwards,
             Unknown1, // stopped?

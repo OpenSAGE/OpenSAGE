@@ -22,7 +22,7 @@ namespace OpenSage.FileFormats.W3d
                 var result = new W3dShaderMaterialProperty
                 {
                     PropertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>(),
-                    PropertyName = reader.ReadFixedLengthString((int) reader.ReadUInt32())
+                    PropertyName = reader.ReadFixedLengthString((int)reader.ReadUInt32())
                 };
 
                 var value = new W3dShaderMaterialPropertyValue();
@@ -30,7 +30,7 @@ namespace OpenSage.FileFormats.W3d
                 switch (result.PropertyType)
                 {
                     case W3dShaderMaterialPropertyType.Texture:
-                        result.StringValue = reader.ReadFixedLengthString((int) reader.ReadUInt32());
+                        result.StringValue = reader.ReadFixedLengthString((int)reader.ReadUInt32());
                         break;
 
                     case W3dShaderMaterialPropertyType.Float:
@@ -54,8 +54,8 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.Write((uint) PropertyType);
-            writer.Write((uint) PropertyName.Length + 1);
+            writer.Write((uint)PropertyType);
+            writer.Write((uint)PropertyName.Length + 1);
             writer.WriteFixedLengthString(PropertyName, PropertyName.Length + 1);
 
             switch (PropertyType)

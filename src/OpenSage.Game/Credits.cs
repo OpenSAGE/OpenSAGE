@@ -59,7 +59,7 @@ namespace OpenSage
 
     public sealed class CreditBlankLine : CreditLine
     {
-        
+
     }
 
     public enum CreditStyle

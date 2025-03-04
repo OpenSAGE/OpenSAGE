@@ -41,9 +41,9 @@ namespace OpenSage.Mathematics
         public Rectangle(in RectangleF rect)
         {
             X = (int)Math.Round(rect.X);
-            Y = (int) Math.Round(rect.Y);
-            Width = (int) Math.Round(rect.Width);
-            Height = (int) Math.Round(rect.Height);
+            Y = (int)Math.Round(rect.Y);
+            Width = (int)Math.Round(rect.Width);
+            Height = (int)Math.Round(rect.Height);
         }
 
         // TODO: remove this?
@@ -93,7 +93,7 @@ namespace OpenSage.Mathematics
                 return false;
             }
 
-            var rectangle = (Rectangle) obj;
+            var rectangle = (Rectangle)obj;
             return X == rectangle.X &&
                    Y == rectangle.Y &&
                    Width == rectangle.Width &&

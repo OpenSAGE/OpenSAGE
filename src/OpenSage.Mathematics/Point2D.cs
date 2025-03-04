@@ -16,8 +16,8 @@ namespace OpenSage.Mathematics
         {
             var result = Vector2.Transform(new Vector2(point.X, point.Y), matrix);
             return new Point2D(
-                (int) MathF.Round(result.X),
-                (int) MathF.Round(result.Y));
+                (int)MathF.Round(result.X),
+                (int)MathF.Round(result.Y));
         }
 
         public Size ToSize()
@@ -30,12 +30,12 @@ namespace OpenSage.Mathematics
             return new Vector2(X, Y);
         }
 
-        public static Point2D operator+(Point2D a, Point2D b)
+        public static Point2D operator +(Point2D a, Point2D b)
         {
             return new Point2D(a.X + b.X, a.Y + b.Y);
         }
 
-        public static Point2D operator-(Point2D a, Point2D b)
+        public static Point2D operator -(Point2D a, Point2D b)
         {
             return new Point2D(a.X - b.X, a.Y - b.Y);
         }

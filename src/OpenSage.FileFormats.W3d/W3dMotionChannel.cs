@@ -66,11 +66,11 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.Write((byte) 0);
+            writer.Write((byte)0);
 
-            writer.Write((byte) DeltaType);
+            writer.Write((byte)DeltaType);
             writer.Write(VectorLength);
-            writer.Write((byte) ChannelType);
+            writer.Write((byte)ChannelType);
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);
 

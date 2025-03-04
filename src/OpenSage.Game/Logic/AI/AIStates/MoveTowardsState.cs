@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Numerics;
 using OpenSage.Logic.Object;

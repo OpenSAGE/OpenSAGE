@@ -8,14 +8,14 @@ namespace OpenSage.Diagnostics
         public CameraView(DiagnosticViewContext context)
             : base(context)
         {
-            
+
         }
 
         public override string DisplayName { get; } = "Camera";
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            var cameraController = (RtsCameraController) Context.Game.Scene3D.CameraController;
+            var cameraController = (RtsCameraController)Context.Game.Scene3D.CameraController;
             cameraController.DrawInspector();
         }
     }

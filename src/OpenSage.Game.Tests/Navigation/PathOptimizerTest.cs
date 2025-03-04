@@ -14,7 +14,7 @@ namespace OpenSage.Tests.Navigation
 
             var result = graph.Search(start, end);
             PathOptimizer.RemoveRedundantNodes(result);
-            
+
             Assert.Equal(2, result.Count);
         }
     }

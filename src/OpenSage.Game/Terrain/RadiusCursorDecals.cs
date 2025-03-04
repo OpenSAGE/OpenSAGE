@@ -173,7 +173,7 @@ namespace OpenSage.Terrain
                 {
                     DecalTextureIndex = textureIndex,
                     Diameter = radius * 2,
-                    Opacity = (float) template.OpacityMin,
+                    Opacity = (float)template.OpacityMin,
                 },
                 Template = template,
                 IsOpacityIncreasing = true,

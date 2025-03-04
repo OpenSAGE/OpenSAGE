@@ -138,7 +138,7 @@ namespace OpenSage.Client
             var drawModules = new List<DrawModule>();
             foreach (var drawDataContainer in objectDefinition.Draws.Values)
             {
-                var drawModuleData = (DrawModuleData) drawDataContainer.Data;
+                var drawModuleData = (DrawModuleData)drawDataContainer.Data;
                 var drawModule = AddDisposable(drawModuleData.CreateDrawModule(this, gameContext));
                 if (drawModule != null)
                 {
@@ -162,7 +162,7 @@ namespace OpenSage.Client
             var clientUpdateModules = new List<ClientUpdateModule>();
             foreach (var clientUpdateModuleDataContainer in objectDefinition.ClientUpdates.Values)
             {
-                var clientUpdateModuleData = (ClientUpdateModuleData) clientUpdateModuleDataContainer.Data;
+                var clientUpdateModuleData = (ClientUpdateModuleData)clientUpdateModuleDataContainer.Data;
                 var clientUpdateModule = AddDisposable(clientUpdateModuleData.CreateModule(this, gameContext));
                 if (clientUpdateModule != null)
                 {
@@ -539,7 +539,7 @@ namespace OpenSage.Client
             var unknownInt8 = 0u;
             reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
 
-            var animation2DCount = (byte) _animations.Count;
+            var animation2DCount = (byte)_animations.Count;
             reader.PersistByte(ref animation2DCount);
 
             reader.BeginArray("Animations");

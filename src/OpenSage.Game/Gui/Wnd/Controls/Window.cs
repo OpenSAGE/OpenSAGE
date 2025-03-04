@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            if(!Visible)
+            if (!Visible)
             {
                 return;
             }

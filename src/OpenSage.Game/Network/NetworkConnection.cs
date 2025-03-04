@@ -18,7 +18,7 @@ namespace OpenSage.Network
     {
         private IPAddress _hostAddress;
 
-        public ClientNetworkConnection(SkirmishGameSettings game): base(game)
+        public ClientNetworkConnection(SkirmishGameSettings game) : base(game)
         {
             _hostAddress = game.Slots[0].EndPoint.Address;
         }
@@ -191,7 +191,7 @@ namespace OpenSage.Network
         private Order ReadOrder(NetDataReader reader)
         {
             int playerIndex = reader.GetInt();
-            OrderType orderType = (OrderType) reader.GetInt();
+            OrderType orderType = (OrderType)reader.GetInt();
 
             var order = new Order(playerIndex, orderType);
 
@@ -236,12 +236,12 @@ namespace OpenSage.Network
         private void WriteOrder(NetDataWriter writer, Order order)
         {
             writer.Put(order.PlayerIndex);
-            writer.Put((int) order.OrderType);
-            writer.Put((byte) order.Arguments.Count);
+            writer.Put((int)order.OrderType);
+            writer.Put((byte)order.Arguments.Count);
 
             foreach (var argument in order.Arguments)
             {
-                writer.Put((int) argument.ArgumentType);
+                writer.Put((int)argument.ArgumentType);
 
                 switch (argument.ArgumentType)
                 {

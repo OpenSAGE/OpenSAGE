@@ -85,7 +85,7 @@ namespace OpenSage.FileFormats.W3d
         protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
-            writer.Write((uint) Attributes);
+            writer.Write((uint)Attributes);
             writer.WriteFixedLengthString(MeshName, W3dConstants.NameLength);
             writer.WriteFixedLengthString(ContainerName, W3dConstants.NameLength);
             writer.Write(NumTris);
@@ -95,8 +95,8 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(SortLevel);
             writer.Write(PrelitVersion);
             writer.Write(FutureCounts);
-            writer.Write((uint) VertexChannels);
-            writer.Write((uint) FaceChannels);
+            writer.Write((uint)VertexChannels);
+            writer.Write((uint)FaceChannels);
             writer.Write(Min);
             writer.Write(Max);
             writer.Write(SphCenter);

@@ -27,7 +27,7 @@ namespace OpenSage.FileFormats.W3d
                 InitialDatum = W3dAnimationChannelDatum.Parse(reader, type)
             };
 
-            var numBits = (int) bitCount;
+            var numBits = (int)bitCount;
 
             // Then read the interleaved delta blocks
             var deltaBlocks = new W3dAdaptiveDeltaBlock[count * vectorLength];

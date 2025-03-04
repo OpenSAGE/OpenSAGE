@@ -33,7 +33,7 @@ namespace OpenSage.Lod
         public int GpuMemory { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int Unknown {get; private set; }
+        public int Unknown { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int ResolutionWidth { get; private set; }

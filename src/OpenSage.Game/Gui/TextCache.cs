@@ -68,7 +68,7 @@ namespace OpenSage.Gui
         private class TextCacheEntry : IDisposable
         {
             public readonly Texture Texture;
-            public TimeSpan LastUsed { get; private set;}
+            public TimeSpan LastUsed { get; private set; }
 
             public TextCacheEntry(Texture texture, TimeSpan now)
             {
@@ -166,8 +166,8 @@ namespace OpenSage.Gui
             var image = _textImagePool.Acquire(
                 new ImageKey
                 {
-                    Width = (int) MathF.Ceiling(size.Width),
-                    Height = (int) MathF.Ceiling(size.Height)
+                    Width = (int)MathF.Ceiling(size.Width),
+                    Height = (int)MathF.Ceiling(size.Height)
                 },
                 out var isNew
             );
@@ -286,8 +286,8 @@ namespace OpenSage.Gui
             {
                 texture = _graphicsDevice.ResourceFactory.CreateTexture(
                     TextureDescription.Texture2D(
-                        (uint) image.Width,
-                        (uint) image.Height,
+                        (uint)image.Width,
+                        (uint)image.Height,
                         1,
                         1,
                         PixelFormat.B8_G8_R8_A8_UNorm,
@@ -296,7 +296,7 @@ namespace OpenSage.Gui
                 _graphicsDevice.UpdateTexture(
                     texture,
                     new IntPtr(pin.Pointer),
-                    (uint) (image.Width * image.Height * 4),
+                    (uint)(image.Width * image.Height * 4),
                     0, 0, 0,
                     texture.Width,
                     texture.Height,
@@ -316,7 +316,8 @@ namespace OpenSage.Gui
 
             foreach (var ((key, entry), index) in _cache.WithIndex())
             {
-                if (ImGui.Selectable($"{key.Text} {entry.Texture.Width}x{entry.Texture.Height}##{index}", selectedObject == entry.Texture)) {
+                if (ImGui.Selectable($"{key.Text} {entry.Texture.Width}x{entry.Texture.Height}##{index}", selectedObject == entry.Texture))
+                {
                     selectedObject = entry.Texture;
                 }
             }

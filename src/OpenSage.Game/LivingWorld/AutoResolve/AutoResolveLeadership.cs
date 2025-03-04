@@ -46,5 +46,5 @@ namespace OpenSage.LivingWorld.AutoResolve
         public int MaximumUnitsAffected { get; private set; }
         public int Priority { get; private set; }
     }
-  
+
 }

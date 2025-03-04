@@ -140,7 +140,7 @@ namespace OpenSage.Network
         {
             var slot = new SkirmishSlot(reader.GetInt())
             {
-                State = (SkirmishSlotState) reader.GetByte(),
+                State = (SkirmishSlotState)reader.GetByte(),
                 ColorIndex = reader.GetSByte(),
                 FactionIndex = reader.GetByte(),
                 Team = reader.GetSByte(),
@@ -160,7 +160,7 @@ namespace OpenSage.Network
         public static void Serialize(NetDataWriter writer, SkirmishSlot slot)
         {
             writer.Put(slot.Index);
-            writer.Put((byte) slot.State);
+            writer.Put((byte)slot.State);
             writer.Put(slot.ColorIndex);
             writer.Put(slot.FactionIndex);
             writer.Put(slot.Team);

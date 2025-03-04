@@ -31,7 +31,7 @@ namespace OpenSage.Data.Map
             writer.WriteUInt16PrefixedAsciiString(Text);
             writer.WriteUInt16PrefixedAsciiString(Description);
             writer.Write(IsBonusObjective);
-            writer.Write((uint) ObjectiveType);
+            writer.Write((uint)ObjectiveType);
         }
     }
 

@@ -32,7 +32,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Areas.Length);
+                writer.Write((uint)Areas.Length);
 
                 foreach (var trigger in Areas)
                 {

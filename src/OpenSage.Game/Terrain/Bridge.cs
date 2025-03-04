@@ -95,7 +95,7 @@ namespace OpenSage.Terrain
             var spanLength = distance - lengthLeft - lengthRight;
 
             // There are zero or more spans in the bridge, as space permits.
-            var numSpans = (int) (spanLength / lengthSpan);
+            var numSpans = (int)(spanLength / lengthSpan);
 
             var totalLength = lengthLeft + (lengthSpan * numSpans) + lengthRight;
             var scaleX = distance / totalLength;

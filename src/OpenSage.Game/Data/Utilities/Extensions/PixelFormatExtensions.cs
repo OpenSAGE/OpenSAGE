@@ -28,7 +28,7 @@ namespace OpenSage.Data.Utilities.Extensions
 
         public static uint GetBlockDivisor(this PixelFormat format)
         {
-            if(format.IsBlockCompressed())
+            if (format.IsBlockCompressed())
             {
                 return 4;
             }

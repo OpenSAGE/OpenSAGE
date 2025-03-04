@@ -31,7 +31,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             return variable.DistributionType switch
             {
-                DistributionType.Uniform => min + ((float) Random.NextDouble() * (max - min)),
+                DistributionType.Uniform => min + ((float)Random.NextDouble() * (max - min)),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -39,25 +39,25 @@ namespace OpenSage.Graphics.ParticleSystems
         public static int GetRandomInt(this RandomVariable variable)
         {
             // TODO: I don't think this will ever give us the max value.
-            return (int) variable.GetRandomFloat();
+            return (int)variable.GetRandomFloat();
         }
 
         public static float GetRandomAngle()
         {
-            return MathUtility.TwoPi * (float) Random.NextDouble();
+            return MathUtility.TwoPi * (float)Random.NextDouble();
         }
 
         public static Vector2 GetRandomDirection2D()
         {
             float azimuth = GetRandomAngle();
             return new Vector2(
-                MathF.Cos(azimuth), 
+                MathF.Cos(azimuth),
                 MathF.Sin(azimuth));
         }
 
         public static Vector3 GetRandomDirection3D()
         {
-            float z = (2 * (float) Random.NextDouble()) - 1; // z is in the range [-1,1]
+            float z = (2 * (float)Random.NextDouble()) - 1; // z is in the range [-1,1]
             var planar = GetRandomDirection2D() * MathF.Sqrt(1 - z * z);
             return new Vector3(planar.X, planar.Y, z);
         }

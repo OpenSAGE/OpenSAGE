@@ -41,7 +41,7 @@ namespace OpenSage.FileFormats.W3d
             writer.WriteFixedLengthString(HierarchyName, W3dConstants.NameLength);
             writer.Write(NumFrames);
             writer.Write(FrameRate);
-            writer.Write((ushort) Flavor);
+            writer.Write((ushort)Flavor);
         }
     }
 }

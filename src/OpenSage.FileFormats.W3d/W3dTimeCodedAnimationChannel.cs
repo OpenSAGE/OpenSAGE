@@ -54,7 +54,7 @@ namespace OpenSage.FileFormats.W3d
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);
             writer.Write(VectorLength);
-            writer.Write((byte) ChannelType);
+            writer.Write((byte)ChannelType);
 
             for (var i = 0; i < Data.Length; i++)
             {
@@ -62,7 +62,7 @@ namespace OpenSage.FileFormats.W3d
             }
         }
     }
-    
+
     [DebuggerDisplay("TimeCode = {TimeCode}, Value = {Value}")]
     public sealed class W3dTimeCodedDatum
     {

@@ -52,7 +52,7 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(Position);
                 writer.Write(Angle);
-                writer.Write((uint) RoadType);
+                writer.Write((uint)RoadType);
                 writer.WriteUInt16PrefixedAsciiString(TypeName);
                 Properties.WriteTo(writer, assetNames);
             });

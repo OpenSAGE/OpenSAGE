@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Linq;
+using System.Net;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Network;
@@ -39,7 +39,7 @@ namespace OpenSage.Mods.Generals.Gui
                             break;
                         case "LanLobbyMenu.wnd:ButtonJoin":
 
-                            var listBoxGames = (ListBox) control.Window.Controls.FindControl(ListBoxGamesPrefix);
+                            var listBoxGames = (ListBox)control.Window.Controls.FindControl(ListBoxGamesPrefix);
 
                             if (listBoxGames.SelectedIndex < 0)
                             {
@@ -68,14 +68,14 @@ namespace OpenSage.Mods.Generals.Gui
         public static void LanLobbyMenuUpdate(Window window, Game game)
         {
             // Update games
-            var listBoxGames = (ListBox) window.Controls.FindControl(ListBoxGamesPrefix);
+            var listBoxGames = (ListBox)window.Controls.FindControl(ListBoxGamesPrefix);
 
             listBoxGames.Items = (from player in _game.LobbyManager.Players
                                   where player.IsHosting
                                   select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor)).ToArray();
 
             // Update players
-            var listBoxPlayers = (ListBox) window.Controls.FindControl(ListBoxPlayersPrefix);
+            var listBoxPlayers = (ListBox)window.Controls.FindControl(ListBoxPlayersPrefix);
 
             var players = from player in _game.LobbyManager.Players
                           where !player.IsHosting
@@ -86,8 +86,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void ClearPlayerName(object sender, EventArgs args)
         {
-            var buttonClear = (Button) sender;
-            var textEditPlayerName = (TextBox) buttonClear.Parent.Controls.FindControl(TextEntryPlayerNamePrefix);
+            var buttonClear = (Button)sender;
+            var textEditPlayerName = (TextBox)buttonClear.Parent.Controls.FindControl(TextEntryPlayerNamePrefix);
             textEditPlayerName.Text = string.Empty;
         }
 
@@ -96,17 +96,17 @@ namespace OpenSage.Mods.Generals.Gui
             _game = game;
 
             // Initialize player name
-            var textEditPlayerName = (TextBox) window.Controls.FindControl(TextEntryPlayerNamePrefix);
+            var textEditPlayerName = (TextBox)window.Controls.FindControl(TextEntryPlayerNamePrefix);
             textEditPlayerName.Text = game.LobbyManager.Username;
 
             textEditPlayerName.OnTextChanged += TextEditPlayerName_OnTextChanged;
 
             // Setup clear button
-            var buttonClear = (Button) window.Controls.FindControl(ButtonClearPrefix);
+            var buttonClear = (Button)window.Controls.FindControl(ButtonClearPrefix);
             buttonClear.Click += ClearPlayerName;
 
             // Clear chat field
-            var textChat = (TextBox) window.Controls.FindControl(TextEntryChatPrefix);
+            var textChat = (TextBox)window.Controls.FindControl(TextEntryChatPrefix);
             textChat.Text = string.Empty;
 
             if (!game.LobbyManager.IsRunning)

@@ -17,7 +17,7 @@ namespace OpenSage.FileFormats.W3d
                 var result = new W3dSoundRObjHeader
                 {
                     Version = reader.ReadUInt32(),
-                    Name = reader.ReadFixedLengthString((int) header.ChunkSize - 4)
+                    Name = reader.ReadFixedLengthString((int)header.ChunkSize - 4)
                 };
 
                 return result;

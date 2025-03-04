@@ -37,7 +37,7 @@ namespace OpenSage.Benchmarks.DataStructures
 
         public BenchQuadtreeItem Clone()
         {
-            return (BenchQuadtreeItem) MemberwiseClone();
+            return (BenchQuadtreeItem)MemberwiseClone();
         }
 
         public bool CollidesWith(ICollidable other, bool twoDimensional)

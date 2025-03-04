@@ -37,7 +37,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(string), (ref object v, DiagnosticViewContext context) =>
             {
-                var s = (string) v;
+                var s = (string)v;
                 if (ImGui.InputText("", ref s, 1000))
                 {
                     v = s;
@@ -48,7 +48,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(bool), (ref object v, DiagnosticViewContext context) =>
             {
-                var b = (bool) v;
+                var b = (bool)v;
                 if (ImGui.Checkbox("", ref b))
                 {
                     v = b;
@@ -59,7 +59,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(int), (ref object v, DiagnosticViewContext context) =>
             {
-                var i = (int) v;
+                var i = (int)v;
                 if (ImGui.DragInt("", ref i))
                 {
                     v = i;
@@ -70,7 +70,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(float), (ref object v, DiagnosticViewContext context) =>
             {
-                var f = (float) v;
+                var f = (float)v;
                 if (ImGui.DragFloat("", ref f))
                 {
                     v = f;
@@ -81,7 +81,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(Vector3), (ref object v, DiagnosticViewContext context) =>
             {
-                var c = (Vector3) v;
+                var c = (Vector3)v;
                 if (ImGui.DragFloat3("", ref c))
                 {
                     v = c;
@@ -92,7 +92,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(Percentage), (ref object v, DiagnosticViewContext context) =>
             {
-                var f = (float) (Percentage) v;
+                var f = (float)(Percentage)v;
                 if (ImGui.DragFloat("", ref f))
                 {
                     v = new Percentage(f);
@@ -103,13 +103,13 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(ColorRgb), (ref object v, DiagnosticViewContext context) =>
             {
-                var c = ((ColorRgb) v).ToVector3();
+                var c = ((ColorRgb)v).ToVector3();
                 if (ImGui.ColorEdit3("", ref c))
                 {
                     v = new ColorRgb(
-                        (byte) (c.X * 255.0f),
-                        (byte) (c.Y * 255.0f),
-                        (byte) (c.Z * 255.0f));
+                        (byte)(c.X * 255.0f),
+                        (byte)(c.Y * 255.0f),
+                        (byte)(c.Z * 255.0f));
                     return true;
                 }
                 return false;
@@ -117,14 +117,14 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(ColorRgba), (ref object v, DiagnosticViewContext context) =>
             {
-                var c = ((ColorRgba) v).ToVector4();
+                var c = ((ColorRgba)v).ToVector4();
                 if (ImGui.ColorEdit4("", ref c))
                 {
                     v = new ColorRgba(
-                        (byte) (c.X * 255.0f),
-                        (byte) (c.Y * 255.0f),
-                        (byte) (c.Z * 255.0f),
-                        (byte) (c.W * 255.0f));
+                        (byte)(c.X * 255.0f),
+                        (byte)(c.Y * 255.0f),
+                        (byte)(c.Z * 255.0f),
+                        (byte)(c.W * 255.0f));
                     return true;
                 }
                 return false;
@@ -132,7 +132,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(ColorRgbF), (ref object v, DiagnosticViewContext context) =>
             {
-                var c = ((ColorRgbF) v).ToVector3();
+                var c = ((ColorRgbF)v).ToVector3();
                 if (ImGui.ColorEdit3("", ref c))
                 {
                     v = new ColorRgbF(c.X, c.Y, c.Z);
@@ -143,7 +143,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(ColorRgbaF), (ref object v, DiagnosticViewContext context) =>
             {
-                var c = ((ColorRgbaF) v).ToVector4();
+                var c = ((ColorRgbaF)v).ToVector4();
                 if (ImGui.ColorEdit4("", ref c))
                 {
                     v = new ColorRgbaF(c.X, c.Y, c.Z, c.W);
@@ -154,7 +154,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(Enum), (ref object v, DiagnosticViewContext context) =>
             {
-                var e = (Enum) v;
+                var e = (Enum)v;
                 if (ImGuiUtility.ComboEnum(v.GetType(), "", ref e))
                 {
                     v = e;
@@ -165,7 +165,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(ILazyAssetReference), (ref object v, DiagnosticViewContext context) =>
             {
-                var asset = (ILazyAssetReference) v;
+                var asset = (ILazyAssetReference)v;
                 if (asset.Value != null)
                 {
                     if (ImGui.Button(asset.Value.FullName))
@@ -182,7 +182,7 @@ namespace OpenSage.Diagnostics
 
             Drawers.Add(new InspectableDrawer(typeof(BaseAsset), (ref object v, DiagnosticViewContext context) =>
             {
-                var asset = (BaseAsset) v;
+                var asset = (BaseAsset)v;
                 if (ImGui.Button(asset.FullName))
                 {
                     context.SelectedObject = v;
@@ -222,7 +222,7 @@ namespace OpenSage.Diagnostics
             if (typeof(IEnumerable).IsAssignableFrom(instance.GetType()))
             {
                 var i = 0;
-                foreach (var item in (IEnumerable) instance)
+                foreach (var item in (IEnumerable)instance)
                 {
                     ImGui.PushID(i);
 

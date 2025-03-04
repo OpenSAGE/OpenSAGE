@@ -9,9 +9,9 @@ namespace OpenSage.Logic
     {
         internal static ArmyDefinition Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("ArmyDefinition", name),
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.SetNameAndInstanceId("ArmyDefinition", name),
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<ArmyDefinition> FieldParseTable = new IniParseTable<ArmyDefinition>
@@ -123,9 +123,9 @@ namespace OpenSage.Logic
     {
         internal static AIEconomyAssigment Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.Name = name,
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<AIEconomyAssigment> FieldParseTable = new IniParseTable<AIEconomyAssigment>
@@ -141,9 +141,9 @@ namespace OpenSage.Logic
     {
         internal static AIWallNodeAssignment Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.Name = name,
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<AIWallNodeAssignment> FieldParseTable = new IniParseTable<AIWallNodeAssignment>
@@ -159,9 +159,9 @@ namespace OpenSage.Logic
     {
         internal static ArmyMemberDefinition Parse(IniParser parser)
         {
-             return parser.ParseNamedBlock(
-                (x, name) => x.Name = name,
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+               (x, name) => x.Name = name,
+               FieldParseTable);
         }
 
         private static readonly IniParseTable<ArmyMemberDefinition> FieldParseTable = new IniParseTable<ArmyMemberDefinition>

@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ani
                     break;
 
                 default:
-                    reader.ReadBytes((int) (endPosition - reader.BaseStream.Position));
+                    reader.ReadBytes((int)(endPosition - reader.BaseStream.Position));
                     break;
             }
 

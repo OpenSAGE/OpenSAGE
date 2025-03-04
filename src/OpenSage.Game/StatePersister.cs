@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -48,7 +48,7 @@ namespace OpenSage
         public virtual void PersistFieldName(string name) { }
 
 
-        public void PersistByte(ref byte value, [CallerArgumentExpression("value")]string name = "")
+        public void PersistByte(ref byte value, [CallerArgumentExpression("value")] string name = "")
         {
             PersistFieldName(name);
 
@@ -382,7 +382,7 @@ namespace OpenSage
             Console.WriteLine(source);
             for (var i = 0; i < numBytes; i++)
             {
-                Console.Write($"0x{ _binaryReader.ReadByte():x2}, ");
+                Console.Write($"0x{_binaryReader.ReadByte():x2}, ");
             }
             Console.WriteLine();
         }

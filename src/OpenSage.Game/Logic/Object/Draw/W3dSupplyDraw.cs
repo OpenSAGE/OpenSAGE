@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
             var totalBones = _boxBoneMap.Count;
 
             // use ceiling so we don't hide all the boxes when there are still supplies left
-            var boxesRemaining = (int) Math.Ceiling(totalBones * boxPercentage);
+            var boxesRemaining = (int)Math.Ceiling(totalBones * boxPercentage);
             for (var i = totalBones; i > boxesRemaining; i--)
             {
                 if (_boxBoneMap.TryGetValue($"{_bonePrefix}{i:00}", out var boneIndex))

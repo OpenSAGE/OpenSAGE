@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using OpenSage.Logic.Object;
 
@@ -19,11 +19,11 @@ namespace OpenSage.Logic.AI.AIStates
 
         public override void OnEnter()
         {
-           GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
-           GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-           GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
 
-           Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
+            Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitUnpack?.Value);
 
             var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.UnpackTime, Context);
 

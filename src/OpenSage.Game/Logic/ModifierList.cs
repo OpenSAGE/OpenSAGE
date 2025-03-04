@@ -1,11 +1,11 @@
-﻿using OpenSage.Content;
+﻿using System;
+using System.Collections.Generic;
+using FixedMath.NET;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using FixedMath.NET;
-using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Logic
 {
@@ -45,7 +45,7 @@ namespace OpenSage.Logic
                         gameObject.ProductionModifier *= modifier.Amount;
                         break;
                     case ModifierType.Health:
-                        var amount = (Fix64) (int) (modifier.Amount * 100);
+                        var amount = (Fix64)(int)(modifier.Amount * 100);
                         gameObject.HealthModifier += amount;
                         gameObject.Health += amount;
                         break;
@@ -108,7 +108,7 @@ namespace OpenSage.Logic
                         gameObject.ProductionModifier /= modifier.Amount;
                         break;
                     case ModifierType.Health:
-                        gameObject.HealthModifier -= (Fix64) (int) (modifier.Amount * 100);
+                        gameObject.HealthModifier -= (Fix64)(int)(modifier.Amount * 100);
                         // TODO: also reduce health again by this amount?
                         break;
                 }

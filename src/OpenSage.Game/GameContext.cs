@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;

@@ -49,7 +49,7 @@ namespace OpenSage.FileFormats.W3d
         {
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);
-            writer.Write((byte) ChannelType);
+            writer.Write((byte)ChannelType);
             writer.Write(DefaultValue);
 
             for (var i = 0; i < Data.Length; i++)

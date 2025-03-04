@@ -117,16 +117,16 @@ namespace OpenSage.Graphics
 
         private static Vector2 GetTopLeftUV(in Rectangle src, Texture img, bool flipped)
         {
-            return new Vector2(src.Left / (float) img.Width, flipped ?
-                (src.Bottom / (float) img.Height) :
-                (src.Top / (float) img.Height));
+            return new Vector2(src.Left / (float)img.Width, flipped ?
+                (src.Bottom / (float)img.Height) :
+                (src.Top / (float)img.Height));
         }
 
         private static Vector2 GetBottomRightUV(in Rectangle src, Texture img, bool flipped)
         {
-            return new Vector2(src.Right / (float) img.Width, flipped ?
-                (src.Top / (float) img.Height) :
-                (src.Bottom / (float) img.Height));
+            return new Vector2(src.Right / (float)img.Width, flipped ?
+                (src.Top / (float)img.Height) :
+                (src.Bottom / (float)img.Height));
         }
 
         private static Triangle2D GetTriangleUV(in Triangle2D src, Texture img, bool flipped)
@@ -153,7 +153,7 @@ namespace OpenSage.Graphics
             batchItem.Texture = image;
             batchItem.AlphaMask = alphaMask;
 
-            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
+            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int)image.Width, (int)image.Height);
 
             var texCoordTL = GetTopLeftUV(sourceRectangle, image, flipped);
             var texCoordBR = GetBottomRightUV(sourceRectangle, image, flipped);
@@ -188,7 +188,7 @@ namespace OpenSage.Graphics
             batchItem.Texture = image;
             batchItem.AlphaMask = alphaMask;
 
-            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
+            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int)image.Width, (int)image.Height);
 
             var texCoordTL = GetTopLeftUV(sourceRectangle, image, flipped);
             var texCoordBR = GetBottomRightUV(sourceRectangle, image, flipped);

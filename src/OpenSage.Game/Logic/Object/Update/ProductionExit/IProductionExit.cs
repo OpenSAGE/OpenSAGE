@@ -7,6 +7,6 @@ namespace OpenSage.Logic.Object
         bool CanProduce => true;
         Vector3 GetUnitCreatePoint();
         Vector3? GetNaturalRallyPoint();
-        void ProduceUnit() {}
+        void ProduceUnit() { }
     }
 }

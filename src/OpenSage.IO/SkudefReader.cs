@@ -1,4 +1,4 @@
-namespace OpenSage.IO
+﻿namespace OpenSage.IO
 {
     internal static class SkudefReader
     {
@@ -57,7 +57,7 @@ namespace OpenSage.IO
 
             // If no skudef (i.e. for pre-C&C3 games), use default one.
             using (var skudefFileContents = (skudefFile != null)
-                ? (TextReader) new StreamReader(skudefFile)
+                ? (TextReader)new StreamReader(skudefFile)
                 : new StringReader("add-bigs-recurse ."))
             {
                 Read(rootDirectory, skudefFileContents, addBigArchive);

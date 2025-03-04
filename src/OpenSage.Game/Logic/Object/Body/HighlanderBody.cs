@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
 
                 if (Health < (Fix64)0)
                 {
-                    Health = (Fix64) 0;
+                    Health = (Fix64)0;
                 }
 
                 // TODO: DamageFX

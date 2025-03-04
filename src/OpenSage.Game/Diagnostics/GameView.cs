@@ -32,10 +32,10 @@ namespace OpenSage.Diagnostics
 
             Game.Panel.EnsureFrame(
                 new Mathematics.Rectangle(
-                    (int) windowPos.X,
-                    (int) windowPos.Y,
-                    (int) availableSize.X,
-                    (int) availableSize.Y));
+                    (int)windowPos.X,
+                    (int)windowPos.Y,
+                    (int)availableSize.X,
+                    (int)availableSize.Y));
 
             var inputMessages = isGameViewFocused
                 ? ImGuiUtility.TranslateInputMessages(Game.Panel.Frame, Window.MessageQueue)

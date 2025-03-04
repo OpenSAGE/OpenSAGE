@@ -50,13 +50,13 @@ namespace OpenSage.Data.Map
 
             writer.Write(ID);
 
-            writer.Write((uint) Points.Length);
+            writer.Write((uint)Points.Length);
             foreach (var point in Points)
             {
                 writer.Write(point);
             }
 
-            writer.Write((uint) 0);
+            writer.Write((uint)0);
         }
     }
 }

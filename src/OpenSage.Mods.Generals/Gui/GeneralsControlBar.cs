@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -10,10 +11,9 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
-using OpenSage.Logic.Orders;
 using OpenSage.Logic.Object.Production;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -117,9 +117,9 @@ namespace OpenSage.Mods.Generals.Gui
 
             var schemeType = _scheme.GetType();
 
-            var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(_scheme)!;
-            var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(_scheme)!;
-            var width = (int) (progress * (lr.X - ul.X));
+            var ul = (Point2D)schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(_scheme)!;
+            var lr = (Point2D)schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(_scheme)!;
+            var width = (int)(progress * (lr.X - ul.X));
             lr = new Point2D(ul.X + width, lr.Y);
 
             control.Bounds = Rectangle.FromCorners(ul - _window.Bounds.Location, lr - _window.Bounds.Location);
@@ -401,7 +401,7 @@ namespace OpenSage.Mods.Generals.Gui
                     .FirstOrDefault(d => d.ScienceRequired == null || player.HasScience(d.ScienceRequired.Value)) // take the first one that actively applies
                     ?.StartingLevel ?? VeterancyLevel.Regular; // or default to regular if there isn't one
 
-                return RankOverlaySmall(controlBar, (int) startingVeterancy);
+                return RankOverlaySmall(controlBar, (int)startingVeterancy);
             }
 
             protected void ApplyCommandSet(Player player, GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)
@@ -786,8 +786,8 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var control = FindControl(name);
 
-                var ul = (Point2D) schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(scheme)!;
-                var lr = (Point2D) schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(scheme)!;
+                var ul = (Point2D)schemeType.GetProperty($"{coordPrefix}UL")!.GetValue(scheme)!;
+                var lr = (Point2D)schemeType.GetProperty($"{coordPrefix}LR")!.GetValue(scheme)!;
 
                 control.Bounds = Rectangle.FromCorners(ul - windowOrigin, lr - windowOrigin);
 
@@ -800,7 +800,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 Image? LoadImageForState(string state) =>
                     controlBarWindow.ImageLoader.CreateFromMappedImageReference(
-                        (LazyAssetReference<MappedImage>?) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
+                        (LazyAssetReference<MappedImage>?)schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
                 button.BackgroundImage = LoadImageForState("Enable");
                 button.DisabledBackgroundImage = LoadImageForState("Disabled");

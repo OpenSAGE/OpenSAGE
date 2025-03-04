@@ -7,9 +7,9 @@ namespace OpenSage.Input
     {
         internal static CommandMap Parse(IniParser parser)
         {
-           return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("CommandMap", name),
-                FieldParseTable);
+            return parser.ParseNamedBlock(
+                 (x, name) => x.SetNameAndInstanceId("CommandMap", name),
+                 FieldParseTable);
         }
 
         private static readonly IniParseTable<CommandMap> FieldParseTable = new IniParseTable<CommandMap>

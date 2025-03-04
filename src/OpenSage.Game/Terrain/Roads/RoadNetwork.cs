@@ -34,7 +34,7 @@ namespace OpenSage.Terrain.Roads
                     networks,
                     t => t.InstanceId,
                     n => n.Template.InstanceId,
-                    (t, n) => n);                
+                    (t, n) => n);
 
             return sortedNetworks;
         }

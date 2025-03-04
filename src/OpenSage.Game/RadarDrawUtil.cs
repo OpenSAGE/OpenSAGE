@@ -76,7 +76,7 @@ public class RadarDrawUtil
         // Invert y.
         position2D.Y = _heightMap.Height - position2D.Y;
 
-        return _heightMap.GetPosition((int) position2D.X, (int) position2D.Y);
+        return _heightMap.GetPosition((int)position2D.X, (int)position2D.Y);
     }
 
     public void Draw(DrawingContext2D drawingContext, in Mathematics.Rectangle destinationRectangle)
@@ -153,8 +153,8 @@ public class RadarDrawUtil
 
         // TODO: Use actual object geometry.
         var gameObjectRectangle = new Mathematics.Rectangle(
-            (int) radarPosition.Value.X,
-            (int) radarPosition.Value.Y,
+            (int)radarPosition.Value.X,
+            (int)radarPosition.Value.Y,
             2, 2);
 
         drawingContext.FillRectangle(

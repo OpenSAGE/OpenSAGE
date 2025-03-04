@@ -144,7 +144,7 @@ namespace OpenSage.Data.Dds
                         var surfaceInfo = GetSurfaceInfo(width, height, imageFormat, header);
 
                         var numSurfaceBytes = surfaceInfo.NumBytes * depth;
-                        var mipMapData = reader.ReadBytes((int) numSurfaceBytes);
+                        var mipMapData = reader.ReadBytes((int)numSurfaceBytes);
                         if (mipMapData.Length != numSurfaceBytes)
                         {
                             throw new InvalidDataException();

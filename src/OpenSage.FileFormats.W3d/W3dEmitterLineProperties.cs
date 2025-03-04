@@ -37,7 +37,7 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.Write((uint) Flags);
+            writer.Write((uint)Flags);
             writer.Write(SubdivisionLevel);
             writer.Write(NoiseAmplitude);
             writer.Write(MergeAbortFactor);

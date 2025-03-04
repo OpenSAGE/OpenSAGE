@@ -186,9 +186,9 @@ namespace OpenSage.FileFormats.Big
             }
 
             bw.WriteFourCc(fourCC);
-            bw.WriteBigEndianUInt32((uint) archiveSize);
-            bw.WriteBigEndianUInt32((uint) _entries.Count);
-            bw.WriteBigEndianUInt32((uint) dataStart);
+            bw.WriteBigEndianUInt32((uint)archiveSize);
+            bw.WriteBigEndianUInt32((uint)_entries.Count);
+            bw.WriteBigEndianUInt32((uint)dataStart);
         }
 
         private void UpdateOffsets()
@@ -206,11 +206,11 @@ namespace OpenSage.FileFormats.Big
             foreach (var entry in _entries)
             {
                 // Each entry has 4 bytes for the offset + 4 for size
-                bw.WriteBigEndianUInt32((uint) entryOffset);
-                bw.WriteBigEndianUInt32((uint) entry.Length);
+                bw.WriteBigEndianUInt32((uint)entryOffset);
+                bw.WriteBigEndianUInt32((uint)entry.Length);
                 bw.WriteNullTerminatedString(entry.FullName);
 
-                entry.OutstandingOffset = (uint) entryOffset;
+                entry.OutstandingOffset = (uint)entryOffset;
                 entryOffset += entry.Length;
             }
         }

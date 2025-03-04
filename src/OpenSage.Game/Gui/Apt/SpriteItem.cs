@@ -35,14 +35,14 @@ namespace OpenSage.Gui.Apt
 
         public DisplayList Content { get; private set; }
 
-        public int CurrentFrame => (int) _currentFrame;
+        public int CurrentFrame => (int)_currentFrame;
 
         public Dictionary<string, uint> FrameLabels { get; private set; }
         public PlayState State { get; private set; }
 
         public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
-            _sprite = (Playable) character;
+            _sprite = (Playable)character;
             _currentFrame = 0;
             _actionList = new List<Action>();
             Content?.Dispose();
@@ -81,7 +81,7 @@ namespace OpenSage.Gui.Apt
             //calculate the transform for this element
             renderingContext.PushTransform(Transform);
 
-            var clipMask = (Texture) null;
+            var clipMask = (Texture)null;
             var clipDepth = 0;
 
             //render all subItems
@@ -115,7 +115,7 @@ namespace OpenSage.Gui.Apt
             if (IsNewFrame(gt))
             {
                 //get the current frame
-                var frame = _sprite.Frames[(int) _currentFrame];
+                var frame = _sprite.Frames[(int)_currentFrame];
 
                 //process all frame items
                 foreach (var item in frame.FrameItems)
@@ -183,7 +183,7 @@ namespace OpenSage.Gui.Apt
                 frame = _sprite.Frames.Count - 1;
             }
 
-            _currentFrame = (uint) frame;
+            _currentFrame = (uint)frame;
         }
 
         public void NextFrame()
@@ -362,7 +362,7 @@ namespace OpenSage.Gui.Apt
                 }
             }
 
-            if(po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
             {
                 displayItem.ClipDepth = po.ClipDepth;
                 displayItem.ClipMask = new RenderTarget(Context.Window.ContentManager.GraphicsDevice);

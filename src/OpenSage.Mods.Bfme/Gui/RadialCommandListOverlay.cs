@@ -4,8 +4,8 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Gui;
-using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -63,7 +63,7 @@ namespace OpenSage.Mods.Bfme.Gui
             _visible = true;
 
             var screenPosition = _game.Scene3D.Camera.WorldToScreenPoint(selectedStructure.RoughCollider.WorldBounds.Center);
-            _center = new Point2D((int) screenPosition.X, (int) screenPosition.Y);
+            _center = new Point2D((int)screenPosition.X, (int)screenPosition.Y);
 
             _commandSet = selectedStructure.IsBeingConstructed() ? _gettingBuildCommandSet : selectedStructure.Definition.CommandSet.Value;
 

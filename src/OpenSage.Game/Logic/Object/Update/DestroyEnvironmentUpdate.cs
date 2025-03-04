@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
             {
                 { "StartTime", (parser, x) => x.StartTime = parser.ParseInteger() },
                 { "DestructionTime", (parser, x) => x.DestructionTime = parser.ParseInteger() },
-             
+
             };
 
         public int StartTime { get; private set; }

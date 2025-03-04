@@ -50,7 +50,7 @@ namespace OpenSage.Logic.AI
                 });
 
             var playerId = _owner.Id;
-            reader.PersistUInt32( ref playerId);
+            reader.PersistUInt32(ref playerId);
             if (playerId != _owner.Id)
             {
                 throw new InvalidStateException();

@@ -49,9 +49,11 @@ namespace OpenSage.Diagnostics
                 var assetViewConstructor = AssetViewConstructors.GetValueOrDefault(Context.SelectedObject.GetType());
 
                 // If there's no AssetView for this type, search with the base type.
-                if (assetViewConstructor == null) {
+                if (assetViewConstructor == null)
+                {
                     var baseType = Context.SelectedObject.GetType().BaseType;
-                    while (baseType != null && assetViewConstructor == null) {
+                    while (baseType != null && assetViewConstructor == null)
+                    {
                         assetViewConstructor = AssetViewConstructors.GetValueOrDefault(baseType);
                         baseType = baseType.BaseType;
                     }
@@ -59,7 +61,7 @@ namespace OpenSage.Diagnostics
 
                 if (assetViewConstructor != null)
                 {
-                    AssetView createAssetView() => (AssetView) assetViewConstructor.Invoke(new object[] { Context, Context.SelectedObject });
+                    AssetView createAssetView() => (AssetView)assetViewConstructor.Invoke(new object[] { Context, Context.SelectedObject });
 
                     _currentAssetView = AddDisposable(createAssetView());
                 }

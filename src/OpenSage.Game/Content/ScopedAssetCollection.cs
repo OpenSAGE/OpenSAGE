@@ -76,7 +76,7 @@ namespace OpenSage.Content
             {
                 var newValue = _loader.Load(name, _assetStore.LoadContext);
                 //TODO: should this happen?
-                if(newValue == null)
+                if (newValue == null)
                 {
                     return null;
                 }
@@ -137,7 +137,7 @@ namespace OpenSage.Content
 
         void IScopedAssetCollection.Add(object asset)
         {
-            Add((TAsset) asset);
+            Add((TAsset)asset);
         }
 
         public IEnumerable<BaseAsset> GetAssets()
@@ -156,6 +156,6 @@ namespace OpenSage.Content
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TAsset>) this).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TAsset>)this).GetEnumerator();
     }
 }

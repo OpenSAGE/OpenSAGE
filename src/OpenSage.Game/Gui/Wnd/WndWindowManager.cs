@@ -124,10 +124,10 @@ namespace OpenSage.Gui.Wnd
             }
 
             var windowArray = WindowStack.ToArray();
-            foreach(var window in windowArray)
+            foreach (var window in windowArray)
             {
                 var control = window.GetSelfOrDescendantAtPoint(mousePosition);
-                if(control != null && control != window)
+                if (control != null && control != window)
                 {
                     return control;
                 }

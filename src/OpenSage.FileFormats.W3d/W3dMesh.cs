@@ -58,7 +58,7 @@ namespace OpenSage.FileFormats.W3d
         public W3dPrelitLightMapMultiPass PrelitLightMapMultiPass { get; private set; }
 
         public W3dPrelitLightMapMultiTexture PrelitLightMapMultiTexture { get; private set; }
-        
+
         public W3dPrelitUnlit PrelitUnlit { get; private set; }
 
         internal static W3dMesh Parse(BinaryReader reader, W3dParseContext context)
@@ -268,7 +268,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 return new W3dMeshUserText
                 {
-                    Value = reader.ReadFixedLengthString((int) header.ChunkSize)
+                    Value = reader.ReadFixedLengthString((int)header.ChunkSize)
                 };
             });
         }

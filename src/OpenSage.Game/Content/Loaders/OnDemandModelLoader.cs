@@ -85,8 +85,8 @@ namespace OpenSage.Content.Loaders
                     {
                         continue;
                     }
-                    
-                    var bone = boneHierarchy.Bones[(int) w3dSubObject.BoneIndex];
+
+                    var bone = boneHierarchy.Bones[(int)w3dSubObject.BoneIndex];
 
                     //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -121,7 +121,7 @@ namespace OpenSage.Content.Loaders
             }
             else
             {
-                
+
             }
 
             return new Model(

@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Orders
                 }
                 else
                 {
-                    player = _game.Scene3D.Players[(int) order.PlayerIndex];
+                    player = _game.Scene3D.Players[(int)order.PlayerIndex];
                 }
 
                 var logLevel = order.OrderType == OrderType.SetCameraPosition ? NLog.LogLevel.Trace : NLog.LogLevel.Debug;
@@ -96,7 +96,7 @@ namespace OpenSage.Logic.Orders
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
                             var position = order.Arguments[1].Value.Position;
                             var angle = order.Arguments[2].Value.Float;
-                            player.BankAccount.Withdraw((uint) objectDefinition.BuildCost);
+                            player.BankAccount.Withdraw((uint)objectDefinition.BuildCost);
 
                             var gameObject = _game.Scene3D.GameObjects.CreateObject(objectDefinition, player);
                             gameObject.Owner = player;
@@ -116,7 +116,7 @@ namespace OpenSage.Logic.Orders
                             {
                                 // This probably shouldn't trigger a Die
                                 unit.Die(DeathType.Normal);
-                                player.BankAccount.Deposit((uint) unit.Definition.BuildCost);
+                                player.BankAccount.Deposit((uint)unit.Definition.BuildCost);
                             }
                             player.DeselectUnits();
                         }
@@ -137,9 +137,9 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinitionId = order.Arguments[1].Value.Integer;
 
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
-                            player.BankAccount.Withdraw((uint) upgradeDefinition.BuildCost);
+                            player.BankAccount.Withdraw((uint)upgradeDefinition.BuildCost);
 
                             gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
                         }
@@ -150,7 +150,7 @@ namespace OpenSage.Logic.Orders
                             var upgradeDefinitionId = order.Arguments[0].Value.Integer;
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
 
-                            player.BankAccount.Deposit((uint) upgradeDefinition.BuildCost);
+                            player.BankAccount.Deposit((uint)upgradeDefinition.BuildCost);
                             // since this is a building and only one at a time can be selected
                             player.SelectedUnits.First().ProductionUpdate.CancelUpgrade(upgradeDefinition);
                         }
@@ -167,7 +167,7 @@ namespace OpenSage.Logic.Orders
                         {
                             var objectDefinitionId = order.Arguments[0].Value.Integer;
                             var objectDefinition = _game.AssetStore.ObjectDefinitions.GetByInternalId(objectDefinitionId);
-                            player.BankAccount.Withdraw((uint) objectDefinition.BuildCost);
+                            player.BankAccount.Withdraw((uint)objectDefinition.BuildCost);
                             var placeInQueue = order.Arguments[1].Value.Integer;
 
                             foreach (var unit in player.SelectedUnits)
@@ -193,7 +193,7 @@ namespace OpenSage.Logic.Orders
                                 var productionJob = unit.ProductionUpdate.ProductionQueue[queueIndex];
                                 var objectDefinition = productionJob.ObjectDefinition;
 
-                                player.BankAccount.Deposit((uint) objectDefinition.BuildCost);
+                                player.BankAccount.Deposit((uint)objectDefinition.BuildCost);
 
                                 unit.ProductionUpdate?.CancelProduction(queueIndex);
                             }
@@ -215,7 +215,7 @@ namespace OpenSage.Logic.Orders
                                 sellAmount = (int)Math.Round(unit.Definition.BuildCost * _game.AssetStore.GameData.Current.SellPercentage);
                             }
 
-                            player.BankAccount.Deposit((uint) sellAmount);
+                            player.BankAccount.Deposit((uint)sellAmount);
                         }
                         break;
 
@@ -223,7 +223,7 @@ namespace OpenSage.Logic.Orders
                         {
                             var repairer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
                             var repairTargetId = order.Arguments[0].Value.ObjectId;
-                            var repairTarget =  _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
+                            var repairTarget = _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
 
                             (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
 
@@ -324,10 +324,10 @@ namespace OpenSage.Logic.Orders
                         break;
                     case OrderType.SpecialPowerAtLocation:
                         {
-                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType)order.Arguments[0].Value.Integer;
                             var specialPowerLocation = order.Arguments[1].Value.Position;
                             var unknownObjectId = order.Arguments[2].Value.ObjectId;
-                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[3].Value.Integer;
+                            var commandFlags = (SpecialPowerOrderFlags)order.Arguments[3].Value.Integer;
                             var commandCenterSource = order.Arguments[4].Value.ObjectId;
 
                             SpecialPowerAtLocationApplicator.Execute(specialPowerDefinition,
@@ -338,8 +338,8 @@ namespace OpenSage.Logic.Orders
 
                     case OrderType.SpecialPower:
                         {
-                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
-                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[1].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType)order.Arguments[0].Value.Integer;
+                            var commandFlags = (SpecialPowerOrderFlags)order.Arguments[1].Value.Integer;
                             var commandCenterSource = order.Arguments[2].Value.ObjectId; // todo: is this ever used for these commands?
 
                             SpecialPowerApplicator.Execute(specialPowerDefinition,
@@ -349,9 +349,9 @@ namespace OpenSage.Logic.Orders
 
                     case OrderType.SpecialPowerAtObject:
                         {
-                            var specialPowerDefinition = (SpecialPowerType) order.Arguments[0].Value.Integer;
+                            var specialPowerDefinition = (SpecialPowerType)order.Arguments[0].Value.Integer;
                             var targetId = order.Arguments[1].Value.ObjectId;
-                            var commandFlags = (SpecialPowerOrderFlags) order.Arguments[2].Value.Integer;
+                            var commandFlags = (SpecialPowerOrderFlags)order.Arguments[2].Value.Integer;
                             var commandCenterSource = order.Arguments[3].Value.ObjectId;
 
                             SpecialPowerAtObjectApplicator.Execute(specialPowerDefinition,
@@ -395,7 +395,7 @@ namespace OpenSage.Logic.Orders
                             }
 
                             var objectDefinitionId = order.Arguments[1].Value.Integer;
-                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
+                            var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
 
                             var container = gameObject.FindBehavior<OpenContainModule>();
                             foreach (var unit in player.SelectedUnits)
@@ -416,7 +416,7 @@ namespace OpenSage.Logic.Orders
                         }
                     case OrderType.GatherDumpSupplies:
                         var supplyPointId = order.Arguments[0].Value.Integer;
-                        var supplyPoint = _game.Scene3D.GameObjects.GetObjectById((uint) supplyPointId);
+                        var supplyPoint = _game.Scene3D.GameObjects.GetObjectById((uint)supplyPointId);
 
                         foreach (var unit in player.SelectedUnits)
                         {

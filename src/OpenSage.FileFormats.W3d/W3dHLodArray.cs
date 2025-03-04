@@ -52,6 +52,6 @@ namespace OpenSage.FileFormats.W3d
 
     public sealed class W3dHLodArray : W3dHLodArrayBase<W3dHLodArray>
     {
-        
+
     }
 }

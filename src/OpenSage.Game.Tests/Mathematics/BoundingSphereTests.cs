@@ -110,10 +110,10 @@ namespace OpenSage.Tests.Mathematics
         }
 
         [Theory]
-        [InlineData(0, 0, 0, 1,  0, 0, 0, 1,  0, 0, 0, 1)]
-        [InlineData(0, 0, 0, 1,  1, 0, 0, 1,  0.5f, 0, 0, 1.5f)]
-        [InlineData(0, 0, 0, 1,  2, 0, 0, 1,  1, 0, 0, 2)]
-        [InlineData(-2, 0, 0, 1, 2, 0, 0, 1,  0, 0, 0, 3)]
+        [InlineData(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)]
+        [InlineData(0, 0, 0, 1, 1, 0, 0, 1, 0.5f, 0, 0, 1.5f)]
+        [InlineData(0, 0, 0, 1, 2, 0, 0, 1, 1, 0, 0, 2)]
+        [InlineData(-2, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 3)]
         public void CreateMerged(float x, float y, float z, float radius,
                                 float x2, float y2, float z2, float radius2,
                                 float _x, float _y, float _z, float _radius)

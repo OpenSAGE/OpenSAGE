@@ -23,7 +23,7 @@ namespace OpenSage.Tests.Navigation
             var start = graph.GetNode(10, 10);
             var end = graph.GetNode(90, 90);
 
-            for(int i=0;i<99;i++)
+            for (int i = 0; i < 99; i++)
             {
                 graph.GetNode(50, i).Passability = Passability.Impassable;
             }

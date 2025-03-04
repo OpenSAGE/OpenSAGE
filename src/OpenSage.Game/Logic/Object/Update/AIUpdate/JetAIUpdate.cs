@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Logic.AI.AIStates;
 using OpenSage.Logic.AI;
+using OpenSage.Logic.AI.AIStates;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object

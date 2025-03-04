@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Mods.Generals;
 using OpenSage.Mods.Bfme;
 using OpenSage.Mods.Bfme2;
+using OpenSage.Mods.Generals;
 
 namespace OpenSage.Mods.BuiltIn
 {

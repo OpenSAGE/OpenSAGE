@@ -53,8 +53,8 @@ namespace OpenSage.Benchmarks.DataStructures
                 if (i < MovingItems)
                 {
                     var movementVector =
-                        Vector2.Normalize(new Vector2((float) _random.NextDouble(), (float) _random.NextDouble())) *
-                        (float) _random.NextDouble() * MaximumMovementDistance;
+                        Vector2.Normalize(new Vector2((float)_random.NextDouble(), (float)_random.NextDouble())) *
+                        (float)_random.NextDouble() * MaximumMovementDistance;
 
                     var newPosition = item.RoughCollider.AxisAlignedBoundingArea.Position + movementVector;
 

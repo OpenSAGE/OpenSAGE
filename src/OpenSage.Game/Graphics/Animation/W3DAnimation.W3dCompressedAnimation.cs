@@ -10,7 +10,7 @@ namespace OpenSage.Graphics.Animation
         internal W3DAnimation(W3dCompressedAnimation w3dAnimation)
         {
             SetNameAndInstanceId("W3DAnimation", w3dAnimation.Header.HierarchyName + "." + w3dAnimation.Header.Name);
-            Duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
+            Duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double)w3dAnimation.Header.FrameRate);
 
             var timeCodedChannels = w3dAnimation.TimeCodedChannels
                 .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
@@ -54,7 +54,7 @@ namespace OpenSage.Graphics.Animation
             for (var i = 0; i < w3dChannel.NumTimeCodes; i++)
             {
                 var timeCodedDatum = w3dChannel.Data[i];
-                var time = TimeSpan.FromSeconds(timeCodedDatum.TimeCode / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds(timeCodedDatum.TimeCode / (double)w3dAnimation.Header.FrameRate);
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, timeCodedDatum.Value);
             }
 
@@ -74,7 +74,7 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < w3dChannel.NumTimeCodes; i++)
             {
-                var time = TimeSpan.FromSeconds(i / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds(i / (double)w3dAnimation.Header.FrameRate);
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, decodedData[i]);
             }
 
@@ -89,7 +89,7 @@ namespace OpenSage.Graphics.Animation
             var i = 0;
             foreach (var keyframeWithValue in w3dChannel.Data.GetKeyframesWithValues(w3dChannel))
             {
-                var time = TimeSpan.FromSeconds(keyframeWithValue.Keyframe / (double) w3dAnimation.Header.FrameRate);
+                var time = TimeSpan.FromSeconds(keyframeWithValue.Keyframe / (double)w3dAnimation.Header.FrameRate);
                 keyframes[i++] = CreateKeyframe(w3dChannel.ChannelType, time, keyframeWithValue.Datum);
             }
 

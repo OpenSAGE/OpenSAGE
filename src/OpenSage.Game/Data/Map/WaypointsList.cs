@@ -31,7 +31,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) WaypointPaths.Length);
+                writer.Write((uint)WaypointPaths.Length);
 
                 foreach (var waypointPath in WaypointPaths)
                 {

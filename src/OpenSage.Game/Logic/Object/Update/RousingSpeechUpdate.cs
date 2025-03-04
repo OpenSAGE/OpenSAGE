@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
             { "ModifierName", (parser, x) => x.ModifierName = parser.ParseIdentifier() },
             { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
         };
-        
+
         public string SpecialPowerTemplate { get; private set; }
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
         public float StartAbilityRange { get; private set; }

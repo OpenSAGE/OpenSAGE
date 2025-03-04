@@ -36,7 +36,7 @@ namespace OpenSage.Data.Map
 
             if (HasPerimeter)
             {
-                writer.Write((uint) PerimeterPoints.Length);
+                writer.Write((uint)PerimeterPoints.Length);
                 for (var i = 0; i < PerimeterPoints.Length; i++)
                 {
                     PerimeterPoints[i].WriteTo(writer, version);

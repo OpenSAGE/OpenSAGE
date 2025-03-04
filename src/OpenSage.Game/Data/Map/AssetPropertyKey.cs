@@ -32,7 +32,7 @@ namespace OpenSage.Data.Map
 
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
-            writer.Write((byte) PropertyType);
+            writer.Write((byte)PropertyType);
 
             writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(Name));
         }

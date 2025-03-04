@@ -96,7 +96,7 @@ namespace OpenSage.Gui.Apt
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            var destinationSize = new Size((int) _destinationSize.X, (int) _destinationSize.Y);
+            var destinationSize = new Size((int)_destinationSize.X, (int)_destinationSize.Y);
             var fullSizeRect = new Rectangle(Point2D.Zero, destinationSize);
 
             if (BackgroundImage != null)

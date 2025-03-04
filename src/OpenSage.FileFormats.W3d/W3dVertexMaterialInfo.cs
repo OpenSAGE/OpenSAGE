@@ -40,7 +40,7 @@ namespace OpenSage.FileFormats.W3d
 
                 return new W3dVertexMaterialInfo
                 {
-                    Attributes = (W3dVertexMaterialFlags) (rawAttributes & 0xF),
+                    Attributes = (W3dVertexMaterialFlags)(rawAttributes & 0xF),
 
                     Stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16),
                     Stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8),
@@ -64,9 +64,9 @@ namespace OpenSage.FileFormats.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            var rawAttributes = (uint) Attributes;
-            rawAttributes |= (uint) Stage0Mapping << 16;
-            rawAttributes |= (uint) Stage1Mapping << 8;
+            var rawAttributes = (uint)Attributes;
+            rawAttributes |= (uint)Stage0Mapping << 16;
+            rawAttributes |= (uint)Stage1Mapping << 8;
             writer.Write(rawAttributes);
 
             writer.Write(Ambient, true);

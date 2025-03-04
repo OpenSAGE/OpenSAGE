@@ -98,7 +98,7 @@ namespace OpenSage.Graphics.Rendering.Water
         private void CalculateUVOffset(TimeOfDay timeOfDay)
         {
             // UVScroll specifies the amount of pixels the texture moves per millisecond
-            var deltaTime = (float) _deltaTimer.CurrentGameTime.DeltaTime.Milliseconds;
+            var deltaTime = (float)_deltaTimer.CurrentGameTime.DeltaTime.Milliseconds;
             var tex = _waterTextureSet[timeOfDay];
             var texSize = new Vector2(tex.Width, tex.Height);
             var uvScroll = _waterUvScrollSet[timeOfDay] * deltaTime / texSize;

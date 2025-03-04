@@ -121,11 +121,11 @@ namespace OpenSage.FileFormats.RefPack
                 {
                     ExecuteCommand();
                 }
-                _currentOutputPosition += (int) offset;
+                _currentOutputPosition += (int)offset;
             }
             else
             {
-                _currentOutputPosition += (int) offset;
+                _currentOutputPosition += (int)offset;
             }
 
             return _currentOutputPosition;
@@ -143,7 +143,7 @@ namespace OpenSage.FileFormats.RefPack
                 throw new ArgumentOutOfRangeException();
             }
 
-            var actualCount = (int) Math.Min(count, Length - _currentOutputPosition);
+            var actualCount = (int)Math.Min(count, Length - _currentOutputPosition);
 
             while (!_eof && _currentOutputPosition + actualCount > _nextOutputPosition)
             {

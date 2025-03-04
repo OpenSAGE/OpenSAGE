@@ -37,7 +37,7 @@ namespace OpenSage.Logic.Object
             var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
             var velocity = direction * context.GameObject.Speed;
 
-            _gameObject.SetTranslation(_gameObject.Translation + velocity * ((float) Game.LogicUpdateInterval / 1000.0f)) ;
+            _gameObject.SetTranslation(_gameObject.Translation + velocity * ((float)Game.LogicUpdateInterval / 1000.0f));
 
             CheckForHit(
                 context,

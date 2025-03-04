@@ -73,7 +73,7 @@ namespace OpenSage.Gui.DebugUI
                     continue;
                 }
 
-                drawable.Timer = Math.Max(0, drawable.Timer.Value - (float) gameTime.DeltaTime.TotalSeconds);
+                drawable.Timer = Math.Max(0, drawable.Timer.Value - (float)gameTime.DeltaTime.TotalSeconds);
             }
 
             if (!Enabled)
@@ -91,7 +91,7 @@ namespace OpenSage.Gui.DebugUI
             {
                 var worldPos = _mouseWorldPosition.Value;
                 _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", MathF.Round(worldPos.X, 3), MathF.Round(worldPos.Y, 3), MathF.Round(worldPos.Z, 3));
-                _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int) worldPos.X / 10, (int) worldPos.Y / 10);
+                _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int)worldPos.X / 10, (int)worldPos.Y / 10);
             }
         }
 
@@ -142,7 +142,7 @@ namespace OpenSage.Gui.DebugUI
                             context.DrawLine(new Line2D(wp1, wp2), 1.0f, ColorRgbaF.White);
                         }
 
-                        for (var i = 1; i < targetPoints.Count;i++)
+                        for (var i = 1; i < targetPoints.Count; i++)
                         {
                             var p1 = targetPoints[i - 1];
                             var p2 = targetPoints[i];

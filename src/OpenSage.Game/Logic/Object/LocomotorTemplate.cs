@@ -368,31 +368,31 @@ namespace OpenSage.Logic.Object
     [Flags]
     public enum Surfaces
     {
-        None       = 0x0,
+        None = 0x0,
 
         [IniEnum("GROUND")]
-        Ground     = 0x1,
+        Ground = 0x1,
 
         [IniEnum("WATER")]
-        Water      = 0x2,
+        Water = 0x2,
 
         [IniEnum("CLIFF")]
-        Cliff      = 0x4,
+        Cliff = 0x4,
 
         [IniEnum("AIR")]
-        Air        = 0x8,
+        Air = 0x8,
 
         [IniEnum("RUBBLE")]
-        Rubble     = 0x10,
+        Rubble = 0x10,
 
         [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme)]
-        Obstacle   = 0x20,
+        Obstacle = 0x20,
 
         [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme)]
         Impassable = 0x40,
 
         [IniEnum("DEEP_WATER"), AddedIn(SageGame.Bfme2)]
-        DeepWater  = 0x80,
+        DeepWater = 0x80,
     }
 
     public enum GroupMovementPriority

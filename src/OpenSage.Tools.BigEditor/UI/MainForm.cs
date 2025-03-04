@@ -6,10 +6,10 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.FileFormats.Big;
 using OpenSage.Tools.BigEditor.Util;
-using Veldrid.Sdl2;
+using OpenSage.Tools.BigEditor.Views;
 using SharpFileDialog;
 using Veldrid;
-using OpenSage.Tools.BigEditor.Views;
+using Veldrid.Sdl2;
 
 namespace OpenSage.Tools.BigEditor.UI
 {
@@ -112,7 +112,8 @@ namespace OpenSage.Tools.BigEditor.UI
                         wasOpenClicked = true;
                     }
 
-                    if (ImGui.MenuItem("Open (read only)...")) {
+                    if (ImGui.MenuItem("Open (read only)..."))
+                    {
                         _openMode = BigArchiveMode.Read;
                         wasOpenClicked = true;
                     }

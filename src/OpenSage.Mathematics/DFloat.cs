@@ -23,7 +23,7 @@ namespace OpenSage.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DFloat(float value)
         {
-            _value = (Representation) value;
+            _value = (Representation)value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

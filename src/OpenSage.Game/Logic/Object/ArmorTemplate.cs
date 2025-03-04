@@ -59,7 +59,7 @@ namespace OpenSage.Logic.Object
         /// </summary>
         internal Percentage GetDamagePercent(DamageType damageType)
         {
-            return Values[(int) damageType];
+            return Values[(int)damageType];
         }
     }
 }

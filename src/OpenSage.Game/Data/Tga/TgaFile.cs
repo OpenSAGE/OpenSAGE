@@ -85,7 +85,7 @@ namespace OpenSage.Data.Tga
             {
                 var packet = reader.ReadByte();
 
-                var packetType = (RlePacketType) (packet >> 7);
+                var packetType = (RlePacketType)(packet >> 7);
                 var value = (packet & 0b1111111) + 1;
 
                 switch (packetType)
@@ -175,9 +175,9 @@ namespace OpenSage.Data.Tga
 
                             const float factor = (1.0f / 32.0f) * 255.0f;
 
-                            result[resultIndex++] = (byte) (r * factor); // R
-                            result[resultIndex++] = (byte) (g * factor); // G
-                            result[resultIndex++] = (byte) (b * factor); // B
+                            result[resultIndex++] = (byte)(r * factor); // R
+                            result[resultIndex++] = (byte)(g * factor); // G
+                            result[resultIndex++] = (byte)(b * factor); // B
                             result[resultIndex++] = 255; // A
                         }
                         return result;

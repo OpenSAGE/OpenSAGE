@@ -76,7 +76,7 @@ namespace OpenSage.Gui.Wnd.Controls
                         }
                         else
                         {
-                            if(message.Modifiers.HasFlag(Veldrid.ModifierKeys.Shift))
+                            if (message.Modifiers.HasFlag(Veldrid.ModifierKeys.Shift))
                             {
                                 Text += char.ToUpperInvariant(character);
                             }

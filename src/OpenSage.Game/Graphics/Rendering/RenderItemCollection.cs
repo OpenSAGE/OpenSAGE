@@ -44,7 +44,7 @@ namespace OpenSage.Graphics.Rendering
         {
             if (Length == _items.Length)
             {
-                var newCapacity = (int) ((Length + 1) * GrowthFactor);
+                var newCapacity = (int)((Length + 1) * GrowthFactor);
                 Array.Resize(ref _items, newCapacity);
                 Array.Resize(ref _culled, newCapacity);
             }
@@ -121,7 +121,7 @@ namespace OpenSage.Graphics.Rendering
 
             // Step 2: Go through _culled, and store the indices of culled values in _resultIndices.
             // Also count the number of culled render items.
-            
+
             for (var i = 0; i < Length; i++)
             {
                 if (_culled[i])

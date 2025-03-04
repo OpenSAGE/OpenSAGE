@@ -5,8 +5,8 @@ namespace OpenSage.Tests.Data.Ini
 {
     public class TokenReaderTests
     {
-        private static readonly char[] Spaces = {' '};
-        private static readonly char[] Semicolons = {';'};
+        private static readonly char[] Spaces = { ' ' };
+        private static readonly char[] Semicolons = { ';' };
 
         [Fact]
         public void TwoPeeksReturnSameInstance()

@@ -5,7 +5,7 @@ using OpenSage.Logic.Object;
 namespace OpenSage.Logic
 {
     [AddedIn(SageGame.Bfme2)]
-    public sealed class ArmySummaryDescription  : BaseSingletonAsset
+    public sealed class ArmySummaryDescription : BaseSingletonAsset
     {
         internal static void Parse(IniParser parser, ArmySummaryDescription value) => parser.ParseBlockContent(value, FieldParseTable);
 

@@ -37,7 +37,7 @@ namespace OpenSage.Network
             var notEmptyCount = _receivedPackets.Count(p => p.Orders.Any());
             if (notEmptyCount > 0)
             {
-                Logger.Trace($"Processing { notEmptyCount } received packets in frame {frame}");
+                Logger.Trace($"Processing {notEmptyCount} received packets in frame {frame}");
             }
 
             foreach (var packet in _receivedPackets)
@@ -59,7 +59,7 @@ namespace OpenSage.Network
 
         public virtual void Dispose()
         {
-            
+
         }
     }
 }

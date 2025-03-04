@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
-using System.Numerics;
 
 namespace OpenSage.LivingWorld
 {

@@ -63,8 +63,8 @@ namespace OpenSage
 
         public TimeInterval(long totalGameTimeTicks, long elapsedGameTimeTicks)
         {
-            TotalTime = new TimeSpan((long) (totalGameTimeTicks * TickRatio));
-            DeltaTime = new TimeSpan((long) (elapsedGameTimeTicks * TickRatio));
+            TotalTime = new TimeSpan((long)(totalGameTimeTicks * TickRatio));
+            DeltaTime = new TimeSpan((long)(elapsedGameTimeTicks * TickRatio));
         }
 
         public TimeInterval(TimeSpan totalTime, TimeSpan deltaTime)

@@ -23,7 +23,7 @@ namespace OpenSage.Scripting
             {
                 if (CachedEnumMap.TryGetValue(action.InternalName.Name, out var untypedActionType))
                 {
-                    actionType = (ScriptActionType) untypedActionType;
+                    actionType = (ScriptActionType)untypedActionType;
                 }
             }
 

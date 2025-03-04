@@ -43,7 +43,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Official maps
             var mapCaches = _game.AssetStore.MapCaches;
-            var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
+            var listBoxMaps = (ListBox)_window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
 
             foreach (var mapCache in mapCaches)
@@ -61,7 +61,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void OnItemChanged(object sender, EventArgs e)
         {
-            var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
+            var listBoxMaps = (ListBox)_window.Controls.FindControl(ListBoxMapPrefix);
             var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
 
             var mapCache = selectedItem.DataItem as MapCache;

@@ -59,7 +59,7 @@ namespace OpenSage.Diagnostics
             var currentSize = ImGui.GetContentRegionAvail();
             if (_cachedSize != currentSize)
             {
-                var newSize = new Size((int) currentSize.X, (int) currentSize.Y);
+                var newSize = new Size((int)currentSize.X, (int)currentSize.Y);
                 _renderTarget.EnsureSize(newSize);
                 _cachedSize = currentSize;
 
@@ -71,7 +71,7 @@ namespace OpenSage.Diagnostics
 
             var inputMessages = isMouseInRenderedView
                 ? ImGuiUtility.TranslateInputMessages(
-                    new Mathematics.Rectangle((int) cursorScreenPos.X, (int) cursorScreenPos.Y, (int) currentSize.X, (int) currentSize.Y),
+                    new Mathematics.Rectangle((int)cursorScreenPos.X, (int)cursorScreenPos.Y, (int)currentSize.X, (int)currentSize.Y),
                     _context.Window.MessageQueue)
                 : Array.Empty<InputMessage>();
 

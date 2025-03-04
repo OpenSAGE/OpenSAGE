@@ -20,7 +20,7 @@ namespace OpenSage.Mathematics
             float theta = MathF.Acos(dot) * percent;
             Vector3 RelativeVec = end - start * dot;
             RelativeVec = Vector3.Normalize(RelativeVec);     // Orthonormal basis
-                                         // The final result.
+                                                              // The final result.
             return ((start * MathF.Cos(theta)) + (RelativeVec * MathF.Sin(theta)));
         }
 

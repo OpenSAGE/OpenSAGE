@@ -78,7 +78,7 @@ namespace OpenSage.Scripting
                             throw new InvalidDataException($"Unexpected asset: {assetName}");
                     }
                 });
-                
+
                 return new ScriptList
                 {
                     ScriptGroups = scriptGroups.ToArray(),

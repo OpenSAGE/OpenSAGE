@@ -37,7 +37,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["_name"] = ctx => Value.FromString(ctx.Item.Name),
                 ["_x"] = GetX,
                 ["_y"] = GetY,
-                ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem) ctx.Item).CurrentFrame),
+                ["_currentframe"] = ctx => Value.FromInteger(((SpriteItem)ctx.Item).CurrentFrame),
             };
 
             // list of builtin variables - set

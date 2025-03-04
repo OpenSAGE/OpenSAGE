@@ -131,11 +131,11 @@ namespace OpenSage.Gui.Wnd.Controls
             get => _listBox.SelectedItemHoverBackgroundImage;
             set => _listBox.SelectedItemHoverBackgroundImage = value;
         }
-        
+
         public int MaxDisplay
         {
             get => _listBox.MaxDisplay;
-            set =>_listBox.MaxDisplay = value;
+            set => _listBox.MaxDisplay = value;
         }
 
         public override Font Font

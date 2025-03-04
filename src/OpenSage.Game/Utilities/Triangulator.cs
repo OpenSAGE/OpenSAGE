@@ -82,7 +82,7 @@ namespace OpenSage.Utilities
             if (DetermineWindingOrder(inputVertices) == WindingOrder.Clockwise)
                 outputVertices = ReverseWindingOrder(inputVertices);
             else
-                outputVertices = (Vector2[]) inputVertices.Clone();
+                outputVertices = (Vector2[])inputVertices.Clone();
 
             //clear all of the lists
             polygonVertices.Clear();
@@ -92,7 +92,7 @@ namespace OpenSage.Utilities
 
             //generate the cyclical list of vertices in the polygon
             for (int i = 0; i < outputVertices.Length; i++)
-                polygonVertices.AddLast(new Vertex(outputVertices[i], (ushort) i));
+                polygonVertices.AddLast(new Vertex(outputVertices[i], (ushort)i));
 
             //categorize all of the vertices as convex, reflex, and ear
             FindConvexAndReflexVertices();
@@ -160,11 +160,11 @@ namespace OpenSage.Utilities
 
             //generate the cyclical list of vertices in the polygon
             for (int i = 0; i < shapeVerts.Length; i++)
-                polygonVertices.AddLast(new Vertex(shapeVerts[i], (ushort) i));
+                polygonVertices.AddLast(new Vertex(shapeVerts[i], (ushort)i));
 
             CyclicalList<Vertex> holePolygon = new CyclicalList<Vertex>();
             for (int i = 0; i < holeVerts.Length; i++)
-                holePolygon.Add(new Vertex(holeVerts[i], (ushort) (i + polygonVertices.Count)));
+                holePolygon.Add(new Vertex(holeVerts[i], (ushort)(i + polygonVertices.Count)));
 
 #if DEBUG
             StringBuilder vString = new StringBuilder();
@@ -793,7 +793,7 @@ namespace OpenSage.Utilities
             {
                 if (obj.GetType() != typeof(Triangle))
                     return false;
-                return Equals((Triangle) obj);
+                return Equals((Triangle)obj);
             }
 
             public bool Equals(Triangle obj)
@@ -819,7 +819,7 @@ namespace OpenSage.Utilities
             {
                 if (obj.GetType() != typeof(Vertex))
                     return false;
-                return Equals((Vertex) obj);
+                return Equals((Vertex)obj);
             }
 
             public bool Equals(Vertex obj)

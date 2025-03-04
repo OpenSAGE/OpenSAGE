@@ -458,7 +458,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             int calculateColumnWidth(int column)
             {
-                return (int) ((_parent.ColumnWidths[column] / 100.0f) * availableWidth);
+                return (int)((_parent.ColumnWidths[column] / 100.0f) * availableWidth);
             }
 
             var font = _parent.Font;
@@ -473,7 +473,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
                 if (textSize.Height > itemHeight)
                 {
-                    itemHeight = (int) Math.Ceiling(textSize.Height);
+                    itemHeight = (int)Math.Ceiling(textSize.Height);
                 }
             }
 

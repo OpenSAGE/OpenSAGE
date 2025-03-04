@@ -14,7 +14,7 @@ namespace OpenSage.Network
         private Game _game;
         private EventBasedNetListener _listener;
         private NetManager _manager;
-        private Thread _thread;        
+        private Thread _thread;
         private NetPacketProcessor _processor;
         private List<LobbyPlayer> _players = new List<LobbyPlayer>();
 

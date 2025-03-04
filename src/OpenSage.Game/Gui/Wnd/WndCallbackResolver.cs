@@ -65,7 +65,7 @@ namespace OpenSage.Gui.Wnd
                 return null;
             }
 
-            return (TDelegate) (object) Delegate.CreateDelegate(typeof(TDelegate), method);
+            return (TDelegate)(object)Delegate.CreateDelegate(typeof(TDelegate), method);
         }
     }
 }

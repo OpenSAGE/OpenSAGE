@@ -22,5 +22,5 @@ namespace OpenSage.Logic.Object
         public bool FreeLifeInvincible { get; private set; }
         public string FreeLifePrerequisiteUpgrade { get; private set; }
         public AnimAndDuration FreeLifeAnimAndDuration { get; private set; }
-     }
+    }
 }

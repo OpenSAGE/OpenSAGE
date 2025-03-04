@@ -31,7 +31,7 @@ namespace OpenSage.Data.Ani
 
             var result = new AniFile();
 
-            foreach (var chunk in ((RiffChunkList) rootChunk.Content).Chunks)
+            foreach (var chunk in ((RiffChunkList)rootChunk.Content).Chunks)
             {
                 switch (chunk.Content)
                 {
@@ -42,13 +42,13 @@ namespace OpenSage.Data.Ani
                                 var iconNameChunk = list.Chunks.FirstOrDefault(x => x.ChunkType == "INAM");
                                 if (iconNameChunk != null)
                                 {
-                                    result.IconName = ((InfoChunkContent) iconNameChunk.Content).Value;
+                                    result.IconName = ((InfoChunkContent)iconNameChunk.Content).Value;
                                 }
 
                                 var iconArtistChunk = list.Chunks.FirstOrDefault(x => x.ChunkType == "IART");
                                 if (iconArtistChunk != null)
                                 {
-                                    result.ArtistName = ((InfoChunkContent) iconArtistChunk.Content).Value;
+                                    result.ArtistName = ((InfoChunkContent)iconArtistChunk.Content).Value;
                                 }
 
                                 break;
@@ -62,7 +62,7 @@ namespace OpenSage.Data.Ani
                                         throw new InvalidDataException();
                                     }
 
-                                    var iconChunkContent = (IconChunkContent) iconChunk.Content;
+                                    var iconChunkContent = (IconChunkContent)iconChunk.Content;
 
                                     result.Images[iconIndex++] = iconChunkContent.GetImage(0);
                                 }

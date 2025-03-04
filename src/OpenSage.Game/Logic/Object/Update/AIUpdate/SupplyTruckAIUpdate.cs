@@ -38,7 +38,7 @@ namespace OpenSage.Logic.Object
         internal new static SupplyTruckAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         internal new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData>{});
+            .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData> { });
 
         internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
         {

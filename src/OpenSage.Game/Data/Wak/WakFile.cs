@@ -48,7 +48,7 @@ namespace OpenSage.Data.Wak
                     entry.WriteTo(writer);
                 }
 
-                writer.Write((uint) Entries.Length);
+                writer.Write((uint)Entries.Length);
             }
         }
     }

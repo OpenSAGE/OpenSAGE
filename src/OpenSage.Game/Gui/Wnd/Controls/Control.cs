@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
@@ -72,8 +72,8 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public Rectangle ClientRectangle => new Rectangle(BorderWidth,
                                                           BorderWidth,
-                                                          _bounds.Width- BorderWidth,
-                                                          _bounds.Height- BorderWidth);
+                                                          _bounds.Width - BorderWidth,
+                                                          _bounds.Height - BorderWidth);
 
         public Size ClientSize => new Size(_bounds.Width - BorderWidth,
                                            _bounds.Height - BorderWidth);
@@ -121,11 +121,14 @@ namespace OpenSage.Gui.Wnd.Controls
 
         private string _text = string.Empty;
 
-        public string Text {
-            get {
+        public string Text
+        {
+            get
+            {
                 return _text;
             }
-            set {
+            set
+            {
                 if (value != _text)
                 {
                     _text = value;

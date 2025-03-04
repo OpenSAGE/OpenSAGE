@@ -14,7 +14,7 @@ namespace OpenSage.FileFormats.W3d
             {
                 return new W3dVertexMaterialName
                 {
-                    Value = reader.ReadFixedLengthString((int) header.ChunkSize)
+                    Value = reader.ReadFixedLengthString((int)header.ChunkSize)
                 };
             });
         }

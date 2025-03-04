@@ -3,7 +3,7 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    
+
     public sealed class SpecialDisguiseUpdateModuleData : UpdateModuleData
     {
         internal static SpecialDisguiseUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

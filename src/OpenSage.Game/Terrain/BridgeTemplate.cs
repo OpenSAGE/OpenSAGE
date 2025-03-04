@@ -76,7 +76,7 @@ namespace OpenSage.Terrain
             var toState = parser.ParseAttributeEnum<BodyDamageType>("ToState");
             var effectNum = parser.ParseAttributeInteger("EffectNum");
 
-            var transition = Transitions.FirstOrDefault(x => 
+            var transition = Transitions.FirstOrDefault(x =>
                 x.Transition == transitionType
                 && x.ToState == toState
                 && x.EffectNum == effectNum);
@@ -97,7 +97,7 @@ namespace OpenSage.Terrain
         public int EffectNum { get; private set; }
 
         public BridgeTransition(
-            BridgeTransitionType transitionType, 
+            BridgeTransitionType transitionType,
             BodyDamageType toState,
             int effectNum)
         {

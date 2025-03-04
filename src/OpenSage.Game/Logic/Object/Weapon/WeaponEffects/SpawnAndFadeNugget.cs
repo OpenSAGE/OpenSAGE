@@ -16,8 +16,8 @@ namespace OpenSage.Logic.Object
                 { "SpawnOffset", (parser, x) => x.SpawnOffset = parser.ParseVector3() }
             });
 
-        public ObjectFilter ObjectTargetFilter {get; private set; } 
-        public string SpawnedObjectName {get; private set; } 
-        public Vector3 SpawnOffset {get; private set; } 
+        public ObjectFilter ObjectTargetFilter { get; private set; }
+        public string SpawnedObjectName { get; private set; }
+        public Vector3 SpawnOffset { get; private set; }
     }
 }

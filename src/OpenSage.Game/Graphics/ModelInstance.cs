@@ -88,7 +88,7 @@ namespace OpenSage.Graphics
             {
                 _skinningBuffer = SkinningBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
-                        (uint) (64 * model.BoneHierarchy.Bones.Length),
+                        (uint)(64 * model.BoneHierarchy.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
                         64,
                         true)));

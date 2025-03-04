@@ -111,7 +111,7 @@ namespace OpenSage.Logic.AI
             { "Unit", (parser, x) => x.Unit = parser.ParseEnum<ObjectKinds>() },
             { "TargetTypes", (parser, x) => x.TargetTypes = parser.ParseEnumBitArray<ObjectKinds>() },
             { "TargetPriorityModifiers", (parser, x) => x.TargetPriorityModifiers = parser.ParseFloatArray() }
-            
+
         };
 
         public string Name { get; private set; }
@@ -137,7 +137,7 @@ namespace OpenSage.Logic.AI
 
         public string Name { get; private set; }
         public Percentage BuildCostReduction { get; private set; }
-        public Percentage BuildTimeReduction { get; private set;}
+        public Percentage BuildTimeReduction { get; private set; }
     }
 
     public class DifficultyTuning
@@ -162,9 +162,9 @@ namespace OpenSage.Logic.AI
 
         public Difficulty Difficulty { get; private set; }
         public int EconomyMaxFarms { get; private set; }
-        public Probability EconomyUpgradeProbability { get; private set;}
-        public Probability SpecialPowerActivationProbability { get; private set;}
-        public Probability OffensiveTacticActivationProbability { get; private set;}
+        public Probability EconomyUpgradeProbability { get; private set; }
+        public Probability SpecialPowerActivationProbability { get; private set; }
+        public Probability OffensiveTacticActivationProbability { get; private set; }
     }
 
     public class Probability

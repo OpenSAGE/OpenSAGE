@@ -1,4 +1,4 @@
-using OpenSage.Graphics;
+﻿using OpenSage.Graphics;
 
 namespace OpenSage.Diagnostics.AssetViews
 {

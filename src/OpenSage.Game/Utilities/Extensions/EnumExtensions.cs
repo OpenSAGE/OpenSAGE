@@ -10,7 +10,7 @@ namespace OpenSage.Utilities.Extensions
             var memberInfo = value.GetType().GetMember(value.ToString()).FirstOrDefault();
             if (!(memberInfo is null))
             {
-                var attribute = (DisplayAttribute) memberInfo.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
+                var attribute = (DisplayAttribute)memberInfo.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
                 if (attribute is null)
                 {
                     return value.ToString();

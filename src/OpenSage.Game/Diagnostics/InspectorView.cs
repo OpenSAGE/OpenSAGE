@@ -10,7 +10,7 @@ namespace OpenSage.Diagnostics
         public InspectorView(DiagnosticViewContext context)
             : base(context)
         {
-            
+
         }
 
         public override string DisplayName { get; } = "Inspector";

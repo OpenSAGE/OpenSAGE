@@ -151,7 +151,7 @@ namespace OpenSage.Diagnostics
             var type = item.GetType();
             if (type.FullName == "OpenSage.Tools.AptEditor.Apt.WrappedDisplayItem")
             {
-                item = (DisplayItem) type.GetProperty("Item").GetValue(item);
+                item = (DisplayItem)type.GetProperty("Item").GetValue(item);
             }
 
 

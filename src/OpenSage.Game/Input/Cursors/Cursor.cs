@@ -31,8 +31,8 @@ namespace OpenSage.Input.Cursors
             {
                 var image = cursorFile.Images[i];
 
-                var width = (int) image.Width;
-                var height = (int) image.Height;
+                var width = (int)image.Width;
+                var height = (int)image.Height;
 
                 Sdl2Interop.SDL_Surface surface;
                 if (windowScale == 1.0f)
@@ -50,8 +50,8 @@ namespace OpenSage.Input.Cursors
                 }
                 else
                 {
-                    var scaledWidth = (int) (windowScale * width);
-                    var scaledHeight = (int) (windowScale * height);
+                    var scaledWidth = (int)(windowScale * width);
+                    var scaledHeight = (int)(windowScale * height);
 
                     var scaledImage = Image.LoadPixelData<Bgra32>(image.PixelsBgra, width, height);
                     scaledImage.Mutate(x => x.Resize(scaledWidth, scaledHeight));
@@ -63,7 +63,7 @@ namespace OpenSage.Input.Cursors
                     using (var pin = pixelSpan.Pin())
                     {
                         surface = Sdl2Interop.SDL_CreateRGBSurfaceWithFormatFrom(
-                           (byte*) pin.Pointer,
+                           (byte*)pin.Pointer,
                            scaledWidth,
                            scaledHeight,
                            32,
@@ -78,8 +78,8 @@ namespace OpenSage.Input.Cursors
 
                 var cursor = Sdl2Interop.SDL_CreateColorCursor(
                     _surfaces[i],
-                    (int) (image.HotspotX * windowScale),
-                    (int) (image.HotspotY * windowScale));
+                    (int)(image.HotspotX * windowScale),
+                    (int)(image.HotspotY * windowScale));
 
                 AddDisposeAction(() => Sdl2Interop.SDL_FreeCursor(cursor));
 
@@ -114,7 +114,7 @@ namespace OpenSage.Input.Cursors
             _nextFrameTime += nextFrame.Duration;
 
             // Only update the cursor if this is the last frame this tick
-            if(_nextFrameTime > time.TotalTime)
+            if (_nextFrameTime > time.TotalTime)
             {
                 var frameIndex = nextFrame.FrameIndex;
                 Sdl2Interop.SDL_SetCursor(_cursors[frameIndex]);

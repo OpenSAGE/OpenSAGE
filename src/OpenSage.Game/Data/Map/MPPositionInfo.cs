@@ -61,7 +61,7 @@ namespace OpenSage.Data.Map
 
                 if (Version > 0)
                 {
-                    writer.Write((uint) SideRestrictions.Length);
+                    writer.Write((uint)SideRestrictions.Length);
                     foreach (var sideRestriction in SideRestrictions)
                     {
                         writer.WriteUInt16PrefixedAsciiString(sideRestriction);

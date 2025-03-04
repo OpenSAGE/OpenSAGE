@@ -162,7 +162,7 @@ namespace OpenSage.Graphics.ParticleSystems
             var numVertices = maxParticles * 4;
             _vertexBuffer = AddDisposable(loadContext.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) (ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
+                    (uint)(ParticleShaderResources.ParticleVertex.VertexDescriptor.Stride * numVertices),
                     BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
             _vertices = new ParticleShaderResources.ParticleVertex[numVertices];
@@ -198,18 +198,18 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
         {
-            numIndices = (uint) maxParticles * 2 * 3; // Two triangles per particle.
-            var indices = new ushort[numIndices]; 
+            numIndices = (uint)maxParticles * 2 * 3; // Two triangles per particle.
+            var indices = new ushort[numIndices];
             var indexCounter = 0;
             for (ushort i = 0; i < maxParticles * 4; i += 4)
             {
-                indices[indexCounter++] = (ushort) (i + 0);
-                indices[indexCounter++] = (ushort) (i + 2);
-                indices[indexCounter++] = (ushort) (i + 1);
+                indices[indexCounter++] = (ushort)(i + 0);
+                indices[indexCounter++] = (ushort)(i + 2);
+                indices[indexCounter++] = (ushort)(i + 1);
 
-                indices[indexCounter++] = (ushort) (i + 1);
-                indices[indexCounter++] = (ushort) (i + 2);
-                indices[indexCounter++] = (ushort) (i + 3);
+                indices[indexCounter++] = (ushort)(i + 1);
+                indices[indexCounter++] = (ushort)(i + 2);
+                indices[indexCounter++] = (ushort)(i + 3);
             }
 
             var result = graphicsDevice.CreateStaticBuffer(
@@ -226,7 +226,7 @@ namespace OpenSage.Graphics.ParticleSystems
             var maxLifetime = Template.SystemLifetime > 0
                 ? Math.Min(Template.Lifetime.High, Template.SystemLifetime)
                 : Template.Lifetime.High;
-            return (int) Template.BurstCount.High + (int) MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
+            return (int)Template.BurstCount.High + (int)MathF.Ceiling((maxLifetime / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
         internal bool Update(in TimeInterval gameTime)
@@ -351,9 +351,9 @@ namespace OpenSage.Graphics.ParticleSystems
         }
 
         private void InitializeParticle(
-            ref Particle particle, 
-            in Vector3 position, 
-            in Vector3 velocity, 
+            ref Particle particle,
+            in Vector3 position,
+            in Vector3 velocity,
             float startSize)
         {
             particle.Dead = false;
@@ -362,7 +362,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Position = position;
             particle.Velocity = velocity;
 
-            var update = (FXParticleUpdateDefault) Template.Update;
+            var update = (FXParticleUpdateDefault)Template.Update;
 
             particle.AngleZ = update.AngleZ.GetRandomFloat();
             particle.AngularRateZ = update.AngularRateZ.GetRandomFloat();
@@ -376,7 +376,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.SizeRate = update.SizeRate.GetRandomFloat();
             particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
 
-            var physics = (FXParticleDefaultPhysics) Template.Physics;
+            var physics = (FXParticleDefaultPhysics)Template.Physics;
             particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
 
             if (Template.Alpha is not null)
@@ -404,7 +404,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private void UpdateParticle(ref Particle particle)
         {
-            var physics = (FXParticleDefaultPhysics) Template.Physics;
+            var physics = (FXParticleDefaultPhysics)Template.Physics;
 
             particle.Velocity *= particle.VelocityDamping;
 
@@ -432,7 +432,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             if (!prevC.Equals(nextC))
             {
-                var colorInterpoland = (float) (particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
+                var colorInterpoland = (float)(particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
                 particle.Color = Vector3.Lerp(prevC.Color, nextC.Color, colorInterpoland);
             }
             else
@@ -450,7 +450,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 if (!prevA.Equals(nextA))
                 {
-                    var alphaInterpoland = (float) (particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
+                    var alphaInterpoland = (float)(particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
                     particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
                 }
                 else

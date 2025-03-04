@@ -27,7 +27,7 @@ namespace OpenSage.FileFormats.W3d
                     TransformC = reader.ReadVector3(),
                     TransformD = reader.ReadVector3(),
                     Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dCollectionPlaceholder UnknownBytes

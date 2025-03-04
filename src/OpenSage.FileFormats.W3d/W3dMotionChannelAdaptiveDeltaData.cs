@@ -34,7 +34,7 @@ namespace OpenSage.FileFormats.W3d
                 channel.NumTimeCodes,
                 Scale);
 
-            for (var i = (ushort) 0; i < decodedData.Length; i++)
+            for (var i = (ushort)0; i < decodedData.Length; i++)
             {
                 yield return new W3dKeyframeWithValue(
                     i,

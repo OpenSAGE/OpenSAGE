@@ -71,7 +71,7 @@ namespace OpenSage.Logic.Object
 
             reader.PersistVersion(1);
 
-            var numLocomotorTemplates = (ushort) _locomotors.Count;
+            var numLocomotorTemplates = (ushort)_locomotors.Count;
             reader.PersistUInt16(ref numLocomotorTemplates, "NumLocomotors");
 
             reader.BeginArray("Locomotors");

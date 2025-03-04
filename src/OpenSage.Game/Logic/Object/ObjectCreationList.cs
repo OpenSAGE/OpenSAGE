@@ -140,7 +140,7 @@ namespace OpenSage.Logic.Object
             debrisObject.Die(DeathType.Normal);
 
             // Model
-            var w3dDebrisDraw = (W3dDebrisDraw) debrisObject.Drawable.DrawModules[0];
+            var w3dDebrisDraw = (W3dDebrisDraw)debrisObject.Drawable.DrawModules[0];
             // TODO
             //var modelName = ModelNames[context.GameContext.Random.Next(ModelNames.Length)];
             var modelName = ModelNames[0];
@@ -155,8 +155,8 @@ namespace OpenSage.Logic.Object
                 var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
                 physicsBehavior.AddForce(
                     new Vector3(
-                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
-                        ((float) context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                        ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                        ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
                         DispositionIntensity * forceMultiplier));
             }
 

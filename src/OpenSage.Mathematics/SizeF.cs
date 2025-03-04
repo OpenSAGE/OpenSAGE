@@ -30,7 +30,7 @@ namespace OpenSage.Mathematics
 
         public override bool Equals(object? obj)
         {
-            return obj is SizeF && Equals((SizeF) obj);
+            return obj is SizeF && Equals((SizeF)obj);
         }
 
         public bool Equals(SizeF other)

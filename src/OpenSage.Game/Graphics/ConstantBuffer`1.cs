@@ -13,7 +13,7 @@ namespace OpenSage.Graphics
         {
             Buffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) sizeof(T),
+                    (uint)sizeof(T),
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
             if (name != null)
