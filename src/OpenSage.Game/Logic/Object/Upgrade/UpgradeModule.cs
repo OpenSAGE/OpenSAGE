@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -7,9 +7,12 @@ namespace OpenSage.Logic.Object
 {
     public abstract class UpgradeModule : BehaviorModule, IUpgradeableModule
     {
+        // TODO: Make this private.
         protected readonly GameObject _gameObject;
         private readonly UpgradeModuleData _moduleData;
         private UpgradeLogic _upgradeLogic;
+
+        protected GameObject GameObject => _gameObject;
 
         internal bool Triggered => _upgradeLogic.Triggered;
 
@@ -19,6 +22,8 @@ namespace OpenSage.Logic.Object
             _moduleData = moduleData;
             _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
         }
+
+        public bool IsTriggeredBy(string upgradeName) => _upgradeLogic.IsTriggeredBy(upgradeName);
 
         public bool CanUpgrade(UpgradeSet existingUpgrades) => _upgradeLogic.CanUpgrade(existingUpgrades);
 
@@ -70,6 +75,19 @@ namespace OpenSage.Logic.Object
                 triggerUpgradeCallback();
                 _triggered = true;
             }
+        }
+
+        public bool IsTriggeredBy(string upgradeName)
+        {
+            foreach (var upgradeTemplate in _data.TriggeredByHashSet)
+            {
+                if (upgradeTemplate.Name == upgradeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void TryUpgrade(UpgradeSet completedUpgrades)
