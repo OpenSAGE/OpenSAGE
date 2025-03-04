@@ -13,17 +13,13 @@ namespace OpenSage.FileFormats
         {
             var value = reader.ReadByte();
 
-            switch (value)
+            return value switch
             {
-                case 0:
-                    return false;
+                0 => false,
+                1 => true,
+                _ => throw new InvalidDataException(),
+            };
 
-                case 1:
-                    return true;
-
-                default:
-                    throw new InvalidDataException();
-            }
         }
 
         public static bool ReadBooleanUInt32Checked(this BinaryReader reader)
@@ -52,7 +48,7 @@ namespace OpenSage.FileFormats
             var result = 0u;
             for (var i = 0; i < 3; i++)
             {
-                result |= ((uint) reader.ReadByte() << (i * 8));
+                result |= (uint)reader.ReadByte() << (i * 8);
             }
             return result;
         }
@@ -97,7 +93,7 @@ namespace OpenSage.FileFormats
         public static string ReadUInt32PrefixedAsciiString(this BinaryReader reader)
         {
             var length = reader.ReadUInt32();
-            return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes((int) length));
+            return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes((int)length));
         }
 
         public static string ReadBytePrefixedUnicodeString(this BinaryReader reader)
@@ -115,11 +111,11 @@ namespace OpenSage.FileFormats
         public static string ReadUInt32PrefixedNegatedUnicodeString(this BinaryReader reader)
         {
             var length = reader.ReadUInt32();
-            var bytes = reader.ReadBytes((int) length * 2);
+            var bytes = reader.ReadBytes((int)length * 2);
             var negatedBytes = new byte[bytes.Length];
             for (var i = 0; i < negatedBytes.Length; i++)
             {
-                negatedBytes[i] = (byte) ~bytes[i];
+                negatedBytes[i] = (byte)~bytes[i];
             }
             return Encoding.Unicode.GetString(negatedBytes);
         }
@@ -136,10 +132,7 @@ namespace OpenSage.FileFormats
             var result = new string(chars);
 
             // There might be garbage after the \0 character, so we can't just do TrimEnd('\0').
-            if (result.Contains('\0'))
-                return result.Substring(0, result.IndexOf('\0'));
-            else
-                return result;
+            return result.Contains('\0') ? result[..result.IndexOf('\0')] : result;
         }
 
         public static ushort[,] ReadUInt16Array2D(this BinaryReader reader, uint width, uint height)
@@ -165,21 +158,12 @@ namespace OpenSage.FileFormats
             {
                 for (var x = 0; x < width; x++)
                 {
-                    uint value;
-                    switch (bitSize)
+                    var value = bitSize switch
                     {
-                        case 16:
-                            value = reader.ReadUInt16();
-                            break;
-
-                        case 32:
-                            value = reader.ReadUInt32();
-                            break;
-
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(bitSize));
-                    }
-
+                        16 => reader.ReadUInt16(),
+                        32 => reader.ReadUInt32(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(bitSize)),
+                    };
                     result[x, y] = value;
                 }
             }
@@ -224,7 +208,7 @@ namespace OpenSage.FileFormats
 
             for (var y = 0; y < height; y++)
             {
-                var temp = (byte) 0;
+                var temp = (byte)0;
                 for (var x = 0; x < width; x++)
                 {
                     if (x % 8 == 0)
@@ -242,7 +226,7 @@ namespace OpenSage.FileFormats
         {
             var result = new bool[count];
 
-            var temp = (byte) 0;
+            var temp = (byte)0;
             for (var i = 0; i < count; i++)
             {
                 if (i % 8 == 0)
@@ -499,7 +483,7 @@ namespace OpenSage.FileFormats
         public static uint Align(this BinaryReader reader, uint aligment)
         {
             var pos = reader.BaseStream.Position;
-            var calign = ((uint) pos % aligment);
+            var calign = (uint)pos % aligment;
             if (calign == 0)
             {
                 return 0;
@@ -530,7 +514,7 @@ namespace OpenSage.FileFormats
             var oldOffset = reader.BaseStream.Position;
 
             reader.BaseStream.Seek(stringOffset, SeekOrigin.Begin);
-            var str = Encoding.ASCII.GetString(reader.ReadBytes((int) length));
+            var str = Encoding.ASCII.GetString(reader.ReadBytes((int)length));
             reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
 
             return str;
@@ -711,14 +695,14 @@ namespace OpenSage.FileFormats
 
         public static string ReadFourCc(this BinaryReader reader, bool bigEndian = false)
         {
-            var a = (char) reader.ReadByte();
-            var b = (char) reader.ReadByte();
-            var c = (char) reader.ReadByte();
-            var d = (char) reader.ReadByte();
+            var a = (char)reader.ReadByte();
+            var b = (char)reader.ReadByte();
+            var c = (char)reader.ReadByte();
+            var d = (char)reader.ReadByte();
 
             return bigEndian
-                ? new string(new[] { d, c, b, a })
-                : new string(new[] { a, b, c, d });
+                ? new string([d, c, b, a])
+                : new string([a, b, c, d]);
         }
 
         public static TEnum ReadByteAsEnumFlags<TEnum>(this BinaryReader reader)
@@ -736,7 +720,7 @@ namespace OpenSage.FileFormats
             var value = reader.ReadUInt16();
             VerifyEnumFlags<TEnum>(value, 16);
 
-            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+            var enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
             return enumValue;
         }
 
@@ -746,14 +730,14 @@ namespace OpenSage.FileFormats
             var value = reader.ReadUInt32();
             VerifyEnumFlags<TEnum>(value, 32);
 
-            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+            var enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
             return enumValue;
         }
 
         private static void VerifyEnumFlags<TEnum>(uint value, int sizeOfTValue)
             where TEnum : struct
         {
-            if (value == 0 && !EnumUtility.IsValueDefined((TEnum) Enum.ToObject(typeof(TEnum), value)))
+            if (value == 0 && !EnumUtility.IsValueDefined((TEnum)Enum.ToObject(typeof(TEnum), value)))
             {
                 throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: 0");
             }
@@ -765,7 +749,7 @@ namespace OpenSage.FileFormats
                 {
                     continue;
                 }
-                var enumBitValue = (TEnum) Enum.ToObject(typeof(TEnum), maskedValue);
+                var enumBitValue = (TEnum)Enum.ToObject(typeof(TEnum), maskedValue);
                 if (!EnumUtility.IsValueDefined(enumBitValue))
                 {
                     throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: {enumBitValue}");

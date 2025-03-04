@@ -4,15 +4,15 @@ namespace OpenSage.Data.Map
 {
     public sealed class WaypointPath
     {
-        public uint StartWaypointID { get; private set; }
-        public uint EndWaypointID { get; private set; }
+        public int StartWaypointID { get; private set; }
+        public int EndWaypointID { get; private set; }
 
         internal static WaypointPath Parse(BinaryReader reader)
         {
             return new WaypointPath
             {
-                StartWaypointID = reader.ReadUInt32(),
-                EndWaypointID = reader.ReadUInt32()
+                StartWaypointID = reader.ReadInt32(),
+                EndWaypointID = reader.ReadInt32()
             };
         }
 

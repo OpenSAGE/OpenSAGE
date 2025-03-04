@@ -17,11 +17,16 @@ namespace OpenSage.Mathematics
 
         public static ColorRgb FromUInt32(uint rgb)
         {
-            var r = (byte) (rgb >> 16 & 0xFF);
-            var g = (byte) (rgb >> 8 & 0xFF);
-            var b = (byte) (rgb & 0xFF);
+            var r = (byte)(rgb >> 16 & 0xFF);
+            var g = (byte)(rgb >> 8 & 0xFF);
+            var b = (byte)(rgb & 0xFF);
 
             return new ColorRgb(r, g, b);
+        }
+
+        public static ColorRgb FromInt32(int rgb)
+        {
+            return FromUInt32((uint)rgb);
         }
 
         public uint ToUInt32()
@@ -31,6 +36,11 @@ namespace OpenSage.Mathematics
             result |= (G << 8);
             result |= (B << 0);
             return (uint)result;
+        }
+
+        public int ToInt32()
+        {
+            return (int)ToUInt32();
         }
 
         public ColorRgba ToColorRgba()

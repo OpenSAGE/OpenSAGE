@@ -2,7 +2,6 @@
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using OpenSage.Mathematics;
 
@@ -13,48 +12,66 @@ namespace OpenSage.FileFormats
         public static void WriteBooleanUInt32(this BinaryWriter writer, bool value)
         {
             writer.Write(value);
-            writer.Write((byte) 0);
-            writer.Write((byte) 0);
-            writer.Write((byte) 0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
         }
 
         public static void WriteUInt24(this BinaryWriter writer, uint value)
         {
             for (var i = 0; i < 3; i++)
             {
-                writer.Write((byte) ((value >> (i * 8)) & 0xFF));
+                writer.Write((byte)((value >> (i * 8)) & 0xFF));
             }
         }
 
-        public static void WriteBytePrefixedAsciiString(this BinaryWriter writer, string value)
+        public static void WriteBytePrefixedAsciiString(this BinaryWriter writer, string? value)
         {
-            if (value.Length > byte.MaxValue)
+            if (value?.Length > byte.MaxValue)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"String is too long to fit length in 1 byte: {value.Length}", nameof(value));
             }
 
-            writer.Write((byte) value.Length);
+            if (value == null)
+            {
+                writer.Write((byte)0);
+                return;
+            }
+
+            writer.Write((byte)value.Length);
 
             writer.Write(BinaryUtility.AnsiEncoding.GetBytes(value));
         }
 
-        public static void WriteUInt16PrefixedAsciiString(this BinaryWriter writer, string value)
+        public static void WriteUInt16PrefixedAsciiString(this BinaryWriter writer, string? value)
         {
-            if (value.Length > ushort.MaxValue)
+            if (value?.Length > ushort.MaxValue)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"String is too long to fit length in 2 bytes: {value.Length}", nameof(value));
             }
 
-            writer.Write((ushort) value.Length);
+            if (value == null)
+            {
+                writer.Write((ushort)0);
+                return;
+            }
+
+            writer.Write((ushort)value.Length);
 
             writer.Write(BinaryUtility.AnsiEncoding.GetBytes(value));
         }
 
-        public static void WriteBytePrefixedUnicodeString(this BinaryWriter writer, string value)
+        public static void WriteBytePrefixedUnicodeString(this BinaryWriter writer, string? value)
         {
-            if (value.Length > byte.MaxValue)
+            if (value?.Length > byte.MaxValue)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"String is too long to fit length in 1 byte: {value.Length}", nameof(value));
+            }
+
+            if (value == null)
+            {
+                writer.Write((byte)0);
+                return;
             }
 
             writer.Write((byte)value.Length);
@@ -62,14 +79,20 @@ namespace OpenSage.FileFormats
             writer.Write(Encoding.Unicode.GetBytes(value));
         }
 
-        public static void WriteUInt16PrefixedUnicodeString(this BinaryWriter writer, string value)
+        public static void WriteUInt16PrefixedUnicodeString(this BinaryWriter writer, string? value)
         {
-            if (value.Length > ushort.MaxValue)
+            if (value?.Length > ushort.MaxValue)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"String is too long to fit length in 2 bytes: {value.Length}", nameof(value));
             }
 
-            writer.Write((ushort) value.Length);
+            if (value == null)
+            {
+                writer.Write((ushort)0);
+                return;
+            }
+
+            writer.Write((ushort)value.Length);
 
             writer.Write(Encoding.Unicode.GetBytes(value));
         }
@@ -81,7 +104,7 @@ namespace OpenSage.FileFormats
 
             for (var i = value.Length + 1; i < count; i++)
             {
-                writer.Write((char) 0);
+                writer.Write((char)0);
             }
         }
 
@@ -112,7 +135,7 @@ namespace OpenSage.FileFormats
                     switch (bitSize)
                     {
                         case 16:
-                            writer.Write((ushort) value);
+                            writer.Write((ushort)value);
                             break;
 
                         case 32:
@@ -162,18 +185,18 @@ namespace OpenSage.FileFormats
 
             for (var y = 0; y < height; y++)
             {
-                byte value = width < 8 ? padValue : (byte) 0;
+                byte value = width < 8 ? padValue : (byte)0;
                 for (var x = 0; x < width; x++)
                 {
                     if (x > 0 && x % 8 == 0)
                     {
                         writer.Write(value);
-                        value = (x > width - 8) ? padValue : (byte) 0;
+                        value = (x > width - 8) ? padValue : (byte)0;
                     }
 
                     var boolValue = values[x, y];
 
-                    value |= (byte) ((boolValue ? 1 : 0) << (x % 8));
+                    value |= (byte)((boolValue ? 1 : 0) << (x % 8));
                 }
 
                 // Write last value.
@@ -195,7 +218,7 @@ namespace OpenSage.FileFormats
 
                 var boolValue = values[i];
 
-                value |= (byte) ((boolValue ? 1 : 0) << (i % 8));
+                value |= (byte)((boolValue ? 1 : 0) << (i % 8));
             }
 
             // Write last value.
@@ -314,7 +337,7 @@ namespace OpenSage.FileFormats
 
             if (extraBytePadding)
             {
-                writer.Write((byte) 0);
+                writer.Write((byte)0);
             }
         }
 
@@ -386,7 +409,7 @@ namespace OpenSage.FileFormats
         {
             if (string.IsNullOrEmpty(fourCc) || fourCc.Length != 4)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"Invalid FourCC: {fourCc}", nameof(fourCc));
             }
 
             if (bigEndian)
@@ -407,7 +430,7 @@ namespace OpenSage.FileFormats
 
         public static void WriteNullTerminatedString(this BinaryWriter writer, in string content)
         {
-            foreach(var b in Encoding.UTF8.GetBytes(content))
+            foreach (var b in Encoding.UTF8.GetBytes(content))
             {
                 writer.Write(b);
             }
@@ -419,7 +442,9 @@ namespace OpenSage.FileFormats
         {
             var array = BitConverter.GetBytes(num);
             if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(array);
+            }
             writer.Write(array);
         }
 

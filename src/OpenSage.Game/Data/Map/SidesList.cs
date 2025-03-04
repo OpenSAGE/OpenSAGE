@@ -84,7 +84,7 @@ namespace OpenSage.Data.Map
                     writer.Write(Unknown);
                 }
 
-                writer.Write((uint) Players.Length);
+                writer.Write((uint)Players.Length);
 
                 foreach (var player in Players)
                 {
@@ -96,7 +96,7 @@ namespace OpenSage.Data.Map
                     return;
                 }
 
-                writer.Write((uint) Teams.Length);
+                writer.Write((uint)Teams.Length);
 
                 foreach (var team in Teams)
                 {

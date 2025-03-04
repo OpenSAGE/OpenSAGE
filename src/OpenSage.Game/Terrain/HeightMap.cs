@@ -8,7 +8,8 @@ namespace OpenSage.Terrain
 {
     public sealed class HeightMap
     {
-        internal const int HorizontalScale = 10;
+        // Corresponds to MAP_XY_FACTOR in ZH
+        public const int HorizontalScale = 10;
 
         private readonly float _verticalScale;
 
@@ -16,8 +17,8 @@ namespace OpenSage.Terrain
 
         public int Width { get; }
         public int Height { get; }
-        public int MaxXCoordinate => (Width - 2 * (int) _heightMapData.BorderWidth) * HorizontalScale;
-        public int MaxYCoordinate => (Height - 2 * (int) _heightMapData.BorderWidth) * HorizontalScale;
+        public int MaxXCoordinate => (Width - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
+        public int MaxYCoordinate => (Height - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
 
 
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
@@ -138,7 +139,7 @@ namespace OpenSage.Terrain
         {
             x += _heightMapData.BorderWidth;
             y += _heightMapData.BorderWidth;
-            var result = (X: (int) x, Y: (int) y);
+            var result = (X: (int)x, Y: (int)y);
 
             if (result.X < 0 || result.X >= _heightMapData.Width
                 || result.Y < 0 || result.Y >= _heightMapData.Height)
@@ -164,8 +165,8 @@ namespace OpenSage.Terrain
 
             _verticalScale = heightMapData.VerticalScale;
 
-            Width = (int) heightMapData.Width - 1; //last colum is not rendered (in worldbuilder)
-            Height = (int) heightMapData.Height - 1;//last row is not rendered (in worldbuilder)
+            Width = (int)heightMapData.Width - 1; //last colum is not rendered (in worldbuilder)
+            Height = (int)heightMapData.Height - 1;//last row is not rendered (in worldbuilder)
 
             Normals = new Vector3[Width, Height];
             RefreshNormals();

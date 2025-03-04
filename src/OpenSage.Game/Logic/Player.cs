@@ -247,9 +247,9 @@ namespace OpenSage.Logic
 
         public void CreateSelectionGroup(int idx)
         {
-            if(idx > _selectionGroups.Length)
+            if (idx > _selectionGroups.Length)
             {
-                Logger.Warn($"Do not support more than { _selectionGroups.Length} groups!");
+                Logger.Warn($"Do not support more than {_selectionGroups.Length} groups!");
                 return;
             }
 
@@ -261,7 +261,7 @@ namespace OpenSage.Logic
         {
             if (idx > _selectionGroups.Length)
             {
-                Logger.Warn($"Do not support more than { _selectionGroups.Length} groups!");
+                Logger.Warn($"Do not support more than {_selectionGroups.Length} groups!");
                 return;
             }
 
@@ -324,7 +324,7 @@ namespace OpenSage.Logic
                 return;
             }
 
-            SciencePurchasePoints -= (uint) science.SciencePurchasePointCost;
+            SciencePurchasePoints -= (uint)science.SciencePurchasePointCost;
             _sciences.Add(science);
             ApplyScienceUpgrades(science);
         }
@@ -635,7 +635,7 @@ namespace OpenSage.Logic
 
             var rankId = (uint)Rank.CurrentRank;
             reader.PersistUInt32(ref rankId);
-            Rank.SetRank((int) rankId);
+            Rank.SetRank((int)rankId);
 
             reader.PersistUInt32(ref SkillPointsTotal);
             reader.PersistUInt32(ref SkillPointsAvailable);
@@ -704,7 +704,7 @@ namespace OpenSage.Logic
 
         public static Player FromMapData(uint index, Data.Map.Player mapPlayer, IGame game, bool isSkirmish)
         {
-            var side = (string)mapPlayer.Properties["playerFaction"].Value;
+            var side = mapPlayer.Faction ?? throw new InvalidStateException($"Player {mapPlayer.Name} has no faction.");
 
             if (side.StartsWith("FactionAmerica", System.StringComparison.InvariantCultureIgnoreCase))
             {
@@ -725,19 +725,19 @@ namespace OpenSage.Logic
             // We need the template for default values
             var template = game.AssetStore.PlayerTemplates.GetByName(side);
 
-            var name = mapPlayer.Properties["playerName"].Value as string;
-            var displayName = mapPlayer.Properties["playerDisplayName"].Value as string;
+            var name = mapPlayer.Name;
+            var displayName = mapPlayer.DisplayName;
             var translatedDisplayName = displayName.Translate();
 
-            var isHuman = (bool) mapPlayer.Properties["playerIsHuman"].Value;
+            var isHuman = mapPlayer.IsHuman;
 
-            var colorRgb = mapPlayer.Properties.GetPropOrNull("playerColor")?.Value as uint?;
+            var colorRgb = mapPlayer.Color;
 
             ColorRgb color;
 
             if (colorRgb != null)
             {
-                color = ColorRgb.FromUInt32(colorRgb.Value);
+                color = ColorRgb.FromInt32(colorRgb.Value);
             }
             else if (template != null) // Template is null for the neutral faction
             {
@@ -764,7 +764,7 @@ namespace OpenSage.Logic
 
             if (template != null)
             {
-                result.BankAccount.Money = (uint) (template.StartMoney + game.AssetStore.GameData.Current.DefaultStartingCash);
+                result.BankAccount.Money = (uint)(template.StartMoney + game.AssetStore.GameData.Current.DefaultStartingCash);
             }
 
             return result;

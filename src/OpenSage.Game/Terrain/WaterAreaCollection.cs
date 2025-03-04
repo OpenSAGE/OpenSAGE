@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Content;
+using System.Linq;
 using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
@@ -21,18 +21,12 @@ namespace OpenSage.Terrain
         {
             if (polygonTriggers != null)
             {
-                foreach (var polygonTrigger in polygonTriggers.Triggers)
+                // TODO: Handle rivers differently. Water texture should be animated "downstream".
+                foreach (var polygonTrigger in polygonTriggers.Triggers.Where(t => t.IsWater || t.IsRiver))
                 {
-                    switch (polygonTrigger.TriggerType)
+                    if (WaterArea.TryCreate(loadContext, polygonTrigger, out var waterArea))
                     {
-                        case PolygonTriggerType.Water:
-                        case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
-                        case PolygonTriggerType.WaterAndRiver:
-                            if (WaterArea.TryCreate(loadContext, polygonTrigger, out var waterArea))
-                            {
-                                _waterAreas.Add(AddDisposable(waterArea));
-                            }
-                            break;
+                        _waterAreas.Add(AddDisposable(waterArea));
                     }
                 }
             }
