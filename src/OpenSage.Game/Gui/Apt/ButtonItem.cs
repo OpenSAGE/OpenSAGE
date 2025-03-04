@@ -27,7 +27,7 @@ public class ButtonItem : TexturedItem
     }
 
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public override bool HandleInput(Point2D mousePos, bool mouseDown)
     {
@@ -50,7 +50,7 @@ public class ButtonItem : TexturedItem
             {
                 if (!_isHovered)
                 {
-                    logger.Debug("Hit: " + mousePos.X + "-" + mousePos.Y);
+                    Logger.Debug("Hit: " + mousePos.X + "-" + mousePos.Y);
                     var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
                     if (idx != -1)
                     {
@@ -61,7 +61,7 @@ public class ButtonItem : TexturedItem
 
                 if (_isHovered && mouseDown && !_isDown)
                 {
-                    logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
+                    Logger.Debug("Down: " + mousePos.X + "-" + mousePos.Y);
                     var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
                     if (idx != -1)
                     {
@@ -72,7 +72,7 @@ public class ButtonItem : TexturedItem
 
                 if (_isHovered && !mouseDown && _isDown)
                 {
-                    logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
+                    Logger.Debug("Up: " + mousePos.X + "-" + mousePos.Y);
                     var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
                     if (idx != -1)
                     {
@@ -93,7 +93,7 @@ public class ButtonItem : TexturedItem
                 _actionList.Add(button.Actions[idx].Instructions);
             }
             _isHovered = false;
-            logger.Debug("Unhovered: " + mousePos.X + "-" + mousePos.Y);
+            Logger.Debug("Unhovered: " + mousePos.X + "-" + mousePos.Y);
         }
         return false;
     }

@@ -151,13 +151,13 @@ public class Value
     }
 
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public ObjectContext ToObject()
     {
         if (Type == ValueType.Undefined)
         {
-            logger.Error("Cannot create object from undefined!");
+            Logger.Error("Cannot create object from undefined!");
             return null;
         }
 

@@ -12,7 +12,7 @@ namespace OpenSage.Audio;
 
 public sealed class AudioSystem : GameSystem
 {
-    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     private readonly List<AudioSource> _sources;
     private readonly Dictionary<string, AudioBuffer> _cached;
@@ -159,7 +159,7 @@ public sealed class AudioSystem : GameSystem
 
         if (audioEvent == null)
         {
-            logger.Warn($"Missing AudioEvent: {eventName}");
+            Logger.Warn($"Missing AudioEvent: {eventName}");
             return;
         }
 
@@ -196,7 +196,7 @@ public sealed class AudioSystem : GameSystem
 
         if (entry == null)
         {
-            logger.Warn($"Missing Audio File: {audioEvent.Name}");
+            Logger.Warn($"Missing Audio File: {audioEvent.Name}");
             return null;
         }
 

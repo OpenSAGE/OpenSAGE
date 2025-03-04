@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Network;
@@ -11,7 +9,7 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class LanLobbyMenuCallbacks
 {
-    private static Game _game;
+    private static Game Game;
 
     private const string ListBoxGamesPrefix = "LanLobbyMenu.wnd:ListboxGames";
     private const string ListBoxPlayersPrefix = "LanLobbyMenu.wnd:ListboxPlayers";
@@ -19,14 +17,14 @@ public static class LanLobbyMenuCallbacks
     private const string ButtonClearPrefix = "LanLobbyMenu.wnd:ButtonClear";
     private const string TextEntryChatPrefix = "LanLobbyMenu.wnd:TextEntryChat";
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public static void LanLobbyMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
         switch (message.MessageType)
         {
             case WndWindowMessageType.SelectedButton:
-                logger.Trace($"Have message {message.MessageType} for control {message.Element.Name}");
+                Logger.Trace($"Have message {message.MessageType} for control {message.Element.Name}");
                 switch (message.Element.Name)
                 {
                     case "LanLobbyMenu.wnd:ButtonBack":
@@ -70,14 +68,14 @@ public static class LanLobbyMenuCallbacks
         // Update games
         var listBoxGames = (ListBox)window.Controls.FindControl(ListBoxGamesPrefix);
 
-        listBoxGames.Items = (from player in _game.LobbyManager.Players
+        listBoxGames.Items = (from player in Game.LobbyManager.Players
                               where player.IsHosting
                               select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor)).ToArray();
 
         // Update players
         var listBoxPlayers = (ListBox)window.Controls.FindControl(ListBoxPlayersPrefix);
 
-        var players = from player in _game.LobbyManager.Players
+        var players = from player in Game.LobbyManager.Players
                       where !player.IsHosting
                       select new ListBoxDataItem(player, new[] { player.Username }, listBoxGames.TextColor);
 
@@ -93,7 +91,7 @@ public static class LanLobbyMenuCallbacks
 
     public static void LanLobbyMenuInit(Window window, Game game)
     {
-        _game = game;
+        Game = game;
 
         // Initialize player name
         var textEditPlayerName = (TextBox)window.Controls.FindControl(TextEntryPlayerNamePrefix);
@@ -117,11 +115,11 @@ public static class LanLobbyMenuCallbacks
 
     public static void LanLobbyMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
-        logger.Trace($"Have message {message.MessageType} for control {control.Name}");
+        Logger.Trace($"Have message {message.MessageType} for control {control.Name}");
     }
 
     private static void TextEditPlayerName_OnTextChanged(object sender, string text)
     {
-        _game.LobbyManager.Username = string.IsNullOrEmpty(text) ? Environment.MachineName : text;
+        Game.LobbyManager.Username = string.IsNullOrEmpty(text) ? Environment.MachineName : text;
     }
 }

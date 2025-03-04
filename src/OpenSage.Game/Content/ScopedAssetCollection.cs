@@ -29,7 +29,7 @@ public sealed class ScopedAssetCollection<TAsset> : IScopedAssetCollection, IEnu
 
     public int Count => _byInternalId.Count;
 
-    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     internal ScopedAssetCollection(
         AssetStore assetStore,
@@ -85,7 +85,7 @@ public sealed class ScopedAssetCollection<TAsset> : IScopedAssetCollection, IEnu
 
             if (newValue == null)
             {
-                logger.Warn($"Failed to load asset \"{name}\"");
+                Logger.Warn($"Failed to load asset \"{name}\"");
                 return null;
             }
 

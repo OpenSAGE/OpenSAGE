@@ -7,7 +7,7 @@ namespace OpenSage.Scripting.Lua;
 /// </summary>
 public class LuaCompatibility
 {
-    private const string _compabilityCode = @"
+    private const string CompabilityCode = @"
                 globals = _G
                 function getn(table) return #table end
                 closefile = io.close
@@ -94,6 +94,6 @@ public class LuaCompatibility
 
     public static void Apply(MoonSharp.Interpreter.Script script)
     {
-        script.DoString(_compabilityCode);
+        script.DoString(CompabilityCode);
     }
 }

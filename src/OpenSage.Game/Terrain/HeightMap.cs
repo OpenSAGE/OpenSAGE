@@ -189,20 +189,20 @@ public sealed class HeightMap
     }
 
     /// <summary>
-		/// Function computes the normal for the xy'th quad.
-		/// We take the quad normal as the average of the two
-		/// triangles that make up the quad.
-		///
-		///       u
-		/// h0*-------*h1
-		///   |      /|
-		///  v|     / |t
-		///   |    /  |
-		///   |   /   |
-		/// h2*-------*h3
-		///       s
-		/// </summary>
-		private Vector3 CalculateQuadNormal(int x, int y)
+    /// Function computes the normal for the xy'th quad.
+    /// We take the quad normal as the average of the two
+    /// triangles that make up the quad.
+    ///
+    ///       u
+    /// h0*-------*h1
+    ///   |      /|
+    ///  v|     / |t
+    ///   |    /  |
+    ///   |   /   |
+    /// h2*-------*h3
+    ///       s
+    /// </summary>
+    private Vector3 CalculateQuadNormal(int x, int y)
     {
         var h0 = GetHeight(x, y);
         var h1 = GetHeight(x + 1, y);

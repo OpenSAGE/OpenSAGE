@@ -11,10 +11,10 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class MainMenuCallbacks
 {
-    private static bool _doneMainMenuFadeIn;
+    private static bool DoneMainMenuFadeIn;
 
-    private static string _currentSide;
-    private static string _currentSideWindowSuffix;
+    private static string CurrentSide;
+    private static string CurrentSideWindowSuffix;
 
     public static void W3DMainMenuInit(Window window, Game game)
     {
@@ -60,7 +60,7 @@ public static class MainMenuCallbacks
 
         // TODO: Show faction icons when WinScaleUpTransition is implemented.
 
-        _doneMainMenuFadeIn = false;
+        DoneMainMenuFadeIn = false;
     }
 
     public static void MainMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -72,8 +72,8 @@ public static class MainMenuCallbacks
 
         void OpenSinglePlayerSideMenu(string side, string sideWindowSuffix)
         {
-            _currentSide = side;
-            _currentSideWindowSuffix = sideWindowSuffix;
+            CurrentSide = side;
+            CurrentSideWindowSuffix = sideWindowSuffix;
 
             var selectDifficultyLabel = (Label)control.Window.Controls.FindControl("MainMenu.wnd:StaticTextSelectDifficulty");
             // TODO: This should be animated as part of the transition.
@@ -116,12 +116,12 @@ public static class MainMenuCallbacks
                     case "MainMenu.wnd:ButtonEasy":
                     case "MainMenu.wnd:ButtonMedium":
                     case "MainMenu.wnd:ButtonHard":
-                        context.Game.StartCampaign(_currentSide);
+                        context.Game.StartCampaign(CurrentSide);
                         break;
 
                     case "MainMenu.wnd:ButtonDiffBack":
-                        QueueTransition($"MainMenuDifficultyMenu{_currentSideWindowSuffix}Back");
-                        QueueTransition($"MainMenuSinglePlayer{_currentSideWindowSuffix}MenuFromDiff");
+                        QueueTransition($"MainMenuDifficultyMenu{CurrentSideWindowSuffix}Back");
+                        QueueTransition($"MainMenuSinglePlayer{CurrentSideWindowSuffix}MenuFromDiff");
                         break;
 
                     case "MainMenu.wnd:ButtonSkirmish":
@@ -199,12 +199,12 @@ public static class MainMenuCallbacks
     public static void MainMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
         // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
-        if (!_doneMainMenuFadeIn)
+        if (!DoneMainMenuFadeIn)
         {
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuFade");
             context.WindowManager.TransitionManager.QueueTransition(null, control.Window, "MainMenuDefaultMenu");
             control.Window.Controls.FindControl("MainMenu.wnd:MainMenuRuler").Show();
-            _doneMainMenuFadeIn = true;
+            DoneMainMenuFadeIn = true;
         }
     }
 }

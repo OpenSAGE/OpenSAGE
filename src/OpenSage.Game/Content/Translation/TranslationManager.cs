@@ -11,7 +11,7 @@ public static class TranslationManager
 {
     private sealed class TranslationManagerInternal : ITranslationManager
     {
-        private const string _missing = "MISSING: '{0}'";
+        private const string Missing = "MISSING: '{0}'";
 
         private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = new Dictionary<string, List<ITranslationProvider>>();
 
@@ -168,7 +168,7 @@ public static class TranslationManager
                 }
             }
 
-            return string.Format(_missing, str);
+            return string.Format(Missing, str);
         }
 
         public string GetParticularString(string context, string str)
@@ -200,13 +200,13 @@ public static class TranslationManager
                     }
                 }
             }
-            return string.Format(_missing, str);
+            return string.Format(Missing, str);
         }
     }
 
-    private static readonly Lazy<ITranslationManager> _lazy = new Lazy<ITranslationManager>(() => new TranslationManagerInternal());
+    private static readonly Lazy<ITranslationManager> Lazy = new Lazy<ITranslationManager>(() => new TranslationManagerInternal());
 
-    public static ITranslationManager Instance => _lazy.Value;
+    public static ITranslationManager Instance => Lazy.Value;
 
     public static void LoadGameStrings(FileSystem fileSystem, string language, IGameDefinition gameDefinition)
     {

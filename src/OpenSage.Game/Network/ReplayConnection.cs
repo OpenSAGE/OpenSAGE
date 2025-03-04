@@ -20,11 +20,11 @@ public sealed class ReplayConnection : IConnection
     // Ignore locally generated orders.
     public void Send(uint frame, List<Order> orders) { }
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public void Receive(uint frame, Action<uint, Order> packetFn)
     {
-        logger.Trace($"Replay frame {frame}");
+        Logger.Trace($"Replay frame {frame}");
         while (_chunks.Count != 0 && _chunks.Peek().Header.Timecode <= frame)
         {
             var chunk = _chunks.Dequeue();

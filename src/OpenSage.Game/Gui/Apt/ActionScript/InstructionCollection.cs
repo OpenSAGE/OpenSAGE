@@ -17,36 +17,36 @@ sealed class InstructionParseHelper : IDisposable
     public int FurthestBranchDestination;
 
     // Current Position (at the time of call) relative to StartPosition
-    public int CurrentPosition => (int)(InputStream.Position);
+    public int CurrentPosition => (int)(_inputStream.Position);
 
-    private Stream InputStream;
-    private long previousPosition;
-    private bool disposed;
+    private readonly Stream _inputStream;
+    private readonly long _previousPosition;
+    private bool _disposed;
 
     public InstructionParseHelper(Stream input, long instructionStartPosition)
     {
-        disposed = false;
+        _disposed = false;
 
-        InputStream = input;
-        previousPosition = InputStream.Position;
+        _inputStream = input;
+        _previousPosition = _inputStream.Position;
 
         StartPosition = (int)instructionStartPosition;
-        InputStream.Seek(StartPosition, SeekOrigin.Begin);
+        _inputStream.Seek(StartPosition, SeekOrigin.Begin);
         FurthestBranchDestination = StartPosition;
     }
 
     public void Dispose()
     {
-        if (!disposed)
+        if (!_disposed)
         {
-            disposed = true;
-            InputStream.Seek(previousPosition, SeekOrigin.Begin);
+            _disposed = true;
+            _inputStream.Seek(_previousPosition, SeekOrigin.Begin);
         }
     }
 
     public BinaryReader GetReader()
     {
-        return new BinaryReader(InputStream, UTF8, true);
+        return new BinaryReader(_inputStream, UTF8, true);
     }
 
     // Check if we can continue to parse instructions

@@ -7,10 +7,10 @@ namespace OpenSage.Gui.Apt.ActionScript;
 /// </summary>
 public static class UrlHandler
 {
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ActionContext context, string url, string target)
     {
-        logger.Debug($"[URL] URL: {url} Target: {target}");
+        Logger.Debug($"[URL] URL: {url} Target: {target}");
 
         if (url.StartsWith("FSCommand:"))
         {
@@ -25,7 +25,7 @@ public static class UrlHandler
 
             if (!(targetObject.Item is SpriteItem))
             {
-                logger.Error("[URL] Target must be a sprite!");
+                Logger.Error("[URL] Target must be a sprite!");
             }
 
             var targetSprite = targetObject.Item as SpriteItem;

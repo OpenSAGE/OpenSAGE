@@ -74,7 +74,7 @@ public static class Program
           .WithParsed(opts => Run(opts));
     }
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     private static GameInstallation? GameFromPath(Options opts, SageGame game, string? path)
     {
@@ -107,7 +107,7 @@ public static class Program
 
     public static void Run(Options opts)
     {
-        logger.Info("Starting...");
+        Logger.Info("Starting...");
 
         var installation = GameFromPath(opts, opts.Game, opts.GamePath);
 
@@ -129,7 +129,7 @@ public static class Program
             Environment.Exit(1);
         }
 
-        logger.Debug($"Have installation of {installation.Game.DisplayName}");
+        Logger.Debug($"Have installation of {installation.Game.DisplayName}");
 
         Platform.Start();
 
@@ -148,9 +148,9 @@ public static class Program
             UseUniquePorts = opts.UseUniquePorts
         };
 
-        UPnP.InitializeAsync(TimeSpan.FromSeconds(10)).ContinueWith(_ => logger.Info($"UPnP status: {UPnP.Status}"));
+        UPnP.InitializeAsync(TimeSpan.FromSeconds(10)).ContinueWith(_ => Logger.Info($"UPnP status: {UPnP.Status}"));
 
-        logger.Debug($"Have configuration");
+        Logger.Debug($"Have configuration");
 
         using (var window = new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, opts.Fullscreen))
         using (var game = new Game(installation, opts.Renderer, config, window))
@@ -171,7 +171,7 @@ public static class Program
                 var replayFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Replays", opts.ReplayFile));
                 if (replayFile == null)
                 {
-                    logger.Debug("Could not find entry for Replay " + opts.ReplayFile);
+                    Logger.Debug("Could not find entry for Replay " + opts.ReplayFile);
                     game.ShowMainMenu();
                 }
 
@@ -182,7 +182,7 @@ public static class Program
                 var saveFile = game.ContentManager.UserDataFileSystem?.GetFile(Path.Combine("Save", opts.SaveFile));
                 if (saveFile == null)
                 {
-                    logger.Debug("Could not find entry for Save " + opts.SaveFile);
+                    Logger.Debug("Could not find entry for Save " + opts.SaveFile);
                     game.ShowMainMenu();
                 }
 
@@ -198,7 +198,7 @@ public static class Program
                     var mapCache = game.AssetStore.MapCaches.GetByName(opts.Map);
                     if (mapCache == null)
                     {
-                        logger.Warn("Could not find MapCache entry for map " + opts.Map);
+                        Logger.Warn("Could not find MapCache entry for map " + opts.Map);
                         game.ShowMainMenu();
                     }
                     else if (mapCache.IsMultiplayer)
@@ -209,7 +209,7 @@ public static class Program
                             new(2, "FactionGLA", new ColorRgb(0, 255, 0), 0, PlayerOwner.EasyAi),
                         };
 
-                        logger.Debug("Starting multiplayer game");
+                        Logger.Debug("Starting multiplayer game");
 
                         game.StartSkirmishOrMultiPlayerGame(opts.Map,
                             new EchoConnection(),
@@ -219,7 +219,7 @@ public static class Program
                     }
                     else
                     {
-                        logger.Debug("Starting singleplayer game");
+                        Logger.Debug("Starting singleplayer game");
 
                         game.StartSinglePlayerGame(opts.Map);
                     }
@@ -227,7 +227,7 @@ public static class Program
             }
             else
             {
-                logger.Debug("Showing main menu");
+                Logger.Debug("Showing main menu");
                 game.ShowMainMenu();
             }
 
@@ -254,7 +254,7 @@ public static class Program
                         return InputMessageResult.NotHandled;
                     }));
 
-            logger.Debug("Starting game");
+            Logger.Debug("Starting game");
 
             game.StartRun();
 

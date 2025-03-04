@@ -12,9 +12,9 @@ public static class LanMapSelectMenuCallbacks
 {
     private const string ListBoxMapPrefix = "LanMapSelectMenu.wnd:ListboxMap";
 
-    private static Window _window;
-    private static Game _game;
-    private static MapCache _previewMap;
+    private static Window Window;
+    private static Game Game;
+    private static MapCache PreviewMap;
 
     public static void LanMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
@@ -27,7 +27,7 @@ public static class LanMapSelectMenuCallbacks
                         LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                         break;
                     case "LanMapSelectMenu.wnd:ButtonOK":
-                        LanGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
+                        LanGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(PreviewMap);
                         LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                         break;
                 }
@@ -37,13 +37,13 @@ public static class LanMapSelectMenuCallbacks
 
     public static void LanMapSelectMenuInit(Window window, Game game)
     {
-        _window = window;
-        _game = game;
+        Window = window;
+        Game = game;
         SetPreviewMap(LanGameOptionsMenuCallbacks.GameOptions.CurrentMap);
 
         // Official maps
-        var mapCaches = _game.AssetStore.MapCaches;
-        var listBoxMaps = (ListBox)_window.Controls.FindControl(ListBoxMapPrefix);
+        var mapCaches = Game.AssetStore.MapCaches;
+        var listBoxMaps = (ListBox)Window.Controls.FindControl(ListBoxMapPrefix);
         var items = new List<ListBoxDataItem>();
 
         foreach (var mapCache in mapCaches)
@@ -61,7 +61,7 @@ public static class LanMapSelectMenuCallbacks
 
     private static void OnItemChanged(object sender, EventArgs e)
     {
-        var listBoxMaps = (ListBox)_window.Controls.FindControl(ListBoxMapPrefix);
+        var listBoxMaps = (ListBox)Window.Controls.FindControl(ListBoxMapPrefix);
         var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
 
         var mapCache = selectedItem.DataItem as MapCache;
@@ -71,10 +71,10 @@ public static class LanMapSelectMenuCallbacks
 
     internal static void SetPreviewMap(MapCache mapCache)
     {
-        _previewMap = mapCache;
+        PreviewMap = mapCache;
 
-        var mapPreview = _window.Controls.FindControl("LanMapSelectMenu.wnd:WinMapPreview");
+        var mapPreview = Window.Controls.FindControl("LanMapSelectMenu.wnd:WinMapPreview");
 
-        MapUtils.SetMapPreview(mapCache, mapPreview, _game);
+        MapUtils.SetMapPreview(mapCache, mapPreview, Game);
     }
 }

@@ -6,16 +6,16 @@ namespace OpenSage.Mods.Bfme.Gui;
 [AptCallbacks(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
 static class Global
 {
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public static void OnAptInGameSpellBookLoaded(string param, ActionContext context, AptWindow window, Game game)
     {
-        logger.Info("InGame spellbook loaded!");
+        Logger.Info("InGame spellbook loaded!");
     }
 
     public static void OnAptInGameSideCommandBarLoaded(string param, ActionContext context, AptWindow window, Game game)
     {
-        logger.Info("InGame commandbar loaded!");
+        Logger.Info("InGame commandbar loaded!");
     }
 
     public static void OnAptInGameSideCommandBarButtonFrameLoaded(string param, ActionContext context, AptWindow window, Game game)
@@ -25,12 +25,12 @@ static class Global
 
     public static void OnAptInGameSideCommandBarFadeOutComplete(string param, ActionContext context, AptWindow window, Game game)
     {
-        logger.Info($"InGame sidecommandbar fadeout");
+        Logger.Info($"InGame sidecommandbar fadeout");
     }
 
     public static void OnAptInGameSideCommandBarFadeInComplete(string param, ActionContext context, AptWindow window, Game game)
     {
-        logger.Info("InGame commandbar fadein complete!");
+        Logger.Info("InGame commandbar fadein complete!");
     }
 
     public static void SetBackground(string param, ActionContext context, AptWindow window, Game game)

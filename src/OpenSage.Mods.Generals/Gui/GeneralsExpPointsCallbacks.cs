@@ -11,7 +11,7 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class GeneralsExpPointsCallbacks
 {
-    private static Window? _window;
+    private static Window? Window;
 
     public static void GeneralsExpPointsSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
@@ -22,7 +22,7 @@ public static class GeneralsExpPointsCallbacks
                 {
                     case "GeneralsExpPoints.wnd:ButtonExit":
                         context.WindowManager.PopWindow();
-                        _window = null;
+                        Window = null;
                         break;
                 }
                 break;
@@ -33,7 +33,7 @@ public static class GeneralsExpPointsCallbacks
     {
         for (int i = 0; i < commandSet.Buttons.Count; i++)
         {
-            var buttonControl = (Button)_window!.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i);
+            var buttonControl = (Button)Window!.Controls.FindControl($"GeneralsExpPoints.wnd:ButtonRank{rank}Number" + i);
             if (commandSet.Buttons.TryGetValue(i + 1, out var commandButtonReference))
             {
                 var commandButton = commandButtonReference.Value;
@@ -74,14 +74,14 @@ public static class GeneralsExpPointsCallbacks
 
     public static void Update(Player player, GeneralsControlBar controlBar)
     {
-        if (_window == null)
+        if (Window == null)
         {
             return;
         }
 
         var currentRank = player.Rank.CurrentRank;
         //Update title
-        var lblTitle = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextTitle") as Label;
+        var lblTitle = Window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextTitle") as Label;
 
         if (CurrentRankStringRank != currentRank)
         {
@@ -91,10 +91,10 @@ public static class GeneralsExpPointsCallbacks
 
         lblTitle!.Text = BaseRankText!.Localize();
 
-        var lblPoints = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextRankPointsAvailable") as Label;
+        var lblPoints = Window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextRankPointsAvailable") as Label;
         lblPoints!.Text = player.SciencePurchasePoints.ToString();
 
-        var lblLevel = _window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextLevel") as Label;
+        var lblLevel = Window.Controls.FindControl("GeneralsExpPoints.wnd:StaticTextLevel") as Label;
         lblLevel!.Text = BaseStaticLevelText.Localize(currentRank);
 
         ApplyCommandSets(player, controlBar);
@@ -102,6 +102,6 @@ public static class GeneralsExpPointsCallbacks
 
     public static void SetWindow(Window window)
     {
-        _window = window;
+        Window = window;
     }
 }

@@ -104,7 +104,7 @@ public class RegistryInstallationLocator : IInstallationLocator
             .Where(Directory.Exists);
     }
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
     {
@@ -117,7 +117,7 @@ public class RegistryInstallationLocator : IInstallationLocator
 
             if (baseGameInstallation == null)
             {
-                logger.Warn("No game installations found");
+                Logger.Warn("No game installations found");
                 return Enumerable.Empty<GameInstallation>();
             }
         }

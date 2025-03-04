@@ -31,7 +31,7 @@ internal sealed class MainForm : DisposableBase
 
     private bool CanModify => _openMode == BigArchiveMode.Update || _openMode == BigArchiveMode.Create;
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public MainForm(GraphicsDevice gd, ImGuiRenderer ren)
     {
@@ -243,7 +243,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                Logger.Error(e.Message);
             }
         }
     }
@@ -403,7 +403,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                Logger.Error(e.Message);
                 return;
             }
 
@@ -419,7 +419,7 @@ internal sealed class MainForm : DisposableBase
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                Logger.Error(e.Message);
             }
         }
     }

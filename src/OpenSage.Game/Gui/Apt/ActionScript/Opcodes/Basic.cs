@@ -43,11 +43,11 @@ public sealed class Trace : InstructionBase
 {
     public override InstructionType Type => InstructionType.Trace;
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public override void Execute(ActionContext context)
     {
-        logger.Debug($"[TRACE] {context.Pop().ToString()}");
+        Logger.Debug($"[TRACE] {context.Pop().ToString()}");
     }
 }
 

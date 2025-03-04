@@ -13,8 +13,8 @@ public static class SkirmishMapSelectMenuCallbacks
 {
     private const string ListBoxMapPrefix = "SkirmishMapSelectMenu.wnd:ListboxMap";
 
-    private static MapCache _previewMap;
-    private static Game _game;
+    private static MapCache PreviewMap;
+    private static Game Game;
 
     public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
@@ -27,7 +27,7 @@ public static class SkirmishMapSelectMenuCallbacks
                         SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                         break;
                     case "SkirmishMapSelectMenu.wnd:ButtonOK":
-                        SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
+                        SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(PreviewMap);
                         SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                         break;
                 }
@@ -37,11 +37,11 @@ public static class SkirmishMapSelectMenuCallbacks
 
     public static void SkirmishMapSelectMenuInit(Window window, Game game)
     {
-        _game = game;
+        Game = game;
 
         void SetPreviewMap(MapCache mapCache)
         {
-            _previewMap = mapCache;
+            PreviewMap = mapCache;
 
             var mapPreview = window.Controls.FindControl("SkirmishMapSelectMenu.wnd:WinMapPreview");
 

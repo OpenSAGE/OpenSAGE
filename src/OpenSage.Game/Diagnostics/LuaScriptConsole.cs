@@ -7,7 +7,7 @@ namespace OpenSage.Diagnostics;
 
 internal sealed class LuaScriptConsole : DiagnosticView
 {
-    private static string _scriptConsoleText = "";
+    private static string ScriptConsoleText = "";
     public static string _scriptConsoleTextAll = "";
     public static Vector4 _consoleTextColor = new Vector4(0, 150, 0, 1);
 
@@ -18,13 +18,13 @@ internal sealed class LuaScriptConsole : DiagnosticView
     protected override void DrawOverride(ref bool isGameViewFocused)
     {
         ImGui.PushItemWidth(-1);
-        ImGui.InputTextMultiline("", ref _scriptConsoleText, 1000, Vector2.Zero);
+        ImGui.InputTextMultiline("", ref ScriptConsoleText, 1000, Vector2.Zero);
         ImGui.PopItemWidth();
 
         if (ImGui.Button("Run") || ImGui.IsKeyPressed(ImGuiKey.Enter))
         {
-            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, ">> ", _scriptConsoleText.Replace("\n", "\n>> "), "\n");
-            ExecuteLuaScript(_scriptConsoleText);
+            _scriptConsoleTextAll = string.Concat(_scriptConsoleTextAll, ">> ", ScriptConsoleText.Replace("\n", "\n>> "), "\n");
+            ExecuteLuaScript(ScriptConsoleText);
         }
 
         ImGui.SameLine();

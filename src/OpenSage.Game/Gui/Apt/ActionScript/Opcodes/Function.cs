@@ -7,7 +7,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes;
 public static class FunctionCommon
 {
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public static Value[] GetArgumentsFromStack(ActionContext context)
     {
@@ -31,7 +31,7 @@ public static class FunctionCommon
         }
         else
         {
-            logger.Warn($"Function val is wrong is wrong type: {funcVal}");
+            Logger.Warn($"Function val is wrong is wrong type: {funcVal}");
         }
     }
 
@@ -48,7 +48,7 @@ public static class FunctionCommon
         }
         else
         {
-            logger.Warn($"Function val is wrong is wrong type: {funcVal}");
+            Logger.Warn($"Function val is wrong is wrong type: {funcVal}");
         }
     }
 
@@ -56,7 +56,7 @@ public static class FunctionCommon
     {
         if (scope == null)
         {
-            logger.Error($"Cannot execute function \"{funcName}\" on null object");
+            Logger.Error($"Cannot execute function \"{funcName}\" on null object");
             return;
         }
 

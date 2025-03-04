@@ -8,42 +8,42 @@ namespace OpenSage.Diagnostics;
 
 public static class GameTrace
 {
-    private static ObjectPool<DurationEventDisposable> _durationEvents;
-    private static int _processId;
-    private static StreamWriter _output;
-    private static bool _writtenFirstEntry;
+    private static ObjectPool<DurationEventDisposable> DurationEvents;
+    private static int ProcessId;
+    private static StreamWriter Output;
+    private static bool WrittenFirstEntry;
 
     public static void Start(string outputPath)
     {
-        _durationEvents = new ObjectPool<DurationEventDisposable>(() => new DurationEventDisposable());
-        _processId = Process.GetCurrentProcess().Id;
-        _output = new StreamWriter(outputPath, false);
-        _output.WriteLine("[");
+        DurationEvents = new ObjectPool<DurationEventDisposable>(() => new DurationEventDisposable());
+        ProcessId = Process.GetCurrentProcess().Id;
+        Output = new StreamWriter(outputPath, false);
+        Output.WriteLine("[");
     }
 
     public static void Stop()
     {
-        _output.WriteLine("]");
-        _output.Close();
+        Output.WriteLine("]");
+        Output.Close();
     }
 
     public static IDisposable TraceDurationEvent(string name)
     {
-        if (_output == null)
+        if (Output == null)
         {
             return null;
         }
 
         WriteEvent("B", name);
 
-        return _durationEvents.Rent();
+        return DurationEvents.Rent();
     }
 
     private static void WriteEvent(
         string type,
         string name)
     {
-        if (_output == null)
+        if (Output == null)
         {
             return;
         }
@@ -54,14 +54,14 @@ public static class GameTrace
 
         name = name.Replace("\\", "\\\\");
 
-        if (_writtenFirstEntry)
+        if (WrittenFirstEntry)
         {
-            _output.Write(",");
+            Output.Write(",");
         }
 
-        _output.WriteLine($"{{\"name\": \"{name}\", \"cat\": \"{cat}\", \"ph\": \"{type}\", \"ts\": {timestamp}, \"pid\": {_processId}, \"tid\": {threadId}, \"s\": \"g\"}}");
+        Output.WriteLine($"{{\"name\": \"{name}\", \"cat\": \"{cat}\", \"ph\": \"{type}\", \"ts\": {timestamp}, \"pid\": {ProcessId}, \"tid\": {threadId}, \"s\": \"g\"}}");
 
-        _writtenFirstEntry = true;
+        WrittenFirstEntry = true;
     }
 
     private sealed class DurationEventDisposable : IDisposable

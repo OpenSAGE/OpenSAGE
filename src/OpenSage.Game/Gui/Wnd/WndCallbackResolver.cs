@@ -49,7 +49,7 @@ public class WndCallbackResolver
         return GetCallback<ControlDrawCallback>(name);
     }
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     private TDelegate GetCallback<TDelegate>(string name)
         where TDelegate : class
@@ -61,7 +61,7 @@ public class WndCallbackResolver
 
         if (!_callbackCache.TryGetValue(name, out var method))
         {
-            logger.Warn($"Failed to resolve callback '{name}'");
+            Logger.Warn($"Failed to resolve callback '{name}'");
             return null;
         }
 

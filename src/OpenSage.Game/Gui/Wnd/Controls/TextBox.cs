@@ -10,7 +10,7 @@ public class TextBox : Control
 {
     public event EventHandler Click;
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public bool IsReadOnly { get; set; }
 
@@ -89,7 +89,7 @@ public class TextBox : Control
                 break;
 
             default:
-                logger.Info($"Unhandled event: {message.MessageType} {message.Element} {message.MousePosition} {message.Key}");
+                Logger.Info($"Unhandled event: {message.MessageType} {message.Element} {message.MousePosition} {message.Key}");
                 break;
 
         }

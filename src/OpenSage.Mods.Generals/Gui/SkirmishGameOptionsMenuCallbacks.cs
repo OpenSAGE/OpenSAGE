@@ -8,8 +8,6 @@ public static class SkirmishGameOptionsMenuCallbacks
 {
     public static GameOptionsUtil GameOptions { get; private set; }
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
     public static async void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
         if (!await GameOptions.HandleSystemAsync(control, message, context))

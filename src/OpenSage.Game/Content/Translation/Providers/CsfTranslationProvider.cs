@@ -40,13 +40,13 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
 
     private class Csf
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-        private const int _magicCsf = 0x43534620;
-        private const int _magicLabel = 0x4C424C20;
-        private const int _magicLString = 0x53545220;
-        private const int _magicLWideString = 0x53545257;
+        private const int MagicCsf = 0x43534620;
+        private const int MagicLabel = 0x4C424C20;
+        private const int MagicLString = 0x53545220;
+        private const int MagicLWideString = 0x53545257;
 
         internal readonly Dictionary<string, Dictionary<string, string>> _strings;
 
@@ -63,7 +63,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var magic = reader.ReadInt32();
-                if (magic != _magicCsf)
+                if (magic != MagicCsf)
                 {
                     throw new InvalidDataException("Error parsing csf (Magic: CSF expected).");
                 }
@@ -73,7 +73,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                 if (numLabels != numStrings)
                 {
                     // throw new NotSupportedException("Csf substrings are not supported.");
-                    logger.Warn("[CSF] Number of labels and strings mismatch.");
+                    Logger.Warn("[CSF] Number of labels and strings mismatch.");
                 }
                 csf._numStrings = numStrings;
                 reader.ReadUInt32(); // reserved
@@ -96,7 +96,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                 if (language is null)
                 {
                     language = "en-US";
-                    logger.Warn($"Unknown language id {languageCode} for game {game}.");
+                    Logger.Warn($"Unknown language id {languageCode} for game {game}.");
                 }
                 csf._language = language;
                 string label;
@@ -107,7 +107,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                 for (var idx = 0; idx < numLabels; ++idx)
                 {
                     magic = reader.ReadInt32();
-                    if (magic != _magicLabel)
+                    if (magic != MagicLabel)
                     {
                         throw new InvalidDataException("Error parsing csf (Magic: LBL expected).");
                     }
@@ -116,14 +116,14 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                     for (var idy = 0; idy < strCount; ++idy)
                     {
                         magic = reader.ReadInt32();
-                        if (magic != _magicLString && magic != _magicLWideString)
+                        if (magic != MagicLString && magic != MagicLWideString)
                         {
                             throw new InvalidDataException("Error parsing csf (Magic: STR/STRW expected).");
                         }
                         if (idy == 0)
                         {
                             str = reader.ReadUInt32PrefixedNegatedUnicodeString();
-                            if (magic == _magicLWideString)
+                            if (magic == MagicLWideString)
                             {
                                 str += reader.ReadUInt32PrefixedAsciiString();
                             }
@@ -131,7 +131,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                             if (colonIdx == -1)
                             {
                                 categoryLabel = string.Empty;
-                                logger.Warn($"Empty category found for {label}.");
+                                Logger.Warn($"Empty category found for {label}.");
                             }
                             else
                             {
@@ -145,7 +145,7 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                             label = label.Substring(colonIdx + 1);
                             if (category.ContainsKey(label))
                             {
-                                logger.Warn($"[CSF] String duplication: '{categoryLabel}:{label}' -> '{category[label]}', new value: '{str}'");
+                                Logger.Warn($"[CSF] String duplication: '{categoryLabel}:{label}' -> '{category[label]}', new value: '{str}'");
                             }
                             else
                             {
@@ -154,13 +154,13 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
                         }
                         else
                         {
-                            if (magic == _magicLString)
+                            if (magic == MagicLString)
                             {
-                                logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}' from {label}.");
+                                Logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}' from {label}.");
                             }
                             else
                             {
-                                logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}{reader.ReadUInt32PrefixedAsciiString()}' from {label}.");
+                                Logger.Info($"[CSF] Skipping substring '{reader.ReadUInt32PrefixedNegatedUnicodeString()}{reader.ReadUInt32PrefixedAsciiString()}' from {label}.");
                             }
                         }
                     }
@@ -214,14 +214,14 @@ public sealed class CsfTranslationProvider : ATranslationProviderBase
     }
 
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public override string GetString(string str)
     {
         Debug.Assert(!(str is null), $"{nameof(str)} is null");
         if (!_csf.TryGetString(str, out var result))
         {
-            logger.Warn($"Requested string '{str}' not found in '{Name}'.");
+            Logger.Warn($"Requested string '{str}' not found in '{Name}'.");
         }
         return result;
     }

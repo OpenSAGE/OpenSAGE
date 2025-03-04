@@ -37,7 +37,7 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
         }
 
 
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static void ReadStr(Str str, Stream stream, string language)
         {
@@ -274,7 +274,7 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
                             }
                             if (dict.ContainsKey(label))
                             {
-                                logger.Info($"[STR] String duplication: '{category}:{label}' -> '{dict[label]}', new value: '{value}'");
+                                Logger.Info($"[STR] String duplication: '{category}:{label}' -> '{dict[label]}', new value: '{value}'");
                             }
                             else
                             {
@@ -338,14 +338,14 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
     }
 
 
-    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public override string GetString(string str)
     {
         Debug.Assert(!(str is null), $"{nameof(str)} is null");
         if (!_str.TryGetString(str, out var result))
         {
-            logger.Warn($"Requested string '{str}' not found in '{Name}'.");
+            Logger.Warn($"Requested string '{str}' not found in '{Name}'.");
         }
         return result;
     }
