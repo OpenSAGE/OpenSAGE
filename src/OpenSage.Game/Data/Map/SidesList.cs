@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Scb;
 using OpenSage.FileFormats;
 using OpenSage.Scripting;
 
@@ -19,13 +20,28 @@ namespace OpenSage.Data.Map
         // TODO: What game was this added in?
         public bool Unknown { get; private set; }
 
-        // In Generals players are almost universally called "sides"
-        // Hence the name of this class
+        // C++ name: m_sides
         private List<Player> _players = [];
         public List<Player> Players { get => _players; private set => _players = value; }
 
+        // C++ name: m_teamrec
         private List<Team> _teams = [];
         public List<Team> Teams { get => _teams; private set => _teams = value; }
+
+        #region Skirmish state
+        // This is a bit iffy - this is essentially UI state stored in the global sides list
+        // We could consider deviating from the original implementation here
+
+        // C++ name: m_skirmishSides
+        private List<Player> _skirmishPlayers = [];
+        public List<Player> SkirmishPlayers { get => _skirmishPlayers; private set => _skirmishPlayers = value; }
+
+        // C++ name: m_skirmishTeamrec
+        private List<Team> _skirmishTeams = [];
+        public List<Team> SkirmishTeams { get => _skirmishTeams; private set => _skirmishTeams = value; }
+
+        #endregion
+
         internal static SidesList Parse(BinaryReader reader, MapParseContext context, bool mapHasAssetList)
         {
             return ParseAsset(reader, context, version =>
@@ -324,6 +340,7 @@ namespace OpenSage.Data.Map
 
         // Port note: This is only used in the ValidateSides method
         // (+ in WorldBuilder, which we are not porting for now)
+        // So there must be some other player creation mechanism in the original code
         private void AddPlayerByTemplate(string playerTemplateName)
         {
             string playerName;
@@ -378,6 +395,72 @@ namespace OpenSage.Data.Map
             };
 
             Teams.Add(team);
+        }
+
+        // TODO(Port): Does this really belong here?
+        // I think this should be a method on Game or some other global class
+        public void PrepareForMpOrSkirmish(Game game)
+        {
+            // Move teams from the global list to the skirmish list
+            SkirmishTeams.Clear();
+            SkirmishTeams.AddRange(Teams);
+            Teams.Clear();
+
+            // Copy all players to the skirmish list
+            SkirmishPlayers.Clear();
+            SkirmishPlayers.AddRange(Players);
+
+            // Remove all players from the global list, except for the civilian player
+            // And leave at least one player in the global list (why?)
+            var playerIndex = 0;
+            while (playerIndex < Players.Count && Players.Count > 1)
+            {
+                if (Players[playerIndex].Faction == "FactionCivilian")
+                {
+                    playerIndex++;
+                    continue;
+                }
+
+                Players.RemoveAt(playerIndex);
+            }
+
+            // If any of the players have scripts, don't make any changes
+            var gotScripts = Players.Any(p => p.Faction != "FactionCivilian" && p.Scripts.Scripts.Length > 0);
+            if (gotScripts)
+            {
+                return;
+            }
+
+            // Otherwise, load standard skirmish scripts
+            // And throw away the skirmish teams list we just created
+            SkirmishTeams.Clear();
+
+            var skirmishScriptsEntry = game.ContentManager.GetScriptEntry(@"Data\Scripts\SkirmishScripts.scb");
+            using var stream = skirmishScriptsEntry.Open();
+            var skirmishScripts = ScbFile.FromStream(stream);
+
+            // Port note: In Generals parsing the SCB file actually modifies (the equivalent of) SkirmishTeams
+            foreach (var team in skirmishScripts.Teams.Teams)
+            {
+                var owner = SkirmishPlayers.FirstOrDefault(p => p.Name == team.Owner);
+                if (owner != null)
+                {
+                    SkirmishTeams.Add(team);
+                }
+            }
+
+            // For each player, find the corresponding script list from skirmish scripts and copy it
+            foreach (var player in SkirmishPlayers)
+            {
+                var index = Array.FindIndex(skirmishScripts.ScriptsPlayers.Players, scriptsPlayer => scriptsPlayer.Name == player.Name);
+                if (index == -1)
+                {
+                    // TODO: Is this actually something we should warn about?
+                    Logger.Warn($"No skirmish scripts found for player {player.Name}");
+                    continue;
+                }
+                player.Scripts = skirmishScripts.PlayerScripts.ScriptLists[index];
+            }
         }
     }
 }

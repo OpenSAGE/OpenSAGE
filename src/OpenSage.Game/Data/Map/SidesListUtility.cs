@@ -268,6 +268,7 @@ namespace OpenSage.Data.Map
             mapTeams.Add(CreateDefaultTeam("ReplayObserver"));
         }
 
+        // TODO(Port): SidesList.PrepareForMpOrSkirmish contains a ported near-equivalent of this function
         private static void CreateTeamsFromScbFile(
             Game game,
             ScriptList[] originalMapScriptLists,
