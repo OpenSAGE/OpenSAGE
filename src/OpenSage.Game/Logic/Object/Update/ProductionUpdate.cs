@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -379,6 +380,8 @@ namespace OpenSage.Logic.Object
                     parkingPlace.ReportSpawn(producedUnit.ID);
                     producedUnit.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
                     var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+                    Debug.Assert(jetAIUpdate is not null); // Could also do an unsafe cast?
+                                                           // The effect of debug check is less destructive in release builds.
                     jetAIUpdate.Base = _gameObject;
                     jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
                 }
@@ -396,6 +399,8 @@ namespace OpenSage.Logic.Object
             if (ProductionExit is ParkingPlaceBehaviour && !ProducedAtHelipad(producedUnit.Definition))
             {
                 var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+                Debug.Assert(jetAIUpdate is not null); // Could also do an unsafe cast?
+                                                       // The effect of debug check is less destructive in release builds.
                 jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.JustCreated;
                 return;
             }

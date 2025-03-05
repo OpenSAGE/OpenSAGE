@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Diagnostics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 
@@ -20,6 +21,7 @@ namespace OpenSage.Logic.Object
 
         private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
         {
+            Debug.Assert(_moduleData.CrateData is not null);
             var crateData = _moduleData.CrateData.Value;
 
             if (_gameObject.TryGetLastDamage(out var lastDamageData))
@@ -96,7 +98,7 @@ namespace OpenSage.Logic.Object
                 { "CrateData", (parser, x) => x.CrateData = parser.ParseCrateReference() }
             });
 
-        public LazyAssetReference<CrateData> CrateData { get; private set; }
+        public LazyAssetReference<CrateData>? CrateData { get; private set; }
 
         internal override CreateCrateDie CreateModule(GameObject gameObject, GameContext context)
         {
