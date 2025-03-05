@@ -378,6 +378,11 @@ internal sealed partial class IniParser
 
     public float ParseFloat() => ScanFloat(GetNextToken());
 
+    /// <summary>
+    /// Parse a degree value (0 to 360) and store the radian value of that degree in a float.
+    /// </summary>
+    public float ParseAngleFloat() => ParseFloat() * MathUtility.DegreesToRadiansRatio;
+
     public float GetFloatOptional()
     {
         var token = GetNextTokenOptional();

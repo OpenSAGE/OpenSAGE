@@ -50,6 +50,7 @@ public static class SaveFile
 
     private record struct ChunkDefinition(string ChunkName, Func<IGame, IPersistableObject> GetPersistableObject);
 
+    // This correlates to GameState::init in Generals
     private static readonly List<ChunkDefinition> ChunkDefinitions = new()
     {
         new ChunkDefinition("CHUNK_GameState", game => game.GameState),
@@ -62,6 +63,9 @@ public static class SaveFile
         new ChunkDefinition("CHUNK_ParticleSystem", game => game.Scene3D.ParticleSystemManager),
         new ChunkDefinition("CHUNK_Radar", game => game.Scene3D.Radar),
         new ChunkDefinition("CHUNK_ScriptEngine", game => game.Scripting),
+        // TODO(Port): This is not entirely correct. The serialised data does indeed consist solely of the player scripts,
+        // but in Generals the containing object is the global SidesList object.
+        // So we need to replace PlayerScripts in Scene3D / Game with SidesList.
         new ChunkDefinition("CHUNK_SidesList", game => game.Scene3D.PlayerScripts),
         new ChunkDefinition("CHUNK_TacticalView", game => ((RtsCameraController) game.Scene3D.CameraController)),
         new ChunkDefinition("CHUNK_GameClient", game => game.GameClient),

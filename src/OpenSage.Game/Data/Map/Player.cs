@@ -2,9 +2,11 @@
 
 using System.Diagnostics;
 using System.IO;
+using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map;
 
+// This corresponds to the SidesInfo class in Generals
 [DebuggerDisplay("Player '{Name}'")]
 public sealed class Player
 {
@@ -15,7 +17,8 @@ public sealed class Player
 
     public Player() { }
 
-    public BuildListItem[] BuildList { get; internal set; } = [];
+    public BuildListInfo[] BuildList { get; internal set; } = [];
+    public ScriptList Scripts { get; internal set; } = new ScriptList();
 
     /// <summary>
     /// internal identifier for player.
@@ -141,15 +144,16 @@ public sealed class Player
         return result;
     }
 
-    internal static Player Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
+    internal static Player Parse(BinaryReader reader, MapParseContext context, ushort sidesListVersion, bool mapHasAssetList)
     {
         var player = new Player(AssetPropertyCollection.Parse(reader, context));
         var numBuildListItems = reader.ReadUInt32();
-        var buildListItems = new BuildListItem[numBuildListItems];
+        var buildListItems = new BuildListInfo[numBuildListItems];
+        var buildListInfoFields = GetBuildListInfoFields(sidesListVersion, mapHasAssetList);
 
         for (var i = 0; i < numBuildListItems; i++)
         {
-            buildListItems[i] = BuildListItem.Parse(reader, version, 6, mapHasAssetList);
+            buildListItems[i] = BuildListInfo.Parse(reader, buildListInfoFields);
         }
 
         player.BuildList = buildListItems;
@@ -157,7 +161,7 @@ public sealed class Player
         return player;
     }
 
-    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version, bool mapHasAssetList)
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort sidesListVersion, bool mapHasAssetList)
     {
         var properties = new AssetPropertyCollection();
         SerializeProperties(properties);
@@ -165,9 +169,22 @@ public sealed class Player
 
         writer.Write((uint)BuildList.Length);
 
+        var buildListInfoFields = GetBuildListInfoFields(sidesListVersion, mapHasAssetList);
+
         foreach (var buildListItem in BuildList)
         {
-            buildListItem.WriteTo(writer, version, 6, mapHasAssetList);
+            buildListItem.WriteTo(writer, buildListInfoFields);
         }
+    }
+
+    private static BuildListInfo.IncludeFields GetBuildListInfoFields(ushort sidesListVersion, bool mapHasAssetList)
+    {
+        // TODO: Is this correct for both BFME and C&C3?
+        // See similar method in BuildLists.cs
+        return (sidesListVersion, mapHasAssetList) switch
+        {
+            ( >= 6, true) => BuildListInfo.IncludeFields.Cnc3UnknownBoolean,
+            _ => BuildListInfo.IncludeFields.Default
+        };
     }
 }

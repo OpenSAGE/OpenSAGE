@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using ImGuiNET;
 using OpenSage.Scripting;
 
@@ -52,9 +53,9 @@ internal sealed class ScriptingView : DiagnosticView
         ImGui.Separator();
 
         var scriptsList = Game.Scene3D.MapFile.GetPlayerScriptsList();
-        for (var i = 0; i < scriptsList.ScriptLists.Length; i++)
+        foreach (var (scriptList, i) in scriptsList.Select((value, i) => (value, i)))
         {
-            DrawScriptList(i, scriptsList.ScriptLists[i]);
+            DrawScriptList(i, scriptList);
         }
     }
 

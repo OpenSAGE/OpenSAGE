@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Logic.AI;
 
@@ -319,7 +319,7 @@ public sealed class AISkillSet
         { "Science", (parser, x) => x.Sciences.Add(parser.ParseAssetReference()) }
     };
 
-    public List<string> Sciences { get; } = new List<string>();
+    public List<string> Sciences { get; } = [];
 }
 
 public sealed class AISkirmishBuildList
@@ -333,39 +333,10 @@ public sealed class AISkirmishBuildList
 
     private static readonly IniParseTable<AISkirmishBuildList> FieldParseTable = new IniParseTable<AISkirmishBuildList>
     {
-        { "Structure", (parser, x) => x.Structures.Add(AIStructure.Parse(parser)) }
+        { "Structure", (parser, x) => x.Structures.Add(BuildListInfo.Parse(parser)) }
     };
 
     public string Name { get; private set; }
 
-    public List<AIStructure> Structures { get; } = new List<AIStructure>();
-}
-
-public sealed class AIStructure
-{
-    internal static AIStructure Parse(IniParser parser)
-    {
-        return parser.ParseNamedBlock(
-            (x, name) => x.Key = name,
-            FieldParseTable);
-    }
-
-    private static readonly IniParseTable<AIStructure> FieldParseTable = new IniParseTable<AIStructure>
-    {
-        { "Name", (parser, x) => x.Name = parser.ParseString() },
-        { "Location", (parser, x) => x.Location = parser.ParseVector2() },
-        { "Rebuilds", (parser, x) => x.Rebuilds = parser.ParseInteger() },
-        { "Angle", (parser, x) => x.Angle = parser.ParseFloat() },
-        { "InitiallyBuilt", (parser, x) => x.InitiallyBuilt = parser.ParseBoolean() },
-        { "AutomaticallyBuild", (parser, x) => x.AutomaticallyBuild = parser.ParseBoolean() },
-    };
-
-    public string Key { get; private set; }
-
-    public string Name { get; private set; }
-    public Vector2 Location { get; private set; }
-    public int Rebuilds { get; private set; }
-    public float Angle { get; private set; }
-    public bool InitiallyBuilt { get; private set; }
-    public bool AutomaticallyBuild { get; private set; }
+    public List<BuildListInfo> Structures { get; } = [];
 }

@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.RefPack;
 using OpenSage.IO;
+using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map;
 
@@ -91,9 +94,11 @@ public class MapFile
     [AddedIn(SageGame.Bfme)]
     public SkyboxSettings SkyboxSettings { get; private set; }
 
-    public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
+    // TODO(Port): This used to be simpler when PlayerScripts (incorrectly) lived in SidesList.
+    // This will probably change as we port more stuff.
+    public IEnumerable<ScriptList> GetPlayerScriptsList() => SidesList.Players.Select(player => player.Scripts) ?? PlayerScriptsList.ScriptLists;
 
-    public Team[] GetTeams() => SidesList.Teams ?? Teams.Items;
+    public List<Team> GetTeams() => SidesList.Teams ?? Teams.Items;
 
     public static Stream Decompress(Stream stream)
     {

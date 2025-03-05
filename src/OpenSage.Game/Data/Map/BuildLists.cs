@@ -2,6 +2,7 @@
 
 namespace OpenSage.Data.Map;
 
+[AddedIn(SageGame.Bfme)]
 public sealed class BuildLists : Asset
 {
     public const string AssetName = "BuildLists";
