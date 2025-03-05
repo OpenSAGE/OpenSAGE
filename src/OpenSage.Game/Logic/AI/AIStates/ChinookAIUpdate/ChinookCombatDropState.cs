@@ -36,11 +36,13 @@ internal sealed class ChinookCombatDropState : State
     {
         reader.PersistVersion(2);
 
-        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope? item) =>
+        #nullable disable // The callback is in a project with no nullability, but the Rope object is nullable.
+        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope item) =>
         {
             item ??= new Rope();
             persister.PersistObjectValue(item);
         });
+        #nullable enable
     }
 
     private sealed class Rope : IPersistableObject

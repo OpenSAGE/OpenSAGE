@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Translation;
@@ -461,6 +462,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 {
                                     var unitId = container.ContainedObjectIds[exitCommandCount++];
                                     var unit = controlBar.Game.Scene3D.GameObjects.GetObjectById(unitId);
+                                    Debug.Assert(unit is not null);
                                     slotsUsed += container.SlotValueForUnit(unit);
                                     buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.ButtonImage);
                                     buttonControl.OverlayImage = RankOverlaySmall(controlBar, unit.Rank);

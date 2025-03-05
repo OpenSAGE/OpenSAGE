@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -127,6 +128,7 @@ namespace OpenSage.Logic.Orders
                             var buildTarget = _game.Scene3D.GameObjects.GetObjectById(buildTargetId);
 
                             var dozer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
+                            Debug.Assert(buildTarget is not null);
                             (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
 
                             _game.Audio.PlayAudioEvent(dozer, dozer?.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
@@ -140,7 +142,7 @@ namespace OpenSage.Logic.Orders
                             var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
                             var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
                             player.BankAccount.Withdraw((uint) upgradeDefinition.BuildCost);
-
+                            Debug.Assert(gameObject is not null);
                             gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
                         }
                         break;
@@ -225,6 +227,7 @@ namespace OpenSage.Logic.Orders
                             var repairTargetId = order.Arguments[0].Value.ObjectId;
                             var repairTarget =  _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
 
+                            Debug.Assert(repairTarget is not null);
                             (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
 
                             _game.Audio.PlayAudioEvent(repairer, repairer?.Definition.UnitSpecificSounds?.VoiceRepair?.Value);
@@ -304,6 +307,7 @@ namespace OpenSage.Logic.Orders
                                 var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
                                 var rallyPoint = order.Arguments[1].Value.Position;
+                                Debug.Assert(obj is not null);
                                 obj.RallyPoint = rallyPoint;
                             }
                             else
@@ -397,6 +401,7 @@ namespace OpenSage.Logic.Orders
                             var objectDefinitionId = order.Arguments[1].Value.Integer;
                             var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint) objectDefinitionId);
 
+                            Debug.Assert(gameObject is not null);
                             var container = gameObject.FindBehavior<OpenContainModule>();
                             foreach (var unit in player.SelectedUnits)
                             {
@@ -427,7 +432,7 @@ namespace OpenSage.Logic.Orders
                                 continue;
                             }
 
-                            if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
+                            if (supplyPoint is not null && supplyPoint.IsKindOf(ObjectKinds.SupplySource))
                             {
                                 behavior.CurrentSupplySource = supplyPoint;
                                 behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
