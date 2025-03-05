@@ -41,9 +41,7 @@ namespace OpenSage.Logic.AI.AIStates
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
         }
 
         private sealed class AttackMoveTowardsTargetState : MoveTowardsState
@@ -63,9 +61,7 @@ namespace OpenSage.Logic.AI.AIStates
             {
                 reader.PersistVersion(1);
 
-                reader.BeginObject("Base");
-                base.Persist(reader);
-                reader.EndObject();
+                reader.PersistBase(base.Persist);
 
                 reader.PersistVector3(ref _unknownPosition);
                 reader.PersistFrame(ref _unknownFrame);

@@ -13,14 +13,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Triggers use of SET_NORMAL_UPGRADED locomotor on this object and allows the use of 
+    /// Triggers use of SET_NORMAL_UPGRADED locomotor on this object and allows the use of
     /// VoiceMoveUpgrade within the UnitSpecificSounds section of the object.
     /// </summary>
     public sealed class LocomotorSetUpgradeModuleData : UpgradeModuleData

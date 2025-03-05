@@ -79,9 +79,7 @@ namespace OpenSage.Logic.AI
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Persist(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Persist);
 
             reader.PersistListWithUInt32Count(
                 _targetPositions,

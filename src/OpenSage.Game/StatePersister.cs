@@ -233,6 +233,13 @@ namespace OpenSage
 
         protected record struct Segment(long Start, long End, string Name);
 
+        public void PersistBase(Action<StatePersister> persistAction)
+        {
+            BeginObject("Base");
+            persistAction(this);
+            EndObject();
+        }
+
         public void BeginObject(string name)
         {
             PersistFieldName(name);

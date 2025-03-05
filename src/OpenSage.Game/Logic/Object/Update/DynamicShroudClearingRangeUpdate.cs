@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
 
             reader.PersistUInt32(ref _unknown1);
             reader.PersistUInt32(ref _unknown2);

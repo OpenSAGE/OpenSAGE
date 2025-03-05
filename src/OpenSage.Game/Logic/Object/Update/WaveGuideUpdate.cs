@@ -10,15 +10,15 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
 
             reader.SkipUnknownBytes(2330);
         }
     }
 
     /// <summary>
-    /// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02, 
-    /// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the 
+    /// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02,
+    /// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the
     /// WaterWaveBridge object definition as a template when it collides with a bridge.
     /// Requires a WAVEGUIDE KindOf.
     /// </summary>

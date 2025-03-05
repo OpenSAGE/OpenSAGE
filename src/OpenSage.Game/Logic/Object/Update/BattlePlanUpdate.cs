@@ -282,9 +282,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistEnum(ref _current);
             reader.PersistEnum(ref _desired);

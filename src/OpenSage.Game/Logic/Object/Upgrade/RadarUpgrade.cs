@@ -13,14 +13,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Triggers use of <see cref="RadarUpdateModuleData"/> module on this object if present and enables the 
+    /// Triggers use of <see cref="RadarUpdateModuleData"/> module on this object if present and enables the
     /// Radar in the command bar.
     /// </summary>
     public sealed class RadarUpgradeModuleData : UpgradeModuleData

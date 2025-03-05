@@ -14,13 +14,13 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
     /// Special-case draw module which is interdependent with the W3DDependencyModelDraw module.
-    /// Allows other objects to be attached to this object through use of AttachToBoneInContainer 
+    /// Allows other objects to be attached to this object through use of AttachToBoneInContainer
     /// logic.
     /// </summary>
     public sealed class W3dOverlordTankDrawModuleData : W3dTankDrawModuleData

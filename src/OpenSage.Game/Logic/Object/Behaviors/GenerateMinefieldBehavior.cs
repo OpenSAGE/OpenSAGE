@@ -173,9 +173,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
 
             reader.PersistObject(UpgradeLogic);
             reader.PersistBoolean(ref _generated);

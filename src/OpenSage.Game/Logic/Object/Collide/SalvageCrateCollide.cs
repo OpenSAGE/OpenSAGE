@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
         }
     }
 

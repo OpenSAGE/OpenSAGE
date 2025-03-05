@@ -8,12 +8,12 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            base.Load(reader);
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Triggers use of CARBOMB WeaponSet Condition of the hijacked object and turns it to a 
+    /// Triggers use of CARBOMB WeaponSet Condition of the hijacked object and turns it to a
     /// suicide unit unless given with a different weapon.
     /// </summary>
     public sealed class ConvertToCarBombCrateCollideModuleData : CrateCollideModuleData

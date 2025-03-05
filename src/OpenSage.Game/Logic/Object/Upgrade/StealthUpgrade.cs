@@ -13,15 +13,13 @@ namespace OpenSage.Logic.Object
         {
             reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            reader.PersistBase(base.Load);
         }
     }
 
     /// <summary>
-    /// Eenables use of <see cref="StealthUpdateModuleData"/> module on this object. Requires 
-    /// <see cref="StealthUpdateModuleData.InnateStealth"/> = No defined in the <see cref="StealthUpdateModuleData"/> 
+    /// Eenables use of <see cref="StealthUpdateModuleData"/> module on this object. Requires
+    /// <see cref="StealthUpdateModuleData.InnateStealth"/> = No defined in the <see cref="StealthUpdateModuleData"/>
     /// module.
     /// </summary>
     public sealed class StealthUpgradeModuleData : UpgradeModuleData
