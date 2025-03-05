@@ -1,8 +1,7 @@
-﻿namespace OpenSage.Network.Packets
+﻿namespace OpenSage.Network.Packets;
+
+public class SkirmishClientConnectPacket
 {
-    public class SkirmishClientConnectPacket
-    {
-        public string ClientId { get; set; }
-        public string PlayerName { get; set; }
-    }
+    public string ClientId { get; set; }
+    public string PlayerName { get; set; }
 }

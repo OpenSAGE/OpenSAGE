@@ -3,17 +3,16 @@ using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Apt.FrameItems
-{
-    public sealed class BackgroundColor : FrameItem
-    {
-        public ColorRgba Color { get; private set; }
+namespace OpenSage.Data.Apt.FrameItems;
 
-        public static BackgroundColor Parse(BinaryReader reader)
-        {
-            var backgroundColor = new BackgroundColor();
-            backgroundColor.Color = reader.ReadColorRgba();
-            return backgroundColor;
-        }
+public sealed class BackgroundColor : FrameItem
+{
+    public ColorRgba Color { get; private set; }
+
+    public static BackgroundColor Parse(BinaryReader reader)
+    {
+        var backgroundColor = new BackgroundColor();
+        backgroundColor.Color = reader.ReadColorRgba();
+        return backgroundColor;
     }
 }

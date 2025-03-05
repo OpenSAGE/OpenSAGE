@@ -1,384 +1,383 @@
-﻿using OpenSage.Content;
+﻿using System;
+using System.Collections.Generic;
+using FixedMath.NET;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using FixedMath.NET;
-using System;
-using System.Collections.Generic;
 
-namespace OpenSage.Logic
+namespace OpenSage.Logic;
+
+[AddedIn(SageGame.Bfme)]
+public class AttributeModifier
 {
-    [AddedIn(SageGame.Bfme)]
-    public class AttributeModifier
+    private readonly ModifierList _modifierList;
+    private TimeSpan _activeUntil;
+    private readonly bool _selfExpiring;
+
+    private List<(UpgradeTemplate, TimeSpan)> _delayedUpgrades;
+
+    public bool Applied { get; private set; }
+    public bool Invalid { get; set; }
+
+    public AttributeModifier(ModifierList modifierList)
     {
-        private readonly ModifierList _modifierList;
-        private TimeSpan _activeUntil;
-        private readonly bool _selfExpiring;
+        _modifierList = modifierList;
+        _selfExpiring = _modifierList.Duration > 0;
+        Invalid = false;
+        Applied = false;
+        _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
+    }
 
-        private List<(UpgradeTemplate, TimeSpan)> _delayedUpgrades;
-
-        public bool Applied { get; private set; }
-        public bool Invalid { get; set; }
-
-        public AttributeModifier(ModifierList modifierList)
+    public void Apply(GameObject gameObject, GameContext context, in TimeInterval time)
+    {
+        if (_selfExpiring)
         {
-            _modifierList = modifierList;
-            _selfExpiring = _modifierList.Duration > 0;
-            Invalid = false;
-            Applied = false;
-            _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
+            _activeUntil = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Duration);
         }
 
-        public void Apply(GameObject gameObject, GameContext context, in TimeInterval time)
+        foreach (var modifier in _modifierList.Modifiers)
         {
-            if (_selfExpiring)
+            switch (modifier.ModifierType)
             {
-                _activeUntil = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Duration);
+                case ModifierType.Production:
+                    gameObject.ProductionModifier *= modifier.Amount;
+                    break;
+                case ModifierType.Health:
+                    var amount = (Fix64)(int)(modifier.Amount * 100);
+                    gameObject.HealthModifier += amount;
+                    gameObject.Health += amount;
+                    break;
             }
+        }
 
-            foreach (var modifier in _modifierList.Modifiers)
+        if (_modifierList.Upgrade != null)
+        {
+            foreach (var upgrade in _modifierList.Upgrade.Upgrades)
             {
-                switch (modifier.ModifierType)
+                if (_modifierList.Upgrade.Delay == 0)
                 {
-                    case ModifierType.Production:
-                        gameObject.ProductionModifier *= modifier.Amount;
-                        break;
-                    case ModifierType.Health:
-                        var amount = (Fix64) (int) (modifier.Amount * 100);
-                        gameObject.HealthModifier += amount;
-                        gameObject.Health += amount;
-                        break;
+                    upgrade.Value.GrantUpgrade(gameObject);
                 }
-            }
-
-            if (_modifierList.Upgrade != null)
-            {
-                foreach (var upgrade in _modifierList.Upgrade.Upgrades)
+                else
                 {
-                    if (_modifierList.Upgrade.Delay == 0)
-                    {
-                        upgrade.Value.GrantUpgrade(gameObject);
-                    }
-                    else
-                    {
-                        var activatesAt = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Upgrade.Delay);
-                        _delayedUpgrades.Add((upgrade.Value, activatesAt));
-                    }
-                }
-            }
-
-            TriggerFX(_modifierList.FX, gameObject, context);
-            TriggerFX(_modifierList.FX2, gameObject, context);
-            TriggerFX(_modifierList.FX3, gameObject, context);
-
-            Applied = true;
-        }
-
-        public bool Expired(in TimeInterval time)
-        {
-            if (!_selfExpiring)
-            {
-                return false;
-            }
-
-            return time.TotalTime > _activeUntil;
-        }
-
-        public void Update(GameObject gameObject, in TimeInterval time)
-        {
-            for (var i = 0; i < _delayedUpgrades.Count; i++)
-            {
-                var (upgrade, activatesAt) = _delayedUpgrades[i];
-                if (time.TotalTime > activatesAt)
-                {
-                    upgrade.GrantUpgrade(gameObject);
-                    _delayedUpgrades.RemoveAt(i);
+                    var activatesAt = time.TotalTime + TimeSpan.FromMilliseconds(_modifierList.Upgrade.Delay);
+                    _delayedUpgrades.Add((upgrade.Value, activatesAt));
                 }
             }
         }
 
-        public void Remove(GameObject gameObject, GameContext context)
+        TriggerFX(_modifierList.FX, gameObject, context);
+        TriggerFX(_modifierList.FX2, gameObject, context);
+        TriggerFX(_modifierList.FX3, gameObject, context);
+
+        Applied = true;
+    }
+
+    public bool Expired(in TimeInterval time)
+    {
+        if (!_selfExpiring)
         {
-            foreach (var modifier in _modifierList.Modifiers)
-            {
-                switch (modifier.ModifierType)
-                {
-                    case ModifierType.Production:
-                        gameObject.ProductionModifier /= modifier.Amount;
-                        break;
-                    case ModifierType.Health:
-                        gameObject.HealthModifier -= (Fix64) (int) (modifier.Amount * 100);
-                        // TODO: also reduce health again by this amount?
-                        break;
-                }
-            }
-
-            if (_modifierList.Upgrade != null)
-            {
-                foreach (var upgrade in _modifierList.Upgrade.Upgrades)
-                {
-                    upgrade.Value.RemoveUpgrade(gameObject);
-                }
-            }
-
-            TriggerFX(_modifierList.EndFX, gameObject, context);
-            TriggerFX(_modifierList.EndFX2, gameObject, context);
-            TriggerFX(_modifierList.EndFX3, gameObject, context);
+            return false;
         }
 
-        private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameContext context)
+        return time.TotalTime > _activeUntil;
+    }
+
+    public void Update(GameObject gameObject, in TimeInterval time)
+    {
+        for (var i = 0; i < _delayedUpgrades.Count; i++)
         {
-            fx?.Value?.Execute(new FXListExecutionContext(
-                    gameObject.Rotation,
-                    gameObject.Translation,
-                    context));
+            var (upgrade, activatesAt) = _delayedUpgrades[i];
+            if (time.TotalTime > activatesAt)
+            {
+                upgrade.GrantUpgrade(gameObject);
+                _delayedUpgrades.RemoveAt(i);
+            }
         }
     }
 
-    /// <summary>
-    /// A set of bonuses that can given together as a package.
-    /// </summary>
-    [AddedIn(SageGame.Bfme)]
-    public sealed class ModifierList : BaseAsset
+    public void Remove(GameObject gameObject, GameContext context)
     {
-        // A ModifierList is a set of bonuses that can be given as a package.  You can't ever be given the same list
-        // twice at the same time, but you can have two different lists that have the same effect.
-        internal static ModifierList Parse(IniParser parser)
+        foreach (var modifier in _modifierList.Modifiers)
         {
-            return parser.ParseNamedBlock(
-                (x, name) => x.SetNameAndInstanceId("ModifierList", name),
-                FieldParseTable);
+            switch (modifier.ModifierType)
+            {
+                case ModifierType.Production:
+                    gameObject.ProductionModifier /= modifier.Amount;
+                    break;
+                case ModifierType.Health:
+                    gameObject.HealthModifier -= (Fix64)(int)(modifier.Amount * 100);
+                    // TODO: also reduce health again by this amount?
+                    break;
+            }
         }
 
-        private static readonly IniParseTable<ModifierList> FieldParseTable = new IniParseTable<ModifierList>
+        if (_modifierList.Upgrade != null)
         {
-            { "Category", (parser, x) => x.Category = parser.ParseEnum<ModifierCategory>() },
-            { "Modifier", (parser, x) => x.Modifiers.Add(Modifier.Parse(parser)) },
-            { "Duration", (parser, x) => x.Duration = parser.ParseLong() },
-            { "ClearModelCondition", (parser, x) => x.ClearModelCondition = parser.ParseEnum<ModelConditionFlag>() },
-            { "ModelCondition", (parser, x) => x.ModelCondition = parser.ParseEnum<ModelConditionFlag>() },
-            { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
-            { "FX2", (parser, x) => x.FX2 = parser.ParseFXListReference() },
-            { "FX3", (parser, x) => x.FX3 = parser.ParseFXListReference() },
-            { "EndFX", (parser, x) => x.EndFX = parser.ParseFXListReference() },
-            { "EndFX2", (parser, x) => x.EndFX2 = parser.ParseFXListReference() },
-            { "EndFX3", (parser, x) => x.EndFX3 = parser.ParseFXListReference() },
-            { "MultiLevelFX", (parser, x) => x.MultiLevelFX = parser.ParseBoolean() },
-            { "Upgrade", (parser, x) => x.Upgrade = ModifierUpgrade.Parse(parser) },
-            { "ReplaceInCategoryIfLongest", (parser, x) => x.ReplaceInCategoryIfLongest = parser.ParseBoolean() },
-            { "IgnoreIfAnticategoryActive", (parser, x) => x.IgnoreIfAnticategoryActive = parser.ParseBoolean() }
+            foreach (var upgrade in _modifierList.Upgrade.Upgrades)
+            {
+                upgrade.Value.RemoveUpgrade(gameObject);
+            }
+        }
+
+        TriggerFX(_modifierList.EndFX, gameObject, context);
+        TriggerFX(_modifierList.EndFX2, gameObject, context);
+        TriggerFX(_modifierList.EndFX3, gameObject, context);
+    }
+
+    private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameContext context)
+    {
+        fx?.Value?.Execute(new FXListExecutionContext(
+                gameObject.Rotation,
+                gameObject.Translation,
+                context));
+    }
+}
+
+/// <summary>
+/// A set of bonuses that can given together as a package.
+/// </summary>
+[AddedIn(SageGame.Bfme)]
+public sealed class ModifierList : BaseAsset
+{
+    // A ModifierList is a set of bonuses that can be given as a package.  You can't ever be given the same list
+    // twice at the same time, but you can have two different lists that have the same effect.
+    internal static ModifierList Parse(IniParser parser)
+    {
+        return parser.ParseNamedBlock(
+            (x, name) => x.SetNameAndInstanceId("ModifierList", name),
+            FieldParseTable);
+    }
+
+    private static readonly IniParseTable<ModifierList> FieldParseTable = new IniParseTable<ModifierList>
+    {
+        { "Category", (parser, x) => x.Category = parser.ParseEnum<ModifierCategory>() },
+        { "Modifier", (parser, x) => x.Modifiers.Add(Modifier.Parse(parser)) },
+        { "Duration", (parser, x) => x.Duration = parser.ParseLong() },
+        { "ClearModelCondition", (parser, x) => x.ClearModelCondition = parser.ParseEnum<ModelConditionFlag>() },
+        { "ModelCondition", (parser, x) => x.ModelCondition = parser.ParseEnum<ModelConditionFlag>() },
+        { "FX", (parser, x) => x.FX = parser.ParseFXListReference() },
+        { "FX2", (parser, x) => x.FX2 = parser.ParseFXListReference() },
+        { "FX3", (parser, x) => x.FX3 = parser.ParseFXListReference() },
+        { "EndFX", (parser, x) => x.EndFX = parser.ParseFXListReference() },
+        { "EndFX2", (parser, x) => x.EndFX2 = parser.ParseFXListReference() },
+        { "EndFX3", (parser, x) => x.EndFX3 = parser.ParseFXListReference() },
+        { "MultiLevelFX", (parser, x) => x.MultiLevelFX = parser.ParseBoolean() },
+        { "Upgrade", (parser, x) => x.Upgrade = ModifierUpgrade.Parse(parser) },
+        { "ReplaceInCategoryIfLongest", (parser, x) => x.ReplaceInCategoryIfLongest = parser.ParseBoolean() },
+        { "IgnoreIfAnticategoryActive", (parser, x) => x.IgnoreIfAnticategoryActive = parser.ParseBoolean() }
+    };
+
+    // Category = LEADERSHIP, SPELL, FORMATION, WEAPON, STRUCTURE, LEVEL
+    // The reason you have this bonus.So things can affect all Leadership bonuses or dispel all spell effects
+    public ModifierCategory Category { get; private set; }
+    public List<Modifier> Modifiers { get; } = new List<Modifier>();
+    public long Duration { get; private set; }
+    public ModelConditionFlag ClearModelCondition { get; private set; }
+    public ModelConditionFlag ModelCondition { get; private set; }
+    public LazyAssetReference<FXList> FX { get; private set; }
+    public LazyAssetReference<FXList> FX2 { get; private set; }
+    public LazyAssetReference<FXList> FX3 { get; private set; }
+    public LazyAssetReference<FXList> EndFX { get; private set; }
+    public LazyAssetReference<FXList> EndFX2 { get; private set; }
+    public LazyAssetReference<FXList> EndFX3 { get; private set; }
+    public bool MultiLevelFX { get; private set; }
+    public ModifierUpgrade Upgrade { get; private set; }
+
+    [AddedIn(SageGame.Bfme2)]
+    public bool ReplaceInCategoryIfLongest { get; private set; }
+
+    [AddedIn(SageGame.Bfme2)]
+    public bool IgnoreIfAnticategoryActive { get; private set; }
+}
+
+[AddedIn(SageGame.Bfme)]
+public struct Modifier
+{
+    internal static Modifier Parse(IniParser parser)
+    {
+        return new Modifier
+        {
+            ModifierType = parser.ParseEnum<ModifierType>(),
+            Amount = parser.ParsePercentage()
         };
-
-        // Category = LEADERSHIP, SPELL, FORMATION, WEAPON, STRUCTURE, LEVEL
-        // The reason you have this bonus.So things can affect all Leadership bonuses or dispel all spell effects
-        public ModifierCategory Category { get; private set; }
-        public List<Modifier> Modifiers { get; } = new List<Modifier>();
-        public long Duration { get; private set; }
-        public ModelConditionFlag ClearModelCondition { get; private set; }
-        public ModelConditionFlag ModelCondition { get; private set; }
-        public LazyAssetReference<FXList> FX { get; private set; }
-        public LazyAssetReference<FXList> FX2 { get; private set; }
-        public LazyAssetReference<FXList> FX3 { get; private set; }
-        public LazyAssetReference<FXList> EndFX { get; private set; }
-        public LazyAssetReference<FXList> EndFX2 { get; private set; }
-        public LazyAssetReference<FXList> EndFX3 { get; private set; }
-        public bool MultiLevelFX { get; private set; }
-        public ModifierUpgrade Upgrade { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool ReplaceInCategoryIfLongest { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool IgnoreIfAnticategoryActive { get; private set; }
     }
 
-    [AddedIn(SageGame.Bfme)]
-    public struct Modifier
+    public ModifierType ModifierType;
+    public Percentage Amount;
+}
+
+[AddedIn(SageGame.Bfme)]
+public class ModifierUpgrade
+{
+    internal static ModifierUpgrade Parse(IniParser parser)
     {
-        internal static Modifier Parse(IniParser parser)
+        var upgrades = new List<LazyAssetReference<UpgradeTemplate>>();
+        var token = parser.PeekNextTokenOptional();
+        while (token.HasValue && !token.Value.Text.Contains(":"))
         {
-            return new Modifier
-            {
-                ModifierType = parser.ParseEnum<ModifierType>(),
-                Amount = parser.ParsePercentage()
-            };
+            upgrades.Add(parser.ParseUpgradeReference());
+            token = parser.PeekNextTokenOptional();
         }
 
-        public ModifierType ModifierType;
-        public Percentage Amount;
-    }
-
-    [AddedIn(SageGame.Bfme)]
-    public class ModifierUpgrade
-    {
-        internal static ModifierUpgrade Parse(IniParser parser)
+        return new ModifierUpgrade
         {
-            var upgrades = new List<LazyAssetReference<UpgradeTemplate>>();
-            var token = parser.PeekNextTokenOptional();
-            while (token.HasValue && !token.Value.Text.Contains(":"))
-            {
-                upgrades.Add(parser.ParseUpgradeReference());
-                token = parser.PeekNextTokenOptional();
-            }
-
-            return new ModifierUpgrade
-            {
-                Upgrades = upgrades.ToArray(),
-                Delay = parser.ParseAttributeInteger("Delay")
-            };
-        }
-
-        public LazyAssetReference<UpgradeTemplate>[] Upgrades;
-        public int Delay;
+            Upgrades = upgrades.ToArray(),
+            Delay = parser.ParseAttributeInteger("Delay")
+        };
     }
 
-    [AddedIn(SageGame.Bfme)]
-    public enum ModifierCategory
-    {
-        [IniEnum("LEADERSHIP")]
-        Leadership,
+    public LazyAssetReference<UpgradeTemplate>[] Upgrades;
+    public int Delay;
+}
 
-        [IniEnum("SPELL")]
-        Spell,
+[AddedIn(SageGame.Bfme)]
+public enum ModifierCategory
+{
+    [IniEnum("LEADERSHIP")]
+    Leadership,
 
-        [IniEnum("FORMATION")]
-        Formation,
+    [IniEnum("SPELL")]
+    Spell,
 
-        [IniEnum("WEAPON")]
-        Weapon,
+    [IniEnum("FORMATION")]
+    Formation,
 
-        [IniEnum("STRUCTURE")]
-        Structure,
+    [IniEnum("WEAPON")]
+    Weapon,
 
-        [IniEnum("LEVEL")]
-        Level,
+    [IniEnum("STRUCTURE")]
+    Structure,
 
-        [IniEnum("BUFF")]
-        Buff,
+    [IniEnum("LEVEL")]
+    Level,
 
-        [IniEnum("DEBUFF"), AddedIn(SageGame.Bfme2)]
-        Debuff,
+    [IniEnum("BUFF")]
+    Buff,
 
-        [IniEnum("INNATE_VISION"), AddedIn(SageGame.Bfme2)]
-        InnateVision,
+    [IniEnum("DEBUFF"), AddedIn(SageGame.Bfme2)]
+    Debuff,
 
-        [IniEnum("INNATE_ARMOR"), AddedIn(SageGame.Bfme2)]
-        InnateArmor,
+    [IniEnum("INNATE_VISION"), AddedIn(SageGame.Bfme2)]
+    InnateVision,
 
-        [IniEnum("INNATE_AUTOHEAL"), AddedIn(SageGame.Bfme2)]
-        InnateAutoheal,
+    [IniEnum("INNATE_ARMOR"), AddedIn(SageGame.Bfme2)]
+    InnateArmor,
 
-        [IniEnum("INNATE_HEALTH"), AddedIn(SageGame.Bfme2)]
-        InnateHealth,
+    [IniEnum("INNATE_AUTOHEAL"), AddedIn(SageGame.Bfme2)]
+    InnateAutoheal,
 
-        [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
-        InnateDamagemult,
+    [IniEnum("INNATE_HEALTH"), AddedIn(SageGame.Bfme2)]
+    InnateHealth,
 
-        [IniEnum("STUN"), AddedIn(SageGame.Bfme2Rotwk)]
-        Stun,
-    }
+    [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
+    InnateDamagemult,
 
-    [AddedIn(SageGame.Bfme)]
-    public enum ModifierType
-    {
-        [IniEnum("ARMOR")]
-        // Additive.  The armor coefficients in Armor.ini go first to multiply the damage.  Then all of these are added together, capped at
-        // GameData's AttributeModifierArmorMaxBonus protection, and then the damage is multiplied by it again.
-        Armor,
+    [IniEnum("STUN"), AddedIn(SageGame.Bfme2Rotwk)]
+    Stun,
+}
 
-        [IniEnum("DAMAGE_ADD")]
-        // Additive.  'Base' damage gets increased by this before hitting the DamageMult.
-        DamageAdd,
+[AddedIn(SageGame.Bfme)]
+public enum ModifierType
+{
+    [IniEnum("ARMOR")]
+    // Additive.  The armor coefficients in Armor.ini go first to multiply the damage.  Then all of these are added together, capped at
+    // GameData's AttributeModifierArmorMaxBonus protection, and then the damage is multiplied by it again.
+    Armor,
 
-        [IniEnum("DAMAGE_MULT")]
-        // Multiplicitive.  Then after DamageAdd, the damage is multiplied by all of these.
-        DamageMult,
+    [IniEnum("DAMAGE_ADD")]
+    // Additive.  'Base' damage gets increased by this before hitting the DamageMult.
+    DamageAdd,
 
-        [IniEnum("SPELL_DAMAGE")]
-        // Multiplicitive.  Just like DamageMult bonus, but only applies if damage type is Magic.  REPLACES DamageMult bonus.
-        SpellDamage,
+    [IniEnum("DAMAGE_MULT")]
+    // Multiplicitive.  Then after DamageAdd, the damage is multiplied by all of these.
+    DamageMult,
 
-        [IniEnum("RESIST_FEAR")]
-        // Additive.  Sum of these is a saving throw against fear
-        ResistFear,
+    [IniEnum("SPELL_DAMAGE")]
+    // Multiplicitive.  Just like DamageMult bonus, but only applies if damage type is Magic.  REPLACES DamageMult bonus.
+    SpellDamage,
 
-        [IniEnum("EXPERIENCE")]
-        // Multiplicitive.  Experience gained multiplied by this, will compound in multiple bonuses
-        Experience,
+    [IniEnum("RESIST_FEAR")]
+    // Additive.  Sum of these is a saving throw against fear
+    ResistFear,
 
-        [IniEnum("RANGE")]
-        // Additive.  Sum of these added to max range.  20% and 10% makes range 130% normal.  (You probably want a vision range boost for targeting too.)
-        Range,
+    [IniEnum("EXPERIENCE")]
+    // Multiplicitive.  Experience gained multiplied by this, will compound in multiple bonuses
+    Experience,
 
-        [IniEnum("SPEED")]
-        // Multiplicitive.  Multiply your speed by each of these numbers in turn.
-        Speed,
+    [IniEnum("RANGE")]
+    // Additive.  Sum of these added to max range.  20% and 10% makes range 130% normal.  (You probably want a vision range boost for targeting too.)
+    Range,
 
-        [IniEnum("CRUSH_DECELERATE")]
-        // Multiplicitive.  The percentage you slow down when crushing gets multiplied by each of these.
-        CrushDecelerate,
+    [IniEnum("SPEED")]
+    // Multiplicitive.  Multiply your speed by each of these numbers in turn.
+    Speed,
 
-        [IniEnum("RESIST_KNOCKBACK")]
-        // Additive.  Sum of these is saving through against knockback.
-        ResistKnockback,
+    [IniEnum("CRUSH_DECELERATE")]
+    // Multiplicitive.  The percentage you slow down when crushing gets multiplied by each of these.
+    CrushDecelerate,
 
-        [IniEnum("RECHARGE_TIME")]
-        // Multiplicitive.  Recharge time for all special powers multiplied by these.
-        // Time is figured at the moment power is used, so this has no effect if gained or lost while power is recharging.
-        RechargeTime,
+    [IniEnum("RESIST_KNOCKBACK")]
+    // Additive.  Sum of these is saving through against knockback.
+    ResistKnockback,
 
-        [IniEnum("PRODUCTION")]
-        // Multiplicitive.  Production speed for units and money amount produced by supply centers or money generators multiplied by these.
-        // Again, time is computed at moment production starts.
-        Production,
+    [IniEnum("RECHARGE_TIME")]
+    // Multiplicitive.  Recharge time for all special powers multiplied by these.
+    // Time is figured at the moment power is used, so this has no effect if gained or lost while power is recharging.
+    RechargeTime,
 
-        [IniEnum("HEALTH")]
-        // Additive.  The moment you get this upgrade, this many hitpoints are added to both your max and current hitpoint scores.
-        Health,
+    [IniEnum("PRODUCTION")]
+    // Multiplicitive.  Production speed for units and money amount produced by supply centers or money generators multiplied by these.
+    // Again, time is computed at moment production starts.
+    Production,
 
-        [IniEnum("VISION")]
-        // Additive.  Sum of these is added to vision range, which is used for targeting.
-        Vision,
+    [IniEnum("HEALTH")]
+    // Additive.  The moment you get this upgrade, this many hitpoints are added to both your max and current hitpoint scores.
+    Health,
 
-        [IniEnum("AUTO_HEAL")]
-        // Additive. Sum of these is added to the AutoHeal value.
-        AutoHeal,
+    [IniEnum("VISION")]
+    // Additive.  Sum of these is added to vision range, which is used for targeting.
+    Vision,
 
-        [IniEnum("BOUNTY_PERCENTAGE")]
-        BountyPercentage,
+    [IniEnum("AUTO_HEAL")]
+    // Additive. Sum of these is added to the AutoHeal value.
+    AutoHeal,
 
-        [IniEnum("MINIMUM_CRUSH_VELOCITY")]
-        MinimumCrushVelocity,
+    [IniEnum("BOUNTY_PERCENTAGE")]
+    BountyPercentage,
 
-        [IniEnum("INVULNERABLE"), AddedIn(SageGame.Bfme2)]
-        Invulnerable,
+    [IniEnum("MINIMUM_CRUSH_VELOCITY")]
+    MinimumCrushVelocity,
 
-        [IniEnum("CRUSHER_LEVEL"), AddedIn(SageGame.Bfme2)]
-        CrusherLevel,
+    [IniEnum("INVULNERABLE"), AddedIn(SageGame.Bfme2)]
+    Invulnerable,
 
-        [IniEnum("SHROUD_CLEARING"), AddedIn(SageGame.Bfme2)]
-        ShroudClearing,
+    [IniEnum("CRUSHER_LEVEL"), AddedIn(SageGame.Bfme2)]
+    CrusherLevel,
 
-        [IniEnum("RATE_OF_FIRE"), AddedIn(SageGame.Bfme2)]
-        RateOfFire,
+    [IniEnum("SHROUD_CLEARING"), AddedIn(SageGame.Bfme2)]
+    ShroudClearing,
 
-        [IniEnum("CRUSHED_DECELERATE"), AddedIn(SageGame.Bfme2)]
-        CrushedDecelerate,
+    [IniEnum("RATE_OF_FIRE"), AddedIn(SageGame.Bfme2)]
+    RateOfFire,
 
-        [IniEnum("COMMAND_POINT_BONUS"), AddedIn(SageGame.Bfme2)]
-        CommandPointBonus,
+    [IniEnum("CRUSHED_DECELERATE"), AddedIn(SageGame.Bfme2)]
+    CrushedDecelerate,
 
-        [IniEnum("HEALTH_MULT"), AddedIn(SageGame.Bfme2)]
-        HealthMult,
+    [IniEnum("COMMAND_POINT_BONUS"), AddedIn(SageGame.Bfme2)]
+    CommandPointBonus,
 
-        [IniEnum("RESIST_TERROR"), AddedIn(SageGame.Bfme2Rotwk)]
-        ResistTerror,
+    [IniEnum("HEALTH_MULT"), AddedIn(SageGame.Bfme2)]
+    HealthMult,
 
-        [IniEnum("CRUSHABLE_LEVEL"), AddedIn(SageGame.Bfme2Rotwk)]
-        CrushableLevel,
+    [IniEnum("RESIST_TERROR"), AddedIn(SageGame.Bfme2Rotwk)]
+    ResistTerror,
 
-        [IniEnum("DAMAGE_STRUCTURE_BOUNTY_ADD"), AddedIn(SageGame.Bfme2Rotwk)]
-        DamageStructureBountyAdd,
-    }
+    [IniEnum("CRUSHABLE_LEVEL"), AddedIn(SageGame.Bfme2Rotwk)]
+    CrushableLevel,
+
+    [IniEnum("DAMAGE_STRUCTURE_BOUNTY_ADD"), AddedIn(SageGame.Bfme2Rotwk)]
+    DamageStructureBountyAdd,
 }

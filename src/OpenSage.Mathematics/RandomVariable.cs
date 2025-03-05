@@ -1,16 +1,15 @@
-﻿namespace OpenSage.Mathematics
-{
-    public readonly record struct RandomVariable(float Low, float High, DistributionType DistributionType)
-    {
-        public override string ToString()
-        {
-            return $"{Low},{High} ({DistributionType})";
-        }
-    }
+﻿namespace OpenSage.Mathematics;
 
-    public enum DistributionType
+public readonly record struct RandomVariable(float Low, float High, DistributionType DistributionType)
+{
+    public override string ToString()
     {
-        Constant,
-        Uniform
+        return $"{Low},{High} ({DistributionType})";
     }
+}
+
+public enum DistributionType
+{
+    Constant,
+    Uniform
 }

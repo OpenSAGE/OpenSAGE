@@ -1,41 +1,40 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme)]
+internal sealed class ExperienceLevelCreateBehavior : CreateModule
 {
-    [AddedIn(SageGame.Bfme)]
-    internal sealed class ExperienceLevelCreateBehavior : CreateModule
+    GameObject _gameObject;
+    ExperienceLevelCreateModuleData _moduleData;
+
+    internal ExperienceLevelCreateBehavior(GameObject gameObject, ExperienceLevelCreateModuleData moduleData)
     {
-        GameObject _gameObject;
-        ExperienceLevelCreateModuleData _moduleData;
-
-        internal ExperienceLevelCreateBehavior(GameObject gameObject, ExperienceLevelCreateModuleData moduleData)
-        {
-            _moduleData = moduleData;
-            _gameObject = gameObject;
-        }
-
-        public override void OnCreate()
-        {
-            _gameObject.Rank = _moduleData.LevelToGrant;
-        }
+        _moduleData = moduleData;
+        _gameObject = gameObject;
     }
 
-    public sealed class ExperienceLevelCreateModuleData : CreateModuleData
+    public override void OnCreate()
     {
-        internal static ExperienceLevelCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        _gameObject.Rank = _moduleData.LevelToGrant;
+    }
+}
 
-        private static readonly IniParseTable<ExperienceLevelCreateModuleData> FieldParseTable = new IniParseTable<ExperienceLevelCreateModuleData>
-        {
-            { "LevelToGrant", (parser, x) => x.LevelToGrant = parser.ParseInteger() },
-            { "MPOnly", (parser, x) => x.MPOnly = parser.ParseBoolean() }
-        };
+public sealed class ExperienceLevelCreateModuleData : CreateModuleData
+{
+    internal static ExperienceLevelCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        public int LevelToGrant { get; private set; }
-        public bool MPOnly { get; private set; }
+    private static readonly IniParseTable<ExperienceLevelCreateModuleData> FieldParseTable = new IniParseTable<ExperienceLevelCreateModuleData>
+    {
+        { "LevelToGrant", (parser, x) => x.LevelToGrant = parser.ParseInteger() },
+        { "MPOnly", (parser, x) => x.MPOnly = parser.ParseBoolean() }
+    };
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new ExperienceLevelCreateBehavior(gameObject, this);
-        }
+    public int LevelToGrant { get; private set; }
+    public bool MPOnly { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new ExperienceLevelCreateBehavior(gameObject, this);
     }
 }

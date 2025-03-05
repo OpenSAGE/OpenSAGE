@@ -1,10 +1,9 @@
 ﻿using Veldrid;
 
-namespace OpenSage.Gui.Apt
+namespace OpenSage.Gui.Apt;
+
+public abstract class TexturedItem : DisplayItem
 {
-    public abstract class TexturedItem : DisplayItem
-    {
-        public Texture Texture { get => _texture; set => DisposeAndAssign(ref _texture, value); }
-        private Texture _texture;
-    }
+    public Texture Texture { get => _texture; set => DisposeAndAssign(ref _texture, value); }
+    private Texture _texture;
 }

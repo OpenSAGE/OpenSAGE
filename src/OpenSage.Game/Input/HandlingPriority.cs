@@ -1,16 +1,15 @@
-﻿namespace OpenSage.Input
+﻿namespace OpenSage.Input;
+
+public enum HandlingPriority
 {
-    public enum HandlingPriority
-    {
-        Disabled,
-        CameraPriority,
-        SelectionPriority,
-        OrderGeneratorPriority,
-        UIPriority,
-        BoxSelectionPriority,
-        MoveCameraPriority,
-        DebugPriority,
-        Engine,
-        Window,
-    }
+    Disabled,
+    CameraPriority,
+    SelectionPriority,
+    OrderGeneratorPriority,
+    UIPriority,
+    BoxSelectionPriority,
+    MoveCameraPriority,
+    DebugPriority,
+    Engine,
+    Window,
 }

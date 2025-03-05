@@ -1,20 +1,19 @@
 ﻿using System.Numerics;
 
-namespace OpenSage.Terrain
+namespace OpenSage.Terrain;
+
+internal struct RadiusCursorDecal
 {
-    internal struct RadiusCursorDecal
-    {
-        public const uint SizeInBytes = 32;
+    public const uint SizeInBytes = 32;
 
-        public Vector2 BottomLeftCornerPosition;
-        public float Diameter;
+    public Vector2 BottomLeftCornerPosition;
+    public float Diameter;
 
-        public uint DecalTextureIndex;
+    public uint DecalTextureIndex;
 
 #pragma warning disable CS0169 // Remove unused private members
-        private readonly Vector3 _padding;
+    private readonly Vector3 _padding;
 #pragma warning restore CS0169 // Remove unused private members
 
-        public float Opacity;
-    }
+    public float Opacity;
 }

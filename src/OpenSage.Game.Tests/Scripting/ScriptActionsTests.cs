@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Tests.Scripting
-{
-    public class ScriptActionsTests
-    {
+﻿namespace OpenSage.Tests.Scripting;
 
-    }
+public class ScriptActionsTests
+{
+
 }

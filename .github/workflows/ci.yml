@@ -33,6 +33,9 @@ jobs:
       with:
         dotnet-version: '8.x'
 
+    - name: Check formatting
+      run: dotnet format src --verify-no-changes --verbosity diagnostic
+
     - name: Test
       run: dotnet test src --configuration Release --filter Category!=Interactive --collect:"XPlat Code Coverage"
 

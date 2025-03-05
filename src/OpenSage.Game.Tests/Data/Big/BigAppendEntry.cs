@@ -1,33 +1,32 @@
 ﻿using System;
 using System.IO;
-using Xunit;
 using OpenSage.FileFormats.Big;
+using Xunit;
 
-namespace OpenSage.Tests.Data.Big
+namespace OpenSage.Tests.Data.Big;
+
+public class BigAppendEntry
 {
-    public class BigAppendEntry
+    private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Big", "Assets");
+
+    [Fact]
+    public void AppendEntry()
     {
-        private static readonly string RootFolder = Path.Combine(Environment.CurrentDirectory, "Data", "Big", "Assets");
+        var fullPath = Path.Combine(RootFolder, "test.big");
+        var tmpPath = Path.Combine(RootFolder, "tmp.big");
+        File.Copy(fullPath, tmpPath, true);
 
-        [Fact]
-        public void AppendEntry()
+        using (var bigArchive = new BigArchive(tmpPath, BigArchiveMode.Update))
         {
-            var fullPath = Path.Combine(RootFolder, "test.big");
-            var tmpPath = Path.Combine(RootFolder, "tmp.big");
-            File.Copy(fullPath, tmpPath, true);
+            Assert.Equal(2, bigArchive.Entries.Count);
 
-            using (var bigArchive = new BigArchive(tmpPath, BigArchiveMode.Update))
+            var entry = bigArchive.CreateEntry("b.txt");
+
+            using (var stream = entry.Open())
             {
-                Assert.Equal(2, bigArchive.Entries.Count);
-
-                var entry = bigArchive.CreateEntry("b.txt");
-
-                using (var stream = entry.Open())
+                using (var sw = new StreamWriter(stream))
                 {
-                    using (var sw = new StreamWriter(stream))
-                    {
-                        sw.Write("This is sample B");
-                    }
+                    sw.Write("This is sample B");
                 }
             }
         }

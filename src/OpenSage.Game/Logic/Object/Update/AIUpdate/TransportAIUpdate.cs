@@ -1,40 +1,39 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class TransportAIUpdate : AIUpdate
 {
-    public sealed class TransportAIUpdate : AIUpdate
+    internal override TransportAIUpdateModuleData ModuleData { get; }
+
+    internal TransportAIUpdate(GameObject gameObject, GameContext context, TransportAIUpdateModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        internal override TransportAIUpdateModuleData ModuleData { get; }
-
-        internal TransportAIUpdate(GameObject gameObject, GameContext context, TransportAIUpdateModuleData moduleData)
-            : base(gameObject, context, moduleData)
-        {
-            ModuleData = moduleData;
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        ModuleData = moduleData;
     }
 
-    /// <summary>
-    /// Used on TRANSPORT KindOfs that contain other objects.
-    /// </summary>
-    public sealed class TransportAIUpdateModuleData : AIUpdateModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal new static TransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private new static readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<TransportAIUpdateModuleData>());
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new TransportAIUpdate(gameObject, context, this);
-        }
+/// <summary>
+/// Used on TRANSPORT KindOfs that contain other objects.
+/// </summary>
+public sealed class TransportAIUpdateModuleData : AIUpdateModuleData
+{
+    internal new static TransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private new static readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+        .Concat(new IniParseTable<TransportAIUpdateModuleData>());
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new TransportAIUpdate(gameObject, context, this);
     }
 }

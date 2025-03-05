@@ -1,25 +1,24 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.FX
+namespace OpenSage.FX;
+
+public enum ViewShakeType
 {
-    public enum ViewShakeType
-    {
-        [IniEnum("SUBTLE")]
-        Subtle,
+    [IniEnum("SUBTLE")]
+    Subtle,
 
-        [IniEnum("NORMAL")]
-        Normal,
+    [IniEnum("NORMAL")]
+    Normal,
 
-        [IniEnum("STRONG")]
-        Strong,
+    [IniEnum("STRONG")]
+    Strong,
 
-        [IniEnum("SEVERE")]
-        Severe,
+    [IniEnum("SEVERE")]
+    Severe,
 
-        [IniEnum("CINE_EXTREME")]
-        CineExtreme,
+    [IniEnum("CINE_EXTREME")]
+    CineExtreme,
 
-        [IniEnum("CINE_INSANE")]
-        CineInsane,
-    }
+    [IniEnum("CINE_INSANE")]
+    CineInsane,
 }

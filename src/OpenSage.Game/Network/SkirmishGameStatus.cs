@@ -1,11 +1,10 @@
-﻿namespace OpenSage.Network
+﻿namespace OpenSage.Network;
+
+public enum SkirmishGameStatus
 {
-    public enum SkirmishGameStatus
-    {
-        Configuring,
-        SendingStartSignal,
-        WaitingForAllPlayers,
-        ReadyToStart,
-        Started
-    }
+    Configuring,
+    SendingStartSignal,
+    WaitingForAllPlayers,
+    ReadyToStart,
+    Started
 }

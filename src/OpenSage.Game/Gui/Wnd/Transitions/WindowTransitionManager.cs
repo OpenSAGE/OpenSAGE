@@ -2,68 +2,67 @@
 using OpenSage.Content;
 using OpenSage.Gui.Wnd.Controls;
 
-namespace OpenSage.Gui.Wnd.Transitions
+namespace OpenSage.Gui.Wnd.Transitions;
+
+public sealed class WindowTransitionManager
 {
-    public sealed class WindowTransitionManager
+    private readonly ScopedAssetCollection<WindowTransition> _transitions;
+
+    private readonly Queue<WindowTransitionRequest> _transitionQueue;
+
+    private sealed class WindowTransitionRequest
     {
-        private readonly ScopedAssetCollection<WindowTransition> _transitions;
+        public Window From;
+        public Window To;
+        public WindowTransition Transition;
+    }
 
-        private readonly Queue<WindowTransitionRequest> _transitionQueue;
+    private WindowTransitionState _currentTransitionState;
 
-        private sealed class WindowTransitionRequest
+    public WindowTransitionManager(ScopedAssetCollection<WindowTransition> transitions)
+    {
+        _transitions = transitions;
+
+        _transitionQueue = new Queue<WindowTransitionRequest>();
+    }
+
+    public void QueueTransition(
+        Window from,
+        Window to,
+        string transitionName)
+    {
+        var transition = _transitions.GetByName(transitionName);
+
+        _transitionQueue.Enqueue(new WindowTransitionRequest
         {
-            public Window From;
-            public Window To;
-            public WindowTransition Transition;
+            From = from,
+            To = to,
+            Transition = transition
+        });
+    }
+
+    public void Update(TimeInterval currentTime)
+    {
+        var transitionTime = currentTime.TotalTime;
+
+        if (_currentTransitionState == null && _transitionQueue.Count > 0)
+        {
+            var nextTransition = _transitionQueue.Dequeue();
+
+            _currentTransitionState = new WindowTransitionState(
+                nextTransition.To,
+                nextTransition.Transition,
+                transitionTime);
         }
 
-        private WindowTransitionState _currentTransitionState;
-
-        public WindowTransitionManager(ScopedAssetCollection<WindowTransition> transitions)
+        if (_currentTransitionState != null)
         {
-            _transitions = transitions;
+            _currentTransitionState.Update(transitionTime);
 
-            _transitionQueue = new Queue<WindowTransitionRequest>();
-        }
-
-        public void QueueTransition(
-            Window from,
-            Window to,
-            string transitionName)
-        {
-            var transition = _transitions.GetByName(transitionName);
-
-            _transitionQueue.Enqueue(new WindowTransitionRequest
+            if (currentTime.TotalTime > _currentTransitionState.LastEndTime)
             {
-                From = from,
-                To = to,
-                Transition = transition
-            });
-        }
-
-        public void Update(TimeInterval currentTime)
-        {
-            var transitionTime = currentTime.TotalTime;
-
-            if (_currentTransitionState == null && _transitionQueue.Count > 0)
-            {
-                var nextTransition = _transitionQueue.Dequeue();
-
-                _currentTransitionState = new WindowTransitionState(
-                    nextTransition.To,
-                    nextTransition.Transition,
-                    transitionTime);
-            }
-
-            if (_currentTransitionState != null)
-            {
-                _currentTransitionState.Update(transitionTime);
-
-                if (currentTime.TotalTime > _currentTransitionState.LastEndTime)
-                {
-                    _currentTransitionState.Finish();
-                    _currentTransitionState = null;
-                }
+                _currentTransitionState.Finish();
+                _currentTransitionState = null;
             }
         }
     }

@@ -5,50 +5,49 @@ using ImGuiNET;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Diagnostics.AssetViews
+namespace OpenSage.Diagnostics.AssetViews;
+
+[AssetView(typeof(ObjectDefinition))]
+internal sealed class GameObjectView : AssetView
 {
-    [AssetView(typeof(ObjectDefinition))]
-    internal sealed class GameObjectView : AssetView
+    private GameObject _gameObject;
+    private readonly List<BitArray<ModelConditionFlag>> _modelConditionStates;
+    private int _selectedIndex;
+
+    private readonly RenderedView _renderedView;
+
+    public GameObjectView(DiagnosticViewContext context, ObjectDefinition objectDefinition)
+        : base(context)
     {
-        private GameObject _gameObject;
-        private readonly List<BitArray<ModelConditionFlag>> _modelConditionStates;
-        private int _selectedIndex;
-
-        private readonly RenderedView _renderedView;
-
-        public GameObjectView(DiagnosticViewContext context, ObjectDefinition objectDefinition)
-            : base(context)
-        {
-            _renderedView = AddDisposable(new RenderedView(context,
-                createGameObjects: gameObjects =>
-                {
-                    _gameObject = gameObjects.CreateObject(objectDefinition, null);
-                }));
-
-            _modelConditionStates = _gameObject.Drawable.ModelConditionStates.ToList();
-            _selectedIndex = 0;
-        }
-
-        public override void Draw()
-        {
-            ImGui.BeginChild("object states", new Vector2(200, 0), ImGuiChildFlags.Border, 0);
-
-            for (var i = 0; i < _modelConditionStates.Count; i++)
+        _renderedView = AddDisposable(new RenderedView(context,
+            createGameObjects: gameObjects =>
             {
-                var modelConditionState = _modelConditionStates[i];
+                _gameObject = gameObjects.CreateObject(objectDefinition, null);
+            }));
 
-                if (ImGui.Selectable(modelConditionState.DisplayName, i == _selectedIndex))
-                {
-                    _gameObject.Drawable.CopyModelConditionFlags(modelConditionState);
-                    _selectedIndex = i;
-                }
+        _modelConditionStates = _gameObject.Drawable.ModelConditionStates.ToList();
+        _selectedIndex = 0;
+    }
+
+    public override void Draw()
+    {
+        ImGui.BeginChild("object states", new Vector2(200, 0), ImGuiChildFlags.Border, 0);
+
+        for (var i = 0; i < _modelConditionStates.Count; i++)
+        {
+            var modelConditionState = _modelConditionStates[i];
+
+            if (ImGui.Selectable(modelConditionState.DisplayName, i == _selectedIndex))
+            {
+                _gameObject.Drawable.CopyModelConditionFlags(modelConditionState);
+                _selectedIndex = i;
             }
-
-            ImGui.EndChild();
-
-            ImGui.SameLine();
-
-            _renderedView.Draw();
         }
+
+        ImGui.EndChild();
+
+        ImGui.SameLine();
+
+        _renderedView.Draw();
     }
 }

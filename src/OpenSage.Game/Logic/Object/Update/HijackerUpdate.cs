@@ -1,35 +1,34 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class HijackerUpdate : UpdateModule
 {
-    public sealed class HijackerUpdate : UpdateModule
+    internal override void Load(StatePersister reader)
     {
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-            reader.SkipUnknownBytes(19);
-        }
+        reader.SkipUnknownBytes(19);
     }
+}
 
-    public sealed class HijackerUpdateModuleData : UpdateModuleData
+public sealed class HijackerUpdateModuleData : UpdateModuleData
+{
+    internal static HijackerUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<HijackerUpdateModuleData> FieldParseTable = new IniParseTable<HijackerUpdateModuleData>
     {
-        internal static HijackerUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "ParachuteName", (parser, x) => x.ParachuteName = parser.ParseAssetReference() }
+    };
 
-        private static readonly IniParseTable<HijackerUpdateModuleData> FieldParseTable = new IniParseTable<HijackerUpdateModuleData>
-        {
-            { "ParachuteName", (parser, x) => x.ParachuteName = parser.ParseAssetReference() }
-        };
+    public string ParachuteName { get; private set; }
 
-        public string ParachuteName { get; private set; }
-
-        internal override HijackerUpdate CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new HijackerUpdate();
-        }
+    internal override HijackerUpdate CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new HijackerUpdate();
     }
 }

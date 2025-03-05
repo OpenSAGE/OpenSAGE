@@ -1,6 +1,5 @@
-﻿namespace OpenSage.Data.Ani
+﻿namespace OpenSage.Data.Ani;
+
+public abstract class RiffChunkContent
 {
-    public abstract class RiffChunkContent
-    {
-    }
 }

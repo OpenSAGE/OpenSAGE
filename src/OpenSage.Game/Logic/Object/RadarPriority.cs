@@ -1,22 +1,21 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public enum RadarPriority
 {
-    public enum RadarPriority
-    {
-        [IniEnum("INVALID")]
-        Invalid = 0,
+    [IniEnum("INVALID")]
+    Invalid = 0,
 
-        [IniEnum("NOT_ON_RADAR")]
-        NotOnRadar,
+    [IniEnum("NOT_ON_RADAR")]
+    NotOnRadar,
 
-        [IniEnum("STRUCTURE")]
-        Structure,
+    [IniEnum("STRUCTURE")]
+    Structure,
 
-        [IniEnum("UNIT")]
-        Unit,
+    [IniEnum("UNIT")]
+    Unit,
 
-        [IniEnum("LOCAL_UNIT_ONLY")]
-        LocalUnitOnly,
-    }
+    [IniEnum("LOCAL_UNIT_ONLY")]
+    LocalUnitOnly,
 }

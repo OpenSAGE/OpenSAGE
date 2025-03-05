@@ -1,17 +1,16 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class SiegeDeployHordeSpecialPowerModuleData : SpecialPowerModuleData
 {
-    public sealed class SiegeDeployHordeSpecialPowerModuleData : SpecialPowerModuleData
-    {
-        internal static new SiegeDeployHordeSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static new SiegeDeployHordeSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SiegeDeployHordeSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
-            .Concat(new IniParseTable<SiegeDeployHordeSpecialPowerModuleData>
-            {
-                { "HordeDeploy", (parser, x) => x.HordeDeploy = parser.ParseBoolean() }
-            });
+    private static new readonly IniParseTable<SiegeDeployHordeSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+        .Concat(new IniParseTable<SiegeDeployHordeSpecialPowerModuleData>
+        {
+            { "HordeDeploy", (parser, x) => x.HordeDeploy = parser.ParseBoolean() }
+        });
 
-        public bool HordeDeploy { get; private set; }
-    }
+    public bool HordeDeploy { get; private set; }
 }

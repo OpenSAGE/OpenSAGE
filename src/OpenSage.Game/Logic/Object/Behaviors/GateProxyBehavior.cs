@@ -1,13 +1,12 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+[AddedIn(SageGame.Bfme)]
+public class GateProxyBehaviorModuleData : BehaviorModuleData
 {
-    [AddedIn(SageGame.Bfme)]
-    public class GateProxyBehaviorModuleData : BehaviorModuleData
-    {
-        internal static GateProxyBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static GateProxyBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<GateProxyBehaviorModuleData> FieldParseTable = new IniParseTable<GateProxyBehaviorModuleData>();
+    internal static readonly IniParseTable<GateProxyBehaviorModuleData> FieldParseTable = new IniParseTable<GateProxyBehaviorModuleData>();
 
-    }
 }

@@ -1,22 +1,21 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Input
+namespace OpenSage.Input;
+
+public enum CommandMapCategory
 {
-    public enum CommandMapCategory
-    {
-        [IniEnum("INTERFACE")]
-        Interface,
+    [IniEnum("INTERFACE")]
+    Interface,
 
-        [IniEnum("TEAM")]
-        Team,
+    [IniEnum("TEAM")]
+    Team,
 
-        [IniEnum("SELECTION")]
-        Selection,
+    [IniEnum("SELECTION")]
+    Selection,
 
-        [IniEnum("CONTROL")]
-        Control,
+    [IniEnum("CONTROL")]
+    Control,
 
-        [IniEnum("MISC")]
-        Misc
-    }
+    [IniEnum("MISC")]
+    Misc
 }

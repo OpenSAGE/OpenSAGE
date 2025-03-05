@@ -1,40 +1,39 @@
 ﻿using System.IO;
 
-namespace OpenSage.Gui.Apt.ActionScript
+namespace OpenSage.Gui.Apt.ActionScript;
+
+/// <summary>
+/// Url handler
+/// </summary>
+public static class UrlHandler
 {
-    /// <summary>
-    /// Url handler
-    /// </summary>
-    public static class UrlHandler
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ActionContext context, string url, string target)
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        public static void Handle(VM.HandleCommand cmdHandler, VM.HandleExternalMovie movieHandler, ActionContext context, string url, string target)
+        Logger.Debug($"[URL] URL: {url} Target: {target}");
+
+        if (url.StartsWith("FSCommand:"))
         {
-            logger.Debug($"[URL] URL: {url} Target: {target}");
+            var command = url.Replace("FSCommand:", "");
 
-            if (url.StartsWith("FSCommand:"))
+            cmdHandler(context, command, target);
+        }
+        else
+        {
+            //DO STUFF
+            var targetObject = context.Scope.Variables[target].ToObject();
+
+            if (!(targetObject.Item is SpriteItem))
             {
-                var command = url.Replace("FSCommand:", "");
-
-                cmdHandler(context, command, target);
+                Logger.Error("[URL] Target must be a sprite!");
             }
-            else
-            {
-                //DO STUFF
-                var targetObject = context.Scope.Variables[target].ToObject();
 
-                if (!(targetObject.Item is SpriteItem))
-                {
-                    logger.Error("[URL] Target must be a sprite!");
-                }
+            var targetSprite = targetObject.Item as SpriteItem;
+            var aptFile = movieHandler(url);
+            var oldName = targetSprite.Name;
 
-                var targetSprite = targetObject.Item as SpriteItem;
-                var aptFile = movieHandler(url);
-                var oldName = targetSprite.Name;
-
-                targetSprite.Create(aptFile.Movie, targetSprite.Context, targetSprite.Parent);
-                targetSprite.Name = oldName;
-            }
+            targetSprite.Create(aptFile.Movie, targetSprite.Context, targetSprite.Parent);
+            targetSprite.Name = oldName;
         }
     }
 }

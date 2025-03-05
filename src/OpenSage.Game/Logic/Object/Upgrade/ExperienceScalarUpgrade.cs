@@ -1,47 +1,46 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class ExperienceScalarUpgrade : UpgradeModule
 {
-    internal sealed class ExperienceScalarUpgrade : UpgradeModule
+    private readonly ExperienceScalarUpgradeModuleData _moduleData;
+
+    internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData)
+        : base(gameObject, moduleData)
     {
-        private readonly ExperienceScalarUpgradeModuleData _moduleData;
-
-        internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData)
-            : base(gameObject, moduleData)
-        {
-            _moduleData = moduleData;
-        }
-
-        protected override void OnUpgrade()
-        {
-            _gameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        _moduleData = moduleData;
     }
 
-    public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
+    protected override void OnUpgrade()
     {
-        internal static ExperienceScalarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        _gameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
+    }
 
-        private static new readonly IniParseTable<ExperienceScalarUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<ExperienceScalarUpgradeModuleData>
-            {
-                { "AddXPScalar", (parser, x) => x.AddXPScalar = parser.ParseFloat() }
-            });
+    internal override void Load(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-        public float AddXPScalar { get; private set; }
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
+{
+    internal static ExperienceScalarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static new readonly IniParseTable<ExperienceScalarUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<ExperienceScalarUpgradeModuleData>
         {
-            return new ExperienceScalarUpgrade(gameObject, this);
-        }
+            { "AddXPScalar", (parser, x) => x.AddXPScalar = parser.ParseFloat() }
+        });
+
+    public float AddXPScalar { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new ExperienceScalarUpgrade(gameObject, this);
     }
 }

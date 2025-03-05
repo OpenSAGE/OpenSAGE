@@ -3,30 +3,29 @@ using OpenSage.Data.Scb;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Scb
+namespace OpenSage.Tests.Data.Scb;
+
+public class ScbFileTests
 {
-    public class ScbFileTests
+    private readonly ITestOutputHelper _output;
+
+    public ScbFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public ScbFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanRoundtripScbFiles()
+    {
+        InstalledFilesTestData.ReadFiles(".scb", _output, entry =>
         {
-            _output = output;
-        }
-
-        [Fact]
-        public void CanRoundtripScbFiles()
-        {
-            InstalledFilesTestData.ReadFiles(".scb", _output, entry =>
+            using (var fileStream = entry.Open())
             {
-                using (var fileStream = entry.Open())
-                {
-                    TestUtility.DoRoundtripTest(
-                        () => MapFile.Decompress(fileStream),
-                        stream => ScbFile.FromStream(stream),
-                        (scbFile, stream) => scbFile.WriteTo(stream));
-                }
-            });
-        }
+                TestUtility.DoRoundtripTest(
+                    () => MapFile.Decompress(fileStream),
+                    stream => ScbFile.FromStream(stream),
+                    (scbFile, stream) => scbFile.WriteTo(stream));
+            }
+        });
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace OpenSage.FileFormats.W3d
+﻿namespace OpenSage.FileFormats.W3d;
+
+internal static class W3dConstants
 {
-    internal static class W3dConstants
-    {
-        public const int NameLength = 16;
-    }
+    public const int NameLength = 16;
 }

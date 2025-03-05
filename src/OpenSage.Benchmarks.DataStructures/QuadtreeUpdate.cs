@@ -6,101 +6,100 @@ using OpenSage.DataStructures;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Benchmarks.DataStructures
+namespace OpenSage.Benchmarks.DataStructures;
+
+// Tests the performance of Quadtree.Update.
+// This is done by creating a 5000x5000 quadtree, and adding 3000 items to it.
+// 100 items are moved to a (precomputed) new position.
+public class QuadtreeUpdate
 {
-    // Tests the performance of Quadtree.Update.
-    // This is done by creating a 5000x5000 quadtree, and adding 3000 items to it.
-    // 100 items are moved to a (precomputed) new position.
-    public class QuadtreeUpdate
+    private readonly Random _random;
+    private readonly RectangleF _bounds;
+    private Quadtree<BenchQuadtreeItem> _quadtree;
+
+    private BenchQuadtreeItem[] _items;
+    private BenchQuadtreeItem[] _movingItemsOriginal;
+    private BenchQuadtreeItem[] _movingItems;
+    private RectangleF[] _newRects;
+
+    public QuadtreeUpdate()
     {
-        private readonly Random _random;
-        private readonly RectangleF _bounds;
-        private Quadtree<BenchQuadtreeItem> _quadtree;
+        _random = new Random();
+        _bounds = new RectangleF(0, 0, 5000, 5000);
+    }
 
-        private BenchQuadtreeItem[] _items;
-        private BenchQuadtreeItem[] _movingItemsOriginal;
-        private BenchQuadtreeItem[] _movingItems;
-        private RectangleF[] _newRects;
+    [Params(15000)]
+    public int TotalItems { get; set; }
 
-        public QuadtreeUpdate()
+    [Params(10000)]
+    public int MovingItems { get; set; }
+
+    private const float MaxItemSize = 20f;
+    private const float MaximumMovementDistance = 20f;
+
+    [GlobalSetup]
+    public void GenerateData()
+    {
+        _items = new BenchQuadtreeItem[TotalItems];
+        _movingItemsOriginal = new BenchQuadtreeItem[MovingItems];
+        _newRects = new RectangleF[MovingItems];
+
+        for (var i = 0; i < TotalItems; i++)
         {
-            _random = new Random();
-            _bounds = new RectangleF(0, 0, 5000, 5000);
-        }
+            var item = BenchQuadtreeItem.Generate(i, _bounds, new SizeF(MaxItemSize), _random);
 
-        [Params(15000)]
-        public int TotalItems { get; set; }
+            _items[i] = item;
 
-        [Params(10000)]
-        public int MovingItems { get; set; }
-
-        private const float MaxItemSize = 20f;
-        private const float MaximumMovementDistance = 20f;
-
-        [GlobalSetup]
-        public void GenerateData()
-        {
-            _items = new BenchQuadtreeItem[TotalItems];
-            _movingItemsOriginal = new BenchQuadtreeItem[MovingItems];
-            _newRects = new RectangleF[MovingItems];
-
-            for (var i = 0; i < TotalItems; i++)
+            if (i < MovingItems)
             {
-                var item = BenchQuadtreeItem.Generate(i, _bounds, new SizeF(MaxItemSize), _random);
+                var movementVector =
+                    Vector2.Normalize(new Vector2((float)_random.NextDouble(), (float)_random.NextDouble())) *
+                    (float)_random.NextDouble() * MaximumMovementDistance;
 
-                _items[i] = item;
+                var newPosition = item.RoughCollider.AxisAlignedBoundingArea.Position + movementVector;
 
-                if (i < MovingItems)
-                {
-                    var movementVector =
-                        Vector2.Normalize(new Vector2((float) _random.NextDouble(), (float) _random.NextDouble())) *
-                        (float) _random.NextDouble() * MaximumMovementDistance;
+                newPosition =
+                    Vector2.Max(
+                        Vector2.Min(newPosition,
+                            _bounds.Position + _bounds.Size.ToVector2() -
+                            item.RoughCollider.AxisAlignedBoundingArea.Size.ToVector2()), _bounds.Position);
 
-                    var newPosition = item.RoughCollider.AxisAlignedBoundingArea.Position + movementVector;
-
-                    newPosition =
-                        Vector2.Max(
-                            Vector2.Min(newPosition,
-                                _bounds.Position + _bounds.Size.ToVector2() -
-                                item.RoughCollider.AxisAlignedBoundingArea.Size.ToVector2()), _bounds.Position);
-
-                    _movingItemsOriginal[i] = item;
-                    _newRects[i] = new RectangleF(newPosition, item.RoughCollider.AxisAlignedBoundingArea.Size);
-                }
+                _movingItemsOriginal[i] = item;
+                _newRects[i] = new RectangleF(newPosition, item.RoughCollider.AxisAlignedBoundingArea.Size);
             }
         }
+    }
 
-        [IterationSetup]
-        public void IterationSetup()
+    [IterationSetup]
+    public void IterationSetup()
+    {
+        _quadtree = new Quadtree<BenchQuadtreeItem>(_bounds);
+
+        foreach (var item in _items)
         {
-            _quadtree = new Quadtree<BenchQuadtreeItem>(_bounds);
-
-            foreach (var item in _items)
-            {
-                _quadtree.Insert(item);
-            }
-
-            _movingItems = _movingItemsOriginal.Select(x => x.Clone()).ToArray();
+            _quadtree.Insert(item);
         }
 
-        [Benchmark(Baseline = true)]
-        public void UpdateWithoutQuadtree()
-        {
-            for (var i = 0; i < MovingItems; i++)
-            {
-                _movingItems[i].RoughCollider = new BoxCollider(_newRects[i]);
-            }
-        }
+        _movingItems = _movingItemsOriginal.Select(x => x.Clone()).ToArray();
+    }
 
-        [Benchmark]
-        public void UpdateQuadtree()
+    [Benchmark(Baseline = true)]
+    public void UpdateWithoutQuadtree()
+    {
+        for (var i = 0; i < MovingItems; i++)
         {
-            for (var i = 0; i < MovingItems; i++)
-            {
-                var item = _movingItems[i];
-                item.RoughCollider = new BoxCollider(_newRects[i]);
-                _quadtree.Update(item);
-            }
+            _movingItems[i].RoughCollider = new BoxCollider(_newRects[i]);
+        }
+    }
+
+    [Benchmark]
+    public void UpdateQuadtree()
+    {
+        for (var i = 0; i < MovingItems; i++)
+        {
+            var item = _movingItems[i];
+            item.RoughCollider = new BoxCollider(_newRects[i]);
+            _quadtree.Update(item);
         }
     }
 }

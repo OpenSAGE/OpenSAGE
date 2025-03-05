@@ -4,37 +4,36 @@ using BenchmarkDotNet.Attributes;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Benchmarks.DataStructures
+namespace OpenSage.Benchmarks.DataStructures;
+
+public class BitArray512SetAllAndCount
 {
-    public class BitArray512SetAllAndCount
+    private readonly int _flagCount = Enum.GetValues(typeof(ModelConditionFlag)).Length;
+
+    [Benchmark(Baseline = true)]
+    public int SetAllAndCountBCL()
     {
-        private readonly int _flagCount = Enum.GetValues(typeof(ModelConditionFlag)).Length;
+        var array = new BitArray(_flagCount);
+        array.SetAll(true);
 
-        [Benchmark(Baseline = true)]
-        public int SetAllAndCountBCL()
+        var count = 0;
+
+        for (var i = 0; i < array.Length; i++)
         {
-            var array = new BitArray(_flagCount);
-            array.SetAll(true);
-
-            var count = 0;
-
-            for (var i = 0; i < array.Length; i++)
+            if (array[i] == true)
             {
-                if (array[i] == true)
-                {
-                    count++;
-                }
+                count++;
             }
-
-            return count;
         }
 
-        [Benchmark]
-        public int SetAllAndCountBitArray512()
-        {
-            var array = new BitArray512(_flagCount);
-            array.SetAll(true);
-            return array.NumBitsSet;
-        }
+        return count;
+    }
+
+    [Benchmark]
+    public int SetAllAndCountBitArray512()
+    {
+        var array = new BitArray512(_flagCount);
+        array.SetAll(true);
+        return array.NumBitsSet;
     }
 }

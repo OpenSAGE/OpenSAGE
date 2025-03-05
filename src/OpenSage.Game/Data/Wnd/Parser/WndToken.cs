@@ -1,21 +1,20 @@
-﻿namespace OpenSage.Data.Wnd.Parser
+﻿namespace OpenSage.Data.Wnd.Parser;
+
+internal struct WndToken
 {
-    internal struct WndToken
+    public WndTokenType TokenType;
+    public string StringValue;
+    public int IntegerValue;
+
+    public WndToken(WndTokenType tokenType)
     {
-        public WndTokenType TokenType;
-        public string StringValue;
-        public int IntegerValue;
+        TokenType = tokenType;
+        StringValue = null;
+        IntegerValue = int.MinValue;
+    }
 
-        public WndToken(WndTokenType tokenType)
-        {
-            TokenType = tokenType;
-            StringValue = null;
-            IntegerValue = int.MinValue;
-        }
-
-        public override string ToString()
-        {
-            return $"Type: {TokenType}; StringValue: {StringValue}; IntegerValue: {IntegerValue}";
-        }
+    public override string ToString()
+    {
+        return $"Type: {TokenType}; StringValue: {StringValue}; IntegerValue: {IntegerValue}";
     }
 }

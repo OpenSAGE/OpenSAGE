@@ -1,26 +1,25 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class VeterancyValues
 {
-    public sealed class VeterancyValues
+    internal static VeterancyValues Parse(IniParser parser)
     {
-        internal static VeterancyValues Parse(IniParser parser)
+        var values = new List<int>();
+
+        IniToken? token;
+        while ((token = parser.GetNextTokenOptional()) != null)
         {
-            var values = new List<int>();
-
-            IniToken? token;
-            while ((token = parser.GetNextTokenOptional()) != null)
-            {
-                values.Add(parser.ScanInteger(token.Value));
-            }
-
-            return new VeterancyValues
-            {
-                Values = values.ToArray()
-            };
+            values.Add(parser.ScanInteger(token.Value));
         }
 
-        public int[] Values { get; private set; }
+        return new VeterancyValues
+        {
+            Values = values.ToArray()
+        };
     }
+
+    public int[] Values { get; private set; }
 }

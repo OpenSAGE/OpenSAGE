@@ -2,27 +2,26 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Ani
+namespace OpenSage.Tests.Data.Ani;
+
+public class CurFileTests
 {
-    public class CurFileTests
+    private readonly ITestOutputHelper _output;
+
+    public CurFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public CurFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanReadAniCursors()
+    {
+        InstalledFilesTestData.ReadFiles(".cur", _output, entry =>
         {
-            _output = output;
-        }
+            var curFile = CurFile.FromFileSystemEntry(entry);
 
-        [Fact]
-        public void CanReadAniCursors()
-        {
-            InstalledFilesTestData.ReadFiles(".cur", _output, entry =>
-            {
-                var curFile = CurFile.FromFileSystemEntry(entry);
-
-                Assert.NotNull(curFile);
-                Assert.True(curFile.Image.Width > 0);
-            });
-        }
+            Assert.NotNull(curFile);
+            Assert.True(curFile.Image.Width > 0);
+        });
     }
 }

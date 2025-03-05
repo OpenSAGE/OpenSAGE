@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace OpenSage.Utilities
+namespace OpenSage.Utilities;
+
+public static class TimeSpanUtility
 {
-    public static class TimeSpanUtility
+    public static TimeSpan Max(TimeSpan a, TimeSpan b)
     {
-        public static TimeSpan Max(TimeSpan a, TimeSpan b)
-        {
-            return a > b ? a : b;
-        }
+        return a > b ? a : b;
     }
 }

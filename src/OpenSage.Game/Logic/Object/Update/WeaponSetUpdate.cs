@@ -2,68 +2,67 @@
 using OpenSage.Content;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class WeaponSetUpdate : UpdateModule
 {
-    public sealed class WeaponSetUpdate : UpdateModule
+    private readonly GameObject _gameObject;
+    private readonly WeaponSetUpdateModuleData _moduleData;
+
+    internal WeaponSetUpdate(GameObject gameObject, WeaponSetUpdateModuleData moduleData)
     {
-        private readonly GameObject _gameObject;
-        private readonly WeaponSetUpdateModuleData _moduleData;
-
-        internal WeaponSetUpdate(GameObject gameObject, WeaponSetUpdateModuleData moduleData)
-        {
-            _gameObject = gameObject;
-            _moduleData = moduleData;
-        }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            
-        }
+        _gameObject = gameObject;
+        _moduleData = moduleData;
     }
 
-    public sealed class WeaponSetUpdateModuleData : UpdateModuleData
+    internal override void Update(BehaviorUpdateContext context)
     {
-        public List<WeaponSlotHardpointData> WeaponSlotHardpoints { get; } = new List<WeaponSlotHardpointData>();
-        public List<WeaponSlotTurretData> WeaponSlotTurrets { get; } = new List<WeaponSlotTurretData>();
-        public List<WeaponSlotHierarchicalTurretData> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurretData>();
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new WeaponSetUpdate(gameObject, this);
-        }
     }
+}
 
-    public class WeaponSlotHardpointData
+public sealed class WeaponSetUpdateModuleData : UpdateModuleData
+{
+    public List<WeaponSlotHardpointData> WeaponSlotHardpoints { get; } = new List<WeaponSlotHardpointData>();
+    public List<WeaponSlotTurretData> WeaponSlotTurrets { get; } = new List<WeaponSlotTurretData>();
+    public List<WeaponSlotHierarchicalTurretData> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurretData>();
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        public uint ID { get; internal set; }
-        public bool AllowInterleavedFiring { get; private set; }
-        public WeaponSlotInterleavedStyle InterleavedStyle { get; private set; }
-        public WeaponChoiceCriteria WeaponChoiceCriteria { get; internal set; }
-        public List<WeaponSlotWeaponData> Weapons { get; } = new List<WeaponSlotWeaponData>();
+        return new WeaponSetUpdate(gameObject, this);
     }
+}
 
-    public class WeaponSlotTurretData : WeaponSlotHardpointData
-    {
-        public TurretAIUpdateModuleData TurretSettings { get; internal set; }
-    }
+public class WeaponSlotHardpointData
+{
+    public uint ID { get; internal set; }
+    public bool AllowInterleavedFiring { get; private set; }
+    public WeaponSlotInterleavedStyle InterleavedStyle { get; private set; }
+    public WeaponChoiceCriteria WeaponChoiceCriteria { get; internal set; }
+    public List<WeaponSlotWeaponData> Weapons { get; } = new List<WeaponSlotWeaponData>();
+}
 
-    public sealed class WeaponSlotHierarchicalTurretData : WeaponSlotTurretData
-    {
-        public uint ParentID { get; private set; }
-    }
+public class WeaponSlotTurretData : WeaponSlotHardpointData
+{
+    public TurretAIUpdateModuleData TurretSettings { get; internal set; }
+}
 
-    public enum WeaponSlotInterleavedStyle
-    {
-        InterleaveFirstAvailable,
-        InterleaveRandom,
-    }
+public sealed class WeaponSlotHierarchicalTurretData : WeaponSlotTurretData
+{
+    public uint ParentID { get; private set; }
+}
 
-    public sealed class WeaponSlotWeaponData
-    {
-        public WeaponSlot Ordering { get; internal set; }
-        public LazyAssetReference<WeaponTemplate> Template { get; internal set; }
-        public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
-        public BitArray<ObjectStatus> ObjectStatus { get; private set; }
-        public bool IsPlayerUpgradePermanent { get; private set; }
-    }
+public enum WeaponSlotInterleavedStyle
+{
+    InterleaveFirstAvailable,
+    InterleaveRandom,
+}
+
+public sealed class WeaponSlotWeaponData
+{
+    public WeaponSlot Ordering { get; internal set; }
+    public LazyAssetReference<WeaponTemplate> Template { get; internal set; }
+    public LazyAssetReference<UpgradeTemplate> Upgrade { get; private set; }
+    public BitArray<ObjectStatus> ObjectStatus { get; private set; }
+    public bool IsPlayerUpgradePermanent { get; private set; }
 }

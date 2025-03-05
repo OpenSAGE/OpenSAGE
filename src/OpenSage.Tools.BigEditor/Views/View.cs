@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Tools.BigEditor.Views
+﻿namespace OpenSage.Tools.BigEditor.Views;
+
+abstract class View : DisposableBase
 {
-    abstract class View : DisposableBase
-    {
-        public abstract void Draw();
-    }
+    public abstract void Draw();
 }

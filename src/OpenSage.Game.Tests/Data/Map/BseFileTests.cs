@@ -2,30 +2,29 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Map
+namespace OpenSage.Tests.Data.Map;
+
+public class BseFileTests
 {
-    public class BseFileTests
+    private readonly ITestOutputHelper _output;
+
+    public BseFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public BseFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanRoundtripBases()
+    {
+        InstalledFilesTestData.ReadFiles(".bse", _output, entry =>
         {
-            _output = output;
-        }
-
-        [Fact]
-        public void CanRoundtripBases()
-        {
-            InstalledFilesTestData.ReadFiles(".bse", _output, entry =>
+            using (var entryStream = entry.Open())
             {
-                using (var entryStream = entry.Open())
-                {
-                    TestUtility.DoRoundtripTest(
-                        () => MapFile.Decompress(entryStream),
-                        stream => MapFile.FromStream(stream),
-                        (mapFile, stream) => mapFile.WriteTo(stream));
-                }
-            });
-        }
+                TestUtility.DoRoundtripTest(
+                    () => MapFile.Decompress(entryStream),
+                    stream => MapFile.FromStream(stream),
+                    (mapFile, stream) => mapFile.WriteTo(stream));
+            }
+        });
     }
 }

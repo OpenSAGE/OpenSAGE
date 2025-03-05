@@ -5,126 +5,125 @@ using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
 
-namespace OpenSage.Gui.Wnd.Images
+namespace OpenSage.Gui.Wnd.Images;
+
+internal static class MappedImageUtility
 {
-    internal static class MappedImageUtility
+    /// <summary>
+    /// Creates a texture from a mapped image.
+    /// This version does a simple copy of the original image part
+    /// </summary>
+    public static Texture CreateTexture(
+        GraphicsLoadContext loadContext,
+        MappedImage mappedImage)
     {
-        /// <summary>
-        /// Creates a texture from a mapped image.
-        /// This version does a simple copy of the original image part
-        /// </summary>
-        public static Texture CreateTexture(
-            GraphicsLoadContext loadContext,
-            MappedImage mappedImage)
+        var graphicsDevice = loadContext.GraphicsDevice;
+
+        var src = mappedImage.Coords;
+
+        var left = (uint)src.Left;
+        var top = (uint)src.Top;
+        var width = (uint)src.Width;
+        var height = (uint)src.Height;
+
+        var format = mappedImage.Texture.Value.Texture.Format;
+        if (format.IsBlockCompressed())
         {
-            var graphicsDevice = loadContext.GraphicsDevice;
+            var blockDivisor = format.GetBlockDivisor();
 
-            var src = mappedImage.Coords;
-
-            var left = (uint)src.Left;
-            var top = (uint)src.Top;    
-            var width = (uint) src.Width;
-            var height = (uint) src.Height;
-
-            var format = mappedImage.Texture.Value.Texture.Format;
-            if(format.IsBlockCompressed())
-            {
-                var blockDivisor = format.GetBlockDivisor();
-
-                left = MathUtility.GetClosestDivisible(left, blockDivisor);
-                top = MathUtility.GetClosestDivisible(top, blockDivisor);
-                width = MathUtility.GetClosestDivisible(width, blockDivisor);
-                height = MathUtility.GetClosestDivisible(height, blockDivisor);
-            }
-
-            var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    width,
-                    height,
-                    1,
-                    1,
-                    format,
-                    TextureUsage.Sampled));
-
-            imageTexture.Name = "WndImage";
-
-            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
-
-            commandList.Begin();
-
-            commandList.CopyTexture(
-                mappedImage.Texture.Value, left, top, 0, 0, 0,    // Source
-                imageTexture, 0, 0, 0, 0, 0, width, height, 1, 1);                      // Destination
-
-            commandList.End();
-
-            graphicsDevice.SubmitCommands(commandList);
-            graphicsDevice.DisposeWhenIdle(commandList);
-
-            graphicsDevice.WaitForIdle();
-
-            return imageTexture;
+            left = MathUtility.GetClosestDivisible(left, blockDivisor);
+            top = MathUtility.GetClosestDivisible(top, blockDivisor);
+            width = MathUtility.GetClosestDivisible(width, blockDivisor);
+            height = MathUtility.GetClosestDivisible(height, blockDivisor);
         }
 
-        /// <summary>
-        /// Creates a texture from a mapped image. We need to do this to avoid alpha bleeding artifacts
-        /// when blitting a portion of a texture.
-        /// </summary>
-        public static Texture CreateTexture(
-            GraphicsLoadContext loadContext,
-            Size size,
-            Action<SpriteBatch> drawCallback)
-        {
-            var graphicsDevice = loadContext.GraphicsDevice;
+        var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
+            TextureDescription.Texture2D(
+                width,
+                height,
+                1,
+                1,
+                format,
+                TextureUsage.Sampled));
 
-            var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    (uint) size.Width,
-                    (uint) size.Height,
-                    1,
-                    1,
-                    PixelFormat.R8_G8_B8_A8_UNorm,
-                    TextureUsage.Sampled | TextureUsage.RenderTarget));
+        imageTexture.Name = "WndImage";
 
-            imageTexture.Name = "WndImage";
+        var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
-            var framebuffer = graphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription(null, imageTexture));
-            var spriteBatch = new SpriteBatch(
-                loadContext,
-                BlendStateDescription.SingleDisabled,
-                framebuffer.OutputDescription);
-            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
+        commandList.Begin();
 
-            commandList.Begin();
+        commandList.CopyTexture(
+            mappedImage.Texture.Value, left, top, 0, 0, 0,    // Source
+            imageTexture, 0, 0, 0, 0, 0, width, height, 1, 1);                      // Destination
 
-            commandList.SetFramebuffer(framebuffer);
+        commandList.End();
 
-            spriteBatch.Begin(
-                commandList,
-                loadContext.StandardGraphicsResources.PointClampSampler,
-                new SizeF(imageTexture.Width, imageTexture.Height));
+        graphicsDevice.SubmitCommands(commandList);
+        graphicsDevice.DisposeWhenIdle(commandList);
 
-            spriteBatch.DrawImage(
-                loadContext.StandardGraphicsResources.SolidWhiteTexture,
-                null,
-                new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
-                ColorRgbaF.Transparent);
+        graphicsDevice.WaitForIdle();
 
-            drawCallback(spriteBatch);
+        return imageTexture;
+    }
 
-            spriteBatch.End();
+    /// <summary>
+    /// Creates a texture from a mapped image. We need to do this to avoid alpha bleeding artifacts
+    /// when blitting a portion of a texture.
+    /// </summary>
+    public static Texture CreateTexture(
+        GraphicsLoadContext loadContext,
+        Size size,
+        Action<SpriteBatch> drawCallback)
+    {
+        var graphicsDevice = loadContext.GraphicsDevice;
 
-            commandList.End();
+        var imageTexture = graphicsDevice.ResourceFactory.CreateTexture(
+            TextureDescription.Texture2D(
+                (uint)size.Width,
+                (uint)size.Height,
+                1,
+                1,
+                PixelFormat.R8_G8_B8_A8_UNorm,
+                TextureUsage.Sampled | TextureUsage.RenderTarget));
 
-            graphicsDevice.SubmitCommands(commandList);
+        imageTexture.Name = "WndImage";
 
-            graphicsDevice.DisposeWhenIdle(commandList);
-            graphicsDevice.DisposeWhenIdle(spriteBatch);
-            graphicsDevice.DisposeWhenIdle(framebuffer);
+        var framebuffer = graphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription(null, imageTexture));
+        var spriteBatch = new SpriteBatch(
+            loadContext,
+            BlendStateDescription.SingleDisabled,
+            framebuffer.OutputDescription);
+        var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
-            graphicsDevice.WaitForIdle();
+        commandList.Begin();
 
-            return imageTexture;
-        }
+        commandList.SetFramebuffer(framebuffer);
+
+        spriteBatch.Begin(
+            commandList,
+            loadContext.StandardGraphicsResources.PointClampSampler,
+            new SizeF(imageTexture.Width, imageTexture.Height));
+
+        spriteBatch.DrawImage(
+            loadContext.StandardGraphicsResources.SolidWhiteTexture,
+            null,
+            new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
+            ColorRgbaF.Transparent);
+
+        drawCallback(spriteBatch);
+
+        spriteBatch.End();
+
+        commandList.End();
+
+        graphicsDevice.SubmitCommands(commandList);
+
+        graphicsDevice.DisposeWhenIdle(commandList);
+        graphicsDevice.DisposeWhenIdle(spriteBatch);
+        graphicsDevice.DisposeWhenIdle(framebuffer);
+
+        graphicsDevice.WaitForIdle();
+
+        return imageTexture;
     }
 }

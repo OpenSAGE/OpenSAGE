@@ -9,98 +9,97 @@ using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 
-namespace OpenSage.Logic.OrderGenerators
+namespace OpenSage.Logic.OrderGenerators;
+
+// TODO: Cancel this when:
+// 1. Structure dies
+// 2. We lose access to the building
+public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
 {
-    // TODO: Cancel this when:
-    // 1. Structure dies
-    // 2. We lose access to the building
-    public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
+    public override bool CanDrag => true;
+
+    private readonly GameObject _gameObject;
+    private readonly Drawable _rallyPointMarker;
+
+    private OrderType _currentOrder = OrderType.Zero;
+
+    public RallyPointOrderGenerator(Game game, GameObject gameObject)
+        : base(game)
     {
-        public override bool CanDrag => true;
+        _gameObject = gameObject;
 
-        private readonly GameObject _gameObject;
-        private readonly Drawable _rallyPointMarker;
+        var rpMarkerDef = Game.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
+        _rallyPointMarker = Game.GameClient.CreateDrawable(rpMarkerDef, null);
+    }
 
-        private OrderType _currentOrder = OrderType.Zero;
+    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    {
+        var playerId = scene.GetPlayerIndex(LocalPlayer);
 
-        public RallyPointOrderGenerator(Game game, GameObject gameObject)
-            : base(game)
+        if (_currentOrder is OrderType.SetSelection)
         {
-            _gameObject = gameObject;
-
-            var rpMarkerDef = Game.AssetStore.ObjectDefinitions.GetByName("RallyPointMarker");
-            _rallyPointMarker = Game.GameClient.CreateDrawable(rpMarkerDef, null);
-        }
-
-        public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
-        {
-            var playerId = scene.GetPlayerIndex(LocalPlayer);
-
-            if (_currentOrder is OrderType.SetSelection)
+            if (WorldObject == null)
             {
-                if (WorldObject == null)
-                {
-                    throw new InvalidStateException("World object null for set selection order");
-                }
-
-                var setSelectionOrder = Order.CreateSetSelection(playerId, WorldObject.ID);
-
-                return OrderGeneratorResult.SuccessAndContinue(new[] { setSelectionOrder });
+                throw new InvalidStateException("World object null for set selection order");
             }
 
-            if (SelectedUnits == null)
-            {
-                throw new InvalidStateException("Local player not present when setting rally point");
-            }
+            var setSelectionOrder = Order.CreateSetSelection(playerId, WorldObject.ID);
 
-            var objectIds = new List<uint>();
-            foreach (var gameObject in SelectedUnits)
-            {
-                objectIds.Add(gameObject.ID);
-            }
-
-            var order = Order.CreateSetRallyPointOrder(playerId, objectIds, WorldPosition);
-
-            return OrderGeneratorResult.SuccessAndContinue(new[] { order });
+            return OrderGeneratorResult.SuccessAndContinue(new[] { setSelectionOrder });
         }
 
-        public override string GetCursor(KeyModifiers keyModifiers)
+        if (SelectedUnits == null)
         {
-            _currentOrder = GetCurrentOrder();
-            return Cursors.CursorForOrder(_currentOrder);
+            throw new InvalidStateException("Local player not present when setting rally point");
         }
 
-        private OrderType GetCurrentOrder()
+        var objectIds = new List<uint>();
+        foreach (var gameObject in SelectedUnits)
         {
-            return WorldObject != null ? OrderType.SetSelection : OrderType.SetRallyPoint;
+            objectIds.Add(gameObject.ID);
         }
 
-        public override void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+        var order = Order.CreateSetRallyPointOrder(playerId, objectIds, WorldPosition);
+
+        return OrderGeneratorResult.SuccessAndContinue(new[] { order });
+    }
+
+    public override string GetCursor(KeyModifiers keyModifiers)
+    {
+        _currentOrder = GetCurrentOrder();
+        return Cursors.CursorForOrder(_currentOrder);
+    }
+
+    private OrderType GetCurrentOrder()
+    {
+        return WorldObject != null ? OrderType.SetSelection : OrderType.SetRallyPoint;
+    }
+
+    public override void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+    {
+        if (_gameObject.RallyPoint == null)
         {
-            if (_gameObject.RallyPoint == null)
-            {
-                return;
-            }
-
-            _rallyPointMarker.Transform.Translation = _gameObject.RallyPoint.Value;
-
-            var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
-            {
-                Opacity = 1.0f,
-                TintColor = Vector3.One,
-            };
-
-            _rallyPointMarker.BuildRenderList(
-                renderList,
-                camera,
-                gameTime,
-                _rallyPointMarker.TransformMatrix,
-                renderItemConstantsPS);
+            return;
         }
 
-        public void Dispose()
+        _rallyPointMarker.Transform.Translation = _gameObject.RallyPoint.Value;
+
+        var renderItemConstantsPS = new MeshShaderResources.RenderItemConstantsPS
         {
-            Game.GameClient.DestroyDrawable(_rallyPointMarker);
-        }
+            Opacity = 1.0f,
+            TintColor = Vector3.One,
+        };
+
+        _rallyPointMarker.BuildRenderList(
+            renderList,
+            camera,
+            gameTime,
+            _rallyPointMarker.TransformMatrix,
+            renderItemConstantsPS);
+    }
+
+    public void Dispose()
+    {
+        Game.GameClient.DestroyDrawable(_rallyPointMarker);
     }
 }

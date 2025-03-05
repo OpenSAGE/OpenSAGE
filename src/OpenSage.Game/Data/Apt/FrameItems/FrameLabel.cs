@@ -7,21 +7,20 @@ using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Apt.FrameItems
-{
-    public sealed class FrameLabel : FrameItem
-    {
-        public string Name { get; private set; }
-        public uint Flags { get; private set; }
-        public uint FrameId { get; private set; }
+namespace OpenSage.Data.Apt.FrameItems;
 
-        public static FrameLabel Parse(BinaryReader reader)
-        {
-            var label = new FrameLabel();
-            label.Name = reader.ReadStringAtOffset();
-            label.Flags = reader.ReadUInt32();
-            label.FrameId = reader.ReadUInt32();
-            return label;
-        }
+public sealed class FrameLabel : FrameItem
+{
+    public string Name { get; private set; }
+    public uint Flags { get; private set; }
+    public uint FrameId { get; private set; }
+
+    public static FrameLabel Parse(BinaryReader reader)
+    {
+        var label = new FrameLabel();
+        label.Name = reader.ReadStringAtOffset();
+        label.Flags = reader.ReadUInt32();
+        label.FrameId = reader.ReadUInt32();
+        return label;
     }
 }

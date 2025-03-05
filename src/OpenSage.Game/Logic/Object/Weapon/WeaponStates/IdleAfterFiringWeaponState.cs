@@ -1,40 +1,39 @@
 ﻿using System;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class IdleAfterFiringWeaponState : FixedDurationWeaponState
 {
-    internal sealed class IdleAfterFiringWeaponState : FixedDurationWeaponState
+    protected override RangeDuration Duration => Context.Weapon.Template.IdleAfterFiringDelay;
+
+    public IdleAfterFiringWeaponState(WeaponStateContext context)
+        : base(context)
     {
-        protected override RangeDuration Duration => Context.Weapon.Template.IdleAfterFiringDelay;
+    }
 
-        public IdleAfterFiringWeaponState(WeaponStateContext context)
-            : base(context)
+    protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
+        Array.Empty<ModelConditionFlag>();
+
+    public override WeaponState? GetNextState()
+    {
+        if (!Context.Weapon.HasValidTarget)
         {
+            return WeaponState.Inactive;
         }
 
-        protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
-            Array.Empty<ModelConditionFlag>();
-
-        public override WeaponState? GetNextState()
+        if (IsTimeToExitState())
         {
-            if (!Context.Weapon.HasValidTarget)
+            if (Context.Weapon.IsClipEmpty())
             {
-                return WeaponState.Inactive;
+                return WeaponState.Reloading;
             }
-
-            if (IsTimeToExitState())
+            else if (Context.Weapon.Template.PreAttackType == WeaponPrefireType.PerShot)
             {
-                if (Context.Weapon.IsClipEmpty())
-                {
-                    return WeaponState.Reloading;
-                }
-                else if (Context.Weapon.Template.PreAttackType == WeaponPrefireType.PerShot)
-                {
-                    return WeaponState.PreAttack;
-                }
-                return WeaponState.BetweenShots;
+                return WeaponState.PreAttack;
             }
-
-            return null;
+            return WeaponState.BetweenShots;
         }
+
+        return null;
     }
 }

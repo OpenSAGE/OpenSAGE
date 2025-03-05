@@ -1,45 +1,44 @@
 ﻿using System.IO;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class AssetPropertyKey
 {
-    public sealed class AssetPropertyKey
+    public AssetPropertyType PropertyType { get; private set; }
+    public string Name { get; private set; }
+
+    internal static AssetPropertyKey Parse(BinaryReader reader, MapParseContext context)
     {
-        public AssetPropertyType PropertyType { get; private set; }
-        public string Name { get; private set; }
+        var propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
 
-        internal static AssetPropertyKey Parse(BinaryReader reader, MapParseContext context)
+        var propertyNameIndex = reader.ReadUInt24();
+        var propertyName = context.GetAssetName(propertyNameIndex);
+
+        return new AssetPropertyKey
         {
-            var propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
+            PropertyType = propertyType,
+            Name = propertyName
+        };
+    }
 
-            var propertyNameIndex = reader.ReadUInt24();
-            var propertyName = context.GetAssetName(propertyNameIndex);
+    internal AssetPropertyKey(string name, AssetPropertyType propertyType)
+    {
+        PropertyType = propertyType;
+        Name = name;
+    }
 
-            return new AssetPropertyKey
-            {
-                PropertyType = propertyType,
-                Name = propertyName
-            };
-        }
+    internal AssetPropertyKey() { }
 
-        internal AssetPropertyKey(string name, AssetPropertyType propertyType)
-        {
-            PropertyType = propertyType;
-            Name = name;
-        }
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+    {
+        writer.Write((byte)PropertyType);
 
-        internal AssetPropertyKey() { }
+        writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(Name));
+    }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
-        {
-            writer.Write((byte) PropertyType);
-
-            writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(Name));
-        }
-
-        public override string ToString()
-        {
-            return $"{Name} ({PropertyType})";
-        }
+    public override string ToString()
+    {
+        return $"{Name} ({PropertyType})";
     }
 }

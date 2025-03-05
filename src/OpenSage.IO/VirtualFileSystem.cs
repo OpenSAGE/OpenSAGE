@@ -1,54 +1,53 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace OpenSage.IO
+namespace OpenSage.IO;
+
+public sealed class VirtualFileSystem : FileSystem
 {
-    public sealed class VirtualFileSystem : FileSystem
+    private readonly string _virtualDirectory;
+    private readonly FileSystem _targetFileSystem;
+
+    public VirtualFileSystem(string virtualDirectory, FileSystem targetFileSystem)
     {
-        private readonly string _virtualDirectory;
-        private readonly FileSystem _targetFileSystem;
+        _virtualDirectory = virtualDirectory;
+        _targetFileSystem = targetFileSystem;
+    }
 
-        public VirtualFileSystem(string virtualDirectory, FileSystem targetFileSystem)
+    public override FileSystemEntry? GetFile(string filePath)
+    {
+        if (!TryGetRelativePath(filePath, out var relativePath))
         {
-            _virtualDirectory = virtualDirectory;
-            _targetFileSystem = targetFileSystem;
+            return null;
         }
 
-        public override FileSystemEntry? GetFile(string filePath)
-        {
-            if (!TryGetRelativePath(filePath, out var relativePath))
-            {
-                return null;
-            }
+        return _targetFileSystem.GetFile(relativePath);
+    }
 
-            return _targetFileSystem.GetFile(relativePath);
+    public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
+        string directoryPath,
+        string searchPattern = "*",
+        SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        if (!TryGetRelativePath(directoryPath, out var relativePath))
+        {
+            return Enumerable.Empty<FileSystemEntry>();
         }
 
-        public override IEnumerable<FileSystemEntry> GetFilesInDirectory(
-            string directoryPath,
-            string searchPattern = "*",
-            SearchOption searchOption = SearchOption.TopDirectoryOnly)
-        {
-            if (!TryGetRelativePath(directoryPath, out var relativePath))
-            {
-                return Enumerable.Empty<FileSystemEntry>();
-            }
+        return _targetFileSystem.GetFilesInDirectory(
+            relativePath,
+            searchPattern,
+            searchOption);
+    }
 
-            return _targetFileSystem.GetFilesInDirectory(
-                relativePath,
-                searchPattern,
-                searchOption);
+    private bool TryGetRelativePath(string path, [NotNullWhen(true)] out string? relativePath)
+    {
+        if (!path.StartsWith(_virtualDirectory))
+        {
+            relativePath = null;
+            return false;
         }
 
-        private bool TryGetRelativePath(string path, [NotNullWhen(true)] out string? relativePath)
-        {
-            if (!path.StartsWith(_virtualDirectory))
-            {
-                relativePath = null;
-                return false;
-            }
-
-            relativePath = path.Substring(_virtualDirectory.Length);
-            return true;
-        }
+        relativePath = path.Substring(_virtualDirectory.Length);
+        return true;
     }
 }

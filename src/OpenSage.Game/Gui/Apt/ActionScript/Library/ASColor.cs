@@ -1,22 +1,21 @@
 ﻿using System.Linq;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Apt.ActionScript.Library
+namespace OpenSage.Gui.Apt.ActionScript.Library;
+
+internal sealed class ASColor : BuiltinClass
 {
-    internal sealed class ASColor : BuiltinClass
+    private ColorRgba _color = ColorRgba.White;
+
+    public ASColor() : base()
     {
-        private ColorRgba _color = ColorRgba.White;
+        //list of builtin functions
+        _builtinFunctions.Add("setRGB", setRGB);
+    }
 
-        public ASColor() : base()
-        {
-            //list of builtin functions
-            _builtinFunctions.Add("setRGB", setRGB);
-        }
-
-        private Value setRGB(Value[] args)
-        {
-            _color = ColorRgba.FromHex(_color, args.First().ToString());
-            return Value.Undefined();
-        }
+    private Value setRGB(Value[] args)
+    {
+        _color = ColorRgba.FromHex(_color, args.First().ToString());
+        return Value.Undefined();
     }
 }

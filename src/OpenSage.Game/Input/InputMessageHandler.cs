@@ -1,9 +1,8 @@
-﻿namespace OpenSage.Input
-{
-    public abstract class InputMessageHandler
-    {
-        public abstract HandlingPriority Priority { get; }
+﻿namespace OpenSage.Input;
 
-        public abstract InputMessageResult HandleMessage(InputMessage message);
-    }
+public abstract class InputMessageHandler
+{
+    public abstract HandlingPriority Priority { get; }
+
+    public abstract InputMessageResult HandleMessage(InputMessage message);
 }

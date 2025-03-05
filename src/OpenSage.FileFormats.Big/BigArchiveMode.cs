@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenSage.FileFormats.Big
+namespace OpenSage.FileFormats.Big;
+
+public enum BigArchiveMode
 {
-    public enum BigArchiveMode
-    {
-        Read    = 0,
-        Create  = 1,
-        Update  = 2
-    }
+    Read = 0,
+    Create = 1,
+    Update = 2
 }

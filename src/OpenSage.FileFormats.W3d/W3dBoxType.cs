@@ -1,8 +1,7 @@
-﻿namespace OpenSage.FileFormats.W3d
+﻿namespace OpenSage.FileFormats.W3d;
+
+public enum W3dBoxType
 {
-    public enum W3dBoxType
-    {
-        Oriented = 1,
-        Aligned = 2
-    }
+    Oriented = 1,
+    Aligned = 2
 }

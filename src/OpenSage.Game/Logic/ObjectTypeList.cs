@@ -1,30 +1,29 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenSage.Logic
+namespace OpenSage.Logic;
+
+internal sealed class ObjectTypeList : IPersistableObject
 {
-    internal sealed class ObjectTypeList : IPersistableObject
+    private readonly HashSet<string> _objectTypes;
+
+    public string Name;
+
+    public ObjectTypeList()
     {
-        private readonly HashSet<string> _objectTypes;
+        _objectTypes = new HashSet<string>();
+    }
 
-        public string Name;
+    public void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-        public ObjectTypeList()
-        {
-            _objectTypes = new HashSet<string>();
-        }
+        reader.PersistAsciiString(ref Name);
 
-        public void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.PersistAsciiString(ref Name);
-
-            reader.PersistHashSet(
-                _objectTypes,
-                static (StatePersister persister, ref string item) =>
-                {
-                    persister.PersistAsciiStringValue(ref item);
-                });
-        }
+        reader.PersistHashSet(
+            _objectTypes,
+            static (StatePersister persister, ref string item) =>
+            {
+                persister.PersistAsciiStringValue(ref item);
+            });
     }
 }

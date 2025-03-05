@@ -1,121 +1,120 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.FileFormats.Big
+namespace OpenSage.FileFormats.Big;
+
+public class BigArchiveEntryStream : Stream
 {
-    public class BigArchiveEntryStream : Stream
+    private readonly BigArchiveEntry _entry;
+    private readonly BigArchive _archive;
+    private readonly uint _offset;
+    private bool _write;
+
+    public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
     {
-        private readonly BigArchiveEntry _entry;
-        private readonly BigArchive _archive;
-        private readonly uint _offset;
-        private bool _write;
+        _write = false;
+        _entry = entry;
+        _archive = entry.Archive;
+        _offset = offset;
+    }
 
-        public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
+    public override void Flush()
+    {
+        if (_write)
         {
-            _write = false;
-            _entry = entry;
-            _archive = entry.Archive;
-            _offset = offset;
+            _entry.Length = (uint)this.Length;
         }
+        _archive.WriteToDisk();
+    }
 
-        public override void Flush()
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        _archive.AcquireLock();
+        int result = 0;
+        if (_write == false)
         {
-            if (_write)
+            _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
+            if (count > (Length - Position))
             {
-                _entry.Length = (uint) this.Length;
-            }
-            _archive.WriteToDisk();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            _archive.AcquireLock();
-            int result = 0;
-            if (_write == false)
-            {
-                _archive.Stream.Seek(_offset + Position, SeekOrigin.Begin);
-                if (count > (Length - Position))
-                {
-                    count = (int) (Length - Position);
-                }
-
-                result = _archive.Stream.Read(buffer, offset, count);
-                Position += result;
-            }
-            else
-            {
-                result = _entry.OutstandingWriteStream!.Read(buffer, offset, count); // set when _write is set to true
-                Position += result;
-            }
-            _archive.ReleaseLock();
-
-            return result;
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    Position = offset;
-                    break;
-
-                case SeekOrigin.Current:
-                    Position += offset;
-                    break;
-
-                case SeekOrigin.End:
-                    Position = Length + offset;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+                count = (int)(Length - Position);
             }
 
-            return Position;
+            result = _archive.Stream.Read(buffer, offset, count);
+            Position += result;
         }
-
-        private void EnsureWriteMode()
+        else
         {
-            if (_write == false)
-            {
-                _entry.OutstandingWriteStream = new MemoryStream();
-                CopyTo(_entry.OutstandingWriteStream);
-                _write = true;
-            }
+            result = _entry.OutstandingWriteStream!.Read(buffer, offset, count); // set when _write is set to true
+            Position += result;
         }
+        _archive.ReleaseLock();
 
-        public override void SetLength(long value)
+        return result;
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        switch (origin)
         {
-            EnsureWriteMode();
+            case SeekOrigin.Begin:
+                Position = offset;
+                break;
 
-            _entry.OnDisk = false;
-            _entry.OutstandingWriteStream?.SetLength(value); // set in EnsureWriteMode()
+            case SeekOrigin.Current:
+                Position += offset;
+                break;
+
+            case SeekOrigin.End:
+                Position = Length + offset;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
+        return Position;
+    }
+
+    private void EnsureWriteMode()
+    {
+        if (_write == false)
         {
-            EnsureWriteMode();
-
-            _entry.OnDisk = false;
-            _entry.OutstandingWriteStream!.Position = Position; // set in EnsureWriteMode()
-            _entry.OutstandingWriteStream.Write(buffer, offset, count);
+            _entry.OutstandingWriteStream = new MemoryStream();
+            CopyTo(_entry.OutstandingWriteStream);
+            _write = true;
         }
+    }
 
-        public override bool CanRead => _archive.Stream.CanRead;
+    public override void SetLength(long value)
+    {
+        EnsureWriteMode();
 
-        public override bool CanSeek => _archive.Stream.CanSeek;
+        _entry.OnDisk = false;
+        _entry.OutstandingWriteStream?.SetLength(value); // set in EnsureWriteMode()
+    }
 
-        public override bool CanWrite => true;
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        EnsureWriteMode();
 
-        public override long Length => _write ? _entry.OutstandingWriteStream!.Length : _entry.Length; // set when _write is set to true
+        _entry.OnDisk = false;
+        _entry.OutstandingWriteStream!.Position = Position; // set in EnsureWriteMode()
+        _entry.OutstandingWriteStream.Write(buffer, offset, count);
+    }
 
-        public override long Position { get; set; }
+    public override bool CanRead => _archive.Stream.CanRead;
 
-        public override void Close()
-        {
-            Flush();
-            base.Close();
-        }
+    public override bool CanSeek => _archive.Stream.CanSeek;
+
+    public override bool CanWrite => true;
+
+    public override long Length => _write ? _entry.OutstandingWriteStream!.Length : _entry.Length; // set when _write is set to true
+
+    public override long Position { get; set; }
+
+    public override void Close()
+    {
+        Flush();
+        base.Close();
     }
 }

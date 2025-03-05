@@ -3,99 +3,98 @@ using System.IO;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Scripting
+namespace OpenSage.Scripting;
+
+public abstract class ScriptContent<TDerived, TContentType> : Asset
+    where TDerived : ScriptContent<TDerived, TContentType>, new()
+    where TContentType : struct
 {
-    public abstract class ScriptContent<TDerived, TContentType> : Asset
-        where TDerived : ScriptContent<TDerived, TContentType>, new()
-        where TContentType : struct
+    public TContentType ContentType { get; set; }
+    public AssetPropertyKey InternalName { get; protected set; }
+
+    public ScriptArgument[] Arguments { get; set; }
+
+    public bool Enabled { get; protected set; }
+
+    protected ScriptContent()
     {
-        public TContentType ContentType { get; set; }
-        public AssetPropertyKey InternalName { get; protected set; }
+    }
 
-        public ScriptArgument[] Arguments { get; set; }
+    protected ScriptContent(TContentType contentType, params ScriptArgument[] arguments)
+    {
+        ContentType = contentType;
+        Arguments = arguments;
+    }
 
-        public bool Enabled { get; protected set; }
-
-        protected ScriptContent()
+    internal static TDerived Parse(
+        BinaryReader reader,
+        MapParseContext context,
+        ushort minimumVersionThatHasInternalName,
+        ushort minimumVersionThatHasEnabledFlag,
+        Action<ushort, TDerived> derivedParse = null)
+    {
+        return ParseAsset(reader, context, version =>
         {
-        }
+            var result = new TDerived();
 
-        protected ScriptContent(TContentType contentType, params ScriptArgument[] arguments)
-        {
-            ContentType = contentType;
-            Arguments = arguments;
-        }
+            // TODO: Need to make game-specific TContentType enums.
+            result.ContentType = (TContentType)(object)reader.ReadUInt32();
+            //result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
 
-        internal static TDerived Parse(
-            BinaryReader reader,
-            MapParseContext context,
-            ushort minimumVersionThatHasInternalName,
-            ushort minimumVersionThatHasEnabledFlag,
-            Action<ushort, TDerived> derivedParse = null)
-        {
-            return ParseAsset(reader, context, version =>
+            if (version >= minimumVersionThatHasInternalName)
             {
-                var result = new TDerived();
+                result.InternalName = AssetPropertyKey.Parse(reader, context);
+            }
 
-                // TODO: Need to make game-specific TContentType enums.
-                result.ContentType = (TContentType) (object) reader.ReadUInt32();
-                //result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
+            var numArguments = reader.ReadUInt32();
+            result.Arguments = new ScriptArgument[numArguments];
 
-                if (version >= minimumVersionThatHasInternalName)
-                {
-                    result.InternalName = AssetPropertyKey.Parse(reader, context);
-                }
-
-                var numArguments = reader.ReadUInt32();
-                result.Arguments = new ScriptArgument[numArguments];
-
-                for (var i = 0; i < numArguments; i++)
-                {
-                    result.Arguments[i] = ScriptArgument.Parse(reader);
-                }
-
-                result.Enabled = true;
-                if (version >= minimumVersionThatHasEnabledFlag)
-                {
-                    result.Enabled = reader.ReadBooleanUInt32Checked();
-                }
-
-                derivedParse?.Invoke(version, result);
-
-                return result;
-            });
-        }
-
-        internal void WriteTo(
-            BinaryWriter writer,
-            AssetNameCollection assetNames,
-            ushort minimumVersionThatHasInternalName,
-            ushort minimumVersionThatHasEnabledFlag,
-            Action derivedWriteTo = null)
-        {
-            WriteAssetTo(writer, () =>
+            for (var i = 0; i < numArguments; i++)
             {
-                writer.Write((uint) (object) ContentType);
+                result.Arguments[i] = ScriptArgument.Parse(reader);
+            }
 
-                if (Version >= minimumVersionThatHasInternalName)
-                {
-                    InternalName.WriteTo(writer, assetNames);
-                }
+            result.Enabled = true;
+            if (version >= minimumVersionThatHasEnabledFlag)
+            {
+                result.Enabled = reader.ReadBooleanUInt32Checked();
+            }
 
-                writer.Write((uint) Arguments.Length);
+            derivedParse?.Invoke(version, result);
 
-                foreach (var argument in Arguments)
-                {
-                    argument.WriteTo(writer);
-                }
+            return result;
+        });
+    }
 
-                if (Version >= minimumVersionThatHasEnabledFlag)
-                {
-                    writer.WriteBooleanUInt32(Enabled);
-                }
+    internal void WriteTo(
+        BinaryWriter writer,
+        AssetNameCollection assetNames,
+        ushort minimumVersionThatHasInternalName,
+        ushort minimumVersionThatHasEnabledFlag,
+        Action derivedWriteTo = null)
+    {
+        WriteAssetTo(writer, () =>
+        {
+            writer.Write((uint)(object)ContentType);
 
-                derivedWriteTo?.Invoke();
-            });
-        }
+            if (Version >= minimumVersionThatHasInternalName)
+            {
+                InternalName.WriteTo(writer, assetNames);
+            }
+
+            writer.Write((uint)Arguments.Length);
+
+            foreach (var argument in Arguments)
+            {
+                argument.WriteTo(writer);
+            }
+
+            if (Version >= minimumVersionThatHasEnabledFlag)
+            {
+                writer.WriteBooleanUInt32(Enabled);
+            }
+
+            derivedWriteTo?.Invoke();
+        });
     }
 }

@@ -1,40 +1,39 @@
 ﻿using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.CommandListOverlay;
+using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.Wnd;
 using OpenSage.Logic;
 
-namespace OpenSage
+namespace OpenSage;
+
+public sealed class Scene2D
 {
-    public sealed class Scene2D
+    public WndWindowManager WndWindowManager { get; }
+    public AptWindowManager AptWindowManager { get; }
+    public IControlBar ControlBar { get; set; }
+    public ICommandListOverlay UnitOverlay { get; set; }
+
+    public Scene2D(Game game)
     {
-        public WndWindowManager WndWindowManager { get; }
-        public AptWindowManager AptWindowManager { get; }
-        public IControlBar ControlBar { get; set; }
-        public ICommandListOverlay UnitOverlay { get; set; }
+        WndWindowManager = new WndWindowManager(game);
+        AptWindowManager = new AptWindowManager(game);
+    }
 
-        public Scene2D(Game game)
-        {
-            WndWindowManager = new WndWindowManager(game);
-            AptWindowManager = new AptWindowManager(game);
-        }
+    internal void LocalLogicTick(in TimeInterval gameTime, Player localPlayer)
+    {
+        ControlBar?.Update(localPlayer);
+        UnitOverlay?.Update(localPlayer);
 
-        internal void LocalLogicTick(in TimeInterval gameTime, Player localPlayer)
-        {
-            ControlBar?.Update(localPlayer);
-            UnitOverlay?.Update(localPlayer);
+        WndWindowManager.Update(gameTime);
+        AptWindowManager.Update(gameTime);
+    }
 
-            WndWindowManager.Update(gameTime);
-            AptWindowManager.Update(gameTime);
-        }
+    internal void Render(DrawingContext2D drawingContext)
+    {
+        UnitOverlay?.Render(drawingContext);
 
-        internal void Render(DrawingContext2D drawingContext)
-        {
-            UnitOverlay?.Render(drawingContext);
-
-            WndWindowManager.Render(drawingContext);
-            AptWindowManager.Render(drawingContext);
-        }
+        WndWindowManager.Render(drawingContext);
+        AptWindowManager.Render(drawingContext);
     }
 }

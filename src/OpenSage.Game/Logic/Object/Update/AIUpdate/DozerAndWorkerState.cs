@@ -28,7 +28,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         _gameObject = gameObject;
         _context = context;
         _aiUpdate = aiUpdate;
-        _moduleData = (IBuilderAIUpdateData) aiUpdate.ModuleData; // todo: remove this cast in the future
+        _moduleData = (IBuilderAIUpdateData)aiUpdate.ModuleData; // todo: remove this cast in the future
         _stateMachine = new BuilderStateMachine(gameObject, context, gameObject.AIUpdate);
     }
 
@@ -110,7 +110,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     {
         _dozerTargets[0] = new DozerTarget { ObjectId = buildTarget.ID, OrderFrame = currentFrame };
         // these are both set to the unit currently (or most recently) constructing the object
-        buildTarget.CreatedByObjectID =  _gameObject.ID;
+        buildTarget.CreatedByObjectID = _gameObject.ID;
         buildTarget.BuiltByObjectID = _gameObject.ID;
     }
 

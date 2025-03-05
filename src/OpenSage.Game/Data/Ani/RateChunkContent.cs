@@ -1,25 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace OpenSage.Data.Ani
+namespace OpenSage.Data.Ani;
+
+public sealed class RateChunkContent : RiffChunkContent
 {
-    public sealed class RateChunkContent : RiffChunkContent
+    public uint[] Durations { get; private set; }
+
+    internal static RateChunkContent Parse(BinaryReader reader, long endPosition)
     {
-        public uint[] Durations { get; private set; }
+        var durations = new List<uint>();
 
-        internal static RateChunkContent Parse(BinaryReader reader, long endPosition)
+        while (reader.BaseStream.Position < endPosition)
         {
-            var durations = new List<uint>();
-
-            while (reader.BaseStream.Position < endPosition)
-            {
-                durations.Add(reader.ReadUInt32());
-            }
-
-            return new RateChunkContent
-            {
-                Durations = durations.ToArray()
-            };
+            durations.Add(reader.ReadUInt32());
         }
+
+        return new RateChunkContent
+        {
+            Durations = durations.ToArray()
+        };
     }
 }

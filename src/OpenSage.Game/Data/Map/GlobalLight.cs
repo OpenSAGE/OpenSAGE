@@ -3,29 +3,28 @@ using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class GlobalLight
 {
-    public sealed class GlobalLight
+    public Vector3 Ambient { get; private set; }
+    public Vector3 Color { get; private set; }
+    public Vector3 Direction { get; private set; }
+
+    internal static GlobalLight Parse(BinaryReader reader)
     {
-        public Vector3 Ambient { get; private set; }
-        public Vector3 Color { get; private set; }
-        public Vector3 Direction { get; private set; }
-
-        internal static GlobalLight Parse(BinaryReader reader)
+        return new GlobalLight
         {
-            return new GlobalLight
-            {
-                Ambient = reader.ReadVector3(),
-                Color = reader.ReadVector3(),
-                Direction = reader.ReadVector3()
-            };
-        }
+            Ambient = reader.ReadVector3(),
+            Color = reader.ReadVector3(),
+            Direction = reader.ReadVector3()
+        };
+    }
 
-        internal void WriteTo(BinaryWriter writer)
-        {
-            writer.Write(Ambient);
-            writer.Write(Color);
-            writer.Write(Direction);
-        }
+    internal void WriteTo(BinaryWriter writer)
+    {
+        writer.Write(Ambient);
+        writer.Write(Color);
+        writer.Write(Direction);
     }
 }

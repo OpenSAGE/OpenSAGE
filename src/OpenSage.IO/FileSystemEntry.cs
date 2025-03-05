@@ -1,26 +1,25 @@
-﻿namespace OpenSage.IO
+﻿namespace OpenSage.IO;
+
+public sealed class FileSystemEntry
 {
-    public sealed class FileSystemEntry
+    private readonly Func<Stream> _open;
+
+    public FileSystem FileSystem { get; }
+    public string FilePath { get; }
+    public uint Length { get; }
+
+    public FileSystemEntry(FileSystem fileSystem, string filePath, uint length, Func<Stream> open)
     {
-        private readonly Func<Stream> _open;
+        FileSystem = fileSystem;
+        FilePath = filePath;
+        Length = length;
+        _open = open;
+    }
 
-        public FileSystem FileSystem { get; }
-        public string FilePath { get; }
-        public uint Length { get; }
+    public Stream Open() => _open();
 
-        public FileSystemEntry(FileSystem fileSystem, string filePath, uint length, Func<Stream> open)
-        {
-            FileSystem = fileSystem;
-            FilePath = filePath;
-            Length = length;
-            _open = open;
-        }
-
-        public Stream Open() => _open();
-
-        public override string ToString()
-        {
-            return FilePath;
-        }
+    public override string ToString()
+    {
+        return FilePath;
     }
 }

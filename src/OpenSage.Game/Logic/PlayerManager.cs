@@ -4,113 +4,112 @@ using System.Linq;
 using OpenSage.Content;
 using OpenSage.Utilities.Extensions;
 
-namespace OpenSage.Logic
+namespace OpenSage.Logic;
+
+public sealed class PlayerManager : IPersistableObject
 {
-    public sealed class PlayerManager : IPersistableObject
+    private readonly IGame _game;
+
+    public IReadOnlyList<Player> Players => _players;
+    private Player[] _players;
+
+    public Player LocalPlayer { get; private set; }
+
+    internal PlayerManager(IGame game)
     {
-        private readonly IGame _game;
+        _game = game;
+        _players = Array.Empty<Player>();
+    }
 
-        public IReadOnlyList<Player> Players => _players;
-        private Player[] _players;
+    internal void OnNewGame(Data.Map.Player[] mapPlayers, GameType gameType)
+    {
+        _players = CreatePlayers(mapPlayers, gameType).ToArray();
 
-        public Player LocalPlayer { get; private set; }
+        LocalPlayer = null;
 
-        internal PlayerManager(IGame game)
+        foreach (var player in _players)
         {
-            _game = game;
-            _players = Array.Empty<Player>();
-        }
-
-        internal void OnNewGame(Data.Map.Player[] mapPlayers, GameType gameType)
-        {
-            _players = CreatePlayers(mapPlayers, gameType).ToArray();
-
-            LocalPlayer = null;
-
-            foreach (var player in _players)
+            if (player.IsHuman)
             {
-                if (player.IsHuman)
-                {
-                    LocalPlayer = player;
-                    break;
-                }
-            }
-
-            if (LocalPlayer == null && _players.Length > 2)
-            {
-                // TODO: Probably not the right way to do it.
-                LocalPlayer = _players[2];
-            }
-
-            // TODO: Setup player relationships.
-        }
-
-        // This needs to operate on the entire player list, because players have references to each other
-        // (allies and enemies).
-        private IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, GameType gameType)
-        {
-            var players = new Dictionary<string, Player>();
-            var allies = new Dictionary<string, string[]>();
-            var enemies = new Dictionary<string, string[]>();
-
-            var id = 0u;
-            foreach (var mapPlayer in mapPlayers)
-            {
-                var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
-                players[player.Name] = player;
-                allies[player.Name] =
-                    mapPlayer.Allies?.Split(' ')
-                    .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
-                enemies[player.Name] =
-                    mapPlayer.Enemies?.Split(' ')
-                    .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
-            }
-
-            foreach (var (name, player) in players)
-            {
-                player.Allies = allies[name].Select(ally => players[ally]).ToSet();
-                player.Enemies = enemies[name].Select(enemy => players[enemy]).ToSet();
-            }
-
-            return players.Values;
-        }
-
-        public Player GetPlayerByName(string name)
-        {
-            return Array.Find(_players, x => x.Name == name);
-        }
-
-        public Player GetPlayerByIndex(uint index)
-        {
-            return _players[(int)index];
-        }
-
-        public int GetPlayerIndex(Player player)
-        {
-            return Array.IndexOf(_players, player);
-        }
-
-        // TODO: Is this right?
-        public Player GetCivilianPlayer() => _players[1];
-
-        internal void LogicTick()
-        {
-            foreach (var player in _players)
-            {
-                player.LogicTick();
+                LocalPlayer = player;
+                break;
             }
         }
 
-        public void Persist(StatePersister reader)
+        if (LocalPlayer == null && _players.Length > 2)
         {
-            reader.PersistVersion(1);
-
-            reader.PersistArrayWithUInt32Length(
-                _players,
-                static (StatePersister persister, ref Player item) =>
-                {
-                    persister.PersistObjectValue(item);
-                });
+            // TODO: Probably not the right way to do it.
+            LocalPlayer = _players[2];
         }
+
+        // TODO: Setup player relationships.
+    }
+
+    // This needs to operate on the entire player list, because players have references to each other
+    // (allies and enemies).
+    private IEnumerable<Player> CreatePlayers(Data.Map.Player[] mapPlayers, GameType gameType)
+    {
+        var players = new Dictionary<string, Player>();
+        var allies = new Dictionary<string, string[]>();
+        var enemies = new Dictionary<string, string[]>();
+
+        var id = 0u;
+        foreach (var mapPlayer in mapPlayers)
+        {
+            var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
+            players[player.Name] = player;
+            allies[player.Name] =
+                mapPlayer.Allies?.Split(' ')
+                .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
+            enemies[player.Name] =
+                mapPlayer.Enemies?.Split(' ')
+                .Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? []; // Neutral has a player name of "", so it's important not to add empty strings
+        }
+
+        foreach (var (name, player) in players)
+        {
+            player.Allies = allies[name].Select(ally => players[ally]).ToSet();
+            player.Enemies = enemies[name].Select(enemy => players[enemy]).ToSet();
+        }
+
+        return players.Values;
+    }
+
+    public Player GetPlayerByName(string name)
+    {
+        return Array.Find(_players, x => x.Name == name);
+    }
+
+    public Player GetPlayerByIndex(uint index)
+    {
+        return _players[(int)index];
+    }
+
+    public int GetPlayerIndex(Player player)
+    {
+        return Array.IndexOf(_players, player);
+    }
+
+    // TODO: Is this right?
+    public Player GetCivilianPlayer() => _players[1];
+
+    internal void LogicTick()
+    {
+        foreach (var player in _players)
+        {
+            player.LogicTick();
+        }
+    }
+
+    public void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        reader.PersistArrayWithUInt32Length(
+            _players,
+            static (StatePersister persister, ref Player item) =>
+            {
+                persister.PersistObjectValue(item);
+            });
     }
 }

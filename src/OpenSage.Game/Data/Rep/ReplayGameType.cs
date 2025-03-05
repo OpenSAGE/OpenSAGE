@@ -1,9 +1,8 @@
-﻿namespace OpenSage.Data.Rep
+﻿namespace OpenSage.Data.Rep;
+
+public enum ReplayGameType
 {
-    public enum ReplayGameType
-    {
-        Generals,
-        Bfme,
-        Bfme2
-    }
+    Generals,
+    Bfme,
+    Bfme2
 }

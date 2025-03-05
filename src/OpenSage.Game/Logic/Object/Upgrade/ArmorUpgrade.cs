@@ -1,63 +1,62 @@
 ﻿using OpenSage.Client;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class ArmorUpgrade : UpgradeModule
 {
-    internal sealed class ArmorUpgrade : UpgradeModule
+    private readonly ArmorUpgradeModuleData _moduleData;
+
+    internal ArmorUpgrade(GameObject gameObject, ArmorUpgradeModuleData moduleData)
+        : base(gameObject, moduleData)
     {
-        private readonly ArmorUpgradeModuleData _moduleData;
+        _moduleData = moduleData;
+    }
 
-        internal ArmorUpgrade(GameObject gameObject, ArmorUpgradeModuleData moduleData)
-            : base(gameObject, moduleData)
+    protected override void OnUpgrade()
+    {
+        GameObject.BodyModule?.SetArmorSetFlag(ArmorSetCondition.PlayerUpgrade);
+
+        // Added in Zero Hour. Seems like quite a big hack.
+        // Unique case for AMERICA to test for upgrade to set flag
+        if (IsTriggeredBy("Upgrade_AmericaChemicalSuits"))
         {
-            _moduleData = moduleData;
-        }
-
-        protected override void OnUpgrade()
-        {
-            GameObject.BodyModule?.SetArmorSetFlag(ArmorSetCondition.PlayerUpgrade);
-
-            // Added in Zero Hour. Seems like quite a big hack.
-            // Unique case for AMERICA to test for upgrade to set flag
-            if (IsTriggeredBy("Upgrade_AmericaChemicalSuits"))
-            {
-                GameObject.Drawable.SetTerrainDecal(ObjectDecalType.ChemSuit);
-            }
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            GameObject.Drawable.SetTerrainDecal(ObjectDecalType.ChemSuit);
         }
     }
 
-    /// <summary>
-    /// Triggers use of PLAYER_UPGRADE ArmorSet on this object.
-    /// </summary>
-    public sealed class ArmorUpgradeModuleData : UpgradeModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static ArmorUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<ArmorUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<ArmorUpgradeModuleData>()
-            {
-                { "ArmorSetFlag", (parser, x) => x.ArmorSetFlag = parser.ParseEnum<ArmorSetCondition>() },
-                { "IgnoreArmorUpgrade", (parser, x) => x.IgnoreArmorUpgrade = parser.ParseBoolean() }
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        [AddedIn(SageGame.Bfme)]
-        public ArmorSetCondition ArmorSetFlag { get; private set; }
+/// <summary>
+/// Triggers use of PLAYER_UPGRADE ArmorSet on this object.
+/// </summary>
+public sealed class ArmorUpgradeModuleData : UpgradeModuleData
+{
+    internal static ArmorUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        [AddedIn(SageGame.Bfme)]
-        public bool IgnoreArmorUpgrade { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<ArmorUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        .Concat(new IniParseTable<ArmorUpgradeModuleData>()
         {
-            return new ArmorUpgrade(gameObject, this);
-        }
+            { "ArmorSetFlag", (parser, x) => x.ArmorSetFlag = parser.ParseEnum<ArmorSetCondition>() },
+            { "IgnoreArmorUpgrade", (parser, x) => x.IgnoreArmorUpgrade = parser.ParseBoolean() }
+        });
+
+    [AddedIn(SageGame.Bfme)]
+    public ArmorSetCondition ArmorSetFlag { get; private set; }
+
+    [AddedIn(SageGame.Bfme)]
+    public bool IgnoreArmorUpgrade { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new ArmorUpgrade(gameObject, this);
     }
 }

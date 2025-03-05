@@ -1,9 +1,8 @@
-﻿namespace OpenSage.Mathematics
+﻿namespace OpenSage.Mathematics;
+
+public enum ContainmentType
 {
-    public enum ContainmentType
-    {
-        Disjoint,
-        Contains,
-        Intersects
-    }
+    Disjoint,
+    Contains,
+    Intersects
 }

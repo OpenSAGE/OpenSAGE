@@ -1,25 +1,24 @@
 ﻿#nullable enable
 
-namespace OpenSage.Logic.AI.AIStates
+namespace OpenSage.Logic.AI.AIStates;
+
+internal sealed class FollowWaypointsExactState : MoveTowardsState
 {
-    internal sealed class FollowWaypointsExactState : MoveTowardsState
+    private readonly bool _asTeam;
+
+    private uint _waypointId;
+
+    public FollowWaypointsExactState(AIUpdateStateMachine stateMachine, bool asTeam) : base(stateMachine)
     {
-        private readonly bool _asTeam;
+        _asTeam = asTeam;
+    }
 
-        private uint _waypointId;
+    public override void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-        public FollowWaypointsExactState(AIUpdateStateMachine stateMachine, bool asTeam) : base(stateMachine)
-        {
-            _asTeam = asTeam;
-        }
+        base.Persist(reader);
 
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            base.Persist(reader);
-
-            reader.PersistUInt32(ref _waypointId);
-        }
+        reader.PersistUInt32(ref _waypointId);
     }
 }

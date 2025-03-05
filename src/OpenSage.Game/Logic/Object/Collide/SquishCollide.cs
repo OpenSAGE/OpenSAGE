@@ -1,30 +1,29 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class SquishCollide : CollideModule
 {
-    public sealed class SquishCollide : CollideModule
+    // TODO
+
+    internal override void Load(StatePersister reader)
     {
-        // TODO
+        reader.PersistVersion(1);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
     }
+}
 
-    public sealed class SquishCollideModuleData : CollideModuleData
+public sealed class SquishCollideModuleData : CollideModuleData
+{
+    internal static SquishCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<SquishCollideModuleData> FieldParseTable = new IniParseTable<SquishCollideModuleData>();
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        internal static SquishCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<SquishCollideModuleData> FieldParseTable = new IniParseTable<SquishCollideModuleData>();
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new SquishCollide();
-        }
+        return new SquishCollide();
     }
 }

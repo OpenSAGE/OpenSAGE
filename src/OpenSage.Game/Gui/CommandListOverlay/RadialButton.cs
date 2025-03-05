@@ -6,170 +6,169 @@ using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
-namespace OpenSage.Gui.CommandListOverlay
+namespace OpenSage.Gui.CommandListOverlay;
+
+public class RadialButton
 {
-    public class RadialButton
+    private readonly GameObject _owner;
+    private readonly Game _game;
+    private readonly int _width;
+
+    private readonly MappedImage _background;
+    private readonly MappedImage _border;
+    private readonly MappedImage _hover;
+    private readonly MappedImage _down;
+
+    private Vector2 _center;
+
+    private bool _isHovered = false;
+    private bool _isPushed = false;
+
+    private readonly ObjectDefinition _objectDefinition;
+
+    private readonly Font _font;
+    private readonly int _fontSize = 11;
+    private readonly ColorRgbaF _fontColor;
+
+    private float _progress;
+    private int _count;
+    private bool _enabled;
+
+    private readonly Veldrid.Texture _alphaMask;
+    //private ControlBarScheme _scheme;
+
+    public readonly CommandButton CommandButton;
+    public bool IsVisible { get; set; }
+    public bool IsRecruitHeroButton { get; }
+
+    public RadialButton(Game game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
     {
-        private readonly GameObject _owner;
-        private readonly Game _game;
-        private readonly int _width;
+        _game = game;
+        _owner = owner;
+        CommandButton = commandButton;
+        _objectDefinition = commandButton.Object?.Value ?? null;
 
-        private readonly MappedImage _background;
-        private readonly MappedImage _border;
-        private readonly MappedImage _hover;
-        private readonly MappedImage _down;
+        IsRecruitHeroButton = isHeroButton;
 
-        private Vector2 _center;
+        _background = commandButton.ButtonImage.Value;
+        _border = _game.GetMappedImage("RadialBorder");
+        _hover = _game.GetMappedImage("RadialOver");
+        _down = _game.GetMappedImage("RadialPush");
 
-        private bool _isHovered = false;
-        private bool _isPushed = false;
+        _width = _border.Coords.Width;
 
-        private readonly ObjectDefinition _objectDefinition;
+        _fontColor = new ColorRgbaF(0, 0, 0, 1); // _game.AssetStore.InGameUI.Current.DrawableCaptionColor.ToColorRgbaF(); -> this is white -> conflicts with the progress clock
+        _fontSize = _game.AssetStore.InGameUI.Current.DrawableCaptionPointSize;
+        var fontWeight = _game.AssetStore.InGameUI.Current.DrawableCaptionBold ? FontWeight.Bold : FontWeight.Normal;
+        _font = _game.ContentManager.FontManager.GetOrCreateFont(_game.AssetStore.InGameUI.Current.DrawableCaptionFont, _fontSize, fontWeight);
 
-        private readonly Font _font;
-        private readonly int _fontSize = 11;
-        private readonly ColorRgbaF _fontColor;
+        _alphaMask = MappedImageUtility.CreateTexture(_game.GraphicsLoadContext, _game.GetMappedImage("RadialClockOverlay1"));
 
-        private float _progress;
-        private int _count;
-        private bool _enabled;
+        //_scheme = game.AssetStore.ControlBarSchemes.FindBySide(game.Scene3D.LocalPlayer.Side);
+    }
 
-        private readonly Veldrid.Texture _alphaMask;
-        //private ControlBarScheme _scheme;
+    public void Update(float progress, int count, bool enabled)
+    {
+        _isPushed = false;
+        _progress = progress;
+        _count = count;
+        _enabled = enabled;
+    }
 
-        public readonly CommandButton CommandButton;
-        public bool IsVisible { get; set; }
-        public bool IsRecruitHeroButton { get; }
+    public void Render(DrawingContext2D drawingContext, Vector2 center)
+    {
+        _center = center;
+        var rect = new RectangleF(center.X - _width / 2, center.Y - _width / 2, _width, _width);
+        drawingContext.DrawMappedImage(_background, RectangleF.Scale(rect, 0.9f), grayscaled: !_enabled);
 
-        public RadialButton(Game game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
+        if (_count > 0)
         {
-            _game = game;
-            _owner = owner;
-            CommandButton = commandButton;
-            _objectDefinition = commandButton.Object?.Value ?? null;
+            //drawingContext.SetAlphaMask(_alphaMask);
+            drawingContext.FillRectangleRadial360(
+                                    new Rectangle(rect),
+                                    new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f), //_scheme.BuildUpClockColor.ToColorRgbaF(),
+                                    _progress);
 
-            IsRecruitHeroButton = isHeroButton;
-
-            _background = commandButton.ButtonImage.Value;
-            _border = _game.GetMappedImage("RadialBorder");
-            _hover = _game.GetMappedImage("RadialOver");
-            _down = _game.GetMappedImage("RadialPush");
-
-            _width = _border.Coords.Width;
-
-            _fontColor = new ColorRgbaF(0, 0, 0, 1); // _game.AssetStore.InGameUI.Current.DrawableCaptionColor.ToColorRgbaF(); -> this is white -> conflicts with the progress clock
-            _fontSize = _game.AssetStore.InGameUI.Current.DrawableCaptionPointSize;
-            var fontWeight = _game.AssetStore.InGameUI.Current.DrawableCaptionBold ? FontWeight.Bold : FontWeight.Normal;
-            _font = _game.ContentManager.FontManager.GetOrCreateFont(_game.AssetStore.InGameUI.Current.DrawableCaptionFont, _fontSize, fontWeight);
-
-            _alphaMask = MappedImageUtility.CreateTexture(_game.GraphicsLoadContext, _game.GetMappedImage("RadialClockOverlay1"));
-
-            //_scheme = game.AssetStore.ControlBarSchemes.FindBySide(game.Scene3D.LocalPlayer.Side);
+            if (_count > 1)
+            {
+                var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 3))));
+                drawingContext.DrawText(_count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
+            }
+            //drawingContext.SetAlphaMask(null);
         }
 
-        public void Update(float progress, int count, bool enabled)
+        if (_isHovered && _enabled)
         {
-            _isPushed = false;
-            _progress = progress;
-            _count = count;
-            _enabled = enabled;
+            drawingContext.DrawMappedImage(_hover, rect);
         }
-
-        public void Render(DrawingContext2D drawingContext, Vector2 center)
+        else if (_isPushed && _enabled)
         {
-            _center = center;
-            var rect = new RectangleF(center.X - _width / 2, center.Y - _width / 2, _width, _width);
-            drawingContext.DrawMappedImage(_background, RectangleF.Scale(rect, 0.9f), grayscaled: !_enabled);
-
-            if (_count > 0)
-            {
-                //drawingContext.SetAlphaMask(_alphaMask);
-                drawingContext.FillRectangleRadial360(
-                                        new Rectangle(rect),
-                                        new ColorRgbaF(1.0f, 1.0f, 1.0f, 0.6f), //_scheme.BuildUpClockColor.ToColorRgbaF(),
-                                        _progress);
-
-                if (_count > 1)
-                {
-                    var textRect = new Rectangle(RectangleF.Transform(rect, Matrix3x2.CreateTranslation(new Vector2(0, rect.Width / 3))));
-                    drawingContext.DrawText(_count.ToString(), _font, TextAlignment.Center, _fontColor, textRect);
-                }
-                //drawingContext.SetAlphaMask(null);
-            }
-
-            if (_isHovered && _enabled)
-            {
-                drawingContext.DrawMappedImage(_hover, rect);
-            }
-            else if (_isPushed && _enabled)
-            {
-                drawingContext.DrawMappedImage(_down, rect);
-            }
-            else
-            {
-                drawingContext.DrawMappedImage(_border, rect);
-            }
+            drawingContext.DrawMappedImage(_down, rect);
         }
-
-        public bool HandleMouseCursor(InputMessage message)
+        else
         {
-            if (!IsVisible)
-            {
-                return false;
-            }
+            drawingContext.DrawMappedImage(_border, rect);
+        }
+    }
 
-            switch (message.MessageType)
-            {
-                case InputMessageType.MouseMove:
-                    var distance = (message.Value.MousePosition.ToVector2() - _center).Length();
-                    if (distance <= _width / 2)
-                    {
-                        _isHovered = true;
-                        return true;
-                    }
-                    _isHovered = false;
-                    break;
-                case InputMessageType.MouseLeftButtonUp:
-                    if (_isHovered)
-                    {
-                        if (_enabled)
-                        {
-                            CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition);
-                            _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
-                        }
-                        return true;
-                    }
-                    break;
-                case InputMessageType.MouseRightButtonUp:
-                    if (_isHovered)
-                    {
-                        if (_count > 0)
-                        {
-                            var index = 0;
-                            // upgrades first!!
-                            if (CommandButton.Upgrade != null && CommandButton.Upgrade.Value != null)
-                            {
-                                index = CommandButton.Upgrade.Value.InternalId;
-                            }
-                            else if (CommandButton.Object != null && CommandButton.Object.Value != null)
-                            {
-                                for (var i = 0; i < _owner.ProductionUpdate.ProductionQueue.Count; i++)
-                                {
-                                    var job = _owner.ProductionUpdate.ProductionQueue[i];
-                                    if (job.ObjectDefinition != null && job.ObjectDefinition.Name == CommandButton.Object.Value.Name)
-                                    {
-                                        index = i;
-                                    }
-                                }
-                            }
-
-                            CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition, true, index);
-                        }
-                        return true;
-                    }
-                    break;
-            }
+    public bool HandleMouseCursor(InputMessage message)
+    {
+        if (!IsVisible)
+        {
             return false;
         }
+
+        switch (message.MessageType)
+        {
+            case InputMessageType.MouseMove:
+                var distance = (message.Value.MousePosition.ToVector2() - _center).Length();
+                if (distance <= _width / 2)
+                {
+                    _isHovered = true;
+                    return true;
+                }
+                _isHovered = false;
+                break;
+            case InputMessageType.MouseLeftButtonUp:
+                if (_isHovered)
+                {
+                    if (_enabled)
+                    {
+                        CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition);
+                        _game.Audio.PlayAudioEvent("Gui_PalantirCommandButtonClick");
+                    }
+                    return true;
+                }
+                break;
+            case InputMessageType.MouseRightButtonUp:
+                if (_isHovered)
+                {
+                    if (_count > 0)
+                    {
+                        var index = 0;
+                        // upgrades first!!
+                        if (CommandButton.Upgrade != null && CommandButton.Upgrade.Value != null)
+                        {
+                            index = CommandButton.Upgrade.Value.InternalId;
+                        }
+                        else if (CommandButton.Object != null && CommandButton.Object.Value != null)
+                        {
+                            for (var i = 0; i < _owner.ProductionUpdate.ProductionQueue.Count; i++)
+                            {
+                                var job = _owner.ProductionUpdate.ProductionQueue[i];
+                                if (job.ObjectDefinition != null && job.ObjectDefinition.Name == CommandButton.Object.Value.Name)
+                                {
+                                    index = i;
+                                }
+                            }
+                        }
+
+                        CommandButtonCallback.HandleCommand(_game, CommandButton, _objectDefinition, true, index);
+                    }
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 }

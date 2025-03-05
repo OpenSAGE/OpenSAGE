@@ -1,44 +1,43 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+[AddedIn(SageGame.Bfme2)]
+public sealed class CameraAnimationList : Asset
 {
-    [AddedIn(SageGame.Bfme2)]
-    public sealed class CameraAnimationList : Asset
+    public const string AssetName = "CameraAnimationList";
+
+    public CameraAnimation[] Animations { get; private set; }
+
+    internal static CameraAnimationList Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "CameraAnimationList";
-
-        public CameraAnimation[] Animations { get; private set; }
-
-        internal static CameraAnimationList Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            var numAnimations = reader.ReadUInt32();
+            var animations = new CameraAnimation[numAnimations];
+
+            for (var i = 0; i < numAnimations; i++)
             {
-                var numAnimations = reader.ReadUInt32();
-                var animations = new CameraAnimation[numAnimations];
+                animations[i] = CameraAnimation.Parse(reader);
+            }
 
-                for (var i = 0; i < numAnimations; i++)
-                {
-                    animations[i] = CameraAnimation.Parse(reader);
-                }
+            return new CameraAnimationList
+            {
+                Animations = animations
+            };
+        });
+    }
 
-                return new CameraAnimationList
-                {
-                    Animations = animations
-                };
-            });
-        }
-
-        internal void WriteTo(BinaryWriter writer)
+    internal void WriteTo(BinaryWriter writer)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                writer.Write((uint) Animations.Length);
+            writer.Write((uint)Animations.Length);
 
-                foreach (var animation in Animations)
-                {
-                    animation.WriteTo(writer);
-                }
-            });
-        }
+            foreach (var animation in Animations)
+            {
+                animation.WriteTo(writer);
+            }
+        });
     }
 }

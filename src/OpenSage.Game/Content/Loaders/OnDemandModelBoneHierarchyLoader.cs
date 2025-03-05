@@ -2,40 +2,39 @@
 using OpenSage.Graphics;
 using OpenSage.IO;
 
-namespace OpenSage.Content.Loaders
+namespace OpenSage.Content.Loaders;
+
+internal sealed class OnDemandModelBoneHierarchyLoader : IOnDemandAssetLoader<ModelBoneHierarchy>
 {
-    internal sealed class OnDemandModelBoneHierarchyLoader : IOnDemandAssetLoader<ModelBoneHierarchy>
+    private readonly IPathResolver _pathResolver;
+
+    public OnDemandModelBoneHierarchyLoader(IPathResolver pathResolver)
     {
-        private readonly IPathResolver _pathResolver;
+        _pathResolver = pathResolver;
+    }
 
-        public OnDemandModelBoneHierarchyLoader(IPathResolver pathResolver)
+    public ModelBoneHierarchy Load(string name, AssetLoadContext context)
+    {
+        // Find it in the file system.
+        FileSystemEntry entry = null;
+        foreach (var path in _pathResolver.GetPaths(name, context.Language))
         {
-            _pathResolver = pathResolver;
+            entry = context.FileSystem.GetFile(path);
+            if (entry != null)
+            {
+                break;
+            }
         }
 
-        public ModelBoneHierarchy Load(string name, AssetLoadContext context)
+        // Load hierarchy.
+        W3dFile hierarchyFile;
+        using (var entryStream = entry.Open())
         {
-            // Find it in the file system.
-            FileSystemEntry entry = null;
-            foreach (var path in _pathResolver.GetPaths(name, context.Language))
-            {
-                entry = context.FileSystem.GetFile(path);
-                if (entry != null)
-                {
-                    break;
-                }
-            }
-
-            // Load hierarchy.
-            W3dFile hierarchyFile;
-            using (var entryStream = entry.Open())
-            {
-                hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
-            }
-            var w3dHierarchy = hierarchyFile.Hierarchy;
-            return w3dHierarchy != null
-                ? new ModelBoneHierarchy(w3dHierarchy)
-                : ModelBoneHierarchy.CreateDefault();
+            hierarchyFile = W3dFile.FromStream(entryStream, entry.FilePath);
         }
+        var w3dHierarchy = hierarchyFile.Hierarchy;
+        return w3dHierarchy != null
+            ? new ModelBoneHierarchy(w3dHierarchy)
+            : ModelBoneHierarchy.CreateDefault();
     }
 }

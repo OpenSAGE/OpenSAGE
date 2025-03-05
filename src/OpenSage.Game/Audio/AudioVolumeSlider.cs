@@ -1,26 +1,25 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Audio
+namespace OpenSage.Audio;
+
+[AddedIn(SageGame.Bfme)]
+public enum AudioVolumeSlider
 {
-    [AddedIn(SageGame.Bfme)]
-    public enum AudioVolumeSlider
-    {
-        [IniEnum("SOUNDFX")]
-        SoundFX,
+    [IniEnum("SOUNDFX")]
+    SoundFX,
 
-        [IniEnum("VOICE")]
-        Voice,
+    [IniEnum("VOICE")]
+    Voice,
 
-        [IniEnum("MUSIC")]
-        Music,
+    [IniEnum("MUSIC")]
+    Music,
 
-        [IniEnum("AMBIENT")]
-        Ambient,
+    [IniEnum("AMBIENT")]
+    Ambient,
 
-        [IniEnum("MOVIE")]
-        Movie,
+    [IniEnum("MOVIE")]
+    Movie,
 
-        [IniEnum("None"), AddedIn(SageGame.Bfme)]
-        None,
-    }
+    [IniEnum("None"), AddedIn(SageGame.Bfme)]
+    None,
 }

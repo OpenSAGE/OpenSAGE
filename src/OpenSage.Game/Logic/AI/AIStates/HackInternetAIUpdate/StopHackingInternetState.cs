@@ -1,57 +1,56 @@
-#nullable enable
+﻿#nullable enable
 
 using OpenSage.Logic.Object;
 
-namespace OpenSage.Logic.AI.AIStates
+namespace OpenSage.Logic.AI.AIStates;
+
+internal sealed class StopHackingInternetState : State
 {
-    internal sealed class StopHackingInternetState : State
+    public const uint StateId = 1002;
+
+    private readonly HackInternetAIUpdateStateMachine _stateMachine;
+
+    private LogicFrameSpan _framesUntilFinishedPacking;
+
+    public StopHackingInternetState(HackInternetAIUpdateStateMachine stateMachine) : base(stateMachine)
     {
-        public const uint StateId = 1002;
+        _stateMachine = stateMachine;
+    }
 
-        private readonly HackInternetAIUpdateStateMachine _stateMachine;
+    public override void OnEnter()
+    {
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
 
-        private LogicFrameSpan _framesUntilFinishedPacking;
+        Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
 
-        public StopHackingInternetState(HackInternetAIUpdateStateMachine stateMachine) : base(stateMachine)
+        var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.PackTime, Context);
+
+        GameObject.Drawable.SetAnimationDuration(frames);
+
+        _framesUntilFinishedPacking = frames;
+    }
+
+    public override UpdateStateResult Update()
+    {
+        if (_framesUntilFinishedPacking-- == LogicFrameSpan.Zero)
         {
-            _stateMachine = stateMachine;
+            return UpdateStateResult.TransitionToState(IdleState.StateId);
         }
 
-        public override void OnEnter()
-        {
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
+        return UpdateStateResult.Continue();
+    }
 
-            Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
+    public override void OnExit()
+    {
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
+    }
 
-            var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.PackTime, Context);
+    public override void Persist(StatePersister reader)
+    {
+        reader.PersistVersion(1);
 
-            GameObject.Drawable.SetAnimationDuration(frames);
-
-            _framesUntilFinishedPacking = frames;
-        }
-
-        public override UpdateStateResult Update()
-        {
-            if (_framesUntilFinishedPacking-- == LogicFrameSpan.Zero)
-            {
-                return UpdateStateResult.TransitionToState(IdleState.StateId);
-            }
-
-            return UpdateStateResult.Continue();
-        }
-
-        public override void OnExit()
-        {
-            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
-        }
-
-        public override void Persist(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.PersistLogicFrameSpan(ref _framesUntilFinishedPacking);
-        }
+        reader.PersistLogicFrameSpan(ref _framesUntilFinishedPacking);
     }
 }

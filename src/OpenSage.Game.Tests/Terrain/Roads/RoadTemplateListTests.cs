@@ -1,334 +1,333 @@
 ﻿using OpenSage.Terrain.Roads;
 using Xunit;
 
-namespace OpenSage.Tests.Terrain.Roads
+namespace OpenSage.Tests.Terrain.Roads;
+
+/// <summary>
+/// These tests verify that the road template orderings works as in the
+/// original engine. They are based on observations made in Worldbuilder
+/// (see the attached map files).
+///
+/// The order in which the roads are created is important!
+///
+/// Each call to <see cref="RoadTemplateList.HandleRoadJoin"/> corresponds
+/// to one click on the "Add end cap and/or Join to different road" checkbox
+/// for the given road, which changes the overall road template ordering.
+/// </summary>
+public class RoadTemplateListTests
 {
-    /// <summary>
-    /// These tests verify that the road template orderings works as in the
-    /// original engine. They are based on observations made in Worldbuilder
-    /// (see the attached map files).
-    ///
-    /// The order in which the roads are created is important!
-    ///
-    /// Each call to <see cref="RoadTemplateList.HandleRoadJoin"/> corresponds
-    /// to one click on the "Add end cap and/or Join to different road" checkbox
-    /// for the given road, which changes the overall road template ordering.
-    /// </summary>
-    public class RoadTemplateListTests
+    [Fact]
+    public void DarkOldDirtFourGravel()
     {
-        [Fact]
-        public void DarkOldDirtFourGravel()
+        var gravel = new RoadTemplate("GravelRoad");
+        var dirt = new RoadTemplate("DirtRoad");
+        var four = new RoadTemplate("FourLane");
+        var old = new RoadTemplate("TwoLaneOld");
+        var dark = new RoadTemplate("TwoLaneDark");
+
+        var templates = new[]
         {
-            var gravel = new RoadTemplate("GravelRoad");
-            var dirt = new RoadTemplate("DirtRoad");
-            var four = new RoadTemplate("FourLane");
-            var old = new RoadTemplate("TwoLaneOld");
-            var dark = new RoadTemplate("TwoLaneDark");
+            dark,
+            old,
+            four,
+            dirt,
+            gravel,
+        };
 
-            var templates = new[]
-            {
-                dark,
-                old,
-                four,
-                dirt,
-                gravel,
-            };
+        var roadTemplateList = new RoadTemplateList(templates);
 
-            var roadTemplateList = new RoadTemplateList(templates);
+        roadTemplateList.HandleRoadJoin(dark, old);
 
-            roadTemplateList.HandleRoadJoin(dark, old);
-
-            var expectedOrder = new[]
-            {
-                gravel,
-                dirt,
-                four,
-                old,
-                dark,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(old, dirt);
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(dirt, four);
-
-            expectedOrder = new[]
-            {
-                gravel,
-                four,
-                dirt,
-                old,
-                dark,
-            };
-
-            roadTemplateList.HandleRoadJoin(four, gravel);
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(gravel, dark);
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-        }
-
-        [Fact]
-        public void GravelFourDirtOldDark()
+        var expectedOrder = new[]
         {
-            var gravel = new RoadTemplate("GravelRoad");
-            var dirt = new RoadTemplate("DirtRoad");
-            var four = new RoadTemplate("FourLane");
-            var old = new RoadTemplate("TwoLaneOld");
-            var dark = new RoadTemplate("TwoLaneDark");
+            gravel,
+            dirt,
+            four,
+            old,
+            dark,
+        };
 
-            var templates = new[]
-            {
-                dark,
-                old,
-                four,
-                dirt,
-                gravel,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            var roadTemplateList = new RoadTemplateList(templates);
+        roadTemplateList.HandleRoadJoin(old, dirt);
 
-            roadTemplateList.HandleRoadJoin(gravel, dark);
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            var expectedOrder = new[]
-            {
-                dirt,
-                four,
-                old,
-                dark,
-                gravel,
-            };
+        roadTemplateList.HandleRoadJoin(dirt, four);
 
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(four, gravel);
-
-            expectedOrder = new[]
-            {
-                dirt,
-                old,
-                dark,
-                gravel,
-                four,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(dirt, four);
-
-            expectedOrder = new[]
-            {
-                old,
-                dark,
-                gravel,
-                four,
-                dirt,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(old, dirt);
-
-            expectedOrder = new[]
-            {
-                dark,
-                gravel,
-                four,
-                dirt,
-                old,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(dark, old);
-
-            expectedOrder = new[]
-            {
-                four,
-                dirt,
-                old,
-                dark,
-                gravel,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-        }
-
-        [Fact]
-        public void FourOldGravelDirtDark()
+        expectedOrder = new[]
         {
-            var gravel = new RoadTemplate("GravelRoad");
-            var dirt = new RoadTemplate("DirtRoad");
-            var four = new RoadTemplate("FourLane");
-            var old = new RoadTemplate("TwoLaneOld");
-            var dark = new RoadTemplate("TwoLaneDark");
+            gravel,
+            four,
+            dirt,
+            old,
+            dark,
+        };
 
-            var templates = new[]
-            {
-                dark,
-                old,
-                four,
-                dirt,
-                gravel,
-            };
+        roadTemplateList.HandleRoadJoin(four, gravel);
 
-            var roadTemplateList = new RoadTemplateList(templates);
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            roadTemplateList.HandleRoadJoin(four, gravel);
+        roadTemplateList.HandleRoadJoin(gravel, dark);
 
-            var expectedOrder = new[]
-            {
-                gravel,
-                dirt,
-                old,
-                dark,
-                four,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
+    }
 
-            Assert.Equal(expectedOrder, roadTemplateList);
+    [Fact]
+    public void GravelFourDirtOldDark()
+    {
+        var gravel = new RoadTemplate("GravelRoad");
+        var dirt = new RoadTemplate("DirtRoad");
+        var four = new RoadTemplate("FourLane");
+        var old = new RoadTemplate("TwoLaneOld");
+        var dark = new RoadTemplate("TwoLaneDark");
 
-            roadTemplateList.HandleRoadJoin(old, dirt);
-
-            expectedOrder = new[]
-            {
-                gravel,
-                dirt,
-                dark,
-                four,
-                old,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(gravel, dark);
-
-            expectedOrder = new[]
-            {
-                dirt,
-                dark,
-                old,
-                gravel,
-                four,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(dirt, four);
-
-            expectedOrder = new[]
-            {
-                dark,
-                gravel,
-                four,
-                dirt,
-                old,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-
-            roadTemplateList.HandleRoadJoin(dark, old);
-
-            expectedOrder = new[]
-            {
-                dirt,
-                old,
-                dark,
-                gravel,
-                four,
-            };
-
-            Assert.Equal(expectedOrder, roadTemplateList);
-        }
-
-        [Fact]
-        public void DarkDirtGravelOldFour()
+        var templates = new[]
         {
-            var gravel = new RoadTemplate("GravelRoad");
-            var dirt = new RoadTemplate("DirtRoad");
-            var four = new RoadTemplate("FourLane");
-            var old = new RoadTemplate("TwoLaneOld");
-            var dark = new RoadTemplate("TwoLaneDark");
+            dark,
+            old,
+            four,
+            dirt,
+            gravel,
+        };
 
-            var templates = new[]
-            {
-                dark,
-                old,
-                four,
-                dirt,
-                gravel,
-            };
+        var roadTemplateList = new RoadTemplateList(templates);
 
-            var roadTemplateList = new RoadTemplateList(templates);
+        roadTemplateList.HandleRoadJoin(gravel, dark);
 
-            roadTemplateList.HandleRoadJoin(dark, old);
+        var expectedOrder = new[]
+        {
+            dirt,
+            four,
+            old,
+            dark,
+            gravel,
+        };
 
-            var expectedOrder = new[]
-            {
-                gravel,
-                dirt,
-                four,
-                old,
-                dark,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            Assert.Equal(expectedOrder, roadTemplateList);
+        roadTemplateList.HandleRoadJoin(four, gravel);
 
-            roadTemplateList.HandleRoadJoin(dirt, four);
+        expectedOrder = new[]
+        {
+            dirt,
+            old,
+            dark,
+            gravel,
+            four,
+        };
 
-            expectedOrder = new[]
-            {
-                gravel,
-                four,
-                old,
-                dark,
-                dirt,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            Assert.Equal(expectedOrder, roadTemplateList);
+        roadTemplateList.HandleRoadJoin(dirt, four);
 
-            roadTemplateList.HandleRoadJoin(gravel, dark);
+        expectedOrder = new[]
+        {
+            old,
+            dark,
+            gravel,
+            four,
+            dirt,
+        };
 
-            expectedOrder = new[]
-            {
-                four,
-                old,
-                dark,
-                dirt,
-                gravel,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            Assert.Equal(expectedOrder, roadTemplateList);
+        roadTemplateList.HandleRoadJoin(old, dirt);
 
-            roadTemplateList.HandleRoadJoin(old, dirt);
+        expectedOrder = new[]
+        {
+            dark,
+            gravel,
+            four,
+            dirt,
+            old,
+        };
 
-            expectedOrder = new[]
-            {
-                four,
-                dirt,
-                gravel,
-                old,
-                dark,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
 
-            Assert.Equal(expectedOrder, roadTemplateList);
+        roadTemplateList.HandleRoadJoin(dark, old);
 
-            roadTemplateList.HandleRoadJoin(four, gravel);
+        expectedOrder = new[]
+        {
+            four,
+            dirt,
+            old,
+            dark,
+            gravel,
+        };
 
-            expectedOrder = new[]
-            {
-                gravel,
-                old,
-                dark,
-                four,
-                dirt,
-            };
+        Assert.Equal(expectedOrder, roadTemplateList);
+    }
 
-            Assert.Equal(expectedOrder, roadTemplateList);
-        }
+    [Fact]
+    public void FourOldGravelDirtDark()
+    {
+        var gravel = new RoadTemplate("GravelRoad");
+        var dirt = new RoadTemplate("DirtRoad");
+        var four = new RoadTemplate("FourLane");
+        var old = new RoadTemplate("TwoLaneOld");
+        var dark = new RoadTemplate("TwoLaneDark");
+
+        var templates = new[]
+        {
+            dark,
+            old,
+            four,
+            dirt,
+            gravel,
+        };
+
+        var roadTemplateList = new RoadTemplateList(templates);
+
+        roadTemplateList.HandleRoadJoin(four, gravel);
+
+        var expectedOrder = new[]
+        {
+            gravel,
+            dirt,
+            old,
+            dark,
+            four,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(old, dirt);
+
+        expectedOrder = new[]
+        {
+            gravel,
+            dirt,
+            dark,
+            four,
+            old,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(gravel, dark);
+
+        expectedOrder = new[]
+        {
+            dirt,
+            dark,
+            old,
+            gravel,
+            four,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(dirt, four);
+
+        expectedOrder = new[]
+        {
+            dark,
+            gravel,
+            four,
+            dirt,
+            old,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(dark, old);
+
+        expectedOrder = new[]
+        {
+            dirt,
+            old,
+            dark,
+            gravel,
+            four,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+    }
+
+    [Fact]
+    public void DarkDirtGravelOldFour()
+    {
+        var gravel = new RoadTemplate("GravelRoad");
+        var dirt = new RoadTemplate("DirtRoad");
+        var four = new RoadTemplate("FourLane");
+        var old = new RoadTemplate("TwoLaneOld");
+        var dark = new RoadTemplate("TwoLaneDark");
+
+        var templates = new[]
+        {
+            dark,
+            old,
+            four,
+            dirt,
+            gravel,
+        };
+
+        var roadTemplateList = new RoadTemplateList(templates);
+
+        roadTemplateList.HandleRoadJoin(dark, old);
+
+        var expectedOrder = new[]
+        {
+            gravel,
+            dirt,
+            four,
+            old,
+            dark,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(dirt, four);
+
+        expectedOrder = new[]
+        {
+            gravel,
+            four,
+            old,
+            dark,
+            dirt,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(gravel, dark);
+
+        expectedOrder = new[]
+        {
+            four,
+            old,
+            dark,
+            dirt,
+            gravel,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(old, dirt);
+
+        expectedOrder = new[]
+        {
+            four,
+            dirt,
+            gravel,
+            old,
+            dark,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
+
+        roadTemplateList.HandleRoadJoin(four, gravel);
+
+        expectedOrder = new[]
+        {
+            gravel,
+            old,
+            dark,
+            four,
+            dirt,
+        };
+
+        Assert.Equal(expectedOrder, roadTemplateList);
     }
 }

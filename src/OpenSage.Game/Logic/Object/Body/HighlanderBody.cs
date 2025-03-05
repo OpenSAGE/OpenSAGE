@@ -1,59 +1,58 @@
 ﻿using FixedMath.NET;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class HighlanderBody : ActiveBody
 {
-    public sealed class HighlanderBody : ActiveBody
+    internal HighlanderBody(GameObject gameObject, GameContext context, HighlanderBodyModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        internal HighlanderBody(GameObject gameObject, GameContext context, HighlanderBodyModuleData moduleData)
-            : base(gameObject, context, moduleData)
-        {
-        }
+    }
 
-        public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
+    public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
+    {
+        // TODO: Don't think this is right.
+        if (damageType == DamageType.Unresistable)
         {
-            // TODO: Don't think this is right.
-            if (damageType == DamageType.Unresistable)
+            Health -= amount;
+
+            if (Health < (Fix64)0)
             {
-                Health -= amount;
-
-                if (Health < (Fix64)0)
-                {
-                    Health = (Fix64) 0;
-                }
-
-                // TODO: DamageFX
-
-                if (Health <= Fix64.Zero)
-                {
-                    GameObject.Die(deathType);
-                }
+                Health = (Fix64)0;
             }
-        }
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+            // TODO: DamageFX
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+            if (Health <= Fix64.Zero)
+            {
+                GameObject.Die(deathType);
+            }
         }
     }
 
-    /// <summary>
-    /// Allows the object to take damage but not die. The object will only die from irresistable damage.
-    /// </summary>
-    public sealed class HighlanderBodyModuleData : ActiveBodyModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static new HighlanderBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<HighlanderBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
-            .Concat(new IniParseTable<HighlanderBodyModuleData>());
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new HighlanderBody(gameObject, context, this);
-        }
+/// <summary>
+/// Allows the object to take damage but not die. The object will only die from irresistable damage.
+/// </summary>
+public sealed class HighlanderBodyModuleData : ActiveBodyModuleData
+{
+    internal static new HighlanderBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static new readonly IniParseTable<HighlanderBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
+        .Concat(new IniParseTable<HighlanderBodyModuleData>());
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new HighlanderBody(gameObject, context, this);
     }
 }

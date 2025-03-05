@@ -3,57 +3,56 @@
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
 
-namespace OpenSage.Gui.Wnd.Images
+namespace OpenSage.Gui.Wnd.Images;
+
+public sealed class ImageLoader
 {
-    public sealed class ImageLoader
+    private readonly ImageTextureCache _textureCache;
+
+    internal ImageLoader(ImageTextureCache textureCache)
     {
-        private readonly ImageTextureCache _textureCache;
+        _textureCache = textureCache;
+    }
 
-        internal ImageLoader(ImageTextureCache textureCache)
+    public Image? CreateFromMappedImageReference(LazyAssetReference<MappedImage>? mappedImageReference)
+    {
+        var mappedImage = mappedImageReference?.Value;
+        if (mappedImage != null)
         {
-            _textureCache = textureCache;
+            return new Image(mappedImage.Name, new MappedImageSource(mappedImage, _textureCache));
         }
-
-        public Image? CreateFromMappedImageReference(LazyAssetReference<MappedImage>? mappedImageReference)
+        else
         {
-            var mappedImage = mappedImageReference?.Value;
-            if (mappedImage != null)
-            {
-                return new Image(mappedImage.Name, new MappedImageSource(mappedImage, _textureCache));
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public Image? CreateFromWndDrawData(WndDrawData wndDrawData, int index)
+    public Image? CreateFromWndDrawData(WndDrawData wndDrawData, int index)
+    {
+        return CreateFromMappedImageReference(wndDrawData.Items[index].Image);
+    }
+
+    public Image? CreateFromStretchableWndDrawData(WndDrawData wndDrawData, int leftIndex, int middleIndex, int rightIndex)
+    {
+        var leftImage = wndDrawData.Items[leftIndex].Image?.Value;
+        var middleImage = wndDrawData.Items[middleIndex].Image?.Value;
+        var rightImage = wndDrawData.Items[rightIndex].Image?.Value;
+
+        if (leftImage != null &&
+            middleImage != null &&
+            rightImage != null)
         {
-            return CreateFromMappedImageReference(wndDrawData.Items[index].Image);
+            return new Image(
+                $"{leftImage.Name}:{middleImage.Name}:{rightImage.Name}",
+                new StretchableMappedImageSource(leftImage, middleImage, rightImage, _textureCache));
         }
-
-        public Image? CreateFromStretchableWndDrawData(WndDrawData wndDrawData, int leftIndex, int middleIndex, int rightIndex)
+        else if (leftImage != null)
         {
-            var leftImage = wndDrawData.Items[leftIndex].Image?.Value;
-            var middleImage = wndDrawData.Items[middleIndex].Image?.Value;
-            var rightImage = wndDrawData.Items[rightIndex].Image?.Value;
-
-            if (leftImage != null &&
-                middleImage != null &&
-                rightImage != null)
-            {
-                return new Image(
-                    $"{leftImage.Name}:{middleImage.Name}:{rightImage.Name}",
-                    new StretchableMappedImageSource(leftImage, middleImage, rightImage, _textureCache));
-            }
-            else if (leftImage != null)
-            {
-                return CreateFromMappedImageReference(wndDrawData.Items[leftIndex].Image);
-            }
-            else
-            {
-                return null;
-            }
+            return CreateFromMappedImageReference(wndDrawData.Items[leftIndex].Image);
+        }
+        else
+        {
+            return null;
         }
     }
 }

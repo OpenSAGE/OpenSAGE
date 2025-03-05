@@ -1,8 +1,7 @@
-﻿namespace OpenSage.Terrain.Roads
+﻿namespace OpenSage.Terrain.Roads;
+
+internal interface ISimpleRoadSegment : IRoadSegment
 {
-    internal interface ISimpleRoadSegment : IRoadSegment
-    {
-        RoadSegmentEndPoint Start { get; }
-        RoadSegmentEndPoint End { get; }
-    }
+    RoadSegmentEndPoint Start { get; }
+    RoadSegmentEndPoint End { get; }
 }

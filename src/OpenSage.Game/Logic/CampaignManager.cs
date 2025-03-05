@@ -1,36 +1,35 @@
-﻿namespace OpenSage.Logic
+﻿namespace OpenSage.Logic;
+
+public sealed class CampaignManager : IPersistableObject
 {
-    public sealed class CampaignManager : IPersistableObject
+    public string CampaignName;
+    public string MissionName;
+
+    private uint _unknown;
+    private uint _difficultyMaybe;
+
+    private bool _unknownBool1;
+    private bool _unknownBool2;
+
+    public void Persist(StatePersister reader)
     {
-        public string CampaignName;
-        public string MissionName;
+        var version = reader.PersistVersion(5);
 
-        private uint _unknown;
-        private uint _difficultyMaybe;
+        reader.PersistAsciiString(ref CampaignName);
+        reader.PersistAsciiString(ref MissionName);
+        reader.PersistUInt32(ref _unknown);
+        reader.PersistUInt32(ref _difficultyMaybe);
 
-        private bool _unknownBool1;
-        private bool _unknownBool2;
-
-        public void Persist(StatePersister reader)
+        if (version >= 5)
         {
-            var version = reader.PersistVersion(5);
+            reader.PersistBoolean(ref _unknownBool1);
 
-            reader.PersistAsciiString(ref CampaignName);
-            reader.PersistAsciiString(ref MissionName);
-            reader.PersistUInt32(ref _unknown);
-            reader.PersistUInt32(ref _difficultyMaybe);
+            reader.SkipUnknownBytes(4);
+        }
 
-            if (version >= 5)
-            {
-                reader.PersistBoolean(ref _unknownBool1);
-
-                reader.SkipUnknownBytes(4);
-            }
-
-            if (version == 1 && reader.SageGame >= SageGame.Bfme)
-            {
-                reader.PersistBoolean(ref _unknownBool2);
-            }
+        if (version == 1 && reader.SageGame >= SageGame.Bfme)
+        {
+            reader.PersistBoolean(ref _unknownBool2);
         }
     }
 }

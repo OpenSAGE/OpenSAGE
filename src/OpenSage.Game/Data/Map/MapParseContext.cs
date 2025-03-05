@@ -1,40 +1,39 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+internal sealed class MapParseContext
 {
-    internal sealed class MapParseContext
+    private readonly Stack<AssetStackEntry> _assetParsingStack;
+    private readonly AssetNameCollection _assetNames;
+
+    public MapParseContext(AssetNameCollection assetNames)
     {
-        private readonly Stack<AssetStackEntry> _assetParsingStack;
-        private readonly AssetNameCollection _assetNames;
+        _assetParsingStack = new Stack<AssetStackEntry>();
+        _assetNames = assetNames;
+    }
 
-        public MapParseContext(AssetNameCollection assetNames)
+    public string GetAssetName(uint assetIndex) => _assetNames.GetAssetName(assetIndex);
+
+    public long CurrentEndPosition => _assetParsingStack.Peek().EndPosition;
+
+    public void PushAsset(string assetType, long endPosition)
+    {
+        _assetParsingStack.Push(new AssetStackEntry
         {
-            _assetParsingStack = new Stack<AssetStackEntry>();
-            _assetNames = assetNames;
-        }
+            AssetType = assetType,
+            EndPosition = endPosition
+        });
+    }
 
-        public string GetAssetName(uint assetIndex) => _assetNames.GetAssetName(assetIndex);
+    public void PopAsset()
+    {
+        _assetParsingStack.Pop();
+    }
 
-        public long CurrentEndPosition => _assetParsingStack.Peek().EndPosition;
-
-        public void PushAsset(string assetType, long endPosition)
-        {
-            _assetParsingStack.Push(new AssetStackEntry
-            {
-                AssetType = assetType,
-                EndPosition = endPosition
-            });
-        }
-
-        public void PopAsset()
-        {
-            _assetParsingStack.Pop();
-        }
-
-        private struct AssetStackEntry
-        {
-            public string AssetType;
-            public long EndPosition;
-        }
+    private struct AssetStackEntry
+    {
+        public string AssetType;
+        public long EndPosition;
     }
 }

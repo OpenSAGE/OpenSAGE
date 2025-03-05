@@ -1,62 +1,61 @@
 ﻿using System;
 using System.Text;
 
-namespace OpenSage.Logic.Orders
+namespace OpenSage.Logic.Orders;
+
+public sealed class OrderArgument
 {
-    public sealed class OrderArgument
+    public OrderArgumentType ArgumentType { get; }
+    public readonly OrderArgumentValue Value;
+
+    internal OrderArgument(
+        OrderArgumentType argumentType,
+        in OrderArgumentValue value)
     {
-        public OrderArgumentType ArgumentType { get; }
-        public readonly OrderArgumentValue Value;
+        ArgumentType = argumentType;
+        Value = value;
+    }
 
-        internal OrderArgument(
-            OrderArgumentType argumentType,
-            in OrderArgumentValue value)
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append(ArgumentType);
+        sb.Append(":");
+
+        switch (ArgumentType)
         {
-            ArgumentType = argumentType;
-            Value = value;
+            case OrderArgumentType.Integer:
+                sb.Append(Value.Integer.ToString());
+                break;
+
+            case OrderArgumentType.Float:
+                sb.Append(Value.Float.ToString());
+                break;
+
+            case OrderArgumentType.Boolean:
+                sb.Append(Value.Boolean.ToString());
+                break;
+
+            case OrderArgumentType.ObjectId:
+                sb.Append(Value.ObjectId.ToString());
+                break;
+
+            case OrderArgumentType.Position:
+                sb.Append(Value.Position.ToString());
+                break;
+
+            case OrderArgumentType.ScreenPosition:
+                sb.Append(Value.ScreenPosition.ToString());
+                break;
+
+            case OrderArgumentType.ScreenRectangle:
+                sb.Append(Value.ScreenRectangle.ToString());
+                break;
+
+            default:
+                throw new InvalidOperationException();
         }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(ArgumentType);
-            sb.Append(":");
-
-            switch (ArgumentType)
-            {
-                case OrderArgumentType.Integer:
-                    sb.Append(Value.Integer.ToString());
-                    break;
-
-                case OrderArgumentType.Float:
-                    sb.Append(Value.Float.ToString());
-                    break;
-
-                case OrderArgumentType.Boolean:
-                    sb.Append(Value.Boolean.ToString());
-                    break;
-
-                case OrderArgumentType.ObjectId:
-                    sb.Append(Value.ObjectId.ToString());
-                    break;
-
-                case OrderArgumentType.Position:
-                    sb.Append(Value.Position.ToString());
-                    break;
-
-                case OrderArgumentType.ScreenPosition:
-                    sb.Append(Value.ScreenPosition.ToString());
-                    break;
-
-                case OrderArgumentType.ScreenRectangle:
-                    sb.Append(Value.ScreenRectangle.ToString());
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            return sb.ToString();
-        }
+        return sb.ToString();
     }
 }

@@ -1,16 +1,15 @@
-﻿namespace OpenSage.Input
+﻿namespace OpenSage.Input;
+
+public enum InputMessageType
 {
-    public enum InputMessageType
-    {
-        KeyDown,
-        KeyUp,
-        MouseLeftButtonDown,
-        MouseLeftButtonUp,
-        MouseMiddleButtonDown,
-        MouseMiddleButtonUp,
-        MouseRightButtonDown,
-        MouseRightButtonUp,
-        MouseMove,
-        MouseWheel
-    }
+    KeyDown,
+    KeyUp,
+    MouseLeftButtonDown,
+    MouseLeftButtonUp,
+    MouseMiddleButtonDown,
+    MouseMiddleButtonUp,
+    MouseRightButtonDown,
+    MouseRightButtonUp,
+    MouseMove,
+    MouseWheel
 }

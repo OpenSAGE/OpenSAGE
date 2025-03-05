@@ -4,37 +4,36 @@ using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Controls;
 
-namespace OpenSage.Gui.Wnd.Transitions
+namespace OpenSage.Gui.Wnd.Transitions;
+
+internal sealed class WindowTransitionState
 {
-    internal sealed class WindowTransitionState
+    private readonly List<WindowTransitionOperation> _operations;
+
+    public TimeSpan LastEndTime { get; }
+
+    public WindowTransitionState(Window window, WindowTransition transition, TimeSpan currentTime)
     {
-        private readonly List<WindowTransitionOperation> _operations;
+        _operations = transition.Windows
+            .Select(x => WindowTransitionOperation.Create(window, x, currentTime))
+            .ToList();
 
-        public TimeSpan LastEndTime { get; }
+        LastEndTime = _operations.Max(x => x.EndTime);
+    }
 
-        public WindowTransitionState(Window window, WindowTransition transition, TimeSpan currentTime)
+    public void Update(TimeSpan currentTime)
+    {
+        foreach (var operation in _operations)
         {
-            _operations = transition.Windows
-                .Select(x => WindowTransitionOperation.Create(window, x, currentTime))
-                .ToList();
-
-            LastEndTime = _operations.Max(x => x.EndTime);
+            operation.Update(currentTime);
         }
+    }
 
-        public void Update(TimeSpan currentTime)
+    public void Finish()
+    {
+        foreach (var operation in _operations)
         {
-            foreach (var operation in _operations)
-            {
-                operation.Update(currentTime);
-            }
-        }
-
-        public void Finish()
-        {
-            foreach (var operation in _operations)
-            {
-                operation.Finish();
-            }
+            operation.Finish();
         }
     }
 }

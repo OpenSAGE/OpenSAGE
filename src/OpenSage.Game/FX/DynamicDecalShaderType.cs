@@ -1,11 +1,10 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.FX
+namespace OpenSage.FX;
+
+[AddedIn(SageGame.Bfme2)]
+public enum DynamicDecalShaderType
 {
-    [AddedIn(SageGame.Bfme2)]
-    public enum DynamicDecalShaderType
-    {
-        [IniEnum("ADDITIVE")]
-        Additive
-    }
+    [IniEnum("ADDITIVE")]
+    Additive
 }

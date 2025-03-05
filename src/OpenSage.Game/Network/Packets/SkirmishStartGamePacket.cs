@@ -1,7 +1,6 @@
-﻿namespace OpenSage.Network.Packets
+﻿namespace OpenSage.Network.Packets;
+
+public class SkirmishStartGamePacket
 {
-    public class SkirmishStartGamePacket
-    {
-        public int Seed { get; set; }
-    }
+    public int Seed { get; set; }
 }

@@ -173,7 +173,7 @@ public class QuadtreeNode<T> where T : class, ICollidable
 
     private void GenerateChildren()
     {
-        var halfSize =  RectangleF.Scale(_originalSize, 0.5f);
+        var halfSize = RectangleF.Scale(_originalSize, 0.5f);
 
         var halfWidth = halfSize.Width;
         var halfHeight = halfSize.Height;

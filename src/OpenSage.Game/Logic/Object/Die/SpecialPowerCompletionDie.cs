@@ -1,17 +1,16 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class SpecialPowerCompletionDieModuleData : DieModuleData
 {
-    public sealed class SpecialPowerCompletionDieModuleData : DieModuleData
-    {
-        internal static SpecialPowerCompletionDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+    internal static SpecialPowerCompletionDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SpecialPowerCompletionDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
-            .Concat(new IniParseTable<SpecialPowerCompletionDieModuleData>
-            {
-                { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() }
-            });
+    private static new readonly IniParseTable<SpecialPowerCompletionDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+        .Concat(new IniParseTable<SpecialPowerCompletionDieModuleData>
+        {
+            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() }
+        });
 
-        public string SpecialPowerTemplate { get; private set; }
-    }
+    public string SpecialPowerTemplate { get; private set; }
 }

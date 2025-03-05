@@ -1,44 +1,43 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+[AddedIn(SageGame.Bfme2)]
+public sealed class TriggerAreas : Asset
 {
-    [AddedIn(SageGame.Bfme2)]
-    public sealed class TriggerAreas : Asset
+    public const string AssetName = "TriggerAreas";
+
+    public TriggerArea[] Areas { get; private set; }
+
+    internal static TriggerAreas Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "TriggerAreas";
-
-        public TriggerArea[] Areas { get; private set; }
-
-        internal static TriggerAreas Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            var numTriggers = reader.ReadUInt32();
+            var triggers = new TriggerArea[numTriggers];
+
+            for (var i = 0; i < numTriggers; i++)
             {
-                var numTriggers = reader.ReadUInt32();
-                var triggers = new TriggerArea[numTriggers];
+                triggers[i] = TriggerArea.Parse(reader);
+            }
 
-                for (var i = 0; i < numTriggers; i++)
-                {
-                    triggers[i] = TriggerArea.Parse(reader);
-                }
+            return new TriggerAreas
+            {
+                Areas = triggers
+            };
+        });
+    }
 
-                return new TriggerAreas
-                {
-                    Areas = triggers
-                };
-            });
-        }
-
-        internal void WriteTo(BinaryWriter writer)
+    internal void WriteTo(BinaryWriter writer)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                writer.Write((uint) Areas.Length);
+            writer.Write((uint)Areas.Length);
 
-                foreach (var trigger in Areas)
-                {
-                    trigger.WriteTo(writer);
-                }
-            });
-        }
+            foreach (var trigger in Areas)
+            {
+                trigger.WriteTo(writer);
+            }
+        });
     }
 }

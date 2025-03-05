@@ -1,48 +1,47 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class CleanupAreaPower : SpecialPowerModule
 {
-    public sealed class CleanupAreaPower : SpecialPowerModule
+    internal CleanupAreaPower(GameObject gameObject, GameContext context, CleanupAreaPowerModuleData moduleData) : base(gameObject, context, moduleData)
     {
-        internal CleanupAreaPower(GameObject gameObject, GameContext context, CleanupAreaPowerModuleData moduleData) : base(gameObject, context, moduleData)
-        {
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            // no idea what these are for
-            byte unknown1 = 0;
-            reader.PersistByte(ref unknown1);
-            byte unknown2 = 0;
-            reader.PersistByte(ref unknown2);
-            byte unknown3 = 0;
-            reader.PersistByte(ref unknown3);
-
-            reader.SkipUnknownBytes(14);
-        }
     }
 
-    public sealed class CleanupAreaPowerModuleData : SpecialPowerModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static new CleanupAreaPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<CleanupAreaPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
-            .Concat(new IniParseTable<CleanupAreaPowerModuleData>
-            {
-                { "MaxMoveDistanceFromLocation", (parser, x) => x.MaxMoveDistanceFromLocation = parser.ParseFloat() }
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        public float MaxMoveDistanceFromLocation { get; private set; }
+        // no idea what these are for
+        byte unknown1 = 0;
+        reader.PersistByte(ref unknown1);
+        byte unknown2 = 0;
+        reader.PersistByte(ref unknown2);
+        byte unknown3 = 0;
+        reader.PersistByte(ref unknown3);
 
-        internal override CleanupAreaPower CreateModule(GameObject gameObject, GameContext context)
+        reader.SkipUnknownBytes(14);
+    }
+}
+
+public sealed class CleanupAreaPowerModuleData : SpecialPowerModuleData
+{
+    internal static new CleanupAreaPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static new readonly IniParseTable<CleanupAreaPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+        .Concat(new IniParseTable<CleanupAreaPowerModuleData>
         {
-            return new CleanupAreaPower(gameObject, context, this);
-        }
+            { "MaxMoveDistanceFromLocation", (parser, x) => x.MaxMoveDistanceFromLocation = parser.ParseFloat() }
+        });
+
+    public float MaxMoveDistanceFromLocation { get; private set; }
+
+    internal override CleanupAreaPower CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new CleanupAreaPower(gameObject, context, this);
     }
 }

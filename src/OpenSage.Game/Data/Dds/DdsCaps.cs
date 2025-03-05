@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace OpenSage.Data.Dds
+namespace OpenSage.Data.Dds;
+
+[Flags]
+public enum DdsCaps : uint
 {
-    [Flags]
-    public enum DdsCaps : uint
-    {
-        Complex = 0x8,
-        MipMap = 0x400000,
-        Texture = 0x1000
-    }
+    Complex = 0x8,
+    MipMap = 0x400000,
+    Texture = 0x1000
 }

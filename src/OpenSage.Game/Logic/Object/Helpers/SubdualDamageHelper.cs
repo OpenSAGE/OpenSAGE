@@ -1,16 +1,15 @@
-﻿namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers;
+
+internal sealed class SubdualDamageHelper : ObjectHelperModule
 {
-    internal sealed class SubdualDamageHelper : ObjectHelperModule
+    internal override void Load(StatePersister reader)
     {
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
+        reader.PersistVersion(1);
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-            reader.SkipUnknownBytes(4);
-        }
+        reader.SkipUnknownBytes(4);
     }
 }

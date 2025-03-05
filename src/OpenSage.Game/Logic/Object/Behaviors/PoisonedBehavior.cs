@@ -1,48 +1,47 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public sealed class PoisonedBehavior : UpdateModule
 {
-    public sealed class PoisonedBehavior : UpdateModule
+    private uint _unknown;
+
+    internal override void Load(StatePersister reader)
     {
-        private uint _unknown;
+        reader.PersistVersion(2);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(2);
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
+        reader.SkipUnknownBytes(12);
 
-            reader.SkipUnknownBytes(12);
-
-            reader.PersistUInt32(ref _unknown);
-        }
+        reader.PersistUInt32(ref _unknown);
     }
+}
 
-    public sealed class PoisonedBehaviorModuleData : UpdateModuleData
+public sealed class PoisonedBehaviorModuleData : UpdateModuleData
+{
+    internal static PoisonedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+    private static readonly IniParseTable<PoisonedBehaviorModuleData> FieldParseTable = new IniParseTable<PoisonedBehaviorModuleData>
     {
-        internal static PoisonedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "PoisonDamageInterval", (parser, x) => x.PoisonDamageInterval = parser.ParseInteger() },
+        { "PoisonDuration", (parser, x) => x.PoisonDuration = parser.ParseInteger() }
+    };
 
-        private static readonly IniParseTable<PoisonedBehaviorModuleData> FieldParseTable = new IniParseTable<PoisonedBehaviorModuleData>
-        {
-            { "PoisonDamageInterval", (parser, x) => x.PoisonDamageInterval = parser.ParseInteger() },
-            { "PoisonDuration", (parser, x) => x.PoisonDuration = parser.ParseInteger() }
-        };
+    /// <summary>
+    /// Frequency (in milliseconds) to apply poison damage.
+    /// </summary>
+    public int PoisonDamageInterval { get; private set; }
 
-        /// <summary>
-        /// Frequency (in milliseconds) to apply poison damage.
-        /// </summary>
-        public int PoisonDamageInterval { get; private set; }
+    /// <summary>
+    /// Amount of time to continue being damaged after last hit by poison damage.
+    /// </summary>
+    public int PoisonDuration { get; private set; }
 
-        /// <summary>
-        /// Amount of time to continue being damaged after last hit by poison damage.
-        /// </summary>
-        public int PoisonDuration { get; private set; }
-
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
-        {
-            return new PoisonedBehavior();
-        }
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new PoisonedBehavior();
     }
 }

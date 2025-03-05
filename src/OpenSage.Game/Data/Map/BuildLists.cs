@@ -1,43 +1,42 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class BuildLists : Asset
 {
-    public sealed class BuildLists : Asset
+    public const string AssetName = "BuildLists";
+
+    public BuildList[] Items { get; private set; }
+
+    internal static BuildLists Parse(BinaryReader reader, MapParseContext context, bool mapHasAssetList)
     {
-        public const string AssetName = "BuildLists";
-
-        public BuildList[] Items { get; private set; }
-
-        internal static BuildLists Parse(BinaryReader reader, MapParseContext context, bool mapHasAssetList)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            var numBuildLists = reader.ReadUInt32();
+            var buildLists = new BuildList[numBuildLists];
+
+            for (var i = 0; i < numBuildLists; i++)
             {
-                var numBuildLists = reader.ReadUInt32();
-                var buildLists = new BuildList[numBuildLists];
-                
-                for (var i = 0; i < numBuildLists; i++)
-                {
-                    buildLists[i] = BuildList.Parse(reader, context, version, mapHasAssetList);
-                }
+                buildLists[i] = BuildList.Parse(reader, context, version, mapHasAssetList);
+            }
 
-                return new BuildLists
-                {
-                    Items = buildLists
-                };
-            });
-        }
+            return new BuildLists
+            {
+                Items = buildLists
+            };
+        });
+    }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, bool mapHasAssetList)
+    internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, bool mapHasAssetList)
+    {
+        WriteAssetTo(writer, () =>
         {
-            WriteAssetTo(writer, () =>
-            {
-                writer.Write((uint) Items.Length);
+            writer.Write((uint)Items.Length);
 
-                foreach (var buildList in Items)
-                {
-                    buildList.WriteTo(writer, assetNames, Version, mapHasAssetList);
-                }
-            });
-        }
+            foreach (var buildList in Items)
+            {
+                buildList.WriteTo(writer, assetNames, Version, mapHasAssetList);
+            }
+        });
     }
 }

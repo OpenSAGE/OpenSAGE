@@ -1,36 +1,35 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 
-namespace OpenSage.LivingWorld
+namespace OpenSage.LivingWorld;
+
+[AddedIn(SageGame.Bfme2)]
+public sealed class LivingWorldAutoResolveSciencePurchasePointBonus : BaseSingletonAsset
 {
-    [AddedIn(SageGame.Bfme2)]
-    public sealed class LivingWorldAutoResolveSciencePurchasePointBonus : BaseSingletonAsset
+    internal static void Parse(IniParser parser, LivingWorldAutoResolveSciencePurchasePointBonus value) => parser.ParseBlockContent(value, FieldParseTable);
+
+    private static readonly IniParseTable<LivingWorldAutoResolveSciencePurchasePointBonus> FieldParseTable = new IniParseTable<LivingWorldAutoResolveSciencePurchasePointBonus>
     {
-        internal static void Parse(IniParser parser, LivingWorldAutoResolveSciencePurchasePointBonus value) => parser.ParseBlockContent(value, FieldParseTable);
+        { "Sides", (parser, x) => x.Sides = parser.ParseAssetReferenceArray() },
+        { "Bonus", (parser, x) => x.PurchasePointBonuses.Add(PurchasePointBonus.Parse(parser)) },
+    };
 
-        private static readonly IniParseTable<LivingWorldAutoResolveSciencePurchasePointBonus> FieldParseTable = new IniParseTable<LivingWorldAutoResolveSciencePurchasePointBonus>
-        {
-            { "Sides", (parser, x) => x.Sides = parser.ParseAssetReferenceArray() },
-            { "Bonus", (parser, x) => x.PurchasePointBonuses.Add(PurchasePointBonus.Parse(parser)) },
-        };
+    public string[] Sides { get; private set; }
+    public List<PurchasePointBonus> PurchasePointBonuses { get; } = new List<PurchasePointBonus>();
+}
 
-        public string[] Sides { get; private set; }
-        public List<PurchasePointBonus> PurchasePointBonuses { get; } = new List<PurchasePointBonus>();
-    }
+public class PurchasePointBonus
+{
+    internal static PurchasePointBonus Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-    public class PurchasePointBonus
+    private static readonly IniParseTable<PurchasePointBonus> FieldParseTable = new IniParseTable<PurchasePointBonus>
     {
-        internal static PurchasePointBonus Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        { "MinSciencePurchasePointsForBonus", (parser, x) => x.MinSciencePurchasePointsForBonus = parser.ParseInteger() },
+        { "WeaponMultiplier", (parser, x) => x.WeaponMultiplier = parser.ParseFloat() },
+        { "ArmorMultiplier", (parser, x) => x.ArmorMultiplier = parser.ParseFloat() },
+    };
 
-        private static readonly IniParseTable<PurchasePointBonus> FieldParseTable = new IniParseTable<PurchasePointBonus>
-        {
-            { "MinSciencePurchasePointsForBonus", (parser, x) => x.MinSciencePurchasePointsForBonus = parser.ParseInteger() },
-            { "WeaponMultiplier", (parser, x) => x.WeaponMultiplier = parser.ParseFloat() },
-            { "ArmorMultiplier", (parser, x) => x.ArmorMultiplier = parser.ParseFloat() },
-        };
-
-        public int MinSciencePurchasePointsForBonus { get; private set; }
-        public float WeaponMultiplier { get; private set; }
-        public float ArmorMultiplier { get; private set; }
-    }
+    public int MinSciencePurchasePointsForBonus { get; private set; }
+    public float WeaponMultiplier { get; private set; }
+    public float ArmorMultiplier { get; private set; }
 }

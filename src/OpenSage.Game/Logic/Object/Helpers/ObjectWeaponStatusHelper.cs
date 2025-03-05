@@ -1,17 +1,16 @@
-﻿namespace OpenSage.Logic.Object.Helpers
+﻿namespace OpenSage.Logic.Object.Helpers;
+
+internal sealed class ObjectWeaponStatusHelper : ObjectHelperModule
 {
-    internal sealed class ObjectWeaponStatusHelper : ObjectHelperModule
+    // TODO
+    protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
+
+    internal override void Load(StatePersister reader)
     {
-        // TODO
-        protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
+        reader.PersistVersion(1);
 
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-        }
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace OpenSage.Logic.Object
+﻿namespace OpenSage.Logic.Object;
+
+internal enum WeaponTargetType
 {
-    internal enum WeaponTargetType
-    {
-        Position,
-        Object,
-    }
+    Position,
+    Object,
 }

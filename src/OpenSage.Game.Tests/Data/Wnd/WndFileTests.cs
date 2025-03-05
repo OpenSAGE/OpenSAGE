@@ -2,26 +2,25 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Tests.Data.Wnd
+namespace OpenSage.Tests.Data.Wnd;
+
+public class WndFileTests
 {
-    public class WndFileTests
+    private readonly ITestOutputHelper _output;
+
+    public WndFileTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public WndFileTests(ITestOutputHelper output)
+    [Fact]
+    public void CanReadWndFiles()
+    {
+        InstalledFilesTestData.ReadFiles(".wnd", _output, entry =>
         {
-            _output = output;
-        }
+            var wndFile = WndFile.FromFileSystemEntry(entry, null); // TODO
 
-        [Fact]
-        public void CanReadWndFiles()
-        {
-            InstalledFilesTestData.ReadFiles(".wnd", _output, entry =>
-            {
-                var wndFile = WndFile.FromFileSystemEntry(entry, null); // TODO
-
-                Assert.NotNull(wndFile);
-            });
-        }
+            Assert.NotNull(wndFile);
+        });
     }
 }

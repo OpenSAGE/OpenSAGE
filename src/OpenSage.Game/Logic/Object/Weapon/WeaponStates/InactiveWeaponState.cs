@@ -1,32 +1,31 @@
 ﻿using System;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+internal sealed class InactiveWeaponState : BaseWeaponState
 {
-    internal sealed class InactiveWeaponState : BaseWeaponState
+    public InactiveWeaponState(WeaponStateContext context)
+        : base(context)
     {
-        public InactiveWeaponState(WeaponStateContext context)
-            : base(context)
+    }
+
+    protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
+        Array.Empty<ModelConditionFlag>();
+
+    public override WeaponState? GetNextState()
+    {
+        if (Context.Weapon.HasValidTarget)
         {
+            return WeaponState.PreAttack;
         }
 
-        protected override ModelConditionFlag[] GetModelConditionFlags(int weaponIndex) =>
-            Array.Empty<ModelConditionFlag>();
-
-        public override WeaponState? GetNextState()
+        if (Context.Weapon.Template.AutoReloadsClip != WeaponReloadType.None
+            && Context.Weapon.UsesClip
+            && Context.Weapon.CurrentRounds < Context.Weapon.Template.ClipSize)
         {
-            if (Context.Weapon.HasValidTarget)
-            {
-                return WeaponState.PreAttack;
-            }
-
-            if (Context.Weapon.Template.AutoReloadsClip != WeaponReloadType.None
-                && Context.Weapon.UsesClip
-                && Context.Weapon.CurrentRounds < Context.Weapon.Template.ClipSize)
-            {
-                return WeaponState.InactivePendingReload;
-            }
-
-            return null;
+            return WeaponState.InactivePendingReload;
         }
+
+        return null;
     }
 }

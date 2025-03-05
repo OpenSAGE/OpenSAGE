@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
 using Veldrid;
 
-namespace OpenSage.Graphics.Cameras
+namespace OpenSage.Graphics.Cameras;
+
+public struct CameraInputState
 {
-    public struct CameraInputState
-    {
-        public bool LeftMouseDown;
-        public bool MiddleMouseDown;
-        public bool RightMouseDown;
+    public bool LeftMouseDown;
+    public bool MiddleMouseDown;
+    public bool RightMouseDown;
 
-        public int DeltaX;
-        public int DeltaY;
+    public int DeltaX;
+    public int DeltaY;
 
-        public int ScrollWheelValue;
+    public int ScrollWheelValue;
 
-        public List<Key> PressedKeys;
-    }
+    public List<Key> PressedKeys;
 }

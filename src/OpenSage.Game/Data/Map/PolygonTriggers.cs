@@ -4,70 +4,69 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public sealed class PolygonTriggers : Asset
 {
-    public sealed class PolygonTriggers : Asset
+    public const string AssetName = "PolygonTriggers";
+
+    public List<PolygonTrigger> Triggers { get; init; } = [];
+
+    internal static PolygonTriggers Parse(BinaryReader reader, MapParseContext context)
     {
-        public const string AssetName = "PolygonTriggers";
-
-        public List<PolygonTrigger> Triggers { get; init; } = [];
-
-        internal static PolygonTriggers Parse(BinaryReader reader, MapParseContext context)
+        return ParseAsset(reader, context, version =>
         {
-            return ParseAsset(reader, context, version =>
+            var numTriggers = reader.ReadUInt32();
+            var triggers = new List<PolygonTrigger>((int)numTriggers);
+            var maxTriggerId = 0u;
+
+            for (var i = 0; i < numTriggers; i++)
             {
-                var numTriggers = reader.ReadUInt32();
-                var triggers = new List<PolygonTrigger>((int)numTriggers);
-                var maxTriggerId = 0u;
+                var area = PolygonTrigger.Parse(reader, version);
 
-                for (var i = 0; i < numTriggers; i++)
+                if (area != null)
                 {
-                    var area = PolygonTrigger.Parse(reader, version);
-
-                    if (area != null)
-                    {
-                        triggers.Add(area);
-                        maxTriggerId = Math.Max(maxTriggerId, area.TriggerId);
-                    }
+                    triggers.Add(area);
+                    maxTriggerId = Math.Max(maxTriggerId, area.TriggerId);
                 }
+            }
 
-                // Create default water area for version 1 maps
-                if (version == 1)
-                {
-                    var waterArea = PolygonTrigger.CreateDefaultWaterArea(maxTriggerId + 1);
-                    triggers.Add(waterArea);
-                }
-
-                return new PolygonTriggers
-                {
-                    Triggers = triggers
-                };
-            });
-        }
-
-        internal void WriteTo(BinaryWriter writer)
-        {
-            WriteAssetTo(writer, () =>
+            // Create default water area for version 1 maps
+            if (version == 1)
             {
-                writer.Write((uint)Triggers.Count);
+                var waterArea = PolygonTrigger.CreateDefaultWaterArea(maxTriggerId + 1);
+                triggers.Add(waterArea);
+            }
 
-                foreach (var trigger in Triggers)
-                {
-                    trigger.WriteTo(writer, Version);
-                }
-            });
-        }
+            return new PolygonTriggers
+            {
+                Triggers = triggers
+            };
+        });
+    }
 
-        internal PolygonTrigger GetPolygonTriggerById(uint id)
+    internal void WriteTo(BinaryWriter writer)
+    {
+        WriteAssetTo(writer, () =>
         {
-            var trigger = Triggers.Find(trigger => trigger.TriggerId == id) ?? throw new InvalidOperationException();
-            return trigger;
-        }
+            writer.Write((uint)Triggers.Count);
 
-        internal PolygonTrigger GetPolygonTriggerByName(string name)
-        {
-            var trigger = Triggers.Find(trigger => trigger.Name == name) ?? throw new InvalidOperationException();
-            return trigger;
-        }
+            foreach (var trigger in Triggers)
+            {
+                trigger.WriteTo(writer, Version);
+            }
+        });
+    }
+
+    internal PolygonTrigger GetPolygonTriggerById(uint id)
+    {
+        var trigger = Triggers.Find(trigger => trigger.TriggerId == id) ?? throw new InvalidOperationException();
+        return trigger;
+    }
+
+    internal PolygonTrigger GetPolygonTriggerByName(string name)
+    {
+        var trigger = Triggers.Find(trigger => trigger.Name == name) ?? throw new InvalidOperationException();
+        return trigger;
     }
 }

@@ -3,118 +3,117 @@ using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map
+namespace OpenSage.Data.Map;
+
+public abstract class CameraAnimationFrame
 {
-    public abstract class CameraAnimationFrame
+    public uint FrameIndex { get; private set; }
+    public string InterpolationType { get; private set; }
+
+    internal static TDerived Parse<TDerived>(
+        BinaryReader reader,
+        Action<TDerived> derivedParse)
+        where TDerived : CameraAnimationFrame, new()
     {
-        public uint FrameIndex { get; private set; }
-        public string InterpolationType { get; private set; }
+        var result = new TDerived();
 
-        internal static TDerived Parse<TDerived>(
-            BinaryReader reader,
-            Action<TDerived> derivedParse)
-            where TDerived : CameraAnimationFrame, new()
+        result.FrameIndex = reader.ReadUInt32();
+
+        result.InterpolationType = reader.ReadFourCc(bigEndian: true);
+        if (result.InterpolationType != "catm" && result.InterpolationType != "line")
         {
-            var result = new TDerived();
-
-            result.FrameIndex = reader.ReadUInt32();
-
-            result.InterpolationType = reader.ReadFourCc(bigEndian: true);
-            if (result.InterpolationType != "catm" && result.InterpolationType != "line")
-            {
-                throw new InvalidDataException();
-            }
-
-            derivedParse(result);
-
-            return result;
+            throw new InvalidDataException();
         }
 
-        internal void WriteTo(BinaryWriter writer, Action derivedWriteTo)
-        {
-            writer.Write(FrameIndex);
-            writer.WriteFourCc(InterpolationType, bigEndian: true);
+        derivedParse(result);
 
-            derivedWriteTo();
-        }
+        return result;
     }
 
-    public sealed class FreeCameraAnimationCameraFrame : CameraAnimationFrame
+    internal void WriteTo(BinaryWriter writer, Action derivedWriteTo)
     {
-        public Vector3 Position { get; private set; }
-        public Quaternion Rotation { get; private set; }
-        public float FieldOfView { get; private set; }
+        writer.Write(FrameIndex);
+        writer.WriteFourCc(InterpolationType, bigEndian: true);
 
-        internal static FreeCameraAnimationCameraFrame Parse(BinaryReader reader)
+        derivedWriteTo();
+    }
+}
+
+public sealed class FreeCameraAnimationCameraFrame : CameraAnimationFrame
+{
+    public Vector3 Position { get; private set; }
+    public Quaternion Rotation { get; private set; }
+    public float FieldOfView { get; private set; }
+
+    internal static FreeCameraAnimationCameraFrame Parse(BinaryReader reader)
+    {
+        return Parse<FreeCameraAnimationCameraFrame>(reader, x =>
         {
-            return Parse< FreeCameraAnimationCameraFrame>(reader, x =>
-            {
-                x.Position = reader.ReadVector3();
-                x.Rotation = reader.ReadQuaternion();
+            x.Position = reader.ReadVector3();
+            x.Rotation = reader.ReadQuaternion();
 
-                // TODO: Not sure if this is really the field of view, but it's inversely related to focal length.
-                x.FieldOfView = reader.ReadSingle();
-            });
-        }
-
-        internal void WriteTo(BinaryWriter writer)
-        {
-            WriteTo(writer, () =>
-            {
-                writer.Write(Position);
-                writer.Write(Rotation);
-                writer.Write(FieldOfView);
-            });
-        }
+            // TODO: Not sure if this is really the field of view, but it's inversely related to focal length.
+            x.FieldOfView = reader.ReadSingle();
+        });
     }
 
-    public sealed class LookAtCameraAnimationCameraFrame : CameraAnimationFrame
+    internal void WriteTo(BinaryWriter writer)
     {
-        public Vector3 Position { get; private set; }
-        public float Roll { get; private set; }
-        public float FieldOfView { get; private set; }
-
-        internal static LookAtCameraAnimationCameraFrame Parse(BinaryReader reader)
+        WriteTo(writer, () =>
         {
-            return Parse<LookAtCameraAnimationCameraFrame>(reader, x =>
-            {
-                x.Position = reader.ReadVector3();
-                x.Roll = reader.ReadSingle();
+            writer.Write(Position);
+            writer.Write(Rotation);
+            writer.Write(FieldOfView);
+        });
+    }
+}
 
-                // TODO: Not sure if this is really the field of view, but it's inversely related to focal length.
-                x.FieldOfView = reader.ReadSingle();
-            });
-        }
+public sealed class LookAtCameraAnimationCameraFrame : CameraAnimationFrame
+{
+    public Vector3 Position { get; private set; }
+    public float Roll { get; private set; }
+    public float FieldOfView { get; private set; }
 
-        internal void WriteTo(BinaryWriter writer)
+    internal static LookAtCameraAnimationCameraFrame Parse(BinaryReader reader)
+    {
+        return Parse<LookAtCameraAnimationCameraFrame>(reader, x =>
         {
-            WriteTo(writer, () =>
-            {
-                writer.Write(Position);
-                writer.Write(Roll);
-                writer.Write(FieldOfView);
-            });
-        }
+            x.Position = reader.ReadVector3();
+            x.Roll = reader.ReadSingle();
+
+            // TODO: Not sure if this is really the field of view, but it's inversely related to focal length.
+            x.FieldOfView = reader.ReadSingle();
+        });
     }
 
-    public sealed class LookAtCameraAnimationLookAtFrame : CameraAnimationFrame
+    internal void WriteTo(BinaryWriter writer)
     {
-        public Vector3 LookAt { get; private set; }
-
-        internal static LookAtCameraAnimationLookAtFrame Parse(BinaryReader reader)
+        WriteTo(writer, () =>
         {
-            return Parse<LookAtCameraAnimationLookAtFrame>(reader, x =>
-            {
-                x.LookAt = reader.ReadVector3();
-            });
-        }
+            writer.Write(Position);
+            writer.Write(Roll);
+            writer.Write(FieldOfView);
+        });
+    }
+}
 
-        internal void WriteTo(BinaryWriter writer)
+public sealed class LookAtCameraAnimationLookAtFrame : CameraAnimationFrame
+{
+    public Vector3 LookAt { get; private set; }
+
+    internal static LookAtCameraAnimationLookAtFrame Parse(BinaryReader reader)
+    {
+        return Parse<LookAtCameraAnimationLookAtFrame>(reader, x =>
         {
-            WriteTo(writer, () =>
-            {
-                writer.Write(LookAt);
-            });
-        }
+            x.LookAt = reader.ReadVector3();
+        });
+    }
+
+    internal void WriteTo(BinaryWriter writer)
+    {
+        WriteTo(writer, () =>
+        {
+            writer.Write(LookAt);
+        });
     }
 }

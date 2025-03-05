@@ -1,11 +1,10 @@
-﻿namespace OpenSage.Scripting
+﻿namespace OpenSage.Scripting;
+
+partial class ScriptActions
 {
-    partial class ScriptActions
+    [ScriptAction(ScriptActionType.TeamFollowWaypointsExact, "Team/Move/Follow a waypoint path", "{0} exactly follows {1}, as a team is {2}")]
+    public static void TeamFollowWaypointsExact(ScriptExecutionContext context, string teamName, string waypointPathName, bool asTeam)
     {
-        [ScriptAction(ScriptActionType.TeamFollowWaypointsExact, "Team/Move/Follow a waypoint path", "{0} exactly follows {1}, as a team is {2}")]
-        public static void TeamFollowWaypointsExact(ScriptExecutionContext context, string teamName, string waypointPathName, bool asTeam)
-        {
-            // TODO: Implement this.
-        }
+        // TODO: Implement this.
     }
 }

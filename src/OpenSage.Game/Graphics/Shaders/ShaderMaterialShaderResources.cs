@@ -8,142 +8,141 @@ using OpenSage.FileFormats.W3d;
 using OpenSage.Rendering;
 using Veldrid;
 
-namespace OpenSage.Graphics.Shaders
+namespace OpenSage.Graphics.Shaders;
+
+internal abstract class ShaderMaterialShaderResources : ShaderSetBase
 {
-    internal abstract class ShaderMaterialShaderResources : ShaderSetBase
+    private readonly Dictionary<string, Material> _materialCache = new();
+
+    public readonly Dictionary<string, ResourceBinding> MaterialResourceBindings;
+
+    public readonly Pipeline Pipeline;
+
+    protected ShaderMaterialShaderResources(
+        ShaderSetStore store,
+        string shaderName,
+        Func<IEnumerable<ResourceBinding>> createMaterialResourceBindings)
+        : base(store, shaderName, MeshShaderResources.MeshVertex.VertexDescriptors)
     {
-        private readonly Dictionary<string, Material> _materialCache = new();
+        var materialResourceBindings = createMaterialResourceBindings().ToArray();
 
-        public readonly Dictionary<string, ResourceBinding> MaterialResourceBindings;
-        
-        public readonly Pipeline Pipeline;
+        MaterialResourceBindings = materialResourceBindings.ToDictionary(x => x.Description.Name);
 
-        protected ShaderMaterialShaderResources(
-            ShaderSetStore store,
-            string shaderName,
-            Func<IEnumerable<ResourceBinding>> createMaterialResourceBindings)
-            : base(store, shaderName, MeshShaderResources.MeshVertex.VertexDescriptors)
+        Pipeline = AddDisposable(
+            GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                new GraphicsPipelineDescription(
+                    BlendStateDescription.SingleDisabled,
+                    DepthStencilStateDescription.DepthOnlyLessEqual,
+                    RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                    PrimitiveTopology.TriangleList,
+                    Description,
+                    ResourceLayouts,
+                    store.OutputDescription)));
+    }
+
+    public Material GetCachedMaterial(W3dShaderMaterial w3dShaderMaterial, AssetLoadContext context)
+    {
+        var key = GetCacheKey(w3dShaderMaterial);
+
+        if (!_materialCache.TryGetValue(key, out var result))
         {
-            var materialResourceBindings = createMaterialResourceBindings().ToArray();
+            var materialResourceSet = CreateMaterialResourceSet(w3dShaderMaterial, context);
 
-            MaterialResourceBindings = materialResourceBindings.ToDictionary(x => x.Description.Name);
+            result = AddDisposable(
+                new Material(
+                    this,
+                    Pipeline,
+                    materialResourceSet,
+                    SurfaceType.Opaque)); // TODO
 
-            Pipeline = AddDisposable(
-                GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                    new GraphicsPipelineDescription(
-                        BlendStateDescription.SingleDisabled,
-                        DepthStencilStateDescription.DepthOnlyLessEqual,
-                        RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
-                        PrimitiveTopology.TriangleList,
-                        Description,
-                        ResourceLayouts,
-                        store.OutputDescription)));
+            _materialCache.Add(key, result);
         }
 
-        public Material GetCachedMaterial(W3dShaderMaterial w3dShaderMaterial, AssetLoadContext context)
-        {
-            var key = GetCacheKey(w3dShaderMaterial);
+        return result;
+    }
 
-            if (!_materialCache.TryGetValue(key, out var result))
+    private static string GetCacheKey(W3dShaderMaterial w3dShaderMaterial)
+    {
+        // TODO: Optimise this.
+
+        using var sha256 = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+        sha256.AppendData(BitConverter.GetBytes(w3dShaderMaterial.Properties.Count));
+
+        foreach (var property in w3dShaderMaterial.Properties)
+        {
+            sha256.AppendData(BitConverter.GetBytes((int)property.PropertyType));
+            sha256.AppendData(Encoding.UTF8.GetBytes(property.PropertyName));
+            sha256.AppendData(Encoding.UTF8.GetBytes(property.StringValue ?? ""));
+            sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.X));
+            sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Y));
+            sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Z));
+            sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.W));
+        }
+
+        var hash = sha256.GetCurrentHash();
+
+        var sb = new StringBuilder(hash.Length * 2);
+        foreach (var b in hash)
+        {
+            sb.Append(b.ToString("X2"));
+        }
+
+        return sb.ToString();
+    }
+
+    private ResourceSet CreateMaterialResourceSet(W3dShaderMaterial w3dShaderMaterial, AssetLoadContext context)
+    {
+        var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
+            GraphicsDevice,
+            this));
+
+        foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
+        {
+            switch (w3dShaderProperty.PropertyType)
             {
-                var materialResourceSet = CreateMaterialResourceSet(w3dShaderMaterial, context);
+                case W3dShaderMaterialPropertyType.Texture:
+                    var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue) ?? context.StandardGraphicsResources.PlaceholderTexture;
+                    materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
+                    break;
 
-                result = AddDisposable(
-                    new Material(
-                        this,
-                        Pipeline,
-                        materialResourceSet,
-                        SurfaceType.Opaque)); // TODO
+                case W3dShaderMaterialPropertyType.Bool:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
+                    break;
 
-                _materialCache.Add(key, result);
+                case W3dShaderMaterialPropertyType.Float:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector2:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector3:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector4:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Int:
+                    materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+                    break;
+
+                default:
+                    throw new NotSupportedException();
             }
-
-            return result;
         }
 
-        private static string GetCacheKey(W3dShaderMaterial w3dShaderMaterial)
-        {
-            // TODO: Optimise this.
+        return materialResourceSetBuilder.CreateResourceSet();
+    }
 
-            using var sha256 = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-
-            sha256.AppendData(BitConverter.GetBytes(w3dShaderMaterial.Properties.Count));
-
-            foreach (var property in w3dShaderMaterial.Properties)
-            {
-                sha256.AppendData(BitConverter.GetBytes((int)property.PropertyType));
-                sha256.AppendData(Encoding.UTF8.GetBytes(property.PropertyName));
-                sha256.AppendData(Encoding.UTF8.GetBytes(property.StringValue ?? ""));
-                sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.X));
-                sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Y));
-                sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.Z));
-                sha256.AppendData(BitConverter.GetBytes(property.Value.Vector4.W));
-            }
-
-            var hash = sha256.GetCurrentHash();
-
-            var sb = new StringBuilder(hash.Length * 2);
-            foreach (var b in hash)
-            {
-                sb.Append(b.ToString("X2"));
-            }
-
-            return sb.ToString();
-        }
-
-        private ResourceSet CreateMaterialResourceSet(W3dShaderMaterial w3dShaderMaterial, AssetLoadContext context)
-        {
-            var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
-                GraphicsDevice,
-                this));
-
-            foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
-            {
-                switch (w3dShaderProperty.PropertyType)
-                {
-                    case W3dShaderMaterialPropertyType.Texture:
-                        var texture = context.AssetStore.Textures.GetByName(w3dShaderProperty.StringValue) ?? context.StandardGraphicsResources.PlaceholderTexture;
-                        materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Bool:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Float:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector2:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector3:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Vector4:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Int:
-                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            return materialResourceSetBuilder.CreateResourceSet();
-        }
-
-        public ResourceSet CreateMaterialResourceSet(BindableResource[] resources)
-        {
-            return GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    MaterialResourceLayout,
-                    resources));
-        }
+    public ResourceSet CreateMaterialResourceSet(BindableResource[] resources)
+    {
+        return GraphicsDevice.ResourceFactory.CreateResourceSet(
+            new ResourceSetDescription(
+                MaterialResourceLayout,
+                resources));
     }
 }

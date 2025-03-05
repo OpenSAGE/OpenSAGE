@@ -4,96 +4,95 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using Veldrid;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics;
+
+internal sealed class ModelMeshPartInstance : DisposableBase
 {
-    internal sealed class ModelMeshPartInstance : DisposableBase
+    private readonly ResourceSet _renderItemConstantsResourceSet;
+
+    public readonly ModelMeshPart ModelMeshPart;
+    public readonly ModelMeshInstance MeshInstance;
+
+    public readonly BeforeRenderDelegate BeforeRenderCallback;
+    public readonly BeforeRenderDelegate BeforeRenderCallbackDepth;
+
+    public ModelMeshPartInstance(
+        ModelMeshPart modelMeshPart,
+        ModelMeshInstance modelMeshInstance,
+        AssetLoadContext loadContext)
     {
-        private readonly ResourceSet _renderItemConstantsResourceSet;
+        ModelMeshPart = modelMeshPart;
+        MeshInstance = modelMeshInstance;
 
-        public readonly ModelMeshPart ModelMeshPart;
-        public readonly ModelMeshInstance MeshInstance;
+        _renderItemConstantsResourceSet = AddDisposable(
+            loadContext.ShaderResources.Mesh.CreateRenderItemConstantsResourceSet(
+                modelMeshPart.ModelMesh.MeshConstantsBuffer,
+                modelMeshInstance.RenderItemConstantsBufferVS,
+                modelMeshInstance.ModelInstance.SkinningBuffer,
+                modelMeshInstance.ModelInstance.RenderItemConstantsBufferPS));
 
-        public readonly BeforeRenderDelegate BeforeRenderCallback;
-        public readonly BeforeRenderDelegate BeforeRenderCallbackDepth;
-
-        public ModelMeshPartInstance(
-            ModelMeshPart modelMeshPart,
-            ModelMeshInstance modelMeshInstance,
-            AssetLoadContext loadContext)
+        BeforeRenderCallback = (CommandList cl, in RenderItem renderItem) =>
         {
-            ModelMeshPart = modelMeshPart;
-            MeshInstance = modelMeshInstance;
+            OnBeforeRender(cl, renderItem);
+        };
 
-            _renderItemConstantsResourceSet = AddDisposable(
-                loadContext.ShaderResources.Mesh.CreateRenderItemConstantsResourceSet(
-                    modelMeshPart.ModelMesh.MeshConstantsBuffer,
-                    modelMeshInstance.RenderItemConstantsBufferVS,
-                    modelMeshInstance.ModelInstance.SkinningBuffer,
-                    modelMeshInstance.ModelInstance.RenderItemConstantsBufferPS));
-
-            BeforeRenderCallback = (CommandList cl, in RenderItem renderItem) =>
-            {
-                OnBeforeRender(cl,  renderItem);
-            };
-
-            BeforeRenderCallbackDepth = (CommandList cl, in RenderItem renderItem) =>
-            {
-                OnBeforeRender(cl, renderItem);
-            };
-        }
-
-        private void OnBeforeRender(
-            CommandList cl,
-            in RenderItem renderItem)
+        BeforeRenderCallbackDepth = (CommandList cl, in RenderItem renderItem) =>
         {
-            MeshInstance.OnBeforeRender(cl, renderItem);
+            OnBeforeRender(cl, renderItem);
+        };
+    }
 
-            cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
+    private void OnBeforeRender(
+        CommandList cl,
+        in RenderItem renderItem)
+    {
+        MeshInstance.OnBeforeRender(cl, renderItem);
 
-            ModelMeshPart.BeforeRender(cl);
+        cl.SetGraphicsResourceSet(3, _renderItemConstantsResourceSet);
+
+        ModelMeshPart.BeforeRender(cl);
+    }
+}
+
+internal sealed class ModelMeshInstance : DisposableBase
+{
+    internal readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> RenderItemConstantsBufferVS;
+
+    public readonly ModelInstance ModelInstance;
+
+    public readonly List<ModelMeshPartInstance> MeshPartInstances = new();
+
+    public ModelMeshInstance(
+        ModelMesh modelMesh,
+        ModelInstance modelInstance,
+        AssetLoadContext loadContext)
+    {
+        ModelInstance = modelInstance;
+
+        RenderItemConstantsBufferVS = AddDisposable(
+            new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(
+                loadContext.GraphicsDevice,
+                $"{modelMesh.SubObject.FullName}_RenderItemConstantsVS"));
+
+        foreach (var modelMeshPart in modelMesh.MeshParts)
+        {
+            MeshPartInstances.Add(
+                AddDisposable(
+                    new ModelMeshPartInstance(
+                        modelMeshPart,
+                        this,
+                        loadContext)));
         }
     }
 
-    internal sealed class ModelMeshInstance : DisposableBase
+    internal void OnBeforeRender(
+        CommandList cl,
+        in RenderItem renderItem)
     {
-        internal readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> RenderItemConstantsBufferVS;
-
-        public readonly ModelInstance ModelInstance;
-
-        public readonly List<ModelMeshPartInstance> MeshPartInstances = new();
-
-        public ModelMeshInstance(
-            ModelMesh modelMesh,
-            ModelInstance modelInstance,
-            AssetLoadContext loadContext)
+        if (RenderItemConstantsBufferVS.Value.World != renderItem.World)
         {
-            ModelInstance = modelInstance;
-
-            RenderItemConstantsBufferVS = AddDisposable(
-                new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(
-                    loadContext.GraphicsDevice,
-                    $"{modelMesh.SubObject.FullName}_RenderItemConstantsVS"));
-
-            foreach (var modelMeshPart in modelMesh.MeshParts)
-            {
-                MeshPartInstances.Add(
-                    AddDisposable(
-                        new ModelMeshPartInstance(
-                            modelMeshPart,
-                            this,
-                            loadContext)));
-            }
-        }
-
-        internal void OnBeforeRender(
-            CommandList cl,
-            in RenderItem renderItem)
-        {
-            if (RenderItemConstantsBufferVS.Value.World != renderItem.World)
-            {
-                RenderItemConstantsBufferVS.Value.World = renderItem.World;
-                RenderItemConstantsBufferVS.Update(cl);
-            }
+            RenderItemConstantsBufferVS.Value.World = renderItem.World;
+            RenderItemConstantsBufferVS.Update(cl);
         }
     }
 }

@@ -5,90 +5,89 @@ using ImGuiNET;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Logic.Object;
 
-namespace OpenSage.Diagnostics
+namespace OpenSage.Diagnostics;
+
+internal sealed class ObjectListView : DiagnosticView
 {
-    internal sealed class ObjectListView : DiagnosticView
+    private readonly List<GameObject> _items;
+
+    private readonly byte[] _searchTextBuffer;
+    private string _searchText;
+
+    private GameObject _currentItem;
+
+    public override string DisplayName { get; } = "Object List";
+
+    public override Vector2 DefaultSize { get; } = new Vector2(200, 400);
+
+    public ObjectListView(DiagnosticViewContext context)
+        : base(context)
     {
-        private readonly List<GameObject> _items;
+        _items = new List<GameObject>();
 
-        private readonly byte[] _searchTextBuffer;
-        private string _searchText;
+        _searchTextBuffer = new byte[32];
 
-        private GameObject _currentItem;
+        UpdateSearch(null);
+    }
 
-        public override string DisplayName { get; } = "Object List";
+    protected override unsafe void DrawOverride(ref bool isGameViewFocused)
+    {
+        ImGui.PushItemWidth(-1);
+        ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
+        UpdateSearch(searchText);
+        ImGui.PopItemWidth();
 
-        public override Vector2 DefaultSize { get; } = new Vector2(200, 400);
+        ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), ImGuiChildFlags.Border);
 
-        public ObjectListView(DiagnosticViewContext context)
-            : base(context)
+        var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper();
+        var clipper = new ImGuiListClipperPtr(clipperPtr);
+        clipper.Begin(_items.Count, ImGui.GetTextLineHeightWithSpacing());
+        while (clipper.Step())
         {
-            _items = new List<GameObject>();
-
-            _searchTextBuffer = new byte[32];
-
-            UpdateSearch(null);
-        }
-
-        protected override unsafe void DrawOverride(ref bool isGameViewFocused)
-        {
-            ImGui.PushItemWidth(-1);
-            ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
-            UpdateSearch(searchText);
-            ImGui.PopItemWidth();
-
-            ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), ImGuiChildFlags.Border);
-
-            var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper();
-            var clipper = new ImGuiListClipperPtr(clipperPtr);
-            clipper.Begin(_items.Count, ImGui.GetTextLineHeightWithSpacing());
-            while (clipper.Step())
+            for (var i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
-                for (var i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                var item = _items[i];
+                var name = GetObjectName(item);
+                if (ImGui.Selectable(name, item == _currentItem))
                 {
-                    var item = _items[i];
-                    var name = GetObjectName(item);
-                    if (ImGui.Selectable(name, item == _currentItem))
-                    {
-                        _currentItem = item;
-                        Context.SelectedObject = item;
-                    }
-                    ImGuiUtility.DisplayTooltipOnHover(name);
+                    _currentItem = item;
+                    Context.SelectedObject = item;
                 }
+                ImGuiUtility.DisplayTooltipOnHover(name);
             }
-            clipper.Destroy();
-
-            ImGui.EndChild();
         }
+        clipper.Destroy();
 
-        private void UpdateSearch(string searchText)
+        ImGui.EndChild();
+    }
+
+    private void UpdateSearch(string searchText)
+    {
+        searchText = ImGuiUtility.TrimToNullByte(searchText);
+
+        if (searchText == _searchText)
         {
-            searchText = ImGuiUtility.TrimToNullByte(searchText);
-
-            if (searchText == _searchText)
-            {
-                return;
-            }
-
-            _searchText = searchText;
-
-            _items.Clear();
-
-            var isEmptySearch = string.IsNullOrWhiteSpace(_searchText);
-
-            foreach (var asset in Context.Game.Scene3D.GameObjects.Objects)
-            {
-                var name = GetObjectName(asset);
-                if (isEmptySearch || name.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    _items.Add(asset);
-                }
-            }
+            return;
         }
 
-        private string GetObjectName(GameObject gameObject)
+        _searchText = searchText;
+
+        _items.Clear();
+
+        var isEmptySearch = string.IsNullOrWhiteSpace(_searchText);
+
+        foreach (var asset in Context.Game.Scene3D.GameObjects.Objects)
         {
-            return gameObject.ID + " - " + (gameObject.Name ?? gameObject.Definition.Name);
+            var name = GetObjectName(asset);
+            if (isEmptySearch || name.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                _items.Add(asset);
+            }
         }
+    }
+
+    private string GetObjectName(GameObject gameObject)
+    {
+        return gameObject.ID + " - " + (gameObject.Name ?? gameObject.Definition.Name);
     }
 }

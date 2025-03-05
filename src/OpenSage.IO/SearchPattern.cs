@@ -28,94 +28,93 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace OpenSage.IO
+namespace OpenSage.IO;
+
+internal readonly struct SearchPattern
 {
-    internal readonly struct SearchPattern
+    private static readonly char[] SpecialChars = { '?', '*' };
+
+    private readonly string? _exactMatch;
+    private readonly Regex? _regexMatch;
+
+    /// <summary>
+    /// Tries to match the specified path with this instance.
+    /// </summary>
+    /// <param name="name">The path to match.</param>
+    /// <returns><c>true</c> if the path was matched, <c>false</c> otherwise.</returns>
+    public bool Match(string name)
     {
-        private static readonly char[] SpecialChars = { '?', '*' };
-
-        private readonly string? _exactMatch;
-        private readonly Regex? _regexMatch;
-
-        /// <summary>
-        /// Tries to match the specified path with this instance.
-        /// </summary>
-        /// <param name="name">The path to match.</param>
-        /// <returns><c>true</c> if the path was matched, <c>false</c> otherwise.</returns>
-        public bool Match(string name)
+        if (name is null)
         {
-            if (name is null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            // if _execMatch is null and _regexMatch is null, we have a * match
-            return _exactMatch != null ? _exactMatch == name : _regexMatch is null || _regexMatch.IsMatch(name);
+            throw new ArgumentNullException(nameof(name));
+        }
+        // if _execMatch is null and _regexMatch is null, we have a * match
+        return _exactMatch != null ? _exactMatch == name : _regexMatch is null || _regexMatch.IsMatch(name);
+    }
+
+    public SearchPattern(string searchPattern)
+    {
+        if (searchPattern is null)
+        {
+            throw new ArgumentNullException(nameof(searchPattern));
         }
 
-        public SearchPattern(string searchPattern)
+        _exactMatch = null;
+        _regexMatch = null;
+
+        // Optimized path, most common case
+        if (searchPattern is "*")
         {
-            if (searchPattern is null)
-            {
-                throw new ArgumentNullException(nameof(searchPattern));
-            }
+            return;
+        }
 
-            _exactMatch = null;
-            _regexMatch = null;
+        searchPattern = searchPattern.Replace('\\', '/');
+        if (searchPattern.Contains('/'))
+        {
+            throw new NotSupportedException();
+        }
 
-            // Optimized path, most common case
-            if (searchPattern is "*")
-            {
-                return;
-            }
-
-            searchPattern = searchPattern.Replace('\\', '/');
-            if (searchPattern.Contains('/'))
-            {
-                throw new NotSupportedException();
-            }
-
-            int startIndex = 0;
-            int nextIndex;
-            StringBuilder? builder = null;
-            while ((nextIndex = searchPattern.IndexOfAny(SpecialChars, startIndex)) >= 0)
-            {
-                if (builder is null)
-                {
-                    builder = new StringBuilder();
-                    builder.Append('^');
-                }
-
-                var lengthToEscape = nextIndex - startIndex;
-                if (lengthToEscape > 0)
-                {
-                    var toEscape = Regex.Escape(searchPattern.Substring(startIndex, lengthToEscape));
-                    builder.Append(toEscape);
-                }
-
-                var c = searchPattern[nextIndex];
-                var regexPatternPart = c == '*' ? "[^/]*" : "[^/]";
-                builder.Append(regexPatternPart);
-
-                startIndex = nextIndex + 1;
-            }
+        int startIndex = 0;
+        int nextIndex;
+        StringBuilder? builder = null;
+        while ((nextIndex = searchPattern.IndexOfAny(SpecialChars, startIndex)) >= 0)
+        {
             if (builder is null)
             {
-                _exactMatch = searchPattern;
+                builder = new StringBuilder();
+                builder.Append('^');
             }
-            else
+
+            var lengthToEscape = nextIndex - startIndex;
+            if (lengthToEscape > 0)
             {
-                var length = searchPattern.Length - startIndex;
-                if (length > 0)
-                {
-                    var toEscape = Regex.Escape(searchPattern.Substring(startIndex, length));
-                    builder.Append(toEscape);
-                }
-
-                builder.Append('$');
-
-                var regexPattern = builder.ToString();
-                _regexMatch = new Regex(regexPattern, RegexOptions.IgnoreCase);
+                var toEscape = Regex.Escape(searchPattern.Substring(startIndex, lengthToEscape));
+                builder.Append(toEscape);
             }
+
+            var c = searchPattern[nextIndex];
+            var regexPatternPart = c == '*' ? "[^/]*" : "[^/]";
+            builder.Append(regexPatternPart);
+
+            startIndex = nextIndex + 1;
+        }
+        if (builder is null)
+        {
+            _exactMatch = searchPattern;
+        }
+        else
+        {
+            var length = searchPattern.Length - startIndex;
+            if (length > 0)
+            {
+                var toEscape = Regex.Escape(searchPattern.Substring(startIndex, length));
+                builder.Append(toEscape);
+            }
+
+            builder.Append('$');
+
+            var regexPattern = builder.ToString();
+            _regexMatch = new Regex(regexPattern, RegexOptions.IgnoreCase);
         }
     }
 }

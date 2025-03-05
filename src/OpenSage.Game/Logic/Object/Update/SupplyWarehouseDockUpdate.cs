@@ -1,82 +1,81 @@
 ﻿using OpenSage.Data.Ini;
 
-namespace OpenSage.Logic.Object
+namespace OpenSage.Logic.Object;
+
+public class SupplyWarehouseDockUpdate : DockUpdate
 {
-    public class SupplyWarehouseDockUpdate : DockUpdate
+    private GameObject _gameObject;
+    private SupplyWarehouseDockUpdateModuleData _moduleData;
+    private int _currentBoxes;
+
+    internal SupplyWarehouseDockUpdate(GameObject gameObject, SupplyWarehouseDockUpdateModuleData moduleData) : base(gameObject, moduleData)
     {
-        private GameObject _gameObject;
-        private SupplyWarehouseDockUpdateModuleData _moduleData;
-        private int _currentBoxes;
+        _gameObject = gameObject;
+        _moduleData = moduleData;
+        _currentBoxes = _moduleData.StartingBoxes;
+    }
 
-        internal SupplyWarehouseDockUpdate(GameObject gameObject, SupplyWarehouseDockUpdateModuleData moduleData) : base(gameObject, moduleData)
+    public bool HasBoxes() => _currentBoxes > 0;
+
+    public bool GetBox()
+    {
+        if (_currentBoxes > 0)
         {
-            _gameObject = gameObject;
-            _moduleData = moduleData;
-            _currentBoxes = _moduleData.StartingBoxes;
+            _currentBoxes--;
+
+            var boxPercentage = (float)_currentBoxes / _moduleData.StartingBoxes;
+            _gameObject.Drawable.SetSupplyBoxesRemaining(boxPercentage);
+
+            return true;
         }
+        return false;
+    }
 
-        public bool HasBoxes() => _currentBoxes > 0;
+    internal override void Update(BehaviorUpdateContext context)
+    {
+        base.Update(context);
 
-        public bool GetBox()
+        if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
         {
-            if (_currentBoxes > 0)
-            {
-                _currentBoxes--;
-
-                var boxPercentage = (float)_currentBoxes / _moduleData.StartingBoxes;
-                _gameObject.Drawable.SetSupplyBoxesRemaining(boxPercentage);
-
-                return true;
-            }
-            return false;
-        }
-
-        internal override void Update(BehaviorUpdateContext context)
-        {
-            base.Update(context);
-
-            if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
-            {
-                _gameObject.Die(DeathType.Normal);
-            }
-        }
-
-        internal override void Load(StatePersister reader)
-        {
-            reader.PersistVersion(1);
-
-            reader.BeginObject("Base");
-            base.Load(reader);
-            reader.EndObject();
-
-            reader.PersistInt32(ref _currentBoxes);
+            _gameObject.Die(DeathType.Normal);
         }
     }
 
-    public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
+    internal override void Load(StatePersister reader)
     {
-        internal static SupplyWarehouseDockUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        reader.PersistVersion(1);
 
-        private static new readonly IniParseTable<SupplyWarehouseDockUpdateModuleData> FieldParseTable = DockUpdateModuleData.FieldParseTable
-            .Concat(new IniParseTable<SupplyWarehouseDockUpdateModuleData>
-            {
-                { "StartingBoxes", (parser, x) => x.StartingBoxes = parser.ParseInteger() },
-                { "DeleteWhenEmpty", (parser, x) => x.DeleteWhenEmpty = parser.ParseBoolean() }
-            });
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
 
-        /// <summary>
-        /// Used to determine the visual representation of a full warehouse.
-        /// </summary>
-        public int StartingBoxes { get; private set; }
+        reader.PersistInt32(ref _currentBoxes);
+    }
+}
 
-        /// <summary>
-        /// True if warehouse should be deleted when depleted.
-        /// </summary>
-        public bool DeleteWhenEmpty { get; private set; }
+public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
+{
+    internal static SupplyWarehouseDockUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    private static new readonly IniParseTable<SupplyWarehouseDockUpdateModuleData> FieldParseTable = DockUpdateModuleData.FieldParseTable
+        .Concat(new IniParseTable<SupplyWarehouseDockUpdateModuleData>
         {
-            return new SupplyWarehouseDockUpdate(gameObject, this);
-        }
+            { "StartingBoxes", (parser, x) => x.StartingBoxes = parser.ParseInteger() },
+            { "DeleteWhenEmpty", (parser, x) => x.DeleteWhenEmpty = parser.ParseBoolean() }
+        });
+
+    /// <summary>
+    /// Used to determine the visual representation of a full warehouse.
+    /// </summary>
+    public int StartingBoxes { get; private set; }
+
+    /// <summary>
+    /// True if warehouse should be deleted when depleted.
+    /// </summary>
+    public bool DeleteWhenEmpty { get; private set; }
+
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    {
+        return new SupplyWarehouseDockUpdate(gameObject, this);
     }
 }
