@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.IO;
+using OpenSage.Logic.Map;
 using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map;

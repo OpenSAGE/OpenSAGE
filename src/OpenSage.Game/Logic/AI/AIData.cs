@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Map;
+using OpenSage.Logic.Map;
 
 namespace OpenSage.Logic.AI;
 

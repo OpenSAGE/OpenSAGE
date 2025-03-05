@@ -8,6 +8,7 @@ using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
 using OpenSage.FileFormats.RefPack;
 using OpenSage.IO;
+using OpenSage.Logic.Map;
 using OpenSage.Scripting;
 
 namespace OpenSage.Data.Map;

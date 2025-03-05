@@ -26,6 +26,7 @@ using OpenSage.Input;
 using OpenSage.Input.Cursors;
 using OpenSage.IO;
 using OpenSage.Logic;
+using OpenSage.Logic.Map;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Rendering;

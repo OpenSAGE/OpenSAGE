@@ -4,6 +4,7 @@ using OpenSage.Content.Loaders;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Logic.Map;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
 using OpenSage.Utilities;

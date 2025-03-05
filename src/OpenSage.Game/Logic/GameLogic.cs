@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Content;
-using OpenSage.Data.Map;
+using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic;

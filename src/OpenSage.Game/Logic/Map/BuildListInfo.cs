@@ -4,11 +4,8 @@ using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Map;
+namespace OpenSage.Logic.Map;
 
-// TODO: Does this belong under Data.Map anymore?
-// This exists in all three: map data, INI and persisted gameplay data.
-// In Generals it's under /GameLogic/Map/SidesList.cpp/h
 public sealed class BuildListInfo : IPersistableObject
 {
     public const uint MaxResourceGatherers = 10;

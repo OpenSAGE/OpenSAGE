@@ -18,6 +18,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
+using OpenSage.Logic.Map;
 using OpenSage.Logic.Object.Damage;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;

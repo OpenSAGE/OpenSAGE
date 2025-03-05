@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.FileFormats;
+using OpenSage.Logic.Map;
 
 namespace OpenSage.Data.Map;
 
