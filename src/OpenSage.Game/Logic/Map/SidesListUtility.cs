@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Data.Map;
 using OpenSage.Data.Scb;
-using OpenSage.Logic;
 using OpenSage.Scripting;
 
-namespace OpenSage.Data.Map;
+namespace OpenSage.Logic.Map;
+
+using Player = Data.Map.Player;
+using Team = Data.Map.Team;
 
 internal static class SidesListUtility
 {

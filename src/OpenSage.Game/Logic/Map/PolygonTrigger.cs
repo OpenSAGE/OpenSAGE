@@ -6,10 +6,8 @@ using System.Numerics;
 using NLog;
 using OpenSage.FileFormats;
 using OpenSage.Mathematics;
-using OpenSage.Terrain;
-using Vulkan;
 
-namespace OpenSage.Data.Map;
+namespace OpenSage.Logic.Map;
 
 public sealed class PolygonTrigger : IPersistableObject
 {
@@ -303,7 +301,7 @@ public sealed class PolygonTrigger : IPersistableObject
             var dy = pt2.Y - pt1.Y;
             var dx = pt2.X - pt1.X;
 
-            var intersectionX = pt1.X + (dx * (point.Y - pt1.Y) / (float)dy);
+            var intersectionX = pt1.X + dx * (point.Y - pt1.Y) / (float)dy;
             if (intersectionX >= point.X)
             {
                 inside = !inside;

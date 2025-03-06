@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Logic.Map;
 
 namespace OpenSage.Data.Map;
 

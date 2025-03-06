@@ -5,11 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Map;
 using OpenSage.Data.Scb;
 using OpenSage.FileFormats;
 using OpenSage.Scripting;
 
-namespace OpenSage.Data.Map;
+namespace OpenSage.Logic.Map;
+
+using Player = Data.Map.Player;
+using Team = Data.Map.Team;
 
 public sealed class SidesList : Asset, IPersistableObject
 {

@@ -3,8 +3,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenSage.Content.Translation;
-using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
+using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
