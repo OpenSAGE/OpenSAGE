@@ -315,8 +315,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
             // Do not allow object to pass through the ground.
             var groundZ = _context.Game.TerrainLogic.GetLayerHeight(
-                mtx.GetXTranslation(), 
-                mtx.GetYTranslation(), 
+                mtx.GetXTranslation(),
+                mtx.GetYTranslation(),
                 obj.Layer);
 
             if (obj.TestStatus(ObjectStatus.DeckHeightOffset))
