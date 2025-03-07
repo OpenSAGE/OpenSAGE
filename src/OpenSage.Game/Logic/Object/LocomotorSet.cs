@@ -46,7 +46,7 @@ public sealed class LocomotorSet : IPersistableObject
                 return locomotor;
             }
         }
-        return _locomotors[0];
+        return null;
     }
 
     public Locomotor GetLocomotor(string locomotorTemplateName)

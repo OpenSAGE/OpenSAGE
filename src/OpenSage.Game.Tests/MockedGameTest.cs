@@ -62,6 +62,8 @@ public abstract class MockedGameTest : IDisposable
 
             TerrainLogic = new TerrainLogic();
             TerrainLogic.SetHeightMapData(OpenSage.Data.Map.HeightMapData.Create(0, new ushort[2, 2] { { 0, 0 }, { 0, 0 } }));
+
+            GameLogic = new GameLogic(this);
         }
 
         public void StartCampaign(string campaignName, string missionName)

@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Map;
+﻿using System.Numerics;
+using OpenSage.Data.Map;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Terrain;
 
@@ -9,6 +11,18 @@ public sealed class TerrainLogic : IPersistableObject
     public void SetHeightMapData(HeightMapData heightMapData)
     {
         HeightMap = new HeightMap(heightMapData);
+    }
+
+    // TODO(Port): Implement this.
+    public bool IsCliffCell(Vector2 worldPosition) => false;
+
+    // TODO(Port): Implement this.
+    public bool IsUnderwater(Vector2 worldPosition) => false;
+
+    // TODO(Port): Implement this.
+    public float GetLayerHeight(float x, float y, PathfindLayerType layer)
+    {
+        return HeightMap.GetHeight(x, y);
     }
 
     public void Persist(StatePersister reader)

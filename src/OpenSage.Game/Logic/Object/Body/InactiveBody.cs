@@ -9,11 +9,11 @@ public sealed class InactiveBody : BodyModule
     {
     }
 
-    public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
+    public override void AttemptDamage(ref DamageData damageInfo)
     {
         // TODO
 
-        GameObject.Die(deathType);
+        GameObject.Die(damageInfo.Request.DeathType);
     }
 
     public override Fix64 MaxHealth

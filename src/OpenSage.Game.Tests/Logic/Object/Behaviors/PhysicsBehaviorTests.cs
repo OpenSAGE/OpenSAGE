@@ -20,22 +20,24 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
     {
         var stream = SaveData(ZeroHourUnitStationary, V2);
         var reader = new StateReader(stream, ZeroHour);
-        var behavior = SampleModule(ZeroHour);
+        var behavior = SampleModule();
         behavior.Load(reader);
 
-        Assert.Equal(Vector3.Zero, behavior.UnknownVector);
+        Assert.Equal(0.0f, behavior.YawRate);
+        Assert.Equal(0.0f, behavior.RollRate);
+        Assert.Equal(0.0f, behavior.PitchRate);
         Assert.Equal(Vector3.Zero, behavior.Acceleration);
         Assert.Equal(Vector3.Zero, behavior.LastAcceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
-        Assert.Equal(0, behavior.UnknownInt1);
-        Assert.Equal(0u, behavior.UnknownInt2);
-        Assert.Equal(40u, behavior.UnknownInt3);
+        Assert.Equal(PhysicsTurningType.None, behavior.Turning);
+        Assert.Equal(0u, behavior.IgnoreCollisionsWith);
+        Assert.Equal(PhysicsFlagType.AllowCollideForce | PhysicsFlagType.UpdateEverRun, behavior.Flags);
         Assert.Equal(50.0f, behavior.Mass);
-        Assert.Equal(0u, behavior.UnknownInt4);
-        Assert.Equal(0u, behavior.UnknownInt5);
-        Assert.Equal(0u, behavior.UnknownFrame.Value);
-        Assert.Equal(0, behavior.UnknownByte1);
-        Assert.Equal(0, behavior.UnknownByte2);
+        Assert.Equal(0u, behavior.CurrentOverlap);
+        Assert.Equal(0u, behavior.PreviousOverlap);
+        Assert.Equal(0u, behavior.MotiveForceExpires.Value);
+        Assert.Equal(0.0f, behavior.ExtraBounciness);
+        Assert.Equal(0.0f, behavior.ExtraFriction);
         Assert.Equal(0.0f, behavior.VelocityMagnitude);
     }
 
@@ -47,22 +49,24 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
     {
         var stream = SaveData(ZeroHourUnitMovingFrame1, V2);
         var reader = new StateReader(stream, ZeroHour);
-        var behavior = SampleModule(ZeroHour);
+        var behavior = SampleModule();
         behavior.Load(reader);
 
-        Assert.Equal(Vector3.Zero, behavior.UnknownVector);
+        Assert.Equal(0.0f, behavior.YawRate);
+        Assert.Equal(0.0f, behavior.RollRate);
+        Assert.Equal(0.0f, behavior.PitchRate);
         Assert.Equal(new Vector3(1.1111113f, 0, 0), behavior.Acceleration);
         Assert.Equal(Vector3.Zero, behavior.LastAcceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
-        Assert.Equal(0, behavior.UnknownInt1);
-        Assert.Equal(0u, behavior.UnknownInt2);
-        Assert.Equal(40u, behavior.UnknownInt3);
+        Assert.Equal(PhysicsTurningType.None, behavior.Turning);
+        Assert.Equal(0u, behavior.IgnoreCollisionsWith);
+        Assert.Equal(PhysicsFlagType.AllowCollideForce | PhysicsFlagType.UpdateEverRun, behavior.Flags);
         Assert.Equal(50.0f, behavior.Mass);
-        Assert.Equal(0u, behavior.UnknownInt4);
-        Assert.Equal(0u, behavior.UnknownInt5);
-        Assert.Equal(161u, behavior.UnknownFrame.Value);
-        Assert.Equal(0, behavior.UnknownByte1);
-        Assert.Equal(0, behavior.UnknownByte2);
+        Assert.Equal(0u, behavior.CurrentOverlap);
+        Assert.Equal(0u, behavior.PreviousOverlap);
+        Assert.Equal(161u, behavior.MotiveForceExpires.Value);
+        Assert.Equal(0.0f, behavior.ExtraBounciness);
+        Assert.Equal(0.0f, behavior.ExtraFriction);
         Assert.Equal(0.0f, behavior.VelocityMagnitude);
     }
 
@@ -74,22 +78,24 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
     {
         var stream = SaveData(ZeroHourUnitMovingFrame2, V2);
         var reader = new StateReader(stream, ZeroHour);
-        var behavior = SampleModule(ZeroHour);
+        var behavior = SampleModule();
         behavior.Load(reader);
 
-        Assert.Equal(Vector3.Zero, behavior.UnknownVector);
+        Assert.Equal(0.0f, behavior.YawRate);
+        Assert.Equal(0.0f, behavior.RollRate);
+        Assert.Equal(0.0f, behavior.PitchRate);
         Assert.Equal(Vector3.Zero, behavior.Acceleration);
         Assert.Equal(new Vector3(2.2222226f, 0, 0), behavior.LastAcceleration);
         Assert.Equal(new Vector3(2.2222226f, 0, -3.9488077e-07f), behavior.Velocity);
-        Assert.Equal(0, behavior.UnknownInt1);
-        Assert.Equal(0u, behavior.UnknownInt2);
-        Assert.Equal(40u, behavior.UnknownInt3);
+        Assert.Equal(PhysicsTurningType.None, behavior.Turning);
+        Assert.Equal(0u, behavior.IgnoreCollisionsWith);
+        Assert.Equal(PhysicsFlagType.AllowCollideForce | PhysicsFlagType.UpdateEverRun, behavior.Flags);
         Assert.Equal(50.0f, behavior.Mass);
-        Assert.Equal(0u, behavior.UnknownInt4);
-        Assert.Equal(0u, behavior.UnknownInt5);
-        Assert.Equal(162u, behavior.UnknownFrame.Value);
-        Assert.Equal(0, behavior.UnknownByte1);
-        Assert.Equal(0, behavior.UnknownByte2);
+        Assert.Equal(0u, behavior.CurrentOverlap);
+        Assert.Equal(0u, behavior.PreviousOverlap);
+        Assert.Equal(162u, behavior.MotiveForceExpires.Value);
+        Assert.Equal(0.0f, behavior.ExtraBounciness);
+        Assert.Equal(0.0f, behavior.ExtraFriction);
         Assert.Equal(-1f, behavior.VelocityMagnitude);
     }
 
@@ -101,22 +107,24 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
     {
         var stream = SaveData(ZeroHourUnitMovingFrame3, V2);
         var reader = new StateReader(stream, ZeroHour);
-        var behavior = SampleModule(ZeroHour);
+        var behavior = SampleModule();
         behavior.Load(reader);
 
-        Assert.Equal(Vector3.Zero, behavior.UnknownVector);
+        Assert.Equal(0.0f, behavior.YawRate);
+        Assert.Equal(0.0f, behavior.RollRate);
+        Assert.Equal(0.0f, behavior.PitchRate);
         Assert.Equal(Vector3.Zero, behavior.Acceleration);
         Assert.Equal(new Vector3(-0.22222255f, 0, 0), behavior.LastAcceleration);
         Assert.Equal(new Vector3(2, 0, 0), behavior.Velocity);
-        Assert.Equal(0, behavior.UnknownInt1);
-        Assert.Equal(0u, behavior.UnknownInt2);
-        Assert.Equal(40u, behavior.UnknownInt3);
+        Assert.Equal(PhysicsTurningType.None, behavior.Turning);
+        Assert.Equal(0u, behavior.IgnoreCollisionsWith);
+        Assert.Equal(PhysicsFlagType.AllowCollideForce | PhysicsFlagType.UpdateEverRun, behavior.Flags);
         Assert.Equal(50.0f, behavior.Mass);
-        Assert.Equal(0u, behavior.UnknownInt4);
-        Assert.Equal(0u, behavior.UnknownInt5);
-        Assert.Equal(163u, behavior.UnknownFrame.Value);
-        Assert.Equal(0, behavior.UnknownByte1);
-        Assert.Equal(0, behavior.UnknownByte2);
+        Assert.Equal(0u, behavior.CurrentOverlap);
+        Assert.Equal(0u, behavior.PreviousOverlap);
+        Assert.Equal(163u, behavior.MotiveForceExpires.Value);
+        Assert.Equal(0.0f, behavior.ExtraBounciness);
+        Assert.Equal(0.0f, behavior.ExtraFriction);
         Assert.Equal(-1f, behavior.VelocityMagnitude);
     }
 
@@ -128,9 +136,9 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
             Mass = 5
         };
 
-        var behavior = SampleModule(ZeroHour, moduleData);
+        var behavior = SampleModule(moduleData);
 
-        behavior.AddForce(new Vector3(45, 40, 35));
+        behavior.ApplyForce(new Vector3(45, 40, 35));
 
         Assert.Equal(new Vector3(9, 8, 7), behavior.Acceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
@@ -139,17 +147,29 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
     [Fact]
     public void UpdateCalculatesVelocityAndPosition()
     {
-        var objectDefinition = new ObjectDefinition();
-        var gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+        var behavior = SampleModule(out var gameObject);
 
-        var behavior = SampleModule(ZeroHour, gameObject: gameObject);
+        behavior.ApplyForce(new Vector3(1, 2, 3));
 
-        behavior.AddForce(new Vector3(1, 2, 3));
-
-        behavior.Update(null);
+        behavior.Update();
 
         Assert.Equal(Vector3.Zero, behavior.Acceleration);
         Assert.Equal(new Vector3(1, 2, 3), behavior.Velocity);
         Assert.Equal(new Vector3(1, 2, 3), gameObject.Translation);
+    }
+
+    private PhysicsBehavior SampleModule(PhysicsBehaviorModuleData moduleData = null)
+    {
+        return SampleModule(out _, moduleData);
+    }
+
+    private PhysicsBehavior SampleModule(out GameObject gameObject, PhysicsBehaviorModuleData moduleData = null)
+    {
+        // TODO: Simplify test setup.
+
+        var objectDefinition = new ObjectDefinition();
+        gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+
+        return SampleModule(ZeroHour, moduleData, gameObject: gameObject);
     }
 }

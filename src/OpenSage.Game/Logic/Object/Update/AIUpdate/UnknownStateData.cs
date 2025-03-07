@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using OpenSage.Logic.Object.Damage;
 
 namespace OpenSage.Logic.Object;
 

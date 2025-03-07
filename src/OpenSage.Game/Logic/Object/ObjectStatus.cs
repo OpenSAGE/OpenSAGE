@@ -2,39 +2,192 @@
 
 namespace OpenSage.Logic.Object;
 
-// we use this in BitArrays everywhere, but there are cases where this is persisted as a uint
-// objects without an explicit ordinal may not be confirmed
+/// <summary>
+/// The explicit numeric values are used for loading Generals .sav files.
+/// In Zero Hour and beyond, object status is persisted as a BitArray,
+/// and the numeric values are unused.
+/// 
+/// TODO(Port): the numeric values here are off-by-one compared to the C++ code.
+/// This is just an artifact of how we load the values from Generals .sav files,
+/// and could be fixed on our side. The actual persisted values are
+/// 1 << (these numeric values).
+/// </summary>
 public enum ObjectStatus
 {
-    [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
-    Unattackable,
+    /// <summary>
+    /// No status bit.
+    /// </summary>
+    None = -1,
 
-    [IniEnum("TOPPLED")]
-    Toppled,
-
-    [IniEnum("UNDER_CONSTRUCTION")]
-    UnderConstruction = 2, // 4 in sav file
-
-    [IniEnum("UNSELECTABLE")]
-    Unselectable = 3, // 8 in sav file
-
+    /// <summary>
+    /// Has been destroyed, pending delete.
+    /// </summary>
     [IniEnum("DESTROYED")]
-    Destroyed = 4, // destroyed civilian building was 16 in sav file
+    Destroyed = 0,
 
-    [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
-    Death1,
+    /// <summary>
+    /// Used for garrisoned buildings. Is OR'ed with <see cref="ObjectKinds.CanAttack"/>
+    /// in isAbleToAttack().
+    /// </summary>
+    [IniEnum("CAN_ATTACK")]
+    CanAttack = 1,
 
-    [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
-    Death2,
+    /// <summary>
+    /// Object is being constructed and is not yet complete.
+    /// </summary>
+    [IniEnum("UNDER_CONSTRUCTION")]
+    UnderConstruction = 2,
 
-    [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
-    Death3,
+    /// <summary>
+    /// This is a negative condition since these statuses are overrides.
+    /// </summary>
+    [IniEnum("UNSELECTABLE")]
+    Unselectable = 3,
 
-    [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
-    Death4,
+    /// <summary>
+    /// Object should be ignored for object-object collisions (but not object-ground).
+    /// Used for things like collapsing parachutes that are intangible.
+    /// </summary>
+    [IniEnum("NO_COLLISIONS")]
+    NoCollisions = 4,
 
+    /// <summary>
+    /// Absolute override to being able to attack.
+    /// </summary>
+    NoAttack = 5,
+
+    /// <summary>
+    /// In the air as far as anti-air weapons are concerned only.
+    /// </summary>
+    [IniEnum("AIRBORNE_TARGET")]
+    AirborneTarget = 6,
+
+    /// <summary>
+    /// Object is on a parachute.
+    /// </summary>
+    Parachuting = 7,
+
+    /// <summary>
+    /// Object repluses <see cref="ObjectKinds.CanBeRepulsed"/> objects.
+    /// </summary>
+    Repulsor = 8,
+
+    /// <summary>
+    /// Unit is in the possession of an enemy criminal. Call the authorities.
+    /// </summary>
     [IniEnum("HIJACKED")]
-    Hijacked = 9, // 512 in sav file
+    Hijacked = 9,
+
+    /// <summary>
+    /// This object is on fire.
+    /// </summary>
+    Aflame = 10,
+
+    /// <summary>
+    /// This object has already burned as much as it can.
+    /// </summary>
+    Burned = 11,
+
+    /// <summary>
+    /// Object has been soaked with water.
+    /// </summary>
+    Wet = 12,
+
+    /// <summary>
+    /// Object is firing a weapon, now. Not true for special attacks.
+    /// </summary>
+    [IniEnum("IS_FIRING_WEAPON")]
+    IsFiringWeapon = 13,
+
+    /// <summary>
+    /// Object is braking, and subverts the physics.
+    /// </summary>
+    [IniEnum("IS_BRAKING")]
+    IsBraking = 14,
+
+    /// <summary>
+    /// Object is currently "stealthed".
+    /// </summary>
+    Stealthed = 15,
+
+    /// <summary>
+    /// Object is in range of a stealth-detector unit.
+    /// Meaningless if <see cref="Stealthed"/> is not set.
+    /// </summary>
+    Detected = 16,
+
+    /// <summary>
+    /// Object has ability to stealth allowing the stealth update module to run.
+    /// </summary>
+    CanStealth = 17,
+
+    /// <summary>
+    /// Object is being sold.
+    /// </summary>
+    [IniEnum("SOLD")]
+    Sold = 18,
+
+    /// <summary>
+    /// Object is awaiting/undergoing a repair order that has been issued.
+    /// </summary>
+    UndergoingRepair = 19,
+
+    /// <summary>
+    /// Reconstructing.
+    /// </summary>
+    Reconstructing = 20,
+
+    /// <summary>
+    /// Masked objects are not selectable and targetable by players or AI.
+    /// </summary>
+    [IniEnum("MASKED")]
+    Masked = 21,
+
+    [IniEnum("INSIDE_GARRISON")]
+    InsideGarrison = 21, // Same as Masked?
+
+    /// <summary>
+    /// Object is in the general Attack state (including aim, approach, etc).
+    /// Note that <see cref="IsFiringWeapon"/> and <see cref="IsAimingWeapon"/>
+    /// is a subset of this.
+    /// </summary>
+    [IniEnum("IS_ATTACKING")]
+    IsAttacking = 22,
+
+    /// <summary>
+    /// Object is in the process of preparing or firing a special ability.
+    /// </summary>
+    UsingAbility = 23,
+
+    /// <summary>
+    /// Object is aiming a weapon, now. Not true for special attacks.
+    /// </summary>
+    [IniEnum("IS_AIMING_WEAPON")]
+    IsAimingWeapon = 24,
+
+    /// <summary>
+    /// Attacking this object may not be done from commandSource == CMD_FROM_AI.
+    /// </summary>
+    NoAttackFromAI = 25,
+
+    /// <summary>
+    /// Temporarily ignoring all stealth bits.
+    /// Used only for some special-case mine clearing stuff.
+    /// </summary>
+    IgnoringStealth = 26,
+
+    /// <summary>
+    /// Object is now a car bomb.
+    /// </summary>
+    IsCarBomb = 27,
+
+    // Everything past here was added in Zero Hour or beyond.
+    // So no need for explicit numeric values.
+
+    /// <summary>
+    /// Object factors deck height on top of ground altitude.
+    /// </summary>
+    DeckHeightOffset,
 
     [IniEnum("STATUS_RIDER1")]
     StatusRider1,
@@ -57,50 +210,68 @@ public enum ObjectStatus
     [IniEnum("STATUS_RIDER7")]
     StatusRider7,
 
-    [IniEnum("SOLD")]
-    Sold = 18, // object being sold was 262152 in sav file - zero-indexed bits 3 and 18
-
-    [IniEnum("INSIDE_GARRISON")]
-    InsideGarrison = 21, // ranger in garrison was 2097160 in sav file - zero-indexed bits 3 and 21
-
-    [IniEnum("IS_BRAKING")]
-    IsBraking,
-
-    [IniEnum("IS_ATTACKING")]
-    IsAttacking,
-
-    [IniEnum("IS_FIRING_WEAPON")]
-    IsFiringWeapon,
-
-    [IniEnum("IS_AIMING_WEAPON")]
-    IsAimingWeapon,
-
-    [IniEnum("NO_COLLISIONS")]
-    NoCollisions,
-
-    [IniEnum("KILLING_SELF")]
-    KillingSelf,
-
-    [IniEnum("AIRBORNE_TARGET")]
-    AirborneTarget,
-
-    [IniEnum("MASKED")]
-    Masked,
-
     [IniEnum("STATUS_RIDER8")]
     StatusRider8,
 
-    [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
-    CanAttack,
+    /// <summary>
+    /// Anyone shooting at you shoots faster than normal.
+    /// </summary>
+    FaerieFire,
+
+    /// <summary>
+    /// Object (likely a missile or bomb) is *BUSTING* its way through the *BUNKER*,
+    /// building or ground, awaiting death at the bottom.
+    /// </summary>
+    MissingKillingSelf,
+
+    /// <summary>
+    /// We need to know we have a booby trap on us so we can detonate it
+    /// from many different code segments.
+    /// </summary>
+    BoobyTrapped,
+
+    /// <summary>
+    /// Do not move!
+    /// </summary>
+    Immobile,
+
+    /// <summary>
+    /// Object is disguised (a type of stealth).
+    /// </summary>
+    Disguised,
+
+    /// <summary>
+    /// Object is deployed.
+    /// </summary>
+    [IniEnum("DEPLOYED")]
+    Deployed,
+
+    [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
+    Unattackable,
+
+    [IniEnum("TOPPLED")]
+    Toppled,
+
+    [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+    Death1,
+
+    [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+    Death2,
+
+    [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+    Death3,
+
+    [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+    Death4,
+
+    [IniEnum("KILLING_SELF")]
+    KillingSelf,
 
     [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
     BloodThirsty,
 
     [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
     Enclosed,
-
-    [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
-    Deployed,
 
     [IniEnum("RIDER1"), AddedIn(SageGame.Bfme)]
     Rider1,

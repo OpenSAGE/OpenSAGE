@@ -10,12 +10,12 @@ public sealed class HighlanderBody : ActiveBody
     {
     }
 
-    public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
+    public override void AttemptDamage(ref DamageData damageInfo)
     {
         // TODO: Don't think this is right.
-        if (damageType == DamageType.Unresistable)
+        if (damageInfo.Request.DamageType == DamageType.Unresistable)
         {
-            Health -= amount;
+            Health -= (Fix64)damageInfo.Request.DamageToDeal;
 
             if (Health < (Fix64)0)
             {
@@ -26,7 +26,7 @@ public sealed class HighlanderBody : ActiveBody
 
             if (Health <= Fix64.Zero)
             {
-                GameObject.Die(deathType);
+                GameObject.Die(damageInfo.Request.DeathType);
             }
         }
     }

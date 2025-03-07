@@ -61,7 +61,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         }
     }
 
-    public void OnCollide(GameObject collidingObject)
+    public void OnCollide(GameObject other, in Vector3 location, in Vector3 normal)
     {
         // If we've already started toppling, don't do anything.
         if (_toppleState != ToppleState.NotToppled)
@@ -70,7 +70,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         }
 
         // Only things with a CrusherLevel greater than our CrushableLevel, can topple us.
-        if (collidingObject.Definition.CrusherLevel <= _gameObject.Definition.CrushableLevel)
+        if (other.Definition.CrusherLevel <= _gameObject.Definition.CrushableLevel)
         {
             return;
         }

@@ -48,3 +48,11 @@ public sealed class CrushDieModuleData : DieModuleData
         return new CrushDie(this);
     }
 }
+
+public enum CrushType
+{
+    TotalCrush,
+    BackEndCrush,
+    FrontEndCrush,
+    NoCrush,
+}

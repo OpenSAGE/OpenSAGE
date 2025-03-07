@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using FixedMath.NET;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
-using OpenSage.Logic.Object.Damage;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 
@@ -24,6 +23,8 @@ public class ActiveBody : BodyModule
     private DamageData _lastDamage;
     private LogicFrame _lastDamagedAt;
     private uint _unknownFrame3;
+    private bool _frontCrushed;
+    private bool _backCrushed;
     private bool _unknownBool;
     private bool _indestructible;
 
@@ -33,6 +34,10 @@ public class ActiveBody : BodyModule
     private DamageFX _currentDamageFX;
 
     public override Fix64 MaxHealth { get; internal set; }
+
+    public override bool FrontCrushed => _frontCrushed;
+
+    public override bool BackCrushed => _backCrushed;
 
     public DamageData LastDamage => _lastDamage;
 
@@ -74,7 +79,7 @@ public class ActiveBody : BodyModule
         _lastHealthBeforeDamage = _currentHealth;
     }
 
-    public override void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
+    public override void AttemptDamage(ref DamageData damageInfo)
     {
         if (Health <= Fix64.Zero)
         {
@@ -84,25 +89,28 @@ public class ActiveBody : BodyModule
         ValidateArmorAndDamageFX();
 
         // Actual amount of damage depends on armor.
-        var damagePercent = _currentArmor?.GetDamagePercent(damageType) ?? new Percentage(1.0f);
-        var actualDamage = amount * (Fix64)(float)damagePercent;
+        var damagePercent = _currentArmor?.GetDamagePercent(damageInfo.Request.DamageType) ?? new Percentage(1.0f);
+        var actualDamage = (Fix64)damageInfo.Request.DamageToDeal * (Fix64)(float)damagePercent;
 
-        var takingDamage = damageType is not DamageType.Healing;
+        var takingDamage = damageInfo.Request.DamageType is not DamageType.Healing;
 
         var newHealth = takingDamage ? Health - actualDamage : Health + actualDamage;
 
         SetHealth(newHealth);
 
-        var damageRequest = new DamageDataRequest(damageDealer?.ID ?? 0, damageType, deathType, (float)amount, damageDealer?.Definition.Name ?? string.Empty);
-        var damageResult = new DamageDataResult((float)actualDamage, _lastHealthBeforeDamage - _currentHealth);
+        var damager = _context.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
+        damageInfo.Request.AttackerName = damager?.Definition.Name ?? string.Empty;
 
-        _lastDamage = new DamageData(damageRequest, damageResult);
+        damageInfo.Result.DamageAfterArmorCalculation = (float)actualDamage;
+        damageInfo.Result.ActualDamageApplied = _lastHealthBeforeDamage - _currentHealth;
+
+        _lastDamage = damageInfo;
         _lastDamagedAt = _context.GameLogic.CurrentFrame;
 
         // TODO: DamageFX
         if (_currentDamageFX != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
         {
-            var damageFXGroup = _currentDamageFX.GetGroup(damageType);
+            var damageFXGroup = _currentDamageFX.GetGroup(damageInfo.Request.DamageType);
 
             // TODO: MajorFX
             var minorFX = damageFXGroup.MinorFX?.Value;
@@ -115,7 +123,7 @@ public class ActiveBody : BodyModule
 
         if (Health <= Fix64.Zero)
         {
-            GameObject.Die(deathType);
+            GameObject.Die(damageInfo.Request.DeathType);
         }
 
         GameObject.OnDamage(_lastDamage);
@@ -123,7 +131,17 @@ public class ActiveBody : BodyModule
 
     public override void Heal(Fix64 amount, GameObject healer)
     {
-        DoDamage(DamageType.Healing, amount, DeathType.None, healer);
+        var damageInfo = new DamageData
+        {
+            Request =
+            {
+                DamageType = DamageType.Healing,
+                DeathType = DeathType.None,
+                DamageToDeal = (float)amount,
+                DamageDealer = healer.ID,
+            }
+        };
+        AttemptDamage(ref damageInfo);
     }
 
     public override void Heal(Fix64 amount)
@@ -187,7 +205,8 @@ public class ActiveBody : BodyModule
         reader.PersistLogicFrame(ref _lastDamagedAt);
         reader.PersistFrame(ref _unknownFrame3);
 
-        reader.SkipUnknownBytes(2);
+        reader.PersistBoolean(ref _frontCrushed);
+        reader.PersistBoolean(ref _backCrushed);
 
         reader.PersistBoolean(ref _unknownBool);
         reader.PersistBoolean(ref _indestructible);
