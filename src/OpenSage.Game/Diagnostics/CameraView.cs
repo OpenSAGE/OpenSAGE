@@ -1,6 +1,4 @@
-﻿using ImGuiNET;
-using OpenSage.Graphics.Cameras;
-
+﻿
 namespace OpenSage.Diagnostics;
 
 internal sealed class CameraView : DiagnosticView
@@ -15,7 +13,7 @@ internal sealed class CameraView : DiagnosticView
 
     protected override void DrawOverride(ref bool isGameViewFocused)
     {
-        var cameraController = (RtsCameraController)Context.Game.Scene3D.CameraController;
-        cameraController.DrawInspector();
+        var tacticalView = Context.Game.Scene3D.TacticalView;
+        tacticalView.DrawInspector();
     }
 }

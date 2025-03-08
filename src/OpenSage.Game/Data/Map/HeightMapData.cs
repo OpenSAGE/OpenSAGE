@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Numerics;
 
 namespace OpenSage.Data.Map;
 
@@ -11,7 +13,7 @@ public sealed class HeightMapData : Asset
     // Gathered from heights in World Builder's status bar compared to heightmap data.
     // In Generals, heights are stored as uint8 (max 255), and scaled by 0.625 (max 159.375)
     // In BFME, BFME2, C&C3, heights are stored in uint16 (max 65536), and scaled by 0.0390625 (max 2560)
-    // Corresponds to MAP_XY_FACTOR in ZH
+    // Corresponds to MAP_HEIGHT_SCALE in ZH
     public float VerticalScale => ElevationsAre16Bit ? 0.0390625f : 0.625f;
 
     public uint Width { get; private set; }
@@ -26,6 +28,9 @@ public sealed class HeightMapData : Asset
 
     public uint Area { get; private set; }
     public ushort[,] Elevations { get; private set; }
+
+    public float MinZ { get; private set; }
+    public float MaxZ { get; private set; }
 
     public static HeightMapData Create(uint borderWidth, ushort[,] elevations)
     {
@@ -68,16 +73,25 @@ public sealed class HeightMapData : Asset
                 throw new InvalidDataException();
             }
 
+            var minZ = ushort.MaxValue;
+            var maxZ = ushort.MinValue;
+
             result.Elevations = new ushort[result.Width, result.Height];
             for (var y = 0; y < result.Height; y++)
             {
                 for (var x = 0; x < result.Width; x++)
                 {
-                    result.Elevations[x, y] = version >= 5
+                    var elevation = version >= 5
                         ? reader.ReadUInt16()
                         : reader.ReadByte();
+                    minZ = Math.Min(minZ, elevation);
+                    maxZ = Math.Max(maxZ, elevation);
+                    result.Elevations[x, y] = elevation;
                 }
             }
+
+            result.MinZ = minZ * result.VerticalScale;
+            result.MaxZ = maxZ * result.VerticalScale;
 
             return result;
         });
@@ -127,8 +141,15 @@ public struct HeightMapBorder
     [AddedIn(SageGame.Cnc3)]
     public uint Corner1Y;
 
-    public uint Corner2X;
-    public uint Corner2Y;
+    // Previous name Corner2X
+    public uint X;
+    // Previous name Corner2Y
+    public uint Y;
+
+    public Vector2 ToVector2()
+    {
+        return new Vector2(X, Y);
+    }
 
     internal static HeightMapBorder Parse(BinaryReader reader, ushort version)
     {
@@ -138,8 +159,8 @@ public struct HeightMapBorder
             {
                 Corner1X = reader.ReadUInt32(),
                 Corner1Y = reader.ReadUInt32(),
-                Corner2X = reader.ReadUInt32(),
-                Corner2Y = reader.ReadUInt32()
+                X = reader.ReadUInt32(),
+                Y = reader.ReadUInt32()
             };
         }
         else
@@ -148,8 +169,8 @@ public struct HeightMapBorder
             {
                 Corner1X = 0,
                 Corner1Y = 0,
-                Corner2X = reader.ReadUInt32(),
-                Corner2Y = reader.ReadUInt32()
+                X = reader.ReadUInt32(),
+                Y = reader.ReadUInt32()
             };
         }
     }
@@ -160,13 +181,13 @@ public struct HeightMapBorder
         {
             writer.Write(Corner1X);
             writer.Write(Corner1Y);
-            writer.Write(Corner2X);
-            writer.Write(Corner2Y);
+            writer.Write(X);
+            writer.Write(Y);
         }
         else
         {
-            writer.Write(Corner2X);
-            writer.Write(Corner2Y);
+            writer.Write(X);
+            writer.Write(Y);
         }
     }
 }

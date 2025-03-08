@@ -124,7 +124,7 @@ internal class UserMapCache
 
         var border = mapFile.HeightMapData.Borders[0];
         mapCache.ExtentMin = new Vector3(border.Corner1X, border.Corner1Y, 0f);
-        mapCache.ExtentMax = new Vector3(border.Corner2X, border.Corner2Y, 0f);
+        mapCache.ExtentMax = new Vector3(border.X, border.Y, 0f);
 
         byte startingPositionsFound = 0;
         foreach (var mapObject in mapFile.ObjectsList.Objects)
@@ -133,7 +133,7 @@ internal class UserMapCache
             if ((mapObject.RoadType & RoadType.PrimaryType) == RoadType.None)
             {
                 // handle special waypoints
-                if (mapObject.TypeName == Waypoint.ObjectTypeName)
+                if (mapObject.TypeName == OpenSage.Scripting.Waypoint.ObjectTypeName)
                 {
                     var waypointName = (string)mapObject.Properties["waypointName"].Value;
                     switch (waypointName)

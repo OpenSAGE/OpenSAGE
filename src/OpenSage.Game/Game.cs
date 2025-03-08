@@ -455,13 +455,6 @@ public sealed class Game : DisposableBase, IGame
                             return InputMessageResult.Handled;
                         }
 
-                        if (message.MessageType == InputMessageType.KeyDown && message.Value.Key == Key.Comma)
-                        {
-                            var rtsCam = Scene3D.CameraController as RtsCameraController;
-                            rtsCam.CanPlayerInputChangePitch = !rtsCam.CanPlayerInputChangePitch;
-                            return InputMessageResult.Handled;
-                        }
-
                         return InputMessageResult.NotHandled;
                     }));
 
@@ -659,6 +652,7 @@ public sealed class Game : DisposableBase, IGame
         return new AptWindow(this, ContentManager, aptFile);
     }
 
+    // TODO(Port): GameLogic::startNewGame in GameLogic.cpp
     private void StartGame(
         string mapFileName,
         IConnection connection,
@@ -691,16 +685,24 @@ public sealed class Game : DisposableBase, IGame
         {
             for (var i = 0; i < playerSettings.Length; i++)
             {
-                Scene3D.CreateSkirmishPlayerStartingBuilding(
-                    playerSettings[i],
-                    Scene3D.Players[i + 2]);
+                var playerSetting = playerSettings[i];
+                var player = Scene3D.Players[i + 2];
+                var startingBuilding = Scene3D.CreateSkirmishPlayerStartingBuilding(playerSetting, player);
+
+                if (player.IsHuman)
+                {
+                    Scene3D.TacticalView.LookAt(startingBuilding.Transform.Translation);
+                    Scene3D.TacticalView.InitHeightForMap();
+                    Scene3D.TacticalView.SetAngleAndPitchToDefault();
+                    Scene3D.TacticalView.SetZoomToDefault();
+                }
             }
         }
 
         if (Scene3D.LocalPlayer.SelectedUnits.Count > 0)
         {
             var mainUnit = Scene3D.LocalPlayer.SelectedUnits.First();
-            Scene3D.CameraController.GoToObject(mainUnit);
+            // Scene3D.CameraController.GoToObject(mainUnit);
         }
         else
         {
@@ -847,7 +849,7 @@ public sealed class Game : DisposableBase, IGame
         _renderTimer.Update();
         RenderTime = _renderTimer.CurrentGameTime;
 
-        InputMessageBuffer.PumpEvents(messages);
+        InputMessageBuffer.PumpEvents(messages, RenderTime);
 
         // Prevent virtual Update() call when the game has already started, it's only needed in the menu
         if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)

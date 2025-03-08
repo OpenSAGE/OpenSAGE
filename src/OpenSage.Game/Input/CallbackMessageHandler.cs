@@ -14,5 +14,5 @@ public sealed class CallbackMessageHandler : InputMessageHandler
 
     public override HandlingPriority Priority { get; }
 
-    public override InputMessageResult HandleMessage(InputMessage message) => _handleMessage(message);
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime) => _handleMessage(message);
 }

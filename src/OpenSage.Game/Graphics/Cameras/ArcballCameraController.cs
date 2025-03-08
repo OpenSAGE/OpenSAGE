@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras;
 
-public sealed class ArcballCameraController : ICameraController
+public sealed class ArcballCameraController : IEditorCameraController
 {
     private const float RotationSpeed = 0.003f;
     private const float ZoomSpeed = 0.001f;
@@ -23,9 +23,9 @@ public sealed class ArcballCameraController : ICameraController
     private float _zoom;
     private Vector3 _translation;
 
-    void ICameraController.SetPitch(float pitch) => throw new NotImplementedException();
-    float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    void IEditorCameraController.SetPitch(float pitch) => throw new NotImplementedException();
+    float IEditorCameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    Vector3 IEditorCameraController.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public ArcballCameraController(Vector3 target, float radius)
     {
@@ -74,22 +74,7 @@ public sealed class ArcballCameraController : ICameraController
         _translation += Vector3.Transform(Vector3.UnitZ, cameraOrientation) * deltaY * PanSpeed;
     }
 
-    void ICameraController.SetLookDirection(Vector3 lookDirection)
-    {
-        throw new NotImplementedException();
-    }
-
-    void ICameraController.ModSetFinalPitch(float finalPitch, float easeInPercentage, float easeOutPercentage)
-    {
-        throw new NotImplementedException();
-    }
-
-    void ICameraController.ModSetFinalZoom(float finalZoom)
-    {
-        throw new NotImplementedException();
-    }
-
-    void ICameraController.ModFinalLookToward(in Vector3 position)
+    void IEditorCameraController.SetLookDirection(Vector3 lookDirection)
     {
         throw new NotImplementedException();
     }
@@ -99,17 +84,7 @@ public sealed class ArcballCameraController : ICameraController
         throw new NotImplementedException();
     }
 
-    CameraAnimation ICameraController.StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
-    {
-        throw new NotImplementedException();
-    }
-
-    void ICameraController.EndAnimation()
-    {
-        throw new NotImplementedException();
-    }
-
-    void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+    void IEditorCameraController.UpdateCamera(Camera camera, in EditorCameraInputState inputState, in TimeInterval gameTime)
     {
         if (inputState.LeftMouseDown)
         {

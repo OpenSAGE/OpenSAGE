@@ -75,7 +75,7 @@ internal sealed class RenderedView : DisposableBase
                 _context.Window.MessageQueue)
             : Array.Empty<InputMessage>();
 
-        _inputMessageBuffer.PumpEvents(inputMessages);
+        _inputMessageBuffer.PumpEvents(inputMessages, _context.Game.RenderTime);
 
         _scene3D.LocalLogicTick(_context.Game.MapTime, 1.0f);
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -56,7 +58,7 @@ public sealed class WaypointCollection
         }
     }
 
-    public bool TryGetByName(string name, out Waypoint waypoint)
+    public bool TryGetByName(string name, out Waypoint? waypoint)
     {
         return _waypointsByName.TryGetValue(name, out waypoint);
     }
@@ -65,14 +67,22 @@ public sealed class WaypointCollection
     {
         return _waypointsByPathLabel.TryGetValue(pathLabel, out var waypoints) ? waypoints : Array.Empty<Waypoint>();
     }
+
+    public bool TryGetPlayerStart(int playerIndex, out Waypoint? waypoint)
+    {
+        // Generals uses 0-based player indices, but 1-based indices for waypoints.
+        // However we already use 1-based indices for both, so we don't need to adjust here.
+        return TryGetByName($"Player_{playerIndex}_Start", out waypoint);
+    }
 }
+
 
 [DebuggerDisplay("ID = {ID}, Name = {Name}")]
 public sealed class Waypoint
 {
     public const string ObjectTypeName = "*Waypoints/Waypoint";
 
-    private List<Waypoint> _connectedWaypoints;
+    private List<Waypoint>? _connectedWaypoints;
 
     public int ID { get; }
     public string Name { get; }
@@ -104,12 +114,12 @@ public sealed class Waypoint
 
     public void AddConnectionTo(Waypoint waypoint)
     {
-        _connectedWaypoints ??= new List<Waypoint>();
+        _connectedWaypoints ??= [];
         _connectedWaypoints.Add(waypoint);
     }
 
     public IReadOnlyList<Waypoint> ConnectedWaypoints =>
-        (IReadOnlyList<Waypoint>)_connectedWaypoints ?? Array.Empty<Waypoint>();
+        (IReadOnlyList<Waypoint>?)_connectedWaypoints ?? [];
 
     /// <summary>
     /// Follows a waypoint path starting with this waypoint.

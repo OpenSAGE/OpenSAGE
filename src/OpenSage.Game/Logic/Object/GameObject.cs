@@ -475,7 +475,25 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
     }
 
+    // TODO(Port): Cache this as well
+    public float HeightAboveTerrainOrWater
+    {
+        get
+        {
+            var pos = Transform.Translation;
+            if (_gameContext.Game.TerrainLogic.IsUnderwater(new Vector2(pos.X, pos.Y), out var waterZ))
+            {
+                return pos.Z - waterZ;
+            }
+            else
+            {
+                return HeightAboveTerrain;
+            }
+        }
+    }
+
     public bool IsAboveTerrain => HeightAboveTerrain > 0.0f;
+    public bool IsAboveTerrainOrWater => HeightAboveTerrainOrWater > 0.0f;
 
     /// <summary>
     /// Original comment (which I don't totally understand):
@@ -1359,6 +1377,16 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         return Translation.Z - _gameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
     }
 
+    public bool IsUsingAirborneLocomotor()
+    {
+        if (AIUpdate.CurrentLocomotor == null)
+        {
+            return false;
+        }
+
+        return AIUpdate.CurrentLocomotor.LocomotorTemplate.Surfaces.HasFlag(Surfaces.Air);
+    }
+
     // TODO(Port): Actually set _privateStatus.
     public bool IsOffMap => (_privateStatus & ObjectPrivateStatusFlags.OffMap) != 0;
 
@@ -1822,7 +1850,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         if (ImGui.Button("Bring into view"))
         {
-            _gameContext.Scene3D.CameraController.GoToObject(this);
+            _gameContext.Scene3D.TacticalView.LookAt(Translation);
         }
 
         ImGui.SameLine();

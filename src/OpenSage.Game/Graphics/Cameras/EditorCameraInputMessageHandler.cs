@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Cameras;
 
-public sealed class CameraInputMessageHandler : InputMessageHandler
+public sealed class EditorCameraInputMessageHandler : InputMessageHandler
 {
     private readonly List<Key> _pressedKeys = new List<Key>();
 
@@ -22,7 +22,7 @@ public sealed class CameraInputMessageHandler : InputMessageHandler
             ? HandlingPriority.MoveCameraPriority
             : HandlingPriority.CameraPriority;
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         switch (message.MessageType)
         {
@@ -103,7 +103,7 @@ public sealed class CameraInputMessageHandler : InputMessageHandler
         return InputMessageResult.Handled;
     }
 
-    public void UpdateInputState(ref CameraInputState state)
+    public void UpdateInputState(ref EditorCameraInputState state)
     {
         state.LeftMouseDown = _leftMouseDown;
         state.MiddleMouseDown = _middleMouseDown;

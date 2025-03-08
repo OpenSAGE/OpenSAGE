@@ -63,6 +63,11 @@ public readonly struct RectangleF
         Height = height;
     }
 
+    public static RectangleF FromMinMax(in Vector2 min, in Vector2 max)
+    {
+        return new RectangleF(min, new SizeF(max - min));
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {

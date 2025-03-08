@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Numerics;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Scripting;
 
@@ -13,46 +10,36 @@ partial class ScriptActions
         var positionWaypoint = context.Scene.Waypoints[positionWaypointName];
         var targetWaypoint = context.Scene.Waypoints[targetWaypointName];
 
-        context.Scene.CameraController.EndAnimation();
-
-        context.Scene.CameraController.TerrainPosition = positionWaypoint.Position;
-        context.Scene.CameraController.Zoom = zoom;
-        context.Scene.CameraController.SetPitch(pitch);
-        context.Scene.CameraController.SetLookDirection(Vector3.Normalize(targetWaypoint.Position - positionWaypoint.Position));
+        context.Scene.TacticalView.MoveCameraTo(positionWaypoint.Position, 0, 0, true, 0.0f, 0.0f);
+        context.Scene.TacticalView.CameraModFinalLookToward(targetWaypoint.Position);
+        context.Scene.TacticalView.CameraModFinalPitch(pitch, 0, 0);
+        context.Scene.TacticalView.CameraModFinalZoom(zoom, 0, 0);
     }
 
     [ScriptAction(ScriptActionType.CameraModSetFinalZoom, "Camera/Move/Set final zoom for camera movement", "Adjust zoom to {0}")]
-    public static void CameraModSetFinalZoom(ScriptExecutionContext context, float finalZoom)
+    public static void CameraModSetFinalZoom(ScriptExecutionContext context, float finalZoom, float? easeIn, float? easeOut)
     {
-        context.Scene.CameraController.ModSetFinalZoom(finalZoom);
+        context.Scene.TacticalView.CameraModFinalZoom(finalZoom, easeIn ?? 0, easeOut ?? 0);
     }
 
     [ScriptAction(ScriptActionType.CameraModSetFinalPitch, "Camera/Move/Set final pitch for camera movement", "Adjust pitch to {0}", SageGame.CncGenerals, SageGame.CncGeneralsZeroHour)]
-    public static void CameraModSetFinalPitch(ScriptExecutionContext context, float finalPitch)
+    public static void CameraModSetFinalPitch(ScriptExecutionContext context, float finalPitch, float? easeIn, float? easeOut)
     {
-        context.Scene.CameraController.ModSetFinalPitch(finalPitch, 0, 0);
-    }
-
-    [ScriptAction(ScriptActionType.CameraModSetFinalPitch, "Camera/Move/Set final pitch for camera movement", "Adjust pitch to {0}, {1}% ease-in, {2}% ease-out")]
-    public static void CameraModSetFinalPitch(ScriptExecutionContext context, float finalPitch, float easeInPercentage, float easeOutPercentage)
-    {
-        context.Scene.CameraController.ModSetFinalPitch(finalPitch, easeInPercentage, easeOutPercentage);
+        context.Scene.TacticalView.CameraModFinalPitch(finalPitch, easeIn ?? 0, easeOut ?? 0);
     }
 
     [ScriptAction(ScriptActionType.CameraModFinalLookToward, "Camera/Move/Set final look-toward point for camera movement", "Look toward {0} at the end of the camera movement")]
     public static void CameraModFinalLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
     {
         var waypoint = context.Scene.Waypoints[waypointName];
-
-        context.Scene.CameraController.ModFinalLookToward(waypoint.Position);
+        context.Scene.TacticalView.CameraModFinalLookToward(waypoint.Position);
     }
 
     [ScriptAction(ScriptActionType.CameraModLookToward, "Camera/Move/Camera look toward point while moving", "Look toward {0} during the camera movement")]
     public static void CameraModLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
     {
         var waypoint = context.Scene.Waypoints[waypointName];
-
-        context.Scene.CameraController.ModLookToward(waypoint.Position);
+        context.Scene.TacticalView.CameraModLookToward(waypoint.Position);
     }
 
     // There are two versions of MoveCameraTo:
@@ -65,29 +52,33 @@ partial class ScriptActions
     // The second is for all other games.
 
     [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds", SageGame.CncGenerals, SageGame.CncGeneralsZeroHour)]
-    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float rawDuration, float shutter)
+    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float durationSeconds, float stutterSeconds, float? easeIn, float? easeOut)
     {
-        var targetPoint = context.Scene.Waypoints[waypointName].Position;
+        var destination = context.Scene.Waypoints[waypointName].Position;
 
-        var duration = TimeSpan.FromSeconds(rawDuration);
-
-        context.Scene.CameraController.StartAnimation(
-            new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
-            context.UpdateTime.TotalTime,
-            duration);
+        context.Scene.TacticalView.MoveCameraTo(
+            destination,
+            (int)(durationSeconds * 1000),
+            (int)(stutterSeconds * 1000),
+            true,
+            (easeIn ?? 0.0f) * 1000.0f,
+            (easeOut ?? 0.0f) * 1000.0f
+        );
     }
 
     [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
     public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string cameraName, float rawDuration, float shutter, float easeIn, float easeOut)
     {
-        var camera = context.Scene.Cameras[cameraName];
+        // TODO: This is a BFME+ script action
+
+        /*var camera = context.Scene.Cameras[cameraName];
 
         var targetPoint = camera.LookAtPoint;
 
         var duration = TimeSpan.FromSeconds(rawDuration);
 
         var animation = context.Scene.CameraController.StartAnimation(
-            new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
+            new[] { context.Scene.CameraController.Position, targetPoint },
             context.UpdateTime.TotalTime,
             duration);
 
@@ -99,11 +90,11 @@ partial class ScriptActions
 
         animation.SetFinalZoom(camera.Zoom);
 
-        animation.SetFinalFieldOfView(camera.FieldOfView);
+        animation.SetFinalFieldOfView(camera.FieldOfView);*/
     }
 
     [ScriptAction(ScriptActionType.MoveCameraAlongWaypointPath, "Camera/Move/Move camera along a waypoint path", "Move along path starting with {0} in {1} seconds, camera shutter {2} seconds")]
-    public static void MoveCameraAlongWaypointPath(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string firstWaypointName, float rawTotalDuration, float shutter)
+    public static void MoveCameraAlongWaypointPath(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string firstWaypointName, float rawTotalDuration, float shutter, float? easeIn = null, float? easeOut = null)
     {
         if (!context.Scene.Waypoints.TryGetByName(firstWaypointName, out var waypoint))
         {
@@ -111,21 +102,14 @@ partial class ScriptActions
             return;
         }
 
-        var totalDuration = TimeSpan.FromSeconds(rawTotalDuration);
-
-        var path = waypoint.FollowPath(context.Scene.Random);
-
-        // TODO: Avoid allocating this list?
-        // TODO: Does the real engine start the animation from the current position?
-
-        // Calling .ToList() here is dangerous, as a path could contain a loop,
-        // but it shouldn't happen for camera paths (the original ZH freezes as well
-        // when you try this).
-        var pathWithCurrentPos = path.Prepend(context.Scene.CameraController.TerrainPosition).ToList();
-
-        context.Scene.CameraController.StartAnimation(
-            pathWithCurrentPos,
-            context.UpdateTime.TotalTime, totalDuration);
+        context.Game.Scene3D.TacticalView.MoveCameraAlongWaypointPath(
+            waypoint,
+            (int)(rawTotalDuration * 1000),
+            (int)(shutter * 1000),
+            true,
+            easeIn ?? 0,
+            easeOut ?? 0
+        );
     }
 
     [ScriptAction(ScriptActionType.TerrainRenderDisable, "Camera/Terrain/Enable or disable terrain rendering", "Disable terrain rendering {0} (true to disable)")]
