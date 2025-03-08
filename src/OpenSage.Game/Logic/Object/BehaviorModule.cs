@@ -9,12 +9,15 @@ public abstract class ObjectModule : ModuleBase
 {
     protected GameObject GameObject { get; }
 
+    protected GameContext Context { get; }
+
     // TODO: Remove this once all subclasses use the other constructor.
     protected ObjectModule() { }
 
-    protected ObjectModule(GameObject gameObject)
+    protected ObjectModule(GameObject gameObject, GameContext context)
     {
         GameObject = gameObject;
+        Context = context;
     }
 
     internal override void Load(StatePersister reader)
@@ -32,8 +35,8 @@ public abstract class BehaviorModule : ObjectModule
     // TODO: Remove this once all subclasses use the other constructor.
     protected BehaviorModule() { }
 
-    protected BehaviorModule(GameObject gameObject)
-        : base(gameObject)
+    protected BehaviorModule(GameObject gameObject, GameContext context)
+        : base(gameObject, context)
     {
     }
 

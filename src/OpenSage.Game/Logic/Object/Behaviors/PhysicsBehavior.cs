@@ -109,7 +109,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     internal float VelocityMagnitude => _velocityMagnitude;
 
     internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
-        : base(gameObject)
+        : base(gameObject, context)
     {
         _gameObject = gameObject;
         _context = context;
@@ -659,7 +659,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             const float maxStiffness = 0.99f;
 
             var stiffness = Math.Clamp(
-                GameObject.Context.AssetStore.GameData.Current.GroundStiffness,
+                Context.AssetStore.GameData.Current.GroundStiffness,
                 minStiffness,
                 maxStiffness);
 

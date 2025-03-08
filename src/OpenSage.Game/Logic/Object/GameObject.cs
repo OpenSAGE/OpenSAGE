@@ -136,9 +136,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
     }
 
-    // TODO: Remove this. There should be a better way to access the game context.
-    internal GameContext Context => _gameContext;
-
     public Percentage ProductionModifier { get; set; } = new Percentage(1);
     public Fix64 HealthModifier { get; set; }
 
@@ -598,25 +595,27 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 AddBehavior(behaviorDataContainer.Tag, module);
 
-                if (module is BodyModule body)
+                switch (module)
                 {
-                    _body = body;
-                }
-                else if (module is IContainModule contain)
-                {
-                    Contain = contain;
-                }
-                else if (module is AIUpdate aiUpdate)
-                {
-                    AIUpdate = aiUpdate;
-                }
-                else if (module is ProductionUpdate productionUpdate)
-                {
-                    ProductionUpdate = productionUpdate;
-                }
-                else if (module is PhysicsBehavior physics)
-                {
-                    Physics = physics;
+                    case BodyModule body:
+                        _body = body;
+                        break;
+
+                    case IContainModule contain:
+                        Contain = contain;
+                        break;
+
+                    case AIUpdate aiUpdate:
+                        AIUpdate = aiUpdate;
+                        break;
+
+                    case ProductionUpdate productionUpdate:
+                        ProductionUpdate = productionUpdate;
+                        break;
+
+                    case PhysicsBehavior physics:
+                        Physics = physics;
+                        break;
                 }
             }
         }
