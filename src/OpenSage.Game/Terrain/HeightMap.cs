@@ -20,6 +20,11 @@ public sealed class HeightMap
     public int MaxXCoordinate => (Width - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
     public int MaxYCoordinate => (Height - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
 
+    // Similar to MapUtil.cpp's getExtents
+    public RectangleF Extents => new(
+        Vector2.Zero,
+        new SizeF(MaxXCoordinate, MaxYCoordinate)
+    );
 
     public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
 

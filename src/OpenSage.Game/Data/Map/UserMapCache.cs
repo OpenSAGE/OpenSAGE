@@ -133,7 +133,7 @@ internal class UserMapCache
             if ((mapObject.RoadType & RoadType.PrimaryType) == RoadType.None)
             {
                 // handle special waypoints
-                if (mapObject.TypeName == Waypoint.ObjectTypeName)
+                if (mapObject.TypeName == OpenSage.Scripting.Waypoint.ObjectTypeName)
                 {
                     var waypointName = (string)mapObject.Properties["waypointName"].Value;
                     switch (waypointName)

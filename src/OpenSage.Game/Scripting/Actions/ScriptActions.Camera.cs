@@ -15,7 +15,7 @@ partial class ScriptActions
 
         context.Scene.CameraController.EndAnimation();
 
-        context.Scene.CameraController.TerrainPosition = positionWaypoint.Position;
+        context.Scene.CameraController.Position = positionWaypoint.Position;
         context.Scene.CameraController.Zoom = zoom;
         context.Scene.CameraController.SetPitch(pitch);
         context.Scene.CameraController.SetLookDirection(Vector3.Normalize(targetWaypoint.Position - positionWaypoint.Position));
@@ -72,7 +72,7 @@ partial class ScriptActions
         var duration = TimeSpan.FromSeconds(rawDuration);
 
         context.Scene.CameraController.StartAnimation(
-            new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
+            new[] { context.Scene.CameraController.Position, targetPoint },
             context.UpdateTime.TotalTime,
             duration);
     }
@@ -87,7 +87,7 @@ partial class ScriptActions
         var duration = TimeSpan.FromSeconds(rawDuration);
 
         var animation = context.Scene.CameraController.StartAnimation(
-            new[] { context.Scene.CameraController.TerrainPosition, targetPoint },
+            new[] { context.Scene.CameraController.Position, targetPoint },
             context.UpdateTime.TotalTime,
             duration);
 
@@ -121,7 +121,7 @@ partial class ScriptActions
         // Calling .ToList() here is dangerous, as a path could contain a loop,
         // but it shouldn't happen for camera paths (the original ZH freezes as well
         // when you try this).
-        var pathWithCurrentPos = path.Prepend(context.Scene.CameraController.TerrainPosition).ToList();
+        var pathWithCurrentPos = path.Prepend(context.Scene.CameraController.Position).ToList();
 
         context.Scene.CameraController.StartAnimation(
             pathWithCurrentPos,

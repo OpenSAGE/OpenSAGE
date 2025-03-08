@@ -75,7 +75,7 @@ public static class ControlBarCallbacks
                 break;
 
             case WndWindowMessageType.MouseRightDown: // Right mouse moves camera.
-                context.Game.Scene3D.CameraController.TerrainPosition = terrainPosition;
+                context.Game.Scene3D.CameraController.Position = terrainPosition;
                 break;
         }
     }

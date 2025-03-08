@@ -49,6 +49,7 @@ public sealed class Scene3D : DisposableBase
     public readonly Camera Camera;
 
     public readonly ICameraController CameraController;
+    public RtsCameraController RtsCameraController => CameraController as RtsCameraController;
 
     public readonly MapFile MapFile;
 
@@ -155,9 +156,9 @@ public sealed class Scene3D : DisposableBase
 
         CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
         {
-            TerrainPosition = Terrain.HeightMap.GetPosition(
+            /*CameraOffset = Terrain.HeightMap.GetPosition(
                 Terrain.HeightMap.Width / 2,
-                Terrain.HeightMap.Height / 2)
+                Terrain.HeightMap.Height / 2)*/
         };
 
         game.ContentManager.GraphicsDevice.WaitForIdle();
@@ -430,11 +431,12 @@ public sealed class Scene3D : DisposableBase
         DebugOverlay?.Draw(drawingContext, Camera);
     }
 
-    internal void CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
+    // TODO(Port): placeNetworkBuildingsForPlayer in GameLogic.cpp
+    internal GameObject CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
     {
         // TODO: Not sure what the OG does here.
         var playerStartPosition = new Vector3(80, 80, 0);
-        if (Waypoints.TryGetByName($"Player_{playerSetting.StartPosition}_Start", out var startWaypoint))
+        if (Waypoints.TryGetPlayerStart(playerSetting.StartPosition ?? 1, out var startWaypoint))
         {
             playerStartPosition = startWaypoint.Position;
         }
@@ -453,10 +455,13 @@ public sealed class Scene3D : DisposableBase
             startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
             startingUnit0.SetTranslation(startingUnit0Position);
 
-            Game.Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);
+            Game.Selection.SetSelectedObjects(player, [startingBuilding], playAudio: false);
+            return startingBuilding;
         }
         else
         {
+            throw new NotImplementedException("FIXME: BFME support");
+
             var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
             foreach (var gameObject in GameObjects.Objects)
             {
@@ -474,6 +479,7 @@ public sealed class Scene3D : DisposableBase
             {
                 castleBehavior.Unpack(player, instant: true);
             }
+
         }
     }
 }

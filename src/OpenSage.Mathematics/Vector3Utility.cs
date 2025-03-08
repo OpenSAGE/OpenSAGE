@@ -70,4 +70,14 @@ public static class Vector3Utility
 
     public static bool IsNaN(in Vector3 vector) =>
         float.IsNaN(vector.X) || float.IsNaN(vector.Y) || float.IsNaN(vector.Z);
+
+    public static float FindXAtZ(float z, in Vector3 start, in Vector3 end)
+    {
+        return start.X + ((z - start.Z) * ((end.X - start.X) / (end.Z - start.Z)));
+    }
+
+    public static float FindYAtZ(float z, in Vector3 start, in Vector3 end)
+    {
+        return start.Y + ((z - start.Z) * ((end.Y - start.Y) / (end.Z - start.Z)));
+    }
 }

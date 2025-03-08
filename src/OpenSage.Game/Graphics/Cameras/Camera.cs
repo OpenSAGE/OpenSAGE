@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
 using Viewport = Veldrid.Viewport;
 
 namespace OpenSage.Graphics.Cameras;
@@ -78,6 +79,8 @@ public sealed class Camera
     public Vector3 Target { get; private set; }
     public Vector3 Up { get; private set; }
 
+    public Vector2 ScreenSize => new(_viewport.Width, _viewport.Height);
+
     public Camera(Func<Viewport> getViewport)
     {
         _getViewport = getViewport;
@@ -86,8 +89,8 @@ public sealed class Camera
         View = Matrix4x4.Identity;
         BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
-        _nearPlaneDistance = 4.0f;
-        _farPlaneDistance = 10000.0f;
+        _nearPlaneDistance = HeightMap.HorizontalScale;
+        _farPlaneDistance = 10000.0f; // Generals uses 1200.0f
 
         UpdateProjection();
     }
@@ -184,6 +187,29 @@ public sealed class Camera
     {
         var ray = ScreenPointToRay(new Vector2(position.X, position.Y));
         return ray.Position + ray.Direction * position.Z;
+    }
+
+    public Vector3 ScreenToWorldPointSage(in Vector2 screenPos)
+    {
+        var ndev = screenPos / new Vector2(_viewport.Width, _viewport.Height);
+        var vsMin = Vector2.Zero;
+        var vsMax = Vector2.One;
+
+        var viewSpacePoint = new Vector3(
+            vsMin.X + (ndev.X - vsMin.X) * (vsMax.X - vsMin.X) / _viewport.Width,
+            vsMin.Y - (ndev.Y - vsMin.Y) * (vsMax.Y - vsMin.Y) / _viewport.Height,
+            -1
+        );
+
+        var view = View;
+        // Zero out translation
+        view.M41 = 0;
+        view.M42 = 0;
+        view.M43 = 0;
+        view.M44 = 1;
+
+        var worldSpacePoint = Vector3.Transform(new Vector3(screenPos, 0.0f), view);
+        return worldSpacePoint;
     }
 
     internal void OnViewportSizeChanged()

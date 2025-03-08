@@ -9,7 +9,7 @@ public interface ICameraController
 {
     float Zoom { get; set; }
 
-    Vector3 TerrainPosition { get; set; }
+    Vector3 Position { get; set; }
 
     void SetPitch(float pitch);
 

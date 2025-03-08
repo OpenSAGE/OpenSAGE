@@ -67,7 +67,8 @@ public sealed class CameraAnimation
 
     public void SetFinalPitch(float endPitch, float easeInPercentage, float easeOutPercentage)
     {
-        _endPitchAngle = _cameraController.CalculatePitchAngle(endPitch);
+        // TODO
+        // _endPitchAngle = _cameraController.CalculatePitchAngle(endPitch);
     }
 
     public void SetFinalPitchAngle(float endPitchAngle)
@@ -106,7 +107,7 @@ public sealed class CameraAnimation
         var point0 = Math.Max(point1 - 1, 0);
         var point3 = Math.Min(point2 + 1, _points.Count - 1);
 
-        camera.TerrainPosition = Interpolation.CatmullRom(
+        camera.Position = Interpolation.CatmullRom(
             _points[point0],
             _points[point1],
             _points[point2],
@@ -115,7 +116,7 @@ public sealed class CameraAnimation
 
         if (_lookToward != null)
         {
-            var lookDirection = Vector3.Normalize(_lookToward.Value - camera.TerrainPosition);
+            var lookDirection = Vector3.Normalize(_lookToward.Value - camera.Position);
             camera.SetLookDirection(lookDirection);
         }
         else if (_endDirection != null)
@@ -131,7 +132,8 @@ public sealed class CameraAnimation
         {
             var pitchAngle = MathUtility.Lerp(_startPitchAngle, _endPitchAngle.Value, currentTimeFraction);
 
-            camera.SetPitchAngle(pitchAngle);
+            // TODO
+            //camera.SetPitchAngle(pitchAngle);
         }
 
         if (_endZoom != null)
@@ -145,7 +147,8 @@ public sealed class CameraAnimation
         {
             var fieldOfView = MathUtility.Lerp(_startFieldOfView, _endFieldOfView.Value, currentTimeFraction);
 
-            camera.SetFieldOfView(fieldOfView);
+            // TODO
+            //camera.SetFieldOfView(fieldOfView);
         }
 
         if (gameTime.TotalTime > _endTime)
