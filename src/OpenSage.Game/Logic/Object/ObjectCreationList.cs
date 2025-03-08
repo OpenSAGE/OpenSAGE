@@ -153,7 +153,7 @@ public sealed class CreateDebrisOCNugget : OCNugget
         if (Disposition.Get(ObjectDisposition.SendItFlying))
         {
             var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
-            physicsBehavior.AddForce(
+            physicsBehavior.ApplyForce(
                 new Vector3(
                     ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
                     ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,

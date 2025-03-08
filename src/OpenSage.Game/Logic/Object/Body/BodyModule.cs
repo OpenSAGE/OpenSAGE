@@ -24,9 +24,13 @@ public abstract class BodyModule : BehaviorModule
 
     public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
+    public virtual bool FrontCrushed => false;
+
+    public virtual bool BackCrushed => false;
+
     public virtual void SetInitialHealth(float multiplier) { }
 
-    public virtual void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer) { }
+    public virtual void AttemptDamage(ref DamageData damageInfo) { }
 
     public virtual void Heal(Fix64 amount) { }
 

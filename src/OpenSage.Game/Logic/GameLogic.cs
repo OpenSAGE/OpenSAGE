@@ -8,7 +8,7 @@ namespace OpenSage.Logic;
 
 internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersistableObject
 {
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
 
     private readonly List<GameObject> _objects = new();
@@ -52,7 +52,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         }
     }
 
-    public GameLogic(Game game)
+    public GameLogic(IGame game)
     {
         _game = game;
         _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
@@ -66,7 +66,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             return null;
         }
 
-        var gameObject = AddDisposable(new GameObject(objectDefinition, _game.Scene3D.GameContext, player));
+        var gameObject = AddDisposable(new GameObject(objectDefinition, _game.Context, player));
 
         gameObject.ID = NextObjectId++;
 

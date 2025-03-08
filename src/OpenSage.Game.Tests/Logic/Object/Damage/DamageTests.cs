@@ -1,5 +1,4 @@
 ﻿using OpenSage.Logic.Object;
-using OpenSage.Logic.Object.Damage;
 using Xunit;
 
 namespace OpenSage.Tests.Logic.Object.Behaviors;
@@ -45,7 +44,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
         Assert.Equal(0, data.DamageToDeal);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -67,7 +66,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
         Assert.Equal(40, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -89,7 +88,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Exploded, data.DeathType);
         Assert.Equal(150, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -111,7 +110,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
         Assert.Equal(8, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -133,7 +132,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.None, data.DeathType);
         Assert.Equal(3.333, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -155,7 +154,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Burned, data.DeathType);
         Assert.Equal(3, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -177,7 +176,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Suicided, data.DeathType);
         Assert.Equal(500, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -199,7 +198,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
         Assert.Equal(DeathType.Poisoned, data.DeathType);
         Assert.Equal(2, data.DamageToDeal, 0.01);
-        Assert.Equal(string.Empty, data.AttackerName); // v3
+        Assert.Null(data.AttackerName); // v3
     }
 
     /// <summary>
@@ -221,7 +220,7 @@ public class DamageTests : StatePersisterTest
         Assert.Equal(DamageType.Unresistable, data.DamageTypeUnknown); // unclear what this is
         Assert.Equal(DeathType.Normal, data.DeathType);
         Assert.Equal(0, data.DamageToDeal);
-        Assert.Equal(string.Empty, data.AttackerName);
+        Assert.Equal("", data.AttackerName);
     }
 
 

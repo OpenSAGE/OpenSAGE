@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 public abstract class CollideModule : BehaviorModule, ICollideModule
 {
     // TODO: Make this abstract.
-    public virtual void OnCollide(GameObject collidingObject) { }
+    public virtual void OnCollide(GameObject other, in Vector3 location, in Vector3 normal) { }
 
     internal override void Load(StatePersister reader)
     {
@@ -24,5 +24,5 @@ public abstract class CollideModuleData : BehaviorModuleData
 
 public interface ICollideModule
 {
-    void OnCollide(GameObject collidingObject);
+    void OnCollide(GameObject other, in Vector3 location, in Vector3 normal);
 }

@@ -67,4 +67,7 @@ public static class Vector3Utility
             (position.X * matrix.M13) + (position.Y * matrix.M23) + (position.Z * matrix.M33)
         );
     }
+
+    public static bool IsNaN(in Vector3 vector) =>
+        float.IsNaN(vector.X) || float.IsNaN(vector.Y) || float.IsNaN(vector.Z);
 }

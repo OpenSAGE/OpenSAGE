@@ -1,6 +1,4 @@
-﻿using OpenSage.Logic.Object.Damage;
-
-namespace OpenSage.Logic.Object;
+﻿namespace OpenSage.Logic.Object;
 
 public abstract class DamageModule : BehaviorModule
 {
@@ -22,4 +20,9 @@ internal interface IDamageModule
 public abstract class DamageModuleData : ContainModuleData
 {
     public override ModuleKinds ModuleKinds => ModuleKinds.Damage;
+}
+
+public static class DamageConstants
+{
+    public const float HugeDamageAmount = 999999.0f;
 }

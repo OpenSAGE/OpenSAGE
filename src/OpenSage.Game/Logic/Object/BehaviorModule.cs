@@ -5,8 +5,41 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
-public abstract class BehaviorModule : ModuleBase
+public abstract class ObjectModule : ModuleBase
 {
+    protected GameObject GameObject { get; }
+
+    protected GameContext Context { get; }
+
+    // TODO: Remove this once all subclasses use the other constructor.
+    protected ObjectModule() { }
+
+    protected ObjectModule(GameObject gameObject, GameContext context)
+    {
+        GameObject = gameObject;
+        Context = context;
+    }
+
+    internal override void Load(StatePersister reader)
+    {
+        reader.PersistVersion(1);
+
+        reader.BeginObject("Base");
+        base.Load(reader);
+        reader.EndObject();
+    }
+}
+
+public abstract class BehaviorModule : ObjectModule
+{
+    // TODO: Remove this once all subclasses use the other constructor.
+    protected BehaviorModule() { }
+
+    protected BehaviorModule(GameObject gameObject, GameContext context)
+        : base(gameObject, context)
+    {
+    }
+
     internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status) { }
 
     internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
@@ -16,15 +49,7 @@ public abstract class BehaviorModule : ModuleBase
         reader.PersistVersion(1);
 
         reader.BeginObject("Base");
-
-        // The following version number is probably from extra base class in the inheritance hierarchy.
-        // Since we don't have that at the moment, just read it here.
-        reader.PersistVersion(1);
-
-        reader.BeginObject("Base");
         base.Load(reader);
-        reader.EndObject();
-
         reader.EndObject();
     }
 }

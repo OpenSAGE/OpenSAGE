@@ -155,7 +155,7 @@ public sealed class GameData : BaseSingletonAsset
         { "UnitReallyDamagedThreshold", (parser, x) => x.UnitReallyDamagedThreshold = parser.ParseFloat() },
         { "GroundStiffness", (parser, x) => x.GroundStiffness = parser.ParseFloat() },
         { "StructureStiffness", (parser, x) => x.StructureStiffness = parser.ParseFloat() },
-        { "Gravity", (parser, x) => x.Gravity = parser.ParseFloat() },
+        { "Gravity", (parser, x) => x.Gravity = parser.ParseAccelerationToLogicFrames() },
 
         { "PartitionCellSize", (parser, x) => x.PartitionCellSize = parser.ParseFloat() },
         { "TerrainResourceCellSize", (parser, x) => x.TerrainResourceCellSize = parser.ParseFloat() },
@@ -775,7 +775,7 @@ public sealed class GameData : BaseSingletonAsset
     public float TerrainHeightAtEdgeOfMap { get; private set; }
     public float UnitDamagedThreshold { get; private set; }
     public float UnitReallyDamagedThreshold { get; private set; }
-    public float GroundStiffness { get; private set; }
+    public float GroundStiffness { get; private set; } = 0.5f;
     public float StructureStiffness { get; private set; }
     public float Gravity { get; private set; }
 
@@ -1574,6 +1574,8 @@ public enum WeaponBonusAttributeType
 
 public enum WeaponBonusType
 {
+    None,
+
     [IniEnum("GARRISONED")]
     Garrisoned,
 

@@ -24,6 +24,9 @@ public sealed class Geometry : IPersistableObject
     public float MinZ { get; private set; }
     public float MaxZ { get; private set; }
 
+    // TODO(Port): What to do for multiple shapes?
+    public float MajorRadius => Shapes[0].MajorRadius;
+
     public Geometry()
     {
         Shapes = new List<GeometryShape>

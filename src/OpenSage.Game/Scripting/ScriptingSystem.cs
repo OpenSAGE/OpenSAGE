@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OpenSage.Logic;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Scripting;
 
@@ -274,6 +275,11 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
     private void UpdateCameraFadeOverlay()
     {
         CameraFadeOverlay.Update();
+    }
+
+    public void TransferObjectName(string unitName, GameObject newObject)
+    {
+        // TODO(Port): Port this from ScriptEngine::transferObjectName().
     }
 
     public void Persist(StatePersister reader)

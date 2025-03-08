@@ -57,6 +57,8 @@ internal sealed partial class IniParser
 
     public SageGame SageGame { get; }
 
+    public GameData GameData => _assetStore.GameData.Current;
+
     // Ini files with file name that ends with 9x use locale specific encoding.
     private readonly Encoding _encoding;
 

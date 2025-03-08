@@ -12,7 +12,14 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     protected virtual UpdateOrder UpdateOrder => UpdateOrder.Order2;
 
+    // TODO: Remove this once all subclasses use the other constructor.
     protected UpdateModule()
+    {
+        _nextUpdateFrame.UpdateOrder = UpdateOrder;
+    }
+
+    protected UpdateModule(GameObject gameObject, GameContext context)
+        : base(gameObject, context)
     {
         _nextUpdateFrame.UpdateOrder = UpdateOrder;
     }
@@ -34,11 +41,26 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
         SetNextUpdateFrame(context.LogicFrame + FramesBetweenUpdates);
         RunUpdate(context);
+
+        var sleepTime = Update();
+        SetNextUpdateFrame(context.LogicFrame + sleepTime.FrameSpan);
+    }
+
+    // TODO: Remove other Update methods after everything uses this.
+    public virtual UpdateSleepTime Update()
+    {
+        return UpdateSleepTime.Frames(FramesBetweenUpdates);
     }
 
     protected void SetNextUpdateFrame(LogicFrame frame)
     {
         _nextUpdateFrame = new UpdateFrame(frame, UpdateOrder);
+    }
+
+    // Yes, protected. Modules should only wake themselves up.
+    protected void SetWakeFrame(UpdateSleepTime wakeDelay)
+    {
+        SetNextUpdateFrame(Context.GameLogic.CurrentFrame + wakeDelay.FrameSpan);
     }
 
     internal override void Load(StatePersister reader)
@@ -60,6 +82,25 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
     internal override void DrawInspector()
     {
         ImGui.LabelText("Next update frame", _nextUpdateFrame.Frame.ToString());
+    }
+}
+
+public readonly struct UpdateSleepTime
+{
+    public static readonly UpdateSleepTime None = new(new LogicFrameSpan(1));
+
+    // we use 0x3fffffff so that we can add offsets and not overflow...
+    // and also 'cuz we shift the value up by two bits for the phase.
+    // note that at 30fps, this is ~414 days...
+    public static readonly UpdateSleepTime Forever = new(new LogicFrameSpan(0x3fffffff));
+
+    public static UpdateSleepTime Frames(LogicFrameSpan frames) => new UpdateSleepTime(frames);
+
+    public readonly LogicFrameSpan FrameSpan;
+
+    private UpdateSleepTime(LogicFrameSpan frames)
+    {
+        FrameSpan = frames;
     }
 }
 
@@ -97,6 +138,11 @@ public enum UpdateOrder : byte
 internal interface IUpdateModule
 {
     void Update(BehaviorUpdateContext context);
+}
+
+public interface IProjectileUpdate
+{
+    bool ProjectileHandleCollision(GameObject other);
 }
 
 public abstract class UpdateModuleData : ContainModuleData

@@ -17,6 +17,8 @@ public class AIUpdate : UpdateModule
     private readonly LocomotorSet _locomotorSet;
     private LocomotorSetType _currentLocomotorSetType;
 
+    public LocomotorSetType CurrentLocomotorSetType => _currentLocomotorSetType;
+
     public Locomotor CurrentLocomotor { get; protected set; }
 
     protected GameObject GameObject { get; }
@@ -61,7 +63,7 @@ public class AIUpdate : UpdateModule
     private PathfindingPath _path;
     private uint _unknownInt16;
     private Vector3 _unknownPosition1;
-    private uint _objectToEnter;
+    private uint _ignoreObstacleID;
     private float _unknownFloat2;
     private Point2D _unknownPos2D1;
     private Point2D _unknownPos2D2;
@@ -79,6 +81,8 @@ public class AIUpdate : UpdateModule
     private int _unknownInt19;
     private int _unknownInt20;
     private uint _unknownFrame3;
+
+    public uint IgnoredObstacleID => _ignoreObstacleID;
 
     /// <summary>
     /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
@@ -127,6 +131,11 @@ public class AIUpdate : UpdateModule
 
         // TODO: Use actual surface type.
         CurrentLocomotor = _locomotorSet.GetLocomotorForSurfaces(Surfaces.Ground);
+    }
+
+    public bool HasLocomotorForSurface(Surfaces surfaceType)
+    {
+        return _locomotorSet.GetLocomotorForSurfaces(surfaceType) != null;
     }
 
     internal void AddTargetPoint(in Vector3 targetPoint)
@@ -366,7 +375,7 @@ public class AIUpdate : UpdateModule
 
         reader.SkipUnknownBytes(12);
 
-        reader.PersistObjectID(ref _objectToEnter);
+        reader.PersistObjectID(ref _ignoreObstacleID);
         reader.PersistSingle(ref _unknownFloat2);
         reader.PersistPoint2D(ref _unknownPos2D1);
         reader.PersistPoint2D(ref _unknownPos2D2);

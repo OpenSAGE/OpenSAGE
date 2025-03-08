@@ -12,14 +12,12 @@ using OpenSage.Data.Map;
 using OpenSage.DataStructures;
 using OpenSage.Diagnostics;
 using OpenSage.Diagnostics.Util;
-using OpenSage.FileFormats;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui.ControlBar;
 using OpenSage.Gui.InGame;
 using OpenSage.Logic.Map;
-using OpenSage.Logic.Object.Damage;
 using OpenSage.Logic.Object.Helpers;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
@@ -167,8 +165,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public uint BuiltByObjectID;
 
     private BitArray<ObjectStatus> _status = new();
-    private byte _unknown2;
-    private GameObjectUnknownFlags _unknownFlags;
+    private byte _scriptStatus;
+    private ObjectPrivateStatusFlags _privateStatus;
     private readonly ShroudReveal _shroudRevealSomething1 = new();
     private readonly ShroudReveal _shroudRevealSomething2 = new();
     private readonly ShroudReveal _shroudRevealSomething3 = new();
@@ -195,6 +193,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private uint _containerId;
     public uint ContainerId => _containerId;
     private uint _containedFrame;
+
+    public GameObject ContainedBy => _containerId != 0
+        ? _gameContext.GameLogic.GetObjectById(_containerId)
+        : null;
+
     private string _teamName;
     private uint _enteredOrExitedPolygonTriggerFrame;
     private Point3D _integerPosition;
@@ -223,6 +226,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     // this allows us to avoid allocating and casting a new list when we just want a single object
     private FrozenDictionary<Type, object> _firstBehaviorCache;
     private FrozenDictionary<Type, List<object>> _behaviorCache;
+
+    public IContainModule Contain { get; }
+
+    public PhysicsBehavior Physics { get; }
 
     private readonly BodyModule _body;
     public BodyModule BodyModule => _body;
@@ -257,12 +264,31 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public bool IsDead => Health <= Fix64.Zero;
 
+    public bool IsEffectivelyDead => (_privateStatus & ObjectPrivateStatusFlags.EffectivelyDead) != 0;
+
     public void DoDamage(DamageType damageType, Percentage percentage, DeathType deathType, GameObject damageDealer) =>
         DoDamage(damageType, MaxHealth * (Fix64)(float)percentage, deathType, damageDealer);
 
     public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
     {
-        _body.DoDamage(damageType, amount, deathType, damageDealer);
+        var damageInfo = new DamageData
+        {
+            Request =
+            {
+                DamageType = damageType,
+                DamageToDeal = (float)amount,
+                DeathType = deathType,
+                DamageDealer = damageDealer.ID,
+            }
+        };
+        AttemptDamage(ref damageInfo);
+    }
+
+    public void AttemptDamage(ref DamageData damageInfo)
+    {
+        _body?.AttemptDamage(ref damageInfo);
+
+        // TODO(Port): shockwave and radar stuff.
     }
 
     internal void OnDamage(in DamageData damageData)
@@ -430,6 +456,44 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public int EnergyProduction { get; internal set; }
 
+    // TODO(Port): Actually implement and use this.
+    private PathfindLayerType _layer;
+    public PathfindLayerType Layer
+    {
+        get => _layer;
+        set => _layer = value;
+    }
+
+    // TODO(Port): Cache this, just like Thing::getHeightAboveTerrain().
+    public float HeightAboveTerrain
+    {
+        get
+        {
+            var pos = Transform.Translation;
+            var terrainZ = _gameContext.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, Layer);
+            return pos.Z - terrainZ;
+        }
+    }
+
+    public bool IsAboveTerrain => HeightAboveTerrain > 0.0f;
+
+    /// <summary>
+    /// Original comment (which I don't totally understand):
+    ///
+    /// > If we treat this as airborne, then they slide down slopes.  This checks whether
+    /// > they are high enough that we should let them act like they're flying.
+    ///
+    /// Another original comment (which seems outdated, since the actual code uses 9 frames):
+    ///
+    /// > If it's high enough that it will take more than 3 frames to return to the ground,
+    /// > then it's significantly airborne.
+    /// </summary>
+    public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > (3 * 3) * _gameContext.AssetStore.GameData.Current.Gravity;
+
+    // TODO(Port): Implement this.
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public float CarrierDeckHeight => 0;
+
     public readonly Drawable Drawable;
 
     /// <summary>
@@ -531,19 +595,35 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 AddBehavior(behaviorDataContainer.Tag, module);
 
-                if (module is BodyModule body)
+                switch (module)
                 {
-                    _body = body;
-                }
-                else if (module is AIUpdate aiUpdate)
-                {
-                    AIUpdate = aiUpdate;
-                }
-                else if (module is ProductionUpdate productionUpdate)
-                {
-                    ProductionUpdate = productionUpdate;
+                    case BodyModule body:
+                        _body = body;
+                        break;
+
+                    case IContainModule contain:
+                        Contain = contain;
+                        break;
+
+                    case AIUpdate aiUpdate:
+                        AIUpdate = aiUpdate;
+                        break;
+
+                    case ProductionUpdate productionUpdate:
+                        ProductionUpdate = productionUpdate;
+                        break;
+
+                    case PhysicsBehavior physics:
+                        Physics = physics;
+                        break;
                 }
             }
+        }
+
+        // Allow for inter-module resolution.
+        foreach (var behavior in _behaviorModules)
+        {
+            behavior.OnObjectCreated();
         }
 
         Geometry = Definition.Geometry.Clone();
@@ -781,15 +861,21 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         return false;
     }
 
-    internal void OnCollide(GameObject collidingObject)
+    // TODO(Port): Remove this overload.
+    internal void OnCollide(GameObject other)
     {
-        Logger.Info($"GameObject {Definition.Name} colliding with {collidingObject.Definition.Name}");
+        OnCollide(other, Vector3.Zero, Vector3.Zero);
+    }
+
+    internal void OnCollide(GameObject other, in Vector3 location, in Vector3 normal)
+    {
+        Logger.Info($"GameObject {Definition.Name} colliding with {other?.Definition.Name ?? "Ground"}");
 
         foreach (var behavior in _behaviorModules)
         {
             if (behavior is ICollideModule collideModule)
             {
-                collideModule.OnCollide(collidingObject);
+                collideModule.OnCollide(other, location, normal);
             }
         }
     }
@@ -815,6 +901,19 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         var worldPos = localPos.Matrix * Transform.Matrix;
         return new Transform(worldPos);
+    }
+
+    public Vector3 UnitDirectionVector2D
+    {
+        get
+        {
+            // TODO: Cache this.
+            var angle = Transform.Yaw;
+            return new Vector3(
+                MathF.Cos(angle),
+                MathF.Sin(angle),
+                0.0f);
+        }
     }
 
     public T FindBehavior<T>()
@@ -890,6 +989,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             currentBaseType = currentBaseType.BaseType;
         }
     }
+
+    public bool TestStatus(ObjectStatus status) => _status.Get(status);
 
     public bool HasUpgrade(UpgradeTemplate upgrade)
     {
@@ -1103,10 +1204,20 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         Drawable.BuildRenderList(renderList, camera, gameTime, worldMatrix, renderItemConstantsPS);
     }
 
+    public void ClearModelConditionState(ModelConditionFlag state)
+    {
+        ModelConditionFlags.Set(state, false);
+    }
+
     public void ClearModelConditionFlags()
     {
         ModelConditionFlags.SetAll(false);
         // todo: maintain map-based flags, such as NIGHT, SNOW, etc
+    }
+
+    public void SetModelConditionState(ModelConditionFlag state)
+    {
+        ModelConditionFlags.Set(state, true);
     }
 
     public void OnLocalSelect(AudioSystem gameAudio)
@@ -1248,9 +1359,21 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         return Translation.Z - _gameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
     }
 
+    // TODO(Port): Actually set _privateStatus.
+    public bool IsOffMap => (_privateStatus & ObjectPrivateStatusFlags.OffMap) != 0;
+
+    /// <summary>
+    /// Do so much damage to an object that it will certainly die.
+    /// </summary>
+    public void Kill()
+    {
+        // TODO(Port): Copy Object::kill()
+        Kill(DeathType.Normal);
+    }
+
     internal void Kill(DeathType deathType)
     {
-        _body.DoDamage(DamageType.Unresistable, _body.Health, deathType, null);
+        DoDamage(DamageType.Unresistable, _body.Health, deathType, null);
     }
 
     internal void Die(DeathType deathType)
@@ -1397,6 +1520,59 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
     }
 
+    public bool IsDisabledByType(DisabledType type) => _disabledTypes.Get(type);
+
+    public void SetDisabled(DisabledType type)
+    {
+        // TODO(Port): Should be FOREVER. See Object::setDisabled()
+        Disable(type, new LogicFrame(0x3fffffff));
+    }
+
+    public void ClearDisabled(DisabledType type)
+    {
+        // TODO(Port): Implement this properly. See Object::clearDisabled()
+        UnDisable(type);
+    }
+
+    public void SetCaptured(bool isCaptured)
+    {
+        if (!isCaptured)
+        {
+            throw new ArgumentException("Clearing captured status. This should never happen.");
+        }
+
+        SetPrivateStatus(ObjectPrivateStatusFlags.Captured, isCaptured);
+
+        // No need to see if we should skip updates, this flag has no effect on skipping updates.
+    }
+
+    private void SetPrivateStatus(ObjectPrivateStatusFlags flag, bool value)
+    {
+        if (value)
+        {
+            _privateStatus |= flag;
+        }
+        else
+        {
+            _privateStatus &= ~flag;
+        }
+    }
+
+    public byte CrusherLevel => (byte)Definition.CrusherLevel;
+
+    public byte CrushableLevel => (byte)Definition.CrushableLevel;
+
+    public bool CanCrushOrSquish(GameObject otherObj, CrushSquishTestType testType)
+    {
+        // TODO(Port): Implement this.
+        return false;
+    }
+
+    public void Defect(Team newTeam, uint detectionTime)
+    {
+        // TODO(Port): Implement this.
+    }
+
     internal void Sell()
     {
         ModelConditionFlags.Set(ModelConditionFlag.Sold, true);
@@ -1493,8 +1669,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             reader.PersistBitArrayAsUInt32(ref _status); // this is stored as a uint in the sav file
         }
 
-        reader.PersistByte(ref _unknown2);
-        reader.PersistEnumByteFlags(ref _unknownFlags);
+        reader.PersistByte(ref _scriptStatus);
+        reader.PersistEnumByteFlags(ref _privateStatus);
 
         reader.PersistObject(Geometry);
 
@@ -1562,13 +1738,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
         reader.EndArray();
 
-        var unknown4 = 1;
-        reader.PersistInt32(ref unknown4);
-        if (unknown4 != 1)
-        {
-            throw new InvalidStateException();
-        }
-
+        reader.PersistEnum(ref _layer);
         reader.PersistInt32(ref _unknown5); // 0, 1
         reader.PersistBoolean(ref IsSelectable);
         reader.PersistFrame(ref _unknownFrame);
@@ -1756,13 +1926,31 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     }
 
     [Flags]
-    private enum GameObjectUnknownFlags
+    private enum ObjectPrivateStatusFlags : byte
     {
         None = 0,
-        Unknown1 = 1,
-        Unknown2 = 2,
-        Unknown4 = 4,
-        Unknown8 = 8,
+
+        /// <summary>
+        /// Object is effectively dead.
+        /// </summary>
+        EffectivelyDead = 1,
+
+        /// <summary>
+        /// Set to true when object defects from its team.
+        /// Set to false when object attacks anything or when time runs out.
+        /// </summary>
+        UndetectedDetector = 2,
+
+        /// <summary>
+        /// Set to true if object has been captured. Otherwise, it's false.
+        /// Note: it never becomes false once it's true.
+        /// </summary>
+        Captured = 4,
+
+        /// <summary>
+        /// Set to true if object is known to be off the current map.
+        /// </summary>
+        OffMap = 8,
     }
 
     protected override void Dispose(bool disposeManagedResources)
@@ -1859,4 +2047,26 @@ internal struct PolygonTriggerState : IPersistableObject
 
         reader.PersistBoolean(ref IsInside);
     }
+}
+
+// Pathfind layers - ground is the first layer, each bridge is another. jba.
+// Layer 1 is the ground.
+// Layer 2 is the top layer - bridge if one is present, ground otherwise.
+// Layer 2 - LAYER_LAST -1 are bridges.
+// Layer_WALL is a special "wall" layer for letting units run aroound on top of a wall
+// made of structures.
+// Note that the bridges just index in the pathfinder, so you don't actually
+// have a LAYER_BRIDGE_1 enum value.
+public enum PathfindLayerType
+{
+    Invalid = 0,
+    Ground = 1,
+    Wall = 15,
+}
+
+public enum CrushSquishTestType
+{
+    TestCrushOnly,
+    TestSquishOnly,
+    TestCrushOrSquish,
 }
