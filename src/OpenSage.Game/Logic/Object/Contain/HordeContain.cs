@@ -9,8 +9,6 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public sealed class HordeContainBehavior : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly HordeContainModuleData _moduleData;
 
     private Dictionary<int, List<HordeMemberPosition>> _formation;
@@ -20,10 +18,9 @@ public sealed class HordeContainBehavior : UpdateModule
     private int _pendingRegistrations;
 
     public HordeContainBehavior(GameObject gameObject, GameContext context, HordeContainModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _context = context;
 
         _payload = new List<GameObject>();
         _formation = CreateFormationOffsets();
@@ -31,7 +28,7 @@ public sealed class HordeContainBehavior : UpdateModule
 
     public List<GameObject> SelectAll(bool value)
     {
-        _gameObject.IsSelected = value;
+        GameObject.IsSelected = value;
         foreach (var obj in _payload)
         {
             obj.IsSelected = value;
@@ -66,12 +63,12 @@ public sealed class HordeContainBehavior : UpdateModule
         {
             foreach (var position in rank)
             {
-                var createdObject = _context.GameLogic.CreateObject(position.Definition, _gameObject.Owner);
-                createdObject.ParentHorde = _gameObject;
+                var createdObject = Context.GameLogic.CreateObject(position.Definition, GameObject.Owner);
+                createdObject.ParentHorde = GameObject;
                 position.Object = createdObject;
                 _payload.Add(createdObject);
 
-                createdObject.UpdateTransform(_gameObject.Translation + position.Position, _gameObject.Rotation);
+                createdObject.UpdateTransform(GameObject.Translation + position.Position, GameObject.Rotation);
             }
         }
     }
@@ -125,7 +122,7 @@ public sealed class HordeContainBehavior : UpdateModule
 
     public Vector3 GetFormationOffset(GameObject obj)
     {
-        var hordeYaw = _gameObject.Yaw;
+        var hordeYaw = GameObject.Yaw;
         foreach (var rank in _formation.Values)
         {
             foreach (var position in rank)

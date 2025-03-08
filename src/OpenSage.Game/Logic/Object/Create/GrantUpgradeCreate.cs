@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class GrantUpgradeCreate : CreateModule
 {
+    public GrantUpgradeCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -33,6 +37,6 @@ public sealed class GrantUpgradeCreateModuleData : CreateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new GrantUpgradeCreate();
+        return new GrantUpgradeCreate(gameObject, context);
     }
 }

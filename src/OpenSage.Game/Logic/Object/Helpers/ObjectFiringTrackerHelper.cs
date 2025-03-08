@@ -7,6 +7,10 @@ internal sealed class ObjectFiringTrackerHelper : UpdateModule
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
 
+    public ObjectFiringTrackerHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

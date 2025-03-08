@@ -6,7 +6,8 @@ public sealed class AutoFindHealingUpdate : UpdateModule
 {
     private readonly AutoFindHealingUpdateModuleData _moduleData;
 
-    public AutoFindHealingUpdate(AutoFindHealingUpdateModuleData moduleData)
+    public AutoFindHealingUpdate(GameObject gameObject, GameContext context, AutoFindHealingUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
     }
@@ -61,6 +62,6 @@ public sealed class AutoFindHealingUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new AutoFindHealingUpdate(this);
+        return new AutoFindHealingUpdate(gameObject, context, this);
     }
 }

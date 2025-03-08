@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class AssistedTargetingUpdate : UpdateModule
 {
+    public AssistedTargetingUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -34,6 +38,6 @@ public sealed class AssistedTargetingUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new AssistedTargetingUpdate();
+        return new AssistedTargetingUpdate(gameObject, context);
     }
 }

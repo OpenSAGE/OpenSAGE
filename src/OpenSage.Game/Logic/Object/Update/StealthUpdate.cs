@@ -10,6 +10,10 @@ public sealed class StealthUpdate : UpdateModule
     private float _unknownFloat1;
     private float _unknownFloat2;
 
+    public StealthUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         var version = reader.PersistVersion(2);
@@ -48,8 +52,8 @@ public sealed class StealthUpdate : UpdateModule
 }
 
 /// <summary>
-/// Allows the use of the <see cref="ObjectDefinition.SoundStealthOn"/> and 
-/// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to 
+/// Allows the use of the <see cref="ObjectDefinition.SoundStealthOn"/> and
+/// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to
 /// display MESSAGE:StealthNeutralized when the object has been discovered.
 /// </summary>
 public sealed class StealthUpdateModuleData : BehaviorModuleData
@@ -178,6 +182,6 @@ public sealed class StealthUpdateModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StealthUpdate();
+        return new StealthUpdate(gameObject, context);
     }
 }

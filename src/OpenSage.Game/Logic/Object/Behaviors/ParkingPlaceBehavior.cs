@@ -17,8 +17,6 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     internal IReadOnlyList<ParkingPlaceHealingData> HealingData => _healingData;
     internal LogicFrame NextHealFrame => _nextHealFrame;
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _gameContext;
     private readonly ParkingPlaceBehaviorModuleData _moduleData;
 
     private readonly ParkingSlot[] _parkingSlots;
@@ -31,9 +29,8 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     private static readonly LogicFrameSpan HealUpdateRate = new((uint)(Game.LogicFramesPerSecond / HealsPerSecond));
 
     internal ParkingPlaceBehaviour(GameObject gameObject, GameContext context, ParkingPlaceBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _gameContext = context;
         _moduleData = moduleData;
 
         _parkingSlots = new ParkingSlot[_moduleData.NumRows * _moduleData.NumCols];
@@ -92,8 +89,8 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
                 _nextHealFrame += HealUpdateRate;
                 foreach (var objectToHeal in _healingData)
                 {
-                    var gameObject = _gameContext.GameLogic.GetObjectById(objectToHeal.ObjectId);
-                    gameObject?.Heal(_healAmountPerHealTick, _gameObject);
+                    var gameObject = Context.GameLogic.GetObjectById(objectToHeal.ObjectId);
+                    gameObject?.Heal(_healAmountPerHealTick, GameObject);
                 }
             }
         }
@@ -527,7 +524,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
     private Transform GetBoneTransform(string name)
     {
-        var (_, bone) = _gameObject.Drawable.FindBone(name);
+        var (_, bone) = GameObject.Drawable.FindBone(name);
         if (bone == null)
         {
             throw new InvalidOperationException("Could not find runway start point bone");

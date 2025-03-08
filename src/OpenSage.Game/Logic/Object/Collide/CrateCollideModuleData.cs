@@ -5,6 +5,10 @@ namespace OpenSage.Logic.Object;
 
 public abstract class CrateCollide : CollideModule
 {
+    protected CrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

@@ -5,12 +5,11 @@ namespace OpenSage.Logic.Object;
 
 public sealed class VeterancyGainCreate : CreateModule
 {
-    private readonly GameObject _gameObject;
     private readonly VeterancyGainCreateModuleData _moduleData;
 
-    public VeterancyGainCreate(GameObject gameObject, VeterancyGainCreateModuleData moduleData)
+    public VeterancyGainCreate(GameObject gameObject, GameContext context, VeterancyGainCreateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
     }
 
@@ -25,16 +24,16 @@ public sealed class VeterancyGainCreate : CreateModule
 
     public override void OnCreate()
     {
-        if (_moduleData.ScienceRequired != null && !_gameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
+        if (_moduleData.ScienceRequired != null && !GameObject.Owner.HasScience(_moduleData.ScienceRequired.Value))
         {
             return;
         }
 
         // units like the minigunner or tank battlemaster can start at vet 1 and be upgraded to vet 2, and so have two VeterancyGainCreate modules
         var level = (int)_moduleData.StartingLevel;
-        if (level > _gameObject.Rank)
+        if (level > GameObject.Rank)
         {
-            _gameObject.Rank = level;
+            GameObject.Rank = level;
         }
     }
 }
@@ -54,6 +53,6 @@ public sealed class VeterancyGainCreateModuleData : CreateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new VeterancyGainCreate(gameObject, this);
+        return new VeterancyGainCreate(gameObject, context, this);
     }
 }

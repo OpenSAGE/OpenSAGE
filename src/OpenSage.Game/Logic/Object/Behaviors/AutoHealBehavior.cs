@@ -10,8 +10,6 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 {
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.HealingDelay;
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly AutoHealBehaviorModuleData _moduleData;
     private readonly UpgradeLogic _upgradeLogic;
     /// <summary>
@@ -20,9 +18,8 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     private LogicFrame _endOfStartHealingDelay;
 
     public AutoHealBehavior(GameObject gameObject, GameContext context, AutoHealBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
         _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
@@ -35,7 +32,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     private void OnUpgrade()
     {
         // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
-        SetNextUpdateFrame(_context.GameLogic.CurrentFrame);
+        SetNextUpdateFrame(Context.GameLogic.CurrentFrame);
     }
 
     /// <summary>
@@ -47,7 +44,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
         // make sure the upgrade is triggered before resetting any frames
         if (_moduleData.StartHealingDelay != LogicFrameSpan.Zero && _upgradeLogic.Triggered)
         {
-            var currentFrame = _context.GameLogic.CurrentFrame;
+            var currentFrame = Context.GameLogic.CurrentFrame;
             _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
             SetNextUpdateFrame(_endOfStartHealingDelay);
         }
@@ -65,7 +62,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
             if (_moduleData.AffectsWholePlayer)
             {
                 // USA hospital has this behavior
-                foreach (var candidate in _context.GameLogic.Objects)
+                foreach (var candidate in Context.GameLogic.Objects)
                 {
                     if (ObjectIsOwnedBySamePlayer(candidate) && CanHealUnit(candidate))
                     {
@@ -77,15 +74,15 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
             {
                 // we only heal ourselves - china mines and GLA junk repair have this behavior
                 // todo: unclear how to show healing icon for this behavior
-                HealUnit(_gameObject);
+                HealUnit(GameObject);
             }
 
             return;
         }
 
-        foreach (var candidate in _context.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
+        foreach (var candidate in Context.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
         {
-            if (_moduleData.SkipSelfForHealing && candidate == _gameObject) continue;
+            if (_moduleData.SkipSelfForHealing && candidate == GameObject) continue;
             if (!CanHealUnit(candidate)) continue;
 
             HealUnit(candidate);
@@ -109,28 +106,28 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == _gameObject.ID;
+        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == GameObject.ID;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)
     {
         return ObjectIsOwnedBySamePlayer(gameObject) ||
-               gameObject.Owner.Allies.Contains(_gameObject.Owner); // I _think_ this is correct
+               gameObject.Owner.Allies.Contains(GameObject.Owner); // I _think_ this is correct
     }
 
     private bool ObjectIsOwnedBySamePlayer(GameObject gameObject)
     {
-        return gameObject.Owner == _gameObject.Owner;
+        return gameObject.Owner == GameObject.Owner;
     }
 
     private void HealUnit(GameObject gameObject)
     {
         if (gameObject.HealthPercentage < Fix64.One)
         {
-            gameObject.Heal((Fix64)_moduleData.HealingAmount, _gameObject);
-            if (gameObject != _gameObject)
+            gameObject.Heal((Fix64)_moduleData.HealingAmount, GameObject);
+            if (gameObject != GameObject)
             {
-                gameObject.SetBeingHealed(_gameObject, NextUpdateFrame.Frame);
+                gameObject.SetBeingHealed(GameObject, NextUpdateFrame.Frame);
             }
         }
     }

@@ -46,8 +46,8 @@ public sealed class GarrisonContain : OpenContainModule
             }
             else
             {
-                var owner = GameContext.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
-                owner ??= GameContext.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
+                var owner = Context.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
+                owner ??= Context.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
 
                 GameObject.Owner = owner;
             }

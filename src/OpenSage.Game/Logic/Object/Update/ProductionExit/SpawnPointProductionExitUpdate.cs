@@ -7,13 +7,12 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SpawnPointProductionExitUpdate : UpdateModule, IProductionExit
 {
-    private readonly GameObject _gameObject;
     private readonly SpawnPointProductionExitUpdateModuleData _moduleData;
     private int _nextIndex;
 
-    internal SpawnPointProductionExitUpdate(GameObject gameObject, SpawnPointProductionExitUpdateModuleData moduleData)
+    internal SpawnPointProductionExitUpdate(GameObject gameObject, GameContext context, SpawnPointProductionExitUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
 
         _nextIndex = 1;
@@ -40,7 +39,7 @@ public sealed class SpawnPointProductionExitUpdate : UpdateModule, IProductionEx
     }
 
     private (ModelInstance, ModelBone) FindBone(int index)
-        => _gameObject.Drawable.FindBone(_moduleData.SpawnPointBoneName + index.ToString("D2"));
+        => GameObject.Drawable.FindBone(_moduleData.SpawnPointBoneName + index.ToString("D2"));
 
     Vector3? IProductionExit.GetNaturalRallyPoint() => null;
 }
@@ -58,6 +57,6 @@ public sealed class SpawnPointProductionExitUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SpawnPointProductionExitUpdate(gameObject, this);
+        return new SpawnPointProductionExitUpdate(gameObject, context, this);
     }
 }

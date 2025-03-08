@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class LocomotorSetUpgrade : UpgradeModule
 {
-    public LocomotorSetUpgrade(GameObject gameObject, LocomotorSetUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    public LocomotorSetUpgrade(GameObject gameObject, GameContext context, LocomotorSetUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
     }
 
@@ -20,7 +20,7 @@ internal sealed class LocomotorSetUpgrade : UpgradeModule
 }
 
 /// <summary>
-/// Triggers use of SET_NORMAL_UPGRADED locomotor on this object and allows the use of 
+/// Triggers use of SET_NORMAL_UPGRADED locomotor on this object and allows the use of
 /// VoiceMoveUpgrade within the UnitSpecificSounds section of the object.
 /// </summary>
 public sealed class LocomotorSetUpgradeModuleData : UpgradeModuleData
@@ -32,6 +32,6 @@ public sealed class LocomotorSetUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new LocomotorSetUpgrade(gameObject, this);
+        return new LocomotorSetUpgrade(gameObject, context, this);
     }
 }

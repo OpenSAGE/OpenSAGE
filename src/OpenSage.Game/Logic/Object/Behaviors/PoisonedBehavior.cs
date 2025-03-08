@@ -6,6 +6,10 @@ public sealed class PoisonedBehavior : UpdateModule
 {
     private uint _unknown;
 
+    public PoisonedBehavior(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(2);
@@ -42,6 +46,6 @@ public sealed class PoisonedBehaviorModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new PoisonedBehavior();
+        return new PoisonedBehavior(gameObject, context);
     }
 }

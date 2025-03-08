@@ -6,15 +6,15 @@ internal sealed class ExperienceScalarUpgrade : UpgradeModule
 {
     private readonly ExperienceScalarUpgradeModuleData _moduleData;
 
-    internal ExperienceScalarUpgrade(GameObject gameObject, ExperienceScalarUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal ExperienceScalarUpgrade(GameObject gameObject, GameContext context, ExperienceScalarUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
 
     protected override void OnUpgrade()
     {
-        _gameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
+        GameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
     }
 
     internal override void Load(StatePersister reader)
@@ -41,6 +41,6 @@ public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ExperienceScalarUpgrade(gameObject, this);
+        return new ExperienceScalarUpgrade(gameObject, context, this);
     }
 }

@@ -5,6 +5,9 @@ namespace OpenSage.Logic.Object;
 public sealed class WaveGuideUpdate : UpdateModule
 {
     // TODO
+    public WaveGuideUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
 
     internal override void Load(StatePersister reader)
     {
@@ -17,8 +20,8 @@ public sealed class WaveGuideUpdate : UpdateModule
 }
 
 /// <summary>
-/// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02, 
-/// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the 
+/// Hardcoded to use the following particle system definitions: WaveSpray03, WaveSpray02,
+/// WaveSpray01, WaveSplashRight01, WaveSplashLeft01, WaveHit01, WaveSplash01 and also uses the
 /// WaterWaveBridge object definition as a template when it collides with a bridge.
 /// Requires a WAVEGUIDE KindOf.
 /// </summary>
@@ -63,6 +66,6 @@ public sealed class WaveGuideUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new WaveGuideUpdate();
+        return new WaveGuideUpdate(gameObject, context);
     }
 }

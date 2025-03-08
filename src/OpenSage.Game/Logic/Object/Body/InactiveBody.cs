@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class InactiveBody : BodyModule
 {
-    internal InactiveBody(GameObject gameObject) : base(gameObject)
+    internal InactiveBody(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
     }
 
@@ -45,6 +45,6 @@ public sealed class InactiveBodyModuleData : BodyModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new InactiveBody(gameObject);
+        return new InactiveBody(gameObject, context);
     }
 }

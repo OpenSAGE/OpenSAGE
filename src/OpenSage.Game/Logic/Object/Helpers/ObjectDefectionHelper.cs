@@ -6,6 +6,10 @@ internal sealed class ObjectDefectionHelper : ObjectHelperModule
     private uint _frameEnd;
     private bool _unknown;
 
+    public ObjectDefectionHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

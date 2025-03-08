@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BoneFXDamage : DamageModule
 {
+    public BoneFXDamage(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -15,7 +19,7 @@ public sealed class BoneFXDamage : DamageModule
 }
 
 /// <summary>
-/// Enables use of BoneFXUpdate module on this object where an additional dynamic FX logic can 
+/// Enables use of BoneFXUpdate module on this object where an additional dynamic FX logic can
 /// be used.
 /// </summary>
 public sealed class BoneFXDamageModuleData : DamageModuleData
@@ -26,6 +30,6 @@ public sealed class BoneFXDamageModuleData : DamageModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BoneFXDamage();
+        return new BoneFXDamage(gameObject, context);
     }
 }

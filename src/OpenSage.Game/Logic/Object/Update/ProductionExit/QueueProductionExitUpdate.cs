@@ -12,7 +12,8 @@ public sealed class QueueProductionExitUpdate : UpdateModule, IHasRallyPoint, IP
     private LogicFrameSpan _framesUntilNextSpawn;
     private readonly QueueProductionExitUpdateModuleData _moduleData;
 
-    internal QueueProductionExitUpdate(QueueProductionExitUpdateModuleData moduleData)
+    internal QueueProductionExitUpdate(GameObject gameObject, GameContext context, QueueProductionExitUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
         _framesUntilNextSpawn = moduleData.ExitDelay;
@@ -102,6 +103,6 @@ public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new QueueProductionExitUpdate(this);
+        return new QueueProductionExitUpdate(gameObject, context, this);
     }
 }

@@ -16,8 +16,6 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     public RallyPointManager RallyPointManager { get; } = new();
 
     private readonly OpenContainModuleData _moduleData;
-    protected GameObject GameObject { get; }
-    private protected GameContext GameContext { get; }
 
     private readonly List<uint> _containedObjectIds = new();
     private uint _unknownFrame1;
@@ -41,11 +39,10 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     protected const string ExitBoneStartName = "ExitStart";
     protected const string ExitBoneEndName = "ExitEnd";
 
-    private protected OpenContainModule(GameObject gameObject, GameContext gameContext, OpenContainModuleData moduleData)
+    private protected OpenContainModule(GameObject gameObject, GameContext context, OpenContainModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        GameObject = gameObject;
-        GameContext = gameContext;
     }
 
     public bool CanAddUnit(GameObject unit)
@@ -82,7 +79,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         unit.AddToContainer(GameObject.ID);
         if (!initial)
         {
-            GameContext.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+            Context.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
         }
     }
 
@@ -107,7 +104,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     public void Evacuate()
     {
-        GameContext.AudioSystem.PlayAudioEvent(GameObject,
+        Context.AudioSystem.PlayAudioEvent(GameObject,
             GameObject.Definition.UnitSpecificSounds.VoiceUnload?.Value);
         foreach (var id in ContainedObjectIds)
         {
@@ -179,7 +176,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         }
         else
         {
-            GameContext.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
+            Context.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
         }
 
         unit.RemoveFromContainer();
@@ -197,7 +194,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     protected GameObject GameObjectForId(uint unitId)
     {
-        return GameContext.GameLogic.GetObjectById(unitId);
+        return Context.GameLogic.GetObjectById(unitId);
     }
 
     internal override void Load(StatePersister reader)

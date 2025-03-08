@@ -4,8 +4,6 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class LifetimeUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly LifetimeUpdateModuleData _moduleData;
 
     private LogicFrame _frameToDie;
@@ -18,9 +16,8 @@ internal sealed class LifetimeUpdate : UpdateModule
     }
 
     public LifetimeUpdate(GameObject gameObject, GameContext context, LifetimeUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
 
         var lifetimeFrames = context.Random.Next(
@@ -34,7 +31,7 @@ internal sealed class LifetimeUpdate : UpdateModule
     {
         if (context.LogicFrame >= _frameToDie)
         {
-            _gameObject.Die(_moduleData.DeathType);
+            GameObject.Die(_moduleData.DeathType);
             _frameToDie = LogicFrame.MaxValue;
         }
     }

@@ -12,7 +12,8 @@ public sealed class StealthDetectorUpdate : UpdateModule
 
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DetectionRate;
 
-    public StealthDetectorUpdate(StealthDetectorUpdateModuleData moduleData)
+    public StealthDetectorUpdate(GameObject gameObject, GameContext context, StealthDetectorUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
         Active = !_moduleData.InitiallyDisabled;
@@ -97,6 +98,6 @@ public sealed class StealthDetectorUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StealthDetectorUpdate(this);
+        return new StealthDetectorUpdate(gameObject, context, this);
     }
 }

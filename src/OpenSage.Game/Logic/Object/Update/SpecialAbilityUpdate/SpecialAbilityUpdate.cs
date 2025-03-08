@@ -13,6 +13,10 @@ public class SpecialAbilityUpdate : UpdateModule
     private bool _unknownBool3;
     private float _unknownFloat;
 
+    public SpecialAbilityUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -212,6 +216,6 @@ public class SpecialAbilityUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SpecialAbilityUpdate();
+        return new SpecialAbilityUpdate(gameObject, context);
     }
 }

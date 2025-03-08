@@ -6,6 +6,10 @@ public sealed class CommandButtonHuntUpdate : UpdateModule
 {
     private string _commandButtonName;
 
+    public CommandButtonHuntUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -29,6 +33,6 @@ public sealed class CommandButtonHuntUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new CommandButtonHuntUpdate();
+        return new CommandButtonHuntUpdate(gameObject, context);
     }
 }

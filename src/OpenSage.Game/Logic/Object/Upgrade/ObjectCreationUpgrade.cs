@@ -6,20 +6,18 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class ObjectCreationUpgrade : UpgradeModule
 {
-    private readonly GameContext _context;
     private readonly ObjectCreationUpgradeModuleData _moduleData;
 
     internal ObjectCreationUpgrade(GameObject gameObject, GameContext context, ObjectCreationUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _context = context;
         _moduleData = moduleData;
     }
 
     protected override void OnUpgrade()
     {
         // TODO: Get rid of this context thing.
-        var context = new BehaviorUpdateContext(_context, _gameObject);
+        var context = new BehaviorUpdateContext(Context, GameObject);
 
         foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
         {
@@ -27,9 +25,9 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
 
             foreach (var createdObject in createdObjects)
             {
-                createdObject.CreatedByObjectID = _gameObject.ID;
+                createdObject.CreatedByObjectID = GameObject.ID;
                 var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
-                slavedUpdateBehaviour?.SetMaster(_gameObject);
+                slavedUpdateBehaviour?.SetMaster(GameObject);
             }
         }
     }

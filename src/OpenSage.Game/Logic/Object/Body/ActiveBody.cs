@@ -10,7 +10,6 @@ namespace OpenSage.Logic.Object;
 
 public class ActiveBody : BodyModule
 {
-    private readonly GameContext _context;
     private readonly ActiveBodyModuleData _moduleData;
     private readonly List<uint> _particleSystemIds = new();
 
@@ -41,9 +40,8 @@ public class ActiveBody : BodyModule
 
     public DamageData LastDamage => _lastDamage;
 
-    internal ActiveBody(GameObject gameObject, GameContext context, ActiveBodyModuleData moduleData) : base(gameObject)
+    internal ActiveBody(GameObject gameObject, GameContext context, ActiveBodyModuleData moduleData) : base(gameObject, context)
     {
-        _context = context;
         _moduleData = moduleData;
 
         MaxHealth = (Fix64)moduleData.MaxHealth;
@@ -98,14 +96,14 @@ public class ActiveBody : BodyModule
 
         SetHealth(newHealth);
 
-        var damager = _context.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
+        var damager = Context.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
         damageInfo.Request.AttackerName = damager?.Definition.Name ?? string.Empty;
 
         damageInfo.Result.DamageAfterArmorCalculation = (float)actualDamage;
         damageInfo.Result.ActualDamageApplied = _lastHealthBeforeDamage - _currentHealth;
 
         _lastDamage = damageInfo;
-        _lastDamagedAt = _context.GameLogic.CurrentFrame;
+        _lastDamagedAt = Context.GameLogic.CurrentFrame;
 
         // TODO: DamageFX
         if (_currentDamageFX != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
@@ -118,7 +116,7 @@ public class ActiveBody : BodyModule
                 new FXListExecutionContext(
                     GameObject.Rotation,
                     GameObject.Translation,
-                    _context));
+                    Context));
         }
 
         if (Health <= Fix64.Zero)

@@ -8,7 +8,6 @@ namespace OpenSage.Logic.Object;
 
 public class BezierProjectileBehavior : UpdateModule
 {
-    private readonly GameObject _gameObject;
     private readonly BezierProjectileBehaviorData _moduleData;
 
     private uint _launcherObjectId;
@@ -20,16 +19,16 @@ public class BezierProjectileBehavior : UpdateModule
 
     internal FXList DetonationFX { get; set; }
 
-    internal BezierProjectileBehavior(GameObject gameObject, BezierProjectileBehaviorData moduleData)
+    internal BezierProjectileBehavior(GameObject gameObject, GameContext context, BezierProjectileBehaviorData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
     }
 
     internal override void Update(BehaviorUpdateContext context)
     {
         // TODO: Bezier implementation.
-        if (!_gameObject.IsProjectile)
+        if (!GameObject.IsProjectile)
         {
             return;
         }
@@ -37,7 +36,7 @@ public class BezierProjectileBehavior : UpdateModule
         var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
         var velocity = direction * context.GameObject.Speed;
 
-        _gameObject.SetTranslation(_gameObject.Translation + velocity * ((float)Game.LogicUpdateInterval / 1000.0f));
+        GameObject.SetTranslation(GameObject.Translation + velocity * ((float)Game.LogicUpdateInterval / 1000.0f));
 
         CheckForHit(
             context,
@@ -211,6 +210,6 @@ public class BezierProjectileBehaviorData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BezierProjectileBehavior(gameObject, this);
+        return new BezierProjectileBehavior(gameObject, context, this);
     }
 }

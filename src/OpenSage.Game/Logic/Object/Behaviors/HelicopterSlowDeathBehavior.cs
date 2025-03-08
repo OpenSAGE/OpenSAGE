@@ -5,8 +5,8 @@ namespace OpenSage.Logic.Object;
 
 public sealed class HelicopterSlowDeathBehavior : SlowDeathBehavior
 {
-    internal HelicopterSlowDeathBehavior(HelicopterSlowDeathBehaviorModuleData moduleData)
-        : base(moduleData)
+    internal HelicopterSlowDeathBehavior(GameObject gameObject, GameContext context, HelicopterSlowDeathBehaviorModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
     }
 
@@ -91,6 +91,6 @@ public sealed class HelicopterSlowDeathBehaviorModuleData : SlowDeathBehaviorMod
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new HelicopterSlowDeathBehavior(this);
+        return new HelicopterSlowDeathBehavior(gameObject, context, this);
     }
 }

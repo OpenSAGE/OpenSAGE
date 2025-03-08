@@ -11,11 +11,8 @@ public abstract class BodyModule : BehaviorModule
 {
     private float _armorDamageScalar;
 
-    protected GameObject GameObject { get; }
-
-    protected BodyModule(GameObject gameObject)
+    protected BodyModule(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        GameObject = gameObject;
     }
 
     public Fix64 Health { get; internal set; }

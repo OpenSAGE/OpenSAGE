@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class TechBuildingBehavior : UpdateModule
 {
+    public TechBuildingBehavior(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -25,6 +29,6 @@ public sealed class TechBuildingBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new TechBuildingBehavior();
+        return new TechBuildingBehavior(gameObject, context);
     }
 }

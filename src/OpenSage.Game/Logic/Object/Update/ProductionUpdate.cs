@@ -16,13 +16,11 @@ public sealed class ProductionUpdate : UpdateModule
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly ProductionUpdateModuleData _moduleData;
     private readonly List<ProductionJob> _productionQueue = new();
 
     private IProductionExit? _productionExit;
-    private IProductionExit? ProductionExit => _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+    private IProductionExit? ProductionExit => _productionExit ??= GameObject.FindBehavior<IProductionExit>();
 
     private int _doorIndex;
 
@@ -47,9 +45,8 @@ public sealed class ProductionUpdate : UpdateModule
     public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
     internal ProductionUpdate(GameObject gameObject, GameContext context, ProductionUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
@@ -80,7 +77,7 @@ public sealed class ProductionUpdate : UpdateModule
         }
 
         var isProducing = _productionQueue.Count > 0;
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, isProducing);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, isProducing);
 
         if (isProducing)
         {
@@ -103,7 +100,7 @@ public sealed class ProductionUpdate : UpdateModule
 
                             SetDoorStateEndFrame(DoorState.Opening, context.LogicFrame + _moduleData.DoorOpeningTime);
                             UpdateDoorModelConditionFlags();
-                            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, true);
+                            GameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, true);
 
                             return; // don't empty the queue - that's handled further up
                         case ProductionJobType.Unit:
@@ -112,7 +109,7 @@ public sealed class ProductionUpdate : UpdateModule
                             break;
                         case ProductionJobType.Upgrade:
                             {
-                                front.UpgradeDefinition.GrantUpgrade(_gameObject);
+                                front.UpgradeDefinition.GrantUpgrade(GameObject);
                                 if (front.UpgradeDefinition.ResearchSound != null)
                                 {
                                     // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
@@ -134,7 +131,7 @@ public sealed class ProductionUpdate : UpdateModule
         switch (currentDoorState)
         {
             case DoorState.WaitingOpen when context.LogicFrame >= doorStateEndFrame:
-                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, false);
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, false);
                 if (ProductionExit is ParkingPlaceBehaviour)
                 {
                     break; // Door is closed on aircraft death from JetAIUpdate
@@ -156,7 +153,7 @@ public sealed class ProductionUpdate : UpdateModule
     {
         _doorIndex = doorIndex;
         Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
-        SetDoorStateEndFrame(DoorState.Closing, _context.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
+        SetDoorStateEndFrame(DoorState.Closing, Context.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
     }
 
@@ -215,9 +212,9 @@ public sealed class ProductionUpdate : UpdateModule
 
         GetDoorConditionFlags(out var opening, out var waitingOpen, out var closing);
 
-        _gameObject.ModelConditionFlags.Set(opening, doorState is DoorState.Opening);
-        _gameObject.ModelConditionFlags.Set(waitingOpen, doorState is DoorState.WaitingOpen);
-        _gameObject.ModelConditionFlags.Set(closing, doorState is DoorState.Closing);
+        GameObject.ModelConditionFlags.Set(opening, doorState is DoorState.Opening);
+        GameObject.ModelConditionFlags.Set(waitingOpen, doorState is DoorState.WaitingOpen);
+        GameObject.ModelConditionFlags.Set(closing, doorState is DoorState.Closing);
     }
 
     private bool ExitsThroughDoor(ObjectDefinition definition)
@@ -348,18 +345,18 @@ public sealed class ProductionUpdate : UpdateModule
 
         ProductionExit.ProduceUnit();
 
-        var producedUnit = _context.GameLogic.CreateObject(objectDefinition, _gameObject.Owner);
-        producedUnit.Owner = _gameObject.Owner;
+        var producedUnit = Context.GameLogic.CreateObject(objectDefinition, GameObject.Owner);
+        producedUnit.Owner = GameObject.Owner;
         producedUnit.ParentHorde = ParentHorde;
 
         if (playAudio)
         {
-            _context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
+            Context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
         }
 
         if (!_moduleData.GiveNoXP)
         {
-            _gameObject.GainExperience((int)producedUnit.Definition.BuildCost);
+            GameObject.GainExperience((int)producedUnit.Definition.BuildCost);
         }
 
         var isHorde = producedUnit.Definition.KindOf.Get(ObjectKinds.Horde);
@@ -379,14 +376,14 @@ public sealed class ProductionUpdate : UpdateModule
                 parkingPlace.ReportSpawn(producedUnit.ID);
                 producedUnit.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
                 var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
-                jetAIUpdate.Base = _gameObject;
+                jetAIUpdate.Base = GameObject;
                 jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
             }
-            producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad, producedUnit.ID).Matrix * _gameObject.TransformMatrix);
+            producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad, producedUnit.ID).Matrix * GameObject.TransformMatrix);
             return producedUnit;
         }
 
-        producedUnit.UpdateTransform(_gameObject.ToWorldspace(ProductionExit.GetUnitCreatePoint()), _gameObject.Rotation);
+        producedUnit.UpdateTransform(GameObject.ToWorldspace(ProductionExit.GetUnitCreatePoint()), GameObject.Rotation);
 
         return producedUnit;
     }
@@ -404,20 +401,20 @@ public sealed class ProductionUpdate : UpdateModule
         var naturalRallyPoint = ProductionExit?.GetNaturalRallyPoint();
         if (naturalRallyPoint.HasValue)
         {
-            naturalRallyPoint = _gameObject.ToWorldspace(naturalRallyPoint.Value);
+            naturalRallyPoint = GameObject.ToWorldspace(naturalRallyPoint.Value);
             producedUnit.AIUpdate.AddTargetPoint(naturalRallyPoint.Value);
         }
 
         // Then go to the rally point if it exists
-        if (_gameObject.RallyPoint.HasValue)
+        if (GameObject.RallyPoint.HasValue)
         {
-            producedUnit.AIUpdate.AddTargetPoint(_gameObject.RallyPoint.Value);
+            producedUnit.AIUpdate.AddTargetPoint(GameObject.RallyPoint.Value);
         }
 
-        _context.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
+        Context.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
 
         HandleHordeCreation(producedUnit);
-        HandleHarvesterUnitCreation(_gameObject, producedUnit);
+        HandleHarvesterUnitCreation(GameObject, producedUnit);
     }
 
     private void HandleHordeCreation(GameObject producedUnit)
@@ -462,7 +459,7 @@ public sealed class ProductionUpdate : UpdateModule
 
     internal void QueueProduction(ObjectDefinition objectDefinition)
     {
-        var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime / _gameObject.ProductionModifier, _nextJobId++,
+        var job = new ProductionJob(objectDefinition, objectDefinition.BuildTime / GameObject.ProductionModifier, _nextJobId++,
             _moduleData.QuantityModifiers.TryGetValue(objectDefinition.Name, out var quantity) ? quantity : 1);
         _productionQueue.Add(job);
 
@@ -481,7 +478,7 @@ public sealed class ProductionUpdate : UpdateModule
 
     internal void SpawnPayload(ObjectDefinition objectDefinition, LogicFrameSpan buildTime)
     {
-        var job = new ProductionJob(objectDefinition, buildTime / _gameObject.ProductionModifier, _nextJobId++);
+        var job = new ProductionJob(objectDefinition, buildTime / GameObject.ProductionModifier, _nextJobId++);
         _productionQueue.Insert(1, job);
     }
 
@@ -511,7 +508,7 @@ public sealed class ProductionUpdate : UpdateModule
 
         if (upgradeDefinition.Type == UpgradeType.Player)
         {
-            _gameObject.Owner.AddUpgrade(upgradeDefinition, UpgradeStatus.Queued);
+            GameObject.Owner.AddUpgrade(upgradeDefinition, UpgradeStatus.Queued);
         }
     }
 
@@ -535,7 +532,7 @@ public sealed class ProductionUpdate : UpdateModule
 
         if (upgradeDefinition.Type == UpgradeType.Player)
         {
-            _gameObject.Owner.CancelUpgrade(upgradeDefinition);
+            GameObject.Owner.CancelUpgrade(upgradeDefinition);
         }
     }
 

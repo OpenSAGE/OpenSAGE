@@ -6,14 +6,15 @@ internal sealed class WeaponSetUpgrade : UpgradeModule
 {
     private readonly WeaponSetUpgradeModuleData _moduleData;
 
-    internal WeaponSetUpgrade(GameObject gameObject, WeaponSetUpgradeModuleData moduleData) : base(gameObject, moduleData)
+    internal WeaponSetUpgrade(GameObject gameObject, GameContext context, WeaponSetUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
 
     protected override void OnUpgrade()
     {
-        _gameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, true);
+        GameObject.SetWeaponSetCondition(WeaponSetConditions.PlayerUpgrade, true);
     }
 
     internal override void Load(StatePersister reader)
@@ -45,6 +46,6 @@ public sealed class WeaponSetUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new WeaponSetUpgrade(gameObject, this);
+        return new WeaponSetUpgrade(gameObject, context, this);
     }
 }

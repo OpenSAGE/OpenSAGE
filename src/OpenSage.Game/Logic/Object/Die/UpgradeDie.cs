@@ -5,15 +5,11 @@ namespace OpenSage.Logic.Object;
 
 public class UpgradeDieModule : DieModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly UpgradeDieModuleData _moduleData;
 
     internal UpgradeDieModule(GameObject gameObject, GameContext context, UpgradeDieModuleData moduleData)
-        : base(moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
@@ -28,7 +24,7 @@ public class UpgradeDieModule : DieModule
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        var parent = _context.GameLogic.GetObjectById(_gameObject.CreatedByObjectID);
+        var parent = Context.GameLogic.GetObjectById(GameObject.CreatedByObjectID);
 
         parent?.RemoveUpgrade(_moduleData.UpgradeToRemove.UpgradeName.Value);
 

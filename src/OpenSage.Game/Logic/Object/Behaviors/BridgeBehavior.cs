@@ -7,6 +7,10 @@ public sealed class BridgeBehavior : UpdateModule
 {
     private readonly uint[] _towerIds = new uint[4];
 
+    public BridgeBehavior(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -27,7 +31,7 @@ public sealed class BridgeBehavior : UpdateModule
 }
 
 /// <summary>
-/// Special-case logic allows for ParentObject to be specified as a bone name to allow other 
+/// Special-case logic allows for ParentObject to be specified as a bone name to allow other
 /// objects to appear on the bridge.
 /// </summary>
 public sealed class BridgeBehaviorModuleData : BehaviorModuleData
@@ -51,7 +55,7 @@ public sealed class BridgeBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BridgeBehavior();
+        return new BridgeBehavior(gameObject, context);
     }
 }
 

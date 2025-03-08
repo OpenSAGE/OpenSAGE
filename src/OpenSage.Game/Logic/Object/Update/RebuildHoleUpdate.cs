@@ -11,8 +11,6 @@ namespace OpenSage.Logic.Object;
 /// </summary>
 public sealed class RebuildHoleUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly RebuildHoleUpdateModuleData _moduleData;
 
     private readonly Percentage _healPercentagePerFrame;
@@ -24,14 +22,13 @@ public sealed class RebuildHoleUpdate : UpdateModule
     private LogicFrameSpan _framesUntilConstructionBegins;
 
     private string _workerObjectName; // the worker to spawn to build the structure
-    private ObjectDefinition WorkerObjectDefinition => _context.Game.AssetStore.ObjectDefinitions.GetByName(_workerObjectName);
+    private ObjectDefinition WorkerObjectDefinition => Context.Game.AssetStore.ObjectDefinitions.GetByName(_workerObjectName);
     private string _structureObjectName; // the structure we're rebuilding
-    private ObjectDefinition StructureObjectDefinition => _context.Game.AssetStore.ObjectDefinitions.GetByName(_structureObjectName);
+    private ObjectDefinition StructureObjectDefinition => Context.Game.AssetStore.ObjectDefinitions.GetByName(_structureObjectName);
 
     internal RebuildHoleUpdate(GameObject gameObject, GameContext context, RebuildHoleUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
 
         _healPercentagePerFrame = new Percentage((float)moduleData.HoleHealthRegenPercentPerSecond / Game.LogicFramesPerSecond);
@@ -57,13 +54,13 @@ public sealed class RebuildHoleUpdate : UpdateModule
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        if (!_gameObject.IsFullHealth)
+        if (!GameObject.IsFullHealth)
         {
-            if (_gameObject.HealthPercentage == Fix64.Zero)
+            if (GameObject.HealthPercentage == Fix64.Zero)
             {
                 return;
             }
-            _gameObject.HealDirectly(_healPercentagePerFrame);
+            GameObject.HealDirectly(_healPercentagePerFrame);
         }
 
         if (_framesUntilConstructionBegins != LogicFrameSpan.Zero)
@@ -76,32 +73,32 @@ public sealed class RebuildHoleUpdate : UpdateModule
         if (_workerId == 0)
         {
             // spawn worker first
-            worker = _context.GameLogic.CreateObject(WorkerObjectDefinition, _gameObject.Owner);
-            worker.SetTransformMatrix(_gameObject.TransformMatrix);
+            worker = Context.GameLogic.CreateObject(WorkerObjectDefinition, GameObject.Owner);
+            worker.SetTransformMatrix(GameObject.TransformMatrix);
             worker.SetSelectable(false); // we have no control over this worker
             _workerId = worker.ID;
         }
         else
         {
-            worker = _context.GameLogic.GetObjectById(_workerId);
+            worker = Context.GameLogic.GetObjectById(_workerId);
         }
 
         GameObject structure;
         if (_structureId == 0)
         {
             // spawn structure after spawning worker
-            structure = _context.GameLogic.CreateObject(StructureObjectDefinition, _gameObject.Owner);
-            structure.SetTransformMatrix(_gameObject.TransformMatrix);
+            structure = Context.GameLogic.CreateObject(StructureObjectDefinition, GameObject.Owner);
+            structure.SetTransformMatrix(GameObject.TransformMatrix);
             // todo: some special property that disables the cancel construction button?
             _structureId = structure.ID;
             structure.SetIsBeingConstructed();
             structure.SetObjectStatus(ObjectStatus.UnderConstruction, true);
             structure.SetUnknownStatus(UnknownScaffoldStatus, true);
-            _gameObject.SetObjectStatus(ObjectStatus.InsideGarrison, true); // yup, seriously
+            GameObject.SetObjectStatus(ObjectStatus.InsideGarrison, true); // yup, seriously
         }
         else
         {
-            structure = _context.GameLogic.GetObjectById(_structureId);
+            structure = Context.GameLogic.GetObjectById(_structureId);
         }
 
         if (worker == null || worker.IsDead)
@@ -117,7 +114,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
             _structureId = 0;
             _workerId = 0;
             worker.Destroy();
-            _gameObject.SetObjectStatus(ObjectStatus.InsideGarrison, false); // the hole is no longer protected
+            GameObject.SetObjectStatus(ObjectStatus.InsideGarrison, false); // the hole is no longer protected
         }
         else if (!structure.IsBeingConstructed())
         {
@@ -126,7 +123,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
             _structureId = 0;
             structure.SetUnknownStatus(UnknownScaffoldStatus, false);
             worker.Destroy();
-            _gameObject.Destroy();
+            GameObject.Destroy();
         }
         else if (worker.AIUpdate is WorkerAIUpdate workerAiUpdate)
         {
@@ -145,8 +142,8 @@ public sealed class RebuildHoleUpdate : UpdateModule
 
     internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
     {
-        var worker = _context.GameLogic.GetObjectById(_workerId);
-        var structure = _context.GameLogic.GetObjectById(_structureId);
+        var worker = Context.GameLogic.GetObjectById(_workerId);
+        var structure = Context.GameLogic.GetObjectById(_structureId);
         worker?.Destroy();
         structure?.Destroy();
         base.OnDie(context, deathType, status);

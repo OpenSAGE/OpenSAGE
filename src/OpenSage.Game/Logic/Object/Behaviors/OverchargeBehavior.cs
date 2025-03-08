@@ -7,39 +7,36 @@ namespace OpenSage.Logic.Object;
 
 public sealed class OverchargeBehavior : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly OverchargeBehaviorModuleData _moduleData;
     private bool _enabled;
     public bool Enabled => _enabled;
 
     public OverchargeBehavior(GameObject gameObject, GameContext context, OverchargeBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
     public void Activate()
     {
         _enabled = true;
-        _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
+        GameObject.EnergyProduction += GameObject.Definition.EnergyBonus;
 
-        foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
+        foreach (var powerPlantUpdate in GameObject.FindBehaviors<PowerPlantUpdate>())
         {
             powerPlantUpdate.ExtendRods();
         }
 
         // todo: this is fine for now, but generals seems to have some way of making sure it doesn't immediately sap health on subsequent toggles
-        SetNextUpdateFrame(_context.GameLogic.CurrentFrame);
+        SetNextUpdateFrame(Context.GameLogic.CurrentFrame);
     }
 
     public void Deactivate()
     {
         _enabled = false;
-        _gameObject.EnergyProduction = _gameObject.Definition.EnergyProduction;
+        GameObject.EnergyProduction = GameObject.Definition.EnergyProduction;
 
-        foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
+        foreach (var powerPlantUpdate in GameObject.FindBehaviors<PowerPlantUpdate>())
         {
             powerPlantUpdate.RetractRods();
             SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
@@ -49,13 +46,13 @@ public sealed class OverchargeBehavior : UpdateModule
     internal override void Update(BehaviorUpdateContext context)
     {
         if (!_enabled || // nothing to do if we aren't currently overcharging
-            _gameObject.HealthPercentage < (Fix64)(float)_moduleData.NotAllowedWhenHealthBelowPercent || // must be above min health percent
+            GameObject.HealthPercentage < (Fix64)(float)_moduleData.NotAllowedWhenHealthBelowPercent || // must be above min health percent
             context.LogicFrame.Value < NextUpdateFrame.Frame) // must be ready for us to do more damage
         {
             return;
         }
 
-        _gameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, _gameObject);
+        GameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, GameObject);
         SetNextUpdateFrame(new LogicFrame((uint)Game.LogicFramesPerSecond));
     }
 

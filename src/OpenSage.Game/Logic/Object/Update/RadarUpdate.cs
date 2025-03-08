@@ -8,6 +8,10 @@ public sealed class RadarUpdate : UpdateModule
     private bool _isRadarExtending;
     private bool _isRadarExtended;
 
+    public RadarUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -35,6 +39,6 @@ public sealed class RadarUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new RadarUpdate();
+        return new RadarUpdate(gameObject, context);
     }
 }

@@ -8,8 +8,8 @@ internal class GeometryUpgrade : UpgradeModule
 {
     private readonly GeometryUpgradeModuleData _moduleData;
 
-    internal GeometryUpgrade(GameObject gameObject, GeometryUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal GeometryUpgrade(GameObject gameObject, GameContext context, GeometryUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -20,7 +20,7 @@ internal class GeometryUpgrade : UpgradeModule
         {
             foreach (var showGeometry in _moduleData.ShowGeometry)
             {
-                _gameObject.ShowCollider(showGeometry);
+                GameObject.ShowCollider(showGeometry);
             }
         }
 
@@ -28,7 +28,7 @@ internal class GeometryUpgrade : UpgradeModule
         {
             foreach (var hideGeometry in _moduleData.HideGeometry)
             {
-                _gameObject.HideCollider(hideGeometry);
+                GameObject.HideCollider(hideGeometry);
             }
         }
 
@@ -59,6 +59,6 @@ public sealed class GeometryUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new GeometryUpgrade(gameObject, this);
+        return new GeometryUpgrade(gameObject, context, this);
     }
 }

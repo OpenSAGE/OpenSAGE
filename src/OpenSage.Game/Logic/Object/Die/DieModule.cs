@@ -9,7 +9,7 @@ public abstract class DieModule : BehaviorModule
 {
     private readonly DieModuleData _moduleData;
 
-    protected DieModule(DieModuleData moduleData)
+    protected DieModule(GameObject gameObject, GameContext context, DieModuleData moduleData) : base(gameObject, context)
     {
         _moduleData = moduleData;
     }

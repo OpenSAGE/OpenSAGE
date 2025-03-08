@@ -6,12 +6,11 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public class BannerCarrierUpdate : UpdateModule
 {
-    private GameObject _gameObject;
     private BannerCarrierUpdateModuleData _moduleData;
 
-    public BannerCarrierUpdate(GameObject gameObject, BannerCarrierUpdateModuleData moduleData)
+    public BannerCarrierUpdate(GameObject gameObject, GameContext context, BannerCarrierUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
     }
 
@@ -61,7 +60,7 @@ public sealed class BannerCarrierUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BannerCarrierUpdate(gameObject, this);
+        return new BannerCarrierUpdate(gameObject, context, this);
     }
 }
 

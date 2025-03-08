@@ -6,26 +6,22 @@ namespace OpenSage.Logic.Object;
 
 public sealed class RebuildHoleExposeDie : DieModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly RebuildHoleExposeDieModuleData _moduleData;
 
     internal RebuildHoleExposeDie(GameObject gameObject, GameContext context, RebuildHoleExposeDieModuleData moduleData)
-        : base(moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        var hole = _context.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, _gameObject.Owner);
-        hole.SetTransformMatrix(_gameObject.TransformMatrix);
+        var hole = Context.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, GameObject.Owner);
+        hole.SetTransformMatrix(GameObject.TransformMatrix);
         var holeHealth = (Fix64)_moduleData.HoleMaxHealth;
         hole.MaxHealth = holeHealth;
         hole.Health = holeHealth;
-        hole.FindBehavior<RebuildHoleUpdate>().SetOriginalStructure(_gameObject);
+        hole.FindBehavior<RebuildHoleUpdate>().SetOriginalStructure(GameObject);
 
         base.Die(context, deathType);
     }

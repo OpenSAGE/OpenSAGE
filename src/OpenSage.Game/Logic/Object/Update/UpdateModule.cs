@@ -12,12 +12,6 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     protected virtual UpdateOrder UpdateOrder => UpdateOrder.Order2;
 
-    // TODO: Remove this once all subclasses use the other constructor.
-    protected UpdateModule()
-    {
-        _nextUpdateFrame.UpdateOrder = UpdateOrder;
-    }
-
     protected UpdateModule(GameObject gameObject, GameContext context)
         : base(gameObject, context)
     {

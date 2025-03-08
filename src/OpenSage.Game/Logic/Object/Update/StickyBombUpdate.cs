@@ -8,6 +8,10 @@ public sealed class StickyBombUpdate : UpdateModule
     private uint _unknown2;
     private uint _unknown3;
 
+    public StickyBombUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -45,6 +49,6 @@ public sealed class StickyBombUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StickyBombUpdate();
+        return new StickyBombUpdate(gameObject, context);
     }
 }

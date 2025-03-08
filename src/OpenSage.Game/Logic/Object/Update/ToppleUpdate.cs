@@ -8,8 +8,6 @@ namespace OpenSage.Logic.Object;
 
 public sealed class ToppleUpdate : UpdateModule, ICollideModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly ToppleUpdateModuleData _moduleData;
 
     private ToppleState _toppleState;
@@ -21,9 +19,8 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     private uint _stumpId;
 
     internal ToppleUpdate(GameObject gameObject, GameContext context, ToppleUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
 
         _toppleState = ToppleState.NotToppled;
@@ -38,7 +35,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
                     // TODO: InitialAccelPercent
                     var deltaAngle = 0.01f;
                     _toppleAngle += deltaAngle;
-                    _gameObject.SetRotation(_gameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
+                    GameObject.SetRotation(GameObject.Rotation * Quaternion.CreateFromYawPitchRoll(deltaAngle, 0, 0));
                     if (_toppleAngle > MathUtility.PiOver2)
                     {
                         _toppleAngle = MathUtility.PiOver2;
@@ -70,7 +67,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         }
 
         // Only things with a CrusherLevel greater than our CrushableLevel, can topple us.
-        if (other.Definition.CrusherLevel <= _gameObject.Definition.CrushableLevel)
+        if (other.Definition.CrusherLevel <= GameObject.Definition.CrushableLevel)
         {
             return;
         }
@@ -84,9 +81,9 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     {
         _moduleData.ToppleFX?.Value.Execute(
             new FXListExecutionContext(
-                _gameObject.Rotation,
-                _gameObject.Translation,
-                _context));
+                GameObject.Rotation,
+                GameObject.Translation,
+                Context));
 
         CreateStump();
 
@@ -99,7 +96,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         _toppleState = ToppleState.Toppling;
 
         // TODO: Is this the right time to do this?
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Toppled, true);
     }
 
     private void CreateStump()
@@ -109,14 +106,14 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
             return;
         }
 
-        var stump = _context.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
-        stump.UpdateTransform(_gameObject.Translation, _gameObject.Rotation);
+        var stump = Context.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
+        stump.UpdateTransform(GameObject.Translation, GameObject.Rotation);
         _stumpId = stump.ID;
     }
 
     private void KillObject()
     {
-        _gameObject.Kill(DeathType.Toppled);
+        GameObject.Kill(DeathType.Toppled);
     }
 
     internal override void Load(StatePersister reader)

@@ -2,6 +2,10 @@
 
 public abstract class DamageModule : BehaviorModule
 {
+    protected DamageModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

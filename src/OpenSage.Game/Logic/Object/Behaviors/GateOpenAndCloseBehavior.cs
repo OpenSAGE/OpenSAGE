@@ -10,7 +10,6 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public class GateOpenAndCloseBehavior : UpdateModule
 {
-    private GameObject _gameObject;
     private GateOpenAndCloseBehaviorModuleData _moduleData;
     private bool _open;
     private bool _playedFinishedSound = false;
@@ -27,10 +26,10 @@ public class GateOpenAndCloseBehavior : UpdateModule
     private AudioSource _openingSoundLoop;
     private AudioSource _closingSoundLoop;
 
-    internal GateOpenAndCloseBehavior(GameObject gameObject, GateOpenAndCloseBehaviorModuleData moduleData)
+    internal GateOpenAndCloseBehavior(GameObject gameObject, GameContext context, GateOpenAndCloseBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
 
         _open = false; // _moduleData.OpenByDefault;
         _state = DoorState.Idle;
@@ -65,12 +64,12 @@ public class GateOpenAndCloseBehavior : UpdateModule
 
             case DoorState.StartOpening:
                 audioSystem.DisposeSource(_closingSoundLoop);
-                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
-                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, false);
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, true);
                 _toggleFinishedTime = context.LogicFrame + _moduleData.ResetTime;
                 _pathingToggleTime = context.LogicFrame + (_moduleData.ResetTime * _moduleData.PercentOpenForPathing);
 
-                _openingSoundLoop = audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundOpeningGateLoop?.Value, true);
+                _openingSoundLoop = audioSystem.PlayAudioEvent(GameObject, _moduleData.SoundOpeningGateLoop?.Value, true);
                 _finishedSoundTime = context.LogicFrame + _moduleData.TimeBeforePlayingOpenSound;
 
                 _state = DoorState.Opening;
@@ -81,17 +80,17 @@ public class GateOpenAndCloseBehavior : UpdateModule
             case DoorState.Opening:
                 if (!_toggledColliders && context.LogicFrame >= _pathingToggleTime)
                 {
-                    _gameObject.HideCollider(_closedGeometry);
+                    GameObject.HideCollider(_closedGeometry);
                     foreach (var openCollider in _openGeometries)
                     {
-                        _gameObject.ShowCollider(openCollider);
+                        GameObject.ShowCollider(openCollider);
                     }
                     _toggledColliders = true;
                 }
                 if (!_playedFinishedSound && context.LogicFrame >= _finishedSoundTime)
                 {
                     audioSystem.DisposeSource(_openingSoundLoop);
-                    audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundFinishedOpeningGate?.Value);
+                    audioSystem.PlayAudioEvent(GameObject, _moduleData.SoundFinishedOpeningGate?.Value);
                     _playedFinishedSound = true;
                 }
                 if (context.LogicFrame >= _toggleFinishedTime)
@@ -103,12 +102,12 @@ public class GateOpenAndCloseBehavior : UpdateModule
 
             case DoorState.StartClosing:
                 audioSystem.DisposeSource(_openingSoundLoop);
-                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
-                _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, false);
+                GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, true);
                 _toggleFinishedTime = context.LogicFrame + _moduleData.ResetTime;
                 _pathingToggleTime = context.LogicFrame + (_moduleData.ResetTime * _moduleData.PercentOpenForPathing);
 
-                _closingSoundLoop = audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundClosingGateLoop?.Value, true);
+                _closingSoundLoop = audioSystem.PlayAudioEvent(GameObject, _moduleData.SoundClosingGateLoop?.Value, true);
                 _finishedSoundTime = context.LogicFrame + _moduleData.TimeBeforePlayingClosedSound;
 
                 _state = DoorState.Closing;
@@ -119,17 +118,17 @@ public class GateOpenAndCloseBehavior : UpdateModule
             case DoorState.Closing:
                 if (!_toggledColliders && context.LogicFrame >= _pathingToggleTime)
                 {
-                    _gameObject.ShowCollider(_closedGeometry);
+                    GameObject.ShowCollider(_closedGeometry);
                     foreach (var openCollider in _openGeometries)
                     {
-                        _gameObject.HideCollider(openCollider);
+                        GameObject.HideCollider(openCollider);
                     }
                     _toggledColliders = true;
                 }
                 if (!_playedFinishedSound && context.LogicFrame >= _finishedSoundTime)
                 {
                     audioSystem.DisposeSource(_closingSoundLoop);
-                    audioSystem.PlayAudioEvent(_gameObject, _moduleData.SoundFinishedClosingGate?.Value);
+                    audioSystem.PlayAudioEvent(GameObject, _moduleData.SoundFinishedClosingGate?.Value);
                     _playedFinishedSound = true;
                 }
                 if (context.LogicFrame >= _toggleFinishedTime)
@@ -186,6 +185,6 @@ public sealed class GateOpenAndCloseBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new GateOpenAndCloseBehavior(gameObject, this);
+        return new GateOpenAndCloseBehavior(gameObject, context, this);
     }
 }

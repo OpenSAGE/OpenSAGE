@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class ConvertToHijackedVehicleCrateCollide : CrateCollide
 {
+    public ConvertToHijackedVehicleCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -27,6 +31,6 @@ public sealed class ConvertToHijackedVehicleCrateCollideModuleData : CrateCollid
 
     internal override ConvertToHijackedVehicleCrateCollide CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ConvertToHijackedVehicleCrateCollide();
+        return new ConvertToHijackedVehicleCrateCollide(gameObject, context);
     }
 }

@@ -5,6 +5,10 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.CncGeneralsZeroHour)]
 public sealed class SpectreGunshipDeploymentUpdate : UpdateModule
 {
+    public SpectreGunshipDeploymentUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -39,6 +43,6 @@ public sealed class SpectreGunshipDeploymentUpdateModuleData : BehaviorModuleDat
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SpectreGunshipDeploymentUpdate();
+        return new SpectreGunshipDeploymentUpdate(gameObject, context);
     }
 }

@@ -546,43 +546,43 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             AddModule(tag, behavior);
         }
 
-        AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper());
+        AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper(this, gameContext));
 
         if (objectDefinition.KindOf.Get(ObjectKinds.CanBeRepulsed))
         {
-            AddBehavior("ModuleTag_RepulsorHelper", new ObjectRepulsorHelper());
+            AddBehavior("ModuleTag_RepulsorHelper", new ObjectRepulsorHelper(this, gameContext));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper());
-            AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper());
+            AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper(this, gameContext));
+            AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper(this, gameContext));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Maybe KindOf = CAN_ATTACK ?
-        AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper());
+        AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper(this, gameContext));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Probably only those with weapons.
-        AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper());
+        AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper(this, gameContext));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Probably only those with weapons.
-        AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper());
+        AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper(this, gameContext));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameContext.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
         {
             // this was added in bfme and is not present in generals or zero hour
-            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this));
+            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this, gameContext));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper());
+            AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper(this, gameContext));
         }
 
         foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)

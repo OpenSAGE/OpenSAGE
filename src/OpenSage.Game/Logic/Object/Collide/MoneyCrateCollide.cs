@@ -7,6 +7,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class MoneyCrateCollide : CrateCollide
 {
+    public MoneyCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -33,7 +37,7 @@ public sealed class MoneyCrateCollideModuleData : CrateCollideModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new MoneyCrateCollide();
+        return new MoneyCrateCollide(gameObject, context);
     }
 }
 

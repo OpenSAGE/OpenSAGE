@@ -9,7 +9,8 @@ public sealed class DefaultProductionExitUpdate : UpdateModule, IHasRallyPoint, 
 
     private readonly DefaultProductionExitUpdateModuleData _moduleData;
 
-    internal DefaultProductionExitUpdate(DefaultProductionExitUpdateModuleData moduleData)
+    internal DefaultProductionExitUpdate(GameObject gameObject, GameContext context, DefaultProductionExitUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
     }
@@ -53,6 +54,6 @@ public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new DefaultProductionExitUpdate(this);
+        return new DefaultProductionExitUpdate(gameObject, context, this);
     }
 }

@@ -30,7 +30,8 @@ public class SlowDeathBehavior : UpdateModule
 
     public int ProbabilityModifier => _moduleData.ProbabilityModifier;
 
-    internal SlowDeathBehavior(SlowDeathBehaviorModuleData moduleData)
+    internal SlowDeathBehavior(GameObject gameObject, GameContext context, SlowDeathBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
     }
@@ -236,7 +237,7 @@ public class SlowDeathBehaviorModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SlowDeathBehavior(this);
+        return new SlowDeathBehavior(gameObject, context, this);
     }
 }
 

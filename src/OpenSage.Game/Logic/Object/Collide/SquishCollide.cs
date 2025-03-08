@@ -5,6 +5,9 @@ namespace OpenSage.Logic.Object;
 public sealed class SquishCollide : CollideModule
 {
     // TODO
+    public SquishCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
 
     internal override void Load(StatePersister reader)
     {
@@ -24,6 +27,6 @@ public sealed class SquishCollideModuleData : CollideModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SquishCollide();
+        return new SquishCollide(gameObject, context);
     }
 }

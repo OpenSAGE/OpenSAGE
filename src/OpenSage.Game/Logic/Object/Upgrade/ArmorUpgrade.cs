@@ -7,8 +7,8 @@ internal sealed class ArmorUpgrade : UpgradeModule
 {
     private readonly ArmorUpgradeModuleData _moduleData;
 
-    internal ArmorUpgrade(GameObject gameObject, ArmorUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal ArmorUpgrade(GameObject gameObject, GameContext context, ArmorUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -57,6 +57,6 @@ public sealed class ArmorUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ArmorUpgrade(gameObject, this);
+        return new ArmorUpgrade(gameObject, context, this);
     }
 }

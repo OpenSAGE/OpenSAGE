@@ -7,14 +7,11 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CreateCrateDie : DieModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly CreateCrateDieModuleData _moduleData;
 
-    internal CreateCrateDie(GameObject gameObject, GameContext context, CreateCrateDieModuleData moduleData) : base(moduleData)
+    internal CreateCrateDie(GameObject gameObject, GameContext context, CreateCrateDieModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
@@ -22,17 +19,17 @@ public sealed class CreateCrateDie : DieModule
     {
         var crateData = _moduleData.CrateData.Value;
 
-        if (_gameObject.TryGetLastDamage(out var lastDamageData))
+        if (GameObject.TryGetLastDamage(out var lastDamageData))
         {
-            var killer = _context.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
+            var killer = Context.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
 
             if (KillerCanSpawnCrate(killer, crateData))
             {
-                if (_context.Random.NextSingle() < crateData.CreationChance)
+                if (Context.Random.NextSingle() < crateData.CreationChance)
                 {
                     // actually create the crate
                     float totalProbability = 0;
-                    var selection = _context.Random.NextSingle();
+                    var selection = Context.Random.NextSingle();
                     foreach (var crate in crateData.CrateObjects)
                     {
                         totalProbability += crate.Probability;
@@ -57,8 +54,8 @@ public sealed class CreateCrateDie : DieModule
         }
 
         return (!crateData.KilledByType.HasValue || killer.Definition.KindOf.Get(crateData.KilledByType.Value)) && // killer type ok
-               killer.Team != _gameObject.Team && // we can't generate our own salvage
-               (crateData.VeterancyLevel is not { } v || v != _gameObject.VeterancyHelper.VeterancyLevel) && // killer meets veterancy requirements
+               killer.Team != GameObject.Team && // we can't generate our own salvage
+               (crateData.VeterancyLevel is not { } v || v != GameObject.VeterancyHelper.VeterancyLevel) && // killer meets veterancy requirements
                (crateData.KillerScience is null || killer.Owner.HasScience(crateData.KillerScience.Value)); // killer owner meets science requirements
     }
 
@@ -66,12 +63,12 @@ public sealed class CreateCrateDie : DieModule
     {
         if (crate.Object is not null)
         {
-            var newCrate = _context.GameLogic.CreateObject(crate.Object.Value, _gameObject.Owner);
-            newCrate.SetTransformMatrix(_gameObject.TransformMatrix);
+            var newCrate = Context.GameLogic.CreateObject(crate.Object.Value, GameObject.Owner);
+            newCrate.SetTransformMatrix(GameObject.TransformMatrix);
 
             if (crateData.OwnedByMaker)
             {
-                newCrate.Team = _gameObject.Team;
+                newCrate.Team = GameObject.Team;
             }
         }
     }

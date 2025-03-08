@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.FX;
 
@@ -8,8 +7,6 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public class ExperienceUpdate : UpdateModule
 {
-    private GameObject _gameObject;
-
     private List<ExperienceLevel> _experienceLevels;
     private bool _initial;
     private ExperienceLevel _currentLevel;
@@ -18,34 +15,33 @@ public class ExperienceUpdate : UpdateModule
 
     public bool ObjectGainsExperience { get; private set; }
 
-    internal ExperienceUpdate(GameObject gameObject)
+    internal ExperienceUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _initial = true;
     }
 
     private void Initialize(BehaviorUpdateContext context)
     {
         // not sure why the required experience for rank 1 is 1 instead of 0
-        if (_gameObject.ExperienceValue == 0)
+        if (GameObject.ExperienceValue == 0)
         {
-            _gameObject.ExperienceValue = 1;
+            GameObject.ExperienceValue = 1;
         }
 
         _experienceLevels = FindRelevantExperienceLevels(context);
         if (_experienceLevels != null && _experienceLevels.Count > 0)
         {
             _nextLevel = _experienceLevels.First();
-            _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
+            GameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
             ObjectGainsExperience = true;
 
-            while (_gameObject.Rank >= _nextLevel.Rank)
+            while (GameObject.Rank >= _nextLevel.Rank)
             {
                 levelUp();
             }
         }
 
-        _bannerCarrierUpdate = _gameObject.FindBehavior<BannerCarrierUpdate>();
+        _bannerCarrierUpdate = GameObject.FindBehavior<BannerCarrierUpdate>();
         _initial = false;
     }
 
@@ -57,7 +53,7 @@ public class ExperienceUpdate : UpdateModule
         }
 
         if (_experienceLevels == null || _experienceLevels.Count == 0
-            || _gameObject.ExperienceValue < _nextLevel.RequiredExperience)
+            || GameObject.ExperienceValue < _nextLevel.RequiredExperience)
         {
             return;
         }
@@ -70,8 +66,8 @@ public class ExperienceUpdate : UpdateModule
                 context.GameContext));
         }
 
-        _gameObject.ExperienceValue -= _nextLevel.RequiredExperience;
-        _gameObject.Rank = _nextLevel.Rank; _gameObject.Rank = _nextLevel.Rank;
+        GameObject.ExperienceValue -= _nextLevel.RequiredExperience;
+        GameObject.Rank = _nextLevel.Rank; GameObject.Rank = _nextLevel.Rank;
 
         levelUp();
     }
@@ -88,7 +84,7 @@ public class ExperienceUpdate : UpdateModule
 
         if (_nextLevel.SelectionDecal != null)
         {
-            _gameObject.SelectionDecal = _nextLevel.SelectionDecal;
+            GameObject.SelectionDecal = _nextLevel.SelectionDecal;
         }
 
         // TODO:
@@ -100,11 +96,11 @@ public class ExperienceUpdate : UpdateModule
         {
             _currentLevel = _nextLevel;
             _nextLevel = _experienceLevels.First();
-            _gameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
+            GameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
         }
         else
         {
-            _gameObject.ExperienceRequiredForNextLevel = int.MaxValue;
+            GameObject.ExperienceRequiredForNextLevel = int.MaxValue;
         }
     }
 
@@ -119,7 +115,7 @@ public class ExperienceUpdate : UpdateModule
         {
             foreach (var upgrade in _currentLevel.Upgrades)
             {
-                upgrade.Value.RemoveUpgrade(_gameObject);
+                upgrade.Value.RemoveUpgrade(GameObject);
             }
         }
 
@@ -127,7 +123,7 @@ public class ExperienceUpdate : UpdateModule
         {
             foreach (var modifierList in _currentLevel.AttributeModifiers)
             {
-                _gameObject.RemoveAttributeModifier(modifierList.Value.Name);
+                GameObject.RemoveAttributeModifier(modifierList.Value.Name);
             }
         }
     }
@@ -138,7 +134,7 @@ public class ExperienceUpdate : UpdateModule
         {
             foreach (var upgrade in _nextLevel.Upgrades)
             {
-                upgrade.Value.GrantUpgrade(_gameObject);
+                upgrade.Value.GrantUpgrade(GameObject);
             }
         }
 
@@ -147,7 +143,7 @@ public class ExperienceUpdate : UpdateModule
             foreach (var modifierList in _nextLevel.AttributeModifiers)
             {
                 var attributeModifier = new AttributeModifier(modifierList.Value);
-                _gameObject.AddAttributeModifier(modifierList.Value.Name, attributeModifier);
+                GameObject.AddAttributeModifier(modifierList.Value.Name, attributeModifier);
             }
         }
     }
@@ -155,7 +151,7 @@ public class ExperienceUpdate : UpdateModule
     private List<ExperienceLevel> FindRelevantExperienceLevels(BehaviorUpdateContext context)
     {
         var experienceLevels = context.GameContext.AssetLoadContext.AssetStore.ExperienceLevels;
-        var levels = experienceLevels.Where(x => x.TargetNames != null && x.TargetNames.Contains(_gameObject.Definition.Name)).ToList();
+        var levels = experienceLevels.Where(x => x.TargetNames != null && x.TargetNames.Contains(GameObject.Definition.Name)).ToList();
         levels.Sort((x, y) => x.Rank.CompareTo(y.Rank));
         return levels.Count > 0 ? levels : null;
     }

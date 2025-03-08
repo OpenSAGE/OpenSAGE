@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class PreorderCreate : CreateModule
 {
+    public PreorderCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -15,8 +19,8 @@ public sealed class PreorderCreate : CreateModule
 }
 
 /// <summary>
-/// Allows the use of the PREORDER ModelConditionState with this object which in turn is only 
-/// triggered by the presence of registry key 'Preorder' set to '1' in 
+/// Allows the use of the PREORDER ModelConditionState with this object which in turn is only
+/// triggered by the presence of registry key 'Preorder' set to '1' in
 /// HKLM\Software\ElectronicArts\EAGames\Generals.
 /// </summary>
 public sealed class PreorderCreateModuleData : CreateModuleData
@@ -27,6 +31,6 @@ public sealed class PreorderCreateModuleData : CreateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new PreorderCreate();
+        return new PreorderCreate(gameObject, context);
     }
 }

@@ -2,6 +2,10 @@
 
 internal sealed class StatusDamageHelper : ObjectHelperModule
 {
+    public StatusDamageHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

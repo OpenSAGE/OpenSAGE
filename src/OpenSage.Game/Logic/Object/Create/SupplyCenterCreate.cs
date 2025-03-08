@@ -4,28 +4,23 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SupplyCenterCreate : CreateModule, IDestroyModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
-
-    public SupplyCenterCreate(GameObject gameObject, GameContext context)
+    public SupplyCenterCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
     }
 
     protected override void OnBuildCompleteImpl()
     {
-        foreach (var player in _context.Scene3D.Players)
+        foreach (var player in Context.Scene3D.Players)
         {
-            player.SupplyManager.AddSupplyCenter(_gameObject);
+            player.SupplyManager.AddSupplyCenter(GameObject);
         }
     }
 
     public void OnDestroy()
     {
-        foreach (var player in _context.Scene3D.Players)
+        foreach (var player in Context.Scene3D.Players)
         {
-            player.SupplyManager.RemoveSupplyCenter(_gameObject);
+            player.SupplyManager.RemoveSupplyCenter(GameObject);
         }
     }
 

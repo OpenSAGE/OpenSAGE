@@ -7,8 +7,8 @@ internal sealed class MaxHealthUpgrade : UpgradeModule
 {
     private readonly MaxHealthUpgradeModuleData _moduleData;
 
-    internal MaxHealthUpgrade(GameObject gameObject, MaxHealthUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal MaxHealthUpgrade(GameObject gameObject, GameContext context, MaxHealthUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -18,17 +18,17 @@ internal sealed class MaxHealthUpgrade : UpgradeModule
         switch (_moduleData.ChangeType)
         {
             case MaxHealthChangeType.PreserveRatio:
-                _gameObject.Health += _gameObject.HealthPercentage * (Fix64)_moduleData.AddMaxHealth;
+                GameObject.Health += GameObject.HealthPercentage * (Fix64)_moduleData.AddMaxHealth;
                 break;
             case MaxHealthChangeType.AddCurrentHealthToo:
-                _gameObject.Health += (Fix64)_moduleData.AddMaxHealth;
+                GameObject.Health += (Fix64)_moduleData.AddMaxHealth;
                 break;
             case MaxHealthChangeType.SameCurrentHealth:
                 // Don't add any new health
                 break;
         }
 
-        _gameObject.MaxHealth += (Fix64)_moduleData.AddMaxHealth;
+        GameObject.MaxHealth += (Fix64)_moduleData.AddMaxHealth;
     }
 
     internal override void Load(StatePersister reader)
@@ -57,7 +57,7 @@ public sealed class MaxHealthUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new MaxHealthUpgrade(gameObject, this);
+        return new MaxHealthUpgrade(gameObject, context, this);
     }
 }
 

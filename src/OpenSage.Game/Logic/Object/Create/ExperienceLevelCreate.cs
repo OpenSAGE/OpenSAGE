@@ -5,18 +5,17 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 internal sealed class ExperienceLevelCreateBehavior : CreateModule
 {
-    GameObject _gameObject;
     ExperienceLevelCreateModuleData _moduleData;
 
-    internal ExperienceLevelCreateBehavior(GameObject gameObject, ExperienceLevelCreateModuleData moduleData)
+    internal ExperienceLevelCreateBehavior(GameObject gameObject, GameContext context, ExperienceLevelCreateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
     }
 
     public override void OnCreate()
     {
-        _gameObject.Rank = _moduleData.LevelToGrant;
+        GameObject.Rank = _moduleData.LevelToGrant;
     }
 }
 
@@ -35,6 +34,6 @@ public sealed class ExperienceLevelCreateModuleData : CreateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ExperienceLevelCreateBehavior(gameObject, this);
+        return new ExperienceLevelCreateBehavior(gameObject, context, this);
     }
 }

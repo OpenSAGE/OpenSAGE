@@ -5,6 +5,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SalvageCrateCollide : CrateCollide
 {
+    public SalvageCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -74,6 +78,6 @@ public sealed class SalvageCrateCollideModuleData : CrateCollideModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SalvageCrateCollide();
+        return new SalvageCrateCollide(gameObject, context);
     }
 }

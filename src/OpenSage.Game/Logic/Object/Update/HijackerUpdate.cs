@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class HijackerUpdate : UpdateModule
 {
+    public HijackerUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -29,6 +33,6 @@ public sealed class HijackerUpdateModuleData : UpdateModuleData
 
     internal override HijackerUpdate CreateModule(GameObject gameObject, GameContext context)
     {
-        return new HijackerUpdate();
+        return new HijackerUpdate(gameObject, context);
     }
 }

@@ -3,6 +3,9 @@
 internal sealed class ObjectRepulsorHelper : ObjectHelperModule
 {
     // TODO
+    public ObjectRepulsorHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
 
     internal override void Load(StatePersister reader)
     {
