@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class StealthUpgrade : UpgradeModule
 {
-    public StealthUpgrade(GameObject gameObject, StealthUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    public StealthUpgrade(GameObject gameObject, GameContext context, StealthUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
     }
 
@@ -20,8 +20,8 @@ internal sealed class StealthUpgrade : UpgradeModule
 }
 
 /// <summary>
-/// Eenables use of <see cref="StealthUpdateModuleData"/> module on this object. Requires 
-/// <see cref="StealthUpdateModuleData.InnateStealth"/> = No defined in the <see cref="StealthUpdateModuleData"/> 
+/// Eenables use of <see cref="StealthUpdateModuleData"/> module on this object. Requires
+/// <see cref="StealthUpdateModuleData.InnateStealth"/> = No defined in the <see cref="StealthUpdateModuleData"/>
 /// module.
 /// </summary>
 public sealed class StealthUpgradeModuleData : UpgradeModuleData
@@ -33,6 +33,6 @@ public sealed class StealthUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StealthUpgrade(gameObject, this);
+        return new StealthUpgrade(gameObject, context, this);
     }
 }

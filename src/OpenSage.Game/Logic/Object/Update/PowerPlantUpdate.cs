@@ -6,8 +6,6 @@ namespace OpenSage.Logic.Object;
 
 public sealed class PowerPlantUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly PowerPlantUpdateModuleData _moduleData;
 
     private bool _rodsExtended;
@@ -15,9 +13,8 @@ public sealed class PowerPlantUpdate : UpdateModule
     private LogicFrame _rodsExtendedEndFrame;
 
     internal PowerPlantUpdate(GameObject gameObject, GameContext context, PowerPlantUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
@@ -25,17 +22,17 @@ public sealed class PowerPlantUpdate : UpdateModule
     {
         _rodsExtended = true;
 
-        _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
+        GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
 
-        _rodsExtendedEndFrame = _context.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
+        _rodsExtendedEndFrame = Context.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
     }
 
     // China powerplant overcharge needs to be able to turn off
     internal void RetractRods()
     {
         _rodsExtended = false;
-        _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
-        _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, false);
+        GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
+        GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, false);
 
         _rodsExtendedEndFrame = LogicFrame.MaxValue;
     }
@@ -46,8 +43,8 @@ public sealed class PowerPlantUpdate : UpdateModule
 
         if (_rodsExtended && _rodsExtendedEndFrame < context.LogicFrame)
         {
-            _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
-            _gameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, true);
+            GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
+            GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, true);
             _rodsExtendedEndFrame = LogicFrame.MaxValue;
         }
     }

@@ -9,14 +9,13 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public class PassiveAreaEffectBehavior : UpdateModule
 {
-    private readonly GameObject _gameObject;
     private readonly PassiveAreaEffectBehaviorModuleData _moduleData;
     private LogicFrame _nextPing;
 
-    public PassiveAreaEffectBehavior(GameObject gameObject, PassiveAreaEffectBehaviorModuleData moduleData)
+    public PassiveAreaEffectBehavior(GameObject gameObject, GameContext context, PassiveAreaEffectBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
     }
 
     internal override void Update(BehaviorUpdateContext context)
@@ -28,8 +27,8 @@ public class PassiveAreaEffectBehavior : UpdateModule
         _nextPing = context.LogicFrame + _moduleData.PingDelay;
 
         var nearbyObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
-            _gameObject,
-            _gameObject.Translation,
+            GameObject,
+            GameObject.Translation,
             _moduleData.EffectRadius,
             new PartitionQueries.ObjectFilterQuery(_moduleData.AllowFilter));
 
@@ -83,6 +82,6 @@ public sealed class PassiveAreaEffectBehaviorModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new PassiveAreaEffectBehavior(gameObject, this);
+        return new PassiveAreaEffectBehavior(gameObject, context, this);
     }
 }

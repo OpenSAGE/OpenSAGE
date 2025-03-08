@@ -7,6 +7,10 @@ public sealed class BridgeTowerBehavior : BehaviorModule
     private int _unknown1;
     private int _unknown2;
 
+    public BridgeTowerBehavior(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -31,6 +35,6 @@ public sealed class BridgeTowerBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BridgeTowerBehavior();
+        return new BridgeTowerBehavior(gameObject, context);
     }
 }

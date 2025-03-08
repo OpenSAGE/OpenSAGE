@@ -8,7 +8,6 @@ namespace OpenSage.Logic.Object;
 public class TurretAIUpdate : UpdateModule
 {
     private readonly TurretAIUpdateModuleData _moduleData;
-    private readonly GameObject _gameObject;
 
     private WeaponTarget _currentTarget;
     private LogicFrame _waitUntil;
@@ -32,26 +31,26 @@ public class TurretAIUpdate : UpdateModule
         Recentering
     }
 
-    internal TurretAIUpdate(GameObject gameObject, TurretAIUpdateModuleData moduleData)
+    internal TurretAIUpdate(GameObject gameObject, GameContext context, TurretAIUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
 
-        _gameObject.TurretYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
-        _gameObject.TurretPitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
+        GameObject.TurretYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
+        GameObject.TurretPitch = MathUtility.ToRadians(_moduleData.NaturalTurretPitch);
 
         _turretAIstate = _moduleData.InitiallyDisabled ? TurretAIStates.Disabled : TurretAIStates.ScanningForTargets;
     }
 
     internal void Update(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
     {
-        var target = _gameObject.CurrentWeapon?.CurrentTarget;
+        var target = GameObject.CurrentWeapon?.CurrentTarget;
         float targetYaw;
 
-        if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
+        if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
         {
             _turretAIstate = TurretAIStates.Recentering;
-            _gameObject.CurrentWeapon?.SetTarget(null);
+            GameObject.CurrentWeapon?.SetTarget(null);
         }
 
         switch (_turretAIstate)
@@ -87,7 +86,7 @@ public class TurretAIUpdate : UpdateModule
 
                 if (!_moduleData.FiresWhileTurning)
                 {
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, false);
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, false);
                 }
 
                 _turretAIstate = TurretAIStates.Turning;
@@ -101,8 +100,8 @@ public class TurretAIUpdate : UpdateModule
                     break;
                 }
 
-                var directionToTarget = (target.TargetPosition - _gameObject.Translation).Vector2XY();
-                targetYaw = MathUtility.GetYawFromDirection(directionToTarget) - _gameObject.Yaw;
+                var directionToTarget = (target.TargetPosition - GameObject.Translation).Vector2XY();
+                targetYaw = MathUtility.GetYawFromDirection(directionToTarget) - GameObject.Yaw;
 
                 if (Rotate(targetYaw))
                 {
@@ -111,7 +110,7 @@ public class TurretAIUpdate : UpdateModule
 
                 if (!_moduleData.FiresWhileTurning)
                 {
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, true);
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.Attacking, true);
                 }
 
                 _turretAIstate = TurretAIStates.Attacking;
@@ -145,14 +144,14 @@ public class TurretAIUpdate : UpdateModule
 
     private bool Rotate(float targetYaw)
     {
-        var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, _gameObject.TurretYaw);
+        var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, GameObject.TurretYaw);
 
         if (MathF.Abs(deltaYaw) > 0.15f)
         {
-            _gameObject.TurretYaw -= MathF.Sign(deltaYaw) * _moduleData.TurretTurnRate;
+            GameObject.TurretYaw -= MathF.Sign(deltaYaw) * _moduleData.TurretTurnRate;
             return true;
         }
-        _gameObject.TurretYaw -= deltaYaw;
+        GameObject.TurretYaw -= deltaYaw;
         return false;
     }
 
@@ -319,9 +318,9 @@ public sealed class TurretAIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public int TurretMaxDeflectionACW { get; private set; }
 
-    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject)
+    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject, GameContext context)
     {
-        return new TurretAIUpdate(gameObject, this);
+        return new TurretAIUpdate(gameObject, context, this);
     }
 }
 

@@ -4,15 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
-
     protected override LogicFrameSpan FramesBetweenUpdates => LogicFrameSpan.OneSecond;
 
-    internal BaseRegenerateUpdate(GameObject gameObject, GameContext context)
+    internal BaseRegenerateUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
     }
 
@@ -21,15 +16,15 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
     /// </summary>
     public void OnDamage(in DamageData damageData)
     {
-        var currentFrame = _context.GameLogic.CurrentFrame;
-        SetNextUpdateFrame(currentFrame + _context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
+        var currentFrame = Context.GameLogic.CurrentFrame;
+        SetNextUpdateFrame(currentFrame + Context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
     }
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        _gameObject.HealDirectly(_context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
+        GameObject.HealDirectly(Context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
 
-        if (_gameObject.IsFullHealth)
+        if (GameObject.IsFullHealth)
         {
             SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
         }

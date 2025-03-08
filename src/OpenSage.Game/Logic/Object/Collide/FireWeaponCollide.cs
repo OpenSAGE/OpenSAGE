@@ -11,7 +11,7 @@ public sealed class FireWeaponCollide : CollideModule
     private readonly Weapon _collideWeapon;
     private bool _unknown2;
 
-    internal FireWeaponCollide(GameObject gameObject, GameContext context, FireWeaponCollideModuleData moduleData)
+    internal FireWeaponCollide(GameObject gameObject, GameContext context, FireWeaponCollideModuleData moduleData) : base(gameObject, context)
     {
         _moduleData = moduleData;
 

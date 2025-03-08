@@ -9,8 +9,6 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 {
-    GameObject _gameObject;
-    private readonly GameContext _context;
     SpawnBehaviorModuleData _moduleData;
 
     private List<GameObject> _spawnedUnits;
@@ -27,11 +25,9 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
     private ushort _unknownInt3;
     private int _unknownInt4;
 
-    internal SpawnBehavior(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData)
+    internal SpawnBehavior(GameObject gameObject, GameContext context, SpawnBehaviorModuleData moduleData) : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _context = context;
 
         _spawnedUnits = new List<GameObject>();
         _initial = true;
@@ -39,12 +35,12 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
     private void SpawnUnit()
     {
-        var spawnedObject = _context.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, _gameObject.Owner);
+        var spawnedObject = Context.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, GameObject.Owner);
         _spawnedUnits.Add(spawnedObject);
 
-        spawnedObject.CreatedByObjectID = _gameObject.ID;
+        spawnedObject.CreatedByObjectID = GameObject.ID;
         var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
-        slavedUpdate?.SetMaster(_gameObject);
+        slavedUpdate?.SetMaster(GameObject);
 
         if (!TryTransformViaProductionExit(spawnedObject) &&
             !TryTransformViaOpenContainer(spawnedObject))
@@ -55,7 +51,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
     private bool TryTransformViaProductionExit(GameObject spawnedObject)
     {
-        _productionExit ??= _gameObject.FindBehavior<IProductionExit>();
+        _productionExit ??= GameObject.FindBehavior<IProductionExit>();
 
         if (_productionExit == null)
         {
@@ -64,19 +60,19 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
         if (_productionExit != null)
         {
-            spawnedObject.SetTranslation(_gameObject.ToWorldspace(_productionExit.GetUnitCreatePoint()));
+            spawnedObject.SetTranslation(GameObject.ToWorldspace(_productionExit.GetUnitCreatePoint()));
 
             var rallyPoint = _productionExit.GetNaturalRallyPoint();
             if (rallyPoint.HasValue)
             {
-                spawnedObject.AIUpdate?.AddTargetPoint(_gameObject.ToWorldspace(rallyPoint.Value));
+                spawnedObject.AIUpdate?.AddTargetPoint(GameObject.ToWorldspace(rallyPoint.Value));
             }
         }
 
-        var productionUpdate = _gameObject.FindBehavior<ProductionUpdate>();
+        var productionUpdate = GameObject.FindBehavior<ProductionUpdate>();
         if (productionUpdate != null)
         {
-            ProductionUpdate.HandleHarvesterUnitCreation(_gameObject, spawnedObject);
+            ProductionUpdate.HandleHarvesterUnitCreation(GameObject, spawnedObject);
         }
 
         return true;
@@ -85,7 +81,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
     // GLATunnelNetwork has no production exit behavior - it's explicitly commented out, saying "... we don't appear to need it for the spawns because they use OpenContain instead"
     private bool TryTransformViaOpenContainer(GameObject spawnedObject)
     {
-        _openContain ??= _gameObject.FindBehavior<OpenContainModule>();
+        _openContain ??= GameObject.FindBehavior<OpenContainModule>();
 
         if (_openContain == null)
         {
@@ -97,16 +93,16 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
         if (exitStart.HasValue && exitEnd.HasValue)
         {
-            spawnedObject.SetTranslation(_gameObject.ToWorldspace(exitStart.Value));
-            spawnedObject.AIUpdate.AddTargetPoint(_gameObject.ToWorldspace(exitEnd.Value));
+            spawnedObject.SetTranslation(GameObject.ToWorldspace(exitStart.Value));
+            spawnedObject.AIUpdate.AddTargetPoint(GameObject.ToWorldspace(exitEnd.Value));
         }
         else
         {
-            spawnedObject.SetTranslation(_gameObject.Translation);
+            spawnedObject.SetTranslation(GameObject.Translation);
         }
 
         // move to rally point
-        var rallyPoint = _gameObject.RallyPoint;
+        var rallyPoint = GameObject.RallyPoint;
         if (rallyPoint.HasValue)
         {
             spawnedObject.AIUpdate?.AddTargetPoint(rallyPoint.Value);
@@ -125,7 +121,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
     public void Update(BehaviorUpdateContext context)
     {
-        if (_initial && !_gameObject.IsBeingConstructed())
+        if (_initial && !GameObject.IsBeingConstructed())
         {
             SpawnInitial();
             _initial = false;

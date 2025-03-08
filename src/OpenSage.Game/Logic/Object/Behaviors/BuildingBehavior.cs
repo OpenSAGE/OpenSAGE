@@ -7,19 +7,15 @@ namespace OpenSage.Logic.Object;
 public class BuildingBehavior : UpdateModule
 {
     private readonly BuildingBehaviorModuleData _moduleData;
-    private readonly GameObject _gameObject;
-    private readonly GameContext _gameContext;
-
     private bool _initial;
     private bool _isNight;
     private bool _fire;
     private bool _isGlowing;
 
-    internal BuildingBehavior(BuildingBehaviorModuleData moduleData, GameObject gameObject, GameContext context)
+    internal BuildingBehavior(GameObject gameObject, GameContext context, BuildingBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _gameContext = context;
 
         _initial = true;
         _isNight = false;
@@ -39,11 +35,11 @@ public class BuildingBehavior : UpdateModule
             var nightWindow = _moduleData.NightWindowName;
             if (night)
             {
-                _gameObject.Drawable.ShowSubObject(nightWindow);
+                GameObject.Drawable.ShowSubObject(nightWindow);
             }
             else
             {
-                _gameObject.Drawable.HideSubObject(nightWindow);
+                GameObject.Drawable.HideSubObject(nightWindow);
             }
 
             _isNight = night;
@@ -54,19 +50,19 @@ public class BuildingBehavior : UpdateModule
             var fireWindow = _moduleData.FireWindowName;
             if (fire)
             {
-                _gameObject.Drawable.ShowSubObject(fireWindow);
+                GameObject.Drawable.ShowSubObject(fireWindow);
                 foreach (var fireName in _moduleData.FireNames)
                 {
-                    _gameObject.Drawable.ShowSubObject(fireName);
+                    GameObject.Drawable.ShowSubObject(fireName);
                 }
             }
             else
             {
-                _gameObject.Drawable.HideSubObject(fireWindow);
+                GameObject.Drawable.HideSubObject(fireWindow);
 
                 foreach (var fireName in _moduleData.FireNames)
                 {
-                    _gameObject.Drawable.HideSubObject(fireName);
+                    GameObject.Drawable.HideSubObject(fireName);
                 }
             }
 
@@ -78,11 +74,11 @@ public class BuildingBehavior : UpdateModule
             var glowWindow = _moduleData.GlowWindowName;
             if (glowing)
             {
-                _gameObject.Drawable.ShowSubObject(glowWindow);
+                GameObject.Drawable.ShowSubObject(glowWindow);
             }
             else
             {
-                _gameObject.Drawable.HideSubObject(glowWindow);
+                GameObject.Drawable.HideSubObject(glowWindow);
             }
 
             _isGlowing = glowing;
@@ -115,6 +111,6 @@ public sealed class BuildingBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new BuildingBehavior(this, gameObject, context);
+        return new BuildingBehavior(gameObject, context, this);
     }
 }

@@ -8,6 +8,9 @@
 internal sealed class ObjectSpecialModelConditionHelper : ObjectHelperModule
 {
     // TODO
+    public ObjectSpecialModelConditionHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
 
     internal override void Load(StatePersister reader)
     {

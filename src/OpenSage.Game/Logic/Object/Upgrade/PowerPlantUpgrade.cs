@@ -4,16 +4,16 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class PowerPlantUpgrade : UpgradeModule
 {
-    internal PowerPlantUpgrade(GameObject gameObject, PowerPlantUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal PowerPlantUpgrade(GameObject gameObject, GameContext context, PowerPlantUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
     }
 
     protected override void OnUpgrade()
     {
-        _gameObject.EnergyProduction += _gameObject.Definition.EnergyBonus;
+        GameObject.EnergyProduction += GameObject.Definition.EnergyBonus;
 
-        foreach (var powerPlantUpdate in _gameObject.FindBehaviors<PowerPlantUpdate>())
+        foreach (var powerPlantUpdate in GameObject.FindBehaviors<PowerPlantUpdate>())
         {
             powerPlantUpdate.ExtendRods();
         }
@@ -30,7 +30,7 @@ internal sealed class PowerPlantUpgrade : UpgradeModule
 }
 
 /// <summary>
-/// Triggers use of the <see cref="ObjectDefinition.EnergyBonus"/> setting on this object to 
+/// Triggers use of the <see cref="ObjectDefinition.EnergyBonus"/> setting on this object to
 /// provide extra power to the faction.
 /// </summary>
 public sealed class PowerPlantUpgradeModuleData : UpgradeModuleData
@@ -42,6 +42,6 @@ public sealed class PowerPlantUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new PowerPlantUpgrade(gameObject, this);
+        return new PowerPlantUpgrade(gameObject, context, this);
     }
 }

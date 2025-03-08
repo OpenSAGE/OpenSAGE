@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 public sealed class RepairDockUpdate : DockUpdate
 {
-    internal RepairDockUpdate(GameObject gameObject, RepairDockUpdateModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal RepairDockUpdate(GameObject gameObject, GameContext context, RepairDockUpdateModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
 
     }
@@ -23,7 +23,7 @@ public sealed class RepairDockUpdate : DockUpdate
 }
 
 /// <summary>
-/// Hardcoded to require DockWaitingN, DockEndN, DockActionN and DockStartN bones, where N 
+/// Hardcoded to require DockWaitingN, DockEndN, DockActionN and DockStartN bones, where N
 /// should correspond to <see cref="NumberApproachPositions"/>.
 /// </summary>
 public sealed class RepairDockUpdateModuleData : DockUpdateModuleData
@@ -40,6 +40,6 @@ public sealed class RepairDockUpdateModuleData : DockUpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new RepairDockUpdate(gameObject, this);
+        return new RepairDockUpdate(gameObject, context, this);
     }
 }

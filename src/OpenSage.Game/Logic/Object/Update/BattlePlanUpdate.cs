@@ -11,8 +11,6 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BattlePlanUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly BattlePlanUpdateModuleData _moduleData;
 
     private BattlePlanType _current; // the battle plan which the model currently represents
@@ -34,16 +32,15 @@ public sealed class BattlePlanUpdate : UpdateModule
     private int _unknownInt;
 
     internal BattlePlanUpdate(GameObject gameObject, GameContext context, BattlePlanUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
     public void ChangeBattlePlan(BattlePlanType newPlan)
     {
         _desired = newPlan;
-        _gameObject.Owner.InitializeStrategyData(_validMemberKindOf, _invalidMemberKindOf);
+        GameObject.Owner.InitializeStrategyData(_validMemberKindOf, _invalidMemberKindOf);
     }
 
     internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
@@ -108,7 +105,7 @@ public sealed class BattlePlanUpdate : UpdateModule
         _searchAndDestroyActive = false;
         _activeArmorDamageScalar = 1;
         _activeSightRangeScalar = 1;
-        _gameObject.Owner.ClearBattlePlan();
+        GameObject.Owner.ClearBattlePlan();
 
         switch (_current)
         {
@@ -133,7 +130,7 @@ public sealed class BattlePlanUpdate : UpdateModule
         _searchAndDestroyActive = _current is BattlePlanType.SearchAndDestroy;
         _activeArmorDamageScalar = _current is BattlePlanType.HoldTheLine ? _moduleData.HoldTheLinePlanArmorDamageScalar : 1;
         _activeSightRangeScalar = _current is BattlePlanType.SearchAndDestroy ? _moduleData.SearchAndDestroyPlanSightRangeScalar : 1;
-        _gameObject.Owner.SetActiveBattlePlan(_current, _activeArmorDamageScalar, _activeSightRangeScalar);
+        GameObject.Owner.SetActiveBattlePlan(_current, _activeArmorDamageScalar, _activeSightRangeScalar);
 
         switch (_current)
         {
@@ -154,38 +151,38 @@ public sealed class BattlePlanUpdate : UpdateModule
     private void AddHoldTheLineMaxHealthScalar()
     {
         var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
-        var newMaxHealth = _gameObject.MaxHealth * maxHealthScalar;
-        _gameObject.Health = _gameObject.HealthPercentage * newMaxHealth;
-        _gameObject.MaxHealth = newMaxHealth;
+        var newMaxHealth = GameObject.MaxHealth * maxHealthScalar;
+        GameObject.Health = GameObject.HealthPercentage * newMaxHealth;
+        GameObject.MaxHealth = newMaxHealth;
     }
 
     private void RemoveHoldTheLineMaxHealthScalar()
     {
         var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
-        var newMaxHealth = _gameObject.MaxHealth / maxHealthScalar;
-        _gameObject.Health = _gameObject.HealthPercentage * newMaxHealth;
-        _gameObject.MaxHealth = newMaxHealth;
+        var newMaxHealth = GameObject.MaxHealth / maxHealthScalar;
+        GameObject.Health = GameObject.HealthPercentage * newMaxHealth;
+        GameObject.MaxHealth = newMaxHealth;
     }
 
     private void AddSearchAndDestroyVisionScalar()
     {
-        _gameObject.FindBehavior<StealthDetectorUpdate>().Active = _moduleData.StrategyCenterSearchAndDestroyDetectsStealth;
-        _gameObject.ApplyVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
+        GameObject.FindBehavior<StealthDetectorUpdate>().Active = _moduleData.StrategyCenterSearchAndDestroyDetectsStealth;
+        GameObject.ApplyVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
     }
 
     private void RemoveSearchAndDestroyVisionScalar()
     {
-        _gameObject.FindBehavior<StealthDetectorUpdate>().Active = false;
-        _gameObject.RemoveVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
+        GameObject.FindBehavior<StealthDetectorUpdate>().Active = false;
+        GameObject.RemoveVisionRangeScalar(_moduleData.StrategyCenterSearchAndDestroySightRangeScalar);
     }
 
     private void DisableAffectedUnits()
     {
-        var disabledUntilFrame = _context.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
+        var disabledUntilFrame = Context.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
         // if deactivating, set disabled_paralyzed to affected units based on kind, frames is current frame + property
-        foreach (var gameObject in _context.GameLogic.Objects)
+        foreach (var gameObject in Context.GameLogic.Objects)
         {
-            if (gameObject.Owner == _gameObject.Owner && // we must own the object
+            if (gameObject.Owner == GameObject.Owner && // we must own the object
                 gameObject.Definition.KindOf.Intersects(_moduleData.ValidMemberKindOf) && // and it should be one of these kinds
                 !gameObject.Definition.KindOf.Intersects(_moduleData.InvalidMemberKindOf)) // but not any of these
             {
@@ -204,7 +201,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyPlanUnpackSound,
             _ => null,
         };
-        _context.AudioSystem.PlayAudioEvent(sound?.Value);
+        Context.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void PlayPackSound()
@@ -216,7 +213,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyPlanPackSound,
             _ => null,
         };
-        _context.AudioSystem.PlayAudioEvent(sound?.Value);
+        Context.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void PlayAnnouncementSound()
@@ -228,7 +225,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyAnnouncement,
             _ => null,
         };
-        _context.AudioSystem.PlayAudioEvent(sound?.Value);
+        Context.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void SetStateChangeCompleteFrame(LogicFrame currentFrame)
@@ -262,15 +259,15 @@ public sealed class BattlePlanUpdate : UpdateModule
             _ => ModelConditionFlag.None,
         };
 
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, doorFlag is ModelConditionFlag.Door1Opening);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingToClose, doorFlag is ModelConditionFlag.Door1WaitingToClose);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, doorFlag is ModelConditionFlag.Door1Closing);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2Opening, doorFlag is ModelConditionFlag.Door2Opening);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2WaitingToClose, doorFlag is ModelConditionFlag.Door2WaitingToClose);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2Closing, doorFlag is ModelConditionFlag.Door2Closing);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3Opening, doorFlag is ModelConditionFlag.Door3Opening);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3WaitingToClose, doorFlag is ModelConditionFlag.Door3WaitingToClose);
-        _gameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3Closing, doorFlag is ModelConditionFlag.Door3Closing);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Opening, doorFlag is ModelConditionFlag.Door1Opening);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1WaitingToClose, doorFlag is ModelConditionFlag.Door1WaitingToClose);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door1Closing, doorFlag is ModelConditionFlag.Door1Closing);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2Opening, doorFlag is ModelConditionFlag.Door2Opening);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2WaitingToClose, doorFlag is ModelConditionFlag.Door2WaitingToClose);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door2Closing, doorFlag is ModelConditionFlag.Door2Closing);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3Opening, doorFlag is ModelConditionFlag.Door3Opening);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3WaitingToClose, doorFlag is ModelConditionFlag.Door3WaitingToClose);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Door3Closing, doorFlag is ModelConditionFlag.Door3Closing);
     }
 
     private readonly record struct DoorState(

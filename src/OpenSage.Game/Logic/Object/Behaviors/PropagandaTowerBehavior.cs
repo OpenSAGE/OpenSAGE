@@ -11,8 +11,6 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 {
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DelayBetweenUpdates;
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly PropagandaTowerBehaviorModuleData _moduleData;
     private uint _unknownFrame;
     private readonly List<uint> _objectIds = new();
@@ -21,9 +19,8 @@ public sealed class PropagandaTowerBehavior : UpdateModule
     private readonly BitArray<ObjectKinds> _allowedKinds = new();
 
     public PropagandaTowerBehavior(GameObject gameObject, GameContext context, PropagandaTowerBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
         _allowedKinds.Set(ObjectKinds.Infantry, true);
         _allowedKinds.Set(ObjectKinds.Vehicle, true);
@@ -31,7 +28,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        if (_gameObject.IsBeingConstructed())
+        if (GameObject.IsBeingConstructed())
         {
             return;
         }
@@ -39,7 +36,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
         foreach (var unitId in ObjectsInRange)
         {
             var unit = GameObjectForId(unitId);
-            if (unit.HealedByObjectId == _gameObject.ID)
+            if (unit.HealedByObjectId == GameObject.ID)
             {
                 // reset these units, in case they're now out of range
                 unit.HealedByObjectId = 0;
@@ -52,9 +49,9 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
         fx.Value.Execute(context);
 
-        foreach (var candidate in _context.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius))
+        foreach (var candidate in Context.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
         {
-            if (!_moduleData.AffectsSelf && candidate == _gameObject) continue;
+            if (!_moduleData.AffectsSelf && candidate == GameObject) continue;
             if (!CanHealUnit(candidate)) continue;
             _objectIds.Add(candidate.ID);
             HealUnit(candidate);
@@ -63,14 +60,14 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private GameObject GameObjectForId(uint unitId)
     {
-        return _context.GameLogic.GetObjectById(unitId);
+        return Context.GameLogic.GetObjectById(unitId);
     }
 
     private void HealUnit(GameObject gameObject)
     {
         if (gameObject.HealthPercentage < Fix64.One)
         {
-            gameObject.Heal(GetHealPercentage(), _gameObject);
+            gameObject.Heal(GetHealPercentage(), GameObject);
         }
     }
 
@@ -89,30 +86,30 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == _gameObject.ID;
+        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == GameObject.ID;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)
     {
         return ObjectIsOwnedBySamePlayer(gameObject) ||
-               gameObject.Owner.Allies.Contains(_gameObject.Owner);
+               gameObject.Owner.Allies.Contains(GameObject.Owner);
     }
 
     private bool ObjectIsOwnedBySamePlayer(GameObject gameObject)
     {
-        return gameObject.Owner == _gameObject.Owner;
+        return gameObject.Owner == GameObject.Owner;
     }
 
     private Percentage GetHealPercentage()
     {
-        return _gameObject.HasUpgrade(_moduleData.UpgradeRequired.Value)
+        return GameObject.HasUpgrade(_moduleData.UpgradeRequired.Value)
             ? _moduleData.UpgradedHealPercentEachSecond
             : _moduleData.HealPercentEachSecond;
     }
 
     private LazyAssetReference<FXList> GetFxList()
     {
-        return _gameObject.HasUpgrade(_moduleData.UpgradeRequired.Value)
+        return GameObject.HasUpgrade(_moduleData.UpgradeRequired.Value)
             ? _moduleData.UpgradedPulseFX
             : _moduleData.PulseFX;
     }

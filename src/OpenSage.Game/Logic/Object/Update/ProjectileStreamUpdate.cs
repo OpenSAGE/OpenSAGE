@@ -9,6 +9,10 @@ public sealed class ProjectileStreamUpdate : UpdateModule
     private uint _unknownInt2;
     private uint _unknownObjectId;
 
+    public ProjectileStreamUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -41,6 +45,6 @@ public sealed class ProjectileStreamUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ProjectileStreamUpdate();
+        return new ProjectileStreamUpdate(gameObject, context);
     }
 }

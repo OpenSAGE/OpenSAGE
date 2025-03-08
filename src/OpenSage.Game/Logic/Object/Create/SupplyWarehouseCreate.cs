@@ -4,28 +4,23 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SupplyWarehouseCreate : CreateModule, IDestroyModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
-
-    public SupplyWarehouseCreate(GameObject gameObject, GameContext context)
+    public SupplyWarehouseCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
     }
 
     public override void OnCreate()
     {
-        foreach (var player in _context.Scene3D.Players)
+        foreach (var player in Context.Scene3D.Players)
         {
-            player.SupplyManager.AddSupplyWarehouse(_gameObject);
+            player.SupplyManager.AddSupplyWarehouse(GameObject);
         }
     }
 
     public void OnDestroy()
     {
-        foreach (var player in _context.Scene3D.Players)
+        foreach (var player in Context.Scene3D.Players)
         {
-            player.SupplyManager.RemoveSupplyWarehouse(_gameObject);
+            player.SupplyManager.RemoveSupplyWarehouse(GameObject);
         }
     }
 

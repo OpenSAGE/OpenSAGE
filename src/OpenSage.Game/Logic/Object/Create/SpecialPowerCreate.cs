@@ -4,16 +4,13 @@ namespace OpenSage.Logic.Object;
 
 public class SpecialPowerCreate : CreateModule
 {
-    private readonly GameObject _gameObject;
-
-    public SpecialPowerCreate(GameObject gameObject)
+    public SpecialPowerCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
     {
-        _gameObject = gameObject;
     }
 
     protected override void OnBuildCompleteImpl()
     {
-        foreach (var specialPowerModule in _gameObject.FindBehaviors<SpecialPowerModule>())
+        foreach (var specialPowerModule in GameObject.FindBehaviors<SpecialPowerModule>())
         {
             specialPowerModule.ResetCountdown();
         }
@@ -41,6 +38,6 @@ public sealed class SpecialPowerCreateModuleData : CreateModuleData
 
     internal override SpecialPowerCreate CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SpecialPowerCreate(gameObject);
+        return new SpecialPowerCreate(gameObject, context);
     }
 }

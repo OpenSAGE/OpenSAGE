@@ -4,13 +4,12 @@ namespace OpenSage.Logic.Object;
 
 public class SupplyWarehouseDockUpdate : DockUpdate
 {
-    private GameObject _gameObject;
     private SupplyWarehouseDockUpdateModuleData _moduleData;
     private int _currentBoxes;
 
-    internal SupplyWarehouseDockUpdate(GameObject gameObject, SupplyWarehouseDockUpdateModuleData moduleData) : base(gameObject, moduleData)
+    internal SupplyWarehouseDockUpdate(GameObject gameObject, GameContext context, SupplyWarehouseDockUpdateModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
         _currentBoxes = _moduleData.StartingBoxes;
     }
@@ -24,7 +23,7 @@ public class SupplyWarehouseDockUpdate : DockUpdate
             _currentBoxes--;
 
             var boxPercentage = (float)_currentBoxes / _moduleData.StartingBoxes;
-            _gameObject.Drawable.SetSupplyBoxesRemaining(boxPercentage);
+            GameObject.Drawable.SetSupplyBoxesRemaining(boxPercentage);
 
             return true;
         }
@@ -37,7 +36,7 @@ public class SupplyWarehouseDockUpdate : DockUpdate
 
         if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
         {
-            _gameObject.Die(DeathType.Normal);
+            GameObject.Die(DeathType.Normal);
         }
     }
 
@@ -76,6 +75,6 @@ public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SupplyWarehouseDockUpdate(gameObject, this);
+        return new SupplyWarehouseDockUpdate(gameObject, context, this);
     }
 }

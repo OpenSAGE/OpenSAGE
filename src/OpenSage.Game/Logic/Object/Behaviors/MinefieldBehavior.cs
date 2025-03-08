@@ -8,6 +8,10 @@ public sealed class MinefieldBehavior : UpdateModule
     private uint _numVirtualMachines;
     private uint _unknownFrame;
 
+    public MinefieldBehavior(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -40,7 +44,7 @@ public sealed class MinefieldBehavior : UpdateModule
 }
 
 /// <summary>
-/// INI file comments indicate that this is not an accurate name; it's a really a 
+/// INI file comments indicate that this is not an accurate name; it's a really a
 /// single mine behaviour.
 /// </summary>
 public sealed class MinefieldBehaviorModuleData : BehaviorModuleData
@@ -70,7 +74,7 @@ public sealed class MinefieldBehaviorModuleData : BehaviorModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new MinefieldBehavior();
+        return new MinefieldBehavior(gameObject, context);
     }
 }
 

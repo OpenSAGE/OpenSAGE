@@ -6,12 +6,11 @@ namespace OpenSage.Logic.Object;
 
 public class SupplyCenterDockUpdate : DockUpdate
 {
-    private GameObject _gameObject;
     private SupplyCenterDockUpdateModuleData _moduleData;
 
-    internal SupplyCenterDockUpdate(GameObject gameObject, SupplyCenterDockUpdateModuleData moduleData) : base(gameObject, moduleData)
+    internal SupplyCenterDockUpdate(GameObject gameObject, GameContext context, SupplyCenterDockUpdateModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
     }
 
@@ -23,14 +22,14 @@ public class SupplyCenterDockUpdate : DockUpdate
         if (_moduleData.BonusScience != null)
         {
             var bonusUpgradeDefinition = assetStore.Upgrades.GetByName(_moduleData.BonusScience);
-            if (_gameObject.HasUpgrade(bonusUpgradeDefinition))
+            if (GameObject.HasUpgrade(bonusUpgradeDefinition))
             {
                 amountPerBox *= _moduleData.BonusScienceMultiplier;
             }
         }
 
-        var amount = (int)(numBoxes * amountPerBox * _gameObject.ProductionModifier);
-        _gameObject.Owner.BankAccount.Deposit((uint)amount);
+        var amount = (int)(numBoxes * amountPerBox * GameObject.ProductionModifier);
+        GameObject.Owner.BankAccount.Deposit((uint)amount);
         numBoxes = 0;
 
         return amount;
@@ -78,6 +77,6 @@ public sealed class SupplyCenterDockUpdateModuleData : DockUpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SupplyCenterDockUpdate(gameObject, this);
+        return new SupplyCenterDockUpdate(gameObject, context, this);
     }
 }

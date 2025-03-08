@@ -7,6 +7,10 @@ public sealed class StructureToppleUpdate : UpdateModule
 {
     private float _unknownFloat;
 
+    public StructureToppleUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -75,7 +79,7 @@ public sealed class StructureToppleUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StructureToppleUpdate();
+        return new StructureToppleUpdate(gameObject, context);
     }
 }
 

@@ -7,8 +7,8 @@ public sealed class CreateObjectDie : DieModule
 {
     private readonly CreateObjectDieModuleData _moduleData;
 
-    internal CreateObjectDie(CreateObjectDieModuleData moduleData)
-        : base(moduleData)
+    internal CreateObjectDie(GameObject gameObject, GameContext context, CreateObjectDieModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -54,6 +54,6 @@ public sealed class CreateObjectDieModuleData : DieModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new CreateObjectDie(this);
+        return new CreateObjectDie(gameObject, context, this);
     }
 }

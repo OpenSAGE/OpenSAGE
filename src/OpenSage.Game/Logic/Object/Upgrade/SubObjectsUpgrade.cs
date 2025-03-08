@@ -10,7 +10,8 @@ internal class SubObjectsUpgrade : UpgradeModule
 {
     private readonly SubObjectsUpgradeModuleData _moduleData;
 
-    internal SubObjectsUpgrade(GameObject gameObject, SubObjectsUpgradeModuleData moduleData) : base(gameObject, moduleData)
+    internal SubObjectsUpgrade(GameObject gameObject, GameContext context, SubObjectsUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -21,7 +22,7 @@ internal class SubObjectsUpgrade : UpgradeModule
         {
             foreach (var subObject in _moduleData.ShowSubObjects)
             {
-                _gameObject.Drawable.ShowSubObject(subObject);
+                GameObject.Drawable.ShowSubObject(subObject);
             }
         }
 
@@ -29,7 +30,7 @@ internal class SubObjectsUpgrade : UpgradeModule
         {
             foreach (var subObject in _moduleData.HideSubObjects)
             {
-                _gameObject.Drawable.HideSubObject(subObject);
+                GameObject.Drawable.HideSubObject(subObject);
             }
         }
     }
@@ -84,6 +85,6 @@ public sealed class SubObjectsUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new SubObjectsUpgrade(gameObject, this);
+        return new SubObjectsUpgrade(gameObject, context, this);
     }
 }

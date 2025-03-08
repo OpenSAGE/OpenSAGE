@@ -2,6 +2,10 @@
 
 internal abstract class ObjectHelperModule : UpdateModule
 {
+    protected ObjectHelperModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

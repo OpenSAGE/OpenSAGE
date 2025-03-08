@@ -11,8 +11,6 @@ namespace OpenSage.Logic.Object;
 public class SlavedUpdateModule : UpdateModule
 {
     private readonly SlavedUpdateModuleData _moduleData;
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private GameObject _master;
 
     // todo: these two fields need to be fit into the persisted fields somehow
@@ -39,10 +37,9 @@ public class SlavedUpdateModule : UpdateModule
     private FXParticleSystemTemplate _particleTemplate;
 
     internal SlavedUpdateModule(GameObject gameObject, GameContext context, SlavedUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _context = context;
     }
 
     internal override void Update(BehaviorUpdateContext context)
@@ -56,13 +53,13 @@ public class SlavedUpdateModule : UpdateModule
         var masterIsMoving = _master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
         var masterHealthPercent = _master.HealthPercentage;
 
-        var offsetToMaster = _master.Translation - _gameObject.Translation;
+        var offsetToMaster = _master.Translation - GameObject.Translation;
         var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
         if (!masterIsMoving && (masterHealthPercent < (Fix64)(_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
         {
             // repair master
-            var isMoving = _gameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
+            var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
             switch (_repairStatus)
             {
@@ -70,11 +67,11 @@ public class SlavedUpdateModule : UpdateModule
                     // go to master
                     if (distanceToMaster > 1.0)
                     {
-                        _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
+                        GameObject.AIUpdate.SetTargetPoint(_master.Translation);
                         _repairStatus = RepairStatus.GOING_TO_MASTER;
                     }
 
-                    _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Panic);
+                    GameObject.AIUpdate.SetLocomotor(LocomotorSetType.Panic);
                     break;
                 case RepairStatus.GOING_TO_MASTER:
                     if (!isMoving)
@@ -92,14 +89,14 @@ public class SlavedUpdateModule : UpdateModule
                         var angle = (float)(context.GameContext.Random.NextDouble() * (Math.PI * 2));
 
                         var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
-                        _gameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
+                        GameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
                         _repairStatus = RepairStatus.IN_TRANSITION;
                     }
                     break;
                 case RepairStatus.IN_TRANSITION:
                     if (!isMoving)
                     {
-                        var (modelInstance, bone) = _gameObject.Drawable.FindBone(_moduleData.RepairWeldingFXBone);
+                        var (modelInstance, bone) = GameObject.Drawable.FindBone(_moduleData.RepairWeldingFXBone);
                         var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
                         _particleTemplate ??= _moduleData.RepairWeldingSys.Value;
 
@@ -132,24 +129,24 @@ public class SlavedUpdateModule : UpdateModule
                     {
                         _master.Health = _master.MaxHealth;
                         _repairStatus = RepairStatus.INITIAL;
-                        _gameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
+                        GameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
                     }
                     break;
             }
         }
-        else if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
+        else if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Attacking))
         {
             // stay near target
-            var target = _gameObject.CurrentWeapon.CurrentTarget.GetTargetObject();
+            var target = GameObject.CurrentWeapon.CurrentTarget.GetTargetObject();
 
             if (target != null)
             {
-                var offsetToTarget = target.Translation - _gameObject.Translation;
+                var offsetToTarget = target.Translation - GameObject.Translation;
                 var distanceToTarget = offsetToTarget.Length();
 
-                if (_gameObject.AIUpdate.TargetPoints.Count == 0 && distanceToTarget > _moduleData.AttackWanderRange)
+                if (GameObject.AIUpdate.TargetPoints.Count == 0 && distanceToTarget > _moduleData.AttackWanderRange)
                 {
-                    _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
+                    GameObject.AIUpdate.SetTargetPoint(_master.Translation);
                 }
             }
         }
@@ -170,16 +167,16 @@ public class SlavedUpdateModule : UpdateModule
                 maxRange = _moduleData.AttackRange;
             }
 
-            if (_gameObject.AIUpdate?.TargetPoints.Count == 0 && distanceToMaster > maxRange)
+            if (GameObject.AIUpdate?.TargetPoints.Count == 0 && distanceToMaster > maxRange)
             {
-                _gameObject.AIUpdate.SetTargetPoint(_master.Translation);
+                GameObject.AIUpdate.SetTargetPoint(_master.Translation);
             }
         }
 
         // prior to bfme2, die on master death seems to be the default?
-        if (_master.IsDead && (_context.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
+        if (_master.IsDead && (Context.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
         {
-            _gameObject.Die(DeathType.Exploded);
+            GameObject.Die(DeathType.Exploded);
         }
     }
 

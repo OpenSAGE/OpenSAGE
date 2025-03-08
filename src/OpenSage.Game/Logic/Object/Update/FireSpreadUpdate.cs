@@ -7,6 +7,9 @@ namespace OpenSage.Logic.Object;
 public sealed class FireSpreadUpdate : UpdateModule
 {
     // TODO
+    public FireSpreadUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
 
     internal override void Load(StatePersister reader)
     {
@@ -37,6 +40,6 @@ public sealed class FireSpreadUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new FireSpreadUpdate();
+        return new FireSpreadUpdate(gameObject, context);
     }
 }

@@ -50,14 +50,11 @@ public sealed class ParticleUplinkCannonUpdate : UpdateModule
     private LogicFrame _mostRecentClickFrame; // the frame of the most recent click
     private LogicFrame _secondMostRecentClickFrame; // the frame of the second-most recent click (most recent click moves here with each click)
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly ParticleUplinkCannonUpdateModuleData _moduleData;
 
     internal ParticleUplinkCannonUpdate(GameObject gameObject, GameContext context, ParticleUplinkCannonUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 

@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public abstract class CollideModule : BehaviorModule, ICollideModule
 {
+    protected CollideModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     // TODO: Make this abstract.
     public virtual void OnCollide(GameObject other, in Vector3 location, in Vector3 normal) { }
 

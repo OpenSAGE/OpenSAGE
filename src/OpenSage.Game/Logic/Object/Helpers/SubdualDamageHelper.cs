@@ -2,6 +2,10 @@
 
 internal sealed class SubdualDamageHelper : ObjectHelperModule
 {
+    public SubdualDamageHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

@@ -6,12 +6,11 @@ namespace OpenSage.Logic.Object;
 
 public sealed class WeaponSetUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
     private readonly WeaponSetUpdateModuleData _moduleData;
 
-    internal WeaponSetUpdate(GameObject gameObject, WeaponSetUpdateModuleData moduleData)
+    internal WeaponSetUpdate(GameObject gameObject, GameContext context, WeaponSetUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
     }
 
@@ -29,7 +28,7 @@ public sealed class WeaponSetUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new WeaponSetUpdate(gameObject, this);
+        return new WeaponSetUpdate(gameObject, context, this);
     }
 }
 

@@ -6,21 +6,17 @@ namespace OpenSage.Logic.Object;
 
 public sealed class EjectPilotDie : DieModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly EjectPilotDieModuleData _moduleData;
 
     internal EjectPilotDie(GameObject gameObject, GameContext context, EjectPilotDieModuleData moduleData)
-        : base(moduleData)
+        : base(gameObject, context, moduleData)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        var veterancy = (VeterancyLevel)_gameObject.Rank;
+        var veterancy = (VeterancyLevel)GameObject.Rank;
 
         if (!_moduleData.VeterancyLevels.Get(veterancy))
         {
@@ -29,10 +25,10 @@ public sealed class EjectPilotDie : DieModule
 
         var isOnGround = true; // todo: determine if unit is airborne
         var creationList = isOnGround ? _moduleData.GroundCreationList : _moduleData.AirCreationList;
-        foreach (var gameObject in _context.ObjectCreationLists.Create(creationList.Value, context))
+        foreach (var gameObject in Context.ObjectCreationLists.Create(creationList.Value, context))
         {
-            gameObject.Rank = _gameObject.Rank;
-            _context.AudioSystem.PlayAudioEvent(gameObject, _gameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);
+            gameObject.Rank = GameObject.Rank;
+            Context.AudioSystem.PlayAudioEvent(gameObject, GameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);
         }
     }
 

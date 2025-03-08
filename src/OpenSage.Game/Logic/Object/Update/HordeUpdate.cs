@@ -10,8 +10,6 @@ namespace OpenSage.Logic.Object;
 
 public sealed class HordeUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly HordeUpdateModuleData _moduleData;
 
     private bool _isInHorde;
@@ -19,15 +17,14 @@ public sealed class HordeUpdate : UpdateModule
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.UpdateRate;
 
     internal HordeUpdate(GameObject gameObject, GameContext context, HordeUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
     }
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        var nearby = _context.Scene3D.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.Radius);
+        var nearby = Context.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius);
         var nearbyInConstraints = nearby.Where(MatchesAlliance).Where(MatchesType).Select(o => o.FindBehavior<HordeUpdate>()).ToList();
 
         if (nearbyInConstraints.Count >= _moduleData.Count - 1) // this list doesn't include us, but count does
@@ -43,7 +40,7 @@ public sealed class HordeUpdate : UpdateModule
         {
             // check if there are others who are in a horde near us
             // I don't think this behavior is strictly correct, but it seems the simplest way to implement this logic in the spirit of the data names and descriptions
-            var nearbyRubOff = _context.Scene3D.Quadtree.FindNearby(_gameObject, _gameObject.Transform, _moduleData.RubOffRadius);
+            var nearbyRubOff = Context.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.RubOffRadius);
             var nearbyRubOffInConstraints = nearbyRubOff.Where(MatchesAlliance).Where(MatchesType).Count(o => o.FindBehavior<HordeUpdate>() is { _isInHorde: true });
             if (nearbyRubOffInConstraints < _moduleData.Count - 1) // this list doesn't include us, but count does
             {
@@ -55,37 +52,37 @@ public sealed class HordeUpdate : UpdateModule
     private void AddToHorde()
     {
         _isInHorde = true;
-        _gameObject.Drawable.SetTerrainDecal(GameObjectDecalType);
-        _gameObject.AddWeaponBonusType(_moduleData.Action);
+        GameObject.Drawable.SetTerrainDecal(GameObjectDecalType);
+        GameObject.AddWeaponBonusType(_moduleData.Action);
     }
 
     private void RemoveFromHorde()
     {
         _isInHorde = false;
-        _gameObject.Drawable.SetTerrainDecal(ObjectDecalType.None);
-        _gameObject.RemoveWeaponBonusType(_moduleData.Action);
+        GameObject.Drawable.SetTerrainDecal(ObjectDecalType.None);
+        GameObject.RemoveWeaponBonusType(_moduleData.Action);
     }
 
     // todo: should this be hardcoded?
-    private UpgradeTemplate? NationalismUpgrade => _context.AssetLoadContext.AssetStore.Upgrades.GetLazyAssetReferenceByName("Upgrade_Nationalism")?.Value;
+    private UpgradeTemplate? NationalismUpgrade => Context.AssetLoadContext.AssetStore.Upgrades.GetLazyAssetReferenceByName("Upgrade_Nationalism")?.Value;
 
-    private bool HasNationalism => NationalismUpgrade != null && _gameObject.Owner.HasUpgrade(NationalismUpgrade);
+    private bool HasNationalism => NationalismUpgrade != null && GameObject.Owner.HasUpgrade(NationalismUpgrade);
 
     private ObjectDecalType GameObjectDecalType => HasNationalism switch
     {
-        true => _gameObject.IsKindOf(ObjectKinds.Infantry) ? ObjectDecalType.NationalismInfantry : ObjectDecalType.NationalismVehicle,
-        false => _gameObject.IsKindOf(ObjectKinds.Infantry) ? ObjectDecalType.HordeInfantry : ObjectDecalType.HordeVehicle,
+        true => GameObject.IsKindOf(ObjectKinds.Infantry) ? ObjectDecalType.NationalismInfantry : ObjectDecalType.NationalismVehicle,
+        false => GameObject.IsKindOf(ObjectKinds.Infantry) ? ObjectDecalType.HordeInfantry : ObjectDecalType.HordeVehicle,
     };
 
     private bool MatchesAlliance(GameObject gameObject)
     {
-        return !_moduleData.AlliesOnly || gameObject.Owner == _gameObject.Owner || gameObject.Owner.Allies.Contains(_gameObject.Owner);
+        return !_moduleData.AlliesOnly || gameObject.Owner == GameObject.Owner || gameObject.Owner.Allies.Contains(GameObject.Owner);
     }
 
     private bool MatchesType(GameObject gameObject)
     {
         return _moduleData.ExactMatch
-            ? gameObject.Definition == _gameObject.Definition // if the definitions match, then we have everything we need
+            ? gameObject.Definition == GameObject.Definition // if the definitions match, then we have everything we need
             : gameObject.FindBehavior<HordeUpdate>() != null && // otherwise, we need the horde update behavior
               gameObject.Definition.KindOf.Intersects(_moduleData.KindOf); // and the kindof needs to match
     }

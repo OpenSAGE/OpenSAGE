@@ -7,7 +7,6 @@ namespace OpenSage.Logic.Object;
 
 public abstract class DockUpdate : UpdateModule
 {
-    private GameObject _gameObject;
     private DockUpdateModuleData _moduleData;
 
     private Queue<SupplyAIUpdate> _unitsApproaching;
@@ -24,9 +23,9 @@ public abstract class DockUpdate : UpdateModule
     private uint _unknownObjectId;
     private ushort _unknownInt1;
 
-    internal DockUpdate(GameObject gameObject, DockUpdateModuleData moduleData)
+    protected DockUpdate(GameObject gameObject, GameContext context, DockUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
         _unitsApproaching = new Queue<SupplyAIUpdate>();
         _usesWaitingBones = _moduleData.NumberApproachPositions != -1;
@@ -35,19 +34,19 @@ public abstract class DockUpdate : UpdateModule
     private Vector3 GetActionBone()
     {
         // TODO: might also be DOCKSTART or DOCKEND
-        var (actionModelInstance, actionBone) = _gameObject.Drawable.FindBone($"DOCKACTION");
+        var (actionModelInstance, actionBone) = GameObject.Drawable.FindBone($"DOCKACTION");
 
         if (actionModelInstance != null && actionBone != null)
         {
             return actionModelInstance.AbsoluteBoneTransforms[actionBone.Index].Translation;
         }
-        return _gameObject.Translation;
+        return GameObject.Translation;
     }
 
     private Vector3 GetDockWaitingBone(int id)
     {
         var identifier = id.ToString("D2");
-        var (modelInstance, bone) = _gameObject.Drawable.FindBone($"DOCKWAITING{identifier}");
+        var (modelInstance, bone) = GameObject.Drawable.FindBone($"DOCKWAITING{identifier}");
         return modelInstance.AbsoluteBoneTransforms[bone.Index].Translation;
     }
 
@@ -59,7 +58,7 @@ public abstract class DockUpdate : UpdateModule
 
         if (!_usesWaitingBones)
         {
-            return _gameObject.Translation;
+            return GameObject.Translation;
         }
 
         if (_unitsApproaching.Count == 1)
@@ -93,9 +92,9 @@ public abstract class DockUpdate : UpdateModule
 
     internal override void Update(BehaviorUpdateContext context)
     {
-        if (_gameObject.ModelConditionFlags.Get(ModelConditionFlag.DockingActive))
+        if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.DockingActive))
         {
-            _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, false);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, false);
         }
 
         if (_unitsApproaching.Count > 0)
@@ -108,7 +107,7 @@ public abstract class DockUpdate : UpdateModule
                     aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.StartDumpingSupplies;
                     break;
                 case SupplyAIUpdate.SupplyGatherStates.FinishedDumpingSupplies:
-                    _gameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
+                    GameObject.ModelConditionFlags.Set(ModelConditionFlag.DockingActive, true);
                     aiUpdate.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
                     _unitsApproaching.Dequeue();
                     MoveObjectsForward();

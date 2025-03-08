@@ -7,8 +7,8 @@ internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
 {
     private readonly UnpauseSpecialPowerUpgradeModuleData _moduleData;
 
-    internal UnpauseSpecialPowerUpgrade(GameObject gameObject, UnpauseSpecialPowerUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal UnpauseSpecialPowerUpgrade(GameObject gameObject, GameContext context, UnpauseSpecialPowerUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -16,7 +16,7 @@ internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
     protected override void OnUpgrade()
     {
         var powerToUnpause = _moduleData.SpecialPowerTemplate.Value;
-        foreach (var specialPowerModule in _gameObject.FindBehaviors<SpecialPowerModule>())
+        foreach (var specialPowerModule in GameObject.FindBehaviors<SpecialPowerModule>())
         {
             if (specialPowerModule.Matches(powerToUnpause))
             {
@@ -53,6 +53,6 @@ public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new UnpauseSpecialPowerUpgrade(gameObject, this);
+        return new UnpauseSpecialPowerUpgrade(gameObject, context, this);
     }
 }

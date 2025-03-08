@@ -8,15 +8,15 @@ internal class CommandSetUpgrade : UpgradeModule
 {
     private readonly CommandSetUpgradeModuleData _moduleData;
 
-    public CommandSetUpgrade(GameObject gameObject, CommandSetUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    public CommandSetUpgrade(GameObject gameObject, GameContext context, CommandSetUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
 
     protected override void OnUpgrade()
     {
-        _gameObject.Definition.CommandSet = _moduleData.CommandSet;
+        GameObject.Definition.CommandSet = _moduleData.CommandSet;
     }
 
     internal override void Load(StatePersister reader)
@@ -59,6 +59,6 @@ public sealed class CommandSetUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new CommandSetUpgrade(gameObject, this);
+        return new CommandSetUpgrade(gameObject, context, this);
     }
 }

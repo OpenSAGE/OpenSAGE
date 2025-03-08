@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CleanupHazardUpdate : UpdateModule
 {
+    public CleanupHazardUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -36,6 +40,6 @@ public sealed class CleanupHazardUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new CleanupHazardUpdate();
+        return new CleanupHazardUpdate(gameObject, context);
     }
 }

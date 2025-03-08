@@ -16,7 +16,8 @@ public sealed class TransitionDamageFX : DamageModule
     private const int NumParticleSystemsPerDamageType = 12;
     private readonly uint[] _particleSystemIds = new uint[EnumUtility.GetEnumCount<BodyDamageType>() * NumParticleSystemsPerDamageType];
 
-    public TransitionDamageFX(TransitionDamageFXModuleData moduleData)
+    public TransitionDamageFX(GameObject gameObject, GameContext context, TransitionDamageFXModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
     }
@@ -159,7 +160,7 @@ public sealed class TransitionDamageFXModuleData : DamageModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new TransitionDamageFX(this);
+        return new TransitionDamageFX(gameObject, context, this);
     }
 }
 

@@ -12,7 +12,8 @@ public sealed class FlammableUpdate : UpdateModule
     private float _remainingDamageBeforeCatchingFire;
     private uint _startedTakingFlameDamageFrame;
 
-    internal FlammableUpdate(FlammableUpdateModuleData moduleData)
+    internal FlammableUpdate(GameObject gameObject, GameContext context, FlammableUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
         _remainingDamageBeforeCatchingFire = moduleData.FlameDamageLimit;
@@ -145,6 +146,6 @@ public sealed class FlammableUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new FlammableUpdate(this);
+        return new FlammableUpdate(gameObject, context, this);
     }
 }

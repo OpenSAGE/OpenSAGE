@@ -15,8 +15,6 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
         Debug.Assert(Enum.GetValues<BodyDamageType>().Length == 4, "Expected 4 values in BodyDamageType enum.");
     }
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly FireWeaponWhenDamagedBehaviorModuleData _moduleData;
 
     private readonly Weapon?[] _reactionWeapons = new Weapon?[4];
@@ -28,9 +26,8 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
     internal UpgradeLogic UpgradeLogic { get; }
 
     public FireWeaponWhenDamagedBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDamagedBehaviorModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
 
         UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
@@ -56,10 +53,10 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
         }
 
         return new Weapon(
-            _gameObject,
+            GameObject,
             weaponTemplate,
             WeaponSlot.Primary,
-            _context);
+            Context);
     }
 
     public bool CanUpgrade(UpgradeSet existingUpgrades) => UpgradeLogic.CanUpgrade(existingUpgrades);
@@ -100,14 +97,14 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
 
     private void FireWeaponIfPresentAndReady(Weapon?[] weapons)
     {
-        var weapon = weapons[(int)_gameObject.BodyDamageType];
+        var weapon = weapons[(int)GameObject.BodyDamageType];
 
         if (weapon == null || !weapon.IsInactive)
         {
             return;
         }
 
-        weapon.SetTarget(new WeaponTarget(_gameObject.Translation));
+        weapon.SetTarget(new WeaponTarget(GameObject.Translation));
         weapon.Fire();
     }
 

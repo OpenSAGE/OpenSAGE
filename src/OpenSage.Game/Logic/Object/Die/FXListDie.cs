@@ -8,8 +8,8 @@ public sealed class FXListDie : DieModule
 {
     private readonly FXListDieModuleData _moduleData;
 
-    internal FXListDie(FXListDieModuleData moduleData)
-        : base(moduleData)
+    internal FXListDie(GameObject gameObject, GameContext context, FXListDieModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -60,6 +60,6 @@ public sealed class FXListDieModuleData : DieModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new FXListDie(this);
+        return new FXListDie(gameObject, context, this);
     }
 }

@@ -6,14 +6,13 @@ namespace OpenSage.Logic.Object;
 
 internal class DeletionUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
     private readonly DeletionUpdateModuleData _moduleData;
 
     private LogicFrame _frameToDelete;
 
     public DeletionUpdate(GameObject gameObject, GameContext context, DeletionUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
 
         _frameToDelete = context.GameLogic.CurrentFrame + context.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
@@ -24,7 +23,7 @@ internal class DeletionUpdate : UpdateModule
     {
         if (context.LogicFrame >= _frameToDelete)
         {
-            context.GameContext.GameLogic.DestroyObject(_gameObject);
+            context.GameContext.GameLogic.DestroyObject(GameObject);
         }
     }
 

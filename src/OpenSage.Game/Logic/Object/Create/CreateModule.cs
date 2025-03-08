@@ -4,6 +4,10 @@ public abstract class CreateModule : BehaviorModule, ICreateModule
 {
     private bool _shouldCallOnBuildComplete = true;
 
+    protected CreateModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     public virtual void OnCreate() { }
 
     public void OnBuildComplete()

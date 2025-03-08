@@ -7,18 +7,13 @@ namespace OpenSage.Logic.Object;
 
 public abstract class UpgradeModule : BehaviorModule, IUpgradeableModule
 {
-    // TODO: Make this private.
-    protected readonly GameObject _gameObject;
     private readonly UpgradeModuleData _moduleData;
     private UpgradeLogic _upgradeLogic;
 
-    protected GameObject GameObject => _gameObject;
-
     internal bool Triggered => _upgradeLogic.Triggered;
 
-    internal UpgradeModule(GameObject gameObject, UpgradeModuleData moduleData)
+    internal UpgradeModule(GameObject gameObject, GameContext context, UpgradeModuleData moduleData) : base(gameObject, context)
     {
-        _gameObject = gameObject;
         _moduleData = moduleData;
         _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
     }

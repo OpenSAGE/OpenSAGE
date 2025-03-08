@@ -15,6 +15,10 @@ public sealed class DynamicShroudClearingRangeUpdate : UpdateModule
     private float _unknown9;
     private float _unknownFloat;
 
+    public DynamicShroudClearingRangeUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -77,6 +81,6 @@ public sealed class DynamicShroudClearingRangeUpdateModuleData : UpdateModuleDat
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new DynamicShroudClearingRangeUpdate();
+        return new DynamicShroudClearingRangeUpdate(gameObject, context);
     }
 }

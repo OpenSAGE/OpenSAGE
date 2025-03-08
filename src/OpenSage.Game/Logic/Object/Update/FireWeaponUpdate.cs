@@ -22,6 +22,10 @@ public sealed class FireWeaponUpdate : UpdateModule
     private uint _unknownUInt4;
     private uint _unknownUInt5;
 
+    public FireWeaponUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         var version = reader.PersistVersion(2);
@@ -109,7 +113,7 @@ public sealed class FireWeaponUpdateModuleData : UpdateModuleData
 
     internal override FireWeaponUpdate CreateModule(GameObject gameObject, GameContext context)
     {
-        return new FireWeaponUpdate();
+        return new FireWeaponUpdate(gameObject, context);
     }
 }
 

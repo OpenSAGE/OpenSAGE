@@ -11,9 +11,6 @@ public abstract class ObjectModule : ModuleBase
 
     protected GameContext Context { get; }
 
-    // TODO: Remove this once all subclasses use the other constructor.
-    protected ObjectModule() { }
-
     protected ObjectModule(GameObject gameObject, GameContext context)
     {
         GameObject = gameObject;
@@ -32,9 +29,6 @@ public abstract class ObjectModule : ModuleBase
 
 public abstract class BehaviorModule : ObjectModule
 {
-    // TODO: Remove this once all subclasses use the other constructor.
-    protected BehaviorModule() { }
-
     protected BehaviorModule(GameObject gameObject, GameContext context)
         : base(gameObject, context)
     {

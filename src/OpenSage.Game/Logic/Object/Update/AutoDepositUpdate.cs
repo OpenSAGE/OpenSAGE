@@ -7,8 +7,6 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class AutoDepositUpdate : UpdateModule
 {
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly AutoDepositUpdateModuleData _moduleData;
 
     private LogicFrame _nextAwardFrame;
@@ -16,15 +14,14 @@ internal sealed class AutoDepositUpdate : UpdateModule
     private bool _unknownBool2 = true;
 
     internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _context = context;
     }
 
     internal override void Update(BehaviorUpdateContext context)
     {
-        if (_gameObject.IsBeingConstructed())
+        if (GameObject.IsBeingConstructed())
         {
             return;
         }
@@ -35,9 +32,9 @@ internal sealed class AutoDepositUpdate : UpdateModule
         }
 
         _nextAwardFrame = context.LogicFrame + _moduleData.DepositTiming;
-        var amount = (uint)(_moduleData.DepositAmount * _gameObject.ProductionModifier);
+        var amount = (uint)(_moduleData.DepositAmount * GameObject.ProductionModifier);
 
-        if (_moduleData.UpgradedBoost.HasValue && _gameObject.HasUpgrade(_moduleData.UpgradedBoost.Value.UpgradeType.Value))
+        if (_moduleData.UpgradedBoost.HasValue && GameObject.HasUpgrade(_moduleData.UpgradedBoost.Value.UpgradeType.Value))
         {
             amount += (uint)(amount * (_moduleData.UpgradedBoost.Value.Boost / 100f));
         }
@@ -45,10 +42,10 @@ internal sealed class AutoDepositUpdate : UpdateModule
         GenerateAutoDepositCashEvent((int)amount);
         if (_moduleData.ActualMoney)
         {
-            _gameObject.Owner.BankAccount.Deposit(amount);
+            GameObject.Owner.BankAccount.Deposit(amount);
             if (!_moduleData.GiveNoXP)
             {
-                _gameObject.GainExperience((int)amount);
+                GameObject.GainExperience((int)amount);
             }
         }
     }
@@ -63,14 +60,14 @@ internal sealed class AutoDepositUpdate : UpdateModule
             // It doesn't appear capture bonus and actual money ever intersect, but just in case...
             if (_moduleData.ActualMoney)
             {
-                _gameObject.Owner.BankAccount.Deposit((uint)_moduleData.InitialCaptureBonus);
+                GameObject.Owner.BankAccount.Deposit((uint)_moduleData.InitialCaptureBonus);
             }
         }
     }
 
     private void GenerateAutoDepositCashEvent(int amount)
     {
-        _gameObject.ActiveCashEvent = new CashEvent(amount, _gameObject.Owner.Color, new Vector3(0, 0, 10));
+        GameObject.ActiveCashEvent = new CashEvent(amount, GameObject.Owner.Color, new Vector3(0, 0, 10));
     }
 
     internal override void Load(StatePersister reader)

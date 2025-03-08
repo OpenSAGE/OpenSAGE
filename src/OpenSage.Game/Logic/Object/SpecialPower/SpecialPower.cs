@@ -27,18 +27,14 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
     public bool Ready => ReadyProgress() >= 1;
     private bool _ready;
 
-    protected readonly GameObject GameObject;
-    private protected readonly GameContext Context;
     private readonly SpecialPowerModuleData _moduleData;
 
     private bool _unlocked;
 
     public SpecialPowerType SpecialPowerType => _moduleData.SpecialPower.Value.Type;
 
-    internal SpecialPowerModule(GameObject gameObject, GameContext context, SpecialPowerModuleData moduleData)
+    internal SpecialPowerModule(GameObject gameObject, GameContext context, SpecialPowerModuleData moduleData) : base(gameObject, context)
     {
-        GameObject = gameObject;
-        Context = context;
         _moduleData = moduleData;
         _reloadFrames = _moduleData.SpecialPower.Value.ReloadTime;
         _paused = moduleData.StartsPaused;

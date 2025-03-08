@@ -4,6 +4,10 @@ internal sealed class TempWeaponBonusHelper : ObjectHelperModule
 {
     private int _unknownInt;
 
+    public TempWeaponBonusHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

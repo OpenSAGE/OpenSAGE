@@ -7,6 +7,10 @@ public sealed class OCLUpdate : UpdateModule
 {
     private bool _unknownBool;
 
+    public OCLUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -54,7 +58,7 @@ public sealed class OCLUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new OCLUpdate();
+        return new OCLUpdate(gameObject, context);
     }
 }
 

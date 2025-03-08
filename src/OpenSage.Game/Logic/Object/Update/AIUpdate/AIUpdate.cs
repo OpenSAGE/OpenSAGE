@@ -21,8 +21,6 @@ public class AIUpdate : UpdateModule
 
     public Locomotor CurrentLocomotor { get; protected set; }
 
-    protected GameObject GameObject { get; }
-    protected GameContext Context { get; }
     internal virtual AIUpdateModuleData ModuleData { get; }
 
     private readonly TurretAIUpdate _turretAIUpdate;
@@ -92,9 +90,8 @@ public class AIUpdate : UpdateModule
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
 
     internal AIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
-        GameObject = gameObject;
-        Context = context;
         ModuleData = moduleData;
 
         TargetPoints = new List<Vector3>();
@@ -108,7 +105,7 @@ public class AIUpdate : UpdateModule
         // and might be overridden in a derived class, causing it to be unintialised despite the assignment above.
         if (moduleData.Turret != null)
         {
-            _turretAIUpdate = moduleData.Turret.CreateTurretAIUpdate(GameObject);
+            _turretAIUpdate = moduleData.Turret.CreateTurretAIUpdate(GameObject, context);
         }
     }
 

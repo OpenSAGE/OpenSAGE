@@ -6,12 +6,11 @@ namespace OpenSage.Logic.Object;
 public class StructureCollapseUpdate : UpdateModule
 {
     private readonly StructureCollapseUpdateModuleData _moduleData;
-    private readonly GameObject _gameObject;
 
-    public StructureCollapseUpdate(GameObject gameObject, StructureCollapseUpdateModuleData moduleData)
+    public StructureCollapseUpdate(GameObject gameObject, GameContext context, StructureCollapseUpdateModuleData moduleData)
+        : base(gameObject, context)
     {
         _moduleData = moduleData;
-        _gameObject = gameObject;
     }
 
     internal override void Update(BehaviorUpdateContext context)
@@ -67,7 +66,7 @@ public sealed class StructureCollapseUpdateModuleData : UpdateModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new StructureCollapseUpdate(gameObject, this);
+        return new StructureCollapseUpdate(gameObject, context, this);
     }
 }
 

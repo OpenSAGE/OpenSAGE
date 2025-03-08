@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class WeaponBonusUpgrade : UpgradeModule
 {
-    internal WeaponBonusUpgrade(GameObject gameObject, WeaponBonusUpgradeModuleData moduleData)
-        : base(gameObject, moduleData)
+    internal WeaponBonusUpgrade(GameObject gameObject, GameContext context, WeaponBonusUpgradeModuleData moduleData)
+        : base(gameObject, context, moduleData)
     {
     }
 
@@ -31,6 +31,6 @@ public sealed class WeaponBonusUpgradeModuleData : UpgradeModuleData
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new WeaponBonusUpgrade(gameObject, this);
+        return new WeaponBonusUpgrade(gameObject, context, this);
     }
 }

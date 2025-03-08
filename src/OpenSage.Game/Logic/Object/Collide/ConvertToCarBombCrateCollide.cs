@@ -4,6 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class ConvertToCarBombCrateCollide : CrateCollide
 {
+    public ConvertToCarBombCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    {
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -13,7 +17,7 @@ public sealed class ConvertToCarBombCrateCollide : CrateCollide
 }
 
 /// <summary>
-/// Triggers use of CARBOMB WeaponSet Condition of the hijacked object and turns it to a 
+/// Triggers use of CARBOMB WeaponSet Condition of the hijacked object and turns it to a
 /// suicide unit unless given with a different weapon.
 /// </summary>
 public sealed class ConvertToCarBombCrateCollideModuleData : CrateCollideModuleData
@@ -25,6 +29,6 @@ public sealed class ConvertToCarBombCrateCollideModuleData : CrateCollideModuleD
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
     {
-        return new ConvertToCarBombCrateCollide();
+        return new ConvertToCarBombCrateCollide(gameObject, context);
     }
 }
