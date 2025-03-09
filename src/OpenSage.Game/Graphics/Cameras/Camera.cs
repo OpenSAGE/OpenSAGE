@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Cameras;
 public sealed class Camera
 {
     private readonly Func<Viewport> _getViewport;
-    private Viewport _viewport;
+    public Viewport _viewport { get; private set; }
 
     private float _nearPlaneDistance;
     private float _farPlaneDistance;
@@ -90,7 +90,7 @@ public sealed class Camera
         BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
         _nearPlaneDistance = HeightMap.HorizontalScale;
-        _farPlaneDistance = 10000.0f; // Generals uses 1200.0f
+        _farPlaneDistance = 12000.0f;
 
         UpdateProjection();
     }
@@ -151,6 +151,21 @@ public sealed class Camera
     }
 
     /// <summary>
+    /// Returns start and end points of a pick ray.
+    /// Similar to C++ method W3DView::getPickRay.
+    /// </summary>
+    public (Vector3, Vector3) GetPickRay(Vector2 position)
+    {
+        var rayStart = Position;
+        var rayEnd = _viewport.Unproject(new Vector3(position, -1), Projection, View, Matrix4x4.Identity);
+        rayEnd -= rayStart;
+        rayEnd = Vector3.Normalize(rayEnd);
+        rayEnd *= FarPlaneDistance;
+        rayEnd += rayStart;
+        return (rayStart, rayEnd);
+    }
+
+    /// <summary>
     /// Converts a world-space point to screen-space.
     /// </summary>
     public Vector3 WorldToScreenPoint(Vector3 position)
@@ -187,29 +202,6 @@ public sealed class Camera
     {
         var ray = ScreenPointToRay(new Vector2(position.X, position.Y));
         return ray.Position + ray.Direction * position.Z;
-    }
-
-    public Vector3 ScreenToWorldPointSage(in Vector2 screenPos)
-    {
-        var ndev = screenPos / new Vector2(_viewport.Width, _viewport.Height);
-        var vsMin = Vector2.Zero;
-        var vsMax = Vector2.One;
-
-        var viewSpacePoint = new Vector3(
-            vsMin.X + (ndev.X - vsMin.X) * (vsMax.X - vsMin.X) / _viewport.Width,
-            vsMin.Y - (ndev.Y - vsMin.Y) * (vsMax.Y - vsMin.Y) / _viewport.Height,
-            -1
-        );
-
-        var view = View;
-        // Zero out translation
-        view.M41 = 0;
-        view.M42 = 0;
-        view.M43 = 0;
-        view.M44 = 1;
-
-        var worldSpacePoint = Vector3.Transform(new Vector3(screenPos, 0.0f), view);
-        return worldSpacePoint;
     }
 
     internal void OnViewportSizeChanged()

@@ -102,7 +102,8 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     }
 
     /// <summary>
-    /// The current position of the camera.
+    /// The current target position of the camera;
+    /// what the camera is looking at.
     /// </summary>
     private Vector3 _pos;
 
@@ -154,7 +155,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             _camera.FieldOfView);
     }
 
-    public CameraAnimation CurrentAnimation => _animation;
+    public CameraAnimation? CurrentAnimation => _animation;
 
     public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap)
     {
@@ -195,7 +196,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         _cameraOffset.Z = _groundLevel + _gameData.CameraHeight;
         _cameraOffset.Y = -(_cameraOffset.Z / MathF.Tan(_gameData.CameraPitch * (MathF.PI / 180.0f)));
-        _cameraOffset.X = -(_cameraOffset.Z * MathF.Tan(_gameData.CameraYaw * (MathF.PI / 180.0f)));
+        _cameraOffset.X = -(_cameraOffset.Y * MathF.Tan(_gameData.CameraYaw * (MathF.PI / 180.0f)));
         _cameraConstraintValid = false;
         SetCameraTransform();
     }
@@ -241,6 +242,8 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         var desiredHeight = terrainHeightMax + _maxHeightAboveGround;
         var desiredZoom = desiredHeight / _cameraOffset.Z;
 
+        // There's a small bug here, matching the original code: initial zoom value is not clamped,
+        // and at least in Alpine Assault the initial value is slightly above the max zoom value.
         _zoom = desiredZoom;
         _heightAboveGround = _maxHeightAboveGround;
 
@@ -326,22 +329,22 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
     void ICameraController.ModSetFinalPitch(float finalPitch, float easeInPercentage, float easeOutPercentage)
     {
-        CurrentAnimation.SetFinalPitch(finalPitch, easeInPercentage, easeOutPercentage);
+        CurrentAnimation?.SetFinalPitch(finalPitch, easeInPercentage, easeOutPercentage);
     }
 
     void ICameraController.ModSetFinalZoom(float finalZoom)
     {
-        CurrentAnimation.SetFinalZoom(finalZoom);
+        CurrentAnimation?.SetFinalZoom(finalZoom);
     }
 
     void ICameraController.ModFinalLookToward(in Vector3 position)
     {
-        CurrentAnimation.SetFinalLookToward(position);
+        CurrentAnimation?.SetFinalLookToward(position);
     }
 
     void ICameraController.ModLookToward(in Vector3 position)
     {
-        CurrentAnimation.SetLookToward(position);
+        CurrentAnimation?.SetLookToward(position);
     }
 
     private static float GetKeyMovement(in CameraInputState inputState, Veldrid.Key positive, Veldrid.Key negative)
@@ -575,76 +578,6 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         }
 
         ZoomCamera(-inputState.ScrollWheelValue);
-
-        /*if (_animation != null)
-        {
-            _animation.Update(this, gameTime);
-
-            if (_animation.Finished)
-            {
-                _animation = null;
-            }
-        }
-
-        var yaw = _yaw;
-
-        var cameraHeight = MathUtility.Lerp(
-            0,
-            _defaultHeight,
-            _zoom);*/
-
-        // TODO: I think we're supposed to use this somehow, but I don't yet know exactly how.
-        /*var cameraHeightAboveTerrain = cameraHeight - _heightMap.GetHeight(_cameraOffset.X, _cameraOffset.Y);
-
-        var pitch = _currentPitchAngle;
-
-        // Calculate "clamped" pitch, which is no higher than "normal" pitch.
-        var clampedPitch = pitch;
-        if (pitch > -_defaultPitchAngle)
-        {
-            clampedPitch = -_defaultPitchAngle;
-        }
-
-        // Compute terrain-position-to-camera vector, based on "clamped" pitch.
-        var cameraToTerrainDirection = Vector3.Normalize(new Vector3(
-            MathF.Cos(yaw),
-            MathF.Sin(yaw),
-            MathF.Sin(clampedPitch)));
-
-        // Back up camera from terrain position.
-        var toCameraRay = new Ray(_cameraOffset, -cameraToTerrainDirection);
-        var plane = Plane.CreateFromVertices(
-            new Vector3(0, 0, cameraHeight),
-            new Vector3(0, 1, cameraHeight),
-            new Vector3(1, 0, cameraHeight));
-        var toCameraIntersectionDistance = toCameraRay.Intersects(plane).Value;
-        var newPosition = _cameraOffset - cameraToTerrainDirection * toCameraIntersectionDistance;
-
-        // Pitch: 1 is default.
-        // [-x..0] - to the sky
-        // [0..1]  - between default angle and horizontal
-        // [1..x]  - more top-down than default angle
-
-        // Pitch - 0 means top-down view.
-        // Pitch between 0 and CameraPitch = Move camera position to match pitch.
-        // Pitch between CameraPitch and horizontal = Raise or lower target height.
-
-        var lookDirection = new Vector3(
-            MathF.Cos(yaw),
-            MathF.Sin(yaw),
-            MathF.Sin(pitch));
-
-        // World Builder shows this value for the "Look At point" height. But I don't know yet how it's applied.
-        //var cameraHeightAboveTerrain = cameraHeight - _heightMap.GetHeight(_terrainPosition.X, _terrainPosition.Y);
-        //var zOffset = pitch * -cameraHeightAboveTerrain;
-        //newPosition.Z += zOffset;
-
-        var targetPosition = newPosition + lookDirection;*/
-
-        /*camera.SetLookAt(
-            newPosition,
-            targetPosition,
-            Vector3.UnitZ);*/
     }
 
     private void SetCameraTransform()
@@ -685,13 +618,11 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         var maxEdgeZ = _groundLevel;
 
         var screenCenter = new Vector2(
-            _camera.ScreenSize.X / 2,
-            _camera.ScreenSize.Y / 2
+            MathF.Floor(_camera.ScreenSize.X / 2),
+            MathF.Floor(_camera.ScreenSize.Y / 2)
         );
 
-        var centerRay = _camera.ScreenPointToRay(screenCenter);
-        var centerRayStart = centerRay.Position;
-        var centerRayEnd = centerRay.Position + centerRay.Direction * _camera.FarPlaneDistance;
+        var (centerRayStart, centerRayEnd) = _camera.GetPickRay(screenCenter);
 
         var center = new Vector3(
             Vector3Utility.FindXAtZ(maxEdgeZ, centerRayStart, centerRayEnd),
@@ -701,11 +632,9 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         var screenBottom = new Vector2(
             screenCenter.X,
-            _camera.ScreenSize.Y * 0.95f
+            MathF.Floor(_camera.ScreenSize.Y * 0.95f)
         );
-        var bottomRay = _camera.ScreenPointToRay(screenBottom);
-        var bottomRayStart = bottomRay.Position;
-        var bottomRayEnd = bottomRay.Position + bottomRay.Direction * _camera.FarPlaneDistance;
+        var (bottomRayStart, bottomRayEnd) = _camera.GetPickRay(screenBottom);
 
         var bottom = new Vector3(
             Vector3Utility.FindXAtZ(maxEdgeZ, bottomRayStart, bottomRayEnd),
@@ -765,7 +694,6 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         var pitchTransform = Matrix4x4.CreateRotationX(pitch);
         sourcePos = Vector3.Transform(sourcePos, pitchTransform);
         sourcePos = Vector3.Transform(sourcePos, angleTransform);
-
         sourcePos *= factor;
 
         sourcePos += new Vector3(pos.X, pos.Y, groundLevel);
@@ -782,12 +710,12 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             sourcePos = targetPos + ((sourcePos - targetPos) / _fxPitch);
         }
 
-
         // Copy these to fields so that we can show them in the inspector
         _sourcePos = sourcePos;
         _targetPos = targetPos;
 
-        // TODO(Port): C++ returns a new matrix via a reference parameter, should we do the same?
+        // C++ version has this method return a matrix via a reference parameter,
+        // but since it's always used to set the camera transform, we can just do that directly
         _camera.SetLookAt(sourcePos, targetPos, Vector3.UnitZ);
 
         // TODO(Port):
@@ -797,7 +725,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         // transform->Rotate_Y(m_shakerAngles.Y);
         // transform->Rotate_Z(m_shakerAngles.Z);
 
-        // Port note: C++ checks for m_isCameraSlaved
+        // C++ checks for m_isCameraSlaved
         // From what I can tell that is related to 3DS Max integration, which we don't need
     }
 
@@ -818,6 +746,13 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
     private void ZoomCamera(float deltaY)
     {
+        // TODO(Port): Generals adjusts zooms over time
+
+        if (deltaY == 0)
+        {
+            return;
+        }
+
         Zoom = _zoom + deltaY * ZoomSpeed;
     }
 
@@ -827,7 +762,6 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         {
             return;
         }
-
 
         const float scrollResolution = 250.0f;
         _scrollAmount = delta;
@@ -876,20 +810,60 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         reader.PersistVector3(ref _cameraOffset);
     }
 
+    private bool _showHexInInspector;
+
     internal void DrawInspector()
     {
+        // For some reason local functions do not support overloads
+
+        static string FloatToHex(float value)
+        {
+            return BitConverter.ToInt32(BitConverter.GetBytes(value)).ToString("X8");
+        }
+
+        void LabelTextWithHex(string label, float value)
+        {
+            ImGui.LabelText(label, _showHexInInspector ? $"{value} (0x{FloatToHex(value)})" : value.ToString());
+        }
+
+        void LabelTextWithHexVector3(string label, Vector3 value)
+        {
+            var stringified = $"{value.X}, {value.Y}, {value.Z}";
+
+            ImGui.LabelText(
+                label,
+                _showHexInInspector ?
+                    $"{stringified} (0x{FloatToHex(value.X)}, 0x{FloatToHex(value.Y)}, 0x{FloatToHex(value.Z)})" :
+                    stringified
+            );
+        }
+
+        void LabelTextWithHexRectangleF(string label, RectangleF value)
+        {
+            var stringified = $"{value.Left}, {value.Top}, {value.Width}, {value.Height}";
+
+            ImGui.LabelText(
+                label,
+                _showHexInInspector ?
+                    $"{stringified} (0x{FloatToHex(value.Left)}, 0x{FloatToHex(value.Top)}, 0x{FloatToHex(value.Width)}, 0x{FloatToHex(value.Height)})" :
+                    stringified
+            );
+        }
+
+        ImGui.Checkbox("Show hex", ref _showHexInInspector);
+
         ImGui.SeparatorText("Camera configuration");
-        ImGui.LabelText("Yaw", _angle.ToString());
-        ImGui.LabelText("Pitch", _pitchAngle.ToString());
-        ImGui.LabelText("Zoom", _zoom.ToString());
-        ImGui.LabelText("Camera offset", _cameraOffset.ToString());
-        ImGui.LabelText("Position", _pos.ToString());
-        ImGui.LabelText("Ground level", _groundLevel.ToString());
+        LabelTextWithHex("Yaw", _angle);
+        LabelTextWithHex("Pitch", _pitchAngle);
+        LabelTextWithHex("Zoom", _zoom);
+        LabelTextWithHexVector3("Offset", _cameraOffset);
+        LabelTextWithHexVector3("Position", _pos);
+        LabelTextWithHex("Ground level", _groundLevel);
 
         ImGui.SeparatorText("Computed values");
-        ImGui.LabelText("Source position", _sourcePos.ToString());
-        ImGui.LabelText("Target position", _targetPos.ToString());
-        ImGui.LabelText("Camera constraint", _cameraConstraint.ToString());
+        LabelTextWithHexVector3("Source position", _sourcePos);
+        LabelTextWithHexVector3("Target position", _targetPos);
+        LabelTextWithHexRectangleF("Camera constraint", _cameraConstraint);
         ImGui.LabelText("Camera constraint valid", _cameraConstraintValid.ToString());
 
         ImGui.SeparatorText("Flags");
@@ -898,40 +872,5 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         ImGui.LabelText("Doing pitch camera", _doingPitchCamera.ToString());
         ImGui.LabelText("Doing scripted camera lock", _doingScriptedCameraLock.ToString());
         ImGui.LabelText("Camera arrived at waypoint on path", _cameraArrivedAtWaypointOnPathFlag.ToString());
-
-        /*var pitchDegrees = MathUtility.ToDegrees(_currentPitchAngle);
-        if (ImGui.DragFloat("Pitch", ref pitchDegrees, 1, -90, 90))
-        {
-            _currentPitchAngle = MathUtility.ToRadians(pitchDegrees);
-        }
-
-        ImGui.DragFloat("Zoom", ref _zoom, 0.01f, 0.01f, 5);
-
-        var fieldOfView = MathUtility.ToDegrees(_camera.FieldOfView);
-        if (ImGui.DragFloat("Field of view", ref fieldOfView, 1f, 10, 400))
-        {
-            _camera.FieldOfView = MathUtility.ToRadians(fieldOfView);
-        }
-
-        var farPlaneDistance = _camera.FarPlaneDistance;
-        if (ImGui.SliderFloat("Far plane distance", ref farPlaneDistance, 10, 10000))
-        {
-            _camera.FarPlaneDistance = farPlaneDistance;
-        }
-
-        ImGui.DragFloat3("Terrain position", ref _cameraOffset);
-
-        ImGui.PushStyleVar(ImGuiStyleVar.Alpha, ImGui.GetStyle().Alpha * 0.5f);
-        var cameraPosition = _camera.Position;
-        ImGui.DragFloat3("Camera position", ref cameraPosition);
-        ImGui.PopStyleVar();
-
-        if (_animation != null)
-        {
-            if (ImGui.Button("End animation"))
-            {
-                EndAnimation();
-            }
-        }*/
     }
 }
