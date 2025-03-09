@@ -76,6 +76,10 @@ partial class ModelMesh
             w3dMesh.Header.Min,
             w3dMesh.Header.Max);
 
+        _boundingSphere = new BoundingSphere(
+            w3dMesh.Header.SphCenter,
+            w3dMesh.Header.SphRadius);
+
         Skinned = w3dMesh.IsSkinned;
         Hidden = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden);
         CameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
