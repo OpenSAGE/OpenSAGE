@@ -20,4 +20,9 @@ public static class Vector2Utility
     {
         return MathF.Atan2(point.Y - point2.Y, point.X - point2.X);
     }
+
+    public static Point2D ToPoint2D(this Vector2 vector)
+    {
+        return new Point2D((int)vector.X, (int)vector.Y);
+    }
 }

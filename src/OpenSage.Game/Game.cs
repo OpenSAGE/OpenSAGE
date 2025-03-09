@@ -856,7 +856,7 @@ public sealed class Game : DisposableBase, IGame
         _renderTimer.Update();
         RenderTime = _renderTimer.CurrentGameTime;
 
-        InputMessageBuffer.PumpEvents(messages);
+        InputMessageBuffer.PumpEvents(messages, RenderTime);
 
         // Prevent virtual Update() call when the game has already started, it's only needed in the menu
         if (SkirmishManager != null && SkirmishManager.Settings.Status != SkirmishGameStatus.Started)

@@ -30,8 +30,9 @@ public class OrderGeneratorInputHandler : InputMessageHandler
         _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
+        // TODO: Implement both mouse modes
         switch (message.MessageType)
         {
             case InputMessageType.MouseMove:

@@ -4,10 +4,12 @@ using OpenSage.Content;
 
 namespace OpenSage.Input.Cursors;
 
-internal sealed class CursorManager : DisposableBase
+public sealed class CursorManager : DisposableBase
 {
     private readonly Dictionary<string, Cursor> _cachedCursors;
     private Cursor _currentCursor;
+
+    public string CurrentCursorName => _currentCursor?.Name;
 
     private readonly AssetStore _assetStore;
     private readonly ContentManager _contentManager;
@@ -65,7 +67,7 @@ internal sealed class CursorManager : DisposableBase
                 cursorEntry = _contentManager.FileSystem.GetFile(cursorFilePath);
             }
 
-            _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorEntry, _window?.WindowScale ?? 1.0f));
+            _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorName, cursorEntry, _window?.WindowScale ?? 1.0f));
         }
 
         if (_currentCursor == cursor)

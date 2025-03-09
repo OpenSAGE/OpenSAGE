@@ -760,7 +760,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         // Check for object being stuck on water. If so, kill it.
-        if (_context.Game.TerrainLogic.IsUnderwater(pos)
+        if (_context.Game.TerrainLogic.IsUnderwater(pos, out var _)
             && !ai.HasLocomotorForSurface(Surfaces.Water))
         {
             obj.Kill();

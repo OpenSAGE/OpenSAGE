@@ -144,7 +144,7 @@ public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
         }
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         if (_visible)
         {

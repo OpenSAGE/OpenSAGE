@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Input.Cursors;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
@@ -13,13 +14,13 @@ namespace OpenSage.Graphics.Cameras;
 
 public sealed class RtsCameraController : ICameraController, IPersistableObject
 {
-    // C++: SCROLL_AMT
-    private const float ScrollAmount = 100.0f;
+    public readonly LookAtTranslator LookAtTranslator;
+
     private const float RotationSpeed = 0.003f;
     private const float ZoomSpeed = 0.0005f;
 
     private readonly GameData _gameData;
-    private readonly Camera _camera;
+    internal readonly Camera Camera;
     private readonly HeightMap _heightMap;
 
     private float _defaultPitchAngle;
@@ -34,7 +35,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             _pitchAngle = Math.Clamp(value, -limit, limit);
 
             // In C++ this didn't reset _cameraArrivedAtWaypointOnPathFlag
-            ResetPathAndFlags();
+            ResetAnimationsAndFlags();
             SetCameraTransform();
         }
     }
@@ -47,6 +48,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     // In C++ these are initialised in Init()
     private readonly float _minZoom = 0.2f;
     private readonly float _maxZoom = 1.3f;
+    public bool IsZoomLimited { get; set; } = true;
     private float _zoom = 1;
     public float Zoom
     {
@@ -55,12 +57,13 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         set
         {
             _zoom = Math.Clamp(value, _minZoom, _maxZoom);
-            ResetPathAndFlags();
+            ResetAnimationsAndFlags();
             SetCameraTransform();
         }
     }
+    private ZoomCameraInfo? _zoomAnimation;
 
-    private float _defaultAngle;
+    private readonly float _defaultAngle = 0.0f;
     /// <summary>
     /// The current yaw of the camera.
     /// </summary>
@@ -73,7 +76,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         {
             // Normalize angle to +-PI
             _angle = MathUtility.NormalizeAngle(value);
-            ResetPathAndFlags();
+            ResetAnimationsAndFlags();
             SetCameraTransform();
         }
     }
@@ -106,7 +109,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     /// what the camera is looking at.
     /// </summary>
     private Vector3 _pos;
-
+    private Vector3? _previousLookAtPosition;
 
     private Vector3 _cameraOffset;
 
@@ -119,6 +122,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     private int _timeMultiplier = 1;
 
     private Vector2 _scrollAmount;
+    private float _scrollAmountCutoff;
 
     // Original has separate m_doingMoveCameraOnWaypointPath and m_mcwpInfo fields,
     // but let's use a nullable field instead.
@@ -126,7 +130,6 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     private bool _cameraArrivedAtWaypointOnPathFlag;
 
     private bool _doingRotateCamera;
-    private bool _doingZoomCamera;
     private bool _doingPitchCamera;
     private bool _doingScriptedCameraLock;
 
@@ -139,6 +142,12 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
     private Vector3 _targetPos;
 
     public GameObject? CameraLock { get; set; }
+    private bool _snapImmediate;
+    private float _lockDist;
+    private LockType _lockType;
+
+    // TODO(Port): Disable WND input when this is true
+    public bool MouseLock { get; set; }
 
     public CameraAnimation StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
     {
@@ -152,19 +161,20 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             duration,
             _pitchAngle,
             _zoom,
-            _camera.FieldOfView);
+            Camera.FieldOfView);
     }
 
     public CameraAnimation? CurrentAnimation => _animation;
 
-    public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap)
+    public RtsCameraController(GameData gameData, Camera camera, HeightMap heightMap, CursorManager cursorManager)
     {
+        LookAtTranslator = new LookAtTranslator(this, cursorManager, gameData);
         _gameData = gameData;
-        _camera = camera;
+        Camera = camera;
         _heightMap = heightMap;
 
-        SetDefaultView(0, 0, 1);
         Init();
+        SetDefaultView(0, 0, 1);
 
         // This should be called every time a new map is loaded
         // Since we re-create CameraController every time a new map is loaded, this should be basically the same
@@ -175,9 +185,9 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
     void Init()
     {
-        // Since we only call Init once and fields are zero-initialized by default, I don't think this really does anything in C#
         _pos = Vector3.Zero;
         _angle = 0.0f;
+        _scrollAmountCutoff = _gameData.ScrollAmountCutoff;
 
         var defaultLookAtPoint = new Vector3(
             87.0f,
@@ -185,6 +195,9 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             0.0f
         ) * HeightMap.HorizontalScale;
         _pos = defaultLookAtPoint;
+        _maxHeightAboveGround = _gameData.MaxCameraHeight;
+        _minHeightAboveGround = _gameData.MinCameraHeight;
+
         SetCameraTransform();
     }
 
@@ -203,6 +216,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
     public void SetDefaultView(float pitch, float angle, float maxHeight)
     {
+        // Yup, angle is unused in the C++ version as well
         _defaultPitchAngle = pitch;
         _maxHeightAboveGround = _gameData.MaxCameraHeight * maxHeight;
         if (_minHeightAboveGround > _maxHeightAboveGround)
@@ -223,13 +237,13 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
     // In C++ this code was repeated multiple times, and what exactly was reset varied
     // Hopefully those differences weren't important
-    void ResetPathAndFlags()
+    void ResetAnimationsAndFlags()
     {
         _path = null;
+        _zoomAnimation = null;
         _cameraArrivedAtWaypointOnPathFlag = false;
         _doingRotateCamera = false;
         _doingPitchCamera = false;
-        _doingZoomCamera = false;
         _doingScriptedCameraLock = false;
         _cameraConstraintValid = false;
     }
@@ -247,7 +261,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         _zoom = desiredZoom;
         _heightAboveGround = _maxHeightAboveGround;
 
-        ResetPathAndFlags();
+        ResetAnimationsAndFlags();
         SetCameraTransform();
     }
 
@@ -309,7 +323,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         pos.Z = 0.0f;
         _pos = pos;
-        ResetPathAndFlags();
+        ResetAnimationsAndFlags();
         SetCameraTransform();
     }
 
@@ -347,17 +361,6 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         CurrentAnimation?.SetLookToward(position);
     }
 
-    private static float GetKeyMovement(in CameraInputState inputState, Veldrid.Key positive, Veldrid.Key negative)
-    {
-        if (inputState.PressedKeys.Contains(positive))
-            return 1;
-
-        if (inputState.PressedKeys.Contains(negative))
-            return -1;
-
-        return 0;
-    }
-
     void MoveCameraAlongWaypointPath(Waypoint? waypoint, int milliseconds, int shutter, bool orient, float easeIn, float easeOut)
     {
         if (waypoint == null)
@@ -381,7 +384,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         // However we want to support arbitrary frame rates for the camera movement, so we'll leave it as is and handle it in the animation.
         path.Shutter = shutter;
         // And Generals ensures that shutter is at least one 30 FPS frame long, so we'll do the same.
-        path.Shutter = Math.Max(path.Shutter, 33);
+        path.Shutter = Math.Max(path.Shutter, 1.0 / 3.0);
         path.Ease.SetEaseTimes(easeIn / milliseconds, easeOut / milliseconds);
 
         // Iterate through the waypoints and add them to the path.
@@ -519,7 +522,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
             return;
         }
 
-        _path.ElapsedTimeMilliseconds += gameTime.DeltaTime.Milliseconds;
+        _path.ElapsedTimeMilliseconds += gameTime.DeltaTime.TotalMilliseconds;
 
 
         if (_path.ElapsedTimeMilliseconds > _path.TotalTimeMilliseconds)
@@ -541,43 +544,359 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         }
     }
 
-    void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+    void ICameraController.UpdateCamera(Camera camera, in EditorCameraInputState inputState, in TimeInterval gameTime)
     {
-        // TODO: Old code, mostly not ported yet
+        LookAtTranslator.Update(gameTime);
+        Update(gameTime);
+    }
 
-        if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Veldrid.Key.AltLeft) || inputState.MiddleMouseDown)
+    private bool UpdateCameraMovements(in TimeInterval gameTime)
+    {
+        var didUpdate = false;
+        if (_zoomAnimation != null)
         {
-            RotateCamera(inputState.DeltaX, inputState.DeltaY);
+            ZoomCameraOneFrame(gameTime);
+            didUpdate = true;
+        }
+
+        if (_doingPitchCamera)
+        {
+            // TODO
+            didUpdate = true;
+        }
+
+        if (_doingRotateCamera)
+        {
+            _previousLookAtPosition = _pos;
+            // TODO
+            didUpdate = true;
+        }
+
+        if (_path != null)
+        {
+            _previousLookAtPosition = _pos;
+            MoveAlongWaypointPath(gameTime);
+            didUpdate = true;
+        }
+
+        if (_doingScriptedCameraLock)
+        {
+            didUpdate = true;
+        }
+
+        return didUpdate;
+    }
+
+    // In C++ this is a static variable inside W3DView::update
+    private float _followFactor = -1.0f;
+
+    private void Update(in TimeInterval gameTime)
+    {
+        var recalcCamera = false;
+        var didScriptedMovement = false;
+
+        // TODO(Port): Is any of this relevant?
+        // if (TheTerrainRenderObject->doesNeedFullUpdate())
+        // {
+        //     RefRenderObjListIterator *it = W3DDisplay::m_3DScene->createLightsIterator();
+        //     TheTerrainRenderObject->updateCenter(m_3DCamera, it);
+        //     if (it)
+        //     {
+        //         W3DDisplay::m_3DScene->destroyLightsIterator(it);
+        //         it = NULL;
+        //     }
+        // }
+
+        HandleObjectLock(gameTime, out didScriptedMovement, out recalcCamera);
+
+        // TODO(Port): More checks
+        // 	if (!(TheScriptEngine->isTimeFrozenDebug() /* || TheScriptEngine->isTimeFrozenScript()*/) && !TheGameLogic->isGamePaused())
+        var isTimeFrozenOrPaused = false;
+
+        if (!isTimeFrozenOrPaused)
+        {
+            if (UpdateCameraMovements(gameTime))
+            {
+                didScriptedMovement = true;
+                recalcCamera = true;
+            }
         }
         else
         {
-            var offset = Vector2.Zero;
-
-            // tested in Zero Hour - rotation always takes precedence, and all panning is halted when rotating.
-            if (inputState.RightMouseDown)
+            if (_doingRotateCamera || _path != null || _doingPitchCamera || _zoomAnimation != null || _doingScriptedCameraLock)
             {
-                offset.Y = -inputState.DeltaY;
-                offset.X = inputState.DeltaX;
+                didScriptedMovement = true;
+            }
+        }
+
+        // TODO(Port): Camera shake
+        // if (m_shakeIntensity > 0.01f)
+        // {
+        //     m_shakeOffset.x = m_shakeIntensity * m_shakeAngleCos;
+        //     m_shakeOffset.y = m_shakeIntensity * m_shakeAngleSin;
+        //
+        //     // fake a stiff spring/damper
+        //     const Real dampingCoeff = 0.75f;
+        //     m_shakeIntensity *= dampingCoeff;
+        //
+        //     // spring is so "stiff", it pulls 180 degrees opposite each frame
+        //     m_shakeAngleCos = -m_shakeAngleCos;
+        //     m_shakeAngleSin = -m_shakeAngleSin;
+        //
+        //     recalcCamera = true;
+        // }
+        // else
+        // {
+        //     m_shakeIntensity = 0.0f;
+        //     m_shakeOffset.x = 0.0f;
+        //     m_shakeOffset.y = 0.0f;
+        // }
+        //
+        // // Process New C3 Camera Shaker system
+        // if (CameraShakerSystem.IsCameraShaking())
+        // {
+        //     recalcCamera = true;
+        // }
+
+
+        /*
+         * In order to have the camera follow the terrain in a non-dizzying way, we will have a
+         * "desired height" value that the user sets.  While scrolling, the actual height (set by
+         * zoom) will not get updated unless we are scrolling uphill and our view either goes
+         * underground or higher than the max allowed height.  When the camera is at rest (not
+         * scrolling), the zoom will move toward matching the desired height.
+         */
+
+        // In Generals these two are fields, but their only non-local uses seem to be for debugging
+        // This variable is actually named a bit misleadingly: _pos is the target position, not the camera position
+        var terrainHeightUnderCamera = GetHeightAroundPos(_pos.Vector2XY());
+        var currentHeightAboveGround = _cameraOffset.Z * _zoom - terrainHeightUnderCamera;
+
+        // In Generals this ia flag with public set/get methods, but looks like it's basically always true?
+        var okToAdjustHeight = true;
+        // TODO(Port): Replace with actual check
+        var isGamePaused = false;
+        // TODO(Port): Replace with actual check
+        var isScrolling = false;
+
+        if (okToAdjustHeight && !isGamePaused)
+        {
+            var desiredHeight = terrainHeightUnderCamera + _heightAboveGround;
+            var desiredZoom = desiredHeight / _cameraOffset.Z;
+
+            // TODO(Port): Update this
+            var isInReplayGame = false;
+            // This should be controlled by the matching game setting
+            var useCameraInReplay = _gameData.UseCameraInReplay;
+            if (didScriptedMovement || (isInReplayGame && useCameraInReplay))
+            {
+                // If we are in a scripted camera movement, take its height above ground as our desired height
+                _heightAboveGround = currentHeightAboveGround;
+            }
+
+            if (isScrolling)
+            {
+                // If scrolling, only adjust if we're too close or too far
+
+                if (
+                    _scrollAmount.Length() < _scrollAmountCutoff ||
+                    (currentHeightAboveGround < _minHeightAboveGround) ||
+                    (_gameData.EnforceMaxCameraHeight && currentHeightAboveGround > _maxHeightAboveGround))
+                {
+                    var zoomAdj = (desiredZoom - _zoom) * _gameData.CameraAdjustSpeed;
+                    if (MathF.Abs(zoomAdj) >= 0.0001)
+                    {
+                        _zoom += (float)(zoomAdj * gameTime.LogicFrameRelativeDeltaTime);
+                        recalcCamera = true;
+                    }
+                }
             }
             else
             {
-                offset.Y = GetKeyMovement(inputState, Veldrid.Key.Down, Veldrid.Key.Up) * _gameData.VerticalScrollSpeedFactor;
-                offset.X = GetKeyMovement(inputState, Veldrid.Key.Right, Veldrid.Key.Left) * _gameData.HorizontalScrollSpeedFactor;
+                // We're not scrolling; settle toward desired height above ground
+
+                var zoomAdj = (_zoom - desiredZoom) * _gameData.CameraAdjustSpeed;
+                var zoomAdjAbs = MathF.Abs(zoomAdj);
+                if (zoomAdjAbs >= 0.0001 && !didScriptedMovement)
+                {
+                    _zoom -= (float)(zoomAdj * gameTime.LogicFrameRelativeDeltaTime);
+                    recalcCamera = true;
+                }
             }
-
-            // TODO: Integrate this with settings
-            // There is an INI field for this (_gameData.KeyboardScrollSpeedFactor)
-            // However, Generals seems to always overrides it with a value from player options INI file
-            // We'll use the default speed for now
-            var keyboardScrollSpeedFactor = 0.6f;
-
-            ScrollBy(
-                offset * ScrollAmount * keyboardScrollSpeedFactor,
-                gameTime
-            );
         }
 
-        ZoomCamera(-inputState.ScrollWheelValue);
+        // TODO(Port)
+        // TheScriptEngine->isTimeFast()
+        var isTimeFast = false;
+        if (isTimeFast)
+        {
+            return;
+        }
+
+        if (recalcCamera)
+        {
+            SetCameraTransform();
+        }
+
+        // C++ does culling here, but we don't need to do it in the camera controller
+    }
+
+    // This was split from W3DView::update
+    private void HandleObjectLock(in TimeInterval gameTime, out bool didScriptedMovement, out bool recalcCamera)
+    {
+        if (CameraLock == null)
+        {
+            _followFactor = -1.0f;
+            didScriptedMovement = false;
+            recalcCamera = false;
+            return;
+        }
+
+        // If we have a camera lock, stop current path animation
+        _path = null;
+        _cameraArrivedAtWaypointOnPathFlag = false;
+
+        //  ... but we only check afterwards if the object we are following is still alive
+
+        // TODO: Remove lock when the object has been destroyed
+        // C++ version only stores an object ID and fetches the object from the scene,
+        // which handles that automatically
+        if (CameraLock.IsDead)
+        {
+            CameraLock = null;
+            _followFactor = -1.0f;
+            didScriptedMovement = false;
+            recalcCamera = false;
+            return;
+        }
+
+        if (_followFactor < 0)
+        {
+            _followFactor = 0.05f;
+        }
+        else
+        {
+            // In C++ this is a fixed addition, but that won't work at arbitrary frame rates
+            _followFactor += (float)(0.05 * gameTime.LogicFrameRelativeDeltaTime);
+            _followFactor = Math.Min(_followFactor, 1.0f);
+        }
+
+        // TODO: Can Drawables be null? GameObject is not yet null-checked
+        if (CameraLock.Drawable != null)
+        {
+            if (CameraLock.Drawable.GetFirstRenderObjInfo(out var boundingSphereRadius, out var transform))
+            {
+                boundingSphereRadius = 1.0f;
+                var objPos = transform.Translation;
+                // Get position of top of object, assuming world z roughly along local z
+                objPos += Vector3.UnitZ * boundingSphereRadius;
+                var objView = transform.Matrix.GetXVector();
+                // Move camera back behind object far enough not to intersect bounding sphere
+                var camTran = objPos - objView * boundingSphereRadius * 4.5f;
+                // Importantly, this is the actual camera position, not the target position (like _pos)
+                var prevCamTran = Camera.Position;
+                var tranDiff = camTran - prevCamTran;
+                // Slowly move camera to new position
+                camTran = prevCamTran + tranDiff * 0.1f;
+                Camera.SetLookAt(camTran, objPos, Vector3.UnitZ);
+                // No need to recalculate camera since we already did it
+                recalcCamera = false;
+                didScriptedMovement = false;
+                return;
+            }
+
+            // This object has a drawable but for some reason we didn't render bounding sphere / transform from it
+            // Generals does nothing here, so we'll do the same
+
+            didScriptedMovement = false;
+            recalcCamera = false;
+            return;
+        }
+        else
+        {
+            // TODO: This probably doesn't handle over 30 FPS correctly
+
+            // We have a camera lock, but the object doesn't have a drawable
+            var objPos = CameraLock.Transform.Translation;
+            var curPos = _pos;
+
+            var snapThreshSqr = MathF.Sqrt(_gameData.PartitionCellSize);
+            var curDistSqr = MathF.Sqrt(curPos.X - objPos.X) + MathF.Sqrt(curPos.Y - objPos.Y);
+
+            if (_snapImmediate)
+            {
+                curPos = objPos;
+            }
+            else
+            {
+                var d = objPos - curPos;
+
+                if (_lockType == LockType.Tether)
+                {
+                    if (curDistSqr >= snapThreshSqr)
+                    {
+                        var ratio = 1.0f - snapThreshSqr / curDistSqr;
+                        // Move halfway there
+                        curPos += d * ratio * 0.5f;
+                    }
+                    else
+                    {
+                        // We're inside our 'play' tolerance.  Move slowly to the obj
+                        var ratio = 0.01f * _lockDist;
+                        var dInner = objPos - curPos;
+                        curPos += dInner * ratio;
+                    }
+                }
+                else
+                {
+                    curPos += d * _followFactor;
+                }
+            }
+
+            // TODO(Port): Add these checks
+            // if (!(TheScriptEngine->isTimeFrozenDebug() || TheScriptEngine->isTimeFrozenScript()) && !TheGameLogic->isGamePaused())
+            // {
+            //     m_previousLookAtPosition = *getPosition();
+            // }
+
+            _pos = curPos;
+
+            if (_lockType == LockType.Follow)
+            {
+                // Camera follow objects if they are flying
+
+                if (CameraLock.IsUsingAirborneLocomotor() && CameraLock.IsAboveTerrainOrWater)
+                {
+                    var oldZRot = MathUtility.NormalizeAngle(_angle);
+                    // TODO: This might be incorrect; in C++ it uses Thing::getOrientation()
+                    var idealZRot = MathUtility.NormalizeAngle(CameraLock.Transform.Yaw - MathUtility.PiOver2);
+                    var diff = MathUtility.NormalizeAngle(idealZRot - oldZRot);
+
+                    if (_snapImmediate)
+                    {
+                        _angle = idealZRot;
+                    }
+                    else
+                    {
+                        // 30 FPS fix, might need to be adjusted
+                        _angle += (float)(diff * 0.1 * gameTime.LogicFrameRelativeDeltaTime);
+                    }
+                    _angle = MathUtility.NormalizeAngle(_angle);
+                }
+            }
+
+            if (_snapImmediate)
+            {
+                _snapImmediate = false;
+            }
+
+            _groundLevel = objPos.Z;
+            didScriptedMovement = true;
+            recalcCamera = true;
+            return;
+        }
+
+        // TODO:
     }
 
     private void SetCameraTransform()
@@ -618,11 +937,11 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         var maxEdgeZ = _groundLevel;
 
         var screenCenter = new Vector2(
-            MathF.Floor(_camera.ScreenSize.X / 2),
-            MathF.Floor(_camera.ScreenSize.Y / 2)
+            MathF.Floor(Camera.ScreenSize.X / 2),
+            MathF.Floor(Camera.ScreenSize.Y / 2)
         );
 
-        var (centerRayStart, centerRayEnd) = _camera.GetPickRay(screenCenter);
+        var (centerRayStart, centerRayEnd) = Camera.GetPickRay(screenCenter);
 
         var center = new Vector3(
             Vector3Utility.FindXAtZ(maxEdgeZ, centerRayStart, centerRayEnd),
@@ -632,9 +951,9 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         var screenBottom = new Vector2(
             screenCenter.X,
-            MathF.Floor(_camera.ScreenSize.Y * 0.95f)
+            MathF.Floor(Camera.ScreenSize.Y * 0.95f)
         );
-        var (bottomRayStart, bottomRayEnd) = _camera.GetPickRay(screenBottom);
+        var (bottomRayStart, bottomRayEnd) = Camera.GetPickRay(screenBottom);
 
         var bottom = new Vector3(
             Vector3Utility.FindXAtZ(maxEdgeZ, bottomRayStart, bottomRayEnd),
@@ -716,7 +1035,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         // C++ version has this method return a matrix via a reference parameter,
         // but since it's always used to set the camera transform, we can just do that directly
-        _camera.SetLookAt(sourcePos, targetPos, Vector3.UnitZ);
+        Camera.SetLookAt(sourcePos, targetPos, Vector3.UnitZ);
 
         // TODO(Port):
         // CameraShakerSystem.Timestep(1.0f / 30.0f);
@@ -744,19 +1063,80 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         }
     }
 
-    private void ZoomCamera(float deltaY)
+    // This could be a property
+    public void SetHeightAboveGround(float z)
     {
-        // TODO(Port): Generals adjusts zooms over time
+        _heightAboveGround = z;
 
-        if (deltaY == 0)
+        if (IsZoomLimited)
+        {
+            _heightAboveGround = Math.Clamp(_heightAboveGround, _minHeightAboveGround, _maxHeightAboveGround);
+        }
+
+        ResetAnimationsAndFlags();
+        SetCameraTransform();
+    }
+
+    // C++: View::zoomIn
+    public void ZoomIn()
+    {
+        SetHeightAboveGround((float)(_heightAboveGround - 10.0f));
+    }
+
+    // C++: View::zoomOut
+    public void ZoomOut()
+    {
+        SetHeightAboveGround((float)(_heightAboveGround + 10.0f));
+    }
+
+    // LookAtXlat.cpp
+    // case GameMessage::MSG_RAW_MOUSE_WHEEL
+    private void ZoomCamera(int spin)
+    {
+        if (spin > 0)
+        {
+            while (spin > 0)
+            {
+                ZoomIn();
+                spin--;
+            }
+        }
+        else if (spin < 0)
+        {
+            while (spin < 0)
+            {
+                ZoomOut();
+                spin++;
+            }
+        }
+    }
+
+    private void ZoomCameraOneFrame(in TimeInterval gameTime)
+    {
+        if (_zoomAnimation == null)
         {
             return;
         }
 
-        Zoom = _zoom + deltaY * ZoomSpeed;
+        _zoomAnimation.CurrentTime += gameTime.DeltaTime.TotalMilliseconds;
+
+        // TODO(Port): check TheGlobalData->m_disableCameraMovement
+
+        if (_zoomAnimation.CurrentTime <= _zoomAnimation.Duration)
+        {
+            var relativeTime = _zoomAnimation.CurrentTime / _zoomAnimation.Duration;
+            var factor = _zoomAnimation.Ease.Evaluate((float)relativeTime);
+            _zoom = MathUtility.Lerp(_zoomAnimation.StartZoom, _zoomAnimation.EndZoom, factor);
+        }
+
+        if (_zoomAnimation.CurrentTime >= _zoomAnimation.Duration)
+        {
+            _zoom = _zoomAnimation.EndZoom;
+            _zoomAnimation = null;
+        }
     }
 
-    private void ScrollBy(Vector2 delta, in TimeInterval gameTime)
+    public void ScrollBy(Vector2 delta, in TimeInterval gameTime)
     {
         if (delta.LengthSquared() == 0)
         {
@@ -766,7 +1146,7 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         const float scrollResolution = 250.0f;
         _scrollAmount = delta;
 
-        var screenSize = _camera.ScreenSize;
+        var screenSize = Camera.ScreenSize;
         var start = screenSize;
         // In C++ there was an attempt to compensate for aspect ratio, but it's incorrect
         // Because of integer division, the aspect ratio is always 1
@@ -780,15 +1160,14 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         // TODO(Port): Our ScreenToWorldPoint works differently from Generals' Device_To_World_Space
         // As a result the movement is much faster than in Generals, unless we scale it down
-        var worldStart = _camera.ScreenToWorldPoint(new Vector3(start, 0.0f));
-        var worldEnd = _camera.ScreenToWorldPoint(new Vector3(end, 0.0f));
+        var worldStart = Camera.ScreenToWorldPoint(new Vector3(start, 0.0f));
+        var worldEnd = Camera.ScreenToWorldPoint(new Vector3(end, 0.0f));
         var world = worldEnd - worldStart;
         // ...which we do here
         world *= 0.1f;
 
         // Original camera movement was designed for fixed 30 FPS time step, so we'll have to scale it with delta time
-        var deltaTimeScale = new Vector3(gameTime.DeltaTime.Milliseconds / 33.3333f);
-        world *= deltaTimeScale;
+        world *= (float)gameTime.LogicFrameRelativeDeltaTime;
 
         _pos.X += world.X;
         _pos.Y += world.Y;
@@ -858,9 +1237,10 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
         LabelTextWithHex("Zoom", _zoom);
         LabelTextWithHexVector3("Offset", _cameraOffset);
         LabelTextWithHexVector3("Position", _pos);
-        LabelTextWithHex("Ground level", _groundLevel);
+        LabelTextWithHex("Height above ground", _heightAboveGround);
 
         ImGui.SeparatorText("Computed values");
+        LabelTextWithHex("Ground level", _groundLevel);
         LabelTextWithHexVector3("Source position", _sourcePos);
         LabelTextWithHexVector3("Target position", _targetPos);
         LabelTextWithHexRectangleF("Camera constraint", _cameraConstraint);
@@ -868,9 +1248,16 @@ public sealed class RtsCameraController : ICameraController, IPersistableObject
 
         ImGui.SeparatorText("Flags");
         ImGui.LabelText("Doing rotate camera", _doingRotateCamera.ToString());
-        ImGui.LabelText("Doing zoom camera", _doingZoomCamera.ToString());
+        ImGui.LabelText("Doing zoom camera", (_zoomAnimation != null).ToString());
         ImGui.LabelText("Doing pitch camera", _doingPitchCamera.ToString());
         ImGui.LabelText("Doing scripted camera lock", _doingScriptedCameraLock.ToString());
         ImGui.LabelText("Camera arrived at waypoint on path", _cameraArrivedAtWaypointOnPathFlag.ToString());
     }
+}
+
+
+public enum LockType
+{
+    Follow,
+    Tether
 }

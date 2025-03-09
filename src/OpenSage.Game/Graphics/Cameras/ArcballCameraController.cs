@@ -109,7 +109,7 @@ public sealed class ArcballCameraController : ICameraController
         throw new NotImplementedException();
     }
 
-    void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+    void ICameraController.UpdateCamera(Camera camera, in EditorCameraInputState inputState, in TimeInterval gameTime)
     {
         if (inputState.LeftMouseDown)
         {

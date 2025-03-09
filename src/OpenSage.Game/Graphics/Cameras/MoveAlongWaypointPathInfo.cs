@@ -27,7 +27,7 @@ public sealed class MoveAlongWaypointPathInfo
 
     public float[] CameraFXPitch { get; init; }
 
-    public float[] CmaeraZoom { get; init; }
+    public float[] CameraZoom { get; init; }
 
     /// <summary>
     /// Time speedup factor (TODO: what does that mean?)
@@ -39,12 +39,12 @@ public sealed class MoveAlongWaypointPathInfo
     /// <summary>
     /// Num of ms to do this movement
     /// </summary>
-    public int TotalTimeMilliseconds { get; set; }
+    public double TotalTimeMilliseconds { get; set; }
 
     /// <summary>
     /// Time since start
     /// </summary>
-    public int ElapsedTimeMilliseconds { get; set; }
+    public double ElapsedTimeMilliseconds { get; set; }
 
     /// <summary>
     /// Total length of paths
@@ -60,7 +60,7 @@ public sealed class MoveAlongWaypointPathInfo
     /// How long to wait (in milliseconds) after each waypoint. Also known as "stutter".
     /// In Generals this is in logic frames, not milliseconds.
     /// </summary>
-    public int Shutter { get; set; }
+    public double Shutter { get; set; }
 
     /// <summary>
     /// The index of the current waypoint.
@@ -70,7 +70,7 @@ public sealed class MoveAlongWaypointPathInfo
     /// <summary>
     /// How long we've been waiting at the current waypoint.
     /// </summary>
-    public int CurShutter { get; set; }
+    public double CurShutter { get; set; }
 
     /// <summary>
     /// Number of frames to roll (TODO: what does that mean?)
@@ -86,7 +86,7 @@ public sealed class MoveAlongWaypointPathInfo
         WaySegLength = new float[ArrayLength];
         CameraAngle = new float[ArrayLength];
         CameraFXPitch = new float[ArrayLength];
-        CmaeraZoom = new float[ArrayLength];
+        CameraZoom = new float[ArrayLength];
         TimeMultiplier = new int[ArrayLength];
         // This is intentionally different
         GroundHeight = new float[MaxWaypoints + 1];

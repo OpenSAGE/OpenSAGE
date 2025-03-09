@@ -21,7 +21,7 @@ internal sealed class WndInputMessageHandler : InputMessageHandler
         _game = game;
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         bool GetControlAtPoint(in Point2D mousePosition, out Control control, out Point2D controlRelativePosition)
         {
