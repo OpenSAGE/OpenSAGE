@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace OpenSage.Graphics.Cameras;
 
-public struct CameraInputState
+public struct EditorCameraInputState
 {
     public bool LeftMouseDown;
     public bool MiddleMouseDown;

@@ -17,7 +17,11 @@ public sealed class TerrainLogic : IPersistableObject
     public bool IsCliffCell(Vector2 worldPosition) => false;
 
     // TODO(Port): Implement this.
-    public bool IsUnderwater(Vector2 worldPosition) => false;
+    public bool IsUnderwater(Vector2 worldPosition, out float waterZ)
+    {
+        waterZ = 0;
+        return false;
+    }
 
     // TODO(Port): Implement this.
     public float GetLayerHeight(float x, float y, PathfindLayerType layer)

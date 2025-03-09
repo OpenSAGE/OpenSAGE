@@ -13,13 +13,13 @@ public sealed class InputMessageBuffer
         Handlers = new List<InputMessageHandler>();
     }
 
-    internal void PumpEvents(IEnumerable<InputMessage> inputMessages)
+    internal void PumpEvents(IEnumerable<InputMessage> inputMessages, in TimeInterval gameTime)
     {
         foreach (var message in inputMessages)
         {
             foreach (var handler in PriorityOrderedHandlers())
             {
-                if (handler.HandleMessage(message) == InputMessageResult.Handled)
+                if (handler.HandleMessage(message, gameTime) == InputMessageResult.Handled)
                 {
                     break;
                 }

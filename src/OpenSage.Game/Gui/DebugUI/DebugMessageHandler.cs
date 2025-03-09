@@ -14,7 +14,7 @@ public class DebugMessageHandler : InputMessageHandler
         _overlay = overlay;
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         switch (message.MessageType)
         {

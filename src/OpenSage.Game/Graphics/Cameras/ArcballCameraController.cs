@@ -25,7 +25,7 @@ public sealed class ArcballCameraController : ICameraController
 
     void ICameraController.SetPitch(float pitch) => throw new NotImplementedException();
     float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    Vector3 ICameraController.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public ArcballCameraController(Vector3 target, float radius)
     {
@@ -109,7 +109,7 @@ public sealed class ArcballCameraController : ICameraController
         throw new NotImplementedException();
     }
 
-    void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
+    void ICameraController.UpdateCamera(Camera camera, in EditorCameraInputState inputState, in TimeInterval gameTime)
     {
         if (inputState.LeftMouseDown)
         {

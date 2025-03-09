@@ -4,11 +4,11 @@ public enum HandlingPriority
 {
     Disabled,
     CameraPriority,
+    BoxSelectionPriority,
+    MoveCameraPriority,
     SelectionPriority,
     OrderGeneratorPriority,
     UIPriority,
-    BoxSelectionPriority,
-    MoveCameraPriority,
     DebugPriority,
     Engine,
     Window,

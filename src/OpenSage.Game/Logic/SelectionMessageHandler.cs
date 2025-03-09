@@ -18,7 +18,7 @@ public class SelectionMessageHandler : InputMessageHandler
         _system = system;
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         switch (message.MessageType)
         {

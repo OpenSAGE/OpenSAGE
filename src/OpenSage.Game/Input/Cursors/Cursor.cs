@@ -10,6 +10,8 @@ namespace OpenSage.Input.Cursors;
 
 internal sealed class Cursor : DisposableBase
 {
+    public readonly string Name;
+
     private readonly CursorAnimationFrame[] _animationFrames;
 
     private readonly Sdl2Interop.SDL_Surface[] _surfaces;
@@ -18,8 +20,10 @@ internal sealed class Cursor : DisposableBase
     private int _currentFrame;
     private TimeSpan _nextFrameTime;
 
-    public unsafe Cursor(FileSystemEntry entry, float windowScale)
+    public unsafe Cursor(string name, FileSystemEntry entry, float windowScale)
     {
+        Name = name;
+
         var cursorFile = CursorFile.FromFileSystemEntry(entry);
 
         _animationFrames = cursorFile.AnimationFrames;

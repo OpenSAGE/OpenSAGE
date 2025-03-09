@@ -9,7 +9,7 @@ public interface ICameraController
 {
     float Zoom { get; set; }
 
-    Vector3 TerrainPosition { get; set; }
+    Vector3 Position { get; set; }
 
     void SetPitch(float pitch);
 
@@ -27,7 +27,7 @@ public interface ICameraController
 
     void EndAnimation();
 
-    void UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime);
+    void UpdateCamera(Camera camera, in EditorCameraInputState inputState, in TimeInterval gameTime);
 
     void GoToObject(GameObject gameObject);
 

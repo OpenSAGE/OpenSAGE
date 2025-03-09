@@ -80,4 +80,30 @@ public static class MathUtility
 
         return value - remainder;
     }
+
+    // C++: /W3DDevice/GameClient/W3DView.cpp -> normAngle
+    public static float NormalizeAngle(float angle)
+    {
+        if (angle < -10.0f * MathF.PI)
+        {
+            angle = 0;
+        }
+
+        if (angle > 10.0f * MathF.PI)
+        {
+            angle = 0;
+        }
+
+        while (angle < -MathF.PI)
+        {
+            angle += TwoPi;
+        }
+
+        while (angle > MathF.PI)
+        {
+            angle -= TwoPi;
+        }
+
+        return angle;
+    }
 }

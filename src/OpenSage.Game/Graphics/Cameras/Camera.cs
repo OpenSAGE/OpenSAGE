@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
 using Viewport = Veldrid.Viewport;
 
 namespace OpenSage.Graphics.Cameras;
@@ -8,7 +9,7 @@ namespace OpenSage.Graphics.Cameras;
 public sealed class Camera
 {
     private readonly Func<Viewport> _getViewport;
-    private Viewport _viewport;
+    public Viewport _viewport { get; private set; }
 
     private float _nearPlaneDistance;
     private float _farPlaneDistance;
@@ -78,6 +79,8 @@ public sealed class Camera
     public Vector3 Target { get; private set; }
     public Vector3 Up { get; private set; }
 
+    public Vector2 ScreenSize => new(_viewport.Width, _viewport.Height);
+
     public Camera(Func<Viewport> getViewport)
     {
         _getViewport = getViewport;
@@ -86,8 +89,8 @@ public sealed class Camera
         View = Matrix4x4.Identity;
         BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
-        _nearPlaneDistance = 4.0f;
-        _farPlaneDistance = 10000.0f;
+        _nearPlaneDistance = HeightMap.HorizontalScale;
+        _farPlaneDistance = 12000.0f;
 
         UpdateProjection();
     }
@@ -145,6 +148,21 @@ public sealed class Camera
         var far = _viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
 
         return new Ray(near, Vector3.Normalize(far - near));
+    }
+
+    /// <summary>
+    /// Returns start and end points of a pick ray.
+    /// Similar to C++ method W3DView::getPickRay.
+    /// </summary>
+    public (Vector3, Vector3) GetPickRay(Vector2 position)
+    {
+        var rayStart = Position;
+        var rayEnd = _viewport.Unproject(new Vector3(position, -1), Projection, View, Matrix4x4.Identity);
+        rayEnd -= rayStart;
+        rayEnd = Vector3.Normalize(rayEnd);
+        rayEnd *= FarPlaneDistance;
+        rayEnd += rayStart;
+        return (rayStart, rayEnd);
     }
 
     /// <summary>

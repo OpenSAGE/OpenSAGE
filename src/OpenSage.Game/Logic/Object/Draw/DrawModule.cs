@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Client;
@@ -13,9 +15,10 @@ namespace OpenSage.Logic.Object;
 
 public abstract class DrawModule : ModuleBase
 {
-    public Drawable Drawable { get; protected set; }
-    public GameObject GameObject => Drawable.GameObject;
+    public Drawable? Drawable { get; protected set; }
+    public GameObject? GameObject => Drawable?.GameObject;
     public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
+    public virtual BoundingSphere? BoundingSphere { get; }
 
     // TODO: Probably shouldn't have this here.
     internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
@@ -44,8 +47,8 @@ public abstract class DrawModule : ModuleBase
         Camera camera,
         bool castsShadow,
         MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS,
-        Dictionary<string, bool> shownSubObjects = null,
-        Dictionary<string, bool> hiddenSubObjects = null);
+        Dictionary<string, bool>? shownSubObjects = null,
+        Dictionary<string, bool>? hiddenSubObjects = null);
 
     internal abstract (ModelInstance, ModelBone) FindBone(string boneName);
 
@@ -105,5 +108,5 @@ public abstract class DrawModuleData : ModuleData
         { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
     };
 
-    internal virtual DrawModule CreateDrawModule(Drawable drawable, GameContext context) => null; // TODO: Make this abstract.
+    internal virtual DrawModule? CreateDrawModule(Drawable drawable, GameContext context) => null; // TODO: Make this abstract.
 }
