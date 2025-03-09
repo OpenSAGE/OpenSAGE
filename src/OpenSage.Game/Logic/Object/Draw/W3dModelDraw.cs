@@ -65,6 +65,28 @@ public class W3dModelDraw : DrawModule
     internal override string GetWeaponLaunchBone(WeaponSlot slot)
         => _activeConditionState?.WeaponLaunchBones.Find(x => x.WeaponSlot == slot)?.BoneName;
 
+    // TODO: This is probably not right, and should anyway be cached.
+    public override BoundingSphere? BoundingSphere
+    {
+        get
+        {
+            var modelInstance = _activeModelDrawConditionState?.Model;
+            if (modelInstance == null)
+            {
+                return null;
+            }
+            foreach (var subObject in modelInstance.Model.SubObjects)
+            {
+                if (subObject.RenderObject is ModelMesh mesh)
+                {
+                    return mesh.BoundingSphere;
+                }
+
+            }
+            return null;
+        }
+    }
+
     internal W3dModelDraw(
         W3dModelDrawModuleData data,
         Drawable drawable,
@@ -212,7 +234,7 @@ public class W3dModelDraw : DrawModule
                         _activeModelDrawConditionState.Model.BoneVisibilities[i] = visible;
                     }
                 }
-            };
+            }
         }
 
         var bestAnimationState = FindBestFittingConditionState(_data.AnimationStates, flags);

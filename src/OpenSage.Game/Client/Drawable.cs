@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics;
@@ -414,6 +415,28 @@ public sealed class Drawable : Entity, IPersistableObject
             drawModule.SetTerrainDecal(decalType);
             break;
         }
+    }
+
+    // C++: Drawable::clientOnly_getFirstRenderObjInfo
+    // This doesn't return the position separately, because Transform already has that.
+    public bool GetFirstRenderObjInfo(
+        [MaybeNullWhen(false)] out float boundingSphereRadius,
+        [MaybeNullWhen(false)] out Transform transform)
+    {
+        var drawModule = _drawModules.FirstOrDefault();
+
+        if (drawModule == null || drawModule.BoundingSphere == null)
+        {
+            boundingSphereRadius = 0.0f;
+            transform = null;
+            return false;
+        }
+
+        boundingSphereRadius = drawModule.BoundingSphere.Value.Radius;
+        // TODO: Is this correct? Generals seems to have a separate Transform field for each draw module,
+        // not just the Drawable as a whole.
+        transform = Transform;
+        return true;
     }
 
     internal void Destroy()
