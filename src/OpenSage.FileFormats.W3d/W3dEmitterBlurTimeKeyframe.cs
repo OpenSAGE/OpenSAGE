@@ -2,19 +2,14 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterBlurTimeKeyframe
+public sealed record W3dEmitterBlurTimeKeyframe(float Time, float BlurTime)
 {
-    public float Time { get; private set; }
-
-    public float BlurTime { get; private set; }
-
     internal static W3dEmitterBlurTimeKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterBlurTimeKeyframe
-        {
-            Time = reader.ReadSingle(),
-            BlurTime = reader.ReadSingle()
-        };
+        var time = reader.ReadSingle();
+        var blurTime = reader.ReadSingle();
+
+        return new W3dEmitterBlurTimeKeyframe(time, blurTime);
     }
 
     internal void WriteTo(BinaryWriter writer)

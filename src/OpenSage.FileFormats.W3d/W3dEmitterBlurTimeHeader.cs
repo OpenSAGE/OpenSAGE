@@ -2,23 +2,16 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterBlurTimeHeader
+public sealed record W3dEmitterBlurTimeHeader(uint KeyframeCount, float Random)
 {
-    public uint KeyframeCount { get; private set; }
-
-    public float Random { get; private set; }
-
     internal static W3dEmitterBlurTimeHeader Parse(BinaryReader reader)
     {
-        var result = new W3dEmitterBlurTimeHeader
-        {
-            KeyframeCount = reader.ReadUInt32(),
-            Random = reader.ReadSingle()
-        };
+        var keyframeCount = reader.ReadUInt32();
+        var random = reader.ReadSingle();
 
         reader.ReadUInt32(); // Pad
 
-        return result;
+        return new W3dEmitterBlurTimeHeader(keyframeCount, random);
     }
 
     internal void WriteTo(BinaryWriter writer)

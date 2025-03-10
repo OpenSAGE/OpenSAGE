@@ -3,18 +3,14 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterColorKeyframe
+public sealed record W3dEmitterColorKeyframe(float Time, ColorRgba Color)
 {
-    public float Time { get; private set; }
-    public ColorRgba Color { get; private set; }
-
     internal static W3dEmitterColorKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterColorKeyframe
-        {
-            Time = reader.ReadSingle(),
-            Color = reader.ReadColorRgba()
-        };
+        var time = reader.ReadSingle();
+        var color = reader.ReadColorRgba();
+
+        return new W3dEmitterColorKeyframe(time, color);
     }
 
     internal void WriteTo(BinaryWriter writer)

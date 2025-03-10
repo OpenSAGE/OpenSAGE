@@ -3,33 +3,25 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dAggregateInfo : W3dChunk
+public sealed record W3dAggregateInfo(
+    string BaseModelName,
+    uint SubObjectCount,
+    IReadOnlyList<W3dAggregateSubObject> SubObjects) : W3dChunk(W3dChunkType.W3D_CHUNK_AGGREGATE_INFO)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AGGREGATE_INFO;
-
-    public string BaseModelName { get; private set; }
-
-    public uint SubObjectCount { get; private set; }
-
-    public List<W3dAggregateSubObject> SubObjects { get; private set; }
-
     internal static W3dAggregateInfo Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dAggregateInfo
-            {
-                BaseModelName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2),
-                SubObjectCount = reader.ReadUInt32()
-            };
+            var baseModelName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+            var subObjectCount = reader.ReadUInt32();
 
-            result.SubObjects = new List<W3dAggregateSubObject>();
-            for (var i = 0; i < result.SubObjectCount; i++)
+            var subObjects = new List<W3dAggregateSubObject>();
+            for (var i = 0; i < subObjectCount; i++)
             {
-                result.SubObjects.Add(W3dAggregateSubObject.Parse(reader));
+                subObjects.Add(W3dAggregateSubObject.Parse(reader));
             }
 
-            return result;
+            return new W3dAggregateInfo(baseModelName, subObjectCount, subObjects);
         });
     }
 

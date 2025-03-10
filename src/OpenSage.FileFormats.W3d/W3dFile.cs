@@ -5,20 +5,14 @@ using System.Text;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dFile
+public sealed record W3dFile(
+    string FilePath,
+    List<W3dChunk> Chunks,
+    List<W3dChunk> RenderableObjects,
+    Dictionary<string, W3dChunk> RenderableObjectsByName,
+    W3dHierarchyDef? Hierarchy,
+    W3dHLod? HLod)
 {
-    public string FilePath { get; private set; }
-
-    public List<W3dChunk> Chunks { get; } = new List<W3dChunk>();
-
-    public List<W3dChunk> RenderableObjects { get; } = new();
-
-    public Dictionary<string, W3dChunk> RenderableObjectsByName = new();
-
-    public W3dHierarchyDef Hierarchy { get; private set; }
-
-    public W3dHLod HLod { get; private set; }
-
     public IReadOnlyList<W3dAnimation> GetAnimations() => Chunks.OfType<W3dAnimation>().ToList();
 
     public IReadOnlyList<W3dCompressedAnimation> GetCompressedAnimations() => Chunks.OfType<W3dCompressedAnimation>().ToList();
@@ -37,10 +31,11 @@ public sealed class W3dFile
 
         context.PushChunk(nameof(W3dFile), reader.BaseStream.Length);
 
-        var result = new W3dFile
-        {
-            FilePath = filePath
-        };
+        List<W3dChunk> chunks = [];
+        List<W3dChunk> renderableObjects = [];
+        Dictionary<string, W3dChunk> renderableObjectsByName = [];
+        W3dHierarchyDef? hierarchy = null;
+        W3dHLod? hLod = null;
 
         W3dContainerChunk.ParseChunks(reader, reader.BaseStream.Length, chunkType =>
         {
@@ -48,74 +43,74 @@ public sealed class W3dFile
             {
                 case W3dChunkType.W3D_CHUNK_MESH:
                     var w3dMesh = W3dMesh.Parse(reader, context);
-                    result.Chunks.Add(w3dMesh);
-                    result.RenderableObjects.Add(w3dMesh);
-                    result.RenderableObjectsByName.Add(
+                    chunks.Add(w3dMesh);
+                    renderableObjects.Add(w3dMesh);
+                    renderableObjectsByName.Add(
                         $"{w3dMesh.Header.ContainerName}.{w3dMesh.Header.MeshName}",
                         w3dMesh);
                     break;
 
                 case W3dChunkType.W3D_CHUNK_BOX:
                     var w3dBox = W3dBox.Parse(reader, context);
-                    result.Chunks.Add(w3dBox);
-                    result.RenderableObjects.Add(w3dBox);
-                    result.RenderableObjectsByName.Add(w3dBox.Name, w3dBox);
+                    chunks.Add(w3dBox);
+                    renderableObjects.Add(w3dBox);
+                    renderableObjectsByName.Add(w3dBox.Name, w3dBox);
                     break;
 
                 case W3dChunkType.W3D_CHUNK_HIERARCHY:
                     var w3dHierarchy = W3dHierarchyDef.Parse(reader, context);
-                    result.Chunks.Add(w3dHierarchy);
-                    result.Hierarchy = w3dHierarchy;
+                    chunks.Add(w3dHierarchy);
+                    hierarchy = w3dHierarchy;
                     break;
 
                 case W3dChunkType.W3D_CHUNK_HLOD:
                     var w3dHLod = W3dHLod.Parse(reader, context);
-                    result.Chunks.Add(w3dHLod);
-                    result.HLod = w3dHLod;
+                    chunks.Add(w3dHLod);
+                    hLod = w3dHLod;
                     break;
 
                 case W3dChunkType.W3D_CHUNK_ANIMATION:
-                    result.Chunks.Add(W3dAnimation.Parse(reader, context));
+                    chunks.Add(W3dAnimation.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION:
-                    result.Chunks.Add(W3dCompressedAnimation.Parse(reader, context));
+                    chunks.Add(W3dCompressedAnimation.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_EMITTER:
-                    result.Chunks.Add(W3dEmitter.Parse(reader, context));
+                    chunks.Add(W3dEmitter.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_AGGREGATE:
-                    result.Chunks.Add(W3dAggregate.Parse(reader, context));
+                    chunks.Add(W3dAggregate.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_RING:
-                    result.Chunks.Add(W3dRing.Parse(reader, context));
+                    chunks.Add(W3dRing.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_SPHERE:
-                    result.Chunks.Add(W3dSphere.Parse(reader, context));
+                    chunks.Add(W3dSphere.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_HMODEL:
-                    result.Chunks.Add(W3dHModel.Parse(reader, context));
+                    chunks.Add(W3dHModel.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_DAZZLE:
-                    result.Chunks.Add(W3dDazzle.Parse(reader, context));
+                    chunks.Add(W3dDazzle.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_COLLECTION:
-                    result.Chunks.Add(W3dCollection.Parse(reader, context));
+                    chunks.Add(W3dCollection.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_SOUNDROBJ:
-                    result.Chunks.Add(W3dSoundRObj.Parse(reader, context));
+                    chunks.Add(W3dSoundRObj.Parse(reader, context));
                     break;
 
                 case W3dChunkType.W3D_CHUNK_MORPH_ANIMATION:
-                    result.Chunks.Add(W3dMorphAnimation.Parse(reader, context));
+                    chunks.Add(W3dMorphAnimation.Parse(reader, context));
                     break;
 
                 default:
@@ -125,7 +120,7 @@ public sealed class W3dFile
 
         context.PopAsset();
 
-        return result;
+        return new W3dFile(filePath, chunks, renderableObjects, renderableObjectsByName, hierarchy, hLod);
     }
 
     public void WriteTo(Stream stream)

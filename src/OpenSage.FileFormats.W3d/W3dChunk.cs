@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OpenSage.FileFormats.W3d;
 
-public abstract class W3dChunk
+public abstract record W3dChunk(W3dChunkType ChunkType)
 {
     internal static T ParseChunk<T>(
         BinaryReader reader,
@@ -33,8 +33,6 @@ public abstract class W3dChunk
 
         return result;
     }
-
-    public abstract W3dChunkType ChunkType { get; }
 
     public virtual bool HasSubChunks { get; } = false;
 
@@ -75,7 +73,7 @@ public abstract class W3dChunk
     protected abstract void WriteToOverride(BinaryWriter writer);
 }
 
-public abstract class W3dContainerChunk : W3dChunk
+public abstract record W3dContainerChunk(W3dChunkType ChunkType) : W3dChunk(ChunkType)
 {
     public sealed override bool HasSubChunks => true;
 
@@ -109,22 +107,16 @@ public abstract class W3dContainerChunk : W3dChunk
     }
 }
 
-public abstract class W3dListChunk<TList, TItem> : W3dChunk
-    where TList : W3dListChunk<TList, TItem>, new()
+public abstract record W3dListChunk<TItem>(W3dChunkType ChunkType, IReadOnlyList<TItem> Items) : W3dChunk(ChunkType)
 {
-    public List<TItem> Items { get; } = new List<TItem>();
-
-    internal static TList ParseList(BinaryReader reader, W3dParseContext context, Func<BinaryReader, TItem> parseItem)
+    internal static List<TItem> ParseItems(BinaryReader reader, W3dParseContext context, Func<BinaryReader, TItem> parseItem)
     {
-        return ParseChunk(reader, context, header =>
+        var items = new List<TItem>();
+        while (reader.BaseStream.Position < context.CurrentEndPosition)
         {
-            var result = new TList();
-            while (reader.BaseStream.Position < context.CurrentEndPosition)
-            {
-                result.Items.Add(parseItem(reader));
-            }
-            return result;
-        });
+            items.Add(parseItem(reader));
+        }
+        return items;
     }
 
     protected sealed override void WriteToOverride(BinaryWriter writer)
@@ -138,32 +130,21 @@ public abstract class W3dListChunk<TList, TItem> : W3dChunk
     protected abstract void WriteItem(BinaryWriter writer, TItem item);
 }
 
-public abstract class W3dStructListChunk<TList, TItem> : W3dChunk
-    where TList : W3dStructListChunk<TList, TItem>, new()
+public abstract record W3dStructListChunk<TItem>(W3dChunkType ChunkType, TItem[] Items) : W3dChunk(ChunkType)
     where TItem : unmanaged
 {
-    public TItem[] Items { get; set; }
-
-    internal static unsafe TList ParseList(BinaryReader reader, W3dParseContext context, Func<BinaryReader, TItem> parseItem)
+    internal static unsafe TItem[] ParseItems(W3dChunkHeader header, BinaryReader reader, Func<BinaryReader, TItem> parseItem)
     {
-        var itemSize = sizeof(TItem);
+        var itemCount = header.ChunkSize / sizeof(TItem);
 
-        return ParseChunk(reader, context, header =>
+        var items = new TItem[itemCount];
+
+        for (var i = 0; i < itemCount; i++)
         {
-            var itemCount = header.ChunkSize / itemSize;
+            items[i] = parseItem(reader);
+        }
 
-            var result = new TList
-            {
-                Items = new TItem[itemCount]
-            };
-
-            for (var i = 0; i < itemCount; i++)
-            {
-                result.Items[i] = parseItem(reader);
-            }
-
-            return result;
-        });
+        return items;
     }
 
     protected sealed override void WriteToOverride(BinaryWriter writer)
@@ -177,32 +158,26 @@ public abstract class W3dStructListChunk<TList, TItem> : W3dChunk
     protected abstract void WriteItem(BinaryWriter writer, in TItem item);
 }
 
-public abstract class W3dListContainerChunk<TList, TItem> : W3dContainerChunk
-    where TList : W3dListContainerChunk<TList, TItem>, new()
+public abstract record W3dListContainerChunk<TItem>(W3dChunkType ChunkType, IReadOnlyList<TItem> Items)
+    : W3dContainerChunk(ChunkType)
     where TItem : W3dChunk
 {
-    public List<TItem> Items { get; } = new List<TItem>();
-
-    protected abstract W3dChunkType ItemType { get; }
-
-    internal static TList ParseList(BinaryReader reader, W3dParseContext context, Func<BinaryReader, W3dParseContext, TItem> parseItem)
+    internal static IReadOnlyList<TItem> ParseItems(BinaryReader reader, W3dParseContext context, W3dChunkType itemType,
+        Func<BinaryReader, W3dParseContext, TItem> parseItem)
     {
-        return ParseChunk(reader, context, header =>
+        var items = new List<TItem>();
+
+        ParseChunks(reader, context.CurrentEndPosition, chunkType =>
         {
-            var result = new TList();
-
-            ParseChunks(reader, context.CurrentEndPosition, chunkType =>
+            if (chunkType != itemType)
             {
-                if (chunkType != result.ItemType)
-                {
-                    throw CreateUnknownChunkException(chunkType);
-                }
+                throw CreateUnknownChunkException(chunkType);
+            }
 
-                result.Items.Add(parseItem(reader, context));
-            });
-
-            return result;
+            items.Add(parseItem(reader, context));
         });
+
+        return items;
     }
 
     protected sealed override IEnumerable<W3dChunk> GetSubChunksOverride()

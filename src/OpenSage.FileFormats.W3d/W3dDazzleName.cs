@@ -2,22 +2,15 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dDazzleName : W3dChunk
+public sealed record W3dDazzleName(string Name) : W3dChunk(W3dChunkType.W3D_CHUNK_DAZZLE_NAME)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_DAZZLE_NAME;
-
-    public string Name { get; private set; }
-
     internal static W3dDazzleName Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dDazzleName
-            {
-                Name = reader.ReadFixedLengthString((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var name = reader.ReadFixedLengthString((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
-            return result;
+            return new W3dDazzleName(name);
         });
     }
 

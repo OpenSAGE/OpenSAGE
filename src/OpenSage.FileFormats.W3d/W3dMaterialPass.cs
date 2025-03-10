@@ -4,80 +4,73 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMaterialPass : W3dContainerChunk
+/// <param name="VertexMaterialIds"></param>
+/// <param name="ShaderIds"></param>
+/// <param name="ShaderMaterialIds"></param>
+/// <param name="Dcg">per-vertex diffuse color values</param>
+/// <param name="Dig">per-vertex diffuse illumination values</param>
+/// <param name="Scg">per-vertex specular color values</param>
+/// <param name="TextureStages"></param>
+/// <param name="TexCoords">Only present when using shader materials</param>
+public sealed record W3dMaterialPass(
+    W3dUInt32List? VertexMaterialIds,
+    W3dUInt32List? ShaderIds,
+    W3dUInt32List? ShaderMaterialIds,
+    W3dRgbaList? Dcg,
+    W3dRgbaList? Dig,
+    W3dRgbaList? Scg,
+    IReadOnlyList<W3dTextureStage> TextureStages,
+    W3dVector2List? TexCoords) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_MATERIAL_PASS)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MATERIAL_PASS;
-
-    public W3dUInt32List VertexMaterialIds { get; private set; }
-
-    public W3dUInt32List ShaderIds { get; private set; }
-
-    public W3dUInt32List ShaderMaterialIds { get; private set; }
-
-    /// <summary>
-    /// per-vertex diffuse color values
-    /// </summary>
-    public W3dRgbaList Dcg { get; private set; }
-
-    /// <summary>
-    /// per-vertex diffuse illumination values
-    /// </summary>
-    public W3dRgbaList Dig { get; private set; }
-
-    /// <summary>
-    /// per-vertex specular color values
-    /// </summary>
-    public W3dRgbaList Scg { get; private set; }
-
-    public List<W3dTextureStage> TextureStages { get; } = new List<W3dTextureStage>();
-
-    /// <summary>
-    /// Only present when using shader materials.
-    /// </summary>
-    public W3dVector2List TexCoords { get; private set; }
-
     internal static W3dMaterialPass Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMaterialPass();
+            W3dUInt32List? vertexMaterialIds = null;
+            W3dUInt32List? shaderIds = null;
+            W3dUInt32List? shaderMaterialIds = null;
+            W3dRgbaList? dcg = null;
+            W3dRgbaList? dig = null;
+            W3dRgbaList? scg = null;
+            List<W3dTextureStage> textureStages = [];
+            W3dVector2List? texCoords = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS:
-                        result.VertexMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
+                        vertexMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_IDS:
-                        result.ShaderIds = W3dUInt32List.Parse(reader, context, chunkType);
+                        shaderIds = W3dUInt32List.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_DCG:
-                        result.Dcg = W3dRgbaList.Parse(reader, context, chunkType);
+                        dcg = W3dRgbaList.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_DIG:
-                        result.Dig = W3dRgbaList.Parse(reader, context, chunkType);
+                        dig = W3dRgbaList.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SCG:
-                        result.Scg = W3dRgbaList.Parse(reader, context, chunkType);
+                        scg = W3dRgbaList.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
-                        result.TextureStages.Add(W3dTextureStage.Parse(reader, context));
+                        textureStages.Add(W3dTextureStage.Parse(reader, context));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
-                        result.ShaderMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
+                        shaderMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
                         break;
 
                     // Normally this appears inside W3dTextureStage, but it can also
                     // appear directly under W3dMaterialPass if using shader materials.
                     case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
-                        result.TexCoords = W3dVector2List.Parse(reader, context, chunkType);
+                        texCoords = W3dVector2List.Parse(reader, context, chunkType);
                         break;
 
                     default:
@@ -85,7 +78,8 @@ public sealed class W3dMaterialPass : W3dContainerChunk
                 }
             });
 
-            return result;
+            return new W3dMaterialPass(vertexMaterialIds, shaderIds, shaderMaterialIds, dcg, dig, scg, textureStages,
+                texCoords);
         });
     }
 
@@ -133,17 +127,16 @@ public sealed class W3dMaterialPass : W3dContainerChunk
     }
 }
 
-public sealed class W3dRgbaList : W3dStructListChunk<W3dRgbaList, ColorRgba>
+public sealed record W3dRgbaList(W3dChunkType ChunkType, ColorRgba[] Items) : W3dStructListChunk<ColorRgba>(ChunkType, Items)
 {
-    private W3dChunkType _chunkType;
-
-    public override W3dChunkType ChunkType => _chunkType;
-
     internal static W3dRgbaList Parse(BinaryReader reader, W3dParseContext context, W3dChunkType chunkType)
     {
-        var result = ParseList(reader, context, r => r.ReadColorRgba());
-        result._chunkType = chunkType;
-        return result;
+        return ParseChunk(reader, context, header =>
+        {
+            var items = ParseItems(header, reader, r => r.ReadColorRgba());
+
+            return new W3dRgbaList(chunkType, items);
+        });
     }
 
     protected override void WriteItem(BinaryWriter writer, in ColorRgba item)

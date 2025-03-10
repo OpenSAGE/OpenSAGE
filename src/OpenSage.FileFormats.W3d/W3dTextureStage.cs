@@ -3,18 +3,22 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dTextureIds : W3dListChunk<W3dTextureIds, uint?>
+public sealed record W3dTextureIds(IReadOnlyList<uint?> Items)
+    : W3dListChunk<uint?>(W3dChunkType.W3D_CHUNK_TEXTURE_IDS, Items)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_TEXTURE_IDS;
-
     internal static W3dTextureIds Parse(BinaryReader reader, W3dParseContext context)
     {
-        return ParseList(reader, context, r =>
+        return ParseChunk(reader, context, header =>
         {
-            var textureId = r.ReadInt32();
-            return textureId != -1
-                ? (uint)textureId
-                : (uint?)null;
+            var items = ParseItems(reader, context, r =>
+            {
+                var textureId = r.ReadInt32();
+                return textureId != -1
+                    ? (uint)textureId
+                    : null;
+            });
+
+            return new W3dTextureIds(items);
         });
     }
 
@@ -24,40 +28,37 @@ public sealed class W3dTextureIds : W3dListChunk<W3dTextureIds, uint?>
     }
 }
 
-public sealed class W3dTextureStage : W3dContainerChunk
+public sealed record W3dTextureStage(
+    W3dTextureIds TextureIds,
+    W3dVector2List? TexCoords,
+    W3dVectorUInt32[]? PerFaceTexCoordIds) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_TEXTURE_STAGE)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_TEXTURE_STAGE;
-
-    public W3dTextureIds TextureIds { get; private set; }
-
-    public W3dVector2List TexCoords { get; private set; }
-
-    public W3dVectorUInt32[] PerFaceTexCoordIds { get; private set; }
-
     internal static W3dTextureStage Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dTextureStage();
+            W3dTextureIds? textureIds = null;
+            W3dVector2List? texCoords = null;
+            W3dVectorUInt32[]? perFaceTexCoordIds = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_TEXTURE_IDS:
-                        result.TextureIds = W3dTextureIds.Parse(reader, context);
+                        textureIds = W3dTextureIds.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_PER_FACE_TEXCOORD_IDS:
-                        result.PerFaceTexCoordIds = new W3dVectorUInt32[header.ChunkSize / W3dVectorUInt32.SizeInBytes];
-                        for (var count = 0; count < result.PerFaceTexCoordIds.Length; count++)
+                        perFaceTexCoordIds = new W3dVectorUInt32[header.ChunkSize / W3dVectorUInt32.SizeInBytes];
+                        for (var count = 0; count < perFaceTexCoordIds.Length; count++)
                         {
-                            result.PerFaceTexCoordIds[count] = W3dVectorUInt32.Parse(reader);
+                            perFaceTexCoordIds[count] = W3dVectorUInt32.Parse(reader);
                         }
                         break;
 
                     case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
-                        result.TexCoords = W3dVector2List.Parse(reader, context, chunkType);
+                        texCoords = W3dVector2List.Parse(reader, context, chunkType);
                         break;
 
                     default:
@@ -65,7 +66,12 @@ public sealed class W3dTextureStage : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (textureIds is null)
+            {
+                throw new InvalidDataException("textureIds should never be null");
+            }
+
+            return new W3dTextureStage(textureIds, texCoords, perFaceTexCoordIds);
         });
     }
 

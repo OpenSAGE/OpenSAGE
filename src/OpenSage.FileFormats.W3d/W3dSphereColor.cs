@@ -3,27 +3,20 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereColor
+public sealed record W3dSphereColor(
+    uint ChunkType,
+    uint ChunkSize,
+    ColorRgbF Color,
+    float Position)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public ColorRgbF Color { get; private set; }
-
-    public float Position { get; private set; }
-
     internal static W3dSphereColor Parse(BinaryReader reader)
     {
-        var result = new W3dSphereColor
-        {
-            ChunkType = reader.ReadByte(),
-            ChunkSize = reader.ReadByte(),
-            Color = reader.ReadColorRgbF(),
-            Position = reader.ReadSingle()
-        };
+        var chunkType = reader.ReadByte();
+        var chunkSize = reader.ReadByte();
+        var color = reader.ReadColorRgbF();
+        var position = reader.ReadSingle();
 
-        return result;
+        return new W3dSphereColor(chunkType, chunkSize, color, position);
     }
 
     public void Write(BinaryWriter writer)

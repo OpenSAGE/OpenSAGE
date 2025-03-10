@@ -4,22 +4,13 @@ namespace OpenSage.FileFormats.W3d;
 
 internal sealed class W3dParseContext
 {
-    private readonly Stack<ChunkStackEntry> _chunkParsingStack;
+    private readonly Stack<ChunkStackEntry> _chunkParsingStack = new();
 
     public long CurrentEndPosition => _chunkParsingStack.Peek().EndPosition;
 
-    public W3dParseContext()
-    {
-        _chunkParsingStack = new Stack<ChunkStackEntry>();
-    }
-
     public void PushChunk(string chunkType, long endPosition)
     {
-        _chunkParsingStack.Push(new ChunkStackEntry
-        {
-            ChunkType = chunkType,
-            EndPosition = endPosition
-        });
+        _chunkParsingStack.Push(new ChunkStackEntry(chunkType, endPosition));
     }
 
     public void PopAsset()
@@ -27,9 +18,5 @@ internal sealed class W3dParseContext
         _chunkParsingStack.Pop();
     }
 
-    private struct ChunkStackEntry
-    {
-        public string ChunkType;
-        public long EndPosition;
-    }
+    private readonly record struct ChunkStackEntry(string ChunkType, long EndPosition);
 }

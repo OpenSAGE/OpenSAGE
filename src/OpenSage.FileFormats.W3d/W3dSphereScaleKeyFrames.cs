@@ -3,25 +3,18 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereScaleKeyFrames
+public sealed record W3dSphereScaleKeyFrames(
+    uint ChunkType,
+    uint ChunkSize,
+    uint Version,
+    List<W3dSphereScaleKeyFrame> ScaleKeyFrames)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public uint Version { get; private set; }
-
-    public List<W3dSphereScaleKeyFrame> ScaleKeyFrames { get; private set; }
-
     internal static W3dSphereScaleKeyFrames Parse(BinaryReader reader)
     {
-        var result = new W3dSphereScaleKeyFrames
-        {
-            ChunkType = reader.ReadUInt32(),
-            ChunkSize = reader.ReadUInt32() & 0x7FFFFFFF,
-            Version = reader.ReadUInt32(),
-            ScaleKeyFrames = new List<W3dSphereScaleKeyFrame>()
-        };
+        var chunkType = reader.ReadUInt32();
+        var chunkSize = reader.ReadUInt32() & 0x7FFFFFFF;
+        var version = reader.ReadUInt32();
+        var scaleKeyFrames = new List<W3dSphereScaleKeyFrame>();
 
         var arraySize = reader.ReadUInt32();
 
@@ -29,10 +22,10 @@ public sealed class W3dSphereScaleKeyFrames
         for (var i = 0; i < arrayCount; i++)
         {
             var keyFrame = W3dSphereScaleKeyFrame.Parse(reader);
-            result.ScaleKeyFrames.Add(keyFrame);
+            scaleKeyFrames.Add(keyFrame);
         }
 
-        return result;
+        return new W3dSphereScaleKeyFrames(chunkType, chunkSize, version, scaleKeyFrames);
     }
 
     public void Write(BinaryWriter writer)

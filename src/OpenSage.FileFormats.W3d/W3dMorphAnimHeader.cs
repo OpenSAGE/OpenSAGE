@@ -2,24 +2,17 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMorphAnimHeader : W3dChunk
+public sealed record W3dMorphAnimHeader(byte[] UnknownBytes) : W3dChunk(W3dChunkType.W3D_CHUNK_MORPHANIM_HEADER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MORPHANIM_HEADER;
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dMorphAnimHeader Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMorphAnimHeader
-            {
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dMorphAnimHeader Chunk Structure (Currently Unknown)
 
-            return result;
+            return new W3dMorphAnimHeader(unknownBytes);
         });
     }
 

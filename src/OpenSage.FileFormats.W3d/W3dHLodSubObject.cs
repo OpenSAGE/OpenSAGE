@@ -2,23 +2,16 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHLodSubObject : W3dChunk
+public sealed record W3dHLodSubObject(uint BoneIndex, string Name) : W3dChunk(W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT;
-
-    public uint BoneIndex { get; private set; }
-
-    public string Name { get; private set; }
-
     internal static W3dHLodSubObject Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dHLodSubObject
-            {
-                BoneIndex = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2)
-            };
+            var boneIndex = reader.ReadUInt32();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+
+            return new W3dHLodSubObject(boneIndex, name);
         });
     }
 

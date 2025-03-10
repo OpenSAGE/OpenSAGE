@@ -2,24 +2,18 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMorphAnimPivotChannelData : W3dChunk
+public sealed record W3dMorphAnimPivotChannelData(byte[] UnknownBytes)
+    : W3dChunk(W3dChunkType.W3D_CHUNK_MORPHANIM_PIVOTCHANNELDATA)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MORPHANIM_PIVOTCHANNELDATA;
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dMorphAnimPivotChannelData Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMorphAnimPivotChannelData
-            {
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dMorphAnimPivotChannelData Chunk Structure (Currently Unknown)
 
-            return result;
+            return new W3dMorphAnimPivotChannelData(unknownBytes);
         });
     }
 

@@ -2,30 +2,22 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterUserData : W3dChunk
+public sealed record W3dEmitterUserData(
+    W3dEmitterUserDataType Type,
+    string Value,
+    uint NumPadBytes) : W3dChunk(W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA;
-
-    public W3dEmitterUserDataType Type { get; private set; }
-
-    public string Value { get; private set; }
-
-    public uint NumPadBytes { get; private set; }
-
     internal static W3dEmitterUserData Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dEmitterUserData
-            {
-                Type = reader.ReadUInt32AsEnum<W3dEmitterUserDataType>(),
-                Value = reader.ReadFixedLengthString((int)reader.ReadUInt32())
-            };
+            var type = reader.ReadUInt32AsEnum<W3dEmitterUserDataType>();
+            var value = reader.ReadFixedLengthString((int)reader.ReadUInt32());
 
-            result.NumPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
-            reader.ReadBytes((int)result.NumPadBytes);
+            var numPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
+            reader.ReadBytes((int)numPadBytes);
 
-            return result;
+            return new W3dEmitterUserData(type, value, numPadBytes);
         });
     }
 

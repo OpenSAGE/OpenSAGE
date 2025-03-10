@@ -2,18 +2,14 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterSizeKeyframe
+public sealed record W3dEmitterSizeKeyframe(float Time, float Size)
 {
-    public float Time { get; private set; }
-    public float Size { get; private set; }
-
     internal static W3dEmitterSizeKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterSizeKeyframe
-        {
-            Time = reader.ReadSingle(),
-            Size = reader.ReadSingle()
-        };
+        var time = reader.ReadSingle();
+        var size = reader.ReadSingle();
+
+        return new W3dEmitterSizeKeyframe(time, size);
     }
 
     internal void WriteTo(BinaryWriter writer)

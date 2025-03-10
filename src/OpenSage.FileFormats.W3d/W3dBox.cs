@@ -4,44 +4,32 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dBox : W3dChunk
+public sealed record W3dBox(
+    uint Version,
+    W3dBoxType BoxType,
+    W3dBoxCollisionTypes CollisionTypes,
+    string Name,
+    ColorRgb Color,
+    Vector3 Center,
+    Vector3 Extent) : W3dChunk(W3dChunkType.W3D_CHUNK_BOX)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_BOX;
-
-    public uint Version { get; private set; }
-
-    public W3dBoxType BoxType { get; private set; }
-
-    public W3dBoxCollisionTypes CollisionTypes { get; private set; }
-
-    public string Name { get; private set; }
-
-    public ColorRgb Color { get; private set; }
-
-    public Vector3 Center { get; private set; }
-
-    public Vector3 Extent { get; private set; }
-
     internal static W3dBox Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dBox
-            {
-                Version = reader.ReadUInt32()
-            };
+            var version = reader.ReadUInt32();
 
             var flags = reader.ReadUInt32();
 
-            result.BoxType = (W3dBoxType)(flags & 0b11);
-            result.CollisionTypes = (W3dBoxCollisionTypes)(flags & 0xFF0);
+            var boxType = (W3dBoxType)(flags & 0b11);
+            var collisionTypes = (W3dBoxCollisionTypes)(flags & 0xFF0);
 
-            result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
-            result.Color = reader.ReadColorRgb(true);
-            result.Center = reader.ReadVector3();
-            result.Extent = reader.ReadVector3();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+            var color = reader.ReadColorRgb(true);
+            var center = reader.ReadVector3();
+            var extent = reader.ReadVector3();
 
-            return result;
+            return new W3dBox(version, boxType, collisionTypes, name, color, center, extent);
         });
     }
 

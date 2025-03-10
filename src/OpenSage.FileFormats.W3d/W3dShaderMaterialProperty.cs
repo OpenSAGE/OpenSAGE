@@ -5,32 +5,26 @@ using OpenSage.Graphics.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShaderMaterialProperty : W3dChunk
+public sealed record W3dShaderMaterialProperty(
+    W3dShaderMaterialPropertyType PropertyType,
+    string PropertyName,
+    string StringValue,
+    W3dShaderMaterialPropertyValue Value) : W3dChunk(W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_PROPERTY)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_PROPERTY;
-
-    public W3dShaderMaterialPropertyType PropertyType { get; private set; }
-    public string PropertyName { get; private set; }
-
-    public string StringValue { get; private set; }
-    public W3dShaderMaterialPropertyValue Value { get; private set; }
-
     internal static W3dShaderMaterialProperty Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dShaderMaterialProperty
-            {
-                PropertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>(),
-                PropertyName = reader.ReadFixedLengthString((int)reader.ReadUInt32())
-            };
+            var propertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>();
+            var propertyName = reader.ReadFixedLengthString((int)reader.ReadUInt32());
 
             var value = new W3dShaderMaterialPropertyValue();
+            var stringValue = string.Empty;
 
-            switch (result.PropertyType)
+            switch (propertyType)
             {
                 case W3dShaderMaterialPropertyType.Texture:
-                    result.StringValue = reader.ReadFixedLengthString((int)reader.ReadUInt32());
+                    stringValue = reader.ReadFixedLengthString((int)reader.ReadUInt32());
                     break;
 
                 case W3dShaderMaterialPropertyType.Float:
@@ -39,16 +33,14 @@ public sealed class W3dShaderMaterialProperty : W3dChunk
                 case W3dShaderMaterialPropertyType.Vector4:
                 case W3dShaderMaterialPropertyType.Int:
                 case W3dShaderMaterialPropertyType.Bool:
-                    value = W3dShaderMaterialPropertyValue.Parse(reader, result.PropertyType);
+                    value = W3dShaderMaterialPropertyValue.Parse(reader, propertyType);
                     break;
 
                 default:
                     throw new InvalidDataException();
             }
 
-            result.Value = value;
-
-            return result;
+            return new W3dShaderMaterialProperty(propertyType, propertyName, stringValue, value);
         });
     }
 

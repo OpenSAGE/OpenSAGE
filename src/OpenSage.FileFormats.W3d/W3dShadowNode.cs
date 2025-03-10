@@ -2,24 +2,17 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShadowNode : W3dChunk
+public sealed record W3dShadowNode(byte[] UnknownBytes) : W3dChunk(W3dChunkType.OBSOLETE_W3D_CHUNK_SHADOW_NODE)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.OBSOLETE_W3D_CHUNK_SHADOW_NODE;
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dShadowNode Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dShadowNode
-            {
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dShadowNode UnknownBytes
 
-            return result;
+            return new W3dShadowNode(unknownBytes);
         });
     }
 

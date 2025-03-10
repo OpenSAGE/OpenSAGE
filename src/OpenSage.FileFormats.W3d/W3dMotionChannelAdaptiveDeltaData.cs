@@ -3,11 +3,8 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMotionChannelAdaptiveDeltaData : W3dMotionChannelData
+public sealed record W3dMotionChannelAdaptiveDeltaData(float Scale, W3dAdaptiveDeltaData Data) : IW3dMotionChannelData
 {
-    public float Scale { get; private set; }
-    public W3dAdaptiveDeltaData Data { get; private set; }
-
     internal static W3dMotionChannelAdaptiveDeltaData Parse(
         BinaryReader reader,
         uint numTimeCodes,
@@ -15,19 +12,18 @@ public sealed class W3dMotionChannelAdaptiveDeltaData : W3dMotionChannelData
         int vectorLen,
         W3dAdaptiveDeltaBitCount bitCount)
     {
-        return new W3dMotionChannelAdaptiveDeltaData
-        {
-            Scale = reader.ReadSingle(),
-            Data = W3dAdaptiveDeltaData.Parse(
-                reader,
-                numTimeCodes,
-                channelType,
-                vectorLen,
-                bitCount)
-        };
+        var scale = reader.ReadSingle();
+        var data = W3dAdaptiveDeltaData.Parse(
+            reader,
+            numTimeCodes,
+            channelType,
+            vectorLen,
+            bitCount);
+
+        return new W3dMotionChannelAdaptiveDeltaData(scale, data);
     }
 
-    public override IEnumerable<W3dKeyframeWithValue> GetKeyframesWithValues(W3dMotionChannel channel)
+    public IEnumerable<W3dKeyframeWithValue> GetKeyframesWithValues(W3dMotionChannel channel)
     {
         var decodedData = W3dAdaptiveDeltaCodec.Decode(
             Data,
@@ -42,7 +38,7 @@ public sealed class W3dMotionChannelAdaptiveDeltaData : W3dMotionChannelData
         }
     }
 
-    internal override void WriteTo(BinaryWriter writer, W3dAnimationChannelType channelType)
+    public void WriteTo(BinaryWriter writer, W3dAnimationChannelType channelType)
     {
         writer.Write(Scale);
         Data.WriteTo(writer, channelType);

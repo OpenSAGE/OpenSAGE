@@ -2,45 +2,33 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphere : W3dChunk
+public sealed record W3dSphere(
+    W3dSphereHeader Header,
+    W3dSpherePlaceholder Placeholder,
+    W3dSphereColors Colors,
+    W3dSphereOpacityInfo OpacityInfo,
+    W3dSphereScaleKeyFrames ScaleKeyFrames,
+    W3dSphereAlphaVectors AlphaVectors,
+    W3dRingShaderFunc Shader,
+    uint UnknownFlag) : W3dChunk(W3dChunkType.W3D_CHUNK_SPHERE)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_SPHERE;
-
-    public W3dSphereHeader Header { get; private set; }
-
-    public W3dSpherePlaceholder Placeholder { get; private set; }
-
-    public W3dSphereColors Colors { get; private set; }
-
-    public W3dSphereOpacityInfo OpacityInfo { get; private set; }
-
-    public W3dSphereScaleKeyFrames ScaleKeyFrames { get; private set; }
-
-    public W3dSphereAlphaVectors AlphaVectors { get; private set; }
-
-    public W3dRingShaderFunc Shader { get; private set; }
-
-    public uint UnknownFlag { get; private set; }
-
     internal static W3dSphere Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dSphere
-            {
-                Header = W3dSphereHeader.Parse(reader)
-            };
+            var resultHeader = W3dSphereHeader.Parse(reader);
 
-            result.Shader = (W3dRingShaderFunc)(reader.ReadUInt32() >> 24);
-            result.UnknownFlag = (reader.ReadUInt32() >> 24);  // TODO: Determine What this Flag is/does.
+            var shader = (W3dRingShaderFunc)(reader.ReadUInt32() >> 24);
+            var unknownFlag = (reader.ReadUInt32() >> 24);  // TODO: Determine What this Flag is/does.
 
-            result.Placeholder = W3dSpherePlaceholder.Parse(reader);
-            result.Colors = W3dSphereColors.Parse(reader);
-            result.OpacityInfo = W3dSphereOpacityInfo.Parse(reader);
-            result.ScaleKeyFrames = W3dSphereScaleKeyFrames.Parse(reader);
-            result.AlphaVectors = W3dSphereAlphaVectors.Parse(reader);
+            var placeholder = W3dSpherePlaceholder.Parse(reader);
+            var colors = W3dSphereColors.Parse(reader);
+            var opacityInfo = W3dSphereOpacityInfo.Parse(reader);
+            var scaleKeyFrames = W3dSphereScaleKeyFrames.Parse(reader);
+            var alphaVectors = W3dSphereAlphaVectors.Parse(reader);
 
-            return result;
+            return new W3dSphere(resultHeader, placeholder, colors, opacityInfo, scaleKeyFrames, alphaVectors, shader,
+                unknownFlag);
         });
     }
 

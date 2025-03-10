@@ -3,25 +3,18 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereColors
+public sealed record W3dSphereColors(
+    uint ChunkType,
+    uint ChunkSize,
+    uint Version,
+    List<W3dSphereColor> Colors)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public uint Version { get; private set; }
-
-    public List<W3dSphereColor> Colors { get; private set; }
-
     internal static W3dSphereColors Parse(BinaryReader reader)
     {
-        var result = new W3dSphereColors
-        {
-            ChunkType = reader.ReadUInt32(),
-            ChunkSize = reader.ReadUInt32() & 0x7FFFFFFF,
-            Version = reader.ReadUInt32(),                      // ? Version or something else?
-            Colors = new List<W3dSphereColor>()
-        };
+        var chunkType = reader.ReadUInt32();
+        var chunkSize = reader.ReadUInt32() & 0x7FFFFFFF;
+        var version = reader.ReadUInt32();                      // ? Version or something else?
+        var colors = new List<W3dSphereColor>();
 
         var arraySize = reader.ReadUInt32();
 
@@ -29,10 +22,10 @@ public sealed class W3dSphereColors
         for (var i = 0; i < arrayCount; i++)
         {
             var color = W3dSphereColor.Parse(reader);
-            result.Colors.Add(color);
+            colors.Add(color);
         }
 
-        return result;
+        return new W3dSphereColors(chunkType, chunkSize, version, colors);
     }
 
     public void Write(BinaryWriter writer)

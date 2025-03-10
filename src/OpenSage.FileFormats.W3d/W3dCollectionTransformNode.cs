@@ -2,22 +2,15 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dCollectionTransformNode : W3dChunk
+public sealed record W3dCollectionTransformNode(string Name) : W3dChunk(W3dChunkType.W3D_CHUNK_TRANSFORM_NODE)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_TRANSFORM_NODE;
-
-    public string Name { get; private set; }
-
     internal static W3dCollectionTransformNode Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dCollectionTransformNode
-            {
-                Name = reader.ReadFixedLengthString((int)header.ChunkSize),
-            };
+            var name = reader.ReadFixedLengthString((int)header.ChunkSize);
 
-            return result;
+            return new W3dCollectionTransformNode(name);
         });
     }
 

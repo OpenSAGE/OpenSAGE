@@ -3,36 +3,33 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMorphAnimation : W3dContainerChunk
+public sealed record W3dMorphAnimation(
+    W3dMorphAnimHeader Header,
+    W3dMorphAnimChannel? AnimChannel,
+    W3dMorphAnimPivotChannelData? PivotChannelData) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_MORPH_ANIMATION)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MORPH_ANIMATION;
-
-    public W3dMorphAnimHeader Header { get; private set; }
-
-    public W3dMorphAnimChannel AnimChannel { get; private set; }
-
-    public W3dMorphAnimPivotChannelData PivotChannelData { get; private set; }
-
     internal static W3dMorphAnimation Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMorphAnimation();
+            W3dMorphAnimHeader? resultHeader = null;
+            W3dMorphAnimChannel? animChannel = null;
+            W3dMorphAnimPivotChannelData? pivotChannelData = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_MORPHANIM_HEADER:
-                        result.Header = W3dMorphAnimHeader.Parse(reader, context);
+                        resultHeader = W3dMorphAnimHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MORPHANIM_CHANNEL:
-                        result.AnimChannel = W3dMorphAnimChannel.Parse(reader, context);
+                        animChannel = W3dMorphAnimChannel.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MORPHANIM_PIVOTCHANNELDATA:
-                        result.PivotChannelData = W3dMorphAnimPivotChannelData.Parse(reader, context);
+                        pivotChannelData = W3dMorphAnimPivotChannelData.Parse(reader, context);
                         break;
 
                     default:
@@ -40,7 +37,12 @@ public sealed class W3dMorphAnimation : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dMorphAnimation(resultHeader, animChannel, pivotChannelData);
         });
     }
 

@@ -2,42 +2,34 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dBitChannel : W3dAnimationChannelBase
+/// <param name="FirstFrame"></param>
+/// <param name="LastFrame"></param>
+/// <param name="ChannelType"></param>
+/// <param name="Pivot">Pivot affected by this channel</param>
+/// <param name="DefaultValue"></param>
+/// <param name="Data"></param>
+public sealed record W3dBitChannel(
+    ushort FirstFrame,
+    ushort LastFrame,
+    W3dBitChannelType ChannelType,
+    ushort Pivot,
+    bool DefaultValue,
+    bool[] Data) : W3dAnimationChannelBase(W3dChunkType.W3D_CHUNK_BIT_CHANNEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_BIT_CHANNEL;
-
-    public ushort FirstFrame { get; private set; }
-
-    public ushort LastFrame { get; private set; }
-
-    public W3dBitChannelType ChannelType { get; private set; }
-
-    /// <summary>
-    /// Pivot affected by this channel.
-    /// </summary>
-    public ushort Pivot { get; private set; }
-
-    public bool DefaultValue { get; private set; }
-
-    public bool[] Data { get; private set; }
-
     internal static W3dBitChannel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dBitChannel
-            {
-                FirstFrame = reader.ReadUInt16(),
-                LastFrame = reader.ReadUInt16(),
-                ChannelType = reader.ReadUInt16AsEnum<W3dBitChannelType>(),
-                Pivot = reader.ReadUInt16(),
-                DefaultValue = reader.ReadBooleanChecked()
-            };
+            var firstFrame = reader.ReadUInt16();
+            var lastFrame = reader.ReadUInt16();
+            var channelType = reader.ReadUInt16AsEnum<W3dBitChannelType>();
+            var pivot = reader.ReadUInt16();
+            var defaultValue = reader.ReadBooleanChecked();
 
-            var numElements = result.LastFrame - result.FirstFrame + 1;
-            result.Data = reader.ReadSingleBitBooleanArray((uint)numElements);
+            var numElements = lastFrame - firstFrame + 1;
+            var data = reader.ReadSingleBitBooleanArray((uint)numElements);
 
-            return result;
+            return new W3dBitChannel(firstFrame, lastFrame, channelType, pivot, defaultValue, data);
         });
     }
 

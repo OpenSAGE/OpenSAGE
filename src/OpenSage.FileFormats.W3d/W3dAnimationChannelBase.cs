@@ -1,6 +1,3 @@
 ﻿namespace OpenSage.FileFormats.W3d;
 
-public abstract class W3dAnimationChannelBase : W3dChunk
-{
-
-}
+public abstract record W3dAnimationChannelBase(W3dChunkType ChunkType) : W3dChunk(ChunkType);

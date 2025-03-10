@@ -3,57 +3,47 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dVertexMaterialInfo : W3dChunk
+/// <param name="Attributes"></param>
+/// <param name="Stage0Mapping"></param>
+/// <param name="Stage1Mapping"></param>
+/// <param name="Ambient"></param>
+/// <param name="Diffuse"></param>
+/// <param name="Specular"></param>
+/// <param name="Emissive"></param>
+/// <param name="Shininess">how tight the specular highlight will be, 1 - 1000 (default = 1)</param>
+/// <param name="Opacity">how opaque the material is, 0.0 = invisible, 1.0 = fully opaque (default = 1)</param>
+/// <param name="Translucency">how much light passes through the material. (default = 0)</param>
+public sealed record W3dVertexMaterialInfo(
+    W3dVertexMaterialFlags Attributes,
+    W3dVertexMappingType Stage0Mapping,
+    W3dVertexMappingType Stage1Mapping,
+    ColorRgb Ambient,
+    ColorRgb Diffuse,
+    ColorRgb Specular,
+    ColorRgb Emissive,
+    float Shininess,
+    float Opacity,
+    float Translucency) : W3dChunk(W3dChunkType.W3D_CHUNK_MATERIAL_INFO)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MATERIAL_INFO;
-
-    public W3dVertexMaterialFlags Attributes { get; private set; }
-
-    public W3dVertexMappingType Stage0Mapping { get; private set; }
-    public W3dVertexMappingType Stage1Mapping { get; private set; }
-
-    public ColorRgb Ambient { get; private set; }
-    public ColorRgb Diffuse { get; private set; }
-    public ColorRgb Specular { get; private set; }
-    public ColorRgb Emissive { get; private set; }
-
-    /// <summary>
-    /// how tight the specular highlight will be, 1 - 1000 (default = 1)
-    /// </summary>
-    public float Shininess { get; private set; }
-
-    /// <summary>
-    /// how opaque the material is, 0.0 = invisible, 1.0 = fully opaque (default = 1)
-    /// </summary>
-    public float Opacity { get; private set; }
-
-    /// <summary>
-    /// how much light passes through the material. (default = 0)
-    /// </summary>
-    public float Translucency { get; private set; }
-
     internal static W3dVertexMaterialInfo Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
             var rawAttributes = reader.ReadUInt32();
 
-            return new W3dVertexMaterialInfo
-            {
-                Attributes = (W3dVertexMaterialFlags)(rawAttributes & 0xF),
+            var attributes = (W3dVertexMaterialFlags)(rawAttributes & 0xF);
+            var stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16);
+            var stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8);
+            var ambient = reader.ReadColorRgb(true);
+            var diffuse = reader.ReadColorRgb(true);
+            var specular = reader.ReadColorRgb(true);
+            var emissive = reader.ReadColorRgb(true);
+            var shininess = reader.ReadSingle();
+            var opacity = reader.ReadSingle();
+            var translucency = reader.ReadSingle();
 
-                Stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16),
-                Stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8),
-
-                Ambient = reader.ReadColorRgb(true),
-                Diffuse = reader.ReadColorRgb(true),
-                Specular = reader.ReadColorRgb(true),
-                Emissive = reader.ReadColorRgb(true),
-
-                Shininess = reader.ReadSingle(),
-                Opacity = reader.ReadSingle(),
-                Translucency = reader.ReadSingle()
-            };
+            return new W3dVertexMaterialInfo(attributes, stage0Mapping, stage1Mapping, ambient, diffuse, specular,
+                emissive, shininess, opacity, translucency);
         });
     }
 

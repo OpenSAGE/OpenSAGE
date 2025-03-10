@@ -3,30 +3,26 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMorphAnimChannel : W3dContainerChunk
+public sealed record W3dMorphAnimChannel(W3dMorphAnimPoseName PoseName, W3dMorphAnimKeyData? KeyData)
+    : W3dContainerChunk(W3dChunkType.W3D_CHUNK_MORPHANIM_CHANNEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MORPHANIM_CHANNEL;
-
-    public W3dMorphAnimPoseName PoseName { get; private set; }
-
-    public W3dMorphAnimKeyData KeyData { get; private set; }
-
     internal static W3dMorphAnimChannel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMorphAnimChannel();
+            W3dMorphAnimPoseName? poseName = null;
+            W3dMorphAnimKeyData? keyData = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_MORPHANIM_POSENAME:
-                        result.PoseName = W3dMorphAnimPoseName.Parse(reader, context);
+                        poseName = W3dMorphAnimPoseName.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MORPHANIM_KEYDATA:
-                        result.KeyData = W3dMorphAnimKeyData.Parse(reader, context);
+                        keyData = W3dMorphAnimKeyData.Parse(reader, context);
                         break;
 
                     default:
@@ -34,7 +30,12 @@ public sealed class W3dMorphAnimChannel : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (poseName is null)
+            {
+                throw new InvalidDataException("poseName should never be null");
+            }
+
+            return new W3dMorphAnimChannel(poseName, keyData);
         });
     }
 

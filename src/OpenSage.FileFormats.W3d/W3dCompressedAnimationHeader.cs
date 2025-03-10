@@ -2,35 +2,26 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dCompressedAnimationHeader : W3dChunk
+public sealed record W3dCompressedAnimationHeader(
+    uint Version,
+    string Name,
+    string HierarchyName,
+    uint NumFrames,
+    ushort FrameRate,
+    W3dCompressedAnimationFlavor Flavor) : W3dChunk(W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_HEADER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_HEADER;
-
-    public uint Version { get; private set; }
-
-    public string Name { get; private set; }
-
-    public string HierarchyName { get; private set; }
-
-    public uint NumFrames { get; private set; }
-
-    public ushort FrameRate { get; private set; }
-
-    public W3dCompressedAnimationFlavor Flavor { get; private set; }
-
     internal static W3dCompressedAnimationHeader Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dCompressedAnimationHeader
-            {
-                Version = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                NumFrames = reader.ReadUInt32(),
-                FrameRate = reader.ReadUInt16(),
-                Flavor = reader.ReadUInt16AsEnum<W3dCompressedAnimationFlavor>()
-            };
+            var version = reader.ReadUInt32();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var hierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var numFrames = reader.ReadUInt32();
+            var frameRate = reader.ReadUInt16();
+            var flavor = reader.ReadUInt16AsEnum<W3dCompressedAnimationFlavor>();
+
+            return new W3dCompressedAnimationHeader(version, name, hierarchyName, numFrames, frameRate, flavor);
         });
     }
 

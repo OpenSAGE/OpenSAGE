@@ -2,36 +2,26 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHModelHeader : W3dChunk
+public sealed record W3dHModelHeader(
+    uint Version,
+    string Name,
+    string HierarchyName,
+    uint ConnectionsCount,
+    byte[] UnknownBytes) : W3dChunk(W3dChunkType.W3D_CHUNK_HMODEL_HEADER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HMODEL_HEADER;
-
-    public uint Version { get; private set; }
-
-    public string Name { get; private set; }
-
-    public string HierarchyName { get; private set; }
-
-    public uint ConnectionsCount { get; private set; }
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dHModelHeader Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dHModelHeader
-            {
-                Version = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                ConnectionsCount = reader.ReadUInt16(),
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var version = reader.ReadUInt32();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var hierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var connectionsCount = reader.ReadUInt16();
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dHModelHeader UnknownBytes
 
-            return result;
+            return new W3dHModelHeader(version, name, hierarchyName, connectionsCount, unknownBytes);
         });
     }
 

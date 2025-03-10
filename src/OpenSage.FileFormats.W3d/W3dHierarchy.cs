@@ -9,17 +9,17 @@ namespace OpenSage.FileFormats.W3d;
 /// hierarchically. The header defines the name, number of pivots, etc.
 /// The pivots chunk will contain a W3dPivotStructs for each node in the
 /// tree.
-/// 
+///
 /// The W3dPivotFixupStruct contains a transform for each MAX coordinate
-/// system and our version of that same coordinate system (bone). It is 
+/// system and our version of that same coordinate system (bone). It is
 /// needed when the user exports the base pose using "Translation Only".
 /// These are the matrices which go from the MAX rotated coordinate systems
 /// to a system which is unrotated in the base pose .These transformations
 /// are needed when exporting a hierarchy animation with the given hierarchy
 /// tree file.
-/// 
+///
 /// Another explanation of these kludgy "fixup" matrices:
-/// 
+///
 /// What are the "fixup" matrices? These are the transforms which
 /// were applied to the base pose when the user wanted to force the
 /// base pose to use only matrices with certain properties. For
@@ -32,32 +32,23 @@ namespace OpenSage.FileFormats.W3d;
 /// exporter because they are needed to make the animation work with
 /// the new base pose.
 /// </summary>
-public sealed class W3dHierarchy : W3dChunk
+/// <param name="Version"></param>
+/// <param name="Name">Name of the hierarchy</param>
+/// <param name="NumPivots"></param>
+/// <param name="Center"></param>
+public sealed record W3dHierarchy(uint Version, string Name, uint NumPivots, Vector3 Center)
+    : W3dChunk(W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER;
-
-    public uint Version { get; private set; }
-
-    /// <summary>
-    /// Name of the hierarchy.
-    /// </summary>
-    public string Name { get; private set; }
-
-    public uint NumPivots { get; private set; }
-
-    public Vector3 Center { get; private set; }
-
     internal static W3dHierarchy Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dHierarchy
-            {
-                Version = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                NumPivots = reader.ReadUInt32(),
-                Center = reader.ReadVector3()
-            };
+            var version = reader.ReadUInt32();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var numPivots = reader.ReadUInt32();
+            var center = reader.ReadVector3();
+
+            return new W3dHierarchy(version, name, numPivots, center);
         });
     }
 

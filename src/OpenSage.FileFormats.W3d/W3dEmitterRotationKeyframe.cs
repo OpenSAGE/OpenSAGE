@@ -2,22 +2,16 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterRotationKeyframe
+/// <param name="Time"></param>
+/// <param name="Rotation">Rotational velocity in rotations/sec</param>
+public sealed record W3dEmitterRotationKeyframe(float Time, float Rotation)
 {
-    public float Time { get; private set; }
-
-    /// <summary>
-    /// Rotational velocity in rotations/sec
-    /// </summary>
-    public float Rotation { get; private set; }
-
     internal static W3dEmitterRotationKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterRotationKeyframe
-        {
-            Time = reader.ReadSingle(),
-            Rotation = reader.ReadSingle()
-        };
+        var time = reader.ReadSingle();
+        var rotation = reader.ReadSingle();
+
+        return new W3dEmitterRotationKeyframe(time, rotation);
     }
 
     internal void WriteTo(BinaryWriter writer)

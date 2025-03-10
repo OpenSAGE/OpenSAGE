@@ -2,70 +2,61 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShader
+/// <param name="DepthCompare"></param>
+/// <param name="DepthMask"></param>
+/// <param name="ColorMask">Now obsolete and ignored</param>
+/// <param name="DestBlend"></param>
+/// <param name="FogFunc">Now obsolete and ignored</param>
+/// <param name="PrimaryGradient"></param>
+/// <param name="SecondaryGradient"></param>
+/// <param name="SrcBlend"></param>
+/// <param name="Texturing"></param>
+/// <param name="DetailColorFunc"></param>
+/// <param name="DetailAlphaFunc"></param>
+/// <param name="ShaderPreset">Now obsolete and ignored</param>
+/// <param name="AlphaTest"></param>
+/// <param name="PostDetailColorFunc"></param>
+/// <param name="PostDetailAlphaFunc"></param>
+public sealed record W3dShader(
+    W3dShaderDepthCompare DepthCompare,
+    W3dShaderDepthMask DepthMask,
+    byte ColorMask,
+    W3dShaderDestBlendFunc DestBlend,
+    byte FogFunc,
+    W3dShaderPrimaryGradient PrimaryGradient,
+    W3dShaderSecondaryGradient SecondaryGradient,
+    W3dShaderSrcBlendFunc SrcBlend,
+    W3dShaderTexturing Texturing,
+    W3dShaderDetailColorFunc DetailColorFunc,
+    W3dShaderDetailAlphaFunc DetailAlphaFunc,
+    byte ShaderPreset,
+    W3dShaderAlphaTest AlphaTest,
+    W3dShaderDetailColorFunc PostDetailColorFunc,
+    W3dShaderDetailAlphaFunc PostDetailAlphaFunc)
 {
-    public W3dShaderDepthCompare DepthCompare { get; private set; }
-    public W3dShaderDepthMask DepthMask { get; private set; }
-
-    /// <summary>
-    /// Now obsolete and ignored
-    /// </summary>
-    public byte ColorMask { get; private set; }
-
-    public W3dShaderDestBlendFunc DestBlend { get; private set; }
-
-    /// <summary>
-    /// Now obsolete and ignored
-    /// </summary>
-    public byte FogFunc { get; private set; }
-
-    public W3dShaderPrimaryGradient PrimaryGradient { get; private set; }
-
-    public W3dShaderSecondaryGradient SecondaryGradient { get; private set; }
-
-    public W3dShaderSrcBlendFunc SrcBlend { get; private set; }
-
-    public W3dShaderTexturing Texturing { get; private set; }
-
-    public W3dShaderDetailColorFunc DetailColorFunc { get; private set; }
-
-    public W3dShaderDetailAlphaFunc DetailAlphaFunc { get; private set; }
-
-    /// <summary>
-    /// Now obsolete and ignored
-    /// </summary>
-    public byte ShaderPreset { get; private set; }
-
-    public W3dShaderAlphaTest AlphaTest { get; private set; }
-
-    public W3dShaderDetailColorFunc PostDetailColorFunc { get; private set; }
-
-    public W3dShaderDetailAlphaFunc PostDetailAlphaFunc { get; private set; }
-
     internal static W3dShader Parse(BinaryReader reader)
     {
-        var result = new W3dShader
-        {
-            DepthCompare = reader.ReadByteAsEnum<W3dShaderDepthCompare>(),
-            DepthMask = reader.ReadByteAsEnum<W3dShaderDepthMask>(),
-            ColorMask = reader.ReadByte(),
-            DestBlend = reader.ReadByteAsEnum<W3dShaderDestBlendFunc>(),
-            FogFunc = reader.ReadByte(),
-            PrimaryGradient = reader.ReadByteAsEnum<W3dShaderPrimaryGradient>(),
-            SecondaryGradient = reader.ReadByteAsEnum<W3dShaderSecondaryGradient>(),
-            SrcBlend = reader.ReadByteAsEnum<W3dShaderSrcBlendFunc>(),
-            Texturing = reader.ReadByteAsEnum<W3dShaderTexturing>(),
-            DetailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>(),
-            DetailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>(),
-            ShaderPreset = reader.ReadByte(),
-            AlphaTest = reader.ReadByteAsEnum<W3dShaderAlphaTest>(),
-            PostDetailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>(),
-            PostDetailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>()
-        };
+        var depthCompare = reader.ReadByteAsEnum<W3dShaderDepthCompare>();
+        var depthMask = reader.ReadByteAsEnum<W3dShaderDepthMask>();
+        var colorMask = reader.ReadByte();
+        var destBlend = reader.ReadByteAsEnum<W3dShaderDestBlendFunc>();
+        var fogFunc = reader.ReadByte();
+        var primaryGradient = reader.ReadByteAsEnum<W3dShaderPrimaryGradient>();
+        var secondaryGradient = reader.ReadByteAsEnum<W3dShaderSecondaryGradient>();
+        var srcBlend = reader.ReadByteAsEnum<W3dShaderSrcBlendFunc>();
+        var texturing = reader.ReadByteAsEnum<W3dShaderTexturing>();
+        var detailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>();
+        var detailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>();
+        var shaderPreset = reader.ReadByte();
+        var alphaTest = reader.ReadByteAsEnum<W3dShaderAlphaTest>();
+        var postDetailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>();
+        var postDetailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>();
 
         reader.ReadByte(); // padding
 
-        return result;
+        return new W3dShader(depthCompare, depthMask, colorMask, destBlend, fogFunc, primaryGradient, secondaryGradient,
+            srcBlend, texturing, detailColorFunc, detailAlphaFunc, shaderPreset, alphaTest, postDetailColorFunc,
+            postDetailAlphaFunc);
     }
 
     internal void WriteTo(BinaryWriter writer)

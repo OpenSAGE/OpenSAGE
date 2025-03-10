@@ -2,65 +2,51 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dAnimationChannel : W3dAnimationChannelBase
+/// <param name="FirstFrame"></param>
+/// <param name="LastFrame"></param>
+/// <param name="VectorLength">Length of each vector in this channel</param>
+/// <param name="ChannelType"></param>
+/// <param name="Pivot">Pivot affected by this channel</param>
+/// <param name="Unknown">Maybe padding?</param>
+/// <param name="Data"></param>
+/// <param name="NumPadBytes"></param>
+public sealed record W3dAnimationChannel(
+    ushort FirstFrame,
+    ushort LastFrame,
+    ushort VectorLength,
+    W3dAnimationChannelType ChannelType,
+    ushort Pivot,
+    ushort Unknown,
+    W3dAnimationChannelDatum[] Data,
+    uint NumPadBytes) : W3dAnimationChannelBase(W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL;
-
-    public ushort FirstFrame { get; private set; }
-
-    public ushort LastFrame { get; private set; }
-
-    /// <summary>
-    /// Length of each vector in this channel.
-    /// </summary>
-    public ushort VectorLength { get; private set; }
-
-    public W3dAnimationChannelType ChannelType { get; private set; }
-
-    /// <summary>
-    /// Pivot affected by this channel.
-    /// </summary>
-    public ushort Pivot { get; private set; }
-
-    // Maybe padding?
-    public ushort Unknown { get; private set; }
-
-    public W3dAnimationChannelDatum[] Data { get; private set; }
-
-    public uint NumPadBytes { get; private set; }
-
     internal static W3dAnimationChannel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
             var startPosition = reader.BaseStream.Position;
 
-            var result = new W3dAnimationChannel
-            {
-                FirstFrame = reader.ReadUInt16(),
-                LastFrame = reader.ReadUInt16(),
-                VectorLength = reader.ReadUInt16(),
-                ChannelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
-                Pivot = reader.ReadUInt16(),
-                Unknown = reader.ReadUInt16()
-            };
+            var firstFrame = reader.ReadUInt16();
+            var lastFrame = reader.ReadUInt16();
+            var vectorLength = reader.ReadUInt16();
+            var channelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>();
+            var pivot = reader.ReadUInt16();
+            var unknown = reader.ReadUInt16();
 
-            ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+            ValidateChannelDataSize(channelType, vectorLength);
 
-            var numElements = result.LastFrame - result.FirstFrame + 1;
+            var numElements = lastFrame - firstFrame + 1;
             var data = new W3dAnimationChannelDatum[numElements];
 
             for (var i = 0; i < numElements; i++)
             {
-                data[i] = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
+                data[i] = W3dAnimationChannelDatum.Parse(reader, channelType);
             }
 
-            result.Data = data;
+            var numPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
+            reader.BaseStream.Seek((int)numPadBytes, SeekOrigin.Current);
 
-            result.NumPadBytes = (uint)(context.CurrentEndPosition - reader.BaseStream.Position);
-            reader.BaseStream.Seek((int)result.NumPadBytes, SeekOrigin.Current);
-
-            return result;
+            return new W3dAnimationChannel(firstFrame, lastFrame, vectorLength, channelType, pivot, unknown, data, numPadBytes);
         });
     }
 
