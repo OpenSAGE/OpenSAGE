@@ -1531,6 +1531,15 @@ public enum BodyDamageType
     Rubble = 3
 }
 
+public static class BodyDamageTypeExtensions
+{
+    public static bool IsBetterThan(this BodyDamageType a, BodyDamageType b)
+    {
+        // This assumes the conditions in BodyDamageType are in sequential order.
+        return a < b;
+    }
+}
+
 public enum TerrainLod
 {
     [IniEnum("DISABLE")]

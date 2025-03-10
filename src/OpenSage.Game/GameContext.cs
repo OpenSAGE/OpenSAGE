@@ -6,6 +6,7 @@ using OpenSage.Content.Loaders;
 using OpenSage.DataStructures;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic;
+using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 
 namespace OpenSage;
@@ -29,6 +30,8 @@ public sealed class GameContext
     public AssetStore AssetStore => AssetLoadContext.AssetStore;
 
     public readonly Random Random = new Random();
+
+    public readonly AI AI = new();
 
     public LogicFrameSpan GetRandomLogicFrameSpan(LogicFrameSpan min, LogicFrameSpan max)
     {

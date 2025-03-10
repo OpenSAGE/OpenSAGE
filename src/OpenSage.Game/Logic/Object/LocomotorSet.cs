@@ -6,12 +6,14 @@ namespace OpenSage.Logic.Object;
 public sealed class LocomotorSet : IPersistableObject
 {
     private readonly GameObject _gameObject;
+    private readonly GameContext _context;
     private readonly List<Locomotor> _locomotors;
     private Surfaces _surfaces;
 
-    public LocomotorSet(GameObject gameObject)
+    public LocomotorSet(GameObject gameObject, GameContext context)
     {
         _gameObject = gameObject;
+        _context = context;
         _locomotors = new List<Locomotor>();
     }
 
@@ -24,7 +26,7 @@ public sealed class LocomotorSet : IPersistableObject
             var locomotorTemplate = locomotorTemplateReference.Value;
 
             _locomotors.Add(new Locomotor(
-                _gameObject,
+                _context,
                 locomotorTemplate,
                 locomotorSetTemplate.Speed));
 
@@ -86,7 +88,7 @@ public sealed class LocomotorSet : IPersistableObject
 
                 var locomotorTemplate = reader.AssetStore.LocomotorTemplates.GetByName(locomotorTemplateName);
 
-                var locomotor = new Locomotor(_gameObject, locomotorTemplate, 100);
+                var locomotor = new Locomotor(_context, locomotorTemplate, 100);
 
                 reader.PersistObject(locomotor);
 

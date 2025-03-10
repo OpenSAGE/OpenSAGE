@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace OpenSage.Mathematics;
@@ -115,10 +116,15 @@ public static class Matrix4x4Utility
 
     public static void RotateY(ref this Matrix4x4 value, float theta)
     {
-        float tmp1, tmp2;
-
         var s = MathF.Sin(theta);
         var c = MathF.Cos(theta);
+
+        value.RotateY(s, c);
+    }
+
+    public static void RotateY(ref this Matrix4x4 value, float s, float c)
+    {
+        float tmp1, tmp2;
 
         tmp1 = value.M11;
         tmp2 = value.M31;
@@ -141,10 +147,15 @@ public static class Matrix4x4Utility
 
     public static void RotateZ(ref this Matrix4x4 value, float theta)
     {
-        float tmp1, tmp2;
-
         var s = MathF.Sin(theta);
         var c = MathF.Cos(theta);
+
+        value.RotateZ(s, c);
+    }
+
+    public static void RotateZ(ref this Matrix4x4 value, float s, float c)
+    {
+        float tmp1, tmp2;
 
         tmp1 = value.M11;
         tmp2 = value.M21;
@@ -163,5 +174,45 @@ public static class Matrix4x4Utility
 
         value.M13 = c * tmp1 + s * tmp2;
         value.M23 = -s * tmp1 + c * tmp2;
+    }
+
+    /// <summary>
+    /// Creates a matrix given a position and a direction (x axis will point in direction).
+    /// Direction vector must be normalized!
+    /// </summary>
+    public static Matrix4x4 CreateTransformMatrix(in Vector3 pos, in Vector3 dir)
+    {
+        Debug.Assert(dir == Vector3.Normalize(dir));
+
+        var len2 = MathF.Sqrt((dir.X * dir.X) + (dir.Y * dir.Y));
+
+        // Sine and cosine of the pitch ("up-down" tilt about y).
+        var sinp = dir.Z;
+        var cosp = len2;
+
+        // Sine and cosine of the yaw ("left-right" tilt about z).
+        float siny, cosy;
+        if (len2 != 0.0f)
+        {
+            siny = dir.Y / len2;
+            cosy = dir.X / len2;
+        }
+        else
+        {
+            siny = 0.0f;
+            cosy = 1.0f;
+        }
+
+        var result = Matrix4x4.Identity;
+
+        // Pitch rotation.
+        result.RotateY(-sinp, cosp);
+
+        // Yaw rotation to projection of target in x-y plane.
+        result.RotateZ(siny, cosy);
+
+        result.Translation = pos;
+
+        return result;
     }
 }

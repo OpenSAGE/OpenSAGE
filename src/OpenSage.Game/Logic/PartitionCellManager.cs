@@ -208,6 +208,9 @@ public sealed class PartitionCellManager : IPersistableObject
         return Vector3.DistanceSquared(gameObject1.Translation, gameObject2.Translation);
     }
 
+    // TODO(Port): Implement this.
+    public float GetGroundOrStructureHeight(float posX, float posY) => _game.TerrainLogic.GetGroundHeight(posX, posY);
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(2);

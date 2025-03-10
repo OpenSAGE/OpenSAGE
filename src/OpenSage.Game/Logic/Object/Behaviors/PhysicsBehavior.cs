@@ -51,6 +51,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     private LogicFrame _motiveForceExpires;
     private float _extraBounciness;
     private float _extraFriction;
+
     private float _velocityMagnitude;
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order1;
@@ -59,9 +60,21 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public bool IsMotive => _motiveForceExpires > _context.GameLogic.CurrentFrame;
 
+    public bool IsStunned => GetFlag(PhysicsFlagType.IsStunned);
+
     public float Mass
     {
-        get => _mass;
+        get
+        {
+            var result = _mass;
+
+            if (_gameObject.Contain != null)
+            {
+                result += _gameObject.Contain.GetContainedItemsMass();
+            }
+
+            return result;
+        }
         set => _mass = value;
     }
 
@@ -98,15 +111,40 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     internal Vector3 Acceleration => _acceleration;
     internal Vector3 LastAcceleration => _previousAcceleration;
     internal Vector3 Velocity => _velocity;
-    internal PhysicsTurningType Turning => _turning;
+
+    public PhysicsTurningType Turning
+    {
+        get => _turning;
+        set => _turning = value;
+    }
+
     internal uint IgnoreCollisionsWith => _ignoreCollisionsWith;
     internal PhysicsFlagType Flags => _flags;
     internal uint CurrentOverlap => _currentOverlap;
     internal uint PreviousOverlap => _previousOverlap;
     internal LogicFrame MotiveForceExpires => _motiveForceExpires;
     internal float ExtraBounciness => _extraBounciness;
-    internal float ExtraFriction => _extraFriction;
+
+    /// <summary>
+    /// Modifier to friction(s).
+    /// </summary>
+    public float ExtraFriction
+    {
+        get => _extraFriction;
+        set => _extraFriction = value;
+    }
+
     internal float VelocityMagnitude => _velocityMagnitude;
+
+    public bool StickToGround
+    {
+        set => SetFlag(PhysicsFlagType.StickToGround, value);
+    }
+
+    public bool AllowAirborneFriction
+    {
+        set => SetFlag(PhysicsFlagType.ApplyFriction2DWhenAirborne, value);
+    }
 
     internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
         : base(gameObject, context)
@@ -432,7 +470,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 if ((MathF.Abs(_velocity.X) <= tinyDelta || MathF.Abs(activeVelocityZ / _velocity.X) >= minAngleTan) &&
                     (MathF.Abs(_velocity.Y) <= tinyDelta || MathF.Abs(activeVelocityZ / _velocity.Y) >= minAngleTan))
                 {
-                    var damageAmount = netSpeed * GetMass() * d.FallHeightDamageFactor;
+                    var damageAmount = netSpeed * Mass * d.FallHeightDamageFactor;
 
                     var damageInfo = new DamageData();
                     damageInfo.Request.DamageType = DamageType.Falling;
@@ -497,7 +535,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         // F = ma  -->  a = F/M (divide force by mass)
-        var mass = GetMass();
+        var mass = Mass;
         var modForce = force;
         if (IsMotive)
         {
@@ -613,7 +651,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             if (_velocity.X != 0.0f || _velocity.Y != 0.0f)
             {
                 var dir = _gameObject.UnitDirectionVector2D;
-                var mass = GetMass();
+                var mass = Mass;
 
                 var lateralDot = (_velocity.X * -dir.Y) + (_velocity.Y * dir.X);
                 var lateralVelocityX = lateralDot * -dir.Y;
@@ -670,7 +708,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 desiredAccelerationZ = MathF.Abs(velocityZ) * stiffness;
             }
 
-            bounceForce = new Vector3(0.0f, 0.0f, GetMass() * desiredAccelerationZ);
+            bounceForce = new Vector3(0.0f, 0.0f, Mass * desiredAccelerationZ);
 
             const float damping = 0.7f;
             ApplyYawPitchRollDamping(damping);
@@ -749,10 +787,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             return;
         }
 
-        var pos = _gameObject.Translation.Vector2XY();
+        var pos = _gameObject.Translation;
 
         // Check for object being stuck on cliffs. If so, kill it.
-        if (_context.Game.TerrainLogic.IsCliffCell(pos)
+        if (_context.Game.TerrainLogic.IsCliffCell(pos.X, pos.Y)
             && !ai.HasLocomotorForSurface(Surfaces.Cliff))
         {
             obj.Kill();
@@ -760,7 +798,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         // Check for object being stuck on water. If so, kill it.
-        if (_context.Game.TerrainLogic.IsUnderwater(pos, out var _)
+        if (_context.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var _)
             && !ai.HasLocomotorForSurface(Surfaces.Water))
         {
             obj.Kill();
@@ -808,18 +846,6 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         transform.Translation = pos;
 
         _gameObject.SetTransformMatrix(transform);
-    }
-
-    private float GetMass()
-    {
-        var result = _mass;
-
-        if (_gameObject.Contain != null)
-        {
-            result += _gameObject.Contain.GetContainedItemsMass();
-        }
-
-        return result;
     }
 
     private void DoBounceSound(in Vector3 prevPos)

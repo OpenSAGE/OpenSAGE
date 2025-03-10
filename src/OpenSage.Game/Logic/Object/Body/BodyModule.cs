@@ -21,9 +21,14 @@ public abstract class BodyModule : BehaviorModule
 
     public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
 
+    // TODO(Port): Make this abstract.
     public virtual bool FrontCrushed => false;
 
+    // TODO(Port): Make this abstract.
     public virtual bool BackCrushed => false;
+
+    // TODO(Port): Make this abstract.
+    public virtual BodyDamageType DamageState => BodyDamageType.Pristine;
 
     public virtual void SetInitialHealth(float multiplier) { }
 

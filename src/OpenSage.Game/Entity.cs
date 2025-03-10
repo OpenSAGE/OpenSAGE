@@ -41,6 +41,17 @@ public abstract class Entity : DisposableBase
         OnEntityMoved();
     }
 
+    public void SetOrientation(float angle)
+    {
+        // TODO(Port): Implement this.
+        if (_transform.Yaw == angle)
+        {
+            return;
+        }
+        _transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+        OnEntityMoved();
+    }
+
     public void SetScale(float scale)
     {
         _transform.Scale = scale;

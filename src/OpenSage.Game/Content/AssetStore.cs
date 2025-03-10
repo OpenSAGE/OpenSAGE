@@ -20,7 +20,6 @@ using OpenSage.Lod;
 using OpenSage.Logic;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
-using OpenSage.Logic.Pathfinding;
 using OpenSage.Rendering;
 using OpenSage.Terrain;
 using OpenSage.Terrain.Roads;

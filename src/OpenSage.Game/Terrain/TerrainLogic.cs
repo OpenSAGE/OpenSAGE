@@ -17,19 +17,28 @@ public sealed class TerrainLogic : IPersistableObject
     }
 
     // TODO(Port): Implement this.
-    public bool IsCliffCell(Vector2 worldPosition) => false;
+    public bool IsCliffCell(float x, float y) => false;
 
     // TODO(Port): Implement this.
-    public bool IsUnderwater(Vector2 worldPosition, out float waterZ)
+    public bool IsUnderwater(float x, float y)
     {
-        waterZ = 0;
         return false;
     }
 
     // TODO(Port): Implement this.
-    public float GetLayerHeight(float x, float y, PathfindLayerType layer)
+    public bool IsUnderwater(float x, float y, out float waterZ)
     {
-        return HeightMap.GetHeight(x, y);
+        waterZ = 0;
+        return IsUnderwater(x, y);
+    }
+
+    public bool IsUnderwater(float x, float y, out float waterZ, out float terrainZ)
+    {
+        var result = IsUnderwater(x, y, out waterZ);
+
+        terrainZ = GetGroundHeight(x, y);
+
+        return result;
     }
 
     public float GetGroundHeight(float x, float y, out Vector3 normal)
@@ -61,6 +70,31 @@ public sealed class TerrainLogic : IPersistableObject
         var max = new Vector3(maxXY.X, maxXY.Y, HeightMap.MaxZ);
         return new AxisAlignedBoundingBox(min, max);
     }
+
+    // TODO(Port): Implement this.
+    public float GetLayerHeight(float x, float y, PathfindLayerType layer, out Vector3 normal, bool clip = true)
+    {
+        normal = Vector3.UnitZ;
+        return HeightMap.GetHeight(x, y);
+    }
+
+    // TODO(Port): Implement this.
+    public float GetLayerHeight(float x, float y, PathfindLayerType layer)
+    {
+        return HeightMap.GetHeight(x, y);
+    }
+
+    // TODO(Port): Implement this.
+    public PathfindLayerType GetLayerForDestination(in Vector3 pos) => PathfindLayerType.Ground;
+
+    /// <summary>
+    /// This is just like <see cref="GetLayerForDestination"/>, but always
+    /// return the highest layer that will be <= z at that point (unlike
+    /// <see cref="GetLayerForDestination"/>, which will return the closest
+    /// layer).
+    /// </summary>
+    // TODO(Port): Implement this.
+    public PathfindLayerType GetHighestLayerForDestination(in Vector3 pos, bool onlyHealthyBridges = false) => PathfindLayerType.Ground;
 
     public void Persist(StatePersister reader)
     {

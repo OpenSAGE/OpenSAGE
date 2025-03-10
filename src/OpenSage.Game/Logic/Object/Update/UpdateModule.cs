@@ -48,6 +48,16 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     protected void SetNextUpdateFrame(LogicFrame frame)
     {
+        // If we are already awake, don't reset our wake frame. See GameLogic::friend_awakenUpdateModule.
+        if (GameObject != null)
+        {
+            var now = Context.GameLogic.CurrentFrame.Value;
+            if (_nextUpdateFrame.Frame == now && frame.Value == now + 1)
+            {
+                return;
+            }
+        }
+
         _nextUpdateFrame = new UpdateFrame(frame, UpdateOrder);
     }
 

@@ -278,7 +278,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
                 DamageType = damageType,
                 DamageToDeal = (float)amount,
                 DeathType = deathType,
-                DamageDealer = damageDealer.ID,
+                DamageDealer = damageDealer?.ID ?? 0,
             }
         };
         AttemptDamage(ref damageInfo);
@@ -457,7 +457,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public int EnergyProduction { get; internal set; }
 
     // TODO(Port): Actually implement and use this.
-    private PathfindLayerType _layer;
+    private PathfindLayerType _layer = PathfindLayerType.Ground;
     public PathfindLayerType Layer
     {
         get => _layer;
@@ -481,7 +481,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         get
         {
             var pos = Transform.Translation;
-            if (_gameContext.Game.TerrainLogic.IsUnderwater(new Vector2(pos.X, pos.Y), out var waterZ))
+            if (_gameContext.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
             {
                 return pos.Z - waterZ;
             }
