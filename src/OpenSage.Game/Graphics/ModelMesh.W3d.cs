@@ -309,7 +309,7 @@ partial class ModelMesh
             // Expand ShaderIds and TextureIds, if they have a single entry
             // (which means same ID for all faces)
 
-            IEnumerable<uint?> getExpandedTextureIds(List<uint?> ids)
+            IEnumerable<uint?> getExpandedTextureIds(IReadOnlyList<uint?> ids)
             {
                 if (ids == null)
                 {

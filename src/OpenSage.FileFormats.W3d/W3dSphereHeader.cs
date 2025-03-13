@@ -4,64 +4,47 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereHeader
+public sealed record W3dSphereHeader(
+    uint ChunkType,
+    uint ChunkSize,
+    uint Version,
+    uint Flags,
+    bool AlignedCamera,
+    bool Looping,
+    string Name,
+    Vector3 Center,
+    Vector3 Size,
+    float Duration,
+    ColorRgbF InitialColor,
+    float InitialOpacity,
+    Vector3 InitialScale,
+    Vector3 InitialAlphaVector,
+    Vector2 InitialAlphaVectorMagnitude,
+    string TextureFileName)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public uint Version { get; private set; }
-
-    public uint Flags { get; private set; }
-
-    public bool AlignedCamera { get; private set; }
-
-    public bool Looping { get; private set; }
-
-    public string Name { get; private set; }
-
-    public Vector3 Center { get; private set; }
-
-    public Vector3 Size { get; private set; }
-
-    public float Duration { get; private set; }
-
-    public ColorRgbF InitialColor { get; private set; }
-
-    public float InitialOpacity { get; private set; }
-
-    public Vector3 InitialScale { get; private set; }
-
-    public Vector3 InitialAlphaVector { get; private set; }
-
-    public Vector2 InitialAlphaVectorMagnitude { get; private set; }
-
-    public string TextureFileName { get; private set; }
-
     internal static W3dSphereHeader Parse(BinaryReader reader)
     {
-        var result = new W3dSphereHeader
-        {
-            ChunkType = reader.ReadUInt32(),
-            ChunkSize = reader.ReadUInt32() & 0x7FFFFFFF,
-            Version = reader.ReadUInt32(),
-            Flags = reader.ReadUInt32()
-        };
+        var chunkType = reader.ReadUInt32();
+        var chunkSize = reader.ReadUInt32() & 0x7FFFFFFF;
+        var version = reader.ReadUInt32();
+        var flags = reader.ReadUInt32();
 
-        result.AlignedCamera = ((result.Flags & 1) == 1);
-        result.Looping = ((result.Flags & 2) == 2);
-        result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
-        result.Center = reader.ReadVector3();
-        result.Size = reader.ReadVector3();
-        result.Duration = reader.ReadSingle();
-        result.InitialColor = reader.ReadColorRgbF();
-        result.InitialOpacity = reader.ReadSingle();
-        result.InitialScale = reader.ReadVector3();
-        result.InitialAlphaVector = reader.ReadVector3();
-        result.InitialAlphaVectorMagnitude = reader.ReadVector2();
-        result.TextureFileName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+        var alignedCamera = ((flags & 1) == 1);
+        var looping = ((flags & 2) == 2);
+        var name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+        var center = reader.ReadVector3();
+        var size = reader.ReadVector3();
+        var duration = reader.ReadSingle();
+        var initialColor = reader.ReadColorRgbF();
+        var initialOpacity = reader.ReadSingle();
+        var initialScale = reader.ReadVector3();
+        var initialAlphaVector = reader.ReadVector3();
+        var initialAlphaVectorMagnitude = reader.ReadVector2();
+        var textureFileName = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
 
-        return result;
+        return new W3dSphereHeader(chunkType, chunkSize, version, flags, alignedCamera, looping, name, center, size,
+            duration, initialColor, initialOpacity, initialScale, initialAlphaVector, initialAlphaVectorMagnitude,
+            textureFileName);
     }
 
     public void Write(BinaryWriter writer)

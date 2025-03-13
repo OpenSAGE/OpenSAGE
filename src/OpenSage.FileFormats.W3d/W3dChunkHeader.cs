@@ -2,35 +2,20 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dChunkHeader
+/// <param name="ChunkSize">Size of the chunk, (not including the chunk header)</param>
+/// <param name="HasSubChunks"></param>
+public sealed record W3dChunkHeader(uint ChunkSize, bool HasSubChunks)
 {
     public const int SizeInBytes = sizeof(uint);
 
-    /// <summary>
-    /// Size of the chunk, (not including the chunk header)
-    /// </summary>
-    public uint ChunkSize { get; private set; }
-
-    public bool HasSubChunks { get; private set; }
-
     internal static W3dChunkHeader Parse(BinaryReader reader)
     {
-        var result = new W3dChunkHeader();
-
         var chunkSize = reader.ReadUInt32();
-        result.ChunkSize = chunkSize & 0x7FFFFFFF;
-        result.HasSubChunks = (chunkSize >> 31) == 1;
+        chunkSize &= 0x7FFFFFFF;
+        var hasSubChunks = (chunkSize >> 31) == 1;
 
-        return result;
+        return new W3dChunkHeader(chunkSize, hasSubChunks);
     }
-
-    internal W3dChunkHeader(uint chunkSize, bool hasSubChunks)
-    {
-        ChunkSize = chunkSize;
-        HasSubChunks = hasSubChunks;
-    }
-
-    private W3dChunkHeader() { }
 
     internal void WriteTo(BinaryWriter writer)
     {

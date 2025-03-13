@@ -2,19 +2,14 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterFrameKeyframe
+public sealed record W3dEmitterFrameKeyframe(float Time, float Frame)
 {
-    public float Time { get; private set; }
-
-    public float Frame { get; private set; }
-
     internal static W3dEmitterFrameKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterFrameKeyframe
-        {
-            Time = reader.ReadSingle(),
-            Frame = reader.ReadSingle()
-        };
+        var time = reader.ReadSingle();
+        var frame = reader.ReadSingle();
+
+        return new W3dEmitterFrameKeyframe(time, frame);
     }
 
     internal void WriteTo(BinaryWriter writer)

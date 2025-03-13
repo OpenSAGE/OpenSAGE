@@ -3,47 +3,52 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dVertexMaterial : W3dContainerChunk
+public sealed record W3dVertexMaterial(
+    W3dVertexMaterialName Name,
+    W3dVertexMaterialInfo Info,
+    W3dVertexMapperArgs? MapperArgs0,
+    W3dVertexMapperArgs? MapperArgs1) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL;
-
-    public W3dVertexMaterialName Name { get; private set; }
-
-    public W3dVertexMaterialInfo Info { get; private set; }
-
-    public W3dVertexMapperArgs MapperArgs0 { get; private set; }
-    public W3dVertexMapperArgs MapperArgs1 { get; private set; }
-
     internal static W3dVertexMaterial Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dVertexMaterial();
+            W3dVertexMaterialName? name = null;
+            W3dVertexMaterialInfo? info = null;
+            W3dVertexMapperArgs? mapperArgs0 = null;
+            W3dVertexMapperArgs? mapperArgs1 = null;
+
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_NAME:
-                        result.Name = W3dVertexMaterialName.Parse(reader, context);
+                        name = W3dVertexMaterialName.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS0:
-                        result.MapperArgs0 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
+                        mapperArgs0 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS1:
-                        result.MapperArgs1 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
+                        mapperArgs1 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_INFO:
-                        result.Info = W3dVertexMaterialInfo.Parse(reader, context);
+                        info = W3dVertexMaterialInfo.Parse(reader, context);
                         break;
 
                     default:
                         throw CreateUnknownChunkException(chunkType);
                 }
             });
-            return result;
+
+            if (name is null || info is null)
+            {
+                throw new InvalidDataException();
+            }
+
+            return new W3dVertexMaterial(name, info, mapperArgs0, mapperArgs1);
         });
     }
 

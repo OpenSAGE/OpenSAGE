@@ -2,18 +2,14 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterOpacityKeyframe
+public sealed record W3dEmitterOpacityKeyframe(float Time, float Opacity)
 {
-    public float Time { get; private set; }
-    public float Opacity { get; private set; }
-
     internal static W3dEmitterOpacityKeyframe Parse(BinaryReader reader)
     {
-        return new W3dEmitterOpacityKeyframe
-        {
-            Time = reader.ReadSingle(),
-            Opacity = reader.ReadSingle()
-        };
+        var time = reader.ReadSingle();
+        var opacity = reader.ReadSingle();
+
+        return new W3dEmitterOpacityKeyframe(time, opacity);
     }
 
     internal void WriteTo(BinaryWriter writer)

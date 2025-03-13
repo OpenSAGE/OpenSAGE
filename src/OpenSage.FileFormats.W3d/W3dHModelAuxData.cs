@@ -2,52 +2,40 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHModelAuxData : W3dChunk
+public sealed record W3dHModelAuxData(
+    uint Attributes,
+    uint MeshCount,
+    uint CollisionCount,
+    uint SkinCount,
+    uint[] FutureCounts,
+    float LodMin,
+    float LodMax,
+    byte[] FutureUse) : W3dChunk(W3dChunkType.OBSOLETE_W3D_CHUNK_HMODEL_AUX_DATA)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.OBSOLETE_W3D_CHUNK_HMODEL_AUX_DATA;
-
-    public uint Attributes { get; private set; }
-
-    public uint MeshCount { get; private set; }
-
-    public uint CollisionCount { get; private set; }
-
-    public uint SkinCount { get; private set; }
-
-    public uint[] FutureCounts { get; private set; }
-
-    public float LodMin { get; private set; }
-
-    public float LodMax { get; private set; }
-
-    public byte[] FutureUse { get; private set; }
-
     internal static W3dHModelAuxData Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dHModelAuxData
-            {
-                Attributes = reader.ReadUInt32(),
-                MeshCount = reader.ReadUInt32(),
-                CollisionCount = reader.ReadUInt32(),
-                SkinCount = reader.ReadUInt32(),
-                FutureCounts = new uint[8]
-            };
+            var attributes = reader.ReadUInt32();
+            var meshCount = reader.ReadUInt32();
+            var collisionCount = reader.ReadUInt32();
+            var skinCount = reader.ReadUInt32();
+            var futureCounts = new uint[8];
 
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
-                result.FutureCounts[i] = reader.ReadUInt32();
+                futureCounts[i] = reader.ReadUInt32();
             }
 
-            result.LodMin = reader.ReadSingle();
-            result.LodMax = reader.ReadSingle();
+            var lodMin = reader.ReadSingle();
+            var lodMax = reader.ReadSingle();
 
-            result.FutureUse = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
+            var futureUse = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine If FutureUse are used anywhere or are different between games?
 
-            return result;
+            return new W3dHModelAuxData(attributes, meshCount, collisionCount, skinCount, futureCounts, lodMin, lodMax,
+                futureUse);
         });
     }
 

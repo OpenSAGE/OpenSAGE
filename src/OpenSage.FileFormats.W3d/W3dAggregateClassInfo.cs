@@ -2,37 +2,27 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dAggregateClassInfo : W3dChunk
+public sealed record W3dAggregateClassInfo(uint OriginalClassId, uint Flags, byte[] UnknownBytes)
+    : W3dChunk(W3dChunkType.W3D_CHUNK_AGGREGATE_INFO)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AGGREGATE_INFO;
-
-    public uint OriginalClassID { get; private set; }
-
-    public uint Flags { get; private set; }
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dAggregateClassInfo Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dAggregateClassInfo
-            {
-                OriginalClassID = reader.ReadUInt32(),
-                Flags = reader.ReadUInt32(),
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var originalClassId = reader.ReadUInt32();
+            var flags = reader.ReadUInt32();
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine what the flags do/are.
             // TODO: Determine W3dAggregateClassInfo UnknownBytes.
 
-            return result;
+            return new W3dAggregateClassInfo(originalClassId, flags, unknownBytes);
         });
     }
 
     protected override void WriteToOverride(BinaryWriter writer)
     {
-        writer.Write(OriginalClassID);
+        writer.Write(OriginalClassId);
         writer.Write(Flags);
         writer.Write(UnknownBytes);
     }

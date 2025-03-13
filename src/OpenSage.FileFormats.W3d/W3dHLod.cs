@@ -3,42 +3,38 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHLod : W3dContainerChunk
+public sealed record W3dHLod(W3dHLodHeader Header,
+    List<W3dHLodArray> Lods,
+    W3dHLodArray? Aggregate,
+    W3dHLodArray? Proxy) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_HLOD)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD;
-
-    public W3dHLodHeader Header { get; private set; }
-
-    public List<W3dHLodArray> Lods { get; } = new List<W3dHLodArray>();
-
-    public W3dHLodAggregateArray Aggregate { get; private set; }
-
-    public W3dHLodProxyArray Proxy { get; private set; }
-
     internal static W3dHLod Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dHLod();
+            W3dHLodHeader? resultHeader = null;
+            List<W3dHLodArray> lods = [];
+            W3dHLodArray? aggregate = null;
+            W3dHLodArray? proxy = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_HLOD_HEADER:
-                        result.Header = W3dHLodHeader.Parse(reader, context);
+                        resultHeader = W3dHLodHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY:
-                        result.Lods.Add(W3dHLodArray.Parse(reader, context));
+                        lods.Add(W3dHLodArray.Parse(reader, context));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
-                        result.Aggregate = W3dHLodAggregateArray.Parse(reader, context);
+                        aggregate = W3dHLodArray.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_PROXY_ARRAY:
-                        result.Proxy = W3dHLodProxyArray.Parse(reader, context);
+                        proxy = W3dHLodArray.Parse(reader, context);
                         break;
 
                     default:
@@ -46,7 +42,12 @@ public sealed class W3dHLod : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dHLod(resultHeader, lods, aggregate, proxy);
         });
     }
 
@@ -64,14 +65,4 @@ public sealed class W3dHLod : W3dContainerChunk
             yield return Aggregate;
         }
     }
-}
-
-public sealed class W3dHLodAggregateArray : W3dHLodArrayBase<W3dHLodAggregateArray>
-{
-
-}
-
-public sealed class W3dHLodProxyArray : W3dHLodArrayBase<W3dHLodProxyArray>
-{
-
 }

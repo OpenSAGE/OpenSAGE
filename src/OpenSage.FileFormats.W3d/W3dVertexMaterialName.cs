@@ -2,20 +2,15 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dVertexMaterialName : W3dChunk
+public sealed record W3dVertexMaterialName(string Value) : W3dChunk(W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_NAME)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_NAME;
-
-    public string Value { get; private set; }
-
     internal static W3dVertexMaterialName Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dVertexMaterialName
-            {
-                Value = reader.ReadFixedLengthString((int)header.ChunkSize)
-            };
+            var value = reader.ReadFixedLengthString((int)header.ChunkSize);
+
+            return new W3dVertexMaterialName(value);
         });
     }
 

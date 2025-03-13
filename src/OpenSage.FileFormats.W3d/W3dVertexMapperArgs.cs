@@ -3,98 +3,116 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-// See MAPPERS.TXT in the W3DView folder for more details.
-public sealed class W3dVertexMapperArgs : W3dChunk
+/// <remarks>
+/// See MAPPERS.TXT in the W3DView folder for more details.
+/// </remarks>
+/// <param name="ChunkType"></param>
+/// <param name="RawValue"></param>
+/// <param name="UPerSec"></param>
+/// <param name="VPerSec"></param>
+/// <param name="UScale"></param>
+/// <param name="VScale"></param>
+/// <param name="FPS"></param>
+/// <param name="Log1Width">0 = width 1, 1 = width 2, 2 = width 4. The default means animate using a texture divided up into quarters.</param>
+/// <param name="Log2Width"></param>
+/// <param name="Last">The last frame to use</param>
+/// <param name="Speed">Units are hertz. 1 = 1 rotation per second</param>
+/// <param name="UCenter"></param>
+/// <param name="VCenter"></param>
+/// <param name="UAmp"></param>
+/// <param name="UFreq"></param>
+/// <param name="UPhase"></param>
+/// <param name="VAmp"></param>
+/// <param name="VFreq"></param>
+/// <param name="VPhase"></param>
+/// <param name="UStep"></param>
+/// <param name="VStep"></param>
+/// <param name="StepsPerSecond"></param>
+/// <param name="Offset"></param>
+/// <param name="Axis"></param>
+/// <param name="UOffset"></param>
+/// <param name="VOffset"></param>
+/// <param name="ClampFix"></param>
+/// <param name="UseReflect"></param>
+/// <param name="Period"></param>
+/// <param name="VPerScale"></param>
+/// <param name="BumpRotation">In Hertz. 1 = 1 rotate per second. DEFAULT = 0.0</param>
+/// <param name="BumpScale">Scale factor applied to the bumps. DEFAULT = 1.0</param>
+public sealed record W3dVertexMapperArgs(
+    W3dChunkType ChunkType,
+    string? RawValue = null,
+    float UPerSec = 0,
+    float VPerSec = 0,
+    float UScale = 1,
+    float VScale = 1,
+    float FPS = 1,
+    int Log1Width = 1,
+    int Log2Width = 1,
+    int Last = 0,
+    float Speed = 0.1f,
+    float UCenter = 0,
+    float VCenter = 0,
+    float UAmp = 1,
+    float UFreq = 1,
+    float UPhase = 0,
+    float VAmp = 1,
+    float VFreq = 1,
+    float VPhase = 0,
+    float UStep = 0,
+    float VStep = 0,
+    float StepsPerSecond = 0,
+    float Offset = 0,
+    float Axis = 0,
+    float UOffset = 0,
+    float VOffset = 0,
+    float ClampFix = 0,
+    float UseReflect = 0,
+    float Period = 0,
+    float VPerScale = 0,
+    float BumpRotation = 0,
+    float BumpScale = 1) : W3dChunk(ChunkType)
 {
-    public override W3dChunkType ChunkType { get; }
-
-    public W3dVertexMapperArgs(W3dChunkType chunkType)
-    {
-        ChunkType = chunkType;
-    }
-
-    public string RawValue;
-
-    public float UPerSec;
-    public float VPerSec;
-
-    public float UScale = 1;
-    public float VScale = 1;
-
-    public float FPS = 1;
-
-    /// <summary>
-    /// 0 = width 1, 1 = width 2, 2 = width 4.
-    /// The default means animate using a texture divided up into quarters.
-    /// </summary>
-    public int Log1Width = 1;
-
-    public int Log2Width = 1;
-
-    /// <summary>
-    /// The last frame to use.
-    /// </summary>
-    public int Last;
-
-    /// <summary>
-    /// Units are hertz. 1 = 1 rotation per second.
-    /// </summary>
-    public float Speed = 0.1f;
-
-    public float UCenter;
-    public float VCenter;
-
-    public float UAmp = 1;
-    public float UFreq = 1;
-    public float UPhase;
-
-    public float VAmp = 1;
-    public float VFreq = 1;
-    public float VPhase;
-
-    public float UStep;
-    public float VStep;
-    public float StepsPerSecond;
-    public float Offset;
-    public float Axis;
-    public float UOffset;
-    public float VOffset;
-    public float ClampFix;
-    public float UseReflect;
-    public float Period;
-    public float VPerScale;
-
-    /// <summary>
-    /// In Hertz. 1 = 1 rotate per second. DEFAULT = 0.0
-    /// </summary>
-    public float BumpRotation;
-
-    /// <summary>
-    /// Scale factor applied to the bumps. DEFAULT = 1.0
-    /// </summary>
-    public float BumpScale = 1;
-
     internal static W3dVertexMapperArgs Parse(BinaryReader reader, W3dParseContext context, W3dChunkType chunkType)
     {
         return ParseChunk(reader, context, header =>
         {
-            var value = reader.ReadFixedLengthString((int)header.ChunkSize);
-
-            var result = new W3dVertexMapperArgs(chunkType)
-            {
-                RawValue = value
-            };
-
-            if (string.IsNullOrEmpty(value))
-            {
-                return result;
-            }
+            string value = reader.ReadFixedLengthString((int)header.ChunkSize);
+            float uPerSec = 0;
+            float vPerSec = 0;
+            float uScale = 1;
+            float vScale = 1;
+            float fps = 1;
+            int log1Width = 1;
+            int log2Width = 1;
+            int last = 0;
+            float speed = 0.1f;
+            float uCenter = 0;
+            float vCenter = 0;
+            float uAmp = 1;
+            float uFreq = 1;
+            float uPhase = 0;
+            float vAmp = 1;
+            float vFreq = 1;
+            float vPhase = 0;
+            float uStep = 0;
+            float vStep = 0;
+            float stepsPerSecond = 0;
+            float offset = 0;
+            float axis = 0;
+            float uOffset = 0;
+            float vOffset = 0;
+            float clampFix = 0;
+            float useReflect = 0;
+            float period = 0;
+            float vPerScale = 0;
+            float bumpRotation = 0;
+            float bumpScale = 1;
 
             var splitMapperArgs0 = value.Split(new[] { "\r\n", "\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var mapperArg in splitMapperArgs0)
             {
-                var splitByDash = mapperArg.Contains("-"); // EnB asset ("pu09a.w3d") contains erroneous mapping. - is used instead of =. 
+                var splitByDash = mapperArg.Contains("-"); // EnB asset ("pu09a.w3d") contains erroneous mapping. - is used instead of =.
                 var splitByEquals = mapperArg.Contains("=");
 
                 var splitValue = (splitByEquals) ? '=' : '-';
@@ -117,135 +135,135 @@ public sealed class W3dVertexMapperArgs : W3dChunk
                     switch (mapperArgName)
                     {
                         case "UPerSec":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UPerSec);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uPerSec);
                             break;
 
                         case "VPerSec":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VPerSec);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vPerSec);
                             break;
 
                         case "UScale":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UScale);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uScale);
                             break;
 
                         case "VScale":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VScale);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vScale);
                             break;
 
                         case "FPS":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.FPS);
+                            ParseUtility.TryParseFloat(mapperArgValue, out fps);
                             break;
 
                         case "Log1Width":
-                            result.Log1Width = int.Parse(mapperArgValue);
+                            log1Width = int.Parse(mapperArgValue);
                             break;
 
                         case "Log2Width":
-                            result.Log2Width = int.Parse(mapperArgValue);
+                            log2Width = int.Parse(mapperArgValue);
                             break;
 
                         case "Last":
-                            int.TryParse(mapperArgValue, out result.Last);
+                            int.TryParse(mapperArgValue, out last);
                             break;
 
                         case "Speed":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.Speed);
+                            ParseUtility.TryParseFloat(mapperArgValue, out speed);
                             break;
 
                         case "UCenter":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UCenter);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uCenter);
                             break;
 
                         case "VCenter":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VCenter);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vCenter);
                             break;
 
                         case "UAmp":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UAmp);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uAmp);
                             break;
 
                         case "UFreq":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UFreq);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uFreq);
                             break;
 
                         case "UPhase":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UPhase);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uPhase);
                             break;
 
                         case "VAmp":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VAmp);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vAmp);
                             break;
 
                         case "VFreq":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VFreq);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vFreq);
                             break;
 
                         case "VPhase":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VPhase);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vPhase);
                             break;
 
                         case "BumpRotation":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.BumpRotation);
+                            ParseUtility.TryParseFloat(mapperArgValue, out bumpRotation);
                             break;
 
                         case "BumpScale":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.BumpScale);
+                            ParseUtility.TryParseFloat(mapperArgValue, out bumpScale);
                             break;
 
                         case "UStep":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UStep);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uStep);
                             break;
 
                         case "VStep":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VStep);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vStep);
                             break;
 
                         case "SPS":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.StepsPerSecond);
+                            ParseUtility.TryParseFloat(mapperArgValue, out stepsPerSecond);
                             break;
 
                         case "Offset":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.Offset);
+                            ParseUtility.TryParseFloat(mapperArgValue, out offset);
                             break;
 
                         case "Axis":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.Axis);
+                            ParseUtility.TryParseFloat(mapperArgValue, out axis);
                             break;
 
                         case "UOffset":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UOffset);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uOffset);
                             break;
 
                         case "VOffset":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VOffset);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vOffset);
                             break;
 
                         case "ClampFix":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.ClampFix);
+                            ParseUtility.TryParseFloat(mapperArgValue, out clampFix);
                             break;
 
                         case "UseReflect":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UseReflect);
+                            ParseUtility.TryParseFloat(mapperArgValue, out useReflect);
                             break;
 
                         case "VPreSec":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VPerSec);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vPerSec);
                             break;
 
                         case "Period":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.Period);
+                            ParseUtility.TryParseFloat(mapperArgValue, out period);
                             break;
 
                         case "UperSec":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.UPerSec);
+                            ParseUtility.TryParseFloat(mapperArgValue, out uPerSec);
                             break;
 
                         case "fps":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.FPS);
+                            ParseUtility.TryParseFloat(mapperArgValue, out fps);
                             break;
 
                         case "VPerScale":
-                            ParseUtility.TryParseFloat(mapperArgValue, out result.VPerScale);
+                            ParseUtility.TryParseFloat(mapperArgValue, out vPerScale);
                             break;
 
                         default:
@@ -254,7 +272,10 @@ public sealed class W3dVertexMapperArgs : W3dChunk
                 }
             }
 
-            return result;
+            return new W3dVertexMapperArgs(chunkType, value, uPerSec, vPerSec, uScale, vScale, fps, log1Width,
+                log2Width, last, speed, uCenter, vCenter, uAmp, uFreq, uPhase, vAmp, vFreq, vPhase, uStep, vStep,
+                stepsPerSecond, offset, axis, uOffset, vOffset, clampFix, useReflect, period, vPerScale, bumpRotation,
+                bumpScale);
         });
     }
 

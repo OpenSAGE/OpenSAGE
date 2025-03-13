@@ -3,43 +3,27 @@ using System.Numerics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dPivot
+/// <param name="Name">Name of the node (UR_ARM, LR_LEG, TORSO, etc)</param>
+/// <param name="ParentIdx">0xffffffff = root pivot; no parent</param>
+/// <param name="Translation">translation to pivot point</param>
+/// <param name="EulerAngles">orientation of the pivot point</param>
+/// <param name="Rotation">orientation of the pivot point</param>
+public sealed record W3dPivot(
+    string Name,
+    int ParentIdx,
+    Vector3 Translation,
+    Vector3 EulerAngles,
+    Quaternion Rotation)
 {
-    /// <summary>
-    /// Name of the node (UR_ARM, LR_LEG, TORSO, etc)
-    /// </summary>
-    public string Name { get; private set; }
-
-    /// <summary>
-    /// 0xffffffff = root pivot; no parent
-    /// </summary>
-    public int ParentIdx { get; private set; }
-
-    /// <summary>
-    /// translation to pivot point
-    /// </summary>
-    public Vector3 Translation { get; private set; }
-
-    /// <summary>
-    /// orientation of the pivot point
-    /// </summary>
-    public Vector3 EulerAngles { get; private set; }
-
-    /// <summary>
-    /// orientation of the pivot point
-    /// </summary>
-    public Quaternion Rotation { get; private set; }
-
     internal static W3dPivot Parse(BinaryReader reader)
     {
-        return new W3dPivot
-        {
-            Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-            ParentIdx = reader.ReadInt32(),
-            Translation = reader.ReadVector3(),
-            EulerAngles = reader.ReadVector3(),
-            Rotation = reader.ReadQuaternion()
-        };
+        var name = reader.ReadFixedLengthString(W3dConstants.NameLength);
+        var parentIdx = reader.ReadInt32();
+        var translation = reader.ReadVector3();
+        var eulerAngles = reader.ReadVector3();
+        var rotation = reader.ReadQuaternion();
+
+        return new W3dPivot(name, parentIdx, translation, eulerAngles, rotation);
     }
 
     internal void WriteTo(BinaryWriter writer)

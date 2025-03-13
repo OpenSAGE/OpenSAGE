@@ -3,30 +3,22 @@ using System.Numerics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereAlphaVector
+public sealed record W3dSphereAlphaVector(
+    uint ChunkType,
+    uint ChunkSize,
+    Vector3 Vector,
+    Vector2 Magnitude,
+    float Position)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public Vector3 Vector { get; private set; }
-
-    public Vector2 Magnitude { get; private set; }
-
-    public float Position { get; private set; }
-
     internal static W3dSphereAlphaVector Parse(BinaryReader reader)
     {
-        var result = new W3dSphereAlphaVector
-        {
-            ChunkType = reader.ReadByte(),
-            ChunkSize = reader.ReadByte(),
-            Vector = reader.ReadVector3(),
-            Magnitude = reader.ReadVector2(),
-            Position = reader.ReadSingle()
-        };
+        var chunkType = reader.ReadByte();
+        var chunkSize = reader.ReadByte();
+        var vector = reader.ReadVector3();
+        var magnitude = reader.ReadVector2();
+        var position = reader.ReadSingle();
 
-        return result;
+        return new W3dSphereAlphaVector(chunkType, chunkSize, vector, magnitude, position);
     }
 
     public void Write(BinaryWriter writer)

@@ -2,24 +2,17 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dCollisionNode : W3dChunk
+public sealed record W3dCollisionNode(byte[] UnknownBytes) : W3dChunk(W3dChunkType.W3D_CHUNK_COLLISION_NODE)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COLLISION_NODE;
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dCollisionNode Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dCollisionNode
-            {
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dCollisionNode UnknownBytes
 
-            return result;
+            return new W3dCollisionNode(unknownBytes);
         });
     }
 

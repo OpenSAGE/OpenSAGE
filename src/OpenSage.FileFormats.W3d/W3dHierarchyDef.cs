@@ -4,34 +4,33 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHierarchyDef : W3dContainerChunk
+public sealed record W3dHierarchyDef(
+    W3dHierarchy Header,
+    W3dPivots Pivots,
+    W3dPivotFixups? PivotFixups) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_HIERARCHY)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HIERARCHY;
-
-    public W3dHierarchy Header { get; private set; }
-    public W3dPivots Pivots { get; private set; }
-    public W3dPivotFixups PivotFixups { get; private set; }
-
     internal static W3dHierarchyDef Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dHierarchyDef();
+            W3dHierarchy? resultHeader = null;
+            W3dPivots? pivots = null;
+            W3dPivotFixups? pivotFixups = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER:
-                        result.Header = W3dHierarchy.Parse(reader, context);
+                        resultHeader = W3dHierarchy.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_PIVOTS:
-                        result.Pivots = W3dPivots.Parse(reader, context);
+                        pivots = W3dPivots.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS:
-                        result.PivotFixups = W3dPivotFixups.Parse(reader, context);
+                        pivotFixups = W3dPivotFixups.Parse(reader, context);
                         break;
 
                     default:
@@ -39,7 +38,12 @@ public sealed class W3dHierarchyDef : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null || pivots is null)
+            {
+                throw new InvalidDataException("header and pivots should never be null");
+            }
+
+            return new W3dHierarchyDef(resultHeader, pivots, pivotFixups);
         });
     }
 
@@ -55,13 +59,17 @@ public sealed class W3dHierarchyDef : W3dContainerChunk
     }
 }
 
-public sealed class W3dPivotFixups : W3dStructListChunk<W3dPivotFixups, Matrix4x3>
+public sealed record W3dPivotFixups(Matrix4x3[] Items)
+    : W3dStructListChunk<Matrix4x3>(W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS, Items)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS;
-
     internal static W3dPivotFixups Parse(BinaryReader reader, W3dParseContext context)
     {
-        return ParseList(reader, context, r => r.ReadMatrix4x3());
+        return ParseChunk(reader, context, header =>
+        {
+            var items = ParseItems(header, reader, r => r.ReadMatrix4x3());
+
+            return new W3dPivotFixups(items);
+        });
     }
 
     protected override void WriteItem(BinaryWriter writer, in Matrix4x3 item)

@@ -1,14 +1,19 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShaders : W3dListChunk<W3dShaders, W3dShader>
+public sealed record W3dShaders(IReadOnlyList<W3dShader> Items)
+    : W3dListChunk<W3dShader>(W3dChunkType.W3D_CHUNK_SHADERS, Items)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_SHADERS;
-
     internal static W3dShaders Parse(BinaryReader reader, W3dParseContext context)
     {
-        return ParseList(reader, context, W3dShader.Parse);
+        return ParseChunk(reader, context, header =>
+        {
+            var items = ParseItems(reader, context, W3dShader.Parse);
+
+            return new W3dShaders(items);
+        });
     }
 
     protected override void WriteItem(BinaryWriter writer, W3dShader item)

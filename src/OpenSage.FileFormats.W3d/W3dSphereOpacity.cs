@@ -2,27 +2,20 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereOpacity
+public sealed record W3dSphereOpacity(
+    uint ChunkType,
+    uint ChunkSize,
+    float Opacity,
+    float Position)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public float Opacity { get; private set; }
-
-    public float Position { get; private set; }
-
     internal static W3dSphereOpacity Parse(BinaryReader reader)
     {
-        var result = new W3dSphereOpacity
-        {
-            ChunkType = reader.ReadByte(),
-            ChunkSize = reader.ReadByte(),
-            Opacity = reader.ReadSingle(),
-            Position = reader.ReadSingle()
-        };
+        var chunkType = reader.ReadByte();
+        var chunkSize = reader.ReadByte();
+        var opacity = reader.ReadSingle();
+        var position = reader.ReadSingle();
 
-        return result;
+        return new W3dSphereOpacity(chunkType, chunkSize, opacity, position);
     }
 
     public void Write(BinaryWriter writer)

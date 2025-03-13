@@ -3,49 +3,36 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dTimeCodedAnimationChannel : W3dChunk
+/// <param name="NumTimeCodes"></param>
+/// <param name="Pivot">Pivot affected by this channel</param>
+/// <param name="VectorLength">Length of each vector in this channel</param>
+/// <param name="ChannelType"></param>
+/// <param name="Data"></param>
+public sealed record W3dTimeCodedAnimationChannel(
+    uint NumTimeCodes,
+    ushort Pivot,
+    byte VectorLength,
+    W3dAnimationChannelType ChannelType,
+    W3dTimeCodedDatum[] Data) : W3dChunk(W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL;
-
-    public uint NumTimeCodes { get; private set; }
-
-    /// <summary>
-    /// Pivot affected by this channel.
-    /// </summary>
-    public ushort Pivot { get; private set; }
-
-    /// <summary>
-    /// Length of each vector in this channel.
-    /// </summary>
-    public byte VectorLength { get; private set; }
-
-    public W3dAnimationChannelType ChannelType { get; private set; }
-
-    public W3dTimeCodedDatum[] Data { get; private set; }
-
     internal static W3dTimeCodedAnimationChannel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dTimeCodedAnimationChannel
-            {
-                NumTimeCodes = reader.ReadUInt32(),
-                Pivot = reader.ReadUInt16(),
-                VectorLength = reader.ReadByte(),
-                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>()
-            };
+            var numTimeCodes = reader.ReadUInt32();
+            var pivot = reader.ReadUInt16();
+            var vectorLength = reader.ReadByte();
+            var channelType = reader.ReadByteAsEnum<W3dAnimationChannelType>();
 
-            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+            W3dAnimationChannel.ValidateChannelDataSize(channelType, vectorLength);
 
-            var data = new W3dTimeCodedDatum[result.NumTimeCodes];
-            for (var i = 0; i < result.NumTimeCodes; i++)
+            var data = new W3dTimeCodedDatum[numTimeCodes];
+            for (var i = 0; i < numTimeCodes; i++)
             {
-                data[i] = W3dTimeCodedDatum.Parse(reader, result.ChannelType);
+                data[i] = W3dTimeCodedDatum.Parse(reader, channelType);
             }
 
-            result.Data = data;
-
-            return result;
+            return new W3dTimeCodedAnimationChannel(numTimeCodes, pivot, vectorLength, channelType, data);
         });
     }
 
@@ -64,30 +51,28 @@ public sealed class W3dTimeCodedAnimationChannel : W3dChunk
 }
 
 [DebuggerDisplay("TimeCode = {TimeCode}, Value = {Value}")]
-public sealed class W3dTimeCodedDatum
+public sealed record W3dTimeCodedDatum(
+    uint TimeCode,
+    bool NonInterpolatedMovement,
+    W3dAnimationChannelDatum Value)
 {
-    public uint TimeCode;
-    public bool NonInterpolatedMovement;
-    public W3dAnimationChannelDatum Value;
-
     internal static W3dTimeCodedDatum Parse(BinaryReader reader, W3dAnimationChannelType channelType)
     {
-        var result = new W3dTimeCodedDatum();
-
-        result.TimeCode = reader.ReadUInt32();
+        var timeCode = reader.ReadUInt32();
+        var nonInterpolatedMovement = false;
 
         // MSB is used to indicate a binary (non interpolated) movement
-        if ((result.TimeCode >> 31) == 1)
+        if ((timeCode >> 31) == 1)
         {
-            result.NonInterpolatedMovement = true;
+            nonInterpolatedMovement = true;
             // TODO: non-interpolated movement.
 
-            result.TimeCode &= ~(1 << 31);
+            timeCode &= ~(1 << 31);
         }
 
-        result.Value = W3dAnimationChannelDatum.Parse(reader, channelType);
+        var value = W3dAnimationChannelDatum.Parse(reader, channelType);
 
-        return result;
+        return new W3dTimeCodedDatum(timeCode, nonInterpolatedMovement, value);
     }
 
     internal void WriteTo(BinaryWriter writer, W3dAnimationChannelType channelType)

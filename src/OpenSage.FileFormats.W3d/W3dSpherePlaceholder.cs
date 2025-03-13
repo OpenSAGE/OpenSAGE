@@ -2,21 +2,14 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public class W3dSpherePlaceholder
+public sealed record W3dSpherePlaceholder(uint ChunkType, uint ChunkSize)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
     internal static W3dSpherePlaceholder Parse(BinaryReader reader)
     {
-        var result = new W3dSpherePlaceholder
-        {
-            ChunkType = reader.ReadUInt32(),
-            ChunkSize = reader.ReadUInt32() & 0x7FFFFFFF
-        };
+        var chunkType = reader.ReadUInt32();
+        var chunkSize = reader.ReadUInt32() & 0x7FFFFFFF;
 
-        return result;
+        return new W3dSpherePlaceholder(chunkType, chunkSize);
     }
 
     public void Write(BinaryWriter writer)

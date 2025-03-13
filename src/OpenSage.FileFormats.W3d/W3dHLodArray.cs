@@ -3,31 +3,26 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public abstract class W3dHLodArrayBase<TDerived> : W3dContainerChunk
-    where TDerived : W3dHLodArrayBase<TDerived>, new()
+public record W3dHLodArray(W3dHLodArrayHeader Header, List<W3dHLodSubObject> SubObjects)
+    : W3dContainerChunk(W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY;
-
-    public W3dHLodArrayHeader Header { get; private set; }
-
-    public List<W3dHLodSubObject> SubObjects { get; } = new List<W3dHLodSubObject>();
-
-    internal static TDerived Parse(BinaryReader reader, W3dParseContext context)
+    internal static W3dHLodArray Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new TDerived();
+            W3dHLodArrayHeader? resultHeader = null;
+            List<W3dHLodSubObject> subObjects = [];
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
-                        result.Header = W3dHLodArrayHeader.Parse(reader, context);
+                        resultHeader = W3dHLodArrayHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT:
-                        result.SubObjects.Add(W3dHLodSubObject.Parse(reader, context));
+                        subObjects.Add(W3dHLodSubObject.Parse(reader, context));
                         break;
 
                     default:
@@ -35,7 +30,12 @@ public abstract class W3dHLodArrayBase<TDerived> : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dHLodArray(resultHeader, subObjects);
         });
     }
 
@@ -48,9 +48,4 @@ public abstract class W3dHLodArrayBase<TDerived> : W3dContainerChunk
             yield return subObject;
         }
     }
-}
-
-public sealed class W3dHLodArray : W3dHLodArrayBase<W3dHLodArray>
-{
-
 }

@@ -2,16 +2,13 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShaderPs2
+public sealed record W3dShaderPs2(byte[] Unknown)
 {
-    public byte[] Unknown { get; private set; }
-
     internal static W3dShaderPs2 Parse(BinaryReader reader)
     {
-        return new W3dShaderPs2
-        {
-            Unknown = reader.ReadBytes(12)
-        };
+        var unknown = reader.ReadBytes(12);
+
+        return new W3dShaderPs2(unknown);
     }
 
     internal void WriteTo(BinaryWriter writer)

@@ -2,14 +2,12 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dAdaptiveDeltaData
+public sealed record W3dAdaptiveDeltaData(
+    W3dAdaptiveDeltaBitCount BitCount,
+    int VectorLength,
+    W3dAnimationChannelDatum InitialDatum,
+    W3dAdaptiveDeltaBlock[] DeltaBlocks)
 {
-    public W3dAdaptiveDeltaBitCount BitCount { get; private set; }
-    public int VectorLength { get; private set; }
-
-    public W3dAnimationChannelDatum InitialDatum { get; private set; }
-    public W3dAdaptiveDeltaBlock[] DeltaBlocks { get; private set; }
-
     internal static W3dAdaptiveDeltaData Parse(
         BinaryReader reader,
         uint numFrames,
@@ -20,12 +18,7 @@ public sealed class W3dAdaptiveDeltaData
         var count = (numFrames + 15) >> 4;
 
         // First read all initial values
-        var result = new W3dAdaptiveDeltaData
-        {
-            BitCount = bitCount,
-            VectorLength = vectorLength,
-            InitialDatum = W3dAnimationChannelDatum.Parse(reader, type)
-        };
+        var datum = W3dAnimationChannelDatum.Parse(reader, type);
 
         var numBits = (int)bitCount;
 
@@ -41,7 +34,8 @@ public sealed class W3dAdaptiveDeltaData
                     numBits);
             }
         }
-        result.DeltaBlocks = deltaBlocks;
+
+        var result = new W3dAdaptiveDeltaData(bitCount, vectorLength, datum, deltaBlocks);
 
         return result;
     }

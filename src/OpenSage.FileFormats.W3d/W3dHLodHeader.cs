@@ -2,30 +2,25 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHLodHeader : W3dChunk
+/// <param name="Version"></param>
+/// <param name="LodCount"></param>
+/// <param name="Name"></param>
+/// <param name="HierarchyName">Name of the hierarchy tree to use</param>
+public sealed record W3dHLodHeader(uint Version,
+    uint LodCount,
+    string Name,
+    string HierarchyName) : W3dChunk(W3dChunkType.W3D_CHUNK_HLOD_HEADER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD_HEADER;
-
-    public uint Version { get; private set; }
-    public uint LodCount { get; private set; }
-    public string Name { get; private set; }
-
-    /// <summary>
-    /// Name of the hierarchy tree to use.
-    /// </summary>
-    public string HierarchyName { get; private set; }
-
     internal static W3dHLodHeader Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dHLodHeader
-            {
-                Version = reader.ReadUInt32(),
-                LodCount = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength)
-            };
+            var version = reader.ReadUInt32();
+            var lodCount = reader.ReadUInt32();
+            var name = reader.ReadFixedLengthString(W3dConstants.NameLength);
+            var hierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength);
+
+            return new W3dHLodHeader(version, lodCount, name, hierarchyName);
         });
     }
 

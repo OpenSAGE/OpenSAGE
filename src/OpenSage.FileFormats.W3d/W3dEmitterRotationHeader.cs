@@ -2,32 +2,20 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitterRotationHeader
+/// <param name="KeyframeCount"></param>
+/// <param name="Random">Random initial rotational velocity (rotations/sec)</param>
+/// <param name="OrientationRandom">Random initial orientation (rotations 1.0=360deg)</param>
+public sealed record W3dEmitterRotationHeader(uint KeyframeCount, float Random, float OrientationRandom)
 {
-    public uint KeyframeCount { get; private set; }
-
-    /// <summary>
-    /// Random initial rotational velocity (rotations/sec)
-    /// </summary>
-    public float Random { get; private set; }
-
-    /// <summary>
-    /// Random initial orientation (rotations 1.0=360deg)
-    /// </summary>
-    public float OrientationRandom { get; private set; }
-
     internal static W3dEmitterRotationHeader Parse(BinaryReader reader)
     {
-        var result = new W3dEmitterRotationHeader
-        {
-            KeyframeCount = reader.ReadUInt32(),
-            Random = reader.ReadSingle(),
-            OrientationRandom = reader.ReadSingle()
-        };
+        var keyframeCount = reader.ReadUInt32();
+        var random = reader.ReadSingle();
+        var orientationRandom = reader.ReadSingle();
 
         reader.ReadBytes(sizeof(uint)); // Pad
 
-        return result;
+        return new W3dEmitterRotationHeader(keyframeCount, random, orientationRandom);
     }
 
     internal void WriteTo(BinaryWriter writer)

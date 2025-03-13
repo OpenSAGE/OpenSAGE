@@ -3,27 +3,20 @@ using System.Numerics;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dSphereScaleKeyFrame
+public sealed record W3dSphereScaleKeyFrame(
+    uint ChunkType,
+    uint ChunkSize,
+    Vector3 ScaleKeyFrame,
+    float Position)
 {
-    public uint ChunkType { get; private set; }
-
-    public uint ChunkSize { get; private set; }
-
-    public Vector3 ScaleKeyFrame { get; private set; }
-
-    public float Position { get; private set; }
-
     internal static W3dSphereScaleKeyFrame Parse(BinaryReader reader)
     {
-        var result = new W3dSphereScaleKeyFrame
-        {
-            ChunkType = reader.ReadByte(),
-            ChunkSize = reader.ReadByte(),
-            ScaleKeyFrame = reader.ReadVector3(),
-            Position = reader.ReadSingle()
-        };
+        var chunkType = reader.ReadByte();
+        var chunkSize = reader.ReadByte();
+        var scaleKeyFrame = reader.ReadVector3();
+        var position = reader.ReadSingle();
 
-        return result;
+        return new W3dSphereScaleKeyFrame(chunkType, chunkSize, scaleKeyFrame, position);
     }
 
     public void Write(BinaryWriter writer)

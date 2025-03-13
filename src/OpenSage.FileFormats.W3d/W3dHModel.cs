@@ -3,54 +3,51 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dHModel : W3dContainerChunk
+public sealed record W3dHModel(
+    W3dHModelHeader Header,
+    W3dNode? Node,
+    W3dCollisionNode? CollisionNode,
+    W3dSkinNode? SkinNode,
+    W3dHModelAuxData? AuxData,
+    W3dShadowNode? ShadowNode) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_HMODEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HMODEL;
-
-    public W3dHModelHeader Header { get; private set; }
-
-    public W3dNode Node { get; private set; }
-
-    public W3dCollisionNode CollisionNode { get; private set; }
-
-    public W3dSkinNode SkinNode { get; private set; }
-
-    public W3dHModelAuxData AuxData { get; private set; }
-
-    public W3dShadowNode ShadowNode { get; private set; }
-
     internal static W3dHModel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dHModel();
+            W3dHModelHeader? resultHeader = null;
+            W3dNode? node = null;
+            W3dCollisionNode? collisionNode = null;
+            W3dSkinNode? skinNode = null;
+            W3dHModelAuxData? auxData = null;
+            W3dShadowNode? shadowNode = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_HMODEL_HEADER:
-                        result.Header = W3dHModelHeader.Parse(reader, context);
+                        resultHeader = W3dHModelHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_NODE:
-                        result.Node = W3dNode.Parse(reader, context);
+                        node = W3dNode.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_COLLISION_NODE:
-                        result.CollisionNode = W3dCollisionNode.Parse(reader, context);
+                        collisionNode = W3dCollisionNode.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SKIN_NODE:
-                        result.SkinNode = W3dSkinNode.Parse(reader, context);
+                        skinNode = W3dSkinNode.Parse(reader, context);
                         break;
 
                     case W3dChunkType.OBSOLETE_W3D_CHUNK_HMODEL_AUX_DATA:
-                        result.AuxData = W3dHModelAuxData.Parse(reader, context);
+                        auxData = W3dHModelAuxData.Parse(reader, context);
                         break;
 
                     case W3dChunkType.OBSOLETE_W3D_CHUNK_SHADOW_NODE:
-                        result.ShadowNode = W3dShadowNode.Parse(reader, context);
+                        shadowNode = W3dShadowNode.Parse(reader, context);
                         break;
 
                     default:
@@ -58,7 +55,12 @@ public sealed class W3dHModel : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dHModel(resultHeader, node, collisionNode, skinNode, auxData, shadowNode);
         });
     }
 

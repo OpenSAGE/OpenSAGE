@@ -2,25 +2,20 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMotionChannel : W3dChunk
+/// <param name="Pivot">Pivot affected by this channel</param>
+/// <param name="DeltaType"></param>
+/// <param name="VectorLength"></param>
+/// <param name="ChannelType"></param>
+/// <param name="NumTimeCodes"></param>
+/// <param name="Data"></param>
+public sealed record W3dMotionChannel(
+    ushort Pivot,
+    W3dMotionChannelDeltaType DeltaType,
+    byte VectorLength,
+    W3dAnimationChannelType ChannelType,
+    ushort NumTimeCodes,
+    IW3dMotionChannelData Data) : W3dChunk(W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL;
-
-    /// <summary>
-    /// Pivot affected by this channel.
-    /// </summary>
-    public ushort Pivot { get; private set; }
-
-    public W3dMotionChannelDeltaType DeltaType { get; private set; }
-
-    public byte VectorLength { get; private set; }
-
-    public W3dAnimationChannelType ChannelType { get; private set; }
-
-    public ushort NumTimeCodes { get; private set; }
-
-    public W3dMotionChannelData Data { get; private set; }
-
     internal static W3dMotionChannel Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
@@ -31,36 +26,26 @@ public sealed class W3dMotionChannel : W3dChunk
                 throw new InvalidDataException();
             }
 
-            var result = new W3dMotionChannel
+            var deltaType = reader.ReadByteAsEnum<W3dMotionChannelDeltaType>();
+            var vectorLength = reader.ReadByte();
+            var channelType = reader.ReadByteAsEnum<W3dAnimationChannelType>();
+            var numTimeCodes = reader.ReadUInt16();
+            var pivot = reader.ReadUInt16();
+
+            W3dAnimationChannel.ValidateChannelDataSize(channelType, vectorLength);
+
+            IW3dMotionChannelData data = deltaType switch
             {
-                DeltaType = reader.ReadByteAsEnum<W3dMotionChannelDeltaType>(),
-                VectorLength = reader.ReadByte(),
-                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
-                NumTimeCodes = reader.ReadUInt16(),
-                Pivot = reader.ReadUInt16()
+                W3dMotionChannelDeltaType.TimeCoded => W3dMotionChannelTimeCodedData.Parse(reader, numTimeCodes,
+                    channelType),
+                W3dMotionChannelDeltaType.Delta4 => W3dMotionChannelAdaptiveDeltaData.Parse(reader, numTimeCodes,
+                    channelType, vectorLength, W3dAdaptiveDeltaBitCount.FourBits),
+                W3dMotionChannelDeltaType.Delta8 => W3dMotionChannelAdaptiveDeltaData.Parse(reader, numTimeCodes,
+                    channelType, vectorLength, W3dAdaptiveDeltaBitCount.EightBits),
+                _ => throw new InvalidDataException(),
             };
 
-            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
-
-            switch (result.DeltaType)
-            {
-                case W3dMotionChannelDeltaType.TimeCoded:
-                    result.Data = W3dMotionChannelTimeCodedData.Parse(reader, result.NumTimeCodes, result.ChannelType);
-                    break;
-
-                case W3dMotionChannelDeltaType.Delta4:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.FourBits);
-                    break;
-
-                case W3dMotionChannelDeltaType.Delta8:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.EightBits);
-                    break;
-
-                default:
-                    throw new InvalidDataException();
-            }
-
-            return result;
+            return new W3dMotionChannel(pivot, deltaType, vectorLength, channelType, numTimeCodes, data);
         });
     }
 

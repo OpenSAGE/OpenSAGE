@@ -3,30 +3,26 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dShaderMaterial : W3dContainerChunk
+public sealed record W3dShaderMaterial(W3dShaderMaterialHeader Header, List<W3dShaderMaterialProperty> Properties)
+    : W3dContainerChunk(W3dChunkType.W3D_CHUNK_SHADER_MATERIAL)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_SHADER_MATERIAL;
-
-    public W3dShaderMaterialHeader Header { get; private set; }
-
-    public List<W3dShaderMaterialProperty> Properties { get; } = new List<W3dShaderMaterialProperty>();
-
     internal static W3dShaderMaterial Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dShaderMaterial();
+            W3dShaderMaterialHeader? resultHeader = null;
+            List<W3dShaderMaterialProperty> properties = [];
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_HEADER:
-                        result.Header = W3dShaderMaterialHeader.Parse(reader, context);
+                        resultHeader = W3dShaderMaterialHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_PROPERTY:
-                        result.Properties.Add(W3dShaderMaterialProperty.Parse(reader, context));
+                        properties.Add(W3dShaderMaterialProperty.Parse(reader, context));
                         break;
 
                     default:
@@ -34,7 +30,12 @@ public sealed class W3dShaderMaterial : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dShaderMaterial(resultHeader, properties);
         });
     }
 

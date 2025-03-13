@@ -2,24 +2,17 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dMorphAnimKeyData : W3dChunk
+public sealed record W3dMorphAnimKeyData(byte[] UnknownBytes) : W3dChunk(W3dChunkType.W3D_CHUNK_MORPHANIM_KEYDATA)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MORPHANIM_KEYDATA;
-
-    public byte[] UnknownBytes { get; private set; }
-
     internal static W3dMorphAnimKeyData Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dMorphAnimKeyData
-            {
-                UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
-            };
+            var unknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
 
             // TODO: Determine W3dMorphAnimKeyData Chunk Structure (Currently Unknown)
 
-            return result;
+            return new W3dMorphAnimKeyData(unknownBytes);
         });
     }
 

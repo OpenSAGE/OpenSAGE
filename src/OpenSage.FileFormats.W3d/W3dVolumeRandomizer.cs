@@ -2,31 +2,27 @@
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dVolumeRandomizer
+public sealed record W3dVolumeRandomizer(
+    uint ClassId,
+    float Value1,
+    float Value2,
+    float Value3)
 {
-    public uint ClassID { get; private set; }
-    public float Value1 { get; private set; }
-    public float Value2 { get; private set; }
-    public float Value3 { get; private set; }
-
     internal static W3dVolumeRandomizer Parse(BinaryReader reader)
     {
-        var result = new W3dVolumeRandomizer
-        {
-            ClassID = reader.ReadUInt32(),
-            Value1 = reader.ReadSingle(),
-            Value2 = reader.ReadSingle(),
-            Value3 = reader.ReadSingle(),
-        };
+        var classId = reader.ReadUInt32();
+        var value1 = reader.ReadSingle();
+        var value2 = reader.ReadSingle();
+        var value3 = reader.ReadSingle();
 
         reader.ReadBytes(4 * sizeof(uint)); // Pad
 
-        return result;
+        return new W3dVolumeRandomizer(classId, value1, value2, value3);
     }
 
     internal void WriteTo(BinaryWriter writer)
     {
-        writer.Write(ClassID);
+        writer.Write(ClassId);
         writer.Write(Value1);
         writer.Write(Value2);
         writer.Write(Value3);

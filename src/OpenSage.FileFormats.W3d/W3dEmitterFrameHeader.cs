@@ -5,23 +5,16 @@ namespace OpenSage.FileFormats.W3d;
 /// <summary>
 /// Frames keyframes are for sub-texture indexing.
 /// </summary>
-public sealed class W3dEmitterFrameHeader
+public sealed record W3dEmitterFrameHeader(uint KeyframeCount, float Random)
 {
-    public uint KeyframeCount { get; private set; }
-
-    public float Random { get; private set; }
-
     internal static W3dEmitterFrameHeader Parse(BinaryReader reader)
     {
-        var result = new W3dEmitterFrameHeader
-        {
-            KeyframeCount = reader.ReadUInt32(),
-            Random = reader.ReadSingle()
-        };
+        var keyframeCount = reader.ReadUInt32();
+        var random = reader.ReadSingle();
 
         reader.ReadBytes(2 * sizeof(uint)); // Pad
 
-        return result;
+        return new W3dEmitterFrameHeader(keyframeCount, random);
     }
 
     internal void WriteTo(BinaryWriter writer)

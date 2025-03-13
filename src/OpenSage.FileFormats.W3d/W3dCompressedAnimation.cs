@@ -3,43 +3,45 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dCompressedAnimation : W3dContainerChunk
+public sealed record W3dCompressedAnimation(
+    W3dCompressedAnimationHeader Header,
+    List<W3dTimeCodedAnimationChannel> TimeCodedChannels,
+    List<W3dAdaptiveDeltaAnimationChannel> AdaptiveDeltaChannels,
+    List<W3dTimeCodedBitChannel> TimeCodedBitChannels,
+    List<W3dMotionChannel> MotionChannels) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION;
-
-    public W3dCompressedAnimationHeader Header { get; private set; }
-
-    public List<W3dTimeCodedAnimationChannel> TimeCodedChannels { get; } = new List<W3dTimeCodedAnimationChannel>();
-
-    public List<W3dAdaptiveDeltaAnimationChannel> AdaptiveDeltaChannels { get; } = new List<W3dAdaptiveDeltaAnimationChannel>();
-
-    public List<W3dTimeCodedBitChannel> TimeCodedBitChannels { get; } = new List<W3dTimeCodedBitChannel>();
-
-    public List<W3dMotionChannel> MotionChannels { get; } = new List<W3dMotionChannel>();
-
     internal static W3dCompressedAnimation Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dCompressedAnimation();
+            W3dCompressedAnimationHeader? resultHeader = null;
+            List<W3dTimeCodedAnimationChannel> timeCodedChannels = [];
+            List<W3dAdaptiveDeltaAnimationChannel> adaptiveDeltaChannels = [];
+            List<W3dTimeCodedBitChannel> timeCodedBitChannels = [];
+            List<W3dMotionChannel> motionChannels = [];
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
-                        result.Header = W3dCompressedAnimationHeader.Parse(reader, context);
+                        resultHeader = W3dCompressedAnimationHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-                        switch (result.Header.Flavor)
+                        if (resultHeader is null)
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        switch (resultHeader.Flavor)
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
-                                result.TimeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader, context));
+                                timeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader, context));
                                 break;
 
                             case W3dCompressedAnimationFlavor.AdaptiveDelta4:
-                                result.AdaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, context, W3dAdaptiveDeltaBitCount.FourBits));
+                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, context, W3dAdaptiveDeltaBitCount.FourBits));
                                 break;
 
                             default:
@@ -48,10 +50,15 @@ public sealed class W3dCompressedAnimation : W3dContainerChunk
                         break;
 
                     case W3dChunkType.W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
-                        switch (result.Header.Flavor)
+                        if (resultHeader is null)
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        switch (resultHeader.Flavor)
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
-                                result.TimeCodedBitChannels.Add(W3dTimeCodedBitChannel.Parse(reader, context));
+                                timeCodedBitChannels.Add(W3dTimeCodedBitChannel.Parse(reader, context));
                                 break;
 
                             default:
@@ -60,10 +67,15 @@ public sealed class W3dCompressedAnimation : W3dContainerChunk
                         break;
 
                     case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
-                        switch (result.Header.Flavor)
+                        if (resultHeader is null)
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        switch (resultHeader.Flavor)
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
-                                result.MotionChannels.Add(W3dMotionChannel.Parse(reader, context));
+                                motionChannels.Add(W3dMotionChannel.Parse(reader, context));
                                 break;
 
                             default:
@@ -76,7 +88,13 @@ public sealed class W3dCompressedAnimation : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dCompressedAnimation(resultHeader, timeCodedChannels, adaptiveDeltaChannels,
+                timeCodedBitChannels, motionChannels);
         });
     }
 

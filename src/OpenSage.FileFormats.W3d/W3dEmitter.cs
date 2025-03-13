@@ -3,78 +3,75 @@ using System.IO;
 
 namespace OpenSage.FileFormats.W3d;
 
-public sealed class W3dEmitter : W3dContainerChunk
+public sealed record W3dEmitter(
+    W3dEmitterHeader Header,
+    W3dEmitterUserData? UserData,
+    W3dEmitterInfo? Info,
+    W3dEmitterInfoV2? InfoV2,
+    W3dEmitterProperties? Properties,
+    W3dEmitterRotationKeyframes? RotationKeyframes,
+    W3dEmitterFrameKeyframes? FrameKeyframes,
+    W3dEmitterLineProperties? LineProperties,
+    W3dEmitterBlurTimeKeyframes? BlurTimeKeyframes,
+    W3dEmitterExtraInfo? ExtraInfo) : W3dContainerChunk(W3dChunkType.W3D_CHUNK_EMITTER)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER;
-
-    public W3dEmitterHeader Header { get; private set; }
-
-    public W3dEmitterUserData UserData { get; private set; }
-
-    public W3dEmitterInfo Info { get; private set; }
-
-    public W3dEmitterInfoV2 InfoV2 { get; private set; }
-
-    public W3dEmitterProperties Properties { get; private set; }
-
-    public W3dEmitterRotationKeyframes RotationKeyframes { get; private set; }
-
-    public W3dEmitterFrameKeyframes FrameKeyframes { get; private set; }
-
-    public W3dEmitterLineProperties LineProperties { get; private set; }
-
-    public W3dEmitterBlurTimeKeyframes BlurTimeKeyframes { get; private set; }
-
-    public W3dEmitterExtraInfo ExtraInfo { get; private set; }
-
     internal static W3dEmitter Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            var result = new W3dEmitter();
+            W3dEmitterHeader? resultHeader = null;
+            W3dEmitterUserData? userData = null;
+            W3dEmitterInfo? info = null;
+            W3dEmitterInfoV2? infoV2 = null;
+            W3dEmitterProperties? properties = null;
+            W3dEmitterRotationKeyframes? rotationKeyframes = null;
+            W3dEmitterFrameKeyframes? frameKeyframes = null;
+            W3dEmitterLineProperties? lineProperties = null;
+            W3dEmitterBlurTimeKeyframes? blurTimeKeyframes = null;
+            W3dEmitterExtraInfo? extraInfo = null;
 
             ParseChunks(reader, context.CurrentEndPosition, chunkType =>
             {
                 switch (chunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_EMITTER_HEADER:
-                        result.Header = W3dEmitterHeader.Parse(reader, context);
+                        resultHeader = W3dEmitterHeader.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA:
-                        result.UserData = W3dEmitterUserData.Parse(reader, context);
+                        userData = W3dEmitterUserData.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_INFO:
-                        result.Info = W3dEmitterInfo.Parse(reader, context);
+                        info = W3dEmitterInfo.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_INFOV2:
-                        result.InfoV2 = W3dEmitterInfoV2.Parse(reader, context);
+                        infoV2 = W3dEmitterInfoV2.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_PROPS:
-                        result.Properties = W3dEmitterProperties.Parse(reader, context);
+                        properties = W3dEmitterProperties.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES:
-                        result.RotationKeyframes = W3dEmitterRotationKeyframes.Parse(reader, context);
+                        rotationKeyframes = W3dEmitterRotationKeyframes.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES:
-                        result.FrameKeyframes = W3dEmitterFrameKeyframes.Parse(reader, context);
+                        frameKeyframes = W3dEmitterFrameKeyframes.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES:
-                        result.LineProperties = W3dEmitterLineProperties.Parse(reader, context);
+                        lineProperties = W3dEmitterLineProperties.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES:
-                        result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader, context);
+                        blurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader, context);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO:
-                        result.ExtraInfo = W3dEmitterExtraInfo.Parse(reader, context);
+                        extraInfo = W3dEmitterExtraInfo.Parse(reader, context);
                         break;
 
                     default:
@@ -82,7 +79,13 @@ public sealed class W3dEmitter : W3dContainerChunk
                 }
             });
 
-            return result;
+            if (resultHeader is null)
+            {
+                throw new InvalidDataException("header should never be null");
+            }
+
+            return new W3dEmitter(resultHeader, userData, info, infoV2, properties, rotationKeyframes, frameKeyframes,
+                lineProperties, blurTimeKeyframes, extraInfo);
         });
     }
 
@@ -137,20 +140,15 @@ public sealed class W3dEmitter : W3dContainerChunk
     }
 }
 
-public sealed class W3dEmitterExtraInfo : W3dChunk
+public sealed record W3dEmitterExtraInfo(byte[] Unknown) : W3dChunk(W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO)
 {
-    public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO;
-
-    public byte[] Unknown { get; private set; }
-
     internal static W3dEmitterExtraInfo Parse(BinaryReader reader, W3dParseContext context)
     {
         return ParseChunk(reader, context, header =>
         {
-            return new W3dEmitterExtraInfo
-            {
-                Unknown = reader.ReadBytes((int)header.ChunkSize)
-            };
+            var unknown = reader.ReadBytes((int)header.ChunkSize);
+
+            return new W3dEmitterExtraInfo(unknown);
         });
     }
 
