@@ -4,6 +4,7 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 
@@ -134,7 +135,17 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         set => _extraFriction = value;
     }
 
-    internal float VelocityMagnitude => _velocityMagnitude;
+    internal float VelocityMagnitude
+    {
+        get
+        {
+            if (_velocityMagnitude == InvalidVelocityMagnitude)
+            {
+                _velocityMagnitude = _velocity.Length();
+            }
+            return _velocityMagnitude;
+        }
+    }
 
     public bool StickToGround
     {
@@ -1453,9 +1464,20 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     internal override void DrawInspector()
     {
+        base.DrawInspector();
+
         ImGui.InputFloat("Mass", ref _mass);
         ImGui.DragFloat3("Acceleration", ref _acceleration);
+        ImGui.DragFloat3("Previous acceleration", ref _previousAcceleration);
         ImGui.DragFloat3("Velocity", ref _velocity);
+        ImGui.LabelText("Velocity magnitude", _velocityMagnitude.ToString());
+        ImGui.InputFloat("Yaw rate", ref _yawRate);
+        ImGui.InputFloat("Roll rate", ref _rollRate);
+        ImGui.InputFloat("Pitch rate", ref _pitchRate);
+        ImGuiUtility.ComboEnum("Turning", ref _turning);
+        ImGui.LabelText("Motive force expires", _motiveForceExpires.Value.ToString());
+        ImGui.InputFloat("Extra bounciness", ref _extraBounciness);
+        ImGui.InputFloat("Extra friction", ref _extraFriction);
     }
 
     internal override void Load(StatePersister reader)

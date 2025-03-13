@@ -777,7 +777,7 @@ public sealed class GameData : BaseSingletonAsset
     public float UnitReallyDamagedThreshold { get; private set; }
     public float GroundStiffness { get; private set; } = 0.5f;
     public float StructureStiffness { get; private set; }
-    public float Gravity { get; private set; }
+    public float Gravity { get; internal set; }
 
     public float PartitionCellSize { get; private set; }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
@@ -328,7 +329,25 @@ public class AIUpdate : UpdateModule
 
     internal override void DrawInspector()
     {
-        // TODO: Locomotor?
+        base.DrawInspector();
+
+        if (ImGui.TreeNodeEx("Target points"))
+        {
+            for (var i = 0; i < TargetPoints.Count; i++)
+            {
+                var targetPoint = TargetPoints[i];
+                if (ImGui.InputFloat3("Target point", ref targetPoint))
+                {
+                    TargetPoints[i] = targetPoint;
+                }
+            }
+
+            ImGui.TreePop();
+        }
+
+        ImGui.SeparatorText("Locomotor");
+
+        CurrentLocomotor?.DrawInspector();
     }
 
     internal override void Load(StatePersister reader)

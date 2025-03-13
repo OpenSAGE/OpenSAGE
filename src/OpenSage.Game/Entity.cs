@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage;
 
@@ -48,7 +49,7 @@ public abstract class Entity : DisposableBase
         {
             return;
         }
-        _transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
+        _transform.Rotation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(angle, 0, 0);
         OnEntityMoved();
     }
 

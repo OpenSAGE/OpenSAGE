@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
-using OpenSage.Data.Apt.Characters;
-using System.Text;
+using ImGuiNET;
 using OpenSage.Logic.AI;
-using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
-using OpenSage.Terrain;
 using OpenSage.Utilities;
-using Veldrid.MetalBindings;
-using static OpenSage.Graphics.Shaders.GlobalShaderResources;
 
 namespace OpenSage.Logic.Object;
 
@@ -1841,7 +1836,8 @@ public sealed class Locomotor : IPersistableObject
             var translationToTurnPos = Matrix4x4.CreateTranslation(turnPos.X, turnPos.Y, 0);
             var rotation = Matrix4x4.CreateRotationZ(amount);
             var translationBack = Matrix4x4.CreateTranslation(-turnPos.X, -turnPos.Y, 0);
-            var tmp = translationToTurnPos * rotation * translationBack;
+            //var tmp = translationToTurnPos * rotation * translationBack;
+            var tmp = translationBack * rotation * translationToTurnPos;
             var mtx = obj.TransformMatrix * tmp;
             obj.SetTransformMatrix(mtx);
         }
@@ -2120,6 +2116,37 @@ public sealed class Locomotor : IPersistableObject
     }
 
     private bool GetFlag(LocomotorFlags flag) => (_flags & flag) != 0;
+
+    internal void DrawInspector()
+    {
+        ImGui.InputFloat3("Maintain position", ref _maintainPosition);
+        ImGui.InputFloat("Braking factor", ref _brakingFactor);
+        ImGui.InputFloat("Angle offset", ref _angleOffset);
+
+        ImGui.Separator();
+
+        void DrawFlag(string text, LocomotorFlags flag)
+        {
+            var value = GetFlag(flag);
+            if (ImGui.Checkbox(text, ref value))
+            {
+                SetFlag(flag, value);
+            }
+        }
+
+        DrawFlag("IsBraking", LocomotorFlags.IsBraking);
+        DrawFlag("AllowInvalidPosition", LocomotorFlags.AllowInvalidPosition);
+        DrawFlag("MaintainPositionIsValid", LocomotorFlags.MaintainPositionIsValid);
+        DrawFlag("PreciseZPosition", LocomotorFlags.PreciseZPosition);
+        DrawFlag("NoSlowDownAsApproachingDestination", LocomotorFlags.NoSlowDownAsApproachingDestination);
+        DrawFlag("OverWater", LocomotorFlags.OverWater);
+        DrawFlag("UltraAccurate", LocomotorFlags.UltraAccurate);
+        DrawFlag("MovingBackwards", LocomotorFlags.MovingBackwards);
+        DrawFlag("DoingThreePointTurn", LocomotorFlags.DoingThreePointTurn);
+        DrawFlag("Climbing", LocomotorFlags.Climbing);
+        DrawFlag("IsCloseEnoughDistance3D", LocomotorFlags.IsCloseEnoughDistance3D);
+        DrawFlag("OffsetIncreasing", LocomotorFlags.OffsetIncreasing);
+    }
 
     public void Persist(StatePersister reader)
     {

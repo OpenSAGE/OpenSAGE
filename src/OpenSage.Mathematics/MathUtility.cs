@@ -55,7 +55,7 @@ public static class MathUtility
     /// </returns>
     public static float CalculateAngleDelta(float alpha, float beta)
     {
-        return NormalizeAngle(beta - alpha);
+        return NormalizeAngle(alpha - beta);
     }
 
     public static float NormalizeAngle(float angle)
