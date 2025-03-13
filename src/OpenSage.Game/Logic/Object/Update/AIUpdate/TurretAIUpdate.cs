@@ -144,7 +144,7 @@ public class TurretAIUpdate : UpdateModule
 
     private bool Rotate(float targetYaw)
     {
-        var deltaYaw = MathUtility.CalculateAngleDelta(targetYaw, GameObject.TurretYaw);
+        var deltaYaw = MathUtility.CalculateAngleDelta(GameObject.TurretYaw, targetYaw);
 
         if (MathF.Abs(deltaYaw) > 0.15f)
         {
