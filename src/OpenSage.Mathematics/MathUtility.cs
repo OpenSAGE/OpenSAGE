@@ -64,8 +64,7 @@ public static class MathUtility
 
         if (float.IsNaN(angle))
         {
-            // Argh! Don't assert and then not handle it! Error bad! Fix error!
-            return 0;
+            throw new ArgumentOutOfRangeException(nameof(angle));
         }
 
         while (angle > MathF.PI)
