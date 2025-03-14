@@ -33,6 +33,8 @@ public class GeneralsZeroHourDefinition : IGameDefinition
         new RegistryKeyPath(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Language")
     };
 
+    public SteamInstallationDefinition Steam { get; } = new(2732960, "Command & Conquer Generals - Zero Hour");
+
     public string Identifier { get; } = "cnc_generals_zh";
 
     public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");

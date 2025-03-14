@@ -52,7 +52,7 @@ public static class LanguageUtility
     private static bool ReadFromRegistry(IEnumerable<RegistryKeyPath> registryKeys, out string language)
     {
         language = DefaultLanguage;
-        var registryValues = registryKeys.Select(RegistryUtility.GetRegistryValue);
+        var registryValues = registryKeys.Select(key => RegistryUtility.GetRegistryValue(key));
         foreach (var registryValue in registryValues)
         {
             if (!string.IsNullOrEmpty(registryValue))
