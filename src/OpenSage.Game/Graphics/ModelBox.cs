@@ -11,8 +11,10 @@ namespace OpenSage.Graphics;
 public sealed class ModelBox : ModelRenderObject
 {
     private readonly AxisAlignedBoundingBox _boundingBox;
-
     public override ref readonly AxisAlignedBoundingBox BoundingBox => ref _boundingBox;
+
+    private readonly BoundingSphere _boundingSphere;
+    public override ref readonly BoundingSphere BoundingSphere => ref _boundingSphere;
 
     public override bool Hidden { get; } = false;
 
@@ -21,7 +23,7 @@ public sealed class ModelBox : ModelRenderObject
         _boundingBox = new AxisAlignedBoundingBox(
             w3dBox.Center - w3dBox.Extent,
             w3dBox.Center + w3dBox.Extent);
-
+        _boundingSphere = new BoundingSphere(w3dBox.Center, w3dBox.Extent.Length());
         // TODO
     }
 

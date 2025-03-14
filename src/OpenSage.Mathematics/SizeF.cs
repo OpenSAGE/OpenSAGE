@@ -18,6 +18,12 @@ public readonly struct SizeF : IEquatable<SizeF>
         Height = height;
     }
 
+    public SizeF(in Vector2 vector)
+    {
+        Width = vector.X;
+        Height = vector.Y;
+    }
+
     public static Size CalculateSizeFittingAspectRatio(in SizeF size, in Size availableSize)
     {
         var rect = RectangleF.CalculateRectangleFittingAspectRatio(

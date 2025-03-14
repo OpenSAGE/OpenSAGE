@@ -67,7 +67,7 @@ public static class SaveFile
         // but in Generals the containing object is the global SidesList object.
         // So we need to replace PlayerScripts in Scene3D / Game with SidesList.
         new ChunkDefinition("CHUNK_SidesList", game => game.Scene3D.PlayerScripts),
-        new ChunkDefinition("CHUNK_TacticalView", game => ((RtsCameraController) game.Scene3D.CameraController)),
+        new ChunkDefinition("CHUNK_TacticalView", game => game.Scene3D.TacticalView),
         new ChunkDefinition("CHUNK_GameClient", game => game.GameClient),
         new ChunkDefinition("CHUNK_InGameUI", game => game.AssetStore.InGameUI.Current),
         new ChunkDefinition("CHUNK_Partition", game => game.PartitionCellManager),

@@ -9,6 +9,7 @@ namespace OpenSage.Graphics;
 public abstract class ModelRenderObject : BaseAsset
 {
     public abstract ref readonly AxisAlignedBoundingBox BoundingBox { get; }
+    public abstract ref readonly BoundingSphere BoundingSphere { get; }
 
     public abstract bool Hidden { get; }
 

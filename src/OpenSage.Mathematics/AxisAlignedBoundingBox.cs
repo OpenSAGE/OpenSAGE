@@ -10,6 +10,13 @@ public readonly struct AxisAlignedBoundingBox : IBoundingVolume
     public readonly Vector3 Min;
     public readonly Vector3 Max;
 
+    public float Left => Min.X;
+    public float Right => Max.X;
+    public float Back => Min.Y;
+    public float Front => Max.Y;
+    public float Bottom => Min.Z;
+    public float Top => Max.Z;
+
     public AxisAlignedBoundingBox(in Vector3 min, in Vector3 max)
     {
         Min = min;

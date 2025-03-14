@@ -17,9 +17,16 @@ public sealed class HeightMap
 
     public int Width { get; }
     public int Height { get; }
+
     public int MaxXCoordinate => (Width - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
     public int MaxYCoordinate => (Height - 2 * (int)_heightMapData.BorderWidth) * HorizontalScale;
 
+    public float MinZ => _heightMapData.MinZ;
+    public float MaxZ => _heightMapData.MaxZ;
+
+    // TODO: Should we call them "borders" or "boundaries"? Generals calls them both.
+    // They are borders in World Builder UI, but boundaries in most of the code in Generals.
+    public HeightMapBorder[] Boundaries => _heightMapData.Borders;
 
     public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
 

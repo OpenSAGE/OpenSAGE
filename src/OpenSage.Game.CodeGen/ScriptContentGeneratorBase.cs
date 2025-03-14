@@ -117,30 +117,48 @@ public abstract class ScriptContentGeneratorBase : IIncrementalGenerator
     protected static string GetArgument(int index, ITypeSymbol[] parameterTypes, string variableName)
     {
         var parameterType = parameterTypes[index];
+        var (fieldName, isOptional) = GetArgumentParseOptions(parameterType);
 
-        var result = $"{variableName}.Arguments[{index}].{GetArgumentFieldName(parameterType)}";
+        var result = $"{variableName}.Arguments[{index}].{fieldName}";
 
         if (parameterType.TypeKind == TypeKind.Enum)
         {
             result = $"({parameterType.Name}){result}";
         }
 
+        if (isOptional)
+        {
+            result = $"{variableName}.Arguments.Length > {index} ? {result} : default";
+        }
+
         return result;
     }
 
-    protected static string GetArgumentFieldName(ITypeSymbol type)
+    protected static (string fieldName, bool isOptional) GetArgumentParseOptions(ITypeSymbol type)
     {
         if (type.TypeKind == TypeKind.Enum)
         {
-            return "IntValue.Value";
+            return ("IntValue.Value", false);
+        }
+
+        // Handle nullable ints and floats
+        if (type is INamedTypeSymbol namedType &&
+            namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+        {
+            return namedType.TypeArguments.Single().SpecialType switch
+            {
+                SpecialType.System_Single => ("FloatValue", true),
+                SpecialType.System_Int32 => ("IntValue", true),
+                _ => throw new InvalidOperationException($"Nullable type {type.SpecialType} not handled")
+            };
         }
 
         return type.SpecialType switch
         {
-            SpecialType.System_String => "StringValue",
-            SpecialType.System_Single => "FloatValue.Value",
-            SpecialType.System_Int32 => "IntValue.Value",
-            SpecialType.System_Boolean => "IntValueAsBool",
+            SpecialType.System_String => ("StringValue", false),
+            SpecialType.System_Single => ("FloatValue.Value", false),
+            SpecialType.System_Int32 => ("IntValue.Value", false),
+            SpecialType.System_Boolean => ("IntValueAsBool", false),
             _ => throw new InvalidOperationException($"Type {type.SpecialType} not handled")
         };
     }

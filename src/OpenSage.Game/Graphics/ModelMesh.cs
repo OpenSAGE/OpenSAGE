@@ -1,21 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Content.Loaders;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
-using OpenSage.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics;
 
 /// <summary>
 /// A mesh is composed of the following hierarchy:
-/// 
+///
 /// - Mesh: Vertices, Normals, Indices, Materials.
-///   - MeshMaterialPasses[]: per-vertex TexCoords, 
-///                           per-vertex Material indices, 
+///   - MeshMaterialPasses[]: per-vertex TexCoords,
+///                           per-vertex Material indices,
 ///                           per-triangle Texture indices.
 ///     - MeshParts[]: One for each unique PipelineState in a material pass.
 ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
@@ -28,8 +26,10 @@ public sealed partial class ModelMesh : ModelRenderObject
     internal readonly ConstantBuffer<MeshShaderResources.MeshConstants> MeshConstantsBuffer;
 
     private readonly AxisAlignedBoundingBox _boundingBox;
-
     public override ref readonly AxisAlignedBoundingBox BoundingBox => ref _boundingBox;
+
+    private readonly BoundingSphere _boundingSphere;
+    public override ref readonly BoundingSphere BoundingSphere => ref _boundingSphere;
 
     public readonly List<ModelMeshPart> MeshParts;
 

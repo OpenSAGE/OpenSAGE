@@ -61,6 +61,9 @@ public static class ControlBarCallbacks
             message.MousePosition,
             control.ClientRectangle);
 
+        // TODO: Fix left/right mouse handling
+        // - If user has selected units, left mouse should move them and right mouse moves the camera
+        // - If user has not selected units, both mouse buttons move the camera
         switch (message.MessageType)
         {
             case WndWindowMessageType.MouseDown: // Left mouse moves selected units
@@ -75,7 +78,7 @@ public static class ControlBarCallbacks
                 break;
 
             case WndWindowMessageType.MouseRightDown: // Right mouse moves camera.
-                context.Game.Scene3D.CameraController.TerrainPosition = terrainPosition;
+                context.Game.Scene3D.TacticalView.LookAt(terrainPosition);
                 break;
         }
     }

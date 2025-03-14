@@ -32,8 +32,11 @@ public sealed class Scene3D : DisposableBase
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private readonly CameraInputMessageHandler _cameraInputMessageHandler;
-    private CameraInputState _cameraInputState;
+    // TODO: Remove or refactor these
+    // RtsCameraController uses its own input handling, so these are only used for debug cameras
+    private readonly EditorCameraInputMessageHandler _editorCameraInputMessageHandler;
+    private EditorCameraInputState _editorCameraInputState;
+    public readonly IEditorCameraController EditorCameraController;
 
     internal readonly GameContext GameContext;
 
@@ -48,7 +51,7 @@ public sealed class Scene3D : DisposableBase
 
     public readonly Camera Camera;
 
-    public readonly ICameraController CameraController;
+    public TacticalView TacticalView { get; }
 
     public readonly MapFile MapFile;
 
@@ -153,12 +156,8 @@ public sealed class Scene3D : DisposableBase
             ScriptLists = mapScriptLists
         };
 
-        CameraController = new RtsCameraController(game.AssetStore.GameData.Current, Camera, Terrain.HeightMap)
-        {
-            TerrainPosition = Terrain.HeightMap.GetPosition(
-                Terrain.HeightMap.Width / 2,
-                Terrain.HeightMap.Height / 2)
-        };
+        TacticalView = new TacticalView(game.AssetStore.GameData.Current, Camera, game.TerrainLogic, game.Cursors);
+        RegisterInputHandler(TacticalView.LookAtTranslator, game.InputMessageBuffer);
 
         game.ContentManager.GraphicsDevice.WaitForIdle();
 
@@ -265,7 +264,7 @@ public sealed class Scene3D : DisposableBase
         Game game,
         InputMessageBuffer inputMessageBuffer,
         Func<Viewport> getViewport,
-        ICameraController cameraController,
+        IEditorCameraController cameraController,
         WorldLighting lighting,
         int randomSeed,
         bool isDiagnosticScene = false)
@@ -279,7 +278,7 @@ public sealed class Scene3D : DisposableBase
         Waypoints = new WaypointCollection();
         Cameras = new CameraCollection();
 
-        CameraController = cameraController;
+        EditorCameraController = cameraController;
     }
 
     private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
@@ -303,8 +302,6 @@ public sealed class Scene3D : DisposableBase
             WaterAreas = AddDisposable(new WaterAreaCollection(mapFile.PolygonTriggers, mapFile.StandingWaterAreas, mapFile.StandingWaveAreas, game.AssetStore.LoadContext));
             Navigation = new Navigation.Navigation(mapFile.BlendTileData, Terrain.HeightMap);
         }
-
-        RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
 
         if (!isDiagnosticScene)
         {
@@ -375,8 +372,9 @@ public sealed class Scene3D : DisposableBase
             gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
         }
 
-        _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
-        CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
+        _editorCameraInputMessageHandler?.UpdateInputState(ref _editorCameraInputState);
+        EditorCameraController?.UpdateCamera(Camera, _editorCameraInputState, gameTime);
+        TacticalView.Update(gameTime);
 
         DebugOverlay.Update(gameTime);
 
@@ -430,11 +428,12 @@ public sealed class Scene3D : DisposableBase
         DebugOverlay?.Draw(drawingContext, Camera);
     }
 
-    internal void CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
+    // TODO(Port): placeNetworkBuildingsForPlayer in GameLogic.cpp
+    internal GameObject CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
     {
         // TODO: Not sure what the OG does here.
         var playerStartPosition = new Vector3(80, 80, 0);
-        if (Waypoints.TryGetByName($"Player_{playerSetting.StartPosition}_Start", out var startWaypoint))
+        if (Waypoints.TryGetPlayerStart(playerSetting.StartPosition ?? 1, out var startWaypoint))
         {
             playerStartPosition = startWaypoint.Position;
         }
@@ -453,11 +452,15 @@ public sealed class Scene3D : DisposableBase
             startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
             startingUnit0.SetTranslation(startingUnit0Position);
 
-            Game.Selection.SetSelectedObjects(player, new[] { startingBuilding }, playAudio: false);
+            Game.Selection.SetSelectedObjects(player, [startingBuilding], playAudio: false);
+            return startingBuilding;
         }
         else
         {
+            // BFME specific logic
+
             var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
+            GameObject lastGameObject = null;
             foreach (var gameObject in GameObjects.Objects)
             {
                 var team = gameObject.TeamTemplate;
@@ -467,6 +470,7 @@ public sealed class Scene3D : DisposableBase
                     if (castleBehavior != null)
                     {
                         castleBehaviors.Add((castleBehavior, team));
+                        lastGameObject = gameObject;
                     }
                 }
             }
@@ -474,6 +478,14 @@ public sealed class Scene3D : DisposableBase
             {
                 castleBehavior.Unpack(player, instant: true);
             }
+
+            // This is basically guaranteed to be wrong
+            if (lastGameObject != null)
+            {
+                return lastGameObject;
+            }
         }
+
+        return null;
     }
 }

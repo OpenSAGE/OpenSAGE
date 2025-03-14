@@ -42,7 +42,7 @@ public sealed class PartitionCellManager : IPersistableObject
 
         _terrainBoundary = Rectangle.FromCorners(
             new Point2D((int)border.Corner1X, (int)border.Corner1Y),
-            new Point2D((int)border.Corner2X, (int)border.Corner2Y));
+            new Point2D((int)border.X, (int)border.Y));
 
         var extra = _game.SageGame >= SageGame.CncGeneralsZeroHour ? 1.0f : 0.0f;
 
@@ -274,7 +274,7 @@ public sealed class PartitionCellManager : IPersistableObject
     //   foreach(visibleCellsOn(prevPosition) as cell){
     //     setTimeout(() => cell--, 5000);
     //     }
-    //   
+    //
     //   foreach(visibleCellsOn(newPosition) as cell){
     //     cell++
     //   }

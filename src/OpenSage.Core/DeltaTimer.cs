@@ -76,5 +76,6 @@ public readonly struct TimeInterval
     public static TimeInterval Zero { get; } = new TimeInterval();
 
     // This is the ratio between stopwatch ticks and timespan ticks
+
     private static readonly double TickRatio = 10000000.0 / Stopwatch.Frequency;
 }

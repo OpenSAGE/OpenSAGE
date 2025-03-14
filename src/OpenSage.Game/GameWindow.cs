@@ -190,7 +190,7 @@ public sealed class GameWindow : DisposableBase
 
     private void HandleMouseWheel(MouseWheelEventArgs args)
     {
-        var message = InputMessage.CreateMouseWheel((int)(args.WheelDelta * 100));
+        var message = InputMessage.CreateMouseWheel((int)args.WheelDelta);
         MessageQueue.Enqueue(message);
     }
 

@@ -24,7 +24,7 @@ public sealed class AptInputMessageHandler : InputMessageHandler
         _windowManager = windowManager;
     }
 
-    public override InputMessageResult HandleMessage(InputMessage message)
+    public override InputMessageResult HandleMessage(InputMessage message, in TimeInterval gameTime)
     {
         switch (message.MessageType)
         {

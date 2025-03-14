@@ -70,4 +70,26 @@ public static class Vector3Utility
 
     public static bool IsNaN(in Vector3 vector) =>
         float.IsNaN(vector.X) || float.IsNaN(vector.Y) || float.IsNaN(vector.Z);
+
+    public static float FindXAtZ(float z, in Vector3 start, in Vector3 end)
+    {
+        return start.X + ((z - start.Z) * ((end.X - start.X) / (end.Z - start.Z)));
+    }
+
+    public static float FindYAtZ(float z, in Vector3 start, in Vector3 end)
+    {
+        return start.Y + ((z - start.Z) * ((end.Y - start.Y) / (end.Z - start.Z)));
+    }
+
+    /// <summary>
+    /// Calculate a point on a quadratic bezier curve. The Z component of the result is always 0.
+    /// </summary>
+    public static Vector3 QuadBezier2D(in Vector3 start, in Vector3 mid, in Vector3 end, float t)
+    {
+        var result = start;
+        result += t * (end - start);
+        result += (1.0f - t) * t * (mid - end + mid - start);
+        result.Z = 0.0f;
+        return result;
+    }
 }
