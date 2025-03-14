@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Cameras;
 public sealed class Camera
 {
     private readonly Func<Viewport> _getViewport;
-    public Viewport _viewport { get; private set; }
+    public Viewport Viewport { get; private set; }
 
     private float _nearPlaneDistance;
     private float _farPlaneDistance;
@@ -79,12 +79,12 @@ public sealed class Camera
     public Vector3 Target { get; private set; }
     public Vector3 Up { get; private set; }
 
-    public Vector2 ScreenSize => new(_viewport.Width, _viewport.Height);
+    public Vector2 ScreenSize => new(Viewport.Width, Viewport.Height);
 
     public Camera(Func<Viewport> getViewport)
     {
         _getViewport = getViewport;
-        _viewport = getViewport();
+        Viewport = getViewport();
 
         View = Matrix4x4.Identity;
         BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
@@ -130,12 +130,12 @@ public sealed class Camera
         UpdateViewProjection();
     }
 
-    private float GetVerticalFieldOfView() => _fieldOfView / (_viewport.Width / _viewport.Height);
+    private float GetVerticalFieldOfView() => _fieldOfView / (Viewport.Width / Viewport.Height);
 
     private void CreateProjection(out Matrix4x4 projection)
     {
         projection = Matrix4x4.CreatePerspectiveFieldOfView(
-            GetVerticalFieldOfView(), _viewport.Width / _viewport.Height,
+            GetVerticalFieldOfView(), Viewport.Width / Viewport.Height,
             NearPlaneDistance, FarPlaneDistance);
     }
 
@@ -144,8 +144,8 @@ public sealed class Camera
     /// </summary>
     public Ray ScreenPointToRay(Vector2 position)
     {
-        var near = _viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
-        var far = _viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
+        var near = Viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
+        var far = Viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
 
         return new Ray(near, Vector3.Normalize(far - near));
     }
@@ -157,7 +157,7 @@ public sealed class Camera
     public (Vector3, Vector3) GetPickRay(Vector2 position)
     {
         var rayStart = Position;
-        var rayEnd = _viewport.Unproject(new Vector3(position, -1), Projection, View, Matrix4x4.Identity);
+        var rayEnd = Viewport.Unproject(new Vector3(position, -1), Projection, View, Matrix4x4.Identity);
         rayEnd -= rayStart;
         rayEnd = Vector3.Normalize(rayEnd);
         rayEnd *= FarPlaneDistance;
@@ -170,7 +170,7 @@ public sealed class Camera
     /// </summary>
     public Vector3 WorldToScreenPoint(Vector3 position)
     {
-        return _viewport.Project(position, Projection, View, Matrix4x4.Identity);
+        return Viewport.Project(position, Projection, View, Matrix4x4.Identity);
     }
 
     public RectangleF? WorldToScreenRectangle(in Vector3 position, in SizeF screenSize)
@@ -191,7 +191,7 @@ public sealed class Camera
 
     internal bool IsWithinViewportDepth(in Vector3 screenPosition)
     {
-        return screenPosition.Z >= _viewport.MinDepth && screenPosition.Z <= _viewport.MaxDepth;
+        return screenPosition.Z >= Viewport.MinDepth && screenPosition.Z <= Viewport.MaxDepth;
     }
 
     /// <summary>
@@ -206,7 +206,7 @@ public sealed class Camera
 
     internal void OnViewportSizeChanged()
     {
-        _viewport = _getViewport();
+        Viewport = _getViewport();
         UpdateProjection();
     }
 
@@ -216,7 +216,7 @@ public sealed class Camera
     public float GetScreenSize(in BoundingSphere boundingSphere)
     {
         var distance = Vector3.Distance(boundingSphere.Center, Position);
-        return (boundingSphere.Radius / (MathF.Tan(GetVerticalFieldOfView() / 2) * distance)) * (_viewport.Height / 2);
+        return (boundingSphere.Radius / (MathF.Tan(GetVerticalFieldOfView() / 2) * distance)) * (Viewport.Height / 2);
     }
 
     /// <summary>
