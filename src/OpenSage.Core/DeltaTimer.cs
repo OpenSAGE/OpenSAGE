@@ -78,11 +78,4 @@ public readonly struct TimeInterval
     // This is the ratio between stopwatch ticks and timespan ticks
 
     private static readonly double TickRatio = 10000000.0 / Stopwatch.Frequency;
-
-    private const double MsPerLogicFrame = 1000.0 / 30.0;
-    /// <summary>
-    /// Returns delta time as a fraction of a 30 FPS frame.
-    /// This can be used to adopt 30 FPS based logic to the current frame rate.
-    /// </summary>
-    public double LogicFrameRelativeDeltaTime => DeltaTime.TotalMilliseconds / MsPerLogicFrame;
 }
