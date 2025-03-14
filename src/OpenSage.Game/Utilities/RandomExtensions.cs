@@ -15,4 +15,9 @@ internal static class RandomExtensions
 
         return random.NextSingle() * delta + lo;
     }
+
+    public static bool NextBoolean(this Random random)
+    {
+        return random.Next(0, 2) == 1;
+    }
 }

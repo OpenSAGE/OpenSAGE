@@ -70,5 +70,10 @@ internal sealed class GameView : DiagnosticView
         {
             ImGui.Text("Click in the game view to capture mouse input.");
         }
+
+        ImGui.SameLine();
+
+        var terrainPosition = Game.OrderGenerator.GetTerrainPosition(Game.InputMessageBuffer.MousePosition);
+        ImGui.Text(terrainPosition?.ToString() ?? "");
     }
 }

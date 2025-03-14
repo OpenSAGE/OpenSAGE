@@ -777,7 +777,7 @@ public sealed class GameData : BaseSingletonAsset
     public float UnitReallyDamagedThreshold { get; private set; }
     public float GroundStiffness { get; private set; } = 0.5f;
     public float StructureStiffness { get; private set; }
-    public float Gravity { get; private set; }
+    public float Gravity { get; internal set; }
 
     public float PartitionCellSize { get; private set; }
 
@@ -1529,6 +1529,15 @@ public enum BodyDamageType
 
     [IniEnum("RUBBLE")]
     Rubble = 3
+}
+
+public static class BodyDamageTypeExtensions
+{
+    public static bool IsBetterThan(this BodyDamageType a, BodyDamageType b)
+    {
+        // This assumes the conditions in BodyDamageType are in sequential order.
+        return a < b;
+    }
 }
 
 public enum TerrainLod

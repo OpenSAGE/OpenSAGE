@@ -38,6 +38,8 @@ public class ActiveBody : BodyModule
 
     public override bool BackCrushed => _backCrushed;
 
+    public override BodyDamageType DamageState => _damageType;
+
     public DamageData LastDamage => _lastDamage;
 
     internal ActiveBody(GameObject gameObject, GameContext context, ActiveBodyModuleData moduleData) : base(gameObject, context)

@@ -6,11 +6,13 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 {
     private UpdateFrame _nextUpdateFrame;
 
-    protected UpdateFrame NextUpdateFrame => _nextUpdateFrame;
+    protected internal UpdateFrame NextUpdateFrame => _nextUpdateFrame;
 
     protected virtual LogicFrameSpan FramesBetweenUpdates { get; } = new(1);
 
     protected virtual UpdateOrder UpdateOrder => UpdateOrder.Order2;
+
+    UpdateOrder IUpdateModule.UpdatePhase => UpdateOrder;
 
     protected UpdateModule(GameObject gameObject, GameContext context)
         : base(gameObject, context)
@@ -37,7 +39,8 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
         RunUpdate(context);
 
         var sleepTime = Update();
-        SetNextUpdateFrame(context.LogicFrame + sleepTime.FrameSpan);
+
+        _nextUpdateFrame = new UpdateFrame(context.LogicFrame + sleepTime.FrameSpan, UpdateOrder);
     }
 
     // TODO: Remove other Update methods after everything uses this.
@@ -48,6 +51,16 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     protected void SetNextUpdateFrame(LogicFrame frame)
     {
+        // If we are already awake, don't reset our wake frame. See GameLogic::friend_awakenUpdateModule.
+        if (GameObject != null)
+        {
+            var now = Context.GameLogic.CurrentFrame.Value;
+            if (_nextUpdateFrame.Frame == now && frame.Value == now + 1)
+            {
+                return;
+            }
+        }
+
         _nextUpdateFrame = new UpdateFrame(frame, UpdateOrder);
     }
 
@@ -131,6 +144,8 @@ public enum UpdateOrder : byte
 
 internal interface IUpdateModule
 {
+    UpdateOrder UpdatePhase { get; }
+
     void Update(BehaviorUpdateContext context);
 }
 

@@ -41,9 +41,9 @@ public class AngleTests
     }
 
     [Theory]
-    [InlineData(90.0f, 180.0f, 90.0f)]
-    [InlineData(90.0f, -180.0f, 90.0f)]
-    [InlineData(90.0f, 0.0f, -90.0f)]
+    [InlineData(180.0f, 90.0f, 90.0f)]
+    [InlineData(-180.0f, 90.0f, 90.0f)]
+    [InlineData(0.0f, 90.0f, -90.0f)]
     public void AngleDeltaTest(float alpha, float beta, float delta)
     {
         var alphaRad = MathUtility.ToRadians(alpha);

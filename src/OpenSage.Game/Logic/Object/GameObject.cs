@@ -278,7 +278,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
                 DamageType = damageType,
                 DamageToDeal = (float)amount,
                 DeathType = deathType,
-                DamageDealer = damageDealer.ID,
+                DamageDealer = damageDealer?.ID ?? 0,
             }
         };
         AttemptDamage(ref damageInfo);
@@ -457,7 +457,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public int EnergyProduction { get; internal set; }
 
     // TODO(Port): Actually implement and use this.
-    private PathfindLayerType _layer;
+    private PathfindLayerType _layer = PathfindLayerType.Ground;
     public PathfindLayerType Layer
     {
         get => _layer;
@@ -481,7 +481,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         get
         {
             var pos = Transform.Translation;
-            if (_gameContext.Game.TerrainLogic.IsUnderwater(new Vector2(pos.X, pos.Y), out var waterZ))
+            if (_gameContext.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
             {
                 return pos.Z - waterZ;
             }
@@ -501,12 +501,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     /// > If we treat this as airborne, then they slide down slopes.  This checks whether
     /// > they are high enough that we should let them act like they're flying.
     ///
-    /// Another original comment (which seems outdated, since the actual code uses 9 frames):
-    ///
-    /// > If it's high enough that it will take more than 3 frames to return to the ground,
-    /// > then it's significantly airborne.
+    /// If it's high enough that it will take more than 3 frames to return to the ground,
+    /// then it's significantly airborne. We calculate the distance we can fall in 3 frames
+    /// with d = g * t^2. Gravity is negative, so we must negate it here.
     /// </summary>
-    public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > (3 * 3) * _gameContext.AssetStore.GameData.Current.Gravity;
+    public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > -_gameContext.AssetStore.GameData.Current.Gravity * MathUtility.Square(3);
 
     // TODO(Port): Implement this.
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -823,17 +822,28 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         VerifyHealer();
         CheckDisabledStates();
-        foreach (var behavior in _behaviorModules)
+
+        // TODO(Port): Implement this properly.
+
+        void RunUpdate(UpdateOrder updatePhase)
         {
-            if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate and not DeletionUpdate)
+            foreach (var behavior in _behaviorModules)
             {
-                continue; // if we're dead, we should only update SlowDeathBehavior, LifetimeUpdate, or DeletionUpdate
-            }
-            if (behavior is IUpdateModule updateModule)
-            {
-                updateModule.Update(_behaviorUpdateContext);
+                if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate and not DeletionUpdate)
+                {
+                    continue; // if we're dead, we should only update SlowDeathBehavior, LifetimeUpdate, or DeletionUpdate
+                }
+                if (behavior is IUpdateModule updateModule && updateModule.UpdatePhase == updatePhase)
+                {
+                    updateModule.Update(_behaviorUpdateContext);
+                }
             }
         }
+
+        RunUpdate(UpdateOrder.Order0);
+        RunUpdate(UpdateOrder.Order1);
+        RunUpdate(UpdateOrder.Order2);
+        RunUpdate(UpdateOrder.Order3);
     }
 
     public bool CanRecruitHero(ObjectDefinition definition)

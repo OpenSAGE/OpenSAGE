@@ -217,7 +217,7 @@ public sealed class JetAIUpdate : AIUpdate
                 break;
 
             case JetAIState.Starting:
-                var speedPercentage = GameObject.Speed / CurrentLocomotor.GetSpeed();
+                var speedPercentage = GameObject.Speed / CurrentLocomotor.GetMaxSpeedForCondition(GameObject.BodyModule.DamageState);
                 CurrentLocomotor.LiftFactor = speedPercentage;
 
                 if (speedPercentage < ModuleData.TakeoffSpeedForMaxLift)
@@ -233,7 +233,7 @@ public sealed class JetAIUpdate : AIUpdate
             case JetAIState.MovingTowardsTarget:
                 if (isMoving)
                 {
-                    if (_afterburnerEnabled && trans.Z - terrainHeight >= CurrentLocomotor.GetLocomotorValue(_ => _.PreferredHeight))
+                    if (_afterburnerEnabled && trans.Z - terrainHeight >= CurrentLocomotor.LocomotorTemplate.PreferredHeight)
                     {
                         GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, false);
                         _afterburnerEnabled = false;

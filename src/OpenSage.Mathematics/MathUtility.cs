@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace OpenSage.Mathematics;
 
@@ -43,18 +45,39 @@ public static class MathUtility
     }
 
     /// <summary>
-    /// Calculates delta between the 2 angles (which must be between -180 and 180)
+    /// Calculates delta between the 2 angles. The input angles need not be normalized.
+    /// The result will be normalized.
     /// </summary>
     /// <param name="alpha">the first angle</param>
     /// <param name="beta">the second angle</param>
     /// <returns>the absolute delta between the two angles in radians.
-    /// The value is between -PI and PI degrees by definition.
+    /// The value is between -PI and PI degrees.
     /// </returns>
     public static float CalculateAngleDelta(float alpha, float beta)
     {
-        var delta = beta - alpha;
-        delta += (delta > MathF.PI) ? -TwoPi : (delta < -MathF.PI) ? TwoPi : 0;
-        return delta;
+        return NormalizeAngle(alpha - beta);
+    }
+
+    public static float NormalizeAngle(float angle)
+    {
+        Debug.Assert(!float.IsNaN(angle), "Angle is NaN");
+
+        if (float.IsNaN(angle))
+        {
+            throw new ArgumentOutOfRangeException(nameof(angle));
+        }
+
+        while (angle > MathF.PI)
+        {
+            angle -= TwoPi;
+        }
+
+        while (angle <= -MathF.PI)
+        {
+            angle += TwoPi;
+        }
+
+        return angle;
     }
 
     public static uint NextPowerOfTwo(uint value)
@@ -80,4 +103,7 @@ public static class MathUtility
 
         return value - remainder;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Square(float value) => value * value;
 }

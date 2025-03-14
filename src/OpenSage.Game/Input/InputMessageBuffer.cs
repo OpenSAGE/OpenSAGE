@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace OpenSage.Input;
 
 public sealed class InputMessageBuffer
 {
     public List<InputMessageHandler> Handlers { get; }
+
+    // TODO: Find a better way to do this.
+    public Vector2 MousePosition { get; private set; }
 
     internal InputMessageBuffer()
     {
@@ -17,6 +21,11 @@ public sealed class InputMessageBuffer
     {
         foreach (var message in inputMessages)
         {
+            if (message.MessageType == InputMessageType.MouseMove)
+            {
+                MousePosition = message.Value.MousePosition.ToVector2();
+            }
+
             foreach (var handler in PriorityOrderedHandlers())
             {
                 if (handler.HandleMessage(message, gameTime) == InputMessageResult.Handled)

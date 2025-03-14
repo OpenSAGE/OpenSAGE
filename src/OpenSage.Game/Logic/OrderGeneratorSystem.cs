@@ -115,7 +115,7 @@ public class OrderGeneratorSystem : GameSystem
         ActiveGenerator?.BuildRenderList(renderList, camera, gameTime);
     }
 
-    private Vector3? GetTerrainPosition(Vector2 mousePosition)
+    internal Vector3? GetTerrainPosition(Vector2 mousePosition)
     {
         var ray = Game.Scene3D.Camera.ScreenPointToRay(mousePosition);
         return Game.Scene3D.Terrain.Intersect(ray);

@@ -96,7 +96,7 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(162u, behavior.MotiveForceExpires.Value);
         Assert.Equal(0.0f, behavior.ExtraBounciness);
         Assert.Equal(0.0f, behavior.ExtraFriction);
-        Assert.Equal(-1f, behavior.VelocityMagnitude);
+        Assert.Equal(2.22222257f, behavior.VelocityMagnitude);
     }
 
     private static readonly byte[] ZeroHourUnitMovingFrame3 =
@@ -125,7 +125,7 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(163u, behavior.MotiveForceExpires.Value);
         Assert.Equal(0.0f, behavior.ExtraBounciness);
         Assert.Equal(0.0f, behavior.ExtraFriction);
-        Assert.Equal(-1f, behavior.VelocityMagnitude);
+        Assert.Equal(2.0f, behavior.VelocityMagnitude);
     }
 
     [Fact]

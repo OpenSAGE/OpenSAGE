@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage;
 
@@ -38,6 +39,17 @@ public abstract class Entity : DisposableBase
             return;
         }
         _transform.Rotation = rotation;
+        OnEntityMoved();
+    }
+
+    public void SetOrientation(float angle)
+    {
+        // TODO(Port): Implement this.
+        if (_transform.Yaw == angle)
+        {
+            return;
+        }
+        _transform.Rotation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(angle, 0, 0);
         OnEntityMoved();
     }
 

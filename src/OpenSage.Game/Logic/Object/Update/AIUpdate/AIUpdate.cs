@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Mathematics;
@@ -96,7 +97,7 @@ public class AIUpdate : UpdateModule
 
         TargetPoints = new List<Vector3>();
 
-        _locomotorSet = new LocomotorSet(gameObject);
+        _locomotorSet = new LocomotorSet(gameObject, context);
         _currentLocomotorSetType = (LocomotorSetType)(-1);
 
         SetLocomotor(LocomotorSetType.Normal);
@@ -277,8 +278,17 @@ public class AIUpdate : UpdateModule
                     nextPoint = TargetPoints[1];
                 }
 
-                var reachedPosition = CurrentLocomotor.MoveTowardsPosition(TargetPoints[0],
-                    context.GameContext.Terrain.HeightMap, nextPoint);
+                // TODO(Port): Use correct parameter values.
+                var blocked = false;
+                CurrentLocomotor.LocoUpdateMoveTowardsPosition(
+                    GameObject,
+                    TargetPoints[0],
+                    Vector3.Distance(GameObject.Translation, TargetPoints[0]),
+                    CurrentLocomotor.GetMaxSpeedForCondition(GameObject.BodyModule.DamageState),
+                    ref blocked);
+
+                // TODO(Port): This isn't right.
+                var reachedPosition = (GameObject.Translation - TargetPoints[0]).Vector2XY().LengthSquared() < 0.25f;
 
                 // this should be moved to LogicTick
                 if (reachedPosition)
@@ -293,7 +303,13 @@ public class AIUpdate : UpdateModule
             }
             else if (_targetDirection.HasValue)
             {
-                if (!CurrentLocomotor.RotateToTargetDirection(_targetDirection.Value))
+                var targetYaw = MathUtility.GetYawFromDirection(new Vector2(_targetDirection.Value.X, _targetDirection.Value.Y));
+                CurrentLocomotor.LocoUpdateMoveTowardsAngle(GameObject, targetYaw);
+
+                // TODO(Port): This isn't right.
+                var reachedAngle = MathUtility.CalculateAngleDelta(targetYaw, GameObject.Yaw) < 0.1f;
+
+                if (!reachedAngle)
                 {
                     return;
                 }
@@ -304,7 +320,7 @@ public class AIUpdate : UpdateModule
             else
             {
                 // maintain position (jets etc)
-                CurrentLocomotor.MaintainPosition(context.GameContext.Terrain.HeightMap);
+                CurrentLocomotor.LocoUpdateMaintainCurrentPosition(GameObject);
             }
         }
 
@@ -313,7 +329,25 @@ public class AIUpdate : UpdateModule
 
     internal override void DrawInspector()
     {
-        // TODO: Locomotor?
+        base.DrawInspector();
+
+        if (ImGui.TreeNodeEx("Target points"))
+        {
+            for (var i = 0; i < TargetPoints.Count; i++)
+            {
+                var targetPoint = TargetPoints[i];
+                if (ImGui.InputFloat3("Target point", ref targetPoint))
+                {
+                    TargetPoints[i] = targetPoint;
+                }
+            }
+
+            ImGui.TreePop();
+        }
+
+        ImGui.SeparatorText("Locomotor");
+
+        CurrentLocomotor?.DrawInspector();
     }
 
     internal override void Load(StatePersister reader)
