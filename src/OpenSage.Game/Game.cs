@@ -699,16 +699,6 @@ public sealed class Game : DisposableBase, IGame
             }
         }
 
-        if (Scene3D.LocalPlayer.SelectedUnits.Count > 0)
-        {
-            var mainUnit = Scene3D.LocalPlayer.SelectedUnits.First();
-            // Scene3D.CameraController.GoToObject(mainUnit);
-        }
-        else
-        {
-            //Scene3D.CameraController.TerrainPosition = playerStartPosition;
-        }
-
         Scene3D.FrustumCulling = true;
 
         NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
