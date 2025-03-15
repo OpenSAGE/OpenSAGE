@@ -1572,6 +1572,16 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         UnDisable(type);
     }
 
+    public void Topple(in Vector3 toppleDirection, float toppleSpeed, ToppleOptions options)
+    {
+        var toppleUpdate = FindBehavior<ToppleUpdate>();
+
+        if (toppleUpdate != null && toppleUpdate.IsAbleToBeToppled)
+        {
+            toppleUpdate.ApplyTopplingForce(toppleDirection, toppleSpeed, options);
+        }
+    }
+
     public void SetCaptured(bool isCaptured)
     {
         if (!isCaptured)
