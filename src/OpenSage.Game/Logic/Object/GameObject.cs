@@ -1210,7 +1210,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
     {
-        Drawable.LogicTick();
+        Drawable.LogicTick(gameTime);
     }
 
     internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)

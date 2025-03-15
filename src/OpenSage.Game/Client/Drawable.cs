@@ -201,7 +201,7 @@ public sealed class Drawable : Entity, IPersistableObject
     // as far as I can tell nothing like this is stored in the actual game, so I'm not sure how this was handled for network games where logic ticks weren't linked to fps (if at all - you can't save a network game, after all)
     private LogicFrame _lastSelectionFlashFrame;
 
-    public void LogicTick()
+    public void LogicTick(in TimeInterval gameTime)
     {
         var currentFrame = _gameContext.GameLogic.CurrentFrame;
         if (currentFrame > _lastSelectionFlashFrame)
@@ -212,7 +212,7 @@ public sealed class Drawable : Entity, IPersistableObject
 
         foreach (var clientUpdateModule in _clientUpdateModules)
         {
-            clientUpdateModule.ClientUpdate();
+            clientUpdateModule.ClientUpdate(gameTime);
         }
     }
 

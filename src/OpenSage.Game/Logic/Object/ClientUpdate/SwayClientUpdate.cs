@@ -30,7 +30,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
         _context = context;
     }
 
-    public override void ClientUpdate()
+    public override void ClientUpdate(in TimeInterval gameTime)
     {
         if (!_swaying)
         {
@@ -51,7 +51,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
             return;
         }
 
-        _currentValue += _currentDelta;
+        _currentValue += (float)(_currentDelta * gameTime.GetLogicFrameRelativeDeltaTime());
         if (_currentValue > MathUtility.TwoPi)
         {
             _currentValue -= MathUtility.TwoPi;
