@@ -7,6 +7,9 @@ namespace OpenSage.Logic.Object;
 
 public abstract class ClientUpdateModule : ModuleBase
 {
+    // TODO(Port): Make this abstract after all modules have been ported.
+    public virtual void ClientUpdate(in TimeInterval gameTime) { }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

@@ -10,6 +10,8 @@ public abstract class ModuleBase : DisposableBase, IPersistableObject
     /// </summary>
     protected internal virtual void OnObjectCreated() { }
 
+    protected virtual void LoadPostProcess() { }
+
     void IPersistableObject.Persist(StatePersister persister)
     {
         Load(persister);

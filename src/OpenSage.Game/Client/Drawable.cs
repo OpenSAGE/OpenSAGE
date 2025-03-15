@@ -78,6 +78,28 @@ public sealed class Drawable : Entity, IPersistableObject
 
     public uint GameObjectID => GameObject?.ID ?? 0u;
 
+    /// <summary>
+    /// For limiting tree sway, etc to visible objects.
+    /// </summary>
+    public bool IsVisible
+    {
+        get
+        {
+            foreach (var drawModule in _drawModules)
+            {
+                if (drawModule.IsVisible)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    // TODO(Port): Unify this, Drawable._transformMatrix, and GameObject.ModelTransform.
+    public Matrix4x4 InstanceMatrix = Matrix4x4.Identity;
+
     private Matrix4x3 _transformMatrix;
 
     private ColorFlashHelper? _selectionFlashHelper;
@@ -179,13 +201,18 @@ public sealed class Drawable : Entity, IPersistableObject
     // as far as I can tell nothing like this is stored in the actual game, so I'm not sure how this was handled for network games where logic ticks weren't linked to fps (if at all - you can't save a network game, after all)
     private LogicFrame _lastSelectionFlashFrame;
 
-    public void LogicTick()
+    public void LogicTick(in TimeInterval gameTime)
     {
         var currentFrame = _gameContext.GameLogic.CurrentFrame;
         if (currentFrame > _lastSelectionFlashFrame)
         {
             _lastSelectionFlashFrame = currentFrame;
             _selectionFlashHelper?.StepFrame();
+        }
+
+        foreach (var clientUpdateModule in _clientUpdateModules)
+        {
+            clientUpdateModule.ClientUpdate(gameTime);
         }
     }
 
@@ -306,7 +333,7 @@ public sealed class Drawable : Entity, IPersistableObject
             }
 
             drawModule.Update(gameTime);
-            drawModule.SetWorldMatrix(worldMatrix);
+            drawModule.SetWorldMatrix(InstanceMatrix * worldMatrix);
             drawModule.BuildRenderList(
                 renderList,
                 camera,
