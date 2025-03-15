@@ -100,6 +100,9 @@ public sealed class Drawable : Entity, IPersistableObject
     // TODO(Port): Unify this, Drawable._transformMatrix, and GameObject.ModelTransform.
     public Matrix4x4 InstanceMatrix = Matrix4x4.Identity;
 
+    // TODO(Port): Implement this.
+    public bool ShadowsEnabled { get; set; }
+
     private Matrix4x3 _transformMatrix;
 
     private ColorFlashHelper? _selectionFlashHelper;
@@ -302,6 +305,21 @@ public sealed class Drawable : Entity, IPersistableObject
         }
 
         return (null, null);
+    }
+
+    // TODO: Cache this.
+    public T? FindClientUpdateModule<T>()
+        where T : ClientUpdateModule
+    {
+        foreach (var clientUpdateModule in _clientUpdateModules)
+        {
+            if (clientUpdateModule is T t)
+            {
+                return t;
+            }
+        }
+
+        return null;
     }
 
     internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime, in Matrix4x4 worldMatrix, in MeshShaderResources.RenderItemConstantsPS renderItemConstantsPS)

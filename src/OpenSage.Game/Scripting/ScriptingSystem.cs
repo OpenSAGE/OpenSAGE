@@ -501,6 +501,15 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
             sb.AppendFormat("  {0}: {1}\n", kv.Name, kv.Value);
         }
     }
+
+    /// <summary>
+    /// If the object is named and has a specified topple direction, adjust
+    /// topple direction to reflect it.
+    /// </summary>
+    public void AdjustToppleDirection(GameObject gameObject, in Vector3 direction)
+    {
+        // TODO(Port): Port this from ScriptEngine::adjustToppleDirection().
+    }
 }
 
 internal struct ScriptingFlag

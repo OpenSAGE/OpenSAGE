@@ -24,4 +24,13 @@ public sealed class Pathfinder : BaseSingletonAsset
         // TODO(Port): Implement this.
         return true;
     }
+
+    /// <summary>
+    /// De-classifies the given object's cells in the map.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    public void RemoveObjectFromPathfindMap(GameObject gameObject)
+    {
+        // TODO(Port): Implement this.
+    }
 }
