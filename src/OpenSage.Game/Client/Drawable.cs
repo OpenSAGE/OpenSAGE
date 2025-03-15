@@ -78,6 +78,28 @@ public sealed class Drawable : Entity, IPersistableObject
 
     public uint GameObjectID => GameObject?.ID ?? 0u;
 
+    /// <summary>
+    /// For limiting tree sway, etc to visible objects.
+    /// </summary>
+    public bool IsVisible
+    {
+        get
+        {
+            foreach (var drawModule in _drawModules)
+            {
+                if (drawModule.IsVisible)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    // TODO(Port): Unify this, Drawable._transformMatrix, and GameObject.ModelTransform.
+    public Matrix4x4 InstanceMatrix = Matrix4x4.Identity;
+
     private Matrix4x3 _transformMatrix;
 
     private ColorFlashHelper? _selectionFlashHelper;
@@ -186,6 +208,11 @@ public sealed class Drawable : Entity, IPersistableObject
         {
             _lastSelectionFlashFrame = currentFrame;
             _selectionFlashHelper?.StepFrame();
+        }
+
+        foreach (var clientUpdateModule in _clientUpdateModules)
+        {
+            clientUpdateModule.ClientUpdate();
         }
     }
 
@@ -306,7 +333,7 @@ public sealed class Drawable : Entity, IPersistableObject
             }
 
             drawModule.Update(gameTime);
-            drawModule.SetWorldMatrix(worldMatrix);
+            drawModule.SetWorldMatrix(InstanceMatrix * worldMatrix);
             drawModule.BuildRenderList(
                 renderList,
                 camera,

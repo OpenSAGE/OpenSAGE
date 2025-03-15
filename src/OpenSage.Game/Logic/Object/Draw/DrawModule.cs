@@ -20,6 +20,12 @@ public abstract class DrawModule : ModuleBase
     public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
     public virtual BoundingSphere? BoundingSphere { get; }
 
+    /// <summary>
+    /// For limiting tree sway, etc to visible objects.
+    /// TODO(Port): Implement this for W3dModelDraw.
+    /// </summary>
+    public virtual bool IsVisible => true;
+
     // TODO: Probably shouldn't have this here.
     internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
     internal abstract string GetWeaponLaunchBone(WeaponSlot slot);

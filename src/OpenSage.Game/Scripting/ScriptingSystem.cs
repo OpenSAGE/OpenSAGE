@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -34,7 +35,7 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
     private readonly List<ObjectNameAndId>[] _unknownSuperweaponArray;
     private readonly List<ObjectNameAndId>[] _upgrades;
     private readonly ScienceSet[] _sciences;
-    private readonly float[] _unknownFloats = new float[6];
+    private BreezeInfo _breezeInfo;
     private uint _unknown17;
     private bool _timeFrozen;
     private readonly List<MapReveal> _mapReveals = new();
@@ -42,6 +43,8 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
     private string _musicTrackName;
 
     public bool Active { get; set; }
+
+    public ref readonly BreezeInfo BreezeInfo => ref _breezeInfo;
 
     public event EventHandler<ScriptingSystem> OnUpdateFinished;
 
@@ -77,6 +80,16 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
         {
             _sciences[i] = new ScienceSet();
         }
+
+        _breezeInfo = new BreezeInfo();
+        _breezeInfo.Direction = MathF.PI / 3.0f;
+        _breezeInfo.DirectionVector.X = MathF.Sin(_breezeInfo.Direction);
+        _breezeInfo.DirectionVector.Y = MathF.Cos(_breezeInfo.Direction);
+        _breezeInfo.Intensity = 0.07f * MathF.PI / 4.0f;
+        _breezeInfo.Lean = 0.07f * MathF.PI / 4.0f;
+        _breezeInfo.BreezePeriod = Game.LogicFramesPerSecondN * 5;
+        _breezeInfo.Randomness = 0.2f;
+        _breezeInfo.BreezeVersion = 0;
     }
 
     internal override void OnSceneChanging()
@@ -426,19 +439,7 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
 
         reader.SkipUnknownBytes(2);
 
-        reader.PersistArray(
-            _unknownFloats,
-            static (StatePersister persister, ref float item) =>
-            {
-                persister.PersistSingleValue(ref item);
-            });
-
-        var unknown16 = 150u;
-        reader.PersistUInt32(ref unknown16);
-        if (unknown16 != 150)
-        {
-            throw new InvalidStateException();
-        }
+        reader.PersistObject(ref _breezeInfo);
 
         reader.PersistUInt32(ref _unknown17);
         if (_unknown17 != 0 && _unknown17 != 1 && _unknown17 != 2)
@@ -521,4 +522,53 @@ internal struct MapReveal
     public string Waypoint;
     public float Radius;
     public string Player;
+}
+
+public struct BreezeInfo : IPersistableObject
+{
+    /// <summary>
+    /// Direction of the breeze in radians. 0 == +x direction.
+    /// </summary>
+    public float Direction;
+
+    /// <summary>
+    /// Sin/cos of direction, for efficiency.
+    /// </summary>
+    public Vector2 DirectionVector;
+
+    /// <summary>
+    /// How far to sway back and forth in radians. 0 == none.
+    /// </summary>
+    public float Intensity;
+
+    /// <summary>
+    /// How far to lean with the wind in radians. 0 == none.
+    /// </summary>
+    public float Lean;
+
+    /// <summary>
+    /// Randomness. 0 == perfectly uniform, 1 == +- up to 50% randomly.
+    /// </summary>
+    public float Randomness;
+
+    /// <summary>
+    /// How many frames it takes to sway forward & back.
+    /// </summary>
+    public short BreezePeriod;
+
+    /// <summary>
+    /// Incremented each time the settings are updated.
+    /// </summary>
+    public short BreezeVersion;
+
+    public void Persist(StatePersister persister)
+    {
+        persister.PersistSingle(ref Direction);
+        persister.PersistVector2(ref DirectionVector);
+        persister.PersistSingle(ref Intensity);
+        persister.PersistSingle(ref Lean);
+        persister.PersistSingle(ref Randomness);
+        persister.PersistInt16(ref BreezePeriod);
+        persister.PersistInt16(ref BreezeVersion);
+    }
 }
