@@ -29,6 +29,8 @@ public class BfmeDefinition : IGameDefinition
         new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "Language")
     };
 
+    public SteamInstallationDefinition Steam { get; } = null;
+
     public string Identifier { get; } = "bfme";
 
     public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");

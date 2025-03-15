@@ -28,6 +28,8 @@ public class Bfme2RotwkDefinition : IGameDefinition
         new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "Language")
     };
 
+    public SteamInstallationDefinition? Steam { get; } = null;
+
     public string Identifier { get; } = "bfme2_rotwk";
 
     public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");

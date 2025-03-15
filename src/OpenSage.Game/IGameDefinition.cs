@@ -23,6 +23,8 @@ public interface IGameDefinition
     IEnumerable<RegistryKeyPath> RegistryKeys { get; }
     IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
 
+    SteamInstallationDefinition? Steam { get; }
+
     IMainMenuSource MainMenu { get; }
     IControlBarSource? ControlBar { get; }
     ICommandListOverlaySource? CommandListOverlay { get; }
@@ -38,4 +40,10 @@ public interface IGameDefinition
     Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore);
 
     bool Probe(string directory) => File.Exists(Path.Combine(directory, LauncherExecutable));
+}
+
+public class SteamInstallationDefinition(uint steamAppId, string folderName)
+{
+    public readonly uint AppId = steamAppId;
+    public readonly string FolderName = folderName;
 }

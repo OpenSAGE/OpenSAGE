@@ -29,6 +29,8 @@ public class GeneralsDefinition : IGameDefinition
         new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "Language")
     };
 
+    public SteamInstallationDefinition Steam { get; } = new(2229870, "Command and Conquer Generals");
+
     public string Identifier { get; } = "cnc_generals";
 
     public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
