@@ -23,7 +23,7 @@ public sealed class Animation : IPersistableObject
     public Animation(AnimationTemplate template)
     {
         Template = template;
-        _animationDelayFrames = (uint)Math.Round(template.AnimationDelay * (Game.LogicFramesPerSecond / 1000));
+        _animationDelayFrames = (uint)Math.Round(template.AnimationDelay * (GameEngine.LogicFramesPerSecond / 1000));
         _lastImageIndex = (ushort)(template.Images.Count - 1);
         AnimationType = AnimationNameToType(template.Name);
         if (template.AnimationMode is AnimationMode.LoopBackwards or AnimationMode.OnceBackwards)

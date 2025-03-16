@@ -53,7 +53,7 @@ public sealed class OverchargeBehavior : UpdateModule
         }
 
         GameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, GameObject);
-        SetNextUpdateFrame(new LogicFrame((uint)Game.LogicFramesPerSecond));
+        SetNextUpdateFrame(new LogicFrame((uint)GameEngine.LogicFramesPerSecond));
     }
 
     internal override void Load(StatePersister reader)

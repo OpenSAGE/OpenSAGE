@@ -20,7 +20,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     private const float InvalidVelocityMagnitude = -1.0f;
 
-    private const int MotiveFrames = (int)Game.LogicFramesPerSecond / 3;
+    private const int MotiveFrames = (int)GameEngine.LogicFramesPerSecond / 3;
 
     private readonly PhysicsBehaviorModuleData _moduleData;
 
@@ -1659,7 +1659,7 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     private static float ParseFrictionPerSec(IniParser parser)
     {
         var frictionPerSecond = parser.ParseFloat();
-        var frictionPerFrame = frictionPerSecond * Game.SecondsPerLogicFrame;
+        var frictionPerFrame = frictionPerSecond * GameEngine.SecondsPerLogicFrame;
         return frictionPerFrame;
     }
 }

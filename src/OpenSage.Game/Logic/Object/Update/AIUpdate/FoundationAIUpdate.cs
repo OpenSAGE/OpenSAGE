@@ -17,7 +17,7 @@ public class FoundationAIUpdate : AIUpdate
         : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
-        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
+        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(GameEngine.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
     }
 
     internal override void Update(BehaviorUpdateContext context)

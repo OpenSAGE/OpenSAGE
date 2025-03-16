@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
@@ -13,6 +14,22 @@ namespace OpenSage;
 
 public sealed class GameEngine
 {
+    static GameEngine()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+    }
+
+    // TODO: These should be configurable at runtime with GameSpeed.
+
+    public const float LogicFramesPerSecond = LogicFramesPerSecondN;
+    public const int LogicFramesPerSecondN = 30;
+    public const float SecondsPerLogicFrame = 1.0f / LogicFramesPerSecond;
+
+    // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
+    // so as a temporary workaround, we simply tick the logic at 30fps.
+    //internal const double LogicUpdateInterval = 1000.0 / 5.0;
+    internal const float LogicUpdateInterval = 1000.0f / LogicFramesPerSecond;
+
     internal readonly AssetLoadContext AssetLoadContext;
     public readonly AudioSystem AudioSystem;
     internal readonly ParticleSystemManager ParticleSystems;

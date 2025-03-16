@@ -39,22 +39,6 @@ namespace OpenSage;
 
 public sealed class Game : DisposableBase, IGame
 {
-    static Game()
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-    }
-
-    // TODO: These should be configurable at runtime with GameSpeed.
-
-    public const float LogicFramesPerSecond = LogicFramesPerSecondN;
-    public const int LogicFramesPerSecondN = 30;
-    public const float SecondsPerLogicFrame = 1.0f / LogicFramesPerSecond;
-
-    // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
-    // so as a temporary workaround, we simply tick the logic at 30fps.
-    //internal const double LogicUpdateInterval = 1000.0 / 5.0;
-    internal const float LogicUpdateInterval = 1000.0f / LogicFramesPerSecond;
-
     private readonly double _scriptingUpdateInterval;
 
     private readonly FileSystem _fileSystem;
@@ -815,7 +799,7 @@ public sealed class Game : DisposableBase, IGame
             LogicTick();
             CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
             // Logic updates happen at 5Hz.
-            _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
+            _nextLogicUpdate += TimeSpan.FromMilliseconds(GameEngine.LogicUpdateInterval);
 
             if (_isStepping)
             {
@@ -854,7 +838,7 @@ public sealed class Game : DisposableBase, IGame
 
         // How close are we to the next logic frame?
         var tickT = (float)(1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
-                                 .TotalMilliseconds / LogicUpdateInterval);
+                                 .TotalMilliseconds / GameEngine.LogicUpdateInterval);
 
         // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
         Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
@@ -880,7 +864,7 @@ public sealed class Game : DisposableBase, IGame
         PartitionCellManager.Update();
     }
 
-    internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(LogicUpdateInterval));
+    internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine.LogicUpdateInterval));
 
     public void ToggleLogicRunning()
     {

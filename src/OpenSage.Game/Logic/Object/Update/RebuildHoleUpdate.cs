@@ -31,7 +31,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
     {
         _moduleData = moduleData;
 
-        _healPercentagePerFrame = new Percentage((float)moduleData.HoleHealthRegenPercentPerSecond / Game.LogicFramesPerSecond);
+        _healPercentagePerFrame = new Percentage((float)moduleData.HoleHealthRegenPercentPerSecond / GameEngine.LogicFramesPerSecond);
         _workerObjectName = moduleData.WorkerObjectDefinition.Value.Name;
 
         ResetConstructionCounter();

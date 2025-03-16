@@ -26,7 +26,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     private LogicFrame _nextHealFrame = NoHealingFrame;
     private readonly Fix64 _healAmountPerHealTick;
     private const int HealsPerSecond = 5; // not sure if this is configured anywhere
-    private static readonly LogicFrameSpan HealUpdateRate = new((uint)(Game.LogicFramesPerSecond / HealsPerSecond));
+    private static readonly LogicFrameSpan HealUpdateRate = new((uint)(GameEngine.LogicFramesPerSecond / HealsPerSecond));
 
     internal ParkingPlaceBehaviour(GameObject gameObject, GameEngine gameEngine, ParkingPlaceBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)

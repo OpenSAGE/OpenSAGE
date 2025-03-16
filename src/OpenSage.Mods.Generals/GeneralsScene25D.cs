@@ -215,7 +215,7 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
 // shows text on-screen with the included offset, slowly moving up and fading out over 2.75 seconds
 internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vector3 baseLocation, int amount, in ColorRgbaF baseColor) : TransientAnimation(camera, currentFrame)
 {
-    protected override uint FrameLength => (uint)(Game.LogicFramesPerSecond * 2.75f);
+    protected override uint FrameLength => (uint)(GameEngine.LogicFramesPerSecond * 2.75f);
 
     private readonly Vector3 _baseLocation = baseLocation;
     private readonly string _text = $"{(amount < 0 ? "-" : string.Empty)}{MoneySymbol.Localize()}{amount}";
@@ -247,7 +247,7 @@ internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vec
 // Shows the rank-up animation rising above the character
 internal class RankUpAnimation(Camera camera, uint currentFrame, GameData gameData, Animation animation, in Vector3 baseLocation) : TransientAnimation(camera, currentFrame)
 {
-    protected override uint FrameLength { get; } = (uint)(Game.LogicFramesPerSecond * gameData.LevelGainAnimationTime);
+    protected override uint FrameLength { get; } = (uint)(GameEngine.LogicFramesPerSecond * gameData.LevelGainAnimationTime);
     private readonly float _zRise = gameData.LevelGainAnimationZRise;
 
     private readonly Vector3 _baseLocation = baseLocation;

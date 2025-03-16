@@ -124,7 +124,7 @@ public class SlavedUpdateModule : UpdateModule
                 case RepairStatus.ZIP_AROUND:
                 case RepairStatus.IN_TRANSITION:
                 case RepairStatus.WELDING:
-                    _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
+                    _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / GameEngine.LogicFramesPerSecond);
                     if (_master.Health > _master.MaxHealth)
                     {
                         _master.Health = _master.MaxHealth;

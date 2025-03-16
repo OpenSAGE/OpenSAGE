@@ -23,7 +23,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
     {
         IsUnpacked = false;
         _moduleData = moduleData;
-        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s
+        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(GameEngine.LogicFramesPerSecond / 2)); // 0.5s
         _nativePlayer = gameObject.Owner;
     }
 

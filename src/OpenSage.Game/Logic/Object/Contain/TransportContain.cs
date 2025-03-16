@@ -104,7 +104,7 @@ public class TransportContain : OpenContainModule
             if (_moduleData.ExitDelay > 0)
             {
                 // todo: humvee had DOOR_1_CLOSING ModelConditionFlag when between exits and DOOR_1_OPENING before first exit
-                var exitDelayFrames = _moduleData.ExitDelay / 1000f * Game.LogicFramesPerSecond;
+                var exitDelayFrames = _moduleData.ExitDelay / 1000f * GameEngine.LogicFramesPerSecond;
                 _nextEvacAllowedAfter = currentFrame + new LogicFrameSpan((uint)exitDelayFrames);
             }
             return true;

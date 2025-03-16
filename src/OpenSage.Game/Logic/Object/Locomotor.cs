@@ -95,7 +95,7 @@ public sealed class Locomotor : IPersistableObject
 
     private void ResetDonutTimer()
     {
-        _donutTimer = _gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * Game.LogicFramesPerSecond));
+        _donutTimer = _gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * GameEngine.LogicFramesPerSecond));
     }
 
     private bool HasMovementPenalty(BodyDamageType condition)
@@ -433,7 +433,7 @@ public sealed class Locomotor : IPersistableObject
 
         if (wasBraking)
         {
-            const float minVel = AIPathfind.PathfindCellSizeF / Game.LogicFramesPerSecond;
+            const float minVel = AIPathfind.PathfindCellSizeF / GameEngine.LogicFramesPerSecond;
 
             if (obj.IsKindOf(ObjectKinds.Projectile))
             {
@@ -1026,7 +1026,7 @@ public sealed class Locomotor : IPersistableObject
         }
 
         const float FIFTEEN_DEGREES = MathF.PI / 12.0f;
-        const float PROJECT_FRAMES = Game.LogicFramesPerSecond / 2; // Project out 1/2 second.
+        const float PROJECT_FRAMES = GameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
         if (MathF.Abs(relAngle) > FIFTEEN_DEGREES)
         {
             // If we're turning more than 10 degrees, check & see if we're moving into "impassable territory"

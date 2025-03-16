@@ -4,6 +4,6 @@ public static class TimeIntervalExtensions
 {
     public static double GetLogicFrameRelativeDeltaTime(this TimeInterval timeInterval)
     {
-        return timeInterval.DeltaTime.TotalMilliseconds / Game.LogicUpdateInterval;
+        return timeInterval.DeltaTime.TotalMilliseconds / GameEngine.LogicUpdateInterval;
     }
 }

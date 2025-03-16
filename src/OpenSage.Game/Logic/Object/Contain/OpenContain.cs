@@ -184,7 +184,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     protected void HealUnits(int fullHealTimeMs)
     {
-        var percentToHeal = new Percentage(1 / (Game.LogicFramesPerSecond * (fullHealTimeMs / 1000f)));
+        var percentToHeal = new Percentage(1 / (GameEngine.LogicFramesPerSecond * (fullHealTimeMs / 1000f)));
         foreach (var unitId in ContainedObjectIds)
         {
             var unit = GameObjectForId(unitId);
