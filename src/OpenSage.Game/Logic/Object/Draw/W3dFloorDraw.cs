@@ -110,9 +110,9 @@ public sealed class W3dFloorDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeatherTexture WeatherTexture { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, context, drawable);
+        return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, gameEngine, drawable);
     }
 }
 

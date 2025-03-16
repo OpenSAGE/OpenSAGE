@@ -26,8 +26,8 @@ public sealed class RebuildHoleUpdate : UpdateModule
     private string _structureObjectName; // the structure we're rebuilding
     private ObjectDefinition StructureObjectDefinition => GameEngine.Game.AssetStore.ObjectDefinitions.GetByName(_structureObjectName);
 
-    internal RebuildHoleUpdate(GameObject gameObject, GameEngine context, RebuildHoleUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal RebuildHoleUpdate(GameObject gameObject, GameEngine gameEngine, RebuildHoleUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -197,8 +197,8 @@ public sealed class RebuildHoleUpdateModuleData : UpdateModuleData
 
     public Percentage HoleHealthRegenPercentPerSecond { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new RebuildHoleUpdate(gameObject, context, this);
+        return new RebuildHoleUpdate(gameObject, gameEngine, this);
     }
 }

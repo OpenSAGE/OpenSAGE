@@ -6,8 +6,8 @@ public sealed class AutoFindHealingUpdate : UpdateModule
 {
     private readonly AutoFindHealingUpdateModuleData _moduleData;
 
-    public AutoFindHealingUpdate(GameObject gameObject, GameEngine context, AutoFindHealingUpdateModuleData moduleData)
-        : base(gameObject, context)
+    public AutoFindHealingUpdate(GameObject gameObject, GameEngine gameEngine, AutoFindHealingUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -60,8 +60,8 @@ public sealed class AutoFindHealingUpdateModuleData : UpdateModuleData
     public float NeverHeal { get; private set; }
     public float AlwaysHeal { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new AutoFindHealingUpdate(gameObject, context, this);
+        return new AutoFindHealingUpdate(gameObject, gameEngine, this);
     }
 }

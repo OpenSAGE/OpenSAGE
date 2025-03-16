@@ -23,12 +23,12 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     private int _unknown6;
     private readonly WorkerAIUpdateStateMachine3 _stateMachine3;
 
-    internal WorkerAIUpdate(GameObject gameObject, GameEngine context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal WorkerAIUpdate(GameObject gameObject, GameEngine gameEngine, WorkerAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
-        _state = new DozerAndWorkerState(gameObject, context, this);
-        _supplyAIUpdateStateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
-        _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, context, this);
+        _state = new DozerAndWorkerState(gameObject, gameEngine, this);
+        _supplyAIUpdateStateMachine = new SupplyAIUpdateStateMachine(gameObject, gameEngine, this);
+        _stateMachine3 = new WorkerAIUpdateStateMachine3(gameObject, gameEngine, this);
     }
 
     internal override void Stop()
@@ -224,7 +224,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         public override WorkerAIUpdate AIUpdate { get; }
 
-        public WorkerAIUpdateStateMachine3(GameObject gameObject, GameEngine context, WorkerAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        public WorkerAIUpdateStateMachine3(GameObject gameObject, GameEngine gameEngine, WorkerAIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
             AIUpdate = aiUpdate;
 
@@ -284,8 +284,8 @@ public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData, IBuilde
     [AddedIn(SageGame.Bfme)]
     public LogicFrameSpan HarvestActionTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new WorkerAIUpdate(gameObject, context, this);
+        return new WorkerAIUpdate(gameObject, gameEngine, this);
     }
 }

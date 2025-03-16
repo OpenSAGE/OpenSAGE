@@ -66,9 +66,9 @@ public sealed class Locomotor : IPersistableObject
 
     public float MinSpeed => LocomotorTemplate.MinSpeed;
 
-    public Locomotor(GameEngine context, LocomotorTemplate template, float baseSpeed)
+    public Locomotor(GameEngine gameEngine, LocomotorTemplate template, float baseSpeed)
     {
-        _gameEngine = context;
+        _gameEngine = gameEngine;
 
         LocomotorTemplate = template;
 
@@ -81,9 +81,9 @@ public sealed class Locomotor : IPersistableObject
         _preferredHeight = template.PreferredHeight;
         _preferredHeightDamping = template.PreferredHeightDamping;
 
-        _angleOffset = context.Random.NextSingle(-MathF.PI / 6.0f, MathF.PI / 6.0f);
-        _offsetIncrement = (MathF.PI / 40.0f) * (context.Random.NextSingle(0.8f, 1.2f) / template.WanderLengthFactor);
-        SetFlag(LocomotorFlags.OffsetIncreasing, context.Random.NextBoolean());
+        _angleOffset = gameEngine.Random.NextSingle(-MathF.PI / 6.0f, MathF.PI / 6.0f);
+        _offsetIncrement = (MathF.PI / 40.0f) * (gameEngine.Random.NextSingle(0.8f, 1.2f) / template.WanderLengthFactor);
+        SetFlag(LocomotorFlags.OffsetIncreasing, gameEngine.Random.NextBoolean());
 
         ResetDonutTimer();
     }

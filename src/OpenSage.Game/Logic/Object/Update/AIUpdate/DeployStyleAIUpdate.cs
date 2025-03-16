@@ -21,7 +21,7 @@ public class DeployStyleAIUpdate : AIUpdate
 
     private readonly UnknownStateData _unknownStateData = new();
 
-    internal DeployStyleAIUpdate(GameObject gameObject, GameEngine context, DeployStyleAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal DeployStyleAIUpdate(GameObject gameObject, GameEngine gameEngine, DeployStyleAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
     }
@@ -103,8 +103,8 @@ public sealed class DeployStyleAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public string DeployedAttributeModifier { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new DeployStyleAIUpdate(gameObject, context, this);
+        return new DeployStyleAIUpdate(gameObject, gameEngine, this);
     }
 }

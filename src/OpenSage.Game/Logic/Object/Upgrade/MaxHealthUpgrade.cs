@@ -7,8 +7,8 @@ internal sealed class MaxHealthUpgrade : UpgradeModule
 {
     private readonly MaxHealthUpgradeModuleData _moduleData;
 
-    internal MaxHealthUpgrade(GameObject gameObject, GameEngine context, MaxHealthUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal MaxHealthUpgrade(GameObject gameObject, GameEngine gameEngine, MaxHealthUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -55,9 +55,9 @@ public sealed class MaxHealthUpgradeModuleData : UpgradeModuleData
     public float AddMaxHealth { get; private set; }
     public MaxHealthChangeType ChangeType { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new MaxHealthUpgrade(gameObject, context, this);
+        return new MaxHealthUpgrade(gameObject, gameEngine, this);
     }
 }
 

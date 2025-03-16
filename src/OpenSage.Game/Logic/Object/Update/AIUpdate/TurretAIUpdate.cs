@@ -31,8 +31,8 @@ public class TurretAIUpdate : UpdateModule
         Recentering
     }
 
-    internal TurretAIUpdate(GameObject gameObject, GameEngine context, TurretAIUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal TurretAIUpdate(GameObject gameObject, GameEngine gameEngine, TurretAIUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -318,9 +318,9 @@ public sealed class TurretAIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public int TurretMaxDeflectionACW { get; private set; }
 
-    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject, GameEngine context)
+    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject, GameEngine gameEngine)
     {
-        return new TurretAIUpdate(gameObject, context, this);
+        return new TurretAIUpdate(gameObject, gameEngine, this);
     }
 }
 

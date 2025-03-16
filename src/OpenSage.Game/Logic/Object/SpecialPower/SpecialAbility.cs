@@ -6,7 +6,7 @@ public sealed class SpecialAbilityModule : SpecialPowerModule
 {
     // TODO
 
-    internal SpecialAbilityModule(GameObject gameObject, GameEngine context, SpecialAbilityModuleData moduleData) : base(gameObject, context, moduleData)
+    internal SpecialAbilityModule(GameObject gameObject, GameEngine gameEngine, SpecialAbilityModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -27,8 +27,8 @@ public sealed class SpecialAbilityModuleData : SpecialPowerModuleData
     private static new readonly IniParseTable<SpecialAbilityModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
         .Concat(new IniParseTable<SpecialAbilityModuleData>());
 
-    internal override SpecialAbilityModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override SpecialAbilityModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SpecialAbilityModule(gameObject, context, this);
+        return new SpecialAbilityModule(gameObject, gameEngine, this);
     }
 }

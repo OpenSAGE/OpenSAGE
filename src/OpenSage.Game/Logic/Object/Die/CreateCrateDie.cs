@@ -9,8 +9,8 @@ public sealed class CreateCrateDie : DieModule
 {
     private readonly CreateCrateDieModuleData _moduleData;
 
-    internal CreateCrateDie(GameObject gameObject, GameEngine context, CreateCrateDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal CreateCrateDie(GameObject gameObject, GameEngine gameEngine, CreateCrateDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -95,8 +95,8 @@ public sealed class CreateCrateDieModuleData : DieModuleData
 
     public LazyAssetReference<CrateData> CrateData { get; private set; }
 
-    internal override CreateCrateDie CreateModule(GameObject gameObject, GameEngine context)
+    internal override CreateCrateDie CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CreateCrateDie(gameObject, context, this);
+        return new CreateCrateDie(gameObject, gameEngine, this);
     }
 }

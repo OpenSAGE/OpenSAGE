@@ -90,14 +90,14 @@ public class AIUpdate : UpdateModule
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
 
-    internal AIUpdate(GameObject gameObject, GameEngine context, AIUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal AIUpdate(GameObject gameObject, GameEngine gameEngine, AIUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         ModuleData = moduleData;
 
         TargetPoints = new List<Vector3>();
 
-        _locomotorSet = new LocomotorSet(gameObject, context);
+        _locomotorSet = new LocomotorSet(gameObject, gameEngine);
         _currentLocomotorSetType = (LocomotorSetType)(-1);
 
         SetLocomotor(LocomotorSetType.Normal);
@@ -106,7 +106,7 @@ public class AIUpdate : UpdateModule
         // and might be overridden in a derived class, causing it to be unintialised despite the assignment above.
         if (moduleData.Turret != null)
         {
-            _turretAIUpdate = moduleData.Turret.CreateTurretAIUpdate(GameObject, context);
+            _turretAIUpdate = moduleData.Turret.CreateTurretAIUpdate(gameObject, gameEngine);
         }
     }
 
@@ -561,9 +561,9 @@ public class AIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int BurningDeathTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new AIUpdate(gameObject, context, this);
+        return new AIUpdate(gameObject, gameEngine, this);
     }
 }
 

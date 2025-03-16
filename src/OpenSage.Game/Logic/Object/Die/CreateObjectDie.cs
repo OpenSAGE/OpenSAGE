@@ -7,8 +7,8 @@ public sealed class CreateObjectDie : DieModule
 {
     private readonly CreateObjectDieModuleData _moduleData;
 
-    internal CreateObjectDie(GameObject gameObject, GameEngine context, CreateObjectDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal CreateObjectDie(GameObject gameObject, GameEngine gameEngine, CreateObjectDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -52,8 +52,8 @@ public sealed class CreateObjectDieModuleData : DieModuleData
     [AddedIn(SageGame.Bfme2)]
     public string[] UpgradeRequired { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CreateObjectDie(gameObject, context, this);
+        return new CreateObjectDie(gameObject, gameEngine, this);
     }
 }

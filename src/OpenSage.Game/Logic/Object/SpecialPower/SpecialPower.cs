@@ -281,8 +281,8 @@ public class SpecialPowerModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2)]
     public ObjectFilter RequirementsFilterStrategic { get; private set; }
 
-    internal override SpecialPowerModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override SpecialPowerModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SpecialPowerModule(gameObject, context, this);
+        return new SpecialPowerModule(gameObject, gameEngine, this);
     }
 }

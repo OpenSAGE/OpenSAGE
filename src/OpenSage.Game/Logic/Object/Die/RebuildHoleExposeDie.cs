@@ -8,8 +8,8 @@ public sealed class RebuildHoleExposeDie : DieModule
 {
     private readonly RebuildHoleExposeDieModuleData _moduleData;
 
-    internal RebuildHoleExposeDie(GameObject gameObject, GameEngine context, RebuildHoleExposeDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal RebuildHoleExposeDie(GameObject gameObject, GameEngine gameEngine, RebuildHoleExposeDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -67,8 +67,8 @@ public sealed class RebuildHoleExposeDieModuleData : DieModuleData
         DieData.ExemptStatus = ObjectStatus.UnderConstruction;
     }
 
-    internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameEngine context)
+    internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new RebuildHoleExposeDie(gameObject, context, this);
+        return new RebuildHoleExposeDie(gameObject, gameEngine, this);
     }
 }

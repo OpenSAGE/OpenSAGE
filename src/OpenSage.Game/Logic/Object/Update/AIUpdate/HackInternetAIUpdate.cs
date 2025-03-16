@@ -14,7 +14,7 @@ public class HackInternetAIUpdate : AIUpdate
 
     private UnknownStateData? _packingUpData;
 
-    internal HackInternetAIUpdate(GameObject gameObject, GameEngine context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal HackInternetAIUpdate(GameObject gameObject, GameEngine gameEngine, HackInternetAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
     }
@@ -94,8 +94,8 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override HackInternetAIUpdate AIUpdate { get; }
 
-    public HackInternetAIUpdateStateMachine(GameObject gameObject, GameEngine context, HackInternetAIUpdate aiUpdate)
-        : base(gameObject, context, aiUpdate)
+    public HackInternetAIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, HackInternetAIUpdate aiUpdate)
+        : base(gameObject, gameEngine, aiUpdate)
     {
         AIUpdate = aiUpdate;
 
@@ -104,10 +104,10 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
         AddState(StopHackingInternetState.StateId, new StopHackingInternetState(this));
     }
 
-    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameEngine context)
+    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameEngine gameEngine)
     {
         // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-        return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
+        return new LogicFrameSpan((uint)(time.Value + time.Value * ((gameEngine.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
     }
 }
 
@@ -164,8 +164,8 @@ public sealed class HackInternetAIUpdateModuleData : AIUpdateModuleData
     /// </example>
     public float PackUnpackVariationFactor { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new HackInternetAIUpdate(gameObject, context, this);
+        return new HackInternetAIUpdate(gameObject, gameEngine, this);
     }
 }

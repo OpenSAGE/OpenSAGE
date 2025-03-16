@@ -9,8 +9,8 @@ public sealed class AssaultTransportAIUpdate : AIUpdate
 
     private readonly List<AssaultTransportMember> _members = new();
 
-    internal AssaultTransportAIUpdate(GameObject gameObject, GameEngine context, AssaultTransportAIUpdateModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal AssaultTransportAIUpdate(GameObject gameObject, GameEngine gameEngine, AssaultTransportAIUpdateModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
     }
@@ -63,8 +63,8 @@ public sealed class AssaultTransportAIUpdateModuleData : AIUpdateModuleData
 
     public float MembersGetHealedAtLifeRatio { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new AssaultTransportAIUpdate(gameObject, context, this);
+        return new AssaultTransportAIUpdate(gameObject, gameEngine, this);
     }
 }

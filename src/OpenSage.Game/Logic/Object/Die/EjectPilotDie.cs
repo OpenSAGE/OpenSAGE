@@ -8,8 +8,8 @@ public sealed class EjectPilotDie : DieModule
 {
     private readonly EjectPilotDieModuleData _moduleData;
 
-    internal EjectPilotDie(GameObject gameObject, GameEngine context, EjectPilotDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal EjectPilotDie(GameObject gameObject, GameEngine gameEngine, EjectPilotDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -61,8 +61,8 @@ public sealed class EjectPilotDieModuleData : DieModuleData
     public LazyAssetReference<ObjectCreationList> AirCreationList { get; private set; }
     public BitArray<VeterancyLevel> VeterancyLevels { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new EjectPilotDie(gameObject, context, this);
+        return new EjectPilotDie(gameObject, gameEngine, this);
     }
 }

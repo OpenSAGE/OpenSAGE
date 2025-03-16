@@ -11,8 +11,8 @@ public sealed class W3dSupplyDraw : W3dModelDraw
     private readonly Dictionary<string, int> _boxBoneMap;
     private readonly string _bonePrefix;
 
-    internal W3dSupplyDraw(W3dSupplyDrawModuleData data, Drawable drawable, GameEngine context)
-        : base(data, drawable, context)
+    internal W3dSupplyDraw(W3dSupplyDrawModuleData data, Drawable drawable, GameEngine gameEngine)
+        : base(data, drawable, gameEngine)
     {
         _bonePrefix = data.SupplyBonePrefix;
         _boxBoneMap = string.IsNullOrEmpty(data.SupplyBonePrefix)
@@ -58,8 +58,8 @@ public sealed class W3dSupplyDrawModuleData : W3dModelDrawModuleData
 
     public string SupplyBonePrefix { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dSupplyDraw(this, drawable, context);
+        return new W3dSupplyDraw(this, drawable, gameEngine);
     }
 }

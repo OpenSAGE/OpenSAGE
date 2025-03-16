@@ -90,13 +90,13 @@ public class W3dModelDraw : DrawModule
     internal W3dModelDraw(
         W3dModelDrawModuleData data,
         Drawable drawable,
-        GameEngine context)
+        GameEngine gameEngine)
     {
         _data = data;
         Drawable = drawable;
-        _gameEngine = context;
+        _gameEngine = gameEngine;
 
-        UpdateConditionState(new BitArray<ModelConditionFlag>(), context.Random);
+        UpdateConditionState(new BitArray<ModelConditionFlag>(), gameEngine.Random);
 
         _unknownSomething = new List<W3dModelDrawSomething>[3];
         for (var i = 0; i < _unknownSomething.Length; i++)
@@ -433,12 +433,12 @@ internal sealed class W3dModelDrawConditionState : DisposableBase
     public W3dModelDrawConditionState(
         ModelInstance modelInstance,
         IEnumerable<ParticleSystem> particleSystems,
-        GameEngine context)
+        GameEngine gameEngine)
     {
         Model = AddDisposable(modelInstance);
 
         _particleSystems = particleSystems;
-        _gameEngine = context;
+        _gameEngine = gameEngine;
 
         AddDisposeAction(() => Deactivate());
     }
@@ -766,9 +766,9 @@ public class W3dModelDrawModuleData : DrawModuleData, IParseCallbacks
         _transitionStatesGenerals.Clear();
     }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dModelDraw(this, drawable, context);
+        return new W3dModelDraw(this, drawable, gameEngine);
     }
 }
 

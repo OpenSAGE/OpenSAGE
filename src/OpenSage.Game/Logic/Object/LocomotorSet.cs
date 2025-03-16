@@ -10,10 +10,10 @@ public sealed class LocomotorSet : IPersistableObject
     private readonly List<Locomotor> _locomotors;
     private Surfaces _surfaces;
 
-    public LocomotorSet(GameObject gameObject, GameEngine context)
+    public LocomotorSet(GameObject gameObject, GameEngine gameEngine)
     {
         _gameObject = gameObject;
-        _gameEngine = context;
+        _gameEngine = gameEngine;
         _locomotors = new List<Locomotor>();
     }
 

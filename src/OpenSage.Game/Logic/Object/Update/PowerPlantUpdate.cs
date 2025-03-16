@@ -12,8 +12,8 @@ public sealed class PowerPlantUpdate : UpdateModule
 
     private LogicFrame _rodsExtendedEndFrame;
 
-    internal PowerPlantUpdate(GameObject gameObject, GameEngine context, PowerPlantUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal PowerPlantUpdate(GameObject gameObject, GameEngine gameEngine, PowerPlantUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -93,8 +93,8 @@ public sealed class PowerPlantUpdateModuleData : UpdateModuleData
 
     public LogicFrameSpan RodsExtendTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new PowerPlantUpdate(gameObject, context, this);
+        return new PowerPlantUpdate(gameObject, gameEngine, this);
     }
 }

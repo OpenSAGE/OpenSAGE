@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class LocomotorSetUpgrade : UpgradeModule
 {
-    public LocomotorSetUpgrade(GameObject gameObject, GameEngine context, LocomotorSetUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    public LocomotorSetUpgrade(GameObject gameObject, GameEngine gameEngine, LocomotorSetUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -30,8 +30,8 @@ public sealed class LocomotorSetUpgradeModuleData : UpgradeModuleData
     private static new readonly IniParseTable<LocomotorSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
         .Concat(new IniParseTable<LocomotorSetUpgradeModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new LocomotorSetUpgrade(gameObject, context, this);
+        return new LocomotorSetUpgrade(gameObject, gameEngine, this);
     }
 }

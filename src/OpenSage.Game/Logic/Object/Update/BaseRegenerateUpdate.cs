@@ -6,7 +6,7 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 {
     protected override LogicFrameSpan FramesBetweenUpdates => LogicFrameSpan.OneSecond;
 
-    internal BaseRegenerateUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
+    internal BaseRegenerateUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
     }
@@ -51,8 +51,8 @@ public sealed class BaseRegenerateUpdateModuleData : UpdateModuleData
 
     private static readonly IniParseTable<BaseRegenerateUpdateModuleData> FieldParseTable = new IniParseTable<BaseRegenerateUpdateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new BaseRegenerateUpdate(gameObject, context);
+        return new BaseRegenerateUpdate(gameObject, gameEngine);
     }
 }

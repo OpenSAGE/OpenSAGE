@@ -143,8 +143,8 @@ public sealed class W3dTreeDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme)]
     public string MorphTree { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dTreeDraw(this, context);
+        return new W3dTreeDraw(this, gameEngine);
     }
 }

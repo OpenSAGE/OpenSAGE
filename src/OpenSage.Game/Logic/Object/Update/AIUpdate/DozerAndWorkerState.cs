@@ -204,7 +204,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     internal sealed class BuilderStateMachine : StateMachineBase
     {
-        public BuilderStateMachine(GameObject gameObject, GameEngine context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        public BuilderStateMachine(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
             AddState(0, new BuilderUnknown0State(this));
             AddState(1, new BuilderUnknown1State(this));

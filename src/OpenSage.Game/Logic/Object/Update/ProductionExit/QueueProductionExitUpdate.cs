@@ -12,8 +12,8 @@ public sealed class QueueProductionExitUpdate : UpdateModule, IHasRallyPoint, IP
     private LogicFrameSpan _framesUntilNextSpawn;
     private readonly QueueProductionExitUpdateModuleData _moduleData;
 
-    internal QueueProductionExitUpdate(GameObject gameObject, GameEngine context, QueueProductionExitUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal QueueProductionExitUpdate(GameObject gameObject, GameEngine gameEngine, QueueProductionExitUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _framesUntilNextSpawn = moduleData.ExitDelay;
@@ -101,8 +101,8 @@ public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool UseReturnToFormation { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new QueueProductionExitUpdate(gameObject, context, this);
+        return new QueueProductionExitUpdate(gameObject, gameEngine, this);
     }
 }

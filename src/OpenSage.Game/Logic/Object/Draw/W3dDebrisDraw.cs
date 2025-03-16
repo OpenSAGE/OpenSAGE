@@ -108,8 +108,8 @@ public sealed class W3dDebrisDrawModuleData : DrawModuleData
 
     internal static readonly IniParseTable<W3dDebrisDrawModuleData> FieldParseTable = new IniParseTable<W3dDebrisDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dDebrisDraw(this, context);
+        return new W3dDebrisDraw(this, gameEngine);
     }
 }

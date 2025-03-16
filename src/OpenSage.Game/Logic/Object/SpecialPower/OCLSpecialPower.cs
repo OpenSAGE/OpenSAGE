@@ -13,7 +13,7 @@ public class OCLSpecialPowerModule : SpecialPowerModule
     private readonly OCLSpecialPowerModuleData _moduleData;
     private ObjectCreationList _activeOcl;
 
-    internal OCLSpecialPowerModule(GameObject gameObject, GameEngine context, OCLSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
+    internal OCLSpecialPowerModule(GameObject gameObject, GameEngine gameEngine, OCLSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
         _activeOcl = _moduleData.OCL.Value;
@@ -209,9 +209,9 @@ public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeatherType ChangeWeather { get; private set; }
 
-    internal override OCLSpecialPowerModule CreateModule(GameObject gameObject, GameEngine context)
+    internal override OCLSpecialPowerModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new OCLSpecialPowerModule(gameObject, context, this);
+        return new OCLSpecialPowerModule(gameObject, gameEngine, this);
     }
 }
 

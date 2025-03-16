@@ -23,8 +23,8 @@ public abstract class DockUpdate : UpdateModule
     private uint _unknownObjectId;
     private ushort _unknownInt1;
 
-    protected DockUpdate(GameObject gameObject, GameEngine context, DockUpdateModuleData moduleData)
-        : base(gameObject, context)
+    protected DockUpdate(GameObject gameObject, GameEngine gameEngine, DockUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _unitsApproaching = new Queue<SupplyAIUpdate>();
