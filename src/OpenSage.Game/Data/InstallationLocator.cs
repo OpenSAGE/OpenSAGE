@@ -2,28 +2,22 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Win32;
+using System.Runtime.InteropServices;
+using NLog;
 using OpenSage.IO;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Data;
 
-public sealed class RegistryKeyPath
+public sealed class RegistryKeyPath(string key, string valueName, string append = null)
 {
-    public readonly string Key;
-    public readonly string ValueName;
+    public readonly string Key = key;
+    public readonly string ValueName = valueName;
 
     // This is required because one possible registry key for the Generals + ZH bundle points to the
     // root directory of the bundle.
-    public readonly string Append;
-
-    public RegistryKeyPath(string key, string valueName, string append = null)
-    {
-        Key = key;
-        ValueName = valueName;
-        Append = append;
-    }
+    public readonly string Append = append;
 }
 
 public sealed class GameInstallation
@@ -74,24 +68,19 @@ public class EnvironmentInstallationLocator : IInstallationLocator
     public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
     {
         var identifier = game.Identifier.ToUpperInvariant() + "_PATH";
-        var path = Environment.GetEnvironmentVariable(identifier);
-
-        if (path == null)
-        {
-            path = Environment.GetEnvironmentVariable(identifier, EnvironmentVariableTarget.User);
-        }
+        var path = Environment.GetEnvironmentVariable(identifier) ??
+                   Environment.GetEnvironmentVariable(identifier, EnvironmentVariableTarget.User);
         if (path == null || !Directory.Exists(path))
         {
-            return new GameInstallation[] { };
+            return [];
         }
 
-        var installations = new GameInstallation[] { new GameInstallation(game, path, game.BaseGame != null ? FindInstallations(game.BaseGame).First() : null) };
+        var installations = new GameInstallation[] { new(game, path, game.BaseGame != null ? FindInstallations(game.BaseGame).First() : null) };
 
         return installations;
     }
 }
 
-// TODO: Move this to the Platform project.
 public class RegistryInstallationLocator : IInstallationLocator
 {
 
@@ -104,7 +93,7 @@ public class RegistryInstallationLocator : IInstallationLocator
             .Where(Directory.Exists);
     }
 
-    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
     {
@@ -122,7 +111,7 @@ public class RegistryInstallationLocator : IInstallationLocator
             }
         }
 
-        var paths = game.RegistryKeys.Select(RegistryUtility.GetRegistryValue);
+        var paths = game.RegistryKeys.Select(key => RegistryUtility.GetRegistryValue(key));
 
         var installations = GetValidPaths(paths)
             .Select(p => new GameInstallation(game, p, baseGameInstallation))
@@ -137,8 +126,9 @@ public static class InstallationLocators
     public static IEnumerable<IInstallationLocator> GetAllForPlatform()
     {
         yield return new EnvironmentInstallationLocator();
+        yield return new SteamInstallationLocator();
 
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             yield return new RegistryInstallationLocator();
         }
