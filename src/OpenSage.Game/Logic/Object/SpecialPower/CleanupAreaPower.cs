@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CleanupAreaPower : SpecialPowerModule
 {
-    internal CleanupAreaPower(GameObject gameObject, GameContext context, CleanupAreaPowerModuleData moduleData) : base(gameObject, context, moduleData)
+    internal CleanupAreaPower(GameObject gameObject, GameEngine gameEngine, CleanupAreaPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -40,8 +40,8 @@ public sealed class CleanupAreaPowerModuleData : SpecialPowerModuleData
 
     public float MaxMoveDistanceFromLocation { get; private set; }
 
-    internal override CleanupAreaPower CreateModule(GameObject gameObject, GameContext context)
+    internal override CleanupAreaPower CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CleanupAreaPower(gameObject, context, this);
+        return new CleanupAreaPower(gameObject, gameEngine, this);
     }
 }

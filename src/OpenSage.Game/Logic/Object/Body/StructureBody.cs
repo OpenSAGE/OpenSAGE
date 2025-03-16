@@ -6,8 +6,8 @@ public sealed class StructureBody : ActiveBody
 {
     private uint _unknown;
 
-    internal StructureBody(GameObject gameObject, GameContext context, StructureBodyModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal StructureBody(GameObject gameObject, GameEngine gameEngine, StructureBodyModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -33,8 +33,8 @@ public sealed class StructureBodyModuleData : ActiveBodyModuleData
     private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
         .Concat(new IniParseTable<StructureBodyModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new StructureBody(gameObject, context, this);
+        return new StructureBody(gameObject, gameEngine, this);
     }
 }

@@ -25,8 +25,8 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
 
     internal UpgradeLogic UpgradeLogic { get; }
 
-    public FireWeaponWhenDamagedBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDamagedBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    public FireWeaponWhenDamagedBehavior(GameObject gameObject, GameEngine gameEngine, FireWeaponWhenDamagedBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -56,7 +56,7 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
             GameObject,
             weaponTemplate,
             WeaponSlot.Primary,
-            Context);
+            GameEngine);
     }
 
     public bool CanUpgrade(UpgradeSet existingUpgrades) => UpgradeLogic.CanUpgrade(existingUpgrades);
@@ -177,8 +177,8 @@ public sealed class FireWeaponWhenDamagedBehaviorModuleData : UpgradeModuleData
     /// </summary>
     public float DamageAmount { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new FireWeaponWhenDamagedBehavior(gameObject, context, this);
+        return new FireWeaponWhenDamagedBehavior(gameObject, gameEngine, this);
     }
 }

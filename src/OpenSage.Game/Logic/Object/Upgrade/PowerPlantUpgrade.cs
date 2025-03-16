@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class PowerPlantUpgrade : UpgradeModule
 {
-    internal PowerPlantUpgrade(GameObject gameObject, GameContext context, PowerPlantUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal PowerPlantUpgrade(GameObject gameObject, GameEngine gameEngine, PowerPlantUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -40,8 +40,8 @@ public sealed class PowerPlantUpgradeModuleData : UpgradeModuleData
     private static new readonly IniParseTable<PowerPlantUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
         .Concat(new IniParseTable<PowerPlantUpgradeModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new PowerPlantUpgrade(gameObject, context, this);
+        return new PowerPlantUpgrade(gameObject, gameEngine, this);
     }
 }

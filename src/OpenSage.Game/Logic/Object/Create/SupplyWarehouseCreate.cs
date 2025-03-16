@@ -4,13 +4,13 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SupplyWarehouseCreate : CreateModule, IDestroyModule
 {
-    public SupplyWarehouseCreate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public SupplyWarehouseCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
     public override void OnCreate()
     {
-        foreach (var player in Context.Scene3D.Players)
+        foreach (var player in GameEngine.Scene3D.Players)
         {
             player.SupplyManager.AddSupplyWarehouse(GameObject);
         }
@@ -18,7 +18,7 @@ public sealed class SupplyWarehouseCreate : CreateModule, IDestroyModule
 
     public void OnDestroy()
     {
-        foreach (var player in Context.Scene3D.Players)
+        foreach (var player in GameEngine.Scene3D.Players)
         {
             player.SupplyManager.RemoveSupplyWarehouse(GameObject);
         }
@@ -43,8 +43,8 @@ public sealed class SupplyWarehouseCreateModuleData : CreateModuleData
 
     private static readonly IniParseTable<SupplyWarehouseCreateModuleData> FieldParseTable = new IniParseTable<SupplyWarehouseCreateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SupplyWarehouseCreate(gameObject, context);
+        return new SupplyWarehouseCreate(gameObject, gameEngine);
     }
 }

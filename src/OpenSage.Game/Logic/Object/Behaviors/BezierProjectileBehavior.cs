@@ -19,8 +19,8 @@ public class BezierProjectileBehavior : UpdateModule
 
     internal FXList DetonationFX { get; set; }
 
-    internal BezierProjectileBehavior(GameObject gameObject, GameContext context, BezierProjectileBehaviorData moduleData)
-        : base(gameObject, context)
+    internal BezierProjectileBehavior(GameObject gameObject, GameEngine gameEngine, BezierProjectileBehaviorData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -36,7 +36,7 @@ public class BezierProjectileBehavior : UpdateModule
         var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
         var velocity = direction * context.GameObject.Speed;
 
-        GameObject.SetTranslation(GameObject.Translation + velocity * ((float)Game.LogicUpdateInterval / 1000.0f));
+        GameObject.SetTranslation(GameObject.Translation + velocity * ((float)GameEngine.LogicUpdateInterval / 1000.0f));
 
         CheckForHit(
             context,
@@ -63,7 +63,7 @@ public class BezierProjectileBehavior : UpdateModule
     {
         var translation = context.GameObject.Translation;
 
-        var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(
+        var terrainHeight = context.GameEngine.Terrain.HeightMap.GetHeight(
             translation.X,
             translation.Y);
 
@@ -88,7 +88,7 @@ public class BezierProjectileBehavior : UpdateModule
             groundHitFX?.Execute(new FXListExecutionContext(
                 context.GameObject.Rotation,
                 context.GameObject.Translation,
-                context.GameContext));
+                context.GameEngine));
         }
 
         if (detonateCallsKill)
@@ -208,8 +208,8 @@ public class BezierProjectileBehaviorData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool PreLandingEmotionAffectsAllies { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new BezierProjectileBehavior(gameObject, context, this);
+        return new BezierProjectileBehavior(gameObject, gameEngine, this);
     }
 }

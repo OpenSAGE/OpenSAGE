@@ -85,7 +85,7 @@ public class FireWeaponWhenDamagedBehaviorTests : UpdateModuleTest<FireWeaponWhe
     private FireWeaponWhenDamagedBehavior CreateTestModule()
     {
         var objectDefinition = new ObjectDefinition();
-        var gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+        var gameObject = new GameObject(objectDefinition, ZeroHour.GameEngine, null);
 
         return SampleModule(null, CreateTestModuleData(), gameObject);
     }

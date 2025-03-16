@@ -132,16 +132,16 @@ internal sealed class WeaponStateContext
 {
     public readonly GameObject GameObject;
     public readonly Weapon Weapon;
-    public readonly GameContext GameContext;
+    public readonly GameEngine GameEngine;
 
     public WeaponStateContext(
         GameObject gameObject,
         Weapon weapon,
-        GameContext gameContext)
+        GameEngine gameContext)
     {
         GameObject = gameObject;
         Weapon = weapon;
-        GameContext = gameContext;
+        GameEngine = gameContext;
     }
 }
 

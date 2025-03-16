@@ -39,8 +39,8 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     protected const string ExitBoneStartName = "ExitStart";
     protected const string ExitBoneEndName = "ExitEnd";
 
-    private protected OpenContainModule(GameObject gameObject, GameContext context, OpenContainModuleData moduleData)
-        : base(gameObject, context)
+    private protected OpenContainModule(GameObject gameObject, GameEngine gameEngine, OpenContainModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -79,7 +79,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         unit.AddToContainer(GameObject.ID);
         if (!initial)
         {
-            Context.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
+            GameEngine.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));
         }
     }
 
@@ -104,7 +104,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     public void Evacuate()
     {
-        Context.AudioSystem.PlayAudioEvent(GameObject,
+        GameEngine.AudioSystem.PlayAudioEvent(GameObject,
             GameObject.Definition.UnitSpecificSounds.VoiceUnload?.Value);
         foreach (var id in ContainedObjectIds)
         {
@@ -176,7 +176,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         }
         else
         {
-            Context.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
+            GameEngine.AudioSystem.PlayAudioEvent(GameObject.Definition.SoundExit?.Value);
         }
 
         unit.RemoveFromContainer();
@@ -184,7 +184,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     protected void HealUnits(int fullHealTimeMs)
     {
-        var percentToHeal = new Percentage(1 / (Game.LogicFramesPerSecond * (fullHealTimeMs / 1000f)));
+        var percentToHeal = new Percentage(1 / (GameEngine.LogicFramesPerSecond * (fullHealTimeMs / 1000f)));
         foreach (var unitId in ContainedObjectIds)
         {
             var unit = GameObjectForId(unitId);
@@ -194,7 +194,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     protected GameObject GameObjectForId(uint unitId)
     {
-        return Context.GameLogic.GetObjectById(unitId);
+        return GameEngine.GameLogic.GetObjectById(unitId);
     }
 
     internal override void Load(StatePersister reader)

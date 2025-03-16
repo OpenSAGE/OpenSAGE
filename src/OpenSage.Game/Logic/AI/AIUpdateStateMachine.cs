@@ -14,7 +14,7 @@ internal class AIUpdateStateMachine : StateMachineBase
     private State _overrideState;
     private LogicFrame _overrideStateUntilFrame;
 
-    public AIUpdateStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+    public AIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
     {
         AddState(IdleState.StateId, new IdleState(this));
         AddState(1, new MoveTowardsState(this));
@@ -54,7 +54,7 @@ internal class AIUpdateStateMachine : StateMachineBase
         {
             var overrideStateResult = _overrideState.Update();
 
-            var currentFrame = Context.GameLogic.CurrentFrame;
+            var currentFrame = GameEngine.GameLogic.CurrentFrame;
 
             var shouldContinueOverrideState = overrideStateResult.Type switch
             {

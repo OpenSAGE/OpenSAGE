@@ -21,8 +21,8 @@ public sealed class RailroadBehavior : PhysicsBehavior
     private readonly RailroadBehaviorSomething _something1 = new();
     private readonly RailroadBehaviorSomething _something2 = new();
 
-    internal RailroadBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal RailroadBehavior(GameObject gameObject, GameEngine gameEngine, PhysicsBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -163,8 +163,8 @@ public sealed class RailroadBehaviorModuleData : PhysicsBehaviorModuleData
 
     public List<string> CarriageTemplateNames { get; } = new List<string>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new RailroadBehavior(gameObject, context, this);
+        return new RailroadBehavior(gameObject, gameEngine, this);
     }
 }

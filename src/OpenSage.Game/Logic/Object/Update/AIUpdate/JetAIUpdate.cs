@@ -56,14 +56,14 @@ public sealed class JetAIUpdate : AIUpdate
         MovingBackToHangar
     }
 
-    internal JetAIUpdate(GameObject gameObject, GameContext context, JetAIUpdateModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal JetAIUpdate(GameObject gameObject, GameEngine gameEngine, JetAIUpdateModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
         CurrentJetAIState = JetAIState.Parked;
     }
 
-    private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
+    private protected override JetAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
 
     internal override void Load(StatePersister reader)
     {
@@ -136,7 +136,7 @@ public sealed class JetAIUpdate : AIUpdate
 
         var trans = GameObject.Translation;
 
-        var terrainHeight = context.GameContext.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
+        var terrainHeight = context.GameEngine.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
 
         switch (CurrentJetAIState)
         {
@@ -331,8 +331,8 @@ internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override JetAIUpdate AIUpdate { get; }
 
-    public JetAIUpdateStateMachine(GameObject gameObject, GameContext context, JetAIUpdate aiUpdate)
-        : base(gameObject, context, aiUpdate)
+    public JetAIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, JetAIUpdate aiUpdate)
+        : base(gameObject, gameEngine, aiUpdate)
     {
         AIUpdate = aiUpdate;
 
@@ -415,8 +415,8 @@ public sealed class JetAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public Percentage TakeoffDistForMaxLift { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new JetAIUpdate(gameObject, context, this);
+        return new JetAIUpdate(gameObject, gameEngine, this);
     }
 }

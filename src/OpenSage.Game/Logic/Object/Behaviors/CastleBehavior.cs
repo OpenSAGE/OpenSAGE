@@ -11,24 +11,20 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class CastleBehavior : FoundationAIUpdate
 {
-    private GameObject _gameObject;
     private CastleBehaviorModuleData _moduleData;
-    private GameContext _context;
     private LogicFrame _waitUntil;
     private LogicFrameSpan _updateInterval;
     private Player _nativePlayer;
 
     public bool IsUnpacked { get; set; }
 
-    internal CastleBehavior(GameObject gameObject, GameContext context, CastleBehaviorModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal CastleBehavior(GameObject gameObject, GameEngine gameEngine, CastleBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         IsUnpacked = false;
         _moduleData = moduleData;
-        _gameObject = gameObject;
-        _context = context;
-        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(Game.LogicFramesPerSecond / 2)); // 0.5s
-        _nativePlayer = _gameObject.Owner;
+        _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(GameEngine.LogicFramesPerSecond / 2)); // 0.5s
+        _nativePlayer = gameObject.Owner;
     }
 
     public float GetUnpackCost(Player player)
@@ -44,8 +40,8 @@ internal sealed class CastleBehavior : FoundationAIUpdate
             return;
         }
 
-        _gameObject.Hidden = true;
-        _gameObject.IsSelectable = false;
+        GameObject.Hidden = true;
+        GameObject.IsSelectable = false;
 
         var castleEntry = FindCastle(player.Template.Side);
 
@@ -53,7 +49,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
         {
             var basePath = $"bases\\{castleEntry.Camp}\\{castleEntry.Camp}.bse";
 
-            var entry = _context.AssetLoadContext.FileSystem.GetFile(basePath);
+            var entry = GameEngine.AssetLoadContext.FileSystem.GetFile(basePath);
             var mapFile = MapFile.FromFileSystemEntry(entry);
             var mapObjects = mapFile.ObjectsList.Objects.ToList();
 
@@ -61,14 +57,14 @@ internal sealed class CastleBehavior : FoundationAIUpdate
             {
                 var mapObject = mapObjects.Find(x => x.TypeName == castleTemplate.TemplateName);
 
-                var viewAngle = MathUtility.ToRadians(_gameObject.Definition.PlacementViewAngle);
+                var viewAngle = MathUtility.ToRadians(GameObject.Definition.PlacementViewAngle);
 
                 var offset = Vector4.Transform(new Vector4(castleTemplate.Offset.X, castleTemplate.Offset.Y, 0.0f, 1.0f), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, viewAngle)).ToVector3();
 
                 var angle = viewAngle + castleTemplate.Angle;
-                mapObject.Position = new Vector3(_gameObject.Translation.X, _gameObject.Translation.Y, 0.0f) + offset;
+                mapObject.Position = new Vector3(GameObject.Translation.X, GameObject.Translation.Y, 0.0f) + offset;
 
-                var baseObject = GameObject.FromMapObject(mapObject, _context, false, angle);
+                var baseObject = GameObject.FromMapObject(mapObject, GameEngine, false, angle);
 
                 if (!instant)
                 {
@@ -91,40 +87,40 @@ internal sealed class CastleBehavior : FoundationAIUpdate
         if (IsUnpacked)
         {
             // not sure if this is correct, or does any object with BASE_FOUNDATION or BASE_SITE automatically get a FoundationAIUpdate?
-            FoundationAIUpdate.CheckForStructure(context, _gameObject, ref _waitUntil, _updateInterval);
+            FoundationAIUpdate.CheckForStructure(context, GameObject, ref _waitUntil, _updateInterval);
             return;
         }
 
         // TODO: Figure out the other unpack conditions
         if (_moduleData.InstantUnpack)
         {
-            Unpack(_gameObject.Owner, instant: true);
+            Unpack(GameObject.Owner, instant: true);
         }
 
-        var nearbyUnits = context.GameContext.Game.PartitionCellManager.QueryObjects(
-            _gameObject,
-            _gameObject.Translation,
+        var nearbyUnits = context.GameEngine.Game.PartitionCellManager.QueryObjects(
+            GameObject,
+            GameObject.Translation,
             _moduleData.ScanDistance,
             new PartitionQueries.TrueQuery());
 
         if (!nearbyUnits.Any())
         {
-            _gameObject.Owner = _nativePlayer;
+            GameObject.Owner = _nativePlayer;
             return;
         }
 
         // TODO: check if all nearby units are from the same owner
         foreach (var unit in nearbyUnits)
         {
-            if (unit == _gameObject)
+            if (unit == GameObject)
             {
                 continue;
             }
 
-            var distance = (unit.Translation - _gameObject.Translation).Length();
+            var distance = (unit.Translation - GameObject.Translation).Length();
             if (distance < _moduleData.ScanDistance)
             {
-                _gameObject.Owner = unit.Owner;
+                GameObject.Owner = unit.Owner;
                 return;
             }
         }
@@ -215,9 +211,9 @@ public class CastleBehaviorModuleData : FoundationAIUpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool Summoned { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CastleBehavior(gameObject, context, this);
+        return new CastleBehavior(gameObject, gameEngine, this);
     }
 }
 

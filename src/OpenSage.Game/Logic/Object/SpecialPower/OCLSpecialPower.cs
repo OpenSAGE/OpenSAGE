@@ -13,7 +13,7 @@ public class OCLSpecialPowerModule : SpecialPowerModule
     private readonly OCLSpecialPowerModuleData _moduleData;
     private ObjectCreationList _activeOcl;
 
-    internal OCLSpecialPowerModule(GameObject gameObject, GameContext context, OCLSpecialPowerModuleData moduleData) : base(gameObject, context, moduleData)
+    internal OCLSpecialPowerModule(GameObject gameObject, GameEngine gameEngine, OCLSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
         _activeOcl = _moduleData.OCL.Value;
@@ -53,8 +53,8 @@ public class OCLSpecialPowerModule : SpecialPowerModule
         }
         else
         {
-            var context = new BehaviorUpdateContext(Context, GameObject);
-            Context.ObjectCreationLists.CreateAtPosition(_activeOcl, context, spawnPosition);
+            var context = new BehaviorUpdateContext(GameEngine, GameObject);
+            GameEngine.ObjectCreationLists.CreateAtPosition(_activeOcl, context, spawnPosition);
         }
 
         if (_moduleData.CreateLocation is OCLCreateLocation.CreateAtEdgeNearSource
@@ -71,8 +71,8 @@ public class OCLSpecialPowerModule : SpecialPowerModule
         // the edge position nearest a position will be a cardinal direction from the position depending on the triangular quadrant
         // we can cut the map in half diagonally in both positions to figure out which coordinate to nullify/max
         // we can do this by comparing one coordinate to another via the aspect ratio of the map
-        var maxX = Context.Terrain.HeightMap.MaxXCoordinate;
-        var maxY = Context.Terrain.HeightMap.MaxYCoordinate;
+        var maxX = GameEngine.Terrain.HeightMap.MaxXCoordinate;
+        var maxY = GameEngine.Terrain.HeightMap.MaxYCoordinate;
         var aspectRatio = (float)maxX / maxY;
         var scaledY = sourcePosition.Y * aspectRatio;
         Vector2 edge;
@@ -101,14 +101,14 @@ public class OCLSpecialPowerModule : SpecialPowerModule
             edge = new Vector2(0, sourcePosition.Y);
         }
 
-        return Context.Terrain.HeightMap.GetPositionWithHeight(edge);
+        return GameEngine.Terrain.HeightMap.GetPositionWithHeight(edge);
     }
 
     private Vector3 GetEdgeFarthestFromPosition(Vector3 targetPosition)
     {
         // the edge position furthest from the target is a map corner opposite the target position quadrant
-        var maxX = Context.Terrain.HeightMap.MaxXCoordinate;
-        var maxY = Context.Terrain.HeightMap.MaxYCoordinate;
+        var maxX = GameEngine.Terrain.HeightMap.MaxXCoordinate;
+        var maxY = GameEngine.Terrain.HeightMap.MaxYCoordinate;
         Vector2 corner;
         if (targetPosition.X > maxX / 2f)
         {
@@ -134,7 +134,7 @@ public class OCLSpecialPowerModule : SpecialPowerModule
             corner = new Vector2(maxX, maxY);
         }
 
-        return Context.Terrain.HeightMap.GetPositionWithHeight(corner);
+        return GameEngine.Terrain.HeightMap.GetPositionWithHeight(corner);
     }
 
     internal override void Load(StatePersister reader)
@@ -209,9 +209,9 @@ public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeatherType ChangeWeather { get; private set; }
 
-    internal override OCLSpecialPowerModule CreateModule(GameObject gameObject, GameContext context)
+    internal override OCLSpecialPowerModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new OCLSpecialPowerModule(gameObject, context, this);
+        return new OCLSpecialPowerModule(gameObject, gameEngine, this);
     }
 }
 

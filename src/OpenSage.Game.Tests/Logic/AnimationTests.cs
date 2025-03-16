@@ -113,7 +113,7 @@ public class AnimationTests
     public void TestPlayToEnd(int delay)
     {
         var lastDisplayedFrame = delay * Images.Count; // if I have 4 images, with a delay of 5 frames between images, I'll be done on frame 1 + 5 + 5 + 5 + 5 = 21
-        var msDelay = (1000 / Game.LogicFramesPerSecond) * delay;
+        var msDelay = (1000 / GameEngine.LogicFramesPerSecond) * delay;
         var template = new AnimationTemplate { AnimationMode = AnimationMode.Once, Images = Images, Name = "DefaultHeal", AnimationDelay = (int)msDelay };
         var animation = new Animation(template);
 

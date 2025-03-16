@@ -5,7 +5,7 @@ internal sealed class ObjectWeaponStatusHelper : ObjectHelperModule
     // TODO
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
 
-    public ObjectWeaponStatusHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public ObjectWeaponStatusHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

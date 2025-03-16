@@ -77,7 +77,7 @@ public sealed class W3dProjectileStreamDrawModuleData : DrawModuleData
     public float ScrollRate { get; private set; }
     public int MaxSegments { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
         return new W3dProjectileStreamDraw();
     }

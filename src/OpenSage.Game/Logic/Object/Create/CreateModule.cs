@@ -4,7 +4,7 @@ public abstract class CreateModule : BehaviorModule, ICreateModule
 {
     private bool _shouldCallOnBuildComplete = true;
 
-    protected CreateModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    protected CreateModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

@@ -23,12 +23,12 @@ public class W3dTankDraw : W3dModelDraw
         "TREADSR01",
     };
 
-    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameContext context)
-        : base(data, drawable, context)
+    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameEngine gameEngine)
+        : base(data, drawable, gameEngine)
     {
         _data = data;
-        _treadDebrisLeft = data.TreadDebrisLeft?.Value ?? context.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtLeft");
-        _treadDebrisRight = data.TreadDebrisRight?.Value ?? context.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtRight");
+        _treadDebrisLeft = data.TreadDebrisLeft?.Value ?? gameEngine.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtLeft");
+        _treadDebrisRight = data.TreadDebrisRight?.Value ?? gameEngine.AssetLoadContext.AssetStore.FXParticleSystemTemplates.GetByName("TrackDebrisDirtRight");
 
         _turretBone = FindBoneInstance("Turret");
         _hasTurret = _turretBone != null;
@@ -104,8 +104,8 @@ public class W3dTankDrawModuleData : W3dModelDrawModuleData
     public float TreadDriveSpeedFraction { get; private set; }
     public float TreadPivotSpeedFraction { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dTankDraw(this, drawable, context);
+        return new W3dTankDraw(this, drawable, gameEngine);
     }
 }

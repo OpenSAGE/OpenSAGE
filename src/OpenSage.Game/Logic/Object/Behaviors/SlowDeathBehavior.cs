@@ -30,8 +30,8 @@ public class SlowDeathBehavior : UpdateModule
 
     public int ProbabilityModifier => _moduleData.ProbabilityModifier;
 
-    internal SlowDeathBehavior(GameObject gameObject, GameContext context, SlowDeathBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal SlowDeathBehavior(GameObject gameObject, GameEngine gameEngine, SlowDeathBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -66,7 +66,7 @@ public class SlowDeathBehavior : UpdateModule
 
     private static LogicFrameSpan GetDelayWithVariance(BehaviorUpdateContext context, LogicFrameSpan delay, LogicFrameSpan variance)
     {
-        var randomMultiplier = (context.GameContext.Random.NextDouble() * 2.0) - 1.0;
+        var randomMultiplier = (context.GameEngine.Random.NextDouble() * 2.0) - 1.0;
         return delay + (variance * (float)randomMultiplier);
     }
 
@@ -76,7 +76,7 @@ public class SlowDeathBehavior : UpdateModule
 
         if (_moduleData.OCLs.TryGetValue(phase, out var ocl) && ocl != null)
         {
-            context.GameContext.ObjectCreationLists.Create(ocl.Value, context);
+            context.GameEngine.ObjectCreationLists.Create(ocl.Value, context);
         }
 
         if (_moduleData.FXs.TryGetValue(phase, out var fx) && fx != null)
@@ -85,7 +85,7 @@ public class SlowDeathBehavior : UpdateModule
                 new FXListExecutionContext(
                     context.GameObject.Rotation,
                     context.GameObject.Translation,
-                    context.GameContext));
+                    context.GameEngine));
         }
 
         // TODO: Weapon
@@ -112,7 +112,7 @@ public class SlowDeathBehavior : UpdateModule
         {
             ExecutePhaseActions(context, SlowDeathPhase.Final);
             context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
-            context.GameContext.GameLogic.DestroyObject(context.GameObject);
+            context.GameEngine.GameLogic.DestroyObject(context.GameObject);
             _isDying = false;
         }
 
@@ -235,9 +235,9 @@ public class SlowDeathBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public bool DoNotRandomizeMidpoint { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SlowDeathBehavior(gameObject, context, this);
+        return new SlowDeathBehavior(gameObject, gameEngine, this);
     }
 }
 

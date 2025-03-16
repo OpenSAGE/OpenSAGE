@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class GrantScienceUpgrade : UpgradeModule
 {
-    public GrantScienceUpgrade(GameObject gameObject, GameContext context, UpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    public GrantScienceUpgrade(GameObject gameObject, GameEngine gameEngine, UpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -31,8 +31,8 @@ public sealed class GrantScienceUpgradeModuleData : UpgradeModuleData
 
     public string GrantScience { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new GrantScienceUpgrade(gameObject, context, this);
+        return new GrantScienceUpgrade(gameObject, gameEngine, this);
     }
 }

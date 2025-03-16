@@ -12,8 +12,8 @@ public class BuildingBehavior : UpdateModule
     private bool _fire;
     private bool _isGlowing;
 
-    internal BuildingBehavior(GameObject gameObject, GameContext context, BuildingBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal BuildingBehavior(GameObject gameObject, GameEngine gameEngine, BuildingBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -109,8 +109,8 @@ public sealed class BuildingBehaviorModuleData : BehaviorModuleData
     public string GlowWindowName { get; private set; }
     public List<string> FireNames { get; private set; } = new List<string>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new BuildingBehavior(gameObject, context, this);
+        return new BuildingBehavior(gameObject, gameEngine, this);
     }
 }

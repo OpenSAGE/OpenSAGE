@@ -9,8 +9,8 @@ public sealed class CreateCrateDie : DieModule
 {
     private readonly CreateCrateDieModuleData _moduleData;
 
-    internal CreateCrateDie(GameObject gameObject, GameContext context, CreateCrateDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal CreateCrateDie(GameObject gameObject, GameEngine gameEngine, CreateCrateDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -21,15 +21,15 @@ public sealed class CreateCrateDie : DieModule
 
         if (GameObject.TryGetLastDamage(out var lastDamageData))
         {
-            var killer = Context.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
+            var killer = GameEngine.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
 
             if (KillerCanSpawnCrate(killer, crateData))
             {
-                if (Context.Random.NextSingle() < crateData.CreationChance)
+                if (GameEngine.Random.NextSingle() < crateData.CreationChance)
                 {
                     // actually create the crate
                     float totalProbability = 0;
-                    var selection = Context.Random.NextSingle();
+                    var selection = GameEngine.Random.NextSingle();
                     foreach (var crate in crateData.CrateObjects)
                     {
                         totalProbability += crate.Probability;
@@ -63,7 +63,7 @@ public sealed class CreateCrateDie : DieModule
     {
         if (crate.Object is not null)
         {
-            var newCrate = Context.GameLogic.CreateObject(crate.Object.Value, GameObject.Owner);
+            var newCrate = GameEngine.GameLogic.CreateObject(crate.Object.Value, GameObject.Owner);
             newCrate.SetTransformMatrix(GameObject.TransformMatrix);
 
             if (crateData.OwnedByMaker)
@@ -95,8 +95,8 @@ public sealed class CreateCrateDieModuleData : DieModuleData
 
     public LazyAssetReference<CrateData> CrateData { get; private set; }
 
-    internal override CreateCrateDie CreateModule(GameObject gameObject, GameContext context)
+    internal override CreateCrateDie CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CreateCrateDie(gameObject, context, this);
+        return new CreateCrateDie(gameObject, gameEngine, this);
     }
 }

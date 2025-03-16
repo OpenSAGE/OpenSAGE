@@ -7,15 +7,15 @@ public sealed class CreateObjectDie : DieModule
 {
     private readonly CreateObjectDieModuleData _moduleData;
 
-    internal CreateObjectDie(GameObject gameObject, GameContext context, CreateObjectDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal CreateObjectDie(GameObject gameObject, GameEngine gameEngine, CreateObjectDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        context.GameContext.ObjectCreationLists.Create(_moduleData.CreationList.Value, context);
+        context.GameEngine.ObjectCreationLists.Create(_moduleData.CreationList.Value, context);
     }
 
     internal override void Load(StatePersister reader)
@@ -52,8 +52,8 @@ public sealed class CreateObjectDieModuleData : DieModuleData
     [AddedIn(SageGame.Bfme2)]
     public string[] UpgradeRequired { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new CreateObjectDie(gameObject, context, this);
+        return new CreateObjectDie(gameObject, gameEngine, this);
     }
 }

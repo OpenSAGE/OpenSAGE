@@ -2,7 +2,7 @@
 
 internal sealed class SubdualDamageHelper : ObjectHelperModule
 {
-    public SubdualDamageHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public SubdualDamageHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

@@ -66,7 +66,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             return null;
         }
 
-        var gameObject = AddDisposable(new GameObject(objectDefinition, _game.Context, player));
+        var gameObject = AddDisposable(new GameObject(objectDefinition, _game.GameEngine, player));
 
         gameObject.ID = NextObjectId++;
 

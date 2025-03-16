@@ -8,8 +8,8 @@ public sealed class FXListDie : DieModule
 {
     private readonly FXListDieModuleData _moduleData;
 
-    internal FXListDie(GameObject gameObject, GameContext context, FXListDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal FXListDie(GameObject gameObject, GameEngine gameEngine, FXListDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -19,7 +19,7 @@ public sealed class FXListDie : DieModule
         _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
             context.GameObject.Rotation,
             context.GameObject.Translation,
-            context.GameContext));
+            context.GameEngine));
     }
 
     internal override void Load(StatePersister reader)
@@ -58,8 +58,8 @@ public sealed class FXListDieModuleData : DieModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public string[] TriggeredBy { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new FXListDie(gameObject, context, this);
+        return new FXListDie(gameObject, gameEngine, this);
     }
 }

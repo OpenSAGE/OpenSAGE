@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object;
 public sealed class WeaponSet : IPersistableObject
 {
     private readonly GameObject _gameObject;
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
     private readonly Weapon[] _weapons;
     private WeaponTemplateSet _currentWeaponTemplateSet;
     private WeaponSlot _currentWeaponSlot;
@@ -21,10 +21,10 @@ public sealed class WeaponSet : IPersistableObject
     internal Weapon CurrentWeapon => _weapons[(int)_currentWeaponSlot];
     public IEnumerable<Weapon> Weapons => _weapons;
 
-    internal WeaponSet(GameObject gameObject, GameContext context)
+    internal WeaponSet(GameObject gameObject, GameEngine gameEngine)
     {
         _gameObject = gameObject;
-        _context = context;
+        _gameEngine = gameEngine;
 
         _weapons = new Weapon[WeaponTemplateSet.NumWeaponSlots];
     }
@@ -53,7 +53,7 @@ public sealed class WeaponSet : IPersistableObject
             var weaponTemplate = _currentWeaponTemplateSet.Slots[i]?.Weapon.Value;
             if (weaponTemplate != null)
             {
-                _weapons[i] = new Weapon(_gameObject, weaponTemplate, (WeaponSlot)i, _context);
+                _weapons[i] = new Weapon(_gameObject, weaponTemplate, (WeaponSlot)i, _gameEngine);
 
                 _filledWeaponSlots |= (uint)(1 << i);
                 _combinedAntiMask |= weaponTemplate.AntiMask;
@@ -92,7 +92,7 @@ public sealed class WeaponSet : IPersistableObject
                     _weapons[i] = new Weapon(
                         _gameObject,
                         _currentWeaponTemplateSet.Slots[i].Weapon.Value,
-                        (WeaponSlot)i, _context);
+                        (WeaponSlot)i, _gameEngine);
                 }
                 reader.PersistObject(_weapons[i], "Value");
             }

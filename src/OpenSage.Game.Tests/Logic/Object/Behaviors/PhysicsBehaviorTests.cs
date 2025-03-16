@@ -168,7 +168,7 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         // TODO: Simplify test setup.
 
         var objectDefinition = new ObjectDefinition();
-        gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+        gameObject = new GameObject(objectDefinition, ZeroHour.GameEngine, null);
 
         return SampleModule(ZeroHour, moduleData, gameObject: gameObject);
     }

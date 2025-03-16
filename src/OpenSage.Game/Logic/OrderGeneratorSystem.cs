@@ -142,7 +142,7 @@ public class OrderGeneratorSystem : GameSystem
         var gameData = Game.AssetStore.GameData.Current;
 
         ActiveGenerator = new SpecialPowerOrderGenerator(cursorInformation, gameData, Game.Scene3D.LocalPlayer,
-            Game.Scene3D.GameContext, targetType, Game.Scene3D, Game.MapTime);
+            Game.Scene3D.GameEngine, targetType, Game.Scene3D, Game.MapTime);
 
         if (cursorInformation.OrderFlags.HasFlag(SpecialPowerOrderFlags.CheckLike))
         {
@@ -172,7 +172,7 @@ public class OrderGeneratorSystem : GameSystem
         var gameData = Game.AssetStore.GameData.Current;
         var definitionIndex = buildingDefinition.InternalId;
 
-        ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameContext, Game.Scene3D);
+        ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData, Game.Scene3D.LocalPlayer, Game.Scene3D.GameEngine, Game.Scene3D);
     }
 
     public void SetRallyPoint()

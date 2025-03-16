@@ -6,8 +6,8 @@ public sealed class OverlordContain : TransportContain
 {
     private readonly OverlordContainModuleData _moduleData;
 
-    internal OverlordContain(GameObject gameObject, GameContext gameContext, OverlordContainModuleData moduleData)
-        : base(gameObject, gameContext, moduleData)
+    internal OverlordContain(GameObject gameObject, GameEngine gameEngine, OverlordContainModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -48,8 +48,8 @@ public sealed class OverlordContainModuleData : TransportContainModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public bool ExperienceSinkForRider { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new OverlordContain(gameObject, context, this);
+        return new OverlordContain(gameObject, gameEngine, this);
     }
 }

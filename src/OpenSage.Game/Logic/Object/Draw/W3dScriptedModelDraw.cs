@@ -13,8 +13,8 @@ public class W3dScriptedModelDraw : W3dModelDraw
     internal W3dScriptedModelDraw(
         W3dScriptedModelDrawModuleData data,
         Drawable drawable,
-        GameContext context)
-        : base(data, drawable, context)
+        GameEngine gameEngine)
+        : base(data, drawable, gameEngine)
     {
     }
 }
@@ -79,9 +79,9 @@ public class W3dScriptedModelDrawModuleData : W3dModelDrawModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool RandomTextureFixedRandomIndex { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dScriptedModelDraw(this, drawable, context);
+        return new W3dScriptedModelDraw(this, drawable, gameEngine);
     }
 }
 

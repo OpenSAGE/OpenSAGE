@@ -8,8 +8,8 @@ public sealed class EjectPilotDie : DieModule
 {
     private readonly EjectPilotDieModuleData _moduleData;
 
-    internal EjectPilotDie(GameObject gameObject, GameContext context, EjectPilotDieModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal EjectPilotDie(GameObject gameObject, GameEngine gameEngine, EjectPilotDieModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -25,10 +25,10 @@ public sealed class EjectPilotDie : DieModule
 
         var isOnGround = true; // todo: determine if unit is airborne
         var creationList = isOnGround ? _moduleData.GroundCreationList : _moduleData.AirCreationList;
-        foreach (var gameObject in Context.ObjectCreationLists.Create(creationList.Value, context))
+        foreach (var gameObject in GameEngine.ObjectCreationLists.Create(creationList.Value, context))
         {
             gameObject.Rank = GameObject.Rank;
-            Context.AudioSystem.PlayAudioEvent(gameObject, GameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);
+            GameEngine.AudioSystem.PlayAudioEvent(gameObject, GameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);
         }
     }
 
@@ -61,8 +61,8 @@ public sealed class EjectPilotDieModuleData : DieModuleData
     public LazyAssetReference<ObjectCreationList> AirCreationList { get; private set; }
     public BitArray<VeterancyLevel> VeterancyLevels { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new EjectPilotDie(gameObject, context, this);
+        return new EjectPilotDie(gameObject, gameEngine, this);
     }
 }

@@ -26,8 +26,8 @@ public class GateOpenAndCloseBehavior : UpdateModule
     private AudioSource _openingSoundLoop;
     private AudioSource _closingSoundLoop;
 
-    internal GateOpenAndCloseBehavior(GameObject gameObject, GameContext context, GateOpenAndCloseBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal GateOpenAndCloseBehavior(GameObject gameObject, GameEngine gameEngine, GateOpenAndCloseBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -55,7 +55,7 @@ public class GateOpenAndCloseBehavior : UpdateModule
 
     internal override void Update(BehaviorUpdateContext context)
     {
-        var audioSystem = context.GameContext.AudioSystem;
+        var audioSystem = context.GameEngine.AudioSystem;
 
         switch (_state)
         {
@@ -183,8 +183,8 @@ public sealed class GateOpenAndCloseBehaviorModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool RepelCollidingUnits { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new GateOpenAndCloseBehavior(gameObject, context, this);
+        return new GateOpenAndCloseBehavior(gameObject, gameEngine, this);
     }
 }

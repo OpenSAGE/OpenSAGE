@@ -8,8 +8,8 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
 {
     private readonly ObjectCreationUpgradeModuleData _moduleData;
 
-    internal ObjectCreationUpgrade(GameObject gameObject, GameContext context, ObjectCreationUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal ObjectCreationUpgrade(GameObject gameObject, GameEngine gameEngine, ObjectCreationUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -17,7 +17,7 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
     protected override void OnUpgrade()
     {
         // TODO: Get rid of this context thing.
-        var context = new BehaviorUpdateContext(Context, GameObject);
+        var context = new BehaviorUpdateContext(GameEngine, GameObject);
 
         foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
         {
@@ -93,8 +93,8 @@ public sealed class ObjectCreationUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool UseBuildingProduction { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new ObjectCreationUpgrade(gameObject, context, this);
+        return new ObjectCreationUpgrade(gameObject, gameEngine, this);
     }
 }

@@ -10,8 +10,8 @@ internal class SubObjectsUpgrade : UpgradeModule
 {
     private readonly SubObjectsUpgradeModuleData _moduleData;
 
-    internal SubObjectsUpgrade(GameObject gameObject, GameContext context, SubObjectsUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal SubObjectsUpgrade(GameObject gameObject, GameEngine gameEngine, SubObjectsUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -83,8 +83,8 @@ public sealed class SubObjectsUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool HideSubObjectsOnRemove { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SubObjectsUpgrade(gameObject, context, this);
+        return new SubObjectsUpgrade(gameObject, gameEngine, this);
     }
 }

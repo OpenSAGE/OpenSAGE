@@ -9,8 +9,8 @@ public sealed class DefaultProductionExitUpdate : UpdateModule, IHasRallyPoint, 
 
     private readonly DefaultProductionExitUpdateModuleData _moduleData;
 
-    internal DefaultProductionExitUpdate(GameObject gameObject, GameContext context, DefaultProductionExitUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal DefaultProductionExitUpdate(GameObject gameObject, GameEngine gameEngine, DefaultProductionExitUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -52,8 +52,8 @@ public sealed class DefaultProductionExitUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public bool UseSpawnRallyPoint { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new DefaultProductionExitUpdate(gameObject, context, this);
+        return new DefaultProductionExitUpdate(gameObject, gameEngine, this);
     }
 }

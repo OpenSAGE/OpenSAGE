@@ -17,6 +17,6 @@ public sealed class SoundFXNugget : FXNugget
 
     internal override void Execute(FXListExecutionContext context)
     {
-        context.GameContext.AudioSystem.PlayAudioEvent(Value?.Value);
+        context.GameEngine.AudioSystem.PlayAudioEvent(Value?.Value);
     }
 }

@@ -39,7 +39,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
     private readonly SpecialPowerCursorInformation _cursorInformation;
     private readonly GameData _config;
     private readonly Player _player;
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
     private readonly SpecialPowerTargetType _targetType;
     private readonly Scene3D _scene;
 
@@ -53,7 +53,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
        SpecialPowerCursorInformation cursorInformation,
        GameData config,
        Player player,
-       GameContext gameContext,
+       GameEngine gameContext,
        SpecialPowerTargetType targetType,
        Scene3D scene,
        in TimeInterval time) : base(gameContext.Game)
@@ -64,10 +64,10 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
         _scene = scene;
         _config = config;
         _player = player;
-        _gameContext = gameContext;
+        _gameEngine = gameContext;
 
         // TODO: Improve this check.
-        var radiusCursors = _scene.GameContext.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;
+        var radiusCursors = _scene.GameEngine.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;
         var radiusCursorName = _specialPower.Type.ToString();
         if (radiusCursors.TryGetValue(radiusCursorName, out var radiusCursor))
         {
@@ -87,7 +87,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
         commandCenter = commandCenter?.IsKindOf(ObjectKinds.CommandCenter) == true ? commandCenter : null;
         if (commandCenter == null)
         {
-            foreach (var gameObject in _gameContext.GameLogic.Objects.Reverse())
+            foreach (var gameObject in _gameEngine.GameLogic.Objects.Reverse())
             {
                 // zero hour uses the _last_ built command center
                 if (gameObject.Owner == player && gameObject.IsKindOf(ObjectKinds.CommandCenter))

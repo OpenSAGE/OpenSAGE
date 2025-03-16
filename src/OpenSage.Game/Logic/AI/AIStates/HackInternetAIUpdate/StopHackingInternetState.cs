@@ -23,9 +23,9 @@ internal sealed class StopHackingInternetState : State
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, true);
 
-        Context.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(GameObject, GameObject.Definition.UnitSpecificSounds.UnitPack?.Value);
 
-        var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.PackTime, Context);
+        var frames = _stateMachine.GetVariableFrames(_stateMachine.AIUpdate.ModuleData.PackTime, GameEngine);
 
         GameObject.Drawable.SetAnimationDuration(frames);
 

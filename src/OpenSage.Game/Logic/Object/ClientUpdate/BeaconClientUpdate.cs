@@ -25,7 +25,7 @@ public sealed class BeaconClientUpdateModuleData : ClientUpdateModuleData
     public int RadarPulseFrequency { get; private set; }
     public int RadarPulseDuration { get; private set; }
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameContext context)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
     {
         return new BeaconClientUpdate();
     }

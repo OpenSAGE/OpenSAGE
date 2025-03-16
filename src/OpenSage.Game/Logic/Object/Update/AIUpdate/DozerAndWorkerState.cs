@@ -13,7 +13,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     public GameObject? RepairTarget => TryGetRepairTarget(out var repairTarget) ? repairTarget : null;
 
     private readonly GameObject _gameObject;
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
     private readonly AIUpdate _aiUpdate;
     private readonly IBuilderAIUpdateData _moduleData;
 
@@ -23,13 +23,13 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9]; // these seem to be in groups of 3, one group for each target
     private int _unknown4;
 
-    public DozerAndWorkerState(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
+    public DozerAndWorkerState(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate)
     {
         _gameObject = gameObject;
-        _context = context;
+        _gameEngine = gameEngine;
         _aiUpdate = aiUpdate;
         _moduleData = (IBuilderAIUpdateData)aiUpdate.ModuleData; // todo: remove this cast in the future
-        _stateMachine = new BuilderStateMachine(gameObject, context, gameObject.AIUpdate);
+        _stateMachine = new BuilderStateMachine(gameObject, gameEngine, gameObject.AIUpdate);
     }
 
     // todo: This is really state _machine_ behavior, and should be moved there when we better understand the fields
@@ -67,7 +67,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
             if (buildTarget is { BuildProgress: >= 1 })
             {
                 ClearDozerTasks();
-                _context.AudioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.VoiceTaskComplete.Value);
+                _gameEngine.AudioSystem.PlayAudioEvent(_gameObject, _gameObject.Definition.VoiceTaskComplete.Value);
             }
         }
     }
@@ -98,7 +98,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         var id = _dozerTargets[0].ObjectId;
         if (id > 0)
         {
-            gameObject = _context.GameLogic.GetObjectById(id);
+            gameObject = _gameEngine.GameLogic.GetObjectById(id);
             return true;
         }
 
@@ -125,7 +125,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         var id = _dozerTargets[1].ObjectId;
         if (id > 0)
         {
-            gameObject = _context.GameLogic.GetObjectById(id);
+            gameObject = _gameEngine.GameLogic.GetObjectById(id);
             return true;
         }
 
@@ -204,7 +204,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     internal sealed class BuilderStateMachine : StateMachineBase
     {
-        public BuilderStateMachine(GameObject gameObject, GameContext context, AIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        public BuilderStateMachine(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
             AddState(0, new BuilderUnknown0State(this));
             AddState(1, new BuilderUnknown1State(this));

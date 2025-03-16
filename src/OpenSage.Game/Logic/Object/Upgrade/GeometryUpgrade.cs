@@ -8,8 +8,8 @@ internal class GeometryUpgrade : UpgradeModule
 {
     private readonly GeometryUpgradeModuleData _moduleData;
 
-    internal GeometryUpgrade(GameObject gameObject, GameContext context, GeometryUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal GeometryUpgrade(GameObject gameObject, GameEngine gameEngine, GeometryUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -57,8 +57,8 @@ public sealed class GeometryUpgradeModuleData : UpgradeModuleData
     public string RampMesh1 { get; private set; } // e.g. P2 where is that defined?
     public string RampMesh2 { get; private set; } // e.g. P3 where is that defined?
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new GeometryUpgrade(gameObject, context, this);
+        return new GeometryUpgrade(gameObject, gameEngine, this);
     }
 }

@@ -2,7 +2,7 @@
 
 public abstract class DamageModule : BehaviorModule
 {
-    protected DamageModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    protected DamageModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

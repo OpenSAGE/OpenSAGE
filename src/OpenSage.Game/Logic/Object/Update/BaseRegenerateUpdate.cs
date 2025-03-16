@@ -6,7 +6,7 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 {
     protected override LogicFrameSpan FramesBetweenUpdates => LogicFrameSpan.OneSecond;
 
-    internal BaseRegenerateUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    internal BaseRegenerateUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
     }
@@ -16,13 +16,13 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
     /// </summary>
     public void OnDamage(in DamageData damageData)
     {
-        var currentFrame = Context.GameLogic.CurrentFrame;
-        SetNextUpdateFrame(currentFrame + Context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
+        var currentFrame = GameEngine.GameLogic.CurrentFrame;
+        SetNextUpdateFrame(currentFrame + GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
     }
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        GameObject.HealDirectly(Context.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
+        GameObject.HealDirectly(GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
 
         if (GameObject.IsFullHealth)
         {
@@ -51,8 +51,8 @@ public sealed class BaseRegenerateUpdateModuleData : UpdateModuleData
 
     private static readonly IniParseTable<BaseRegenerateUpdateModuleData> FieldParseTable = new IniParseTable<BaseRegenerateUpdateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new BaseRegenerateUpdate(gameObject, context);
+        return new BaseRegenerateUpdate(gameObject, gameEngine);
     }
 }

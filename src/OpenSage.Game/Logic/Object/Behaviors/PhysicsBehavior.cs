@@ -20,10 +20,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     private const float InvalidVelocityMagnitude = -1.0f;
 
-    private const int MotiveFrames = (int)Game.LogicFramesPerSecond / 3;
+    private const int MotiveFrames = (int)GameEngine.LogicFramesPerSecond / 3;
 
-    private readonly GameObject _gameObject;
-    private readonly GameContext _context;
     private readonly PhysicsBehaviorModuleData _moduleData;
 
     private readonly float _gravity;
@@ -59,7 +57,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public float CenterOfMassOffset => _moduleData.CenterOfMassOffset;
 
-    public bool IsMotive => _motiveForceExpires > _context.GameLogic.CurrentFrame;
+    public bool IsMotive => _motiveForceExpires > GameEngine.GameLogic.CurrentFrame;
 
     public bool IsStunned => GetFlag(PhysicsFlagType.IsStunned);
 
@@ -69,9 +67,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         {
             var result = _mass;
 
-            if (_gameObject.Contain != null)
+            if (GameObject.Contain != null)
             {
-                result += _gameObject.Contain.GetContainedItemsMass();
+                result += GameObject.Contain.GetContainedItemsMass();
             }
 
             return result;
@@ -157,11 +155,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         set => SetFlag(PhysicsFlagType.ApplyFriction2DWhenAirborne, value);
     }
 
-    internal PhysicsBehavior(GameObject gameObject, GameContext context, PhysicsBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal PhysicsBehavior(GameObject gameObject, GameEngine gameEngine, PhysicsBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
-        _gameObject = gameObject;
-        _context = context;
         _moduleData = moduleData;
 
         Mass = moduleData.Mass;
@@ -171,7 +167,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
         SetWakeFrame(UpdateSleepTime.None);
 
-        _gravity = context.AssetStore.GameData.Current.Gravity * moduleData.GravityMult;
+        _gravity = gameEngine.AssetStore.GameData.Current.Gravity * moduleData.GravityMult;
 
         _aerodynamicFriction = Math.Clamp(moduleData.AerodynamicFriction, MinAeroFriction, MaxFriction);
         _forwardFriction = Math.Clamp(moduleData.ForwardFriction, MinNonAeroFriction, MaxFriction);
@@ -181,7 +177,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     protected internal override void OnObjectCreated()
     {
-        _projectileUpdate = _gameObject.FindBehavior<IProjectileUpdate>();
+        _projectileUpdate = GameObject.FindBehavior<IProjectileUpdate>();
     }
 
     public void SetAllowBouncing(bool allow) => SetFlag(PhysicsFlagType.AllowBounce, allow);
@@ -225,9 +221,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     /// </summary>
     public override UpdateSleepTime Update()
     {
-        var obj = _gameObject;
+        var obj = GameObject;
         var d = _moduleData;
-        var airborneAtStart = _gameObject.IsAboveTerrain;
+        var airborneAtStart = GameObject.IsAboveTerrain;
         var activeVelocityZ = 0.0f;
         var bounceForce = Vector3.Zero;
         var gotBounceForce = false;
@@ -242,12 +238,12 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             SetFlag(PhysicsFlagType.WasAirborneLastFrame, airborneAtStart);
         }
 
-        var prevPos = _gameObject.Translation;
+        var prevPos = GameObject.Translation;
         _previousAcceleration = _acceleration;
 
-        if (!_gameObject.IsDisabledByType(DisabledType.Held))
+        if (!GameObject.IsDisabledByType(DisabledType.Held))
         {
-            var mtx = _gameObject.TransformMatrix;
+            var mtx = GameObject.TransformMatrix;
 
             ApplyGravitationalForces();
             ApplyFrictionalForces();
@@ -275,10 +271,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             var oldPosZ = mtx.Translation.Z;
 
             // Integrate velocity into position.
-            if (_gameObject.TestStatus(ObjectStatus.IsBraking))
+            if (GameObject.TestStatus(ObjectStatus.IsBraking))
             {
                 // Don't update position if the locomotor is braking.
-                if (!_gameObject.IsKindOf(ObjectKinds.Projectile))
+                if (!GameObject.IsKindOf(ObjectKinds.Projectile))
                 {
                     // Things other than projectiles don't cheat in z.
                     var translation = mtx.Translation;
@@ -294,7 +290,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             if (Vector3Utility.IsNaN(mtx.Translation))
             {
                 Debug.Fail("Object position is NaN");
-                _context.GameLogic.DestroyObject(obj);
+                GameEngine.GameLogic.DestroyObject(obj);
             }
 
             // Check when to clear the stunned status.
@@ -363,7 +359,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             }
 
             // Do not allow object to pass through the ground.
-            var groundZ = _context.Game.TerrainLogic.GetLayerHeight(
+            var groundZ = GameEngine.Game.TerrainLogic.GetLayerHeight(
                 mtx.GetXTranslation(),
                 mtx.GetYTranslation(),
                 obj.Layer);
@@ -420,11 +416,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             if (gotBounceForce)
             {
                 // Right the object after the bounce since the pitch and roll may have been affected.
-                var yawAngle = _gameObject.TransformMatrix.GetZRotation();
+                var yawAngle = GameObject.TransformMatrix.GetZRotation();
                 SetAngles(yawAngle, 0.0f, 0.0f);
 
                 // Set the translation of the after bounce matrix to the one calculated above.
-                var afterBounceMatrix = _gameObject.TransformMatrix;
+                var afterBounceMatrix = GameObject.TransformMatrix;
                 afterBounceMatrix.Translation = mtx.Translation;
 
                 // Set the result of the after bounce matrix as the object's final matrix.
@@ -550,7 +546,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         var modForce = force;
         if (IsMotive)
         {
-            var dir = _gameObject.UnitDirectionVector2D;
+            var dir = GameObject.UnitDirectionVector2D;
             // Only accept the lateral acceleration.
             var lateralDot = (force.X * -dir.Y) + (force.Y * dir.X);
             modForce.X = lateralDot * -dir.Y;
@@ -603,13 +599,13 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         // Set bounce to true for a while until the unit is complete bouncing.
         SetAllowBouncing(true);
 
-        var randomModifier = _context.Random.NextSingle(-1.0f, 1.0f);
+        var randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
         _yawRate += _moduleData.ShockMaxYaw * randomModifier;
 
-        randomModifier = _context.Random.NextSingle(-1.0f, 1.0f);
+        randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
         _pitchRate += _moduleData.ShockMaxPitch * randomModifier;
 
-        randomModifier = _context.Random.NextSingle(-1.0f, 1.0f);
+        randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
         _rollRate += _moduleData.ShockMaxRoll * randomModifier;
 
         MaybeWakeUp();
@@ -620,7 +616,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         // Make it accept this force unquestioningly.
         _motiveForceExpires = new LogicFrame(0);
         ApplyForce(force);
-        _motiveForceExpires = _context.GameLogic.CurrentFrame + new LogicFrameSpan(MotiveFrames);
+        _motiveForceExpires = GameEngine.GameLogic.CurrentFrame + new LogicFrameSpan(MotiveFrames);
     }
 
     public void ResetDynamicPhysics()
@@ -650,18 +646,18 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     {
         // Are we a plane that is taxiing on a deck with a height offset?
         // This deckTaxiing thing is new in Zero Hour, but it's backwards-compatible with Generals.
-        var deckTaxiing = _gameObject.TestStatus(ObjectStatus.DeckHeightOffset)
-            && _gameObject.AIUpdate?.CurrentLocomotorSetType == LocomotorSetType.Taxiing;
+        var deckTaxiing = GameObject.TestStatus(ObjectStatus.DeckHeightOffset)
+            && GameObject.AIUpdate?.CurrentLocomotorSetType == LocomotorSetType.Taxiing;
 
         if (GetFlag(PhysicsFlagType.ApplyFriction2DWhenAirborne)
-            || !_gameObject.IsSignificantlyAboveTerrain
+            || !GameObject.IsSignificantlyAboveTerrain
             || deckTaxiing)
         {
             ApplyYawPitchRollDamping(1.0f - PhysicsBehaviorModuleData.DefaultLateralFriction);
 
             if (_velocity.X != 0.0f || _velocity.Y != 0.0f)
             {
-                var dir = _gameObject.UnitDirectionVector2D;
+                var dir = GameObject.UnitDirectionVector2D;
                 var mass = Mass;
 
                 var lateralDot = (_velocity.X * -dir.Y) + (_velocity.Y * dir.X);
@@ -708,7 +704,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             const float maxStiffness = 0.99f;
 
             var stiffness = Math.Clamp(
-                Context.AssetStore.GameData.Current.GroundStiffness,
+                base.GameEngine.AssetStore.GameData.Current.GroundStiffness,
                 minStiffness,
                 maxStiffness);
 
@@ -727,15 +723,15 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             if (velocityZ < 0.0f)
             {
                 // TODO: Check that "Up" is correct here.
-                var zVec = _gameObject.TransformMatrix.GetZVector();
+                var zVec = GameObject.TransformMatrix.GetZVector();
                 var rollAngle = zVec.Z > 0 ? 0 : MathF.PI;
                 // Don't flip both pitch and roll... we'll "flip" twice.
                 var pitchAngle = 0.0f;
-                var yawAngle = _gameObject.Transform.Yaw;
+                var yawAngle = GameObject.Transform.Yaw;
                 SetAngles(yawAngle, pitchAngle, rollAngle);
             }
 
-            if (_context.Game.SageGame == SageGame.CncGenerals)
+            if (GameEngine.Game.SageGame == SageGame.CncGenerals)
             {
                 return true;
             }
@@ -775,10 +771,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         // Grab the object.
-        var obj = _gameObject;
+        var obj = GameObject;
 
         // If a stunned object is upside down when it hits the ground, kill it.
-        if (_gameObject.TransformMatrix.GetZVector().Z < 0.0f)
+        if (GameObject.TransformMatrix.GetZVector().Z < 0.0f)
         {
             obj.Kill();
             return;
@@ -798,10 +794,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             return;
         }
 
-        var pos = _gameObject.Translation;
+        var pos = GameObject.Translation;
 
         // Check for object being stuck on cliffs. If so, kill it.
-        if (_context.Game.TerrainLogic.IsCliffCell(pos.X, pos.Y)
+        if (GameEngine.Game.TerrainLogic.IsCliffCell(pos.X, pos.Y)
             && !ai.HasLocomotorForSurface(Surfaces.Cliff))
         {
             obj.Kill();
@@ -809,7 +805,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         // Check for object being stuck on water. If so, kill it.
-        if (_context.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var _)
+        if (GameEngine.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var _)
             && !ai.HasLocomotorForSurface(Surfaces.Water))
         {
             obj.Kill();
@@ -849,14 +845,14 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public void SetAngles(float yaw, float pitch, float roll)
     {
-        var pos = _gameObject.Translation;
+        var pos = GameObject.Translation;
 
         // TODO(Port): Check if this is correct.
         var transform = Matrix4x4.CreateFromYawPitchRoll(yaw, pitch, roll);
 
         transform.Translation = pos;
 
-        _gameObject.SetTransformMatrix(transform);
+        GameObject.SetTransformMatrix(transform);
     }
 
     private void DoBounceSound(in Vector3 prevPos)
@@ -876,8 +872,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             && _acceleration == Vector3.Zero
             && !GetFlag(PhysicsFlagType.HasPitchRollYaw)
             && !IsMotive
-            && _gameObject.Layer == PathfindLayerType.Ground
-            && !_gameObject.IsAboveTerrain
+            && GameObject.Layer == PathfindLayerType.Ground
+            && !GameObject.IsAboveTerrain
             && _currentOverlap == 0
             && _previousOverlap == 0
             && GetFlag(PhysicsFlagType.UpdateEverRun))
@@ -912,7 +908,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             }
         }
 
-        var obj = _gameObject;
+        var obj = GameObject;
         var objContainedBy = obj.ContainedBy;
 
         // Note that other == null means "collide with ground".
@@ -964,9 +960,9 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 // In order to make things easier for the designers, we are going
                 // to transfer the name of the infantry to the vehicle... so the
                 // designer can control the vehicle with their scripts.
-                _context.Game.Scripting.TransferObjectName(obj.Name, other);
+                GameEngine.Game.Scripting.TransferObjectName(obj.Name, other);
 
-                _context.GameLogic.DestroyObject(obj);
+                GameEngine.GameLogic.DestroyObject(obj);
             }
             return;
         }
@@ -1033,7 +1029,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             return false;
         }
 
-        var crusherMe = _gameObject;
+        var crusherMe = GameObject;
         var crusheeOther = other;
 
         // Determine if we can crush the other object.
@@ -1376,7 +1372,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     /// </summary>
     public float GetForwardSpeed2D()
     {
-        var dir = _gameObject.UnitDirectionVector2D;
+        var dir = GameObject.UnitDirectionVector2D;
 
         var vx = _velocity.X * dir.X;
         var vy = _velocity.Y * dir.Y;
@@ -1399,7 +1395,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     /// </summary>
     public float GetForwardSpeed3D()
     {
-        var dir = _gameObject.TransformMatrix.GetXVector();
+        var dir = GameObject.TransformMatrix.GetXVector();
 
         var vx = _velocity.X * dir.X;
         var vy = _velocity.Y * dir.Y;
@@ -1644,9 +1640,9 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public int SecondHeight { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new PhysicsBehavior(gameObject, context, this);
+        return new PhysicsBehavior(gameObject, gameEngine, this);
     }
 
     private static float HeightToSpeed(IniParser parser, float height)
@@ -1663,7 +1659,7 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     private static float ParseFrictionPerSec(IniParser parser)
     {
         var frictionPerSecond = parser.ParseFloat();
-        var frictionPerFrame = frictionPerSecond * Game.SecondsPerLogicFrame;
+        var frictionPerFrame = frictionPerSecond * GameEngine.SecondsPerLogicFrame;
         return frictionPerFrame;
     }
 }

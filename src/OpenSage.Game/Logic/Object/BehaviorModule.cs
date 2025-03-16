@@ -9,12 +9,12 @@ public abstract class ObjectModule : ModuleBase
 {
     protected GameObject GameObject { get; }
 
-    protected GameContext Context { get; }
+    protected GameEngine GameEngine { get; }
 
-    protected ObjectModule(GameObject gameObject, GameContext context)
+    protected ObjectModule(GameObject gameObject, GameEngine gameEngine)
     {
         GameObject = gameObject;
-        Context = context;
+        GameEngine = gameEngine;
     }
 
     internal override void Load(StatePersister reader)
@@ -29,8 +29,8 @@ public abstract class ObjectModule : ModuleBase
 
 public abstract class BehaviorModule : ObjectModule
 {
-    protected BehaviorModule(GameObject gameObject, GameContext context)
-        : base(gameObject, context)
+    protected BehaviorModule(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
     }
 
@@ -55,16 +55,16 @@ public interface IDestroyModule
 
 internal sealed class BehaviorUpdateContext
 {
-    public readonly GameContext GameContext;
+    public readonly GameEngine GameEngine;
     public readonly GameObject GameObject;
 
-    public LogicFrame LogicFrame => GameContext.GameLogic.CurrentFrame;
+    public LogicFrame LogicFrame => GameEngine.GameLogic.CurrentFrame;
 
     public BehaviorUpdateContext(
-        GameContext gameContext,
+        GameEngine gameEngine,
         GameObject gameObject)
     {
-        GameContext = gameContext;
+        GameEngine = gameEngine;
         GameObject = gameObject;
     }
 }
@@ -142,7 +142,7 @@ public readonly struct LogicFrameSpan
 {
     public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
 
-    public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)Game.LogicFramesPerSecond);
+    public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)GameEngine.LogicFramesPerSecond);
 
     internal readonly uint Value;
 
@@ -614,5 +614,5 @@ public abstract class BehaviorModuleData : ModuleData
         { "WeaponSetUpgrade", WeaponSetUpgradeModuleData.Parse },
     };
 
-    internal virtual BehaviorModule CreateModule(GameObject gameObject, GameContext context) => null; // TODO: Make this abstract.
+    internal virtual BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine) => null; // TODO: Make this abstract.
 }

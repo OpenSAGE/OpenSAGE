@@ -14,8 +14,8 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     UpdateOrder IUpdateModule.UpdatePhase => UpdateOrder;
 
-    protected UpdateModule(GameObject gameObject, GameContext context)
-        : base(gameObject, context)
+    protected UpdateModule(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
         _nextUpdateFrame.UpdateOrder = UpdateOrder;
     }
@@ -54,7 +54,7 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
         // If we are already awake, don't reset our wake frame. See GameLogic::friend_awakenUpdateModule.
         if (GameObject != null)
         {
-            var now = Context.GameLogic.CurrentFrame.Value;
+            var now = GameEngine.GameLogic.CurrentFrame.Value;
             if (_nextUpdateFrame.Frame == now && frame.Value == now + 1)
             {
                 return;
@@ -67,7 +67,7 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
     // Yes, protected. Modules should only wake themselves up.
     protected void SetWakeFrame(UpdateSleepTime wakeDelay)
     {
-        SetNextUpdateFrame(Context.GameLogic.CurrentFrame + wakeDelay.FrameSpan);
+        SetNextUpdateFrame(GameEngine.GameLogic.CurrentFrame + wakeDelay.FrameSpan);
     }
 
     internal override void Load(StatePersister reader)

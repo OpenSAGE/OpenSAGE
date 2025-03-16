@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object;
 public sealed class SwayClientUpdate : ClientUpdateModule
 {
     private readonly Drawable _drawable;
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
 
     private float _currentValue;
     private float _currentAngle;
@@ -24,10 +24,10 @@ public sealed class SwayClientUpdate : ClientUpdateModule
     private short _currentVersion = -1; // So we don't match the first time
     private bool _swaying = true;
 
-    internal SwayClientUpdate(Drawable drawable, GameContext context)
+    internal SwayClientUpdate(Drawable drawable, GameEngine gameEngine)
     {
         _drawable = drawable;
-        _context = context;
+        _gameEngine = gameEngine;
     }
 
     public override void ClientUpdate(in TimeInterval gameTime)
@@ -41,7 +41,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
 
         // If breeze changes, always process the full update, even if not visible,
         // so that things offscreen won't "pop" when first viewed.
-        ref readonly var breezeInfo = ref _context.Game.Scripting.BreezeInfo;
+        ref readonly var breezeInfo = ref _gameEngine.Game.Scripting.BreezeInfo;
         if (breezeInfo.BreezeVersion != _currentVersion)
         {
             UpdateSway();
@@ -94,7 +94,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
     /// </summary>
     private void UpdateSway()
     {
-        ref readonly var breezeInfo = ref _context.Game.Scripting.BreezeInfo;
+        ref readonly var breezeInfo = ref _gameEngine.Game.Scripting.BreezeInfo;
 
         if (breezeInfo.Randomness == 0.0f)
         {
@@ -103,9 +103,9 @@ public sealed class SwayClientUpdate : ClientUpdateModule
 
         var delta = breezeInfo.Randomness * 0.5f;
 
-        _currentAngleLimit = breezeInfo.Intensity * _context.Random.NextSingle(1.0f - delta, 1.0f + delta);
-        _currentDelta = 2.0f * MathF.PI / breezeInfo.BreezePeriod * _context.Random.NextSingle(1.0f - delta, 1.0f + delta);
-        _leanAngle = breezeInfo.Lean * _context.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _currentAngleLimit = breezeInfo.Intensity * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _currentDelta = 2.0f * MathF.PI / breezeInfo.BreezePeriod * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _leanAngle = breezeInfo.Lean * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
         _currentVersion = breezeInfo.BreezeVersion;
     }
 
@@ -149,8 +149,8 @@ public sealed class SwayClientUpdateModuleData : ClientUpdateModuleData
 
     private static readonly IniParseTable<SwayClientUpdateModuleData> FieldParseTable = new IniParseTable<SwayClientUpdateModuleData>();
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameContext context)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new SwayClientUpdate(drawable, context);
+        return new SwayClientUpdate(drawable, gameEngine);
     }
 }

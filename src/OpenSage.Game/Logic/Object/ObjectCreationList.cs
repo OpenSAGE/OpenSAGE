@@ -129,11 +129,11 @@ public sealed class CreateDebrisOCNugget : OCNugget
     internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
     {
         // TODO: Cache this.
-        var debrisObjectDefinition = context.GameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
+        var debrisObjectDefinition = context.GameEngine.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
 
-        var debrisObject = context.GameContext.GameLogic.CreateObject(debrisObjectDefinition, context.GameObject.Owner);
+        var debrisObject = context.GameEngine.GameLogic.CreateObject(debrisObjectDefinition, context.GameObject.Owner);
 
-        var lifeTime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+        var lifeTime = context.GameEngine.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
         debrisObject.LifeTime = context.LogicFrame + lifeTime;
 
         debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
@@ -142,7 +142,7 @@ public sealed class CreateDebrisOCNugget : OCNugget
         // Model
         var w3dDebrisDraw = (W3dDebrisDraw)debrisObject.Drawable.DrawModules[0];
         // TODO
-        //var modelName = ModelNames[context.GameContext.Random.Next(ModelNames.Length)];
+        //var modelName = ModelNames[context.GameEngine.Random.Next(ModelNames.Length)];
         var modelName = ModelNames[0];
         w3dDebrisDraw.SetModelName(modelName);
 
@@ -155,8 +155,8 @@ public sealed class CreateDebrisOCNugget : OCNugget
             var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
             physicsBehavior.ApplyForce(
                 new Vector3(
-                    ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
-                    ((float)context.GameContext.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                    ((float)context.GameEngine.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                    ((float)context.GameEngine.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
                     DispositionIntensity * forceMultiplier));
         }
 
@@ -340,7 +340,7 @@ public sealed class CreateObjectOCNugget : OCNugget
         {
             for (var i = 0; i < Count; i++)
             {
-                var newGameObject = context.GameContext.GameLogic.CreateObject(objectName.Value, context.GameObject.Owner);
+                var newGameObject = context.GameEngine.GameLogic.CreateObject(objectName.Value, context.GameObject.Owner);
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
@@ -357,7 +357,7 @@ public sealed class CreateObjectOCNugget : OCNugget
                 var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
                 if (lifetimeUpdate != null)
                 {
-                    var lifetime = context.GameContext.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+                    var lifetime = context.GameEngine.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
                     lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
                 }
 

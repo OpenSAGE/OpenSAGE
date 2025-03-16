@@ -40,7 +40,7 @@ public abstract class SupplyAIUpdate : AIUpdate
 
     protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
 
-    internal SupplyAIUpdate(GameObject gameObject, GameContext context, SupplyAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal SupplyAIUpdate(GameObject gameObject, GameEngine gameEngine, SupplyAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
         SupplyGatherState = SupplyGatherStates.Default;
@@ -74,7 +74,7 @@ public abstract class SupplyAIUpdate : AIUpdate
     {
         if (_currentSourceDockUpdate?.GetBox() == true && !_currentSourceDockUpdate.HasBoxes())
         {
-            Context.AudioSystem.PlayAudioEvent(GameObject, ModuleData.SuppliesDepletedVoice.Value);
+            GameEngine.AudioSystem.PlayAudioEvent(GameObject, ModuleData.SuppliesDepletedVoice.Value);
         }
     }
 
@@ -238,7 +238,7 @@ public abstract class SupplyAIUpdate : AIUpdate
                 {
                     SupplyGatherState = SupplyGatherStates.FinishedDumpingSupplies;
 
-                    var assetStore = context.GameContext.AssetLoadContext.AssetStore;
+                    var assetStore = context.GameEngine.AssetLoadContext.AssetStore;
                     var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
                     var amountDeposited = _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
                     GameObject.ActiveCashEvent = new CashEvent(amountDeposited, GameObject.Owner.Color);

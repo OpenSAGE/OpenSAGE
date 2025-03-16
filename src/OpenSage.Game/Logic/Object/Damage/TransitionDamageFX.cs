@@ -16,8 +16,8 @@ public sealed class TransitionDamageFX : DamageModule
     private const int NumParticleSystemsPerDamageType = 12;
     private readonly uint[] _particleSystemIds = new uint[EnumUtility.GetEnumCount<BodyDamageType>() * NumParticleSystemsPerDamageType];
 
-    public TransitionDamageFX(GameObject gameObject, GameContext context, TransitionDamageFXModuleData moduleData)
-        : base(gameObject, context)
+    public TransitionDamageFX(GameObject gameObject, GameEngine gameEngine, TransitionDamageFXModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -47,7 +47,7 @@ public sealed class TransitionDamageFX : DamageModule
 
             foreach (var particleSystemTemplate in particleSystems)
             {
-                context.GameContext.ParticleSystems
+                context.GameEngine.ParticleSystems
                     .Create(particleSystemTemplate.ParticleSystem.Value, worldMatrix);
             }
         }
@@ -158,9 +158,9 @@ public sealed class TransitionDamageFXModuleData : DamageModuleData
     [AddedIn(SageGame.Bfme)]
     public string[] ReallyDamagedHideSubObject { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new TransitionDamageFX(gameObject, context, this);
+        return new TransitionDamageFX(gameObject, gameEngine, this);
     }
 }
 

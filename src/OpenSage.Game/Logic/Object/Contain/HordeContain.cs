@@ -17,8 +17,8 @@ public sealed class HordeContainBehavior : UpdateModule
     private ProductionUpdate _productionUpdate;
     private int _pendingRegistrations;
 
-    public HordeContainBehavior(GameObject gameObject, GameContext context, HordeContainModuleData moduleData)
-        : base(gameObject, context)
+    public HordeContainBehavior(GameObject gameObject, GameEngine gameEngine, HordeContainModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -63,7 +63,7 @@ public sealed class HordeContainBehavior : UpdateModule
         {
             foreach (var position in rank)
             {
-                var createdObject = Context.GameLogic.CreateObject(position.Definition, GameObject.Owner);
+                var createdObject = GameEngine.GameLogic.CreateObject(position.Definition, GameObject.Owner);
                 createdObject.ParentHorde = GameObject;
                 position.Object = createdObject;
                 _payload.Add(createdObject);
@@ -295,9 +295,9 @@ public class HordeContainModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public string LivingWorldOverloadTemplate { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new HordeContainBehavior(gameObject, context, this);
+        return new HordeContainBehavior(gameObject, gameEngine, this);
     }
 }
 

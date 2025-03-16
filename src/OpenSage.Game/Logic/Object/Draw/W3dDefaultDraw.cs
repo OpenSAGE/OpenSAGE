@@ -71,7 +71,7 @@ public sealed class W3dDefaultDrawModuleData : DrawModuleData
 
     internal static readonly IniParseTable<W3dDefaultDrawModuleData> DefaultFieldParseTable = new IniParseTable<W3dDefaultDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
         return new W3dDefaultDraw();
     }

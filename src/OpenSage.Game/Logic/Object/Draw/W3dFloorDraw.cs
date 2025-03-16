@@ -17,18 +17,18 @@ namespace OpenSage.Logic.Object;
 public sealed class W3dFloorDraw : DrawModule
 {
     private readonly Drawable _drawable;
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
     private readonly ModelInstance _modelInstance;
     private readonly W3dFloorDrawModuleData _moduleData;
 
     public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
-    internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, GameContext context, Drawable drawable)
+    internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, GameEngine gameEngine, Drawable drawable)
     {
         _drawable = drawable;
-        _gameContext = context;
+        _gameEngine = gameEngine;
         _moduleData = moduleData;
-        _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
+        _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameEngine.AssetLoadContext));
     }
 
     internal override void BuildRenderList(
@@ -110,9 +110,9 @@ public sealed class W3dFloorDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeatherTexture WeatherTexture { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, context, drawable);
+        return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, gameEngine, drawable);
     }
 }
 

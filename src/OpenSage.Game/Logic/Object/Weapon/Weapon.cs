@@ -67,7 +67,7 @@ public sealed class Weapon : IPersistableObject
         GameObject gameObject,
         WeaponTemplate weaponTemplate,
         WeaponSlot slot,
-        GameContext gameContext)
+        GameEngine gameContext)
     {
         ParentGameObject = gameObject;
         Template = weaponTemplate;

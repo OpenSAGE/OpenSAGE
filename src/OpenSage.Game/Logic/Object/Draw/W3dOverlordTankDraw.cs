@@ -5,8 +5,8 @@ namespace OpenSage.Logic.Object;
 
 public sealed class W3dOverlordTankDraw : W3dTankDraw
 {
-    internal W3dOverlordTankDraw(W3dOverlordTankDrawModuleData data, Drawable drawable, GameContext context)
-        : base(data, drawable, context)
+    internal W3dOverlordTankDraw(W3dOverlordTankDrawModuleData data, Drawable drawable, GameEngine gameEngine)
+        : base(data, drawable, gameEngine)
     {
     }
 
@@ -30,8 +30,8 @@ public sealed class W3dOverlordTankDrawModuleData : W3dTankDrawModuleData
     private static new readonly IniParseTable<W3dOverlordTankDrawModuleData> FieldParseTable = W3dTankDrawModuleData.FieldParseTable
         .Concat(new IniParseTable<W3dOverlordTankDrawModuleData>());
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dOverlordTankDraw(this, drawable, context);
+        return new W3dOverlordTankDraw(this, drawable, gameEngine);
     }
 }

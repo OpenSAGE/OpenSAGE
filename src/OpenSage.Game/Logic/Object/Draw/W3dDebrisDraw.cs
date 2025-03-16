@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object;
 public sealed class W3dDebrisDraw : DrawModule
 {
     private readonly W3dDebrisDrawModuleData _data;
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
     private ModelInstance _modelInstance;
 
     private string _modelName;
@@ -22,16 +22,16 @@ public sealed class W3dDebrisDraw : DrawModule
     private uint _unknownInt2;
     private bool _unknownBool;
 
-    internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameContext context)
+    internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameEngine gameEngine)
     {
         _data = data;
-        _gameContext = context;
+        _gameEngine = gameEngine;
     }
 
     public void SetModelName(string modelName)
     {
-        var model = _gameContext.AssetLoadContext.AssetStore.Models.GetByName(modelName);
-        _modelInstance = AddDisposable(model.CreateInstance(_gameContext.AssetLoadContext));
+        var model = _gameEngine.AssetLoadContext.AssetStore.Models.GetByName(modelName);
+        _modelInstance = AddDisposable(model.CreateInstance(_gameEngine.AssetLoadContext));
         _modelInstance.Update(TimeInterval.Zero);
     }
 
@@ -108,8 +108,8 @@ public sealed class W3dDebrisDrawModuleData : DrawModuleData
 
     internal static readonly IniParseTable<W3dDebrisDrawModuleData> FieldParseTable = new IniParseTable<W3dDebrisDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dDebrisDraw(this, context);
+        return new W3dDebrisDraw(this, gameEngine);
     }
 }

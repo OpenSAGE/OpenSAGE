@@ -6,8 +6,8 @@ internal sealed class ExperienceScalarUpgrade : UpgradeModule
 {
     private readonly ExperienceScalarUpgradeModuleData _moduleData;
 
-    internal ExperienceScalarUpgrade(GameObject gameObject, GameContext context, ExperienceScalarUpgradeModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal ExperienceScalarUpgrade(GameObject gameObject, GameEngine gameEngine, ExperienceScalarUpgradeModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -39,8 +39,8 @@ public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
 
     public float AddXPScalar { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new ExperienceScalarUpgrade(gameObject, context, this);
+        return new ExperienceScalarUpgrade(gameObject, gameEngine, this);
     }
 }

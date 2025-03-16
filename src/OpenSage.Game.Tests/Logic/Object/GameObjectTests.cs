@@ -14,7 +14,7 @@ public class GameObjectTests : MockedGameTest
         ZeroHour.AssetStore.GameData.Current.Gravity = -0.07f;
 
         var objectDefinition = new ObjectDefinition();
-        var gameObject = new GameObject(objectDefinition, ZeroHour.Context, null);
+        var gameObject = new GameObject(objectDefinition, ZeroHour.GameEngine, null);
 
         gameObject.SetTranslation(new Vector3(0, 0, height));
 

@@ -457,19 +457,19 @@ internal sealed partial class IniParser
     public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
     public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
-    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / Game.LogicUpdateInterval));
+    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / GameEngine.LogicUpdateInterval));
 
-    public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / Game.LogicUpdateInterval;
+    public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / GameEngine.LogicUpdateInterval;
 
-    public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * Game.LogicFramesPerSecond));
+    public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * GameEngine.LogicFramesPerSecond));
 
-    public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / Game.LogicUpdateInterval));
+    public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / GameEngine.LogicUpdateInterval));
 
-    public float ParseAngularVelocityToLogicFrames() => ParseFloat() * MathUtility.DegreesToRadiansRatio / Game.LogicFramesPerSecond;
+    public float ParseAngularVelocityToLogicFrames() => ParseFloat() * MathUtility.DegreesToRadiansRatio / GameEngine.LogicFramesPerSecond;
 
-    public float ParseVelocityToLogicFrames() => ParseFloat() / Game.LogicFramesPerSecond;
+    public float ParseVelocityToLogicFrames() => ParseFloat() / GameEngine.LogicFramesPerSecond;
 
-    public float ParseAccelerationToLogicFrames() => ParseFloat() / (Game.LogicFramesPerSecond * Game.LogicFramesPerSecond);
+    public float ParseAccelerationToLogicFrames() => ParseFloat() / (GameEngine.LogicFramesPerSecond * GameEngine.LogicFramesPerSecond);
 
     public float ParseAngle() => ParseFloat() * MathUtility.DegreesToRadiansRatio;
 

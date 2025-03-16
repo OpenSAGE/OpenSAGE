@@ -12,8 +12,8 @@ public class PassiveAreaEffectBehavior : UpdateModule
     private readonly PassiveAreaEffectBehaviorModuleData _moduleData;
     private LogicFrame _nextPing;
 
-    public PassiveAreaEffectBehavior(GameObject gameObject, GameContext context, PassiveAreaEffectBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    public PassiveAreaEffectBehavior(GameObject gameObject, GameEngine gameEngine, PassiveAreaEffectBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -26,7 +26,7 @@ public class PassiveAreaEffectBehavior : UpdateModule
         }
         _nextPing = context.LogicFrame + _moduleData.PingDelay;
 
-        var nearbyObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+        var nearbyObjects = context.GameEngine.Game.PartitionCellManager.QueryObjects(
             GameObject,
             GameObject.Translation,
             _moduleData.EffectRadius,
@@ -80,8 +80,8 @@ public sealed class PassiveAreaEffectBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public BitArray<ModifierCategory> AntiCategories { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new PassiveAreaEffectBehavior(gameObject, context, this);
+        return new PassiveAreaEffectBehavior(gameObject, gameEngine, this);
     }
 }

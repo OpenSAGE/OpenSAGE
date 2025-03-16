@@ -19,7 +19,7 @@ public sealed class Bridge : DisposableBase
     private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
 
     internal Bridge(
-        GameContext gameContext,
+        GameEngine gameContext,
         MapObject mapObject,
         in Vector3 startPosition,
         in Vector3 endPosition)
@@ -58,7 +58,7 @@ public sealed class Bridge : DisposableBase
     }
 
     private List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
-        GameContext gameContext,
+        GameEngine gameContext,
         BridgeTemplate template,
         in Vector3 startPosition,
         in Vector3 endPosition,

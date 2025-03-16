@@ -7,7 +7,7 @@ public sealed class StructureToppleUpdate : UpdateModule
 {
     private float _unknownFloat;
 
-    public StructureToppleUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public StructureToppleUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -77,9 +77,9 @@ public sealed class StructureToppleUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public int ForceToppleAngle { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new StructureToppleUpdate(gameObject, context);
+        return new StructureToppleUpdate(gameObject, gameEngine);
     }
 }
 

@@ -16,17 +16,17 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public sealed class W3dTreeDraw : DrawModule
 {
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
     private ModelInstance _modelInstance;
     private readonly W3dTreeDrawModuleData _moduleData;
 
     public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
-    internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, GameContext context)
+    internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, GameEngine gameEngine)
     {
-        _gameContext = context;
+        _gameEngine = gameEngine;
         _moduleData = moduleData;
-        _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameContext.AssetLoadContext));
+        _modelInstance = AddDisposable(_moduleData.Model.Value.CreateInstance(_gameEngine.AssetLoadContext));
         //TODO: overwrite texture somehow & take care of other fields
     }
 
@@ -143,8 +143,8 @@ public sealed class W3dTreeDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme)]
     public string MorphTree { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
     {
-        return new W3dTreeDraw(this, context);
+        return new W3dTreeDraw(this, gameEngine);
     }
 }

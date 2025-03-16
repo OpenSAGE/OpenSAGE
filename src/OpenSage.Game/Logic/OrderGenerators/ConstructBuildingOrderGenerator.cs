@@ -32,7 +32,7 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
         int definitionIndex,
         GameData config,
         Player player,
-        GameContext gameContext,
+        GameEngine gameContext,
         Scene3D scene) : base(gameContext.Game)
     {
         _buildingDefinition = buildingDefinition;

@@ -30,7 +30,7 @@ public class AttributeModifier
         _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
     }
 
-    public void Apply(GameObject gameObject, GameContext context, in TimeInterval time)
+    public void Apply(GameObject gameObject, GameEngine gameEngine, in TimeInterval time)
     {
         if (_selfExpiring)
         {
@@ -68,9 +68,9 @@ public class AttributeModifier
             }
         }
 
-        TriggerFX(_modifierList.FX, gameObject, context);
-        TriggerFX(_modifierList.FX2, gameObject, context);
-        TriggerFX(_modifierList.FX3, gameObject, context);
+        TriggerFX(_modifierList.FX, gameObject, gameEngine);
+        TriggerFX(_modifierList.FX2, gameObject, gameEngine);
+        TriggerFX(_modifierList.FX3, gameObject, gameEngine);
 
         Applied = true;
     }
@@ -98,7 +98,7 @@ public class AttributeModifier
         }
     }
 
-    public void Remove(GameObject gameObject, GameContext context)
+    public void Remove(GameObject gameObject, GameEngine gameEngine)
     {
         foreach (var modifier in _modifierList.Modifiers)
         {
@@ -122,17 +122,17 @@ public class AttributeModifier
             }
         }
 
-        TriggerFX(_modifierList.EndFX, gameObject, context);
-        TriggerFX(_modifierList.EndFX2, gameObject, context);
-        TriggerFX(_modifierList.EndFX3, gameObject, context);
+        TriggerFX(_modifierList.EndFX, gameObject, gameEngine);
+        TriggerFX(_modifierList.EndFX2, gameObject, gameEngine);
+        TriggerFX(_modifierList.EndFX3, gameObject, gameEngine);
     }
 
-    private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameContext context)
+    private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameEngine gameEngine)
     {
         fx?.Value?.Execute(new FXListExecutionContext(
                 gameObject.Rotation,
                 gameObject.Translation,
-                context));
+                gameEngine));
     }
 }
 

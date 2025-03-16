@@ -11,7 +11,7 @@ public abstract class BodyModule : BehaviorModule
 {
     private float _armorDamageScalar;
 
-    protected BodyModule(GameObject gameObject, GameContext context) : base(gameObject, context)
+    protected BodyModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

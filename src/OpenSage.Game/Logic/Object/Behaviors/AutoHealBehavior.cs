@@ -17,8 +17,8 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     /// </summary>
     private LogicFrame _endOfStartHealingDelay;
 
-    public AutoHealBehavior(GameObject gameObject, GameContext context, AutoHealBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    public AutoHealBehavior(GameObject gameObject, GameEngine gameEngine, AutoHealBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
@@ -32,7 +32,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     private void OnUpgrade()
     {
         // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
-        SetNextUpdateFrame(Context.GameLogic.CurrentFrame);
+        SetNextUpdateFrame(GameEngine.GameLogic.CurrentFrame);
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
         // make sure the upgrade is triggered before resetting any frames
         if (_moduleData.StartHealingDelay != LogicFrameSpan.Zero && _upgradeLogic.Triggered)
         {
-            var currentFrame = Context.GameLogic.CurrentFrame;
+            var currentFrame = GameEngine.GameLogic.CurrentFrame;
             _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
             SetNextUpdateFrame(_endOfStartHealingDelay);
         }
@@ -62,7 +62,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
             if (_moduleData.AffectsWholePlayer)
             {
                 // USA hospital has this behavior
-                foreach (var candidate in Context.GameLogic.Objects)
+                foreach (var candidate in GameEngine.GameLogic.Objects)
                 {
                     if (ObjectIsOwnedBySamePlayer(candidate) && CanHealUnit(candidate))
                     {
@@ -80,7 +80,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
             return;
         }
 
-        foreach (var candidate in Context.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
+        foreach (var candidate in GameEngine.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
         {
             if (_moduleData.SkipSelfForHealing && candidate == GameObject) continue;
             if (!CanHealUnit(candidate)) continue;
@@ -254,8 +254,8 @@ public sealed class AutoHealBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public bool HealOnlyIfNotUnderAttack { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new AutoHealBehavior(gameObject, context, this);
+        return new AutoHealBehavior(gameObject, gameEngine, this);
     }
 }

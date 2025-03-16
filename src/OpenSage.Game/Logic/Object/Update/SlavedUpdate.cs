@@ -36,8 +36,8 @@ public class SlavedUpdateModule : UpdateModule
 
     private FXParticleSystemTemplate _particleTemplate;
 
-    internal SlavedUpdateModule(GameObject gameObject, GameContext context, SlavedUpdateModuleData moduleData)
-        : base(gameObject, context)
+    internal SlavedUpdateModule(GameObject gameObject, GameEngine gameEngine, SlavedUpdateModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -77,16 +77,16 @@ public class SlavedUpdateModule : UpdateModule
                     if (!isMoving)
                     {
                         _repairStatus = RepairStatus.READY;
-                        var readyDuration = context.GameContext.GetRandomLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
+                        var readyDuration = context.GameEngine.GetRandomLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
                         _waitUntil = context.LogicFrame + readyDuration;
                     }
                     break;
                 case RepairStatus.READY:
                     if (context.LogicFrame >= _waitUntil)
                     {
-                        var range = (float)(context.GameContext.Random.NextDouble() * _moduleData.RepairRange);
-                        var height = (float)(context.GameContext.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
-                        var angle = (float)(context.GameContext.Random.NextDouble() * (Math.PI * 2));
+                        var range = (float)(context.GameEngine.Random.NextDouble() * _moduleData.RepairRange);
+                        var height = (float)(context.GameEngine.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
+                        var angle = (float)(context.GameEngine.Random.NextDouble() * (Math.PI * 2));
 
                         var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                         GameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
@@ -100,13 +100,13 @@ public class SlavedUpdateModule : UpdateModule
                         var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
                         _particleTemplate ??= _moduleData.RepairWeldingSys.Value;
 
-                        var particleSystem = context.GameContext.ParticleSystems.Create(
+                        var particleSystem = context.GameEngine.ParticleSystems.Create(
                             _particleTemplate,
                             transform);
 
                         particleSystem.Activate();
 
-                        var weldDuration = context.GameContext.GetRandomLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
+                        var weldDuration = context.GameEngine.GetRandomLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
                         _waitUntil = context.LogicFrame + weldDuration;
                         _repairStatus = RepairStatus.WELDING;
                     }
@@ -124,7 +124,7 @@ public class SlavedUpdateModule : UpdateModule
                 case RepairStatus.ZIP_AROUND:
                 case RepairStatus.IN_TRANSITION:
                 case RepairStatus.WELDING:
-                    _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / Game.LogicFramesPerSecond);
+                    _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / GameEngine.LogicFramesPerSecond);
                     if (_master.Health > _master.MaxHealth)
                     {
                         _master.Health = _master.MaxHealth;
@@ -174,7 +174,7 @@ public class SlavedUpdateModule : UpdateModule
         }
 
         // prior to bfme2, die on master death seems to be the default?
-        if (_master.IsDead && (Context.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
+        if (_master.IsDead && (GameEngine.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
         {
             GameObject.Die(DeathType.Exploded);
         }
@@ -293,8 +293,8 @@ public sealed class SlavedUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int FadeTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SlavedUpdateModule(gameObject, context, this);
+        return new SlavedUpdateModule(gameObject, gameEngine, this);
     }
 }

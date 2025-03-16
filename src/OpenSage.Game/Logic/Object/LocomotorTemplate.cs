@@ -134,7 +134,7 @@ public sealed class LocomotorTemplate : BaseAsset
 
     private static float ParseFrictionToLogicFrames(IniParser parser)
     {
-        return parser.ParseFloat() * Game.SecondsPerLogicFrame;
+        return parser.ParseFloat() * GameEngine.SecondsPerLogicFrame;
     }
 
     internal const float BigNumber = 99999.0f;

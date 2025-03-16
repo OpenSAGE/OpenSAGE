@@ -4,8 +4,8 @@ namespace OpenSage.Logic.Object;
 
 public sealed class RepairDockUpdate : DockUpdate
 {
-    internal RepairDockUpdate(GameObject gameObject, GameContext context, RepairDockUpdateModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal RepairDockUpdate(GameObject gameObject, GameEngine gameEngine, RepairDockUpdateModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
 
     }
@@ -38,8 +38,8 @@ public sealed class RepairDockUpdateModuleData : DockUpdateModuleData
 
     public int TimeForFullHeal { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new RepairDockUpdate(gameObject, context, this);
+        return new RepairDockUpdate(gameObject, gameEngine, this);
     }
 }
