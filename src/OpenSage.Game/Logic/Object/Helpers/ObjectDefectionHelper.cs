@@ -6,7 +6,7 @@ internal sealed class ObjectDefectionHelper : ObjectHelperModule
     private uint _frameEnd;
     private bool _unknown;
 
-    public ObjectDefectionHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public ObjectDefectionHelper(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 

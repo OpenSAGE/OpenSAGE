@@ -16,7 +16,7 @@ public sealed class ViewShakeFXNugget : FXNugget
 
     internal override void Execute(FXListExecutionContext context)
     {
-        var gameData = context.GameContext.AssetLoadContext.AssetStore.GameData.Current;
+        var gameData = context.GameEngine.AssetLoadContext.AssetStore.GameData.Current;
 
         var intensity = Math.Min(GetShakeIntensity(gameData), gameData.MaxShakeIntensity);
 

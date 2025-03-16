@@ -14,12 +14,12 @@ public class HackInternetAIUpdate : AIUpdate
 
     private UnknownStateData? _packingUpData;
 
-    internal HackInternetAIUpdate(GameObject gameObject, GameContext context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal HackInternetAIUpdate(GameObject gameObject, GameEngine context, HackInternetAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
     }
 
-    private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
+    private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
@@ -94,7 +94,7 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override HackInternetAIUpdate AIUpdate { get; }
 
-    public HackInternetAIUpdateStateMachine(GameObject gameObject, GameContext context, HackInternetAIUpdate aiUpdate)
+    public HackInternetAIUpdateStateMachine(GameObject gameObject, GameEngine context, HackInternetAIUpdate aiUpdate)
         : base(gameObject, context, aiUpdate)
     {
         AIUpdate = aiUpdate;
@@ -104,7 +104,7 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
         AddState(StopHackingInternetState.StateId, new StopHackingInternetState(this));
     }
 
-    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameContext context)
+    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameEngine context)
     {
         // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
         return new LogicFrameSpan((uint)(time.Value + time.Value * ((context.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
@@ -164,7 +164,7 @@ public sealed class HackInternetAIUpdateModuleData : AIUpdateModuleData
     /// </example>
     public float PackUnpackVariationFactor { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new HackInternetAIUpdate(gameObject, context, this);
     }

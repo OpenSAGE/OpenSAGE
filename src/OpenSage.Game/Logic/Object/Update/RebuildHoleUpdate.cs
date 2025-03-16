@@ -22,11 +22,11 @@ public sealed class RebuildHoleUpdate : UpdateModule
     private LogicFrameSpan _framesUntilConstructionBegins;
 
     private string _workerObjectName; // the worker to spawn to build the structure
-    private ObjectDefinition WorkerObjectDefinition => Context.Game.AssetStore.ObjectDefinitions.GetByName(_workerObjectName);
+    private ObjectDefinition WorkerObjectDefinition => GameEngine.Game.AssetStore.ObjectDefinitions.GetByName(_workerObjectName);
     private string _structureObjectName; // the structure we're rebuilding
-    private ObjectDefinition StructureObjectDefinition => Context.Game.AssetStore.ObjectDefinitions.GetByName(_structureObjectName);
+    private ObjectDefinition StructureObjectDefinition => GameEngine.Game.AssetStore.ObjectDefinitions.GetByName(_structureObjectName);
 
-    internal RebuildHoleUpdate(GameObject gameObject, GameContext context, RebuildHoleUpdateModuleData moduleData)
+    internal RebuildHoleUpdate(GameObject gameObject, GameEngine context, RebuildHoleUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -73,21 +73,21 @@ public sealed class RebuildHoleUpdate : UpdateModule
         if (_workerId == 0)
         {
             // spawn worker first
-            worker = Context.GameLogic.CreateObject(WorkerObjectDefinition, GameObject.Owner);
+            worker = GameEngine.GameLogic.CreateObject(WorkerObjectDefinition, GameObject.Owner);
             worker.SetTransformMatrix(GameObject.TransformMatrix);
             worker.SetSelectable(false); // we have no control over this worker
             _workerId = worker.ID;
         }
         else
         {
-            worker = Context.GameLogic.GetObjectById(_workerId);
+            worker = GameEngine.GameLogic.GetObjectById(_workerId);
         }
 
         GameObject structure;
         if (_structureId == 0)
         {
             // spawn structure after spawning worker
-            structure = Context.GameLogic.CreateObject(StructureObjectDefinition, GameObject.Owner);
+            structure = GameEngine.GameLogic.CreateObject(StructureObjectDefinition, GameObject.Owner);
             structure.SetTransformMatrix(GameObject.TransformMatrix);
             // todo: some special property that disables the cancel construction button?
             _structureId = structure.ID;
@@ -98,7 +98,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
         }
         else
         {
-            structure = Context.GameLogic.GetObjectById(_structureId);
+            structure = GameEngine.GameLogic.GetObjectById(_structureId);
         }
 
         if (worker == null || worker.IsDead)
@@ -142,8 +142,8 @@ public sealed class RebuildHoleUpdate : UpdateModule
 
     internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
     {
-        var worker = Context.GameLogic.GetObjectById(_workerId);
-        var structure = Context.GameLogic.GetObjectById(_structureId);
+        var worker = GameEngine.GameLogic.GetObjectById(_workerId);
+        var structure = GameEngine.GameLogic.GetObjectById(_structureId);
         worker?.Destroy();
         structure?.Destroy();
         base.OnDie(context, deathType, status);
@@ -197,7 +197,7 @@ public sealed class RebuildHoleUpdateModuleData : UpdateModuleData
 
     public Percentage HoleHealthRegenPercentPerSecond { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new RebuildHoleUpdate(gameObject, context, this);
     }

@@ -10,7 +10,7 @@ internal class DeletionUpdate : UpdateModule
 
     private LogicFrame _frameToDelete;
 
-    public DeletionUpdate(GameObject gameObject, GameContext context, DeletionUpdateModuleData moduleData)
+    public DeletionUpdate(GameObject gameObject, GameEngine context, DeletionUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -23,7 +23,7 @@ internal class DeletionUpdate : UpdateModule
     {
         if (context.LogicFrame >= _frameToDelete)
         {
-            context.GameContext.GameLogic.DestroyObject(GameObject);
+            context.GameEngine.GameLogic.DestroyObject(GameObject);
         }
     }
 
@@ -57,7 +57,7 @@ public sealed class DeletionUpdateModuleData : UpdateModuleData
     public LogicFrameSpan MinLifetime { get; private set; }
     public LogicFrameSpan MaxLifetime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new DeletionUpdate(gameObject, context, this);
     }

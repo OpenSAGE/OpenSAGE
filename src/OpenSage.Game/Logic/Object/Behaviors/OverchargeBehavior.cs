@@ -11,8 +11,8 @@ public sealed class OverchargeBehavior : UpdateModule
     private bool _enabled;
     public bool Enabled => _enabled;
 
-    public OverchargeBehavior(GameObject gameObject, GameContext context, OverchargeBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    public OverchargeBehavior(GameObject gameObject, GameEngine gameEngine, OverchargeBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -28,7 +28,7 @@ public sealed class OverchargeBehavior : UpdateModule
         }
 
         // todo: this is fine for now, but generals seems to have some way of making sure it doesn't immediately sap health on subsequent toggles
-        SetNextUpdateFrame(Context.GameLogic.CurrentFrame);
+        SetNextUpdateFrame(GameEngine.GameLogic.CurrentFrame);
     }
 
     public void Deactivate()
@@ -99,8 +99,8 @@ public sealed class OverchargeBehaviorModuleData : UpdateModuleData
     /// </summary>
     public Percentage NotAllowedWhenHealthBelowPercent { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new OverchargeBehavior(gameObject, context, this);
+        return new OverchargeBehavior(gameObject, gameEngine, this);
     }
 }

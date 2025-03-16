@@ -9,22 +9,22 @@ public sealed class InstantDeathBehavior : DieModule
 {
     private readonly InstantDeathBehaviorModuleData _moduleData;
 
-    internal InstantDeathBehavior(GameObject gameObject, GameContext context, InstantDeathBehaviorModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal InstantDeathBehavior(GameObject gameObject, GameEngine gameEngine, InstantDeathBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        Context.GameLogic.DestroyObject(GameObject);
+        GameEngine.GameLogic.DestroyObject(GameObject);
 
         Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
         _moduleData.FX?.Value?.Execute(new FXListExecutionContext(
             rotation,
             translation,
-            context.GameContext));
+            context.GameEngine));
     }
 
     internal override void Load(StatePersister reader)
@@ -51,8 +51,8 @@ public sealed class InstantDeathBehaviorModuleData : DieModuleData
     public LazyAssetReference<FXList> FX { get; private set; }
     public string OCL { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new InstantDeathBehavior(gameObject, context, this);
+        return new InstantDeathBehavior(gameObject, gameEngine, this);
     }
 }

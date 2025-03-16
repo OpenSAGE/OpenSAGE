@@ -11,7 +11,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage;
 
-public sealed class GameContext
+public sealed class GameEngine
 {
     internal readonly AssetLoadContext AssetLoadContext;
     public readonly AudioSystem AudioSystem;
@@ -43,10 +43,10 @@ public sealed class GameContext
 
     public readonly IQuadtree<GameObject> Quadtree;
 
-    // TODO: This is temporary until Scene3D and GameContext are merged.
+    // TODO: This is temporary until Scene3D and GameEngine are merged.
     public readonly Scene3D Scene3D;
 
-    internal GameContext(
+    internal GameEngine(
         AssetLoadContext assetLoadContext,
         AudioSystem audioSystem,
         ParticleSystemManager particleSystems,

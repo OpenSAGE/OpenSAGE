@@ -57,7 +57,7 @@ public sealed class ProjectileNugget : WeaponEffectNugget
             warheadTemplate = WarheadTemplate.Value;
         }
 
-        var projectileObject = context.GameContext.GameLogic.CreateObject(
+        var projectileObject = context.GameEngine.GameLogic.CreateObject(
             projectileTemplate,
             context.Weapon.ParentGameObject.Owner);
 

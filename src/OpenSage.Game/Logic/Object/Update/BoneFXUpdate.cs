@@ -9,7 +9,7 @@ public sealed class BoneFXUpdate : UpdateModule
     private readonly List<uint> _particleSystemIds = new();
     private readonly int[] _unknownInts = new int[96];
 
-    public BoneFXUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public BoneFXUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 
@@ -98,7 +98,7 @@ public sealed class BoneFXUpdateModuleData : UpdateModuleData
 
     public BoneFXUpdateParticleSystem PristineParticleSystem6 { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new BoneFXUpdate(gameObject, context);
     }

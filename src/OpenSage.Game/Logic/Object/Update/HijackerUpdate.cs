@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class HijackerUpdate : UpdateModule
 {
-    public HijackerUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public HijackerUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 
@@ -31,7 +31,7 @@ public sealed class HijackerUpdateModuleData : UpdateModuleData
 
     public string ParachuteName { get; private set; }
 
-    internal override HijackerUpdate CreateModule(GameObject gameObject, GameContext context)
+    internal override HijackerUpdate CreateModule(GameObject gameObject, GameEngine context)
     {
         return new HijackerUpdate(gameObject, context);
     }

@@ -13,8 +13,8 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
 
     internal UpgradeLogic UpgradeLogic { get; }
 
-    internal FireWeaponWhenDeadBehavior(GameObject gameObject, GameContext context, FireWeaponWhenDeadBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal FireWeaponWhenDeadBehavior(GameObject gameObject, GameEngine gameEngine, FireWeaponWhenDeadBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
@@ -48,7 +48,7 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
                 GameObject,
                 deathWeaponTemplate,
                 WeaponSlot.Primary,
-                Context);
+                GameEngine);
 
             deathWeapon.SetTarget(new WeaponTarget(GameObject.Translation));
             deathWeapon.Fire();
@@ -90,8 +90,8 @@ public sealed class FireWeaponWhenDeadBehaviorModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme)]
     public Vector3 WeaponOffset { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new FireWeaponWhenDeadBehavior(gameObject, context, this);
+        return new FireWeaponWhenDeadBehavior(gameObject, gameEngine, this);
     }
 }

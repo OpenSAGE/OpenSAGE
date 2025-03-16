@@ -5,8 +5,8 @@ namespace OpenSage.Logic.Object;
 
 public sealed class HighlanderBody : ActiveBody
 {
-    internal HighlanderBody(GameObject gameObject, GameContext context, HighlanderBodyModuleData moduleData)
-        : base(gameObject, context, moduleData)
+    internal HighlanderBody(GameObject gameObject, GameEngine gameEngine, HighlanderBodyModuleData moduleData)
+        : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -51,8 +51,8 @@ public sealed class HighlanderBodyModuleData : ActiveBodyModuleData
     private static new readonly IniParseTable<HighlanderBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
         .Concat(new IniParseTable<HighlanderBodyModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new HighlanderBody(gameObject, context, this);
+        return new HighlanderBody(gameObject, gameEngine, this);
     }
 }

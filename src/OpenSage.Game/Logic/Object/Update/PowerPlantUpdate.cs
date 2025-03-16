@@ -12,7 +12,7 @@ public sealed class PowerPlantUpdate : UpdateModule
 
     private LogicFrame _rodsExtendedEndFrame;
 
-    internal PowerPlantUpdate(GameObject gameObject, GameContext context, PowerPlantUpdateModuleData moduleData)
+    internal PowerPlantUpdate(GameObject gameObject, GameEngine context, PowerPlantUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -24,7 +24,7 @@ public sealed class PowerPlantUpdate : UpdateModule
 
         GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, true);
 
-        _rodsExtendedEndFrame = Context.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
+        _rodsExtendedEndFrame = GameEngine.GameLogic.CurrentFrame + _moduleData.RodsExtendTime;
     }
 
     // China powerplant overcharge needs to be able to turn off
@@ -93,7 +93,7 @@ public sealed class PowerPlantUpdateModuleData : UpdateModuleData
 
     public LogicFrameSpan RodsExtendTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new PowerPlantUpdate(gameObject, context, this);
     }

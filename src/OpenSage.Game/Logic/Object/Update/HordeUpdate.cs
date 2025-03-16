@@ -16,7 +16,7 @@ public sealed class HordeUpdate : UpdateModule
 
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.UpdateRate;
 
-    internal HordeUpdate(GameObject gameObject, GameContext context, HordeUpdateModuleData moduleData)
+    internal HordeUpdate(GameObject gameObject, GameEngine context, HordeUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -24,7 +24,7 @@ public sealed class HordeUpdate : UpdateModule
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        var nearby = Context.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius);
+        var nearby = GameEngine.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius);
         var nearbyInConstraints = nearby.Where(MatchesAlliance).Where(MatchesType).Select(o => o.FindBehavior<HordeUpdate>()).ToList();
 
         if (nearbyInConstraints.Count >= _moduleData.Count - 1) // this list doesn't include us, but count does
@@ -40,7 +40,7 @@ public sealed class HordeUpdate : UpdateModule
         {
             // check if there are others who are in a horde near us
             // I don't think this behavior is strictly correct, but it seems the simplest way to implement this logic in the spirit of the data names and descriptions
-            var nearbyRubOff = Context.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.RubOffRadius);
+            var nearbyRubOff = GameEngine.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.RubOffRadius);
             var nearbyRubOffInConstraints = nearbyRubOff.Where(MatchesAlliance).Where(MatchesType).Count(o => o.FindBehavior<HordeUpdate>() is { _isInHorde: true });
             if (nearbyRubOffInConstraints < _moduleData.Count - 1) // this list doesn't include us, but count does
             {
@@ -64,7 +64,7 @@ public sealed class HordeUpdate : UpdateModule
     }
 
     // todo: should this be hardcoded?
-    private UpgradeTemplate? NationalismUpgrade => Context.AssetLoadContext.AssetStore.Upgrades.GetLazyAssetReferenceByName("Upgrade_Nationalism")?.Value;
+    private UpgradeTemplate? NationalismUpgrade => GameEngine.AssetLoadContext.AssetStore.Upgrades.GetLazyAssetReferenceByName("Upgrade_Nationalism")?.Value;
 
     private bool HasNationalism => NationalismUpgrade != null && GameObject.Owner.HasUpgrade(NationalismUpgrade);
 
@@ -160,7 +160,7 @@ public sealed class HordeUpdateModuleData : UpdateModuleData
     /// </summary>
     public WeaponBonusType Action { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new HordeUpdate(gameObject, context, this);
     }

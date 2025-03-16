@@ -28,8 +28,8 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     private const int HealsPerSecond = 5; // not sure if this is configured anywhere
     private static readonly LogicFrameSpan HealUpdateRate = new((uint)(Game.LogicFramesPerSecond / HealsPerSecond));
 
-    internal ParkingPlaceBehaviour(GameObject gameObject, GameContext context, ParkingPlaceBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal ParkingPlaceBehaviour(GameObject gameObject, GameEngine gameEngine, ParkingPlaceBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -89,7 +89,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
                 _nextHealFrame += HealUpdateRate;
                 foreach (var objectToHeal in _healingData)
                 {
-                    var gameObject = Context.GameLogic.GetObjectById(objectToHeal.ObjectId);
+                    var gameObject = GameEngine.GameLogic.GetObjectById(objectToHeal.ObjectId);
                     gameObject?.Heal(_healAmountPerHealTick, GameObject);
                 }
             }
@@ -714,8 +714,8 @@ public sealed class ParkingPlaceBehaviorModuleData : UpdateModuleData
     public int ApproachHeight { get; private set; }
     public bool ParkInHangars { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new ParkingPlaceBehaviour(gameObject, context, this);
+        return new ParkingPlaceBehaviour(gameObject, gameEngine, this);
     }
 }

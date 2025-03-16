@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class W3dScienceModelDraw : W3dModelDraw
 {
-    internal W3dScienceModelDraw(W3dScienceModelDrawModuleData data, Drawable drawable, GameContext context)
+    internal W3dScienceModelDraw(W3dScienceModelDrawModuleData data, Drawable drawable, GameEngine context)
         : base(data, drawable, context)
     {
     }
@@ -30,7 +30,7 @@ public sealed class W3dScienceModelDrawModuleData : W3dModelDrawModuleData
 
     public string RequiredScience { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
     {
         return new W3dScienceModelDraw(this, drawable, context);
     }

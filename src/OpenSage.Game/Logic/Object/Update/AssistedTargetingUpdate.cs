@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class AssistedTargetingUpdate : UpdateModule
 {
-    public AssistedTargetingUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public AssistedTargetingUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 
@@ -36,7 +36,7 @@ public sealed class AssistedTargetingUpdateModuleData : UpdateModuleData
     public string LaserFromAssisted { get; private set; }
     public string LaserToTarget { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new AssistedTargetingUpdate(gameObject, context);
     }

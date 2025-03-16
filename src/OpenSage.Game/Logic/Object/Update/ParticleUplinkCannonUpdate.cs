@@ -52,7 +52,7 @@ public sealed class ParticleUplinkCannonUpdate : UpdateModule
 
     private readonly ParticleUplinkCannonUpdateModuleData _moduleData;
 
-    internal ParticleUplinkCannonUpdate(GameObject gameObject, GameContext context, ParticleUplinkCannonUpdateModuleData moduleData)
+    internal ParticleUplinkCannonUpdate(GameObject gameObject, GameEngine context, ParticleUplinkCannonUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -264,7 +264,7 @@ public sealed class ParticleUplinkCannonUpdateModuleData : UpdateModuleData
 
     public LazyAssetReference<ObjectDefinition> DamagePulseRemnantObjectName { get; private set; }
 
-    internal override ParticleUplinkCannonUpdate CreateModule(GameObject gameObject, GameContext context)
+    internal override ParticleUplinkCannonUpdate CreateModule(GameObject gameObject, GameEngine context)
     {
         return new ParticleUplinkCannonUpdate(gameObject, context, this);
     }

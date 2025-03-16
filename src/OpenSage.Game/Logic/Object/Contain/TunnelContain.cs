@@ -7,14 +7,14 @@ namespace OpenSage.Logic.Object;
 
 public sealed class TunnelContain : OpenContainModule
 {
-    public override int TotalSlots => Context.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
+    public override int TotalSlots => GameEngine.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
     public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
 
     private readonly TunnelContainModuleData _moduleData;
     private bool _unknown1;
     private bool _unknown2;
 
-    internal TunnelContain(GameObject gameObject, GameContext gameContext, TunnelContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
+    internal TunnelContain(GameObject gameObject, GameEngine gameEngine, TunnelContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
         gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
@@ -125,8 +125,8 @@ public sealed class TunnelContainModuleData : GarrisonContainModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool AllowOwnPlayerInsideOverride { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new TunnelContain(gameObject, context, this);
+        return new TunnelContain(gameObject, gameEngine, this);
     }
 }

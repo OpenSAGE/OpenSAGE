@@ -8,7 +8,7 @@ public class BannerCarrierUpdate : UpdateModule
 {
     private BannerCarrierUpdateModuleData _moduleData;
 
-    public BannerCarrierUpdate(GameObject gameObject, GameContext context, BannerCarrierUpdateModuleData moduleData)
+    public BannerCarrierUpdate(GameObject gameObject, GameEngine context, BannerCarrierUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -58,7 +58,7 @@ public sealed class BannerCarrierUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public string UpgradeRequired { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new BannerCarrierUpdate(gameObject, context, this);
     }

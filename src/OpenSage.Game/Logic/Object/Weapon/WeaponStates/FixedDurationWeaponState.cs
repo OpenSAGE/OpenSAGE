@@ -16,9 +16,9 @@ internal abstract class FixedDurationWeaponState : BaseWeaponState
     protected override void OnEnterStateImpl()
     {
         // TODO: Randomly pick value between Duration.Min and Duration.Max
-        _exitTime = Context.GameContext.GameLogic.CurrentFrame + Duration.Min;
+        _exitTime = Context.GameEngine.GameLogic.CurrentFrame + Duration.Min;
     }
 
     protected bool IsTimeToExitState() =>
-        Context.GameContext.GameLogic.CurrentFrame >= _exitTime;
+        Context.GameEngine.GameLogic.CurrentFrame >= _exitTime;
 }

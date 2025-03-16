@@ -23,7 +23,7 @@ internal sealed class GameClient : DisposableBase, IPersistableObject
 
     public Drawable CreateDrawable(ObjectDefinition objectDefinition, GameObject gameObject)
     {
-        var drawable = AddDisposable(new Drawable(objectDefinition, _game.Scene3D.GameContext, gameObject));
+        var drawable = AddDisposable(new Drawable(objectDefinition, _game.Scene3D.GameEngine, gameObject));
 
         drawable.ID = NextDrawableId++;
 

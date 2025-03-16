@@ -33,7 +33,7 @@ public interface IGame
     AudioSystem Audio { get; }
     public SelectionSystem Selection { get; }
     bool InGame { get; }
-    GameContext Context { get; }
+    GameEngine GameEngine { get; }
 
     void StartCampaign(string campaignName, string missionName);
     void StartSkirmishOrMultiPlayerGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int seed, bool isMultiPlayer);

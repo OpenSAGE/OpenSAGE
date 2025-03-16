@@ -6,7 +6,7 @@ public sealed class TransportAIUpdate : AIUpdate
 {
     internal override TransportAIUpdateModuleData ModuleData { get; }
 
-    internal TransportAIUpdate(GameObject gameObject, GameContext context, TransportAIUpdateModuleData moduleData)
+    internal TransportAIUpdate(GameObject gameObject, GameEngine context, TransportAIUpdateModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
@@ -32,7 +32,7 @@ public sealed class TransportAIUpdateModuleData : AIUpdateModuleData
     private new static readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
         .Concat(new IniParseTable<TransportAIUpdateModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new TransportAIUpdate(gameObject, context, this);
     }

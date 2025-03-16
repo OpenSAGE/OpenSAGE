@@ -14,7 +14,7 @@ public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
 
     private readonly DozerAndWorkerState _state;
 
-    internal DozerAIUpdate(GameObject gameObject, GameContext context, DozerAIUpdateModuleData moduleData)
+    internal DozerAIUpdate(GameObject gameObject, GameEngine context, DozerAIUpdateModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
@@ -43,14 +43,14 @@ public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
         // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
         // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
         SetTargetPoint(gameObject.Translation);
-        _state.SetBuildTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
+        _state.SetBuildTarget(gameObject, GameEngine.GameLogic.CurrentFrame.Value);
     }
 
     public void SetRepairTarget(GameObject gameObject)
     {
         // note that the order here is important, as SetTargetPoint will clear any existing repairTarget
         SetTargetPoint(gameObject.Translation);
-        _state.SetRepairTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
+        _state.SetRepairTarget(gameObject, GameEngine.GameLogic.CurrentFrame.Value);
     }
 
     internal override void SetTargetPoint(Vector3 targetPoint)
@@ -92,7 +92,7 @@ public sealed class DozerAIUpdateModuleData : AIUpdateModuleData, IBuilderAIUpda
     public LogicFrameSpan BoredTime { get; private set; }
     public int BoredRange { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new DozerAIUpdate(gameObject, context, this);
     }

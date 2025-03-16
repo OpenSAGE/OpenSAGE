@@ -13,7 +13,7 @@ internal sealed class AutoDepositUpdate : UpdateModule
     private bool _shouldGrantInitialCaptureBonus = true; // this always starts as true, even if there is no capture bonus
     private bool _unknownBool2 = true;
 
-    internal AutoDepositUpdate(GameObject gameObject, GameContext context, AutoDepositUpdateModuleData moduleData)
+    internal AutoDepositUpdate(GameObject gameObject, GameEngine context, AutoDepositUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -144,7 +144,7 @@ public sealed class AutoDepositUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool OnlyWhenGarrisoned { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new AutoDepositUpdate(gameObject, context, this);
     }

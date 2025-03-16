@@ -38,7 +38,7 @@ public sealed class Scene3D : DisposableBase
     private EditorCameraInputState _editorCameraInputState;
     public readonly IEditorCameraController EditorCameraController;
 
-    internal readonly GameContext GameContext;
+    internal readonly GameEngine GameEngine;
 
     public SelectionGui SelectionGui { get; }
 
@@ -81,7 +81,7 @@ public sealed class Scene3D : DisposableBase
 
     public PlayerScriptsList PlayerScripts { get; private set; }
 
-    public IGameObjectCollection GameObjects => GameContext.GameLogic;
+    public IGameObjectCollection GameObjects => GameEngine.GameLogic;
     public bool ShowObjects { get; set; } = true;
     public readonly CameraCollection Cameras;
     public readonly WaypointCollection Waypoints;
@@ -194,7 +194,7 @@ public sealed class Scene3D : DisposableBase
                             break;
 
                         default:
-                            GameObject.FromMapObject(mapObject, GameContext, overwriteAngle: null);
+                            GameObject.FromMapObject(mapObject, GameEngine, overwriteAngle: null);
                             break;
                     }
                     break;
@@ -211,7 +211,7 @@ public sealed class Scene3D : DisposableBase
                     var bridgeEnd = mapObjects[++i];
 
                     bridgesList.Add(AddDisposable(new Bridge(
-                        GameContext,
+                        GameEngine,
                         mapObject,
                         mapObject.Position,
                         bridgeEnd.Position)));
@@ -322,7 +322,7 @@ public sealed class Scene3D : DisposableBase
             Quadtree = new Quadtree<GameObject>(new RectangleF(-borderWidth, -borderWidth, width, height));
         }
 
-        GameContext = new GameContext(
+        GameEngine = new GameEngine(
             game.AssetStore.LoadContext,
             game.Audio,
             ParticleSystemManager,

@@ -86,7 +86,7 @@ public sealed class W3dRopeDrawModuleData : DrawModuleData
 
     private static readonly IniParseTable<W3dRopeDrawModuleData> FieldParseTable = new IniParseTable<W3dRopeDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
     {
         return new W3dRopeDraw();
     }

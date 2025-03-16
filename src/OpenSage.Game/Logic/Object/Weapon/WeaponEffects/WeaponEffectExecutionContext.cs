@@ -3,11 +3,11 @@
 internal sealed class WeaponEffectExecutionContext
 {
     public readonly Weapon Weapon;
-    public readonly GameContext GameContext;
+    public readonly GameEngine GameEngine;
 
-    public WeaponEffectExecutionContext(Weapon weapon, GameContext gameContext)
+    public WeaponEffectExecutionContext(Weapon weapon, GameEngine gameEngine)
     {
         Weapon = weapon;
-        GameContext = gameContext;
+        GameEngine = gameEngine;
     }
 }

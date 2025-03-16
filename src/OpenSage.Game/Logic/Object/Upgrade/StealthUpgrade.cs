@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class StealthUpgrade : UpgradeModule
 {
-    public StealthUpgrade(GameObject gameObject, GameContext context, StealthUpgradeModuleData moduleData)
+    public StealthUpgrade(GameObject gameObject, GameEngine context, StealthUpgradeModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
     }
@@ -31,7 +31,7 @@ public sealed class StealthUpgradeModuleData : UpgradeModuleData
     private static new readonly IniParseTable<StealthUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
         .Concat(new IniParseTable<StealthUpgradeModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new StealthUpgrade(gameObject, context, this);
     }

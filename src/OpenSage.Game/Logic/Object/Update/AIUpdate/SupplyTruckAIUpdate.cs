@@ -12,7 +12,7 @@ public class SupplyTruckAIUpdate : SupplyAIUpdate
     private int _unknownInt;
     private bool _unknownBool;
 
-    internal SupplyTruckAIUpdate(GameObject gameObject, GameContext context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal SupplyTruckAIUpdate(GameObject gameObject, GameEngine context, SupplyTruckAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
         _stateMachine = new SupplyAIUpdateStateMachine(gameObject, context, this);
@@ -40,7 +40,7 @@ public class SupplyTruckAIUpdateModuleData : SupplyAIUpdateModuleData
     internal new static readonly IniParseTable<SupplyTruckAIUpdateModuleData> FieldParseTable = SupplyAIUpdateModuleData.FieldParseTable
         .Concat(new IniParseTable<SupplyTruckAIUpdateModuleData> { });
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new SupplyTruckAIUpdate(gameObject, context, this);
     }

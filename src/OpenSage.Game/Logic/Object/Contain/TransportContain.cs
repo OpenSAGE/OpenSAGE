@@ -14,7 +14,7 @@ public class TransportContain : OpenContainModule
 
     private LogicFrame _nextEvacAllowedAfter; // unsure if this is correct, but seems plausible from testing?
 
-    internal TransportContain(GameObject gameObject, GameContext gameContext, TransportContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
+    internal TransportContain(GameObject gameObject, GameEngine gameEngine, TransportContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
 
@@ -23,7 +23,7 @@ public class TransportContain : OpenContainModule
         {
             for (var i = 0; i < payload.Count; i++)
             {
-                var unit = gameContext.GameLogic.CreateObject(payload.Object.Value, gameObject.Owner);
+                var unit = gameEngine.GameLogic.CreateObject(payload.Object.Value, gameObject.Owner);
                 Add(unit, true);
             }
         }
@@ -59,7 +59,7 @@ public class TransportContain : OpenContainModule
                 // testing with a humvee, evacuating individually, the units never use the same exit path
                 // using the evac command, two pairs of rangers will share an exit path, and the 5th ranger will use a 3rd exit path
                 // todo: this doesn't seem to be strictly random, but it's unclear how this works at the moment
-                var pathToChoose = Context.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                var pathToChoose = GameEngine.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
                 startBoneName = $"{startBoneName}{pathToChoose:00}";
                 endBoneName = $"{endBoneName}{pathToChoose:00}";
             }
@@ -310,9 +310,9 @@ public class TransportContainModuleData : OpenContainModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public ModelConditionFlag ConditionForEntry { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new TransportContain(gameObject, context, this);
+        return new TransportContain(gameObject, gameEngine, this);
     }
 }
 

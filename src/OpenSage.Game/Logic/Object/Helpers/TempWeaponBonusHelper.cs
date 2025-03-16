@@ -4,7 +4,7 @@ internal sealed class TempWeaponBonusHelper : ObjectHelperModule
 {
     private int _unknownInt;
 
-    public TempWeaponBonusHelper(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public TempWeaponBonusHelper(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 

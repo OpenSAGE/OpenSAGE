@@ -8,7 +8,7 @@ public sealed class RebuildHoleExposeDie : DieModule
 {
     private readonly RebuildHoleExposeDieModuleData _moduleData;
 
-    internal RebuildHoleExposeDie(GameObject gameObject, GameContext context, RebuildHoleExposeDieModuleData moduleData)
+    internal RebuildHoleExposeDie(GameObject gameObject, GameEngine context, RebuildHoleExposeDieModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
@@ -16,7 +16,7 @@ public sealed class RebuildHoleExposeDie : DieModule
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        var hole = Context.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, GameObject.Owner);
+        var hole = GameEngine.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, GameObject.Owner);
         hole.SetTransformMatrix(GameObject.TransformMatrix);
         var holeHealth = (Fix64)_moduleData.HoleMaxHealth;
         hole.MaxHealth = holeHealth;
@@ -67,7 +67,7 @@ public sealed class RebuildHoleExposeDieModuleData : DieModuleData
         DieData.ExemptStatus = ObjectStatus.UnderConstruction;
     }
 
-    internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameContext context)
+    internal override RebuildHoleExposeDie CreateModule(GameObject gameObject, GameEngine context)
     {
         return new RebuildHoleExposeDie(gameObject, context, this);
     }

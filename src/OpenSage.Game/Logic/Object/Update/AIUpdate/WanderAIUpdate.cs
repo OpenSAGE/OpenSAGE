@@ -6,7 +6,7 @@ public sealed class WanderAIUpdate : AIUpdate
 {
     internal override WanderAIUpdateModuleData ModuleData { get; }
 
-    internal WanderAIUpdate(GameObject gameObject, GameContext context, WanderAIUpdateModuleData moduleData)
+    internal WanderAIUpdate(GameObject gameObject, GameEngine context, WanderAIUpdateModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
@@ -32,7 +32,7 @@ public sealed class WanderAIUpdateModuleData : AIUpdateModuleData
     private new static readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
         .Concat(new IniParseTable<WanderAIUpdateModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new WanderAIUpdate(gameObject, context, this);
     }

@@ -44,7 +44,7 @@ public sealed class ProductionUpdate : UpdateModule
 
     public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
-    internal ProductionUpdate(GameObject gameObject, GameContext context, ProductionUpdateModuleData moduleData)
+    internal ProductionUpdate(GameObject gameObject, GameEngine context, ProductionUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -113,7 +113,7 @@ public sealed class ProductionUpdate : UpdateModule
                                 if (front.UpgradeDefinition.ResearchSound != null)
                                 {
                                     // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
-                                    context.GameContext.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
+                                    context.GameEngine.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
                                 }
 
                                 break;
@@ -153,7 +153,7 @@ public sealed class ProductionUpdate : UpdateModule
     {
         _doorIndex = doorIndex;
         Logger.Info($"Door closing for {_moduleData.DoorCloseTime}");
-        SetDoorStateEndFrame(DoorState.Closing, Context.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
+        SetDoorStateEndFrame(DoorState.Closing, GameEngine.GameLogic.CurrentFrame + _moduleData.DoorCloseTime);
         // TODO: What is ModelConditionFlag.Door1WaitingToClose?
     }
 
@@ -345,13 +345,13 @@ public sealed class ProductionUpdate : UpdateModule
 
         ProductionExit.ProduceUnit();
 
-        var producedUnit = Context.GameLogic.CreateObject(objectDefinition, GameObject.Owner);
+        var producedUnit = GameEngine.GameLogic.CreateObject(objectDefinition, GameObject.Owner);
         producedUnit.Owner = GameObject.Owner;
         producedUnit.ParentHorde = ParentHorde;
 
         if (playAudio)
         {
-            Context.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
+            GameEngine.Scene3D.Audio.PlayAudioEvent(producedUnit, producedUnit.Definition.UnitSpecificSounds?.VoiceCreate?.Value);
         }
 
         if (!_moduleData.GiveNoXP)
@@ -411,7 +411,7 @@ public sealed class ProductionUpdate : UpdateModule
             producedUnit.AIUpdate.AddTargetPoint(GameObject.RallyPoint.Value);
         }
 
-        Context.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(producedUnit, producedUnit.Definition.SoundMoveStart.Value);
 
         HandleHordeCreation(producedUnit);
         HandleHarvesterUnitCreation(GameObject, producedUnit);
@@ -711,7 +711,7 @@ public sealed class ProductionUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new ProductionUpdate(gameObject, context, this);
     }

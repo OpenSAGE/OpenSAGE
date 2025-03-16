@@ -31,7 +31,7 @@ public class TurretAIUpdate : UpdateModule
         Recentering
     }
 
-    internal TurretAIUpdate(GameObject gameObject, GameContext context, TurretAIUpdateModuleData moduleData)
+    internal TurretAIUpdate(GameObject gameObject, GameEngine context, TurretAIUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -75,7 +75,7 @@ public class TurretAIUpdate : UpdateModule
                 {
                     if (!FoundTargetWhileScanning(context, autoAcquireEnemiesWhenIdle))
                     {
-                        var scanInterval = context.GameContext.GetRandomLogicFrameSpan(
+                        var scanInterval = context.GameEngine.GetRandomLogicFrameSpan(
                             _moduleData.MinIdleScanInterval,
                             _moduleData.MaxIdleScanInterval);
                         _waitUntil = context.LogicFrame + scanInterval;
@@ -160,14 +160,14 @@ public class TurretAIUpdate : UpdateModule
         return false;
 
         //var attacksBuildings = autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.AttackBuildings) ?? true;
-        //var scanRange = _gameObject.CurrentWeapon.Template.AttackRange;
+        //var scanRange = GameObject.CurrentWeapon.Template.AttackRange;
 
         //var restrictedByScanAngle = _moduleData.MinIdleScanAngle != 0 && _moduleData.MaxIdleScanAngle != 0;
-        //var scanAngleOffset = context.GameContext.Random.NextDouble() *
+        //var scanAngleOffset = context.GameEngine.Random.NextDouble() *
         //                (_moduleData.MaxIdleScanAngle - _moduleData.MinIdleScanAngle) +
         //                _moduleData.MinIdleScanAngle;
 
-        //var nearbyObjects = context.GameContext.Scene3D.Quadtree.FindNearby(_gameObject, _gameObject.Transform, scanRange);
+        //var nearbyObjects = context.GameEngine.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, scanRange);
         //foreach (var obj in nearbyObjects)
         //{
         //    if (obj.Definition.KindOf.Get(ObjectKinds.Structure) && !attacksBuildings)
@@ -178,10 +178,10 @@ public class TurretAIUpdate : UpdateModule
         //    if (restrictedByScanAngle)
         //    {
         //        // TODO: test with GLAVehicleTechnicalChassisOne
-        //        var deltaTranslation = obj.Translation - _gameObject.Translation;
+        //        var deltaTranslation = obj.Translation - GameObject.Translation;
         //        var direction = deltaTranslation.Vector2XY();
         //        var angleToObject = MathUtility.GetYawFromDirection(direction);
-        //        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, _gameObject.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
+        //        var angleDelta = MathUtility.CalculateAngleDelta(angleToObject, GameObject.EulerAngles.Z + MathUtility.ToRadians(_moduleData.NaturalTurretAngle));
 
         //        if (angleDelta < -scanAngleOffset || scanAngleOffset < angleDelta)
         //        {
@@ -189,7 +189,7 @@ public class TurretAIUpdate : UpdateModule
         //        }
         //    }
 
-        //    _gameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
+        //    GameObject.CurrentWeapon.SetTarget(new WeaponTarget(obj));
         //    return true;
         //}
 
@@ -318,7 +318,7 @@ public sealed class TurretAIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public int TurretMaxDeflectionACW { get; private set; }
 
-    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject, GameContext context)
+    internal TurretAIUpdate CreateTurretAIUpdate(GameObject gameObject, GameEngine context)
     {
         return new TurretAIUpdate(gameObject, context, this);
     }

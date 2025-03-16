@@ -33,8 +33,8 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
 
     private readonly List<uint> _generatedMineIds = [];
 
-    internal GenerateMinefieldBehavior(GameObject gameObject, GameContext context, GenerateMinefieldBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    internal GenerateMinefieldBehavior(GameObject gameObject, GameEngine gameEngine, GenerateMinefieldBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         UpgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
@@ -52,7 +52,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
             return;
         }
 
-        GenerateMinefield(new BehaviorUpdateContext(Context, GameObject));
+        GenerateMinefield(new BehaviorUpdateContext(GameEngine, GameObject));
     }
 
     internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
@@ -77,7 +77,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
         }
 
         var centerPoint = _hasGenerationPosition ? _generationPosition : GameObject.Transform.Translation;
-        var gameData = Context.Game.AssetStore.GameData.Current;
+        var gameData = GameEngine.Game.AssetStore.GameData.Current;
         var mineObjectSize = mineTemplate.Geometry.BoundingCircleRadius * 2;
         var outerPerimeter = _moduleData.DistanceAroundObject ?? gameData.StandardMinefieldDistance;
         var smartRadius = GameObject.ShapedCollider.WorldBounds.Radius; // todo: this should be a rectangle when AlwaysCircular is false
@@ -129,8 +129,8 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
         // then take those xy coordinates and determine which of them we could actually spawn mines at
         // we don't spawn them yet to avoid issues with them potentially "colliding" with each other
         var newMineTransforms = mineCandidateLocations
-            .Select(v => new Vector3(v.X, v.Y, Context.Terrain.HeightMap.GetHeight(v.X, v.Y)))
-            .WhereNot(Context.Terrain.ImpassableAt) // this might not be exactly correct, but seems to be close?
+            .Select(v => new Vector3(v.X, v.Y, GameEngine.Terrain.HeightMap.GetHeight(v.X, v.Y)))
+            .WhereNot(GameEngine.Terrain.ImpassableAt) // this might not be exactly correct, but seems to be close?
             .Select(NormalTransformAtLocation)
             .Where(TransformIsValidMineLocation)
             .ToList();
@@ -138,7 +138,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
         // now that we know where to actually spawn the mines, spawn them
         foreach (var transform in newMineTransforms)
         {
-            var newMine = Context.GameLogic.CreateObject(mineTemplate, GameObject.Owner);
+            var newMine = GameEngine.GameLogic.CreateObject(mineTemplate, GameObject.Owner);
             newMine.UpdateTransform(transform.Translation, transform.Rotation);
             newMine.CreatedByObjectID = GameObject.ID;
             _generatedMineIds.Add(newMine.ID);
@@ -148,8 +148,8 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
     private Transform NormalTransformAtLocation(Vector3 location)
     {
         // todo: should the normal matching be handled by KindOf STICK_TO_TERRAIN_SLOPE?
-        var normal = Context.Terrain.HeightMap.GetNormal(location.X, location.Y);
-        var rotation = (float)(Context.Random.NextDouble() * 2 * Math.PI);
+        var normal = GameEngine.Terrain.HeightMap.GetNormal(location.X, location.Y);
+        var rotation = (float)(GameEngine.Random.NextDouble() * 2 * Math.PI);
         return new Transform(location, Quaternion.CreateFromAxisAngle(normal, rotation));
     }
 
@@ -162,7 +162,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
             return false;
         }
 
-        var intersecting = Context.Quadtree.FindIntersecting(new SphereCollider(transform, mineTemplate.Geometry.BoundingCircleRadius));
+        var intersecting = GameEngine.Quadtree.FindIntersecting(new SphereCollider(transform, mineTemplate.Geometry.BoundingCircleRadius));
         return !intersecting.Any(obj => obj != GameObject && (obj.IsKindOf(ObjectKinds.Structure) || obj.IsKindOf(ObjectKinds.Mine)));
     }
 
@@ -294,8 +294,8 @@ public sealed class GenerateMinefieldBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public LazyAssetReference<ObjectDefinition>? UpgradedMineName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new GenerateMinefieldBehavior(gameObject, context, this);
+        return new GenerateMinefieldBehavior(gameObject, gameEngine, this);
     }
 }

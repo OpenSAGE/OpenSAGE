@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BoneFXDamage : DamageModule
 {
-    public BoneFXDamage(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public BoneFXDamage(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 
@@ -28,7 +28,7 @@ public sealed class BoneFXDamageModuleData : DamageModuleData
 
     private static readonly IniParseTable<BoneFXDamageModuleData> FieldParseTable = new IniParseTable<BoneFXDamageModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new BoneFXDamage(gameObject, context);
     }

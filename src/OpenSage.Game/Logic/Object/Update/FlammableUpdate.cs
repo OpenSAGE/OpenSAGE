@@ -12,7 +12,7 @@ public sealed class FlammableUpdate : UpdateModule
     private float _remainingDamageBeforeCatchingFire;
     private uint _startedTakingFlameDamageFrame;
 
-    internal FlammableUpdate(GameObject gameObject, GameContext context, FlammableUpdateModuleData moduleData)
+    internal FlammableUpdate(GameObject gameObject, GameEngine context, FlammableUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -144,7 +144,7 @@ public sealed class FlammableUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public DamageType DamageType { get; internal set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new FlammableUpdate(gameObject, context, this);
     }

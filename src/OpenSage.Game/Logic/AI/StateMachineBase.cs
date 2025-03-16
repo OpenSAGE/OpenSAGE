@@ -10,7 +10,7 @@ namespace OpenSage.Logic.AI;
 internal abstract class StateMachineBase : IPersistableObject
 {
     public GameObject GameObject { get; }
-    public GameContext Context { get; }
+    public GameEngine GameEngine { get; }
     public virtual AIUpdate AIUpdate { get; }
 
     private readonly Dictionary<uint, State> _states;
@@ -26,15 +26,15 @@ internal abstract class StateMachineBase : IPersistableObject
     private bool _unknownBool1;
     private bool _unknownBool2;
 
-    protected StateMachineBase(GameObject gameObject, GameContext context, AIUpdate aiUpdate)
+    protected StateMachineBase(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate)
     {
         GameObject = gameObject;
-        Context = context;
+        GameEngine = gameEngine;
         AIUpdate = aiUpdate;
         _states = new Dictionary<uint, State>();
     }
 
-    protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.Context, parent.AIUpdate)
+    protected StateMachineBase(StateMachineBase parent) : this(parent.GameObject, parent.GameEngine, parent.AIUpdate)
     {
     }
 

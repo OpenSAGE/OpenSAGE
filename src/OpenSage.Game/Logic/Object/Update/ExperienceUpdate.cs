@@ -15,7 +15,7 @@ public class ExperienceUpdate : UpdateModule
 
     public bool ObjectGainsExperience { get; private set; }
 
-    internal ExperienceUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    internal ExperienceUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
         _initial = true;
     }
@@ -63,7 +63,7 @@ public class ExperienceUpdate : UpdateModule
             _nextLevel.LevelUpFX.Value?.Execute(new FXListExecutionContext(
                 context.GameObject.Rotation,
                 context.GameObject.Translation,
-                context.GameContext));
+                context.GameEngine));
         }
 
         GameObject.ExperienceValue -= _nextLevel.RequiredExperience;
@@ -150,7 +150,7 @@ public class ExperienceUpdate : UpdateModule
 
     private List<ExperienceLevel> FindRelevantExperienceLevels(BehaviorUpdateContext context)
     {
-        var experienceLevels = context.GameContext.AssetLoadContext.AssetStore.ExperienceLevels;
+        var experienceLevels = context.GameEngine.AssetLoadContext.AssetStore.ExperienceLevels;
         var levels = experienceLevels.Where(x => x.TargetNames != null && x.TargetNames.Contains(GameObject.Definition.Name)).ToList();
         levels.Sort((x, y) => x.Rank.CompareTo(y.Rank));
         return levels.Count > 0 ? levels : null;

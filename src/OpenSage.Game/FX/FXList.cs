@@ -66,6 +66,6 @@ public sealed class FXList : BaseAsset
             new FXListExecutionContext(
                 context.GameObject.Rotation,
                 context.GameObject.Translation,
-                context.GameContext));
+                context.GameEngine));
     }
 }

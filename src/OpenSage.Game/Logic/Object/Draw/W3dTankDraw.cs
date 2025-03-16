@@ -23,7 +23,7 @@ public class W3dTankDraw : W3dModelDraw
         "TREADSR01",
     };
 
-    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameContext context)
+    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameEngine context)
         : base(data, drawable, context)
     {
         _data = data;
@@ -104,7 +104,7 @@ public class W3dTankDrawModuleData : W3dModelDrawModuleData
     public float TreadDriveSpeedFraction { get; private set; }
     public float TreadPivotSpeedFraction { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
     {
         return new W3dTankDraw(this, drawable, context);
     }

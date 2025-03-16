@@ -12,7 +12,7 @@ public sealed class StealthDetectorUpdate : UpdateModule
 
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DetectionRate;
 
-    public StealthDetectorUpdate(GameObject gameObject, GameContext context, StealthDetectorUpdateModuleData moduleData)
+    public StealthDetectorUpdate(GameObject gameObject, GameEngine context, StealthDetectorUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -96,7 +96,7 @@ public sealed class StealthDetectorUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public string RequiredUpgrade { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new StealthDetectorUpdate(gameObject, context, this);
     }

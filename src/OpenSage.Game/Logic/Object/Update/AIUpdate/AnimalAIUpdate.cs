@@ -8,7 +8,7 @@ public class AnimalAIUpdate : AIUpdate
 {
     internal override AnimalAIUpdateModuleData ModuleData { get; }
 
-    internal AnimalAIUpdate(GameObject gameObject, GameContext context, AnimalAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal AnimalAIUpdate(GameObject gameObject, GameEngine context, AnimalAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
     }
@@ -39,7 +39,7 @@ public sealed class AnimalAIUpdateModuleData : AIUpdateModuleData
     public int UpdateTimer { get; private set; }
     public bool AfraidOfCastles { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new AnimalAIUpdate(gameObject, context, this); ;
     }

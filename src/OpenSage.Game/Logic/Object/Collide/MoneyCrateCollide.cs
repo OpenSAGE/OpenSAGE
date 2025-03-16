@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class MoneyCrateCollide : CrateCollide
 {
-    public MoneyCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public MoneyCrateCollide(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -35,9 +35,9 @@ public sealed class MoneyCrateCollideModuleData : CrateCollideModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public BoostUpgrade UpgradedBoost { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new MoneyCrateCollide(gameObject, context);
+        return new MoneyCrateCollide(gameObject, gameEngine);
     }
 }
 

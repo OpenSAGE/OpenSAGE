@@ -4,14 +4,14 @@ namespace OpenSage.Logic.Object;
 
 public sealed class DestroyDie : DieModule
 {
-    internal DestroyDie(GameObject gameObject, GameContext context, DestroyDieModuleData moduleData)
+    internal DestroyDie(GameObject gameObject, GameEngine context, DestroyDieModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
     }
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        context.GameContext.GameLogic.DestroyObject(GameObject);
+        context.GameEngine.GameLogic.DestroyObject(GameObject);
     }
 
     internal override void Load(StatePersister reader)
@@ -31,7 +31,7 @@ public sealed class DestroyDieModuleData : DieModuleData
     private static new readonly IniParseTable<DestroyDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
         .Concat(new IniParseTable<DestroyDieModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new DestroyDie(gameObject, context, this);
     }

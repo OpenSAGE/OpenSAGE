@@ -41,7 +41,7 @@ public sealed class Locomotor : IPersistableObject
     private const float DonutDistance = 4.0f * AIPathfind.PathfindCellSizeF;
     private const float MaxBrakingFactor = 5.0f;
 
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
     private readonly float _baseSpeedFactor;
 
     private LogicFrame _donutTimer;
@@ -66,9 +66,9 @@ public sealed class Locomotor : IPersistableObject
 
     public float MinSpeed => LocomotorTemplate.MinSpeed;
 
-    public Locomotor(GameContext context, LocomotorTemplate template, float baseSpeed)
+    public Locomotor(GameEngine context, LocomotorTemplate template, float baseSpeed)
     {
-        _context = context;
+        _gameEngine = context;
 
         LocomotorTemplate = template;
 
@@ -95,12 +95,12 @@ public sealed class Locomotor : IPersistableObject
 
     private void ResetDonutTimer()
     {
-        _donutTimer = _context.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * Game.LogicFramesPerSecond));
+        _donutTimer = _gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * Game.LogicFramesPerSecond));
     }
 
     private bool HasMovementPenalty(BodyDamageType condition)
     {
-        return !condition.IsBetterThan(_context.AssetStore.GameData.Current.MovementPenaltyDamageState);
+        return !condition.IsBetterThan(_gameEngine.AssetStore.GameData.Current.MovementPenaltyDamageState);
     }
 
     /// <summary>
@@ -313,7 +313,7 @@ public sealed class Locomotor : IPersistableObject
         // Do not allow for invalid positions that the pathfinder cannot handle.
         // For airborne objects we don't need the pathfinder so we'll ignore this.
         if ((LocomotorTemplate.Surfaces & Surfaces.Air) == 0
-            && !_context.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, obj.Translation)
+            && !_gameEngine.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, obj.Translation)
             && !GetFlag(LocomotorFlags.AllowInvalidPosition))
         {
             // Somehow, we have gotten to an invalid location.
@@ -341,14 +341,14 @@ public sealed class Locomotor : IPersistableObject
 
         var treatAsAirborne = false;
         var pos = obj.Translation;
-        var heightAboveSurface = pos.Z - _context.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer);
+        var heightAboveSurface = pos.Z - _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer);
 
         if (obj.TestStatus(ObjectStatus.DeckHeightOffset))
         {
             heightAboveSurface -= obj.CarrierDeckHeight;
         }
 
-        if (heightAboveSurface > -(3 * 3) * _context.AssetStore.GameData.Current.Gravity)
+        if (heightAboveSurface > -(3 * 3) * _gameEngine.AssetStore.GameData.Current.Gravity)
         {
             // If we get high enough to stay up for 3 frames, then we left the ground.
             treatAsAirborne = true;
@@ -505,7 +505,7 @@ public sealed class Locomotor : IPersistableObject
                 var thePos = obj.Translation;
                 thePos.X += i * AIPathfind.PathfindCellSizeF;
                 thePos.Y += j * AIPathfind.PathfindCellSizeF;
-                if (!_context.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, thePos))
+                if (!_gameEngine.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, thePos))
                 {
                     if (i < 0)
                     {
@@ -590,13 +590,13 @@ public sealed class Locomotor : IPersistableObject
                 if (!obj.IsDisabledByType(DisabledType.Held))
                 {
                     var pos = obj.Translation;
-                    if (_context.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
+                    if (_gameEngine.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
                     {
                         pos.Z = waterZ;
                     }
                     else
                     {
-                        pos.Z = _context.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer);
+                        pos.Z = _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer);
                     }
                     obj.SetTranslation(pos);
                 }
@@ -620,7 +620,7 @@ public sealed class Locomotor : IPersistableObject
                     // Original comment:
                     // srj sez: use getGroundOrStructureHeight(), because someday it will cache building heights...
                     var pos = obj.Translation;
-                    var surfaceHt = _context.Game.PartitionCellManager.GetGroundOrStructureHeight(pos.X, pos.Y);
+                    var surfaceHt = _gameEngine.Game.PartitionCellManager.GetGroundOrStructureHeight(pos.X, pos.Y);
 
                     pos.Z = _preferredHeight + surfaceHt;
 
@@ -640,11 +640,11 @@ public sealed class Locomotor : IPersistableObject
                         var layerAtDest = obj.Layer;
                         if (layerAtDest == PathfindLayerType.Ground)
                         {
-                            layerAtDest = _context.Game.TerrainLogic.GetHighestLayerForDestination(pos);
+                            layerAtDest = _gameEngine.Game.TerrainLogic.GetHighestLayerForDestination(pos);
                         }
 
                         const bool clip = false; // Return the height, even if off the edge of the bridge proper.
-                        var surfaceHt = _context.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, layerAtDest, out _, clip);
+                        var surfaceHt = _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, layerAtDest, out _, clip);
 
                         var preferredHeight = _preferredHeight + surfaceHt;
                         if (GetFlag(LocomotorFlags.PreciseZPosition))
@@ -845,7 +845,7 @@ public sealed class Locomotor : IPersistableObject
             delta = Vector3.Normalize(delta);
             delta.X += pos.X;
             delta.Y += pos.Y;
-            delta.Z = _context.Game.TerrainLogic.GetGroundHeight(delta.X, delta.Y);
+            delta.Z = _gameEngine.Game.TerrainLogic.GetGroundHeight(delta.X, delta.Y);
             if (delta.Z < pos.Z - 0.1f)
             {
                 moveBackwards = true;
@@ -1065,8 +1065,8 @@ public sealed class Locomotor : IPersistableObject
                 pos.Y + offset.Y / 2,
                 pos.Z);
 
-            if (!_context.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, halfPos) ||
-                !_context.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, nextPos))
+            if (!_gameEngine.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, halfPos) ||
+                !_gameEngine.AI.Pathfinder.ValidMovementTerrain(obj.Layer, this, nextPos))
             {
                 var rotating = RotateTowardsPosition(obj, goalPos, out _);
                 physics.Turning = rotating;
@@ -1095,7 +1095,7 @@ public sealed class Locomotor : IPersistableObject
         }
         else
         {
-            if (_donutTimer < _context.GameLogic.CurrentFrame)
+            if (_donutTimer < _gameEngine.GameLogic.CurrentFrame)
             {
                 SetFlag(LocomotorFlags.IsBraking, true);
             }
@@ -1335,7 +1335,7 @@ public sealed class Locomotor : IPersistableObject
         // Only hover locomotors care about their OverWater special effects.
         // (OverWater also affects speed, so this is not a client thing)
         var newPosition = obj.Translation;
-        if (_context.Game.TerrainLogic.IsUnderwater(newPosition.X, newPosition.Y))
+        if (_gameEngine.Game.TerrainLogic.IsUnderwater(newPosition.X, newPosition.Y))
         {
             if (!GetFlag(LocomotorFlags.OverWater))
             {
@@ -1485,7 +1485,7 @@ public sealed class Locomotor : IPersistableObject
         var curVel = physics.Velocity;
 
         // Add gravity to our vel so that we account for it in our calcs.
-        curVel.Z += _context.AssetStore.GameData.Current.Gravity;
+        curVel.Z += _gameEngine.AssetStore.GameData.Current.Gravity;
 
         var distToGoalSqr = vecToGoal.LengthSquared();
         var distToGoal = MathF.Sqrt(distToGoalSqr);
@@ -1674,7 +1674,7 @@ public sealed class Locomotor : IPersistableObject
     {
         var height = 0.0f;
 
-        if (_context.Game.TerrainLogic.IsUnderwater(x, y, out var waterZ, out var terrainZ))
+        if (_gameEngine.Game.TerrainLogic.IsUnderwater(x, y, out var waterZ, out var terrainZ))
         {
             height += waterZ;
         }
@@ -1693,7 +1693,7 @@ public sealed class Locomotor : IPersistableObject
         // and solve for acceleration.
         var bdt = obj.BodyModule.DamageState;
         var maxGrossLift = GetMaxLift(bdt);
-        var maxNetLift = maxGrossLift + _context.AssetStore.GameData.Current.Gravity; // note that gravity is always negative.
+        var maxNetLift = maxGrossLift + _gameEngine.AssetStore.GameData.Current.Gravity; // note that gravity is always negative.
         if (maxNetLift < 0)
         {
             maxNetLift = 0;
@@ -1702,7 +1702,7 @@ public sealed class Locomotor : IPersistableObject
         // Going down, braking is limited by net lift; going up, braking is limited by gravity.
         var maxAccel = GetFlag(LocomotorFlags.UltraAccurate)
             ? (curVelZ < 0) ? 2 * maxNetLift : -2 * maxNetLift
-            : (curVelZ < 0) ? maxNetLift : _context.AssetStore.GameData.Current.Gravity;
+            : (curVelZ < 0) ? maxNetLift : _gameEngine.AssetStore.GameData.Current.Gravity;
         // See how far we need to slow to dead stop, given max braking.
         float desiredAccel;
         const float tinyAccel = 0.001f;
@@ -1746,7 +1746,7 @@ public sealed class Locomotor : IPersistableObject
         {
             desiredAccel = 0.0f;
         }
-        var liftToUse = desiredAccel - _context.AssetStore.GameData.Current.Gravity;
+        var liftToUse = desiredAccel - _gameEngine.AssetStore.GameData.Current.Gravity;
         if (GetFlag(LocomotorFlags.UltraAccurate))
         {
             // in ultra-accurate mode, we allow cheating.

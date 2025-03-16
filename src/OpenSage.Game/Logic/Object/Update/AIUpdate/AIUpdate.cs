@@ -90,7 +90,7 @@ public class AIUpdate : UpdateModule
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
 
-    internal AIUpdate(GameObject gameObject, GameContext context, AIUpdateModuleData moduleData)
+    internal AIUpdate(GameObject gameObject, GameEngine context, AIUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         ModuleData = moduleData;
@@ -110,7 +110,7 @@ public class AIUpdate : UpdateModule
         }
     }
 
-    private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
+    private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
 
     internal void SetLocomotor(LocomotorSetType type)
     {
@@ -153,7 +153,7 @@ public class AIUpdate : UpdateModule
         if (!GameObject.Definition.KindOf.Get(ObjectKinds.Aircraft) && targetPoint != GameObject.Translation)
         {
             var start = GameObject.Translation;
-            var path = Context.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);
+            var path = GameEngine.Navigation.CalculatePath(start, targetPoint, out var endIsPassable);
             if (path.Count > 0)
             {
                 path.RemoveAt(0);
@@ -264,7 +264,7 @@ public class AIUpdate : UpdateModule
 
         if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
         {
-            context.GameContext.Quadtree.Update(GameObject);
+            context.GameEngine.Quadtree.Update(GameObject);
         }
 
         if (CurrentLocomotor != null)
@@ -561,7 +561,7 @@ public class AIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int BurningDeathTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new AIUpdate(gameObject, context, this);
     }

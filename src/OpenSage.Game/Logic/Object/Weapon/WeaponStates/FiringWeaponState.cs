@@ -30,10 +30,10 @@ internal sealed class FiringWeaponState : FixedDurationWeaponState
             Context.Weapon.CurrentRounds--;
         }
 
-        Context.GameContext.AudioSystem.PlayAudioEvent(
+        Context.GameEngine.AudioSystem.PlayAudioEvent(
             Context.Weapon.Template.FireSound?.Value);
 
-        var weaponEffectExecutionContext = new WeaponEffectExecutionContext(Context.Weapon, Context.GameContext);
+        var weaponEffectExecutionContext = new WeaponEffectExecutionContext(Context.Weapon, Context.GameEngine);
         foreach (var nugget in Context.Weapon.Template.Nuggets)
         {
             nugget.Execute(weaponEffectExecutionContext);
@@ -68,7 +68,7 @@ internal sealed class FiringWeaponState : FixedDurationWeaponState
             new FXListExecutionContext(
                 rotation,
                 translation,
-                Context.GameContext));
+                Context.GameEngine));
     }
 
     public override WeaponState? GetNextState()

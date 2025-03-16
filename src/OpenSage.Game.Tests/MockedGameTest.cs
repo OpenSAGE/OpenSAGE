@@ -45,13 +45,13 @@ public abstract class MockedGameTest : IDisposable
         public bool InGame { get; }
         public AudioSystem Audio { get; }
         public SelectionSystem Selection { get; }
-        public GameContext Context { get; }
+        public GameEngine GameEngine { get; }
 
         public TestGame(SageGame game)
         {
             SageGame = game;
             AssetStore = new AssetStore(game, null, null, null, null, null, null, OnDemandAssetLoadStrategy.None);
-            Context = new GameContext(AssetStore.LoadContext, null, null, null, null, null, null, null, Scene3D, this);
+            GameEngine = new GameEngine(AssetStore.LoadContext, null, null, null, null, null, null, null, Scene3D, this);
 
             AssetStore.PushScope();
 

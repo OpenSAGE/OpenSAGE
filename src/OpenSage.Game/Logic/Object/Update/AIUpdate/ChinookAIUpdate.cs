@@ -14,12 +14,12 @@ public class ChinookAIUpdate : SupplyTruckAIUpdate
     private ChinookState _state;
     private uint _airfieldToRepairAt;
 
-    internal ChinookAIUpdate(GameObject gameObject, GameContext context, ChinookAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal ChinookAIUpdate(GameObject gameObject, GameEngine context, ChinookAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
     }
 
-    private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, Context, this);
+    private protected override ChinookAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
 
     protected override int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades)
     {
@@ -67,7 +67,7 @@ internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override ChinookAIUpdate AIUpdate { get; }
 
-    public ChinookAIUpdateStateMachine(GameObject gameObject, GameContext context, ChinookAIUpdate aiUpdate)
+    public ChinookAIUpdateStateMachine(GameObject gameObject, GameEngine context, ChinookAIUpdate aiUpdate)
         : base(gameObject, context, aiUpdate)
     {
         AIUpdate = aiUpdate;
@@ -134,7 +134,7 @@ public sealed class ChinookAIUpdateModuleData : SupplyTruckAIUpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public string RotorWashParticleSystem { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new ChinookAIUpdate(gameObject, context, this);
     }

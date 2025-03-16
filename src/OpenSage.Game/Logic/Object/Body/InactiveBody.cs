@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class InactiveBody : BodyModule
 {
-    internal InactiveBody(GameObject gameObject, GameContext context) : base(gameObject, context)
+    internal InactiveBody(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -43,8 +43,8 @@ public sealed class InactiveBodyModuleData : BodyModuleData
 
     private static readonly IniParseTable<InactiveBodyModuleData> FieldParseTable = new IniParseTable<InactiveBodyModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new InactiveBody(gameObject, context);
+        return new InactiveBody(gameObject, gameEngine);
     }
 }

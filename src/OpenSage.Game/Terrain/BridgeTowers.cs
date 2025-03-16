@@ -7,7 +7,7 @@ namespace OpenSage.Terrain;
 public sealed class BridgeTowers
 {
     internal static BridgeTowers CreateForLandmarkBridge(
-        GameContext gameContext,
+        GameEngine gameContext,
         GameObject gameObject)
     {
         var worldMatrix =
@@ -36,7 +36,7 @@ public sealed class BridgeTowers
     internal BridgeTowers(
         BridgeTemplate template,
         Player owner,
-        GameContext gameContext,
+        GameEngine gameContext,
         Matrix4x4 worldMatrix,
         float startX,
         float startY,

@@ -86,12 +86,12 @@ public sealed class ParticleSystemFXNugget : FXNugget
 
         if (CreateAtGroundHeight)
         {
-            position.Z = context.GameContext.Terrain.HeightMap.GetHeight(position.X, position.Y);
+            position.Z = context.GameEngine.Terrain.HeightMap.GetHeight(position.X, position.Y);
         }
 
         worldMatrix.Translation = position + Offset;
 
-        context.GameContext.ParticleSystems.Create(
+        context.GameEngine.ParticleSystems.Create(
             Template.Value,
             worldMatrix);
     }

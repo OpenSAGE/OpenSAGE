@@ -7,7 +7,7 @@ public class UpgradeDieModule : DieModule
 {
     private readonly UpgradeDieModuleData _moduleData;
 
-    internal UpgradeDieModule(GameObject gameObject, GameContext context, UpgradeDieModuleData moduleData)
+    internal UpgradeDieModule(GameObject gameObject, GameEngine context, UpgradeDieModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
@@ -24,7 +24,7 @@ public class UpgradeDieModule : DieModule
 
     private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
     {
-        var parent = Context.GameLogic.GetObjectById(GameObject.CreatedByObjectID);
+        var parent = GameEngine.GameLogic.GetObjectById(GameObject.CreatedByObjectID);
 
         parent?.RemoveUpgrade(_moduleData.UpgradeToRemove.UpgradeName.Value);
 
@@ -47,7 +47,7 @@ public sealed class UpgradeDieModuleData : DieModuleData
 
     public UpgradeToRemove UpgradeToRemove { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new UpgradeDieModule(gameObject, context, this);
     }

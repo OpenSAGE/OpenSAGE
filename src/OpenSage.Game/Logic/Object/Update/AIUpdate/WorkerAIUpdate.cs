@@ -23,7 +23,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     private int _unknown6;
     private readonly WorkerAIUpdateStateMachine3 _stateMachine3;
 
-    internal WorkerAIUpdate(GameObject gameObject, GameContext context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
+    internal WorkerAIUpdate(GameObject gameObject, GameEngine context, WorkerAIUpdateModuleData moduleData) : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
         _state = new DozerAndWorkerState(gameObject, context, this);
@@ -50,7 +50,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         // note that the order here is important, as SetTargetPoint will clear any existing buildTarget
         // TODO: target should not be directly on the building, but rather a point along the foundation perimeter
         SetTargetPoint(gameObject.Translation);
-        _state.SetBuildTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
+        _state.SetBuildTarget(gameObject, GameEngine.GameLogic.CurrentFrame.Value);
         ResetSupplyState();
     }
 
@@ -58,7 +58,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         // note that the order here is important, as SetTargetPoint will clear any existing repairTarget
         SetTargetPoint(gameObject.Translation);
-        _state.SetRepairTarget(gameObject, Context.GameLogic.CurrentFrame.Value);
+        _state.SetRepairTarget(gameObject, GameEngine.GameLogic.CurrentFrame.Value);
         ResetSupplyState();
     }
 
@@ -96,7 +96,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         if (ModuleData.HarvestTrees)
         {
-            var nearbyTrees = context.GameContext.Game.PartitionCellManager.QueryObjects(
+            var nearbyTrees = context.GameEngine.Game.PartitionCellManager.QueryObjects(
                 context.GameObject,
                 context.GameObject.Translation,
                 ModuleData.SupplyWarehouseScanDistance,
@@ -117,7 +117,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
                     continue;
                 }
 
-                var distance = context.GameContext.Game.PartitionCellManager.GetDistanceBetweenObjectsSquared(context.GameObject, tree);
+                var distance = context.GameEngine.Game.PartitionCellManager.GetDistanceBetweenObjectsSquared(context.GameObject, tree);
 
                 if (distance < closestDistance)
                 {
@@ -150,7 +150,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         if (ModuleData.HarvestTrees && CurrentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree))
         {
-            CurrentSupplySource.Supply -= context.GameContext.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
+            CurrentSupplySource.Supply -= context.GameEngine.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
             if (CurrentSupplySource.Supply <= 0)
             {
                 CurrentSupplySource.Update();
@@ -224,7 +224,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         public override WorkerAIUpdate AIUpdate { get; }
 
-        public WorkerAIUpdateStateMachine3(GameObject gameObject, GameContext context, WorkerAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+        public WorkerAIUpdateStateMachine3(GameObject gameObject, GameEngine context, WorkerAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
         {
             AIUpdate = aiUpdate;
 
@@ -284,7 +284,7 @@ public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData, IBuilde
     [AddedIn(SageGame.Bfme)]
     public LogicFrameSpan HarvestActionTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new WorkerAIUpdate(gameObject, context, this);
     }

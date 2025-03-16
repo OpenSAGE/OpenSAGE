@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class WeaponBonusUpgrade : UpgradeModule
 {
-    internal WeaponBonusUpgrade(GameObject gameObject, GameContext context, WeaponBonusUpgradeModuleData moduleData)
+    internal WeaponBonusUpgrade(GameObject gameObject, GameEngine context, WeaponBonusUpgradeModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
     }
@@ -29,7 +29,7 @@ public sealed class WeaponBonusUpgradeModuleData : UpgradeModuleData
     private static new readonly IniParseTable<WeaponBonusUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
         .Concat(new IniParseTable<WeaponBonusUpgradeModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new WeaponBonusUpgrade(gameObject, context, this);
     }

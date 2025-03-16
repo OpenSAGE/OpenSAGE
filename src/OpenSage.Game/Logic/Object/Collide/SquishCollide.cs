@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 public sealed class SquishCollide : CollideModule
 {
     // TODO
-    public SquishCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public SquishCollide(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -25,8 +25,8 @@ public sealed class SquishCollideModuleData : CollideModuleData
 
     private static readonly IniParseTable<SquishCollideModuleData> FieldParseTable = new IniParseTable<SquishCollideModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new SquishCollide(gameObject, context);
+        return new SquishCollide(gameObject, gameEngine);
     }
 }

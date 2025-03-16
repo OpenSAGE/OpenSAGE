@@ -29,7 +29,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 {
     internal static GameObject FromMapObject(
         MapObject mapObject,
-        GameContext gameContext,
+        GameEngine gameContext,
         bool useRotationAnchorOffset = true,
         in float? overwriteAngle = 0.0f)
     {
@@ -89,13 +89,13 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             ? Vector4.Transform(new Vector4(Definition.RotationAnchorOffset.X, Definition.RotationAnchorOffset.Y, 0.0f, 1.0f), rotation)
             : Vector4.UnitW;
         var position = mapObject.Position + rotationOffset.ToVector3();
-        var height = _gameContext.Scene3D.Terrain.HeightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
+        var height = _gameEngine.Scene3D.Terrain.HeightMap.GetHeight(position.X, position.Y) + mapObject.Position.Z;
         UpdateTransform(new Vector3(position.X, position.Y, height), rotation,
             Definition.Scale);
 
         if (Definition.IsBridge)
         {
-            BridgeTowers.CreateForLandmarkBridge(_gameContext, this);
+            BridgeTowers.CreateForLandmarkBridge(_gameEngine, this);
         }
 
         if (Definition.KindOf.Get(ObjectKinds.Horde))
@@ -132,7 +132,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
             _id = value;
 
-            _gameContext.GameLogic.OnObjectIdChanged(this, oldObjectId);
+            _gameEngine.GameLogic.OnObjectIdChanged(this, oldObjectId);
         }
     }
 
@@ -140,7 +140,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public Fix64 HealthModifier { get; set; }
 
 
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
 
     private readonly BehaviorUpdateContext _behaviorUpdateContext;
 
@@ -195,7 +195,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private uint _containedFrame;
 
     public GameObject ContainedBy => _containerId != 0
-        ? _gameContext.GameLogic.GetObjectById(_containerId)
+        ? _gameEngine.GameLogic.GetObjectById(_containerId)
         : null;
 
     private string _teamName;
@@ -352,7 +352,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             }
 
             _name = value ?? throw new ArgumentNullException(nameof(value));
-            _gameContext.GameLogic.AddNameLookup(this);
+            _gameEngine.GameLogic.AddNameLookup(this);
         }
     }
 
@@ -396,7 +396,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         get
         {
             var healthPercentage = (float)_body.HealthPercentage;
-            var damagedThreshold = _gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
+            var damagedThreshold = _gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
             return healthPercentage <= damagedThreshold;
         }
     }
@@ -442,7 +442,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
             if (upgradeToApply != null)
             {
-                Upgrade(_gameContext.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
+                Upgrade(_gameEngine.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
             }
         }
     }
@@ -470,7 +470,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         get
         {
             var pos = Transform.Translation;
-            var terrainZ = _gameContext.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, Layer);
+            var terrainZ = _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, Layer);
             return pos.Z - terrainZ;
         }
     }
@@ -481,7 +481,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         get
         {
             var pos = Transform.Translation;
-            if (_gameContext.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
+            if (_gameEngine.Game.TerrainLogic.IsUnderwater(pos.X, pos.Y, out var waterZ))
             {
                 return pos.Z - waterZ;
             }
@@ -505,7 +505,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     /// then it's significantly airborne. We calculate the distance we can fall in 3 frames
     /// with d = g * t^2. Gravity is negative, so we must negate it here.
     /// </summary>
-    public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > -_gameContext.AssetStore.GameData.Current.Gravity * MathUtility.Square(3);
+    public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > -_gameEngine.AssetStore.GameData.Current.Gravity * MathUtility.Square(3);
 
     // TODO(Port): Implement this.
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -522,7 +522,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal GameObject(
         ObjectDefinition objectDefinition,
-        GameContext gameContext,
+        GameEngine gameContext,
         Player owner)
     {
         if (objectDefinition.BuildVariations != null && objectDefinition.BuildVariations.Count() > 0)
@@ -537,12 +537,12 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         VeterancyHelper = new ObjectVeterancyHelper(this, gameContext.GameLogic);
 
         _attributeModifiers = new Dictionary<string, AttributeModifier>();
-        _gameContext = gameContext;
+        _gameEngine = gameContext;
         Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
 
         _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
 
-        _weaponSet = new WeaponSet(this, _gameContext);
+        _weaponSet = new WeaponSet(this, _gameEngine);
         WeaponSetConditions = new BitArray<WeaponSetConditions>();
         UpdateWeaponSet();
 
@@ -571,7 +571,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-        if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
+        if (_gameEngine.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
             AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper(this, gameContext));
             AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper(this, gameContext));
@@ -590,14 +590,14 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper(this, gameContext));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-        if (_gameContext.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
+        if (_gameEngine.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
         {
             // this was added in bfme and is not present in generals or zero hour
             AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this, gameContext));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
-        if (_gameContext.Game.SageGame >= SageGame.CncGeneralsZeroHour)
+        if (_gameEngine.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
             AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper(this, gameContext));
         }
@@ -684,8 +684,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 return false;
             }
-            if (_gameContext.Scene3D.Game.SageGame == SageGame.CncGenerals ||
-                _gameContext.Scene3D.Game.SageGame == SageGame.CncGenerals)
+            if (_gameEngine.Scene3D.Game.SageGame == SageGame.CncGenerals ||
+                _gameEngine.Scene3D.Game.SageGame == SageGame.CncGenerals)
             {
                 // SupplyWarehouse in CncGenerals has NoCollide
                 return true;
@@ -731,12 +731,12 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             foreach (var collider in newColliders)
             {
-                _gameContext.Navigation.UpdateAreaPassability(collider, false);
+                _gameEngine.Navigation.UpdateAreaPassability(collider, false);
             }
         }
         Colliders.AddRange(newColliders);
         RoughCollider = Collider.Create(Colliders);
-        _gameContext.Quadtree.Update(this);
+        _gameEngine.Quadtree.Update(this);
     }
 
     public void HideCollider(string name)
@@ -752,17 +752,17 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 if (AffectsAreaPassability)
                 {
-                    _gameContext.Navigation.UpdateAreaPassability(Colliders[i], true);
+                    _gameEngine.Navigation.UpdateAreaPassability(Colliders[i], true);
                 }
                 Colliders.RemoveAt(i);
             }
         }
         RoughCollider = Collider.Create(Colliders);
-        _gameContext.Quadtree.Update(this);
+        _gameEngine.Quadtree.Update(this);
 
         if (AffectsAreaPassability)
         {
-            _gameContext.Navigation.UpdateAreaPassability(this, false);
+            _gameEngine.Navigation.UpdateAreaPassability(this, false);
         }
     }
 
@@ -773,7 +773,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             collider.Update(Transform);
         }
-        _gameContext.Quadtree.Update(this);
+        _gameEngine.Quadtree.Update(this);
     }
 
     internal void LogicTick(in TimeInterval time)
@@ -784,7 +784,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
             if (AffectsAreaPassability)
             {
-                _gameContext.Navigation.UpdateAreaPassability(this, false);
+                _gameEngine.Navigation.UpdateAreaPassability(this, false);
             }
 
             _objectMoved = false;
@@ -804,11 +804,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             if (!modifier.Applied)
             {
-                modifier.Apply(this, _gameContext, time);
+                modifier.Apply(this, _gameEngine, time);
             }
             else if (modifier.Invalid || modifier.Expired(time))
             {
-                modifier.Remove(this, _gameContext);
+                modifier.Remove(this, _gameEngine);
                 _attributeModifiers.Remove(key);
             }
             else
@@ -848,7 +848,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public bool CanRecruitHero(ObjectDefinition definition)
     {
-        foreach (var obj in _gameContext.GameLogic.Objects)
+        foreach (var obj in _gameEngine.GameLogic.Objects)
         {
             if (obj.Definition.Name == definition.Name
                 && obj.Owner == Owner)
@@ -1075,7 +1075,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         _status.Set(ObjectStatus.UnderConstruction, true);
 
         // flatten terrain around object
-        var centerPosition = _gameContext.Terrain.HeightMap.GetTilePosition(Transform.Translation);
+        var centerPosition = _gameEngine.Terrain.HeightMap.GetTilePosition(Transform.Translation);
 
         if (centerPosition == null)
         {
@@ -1083,21 +1083,21 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
 
         var (centerX, centerY) = centerPosition.Value;
-        var maxHeight = _gameContext.Terrain.HeightMap.GetHeight(centerX, centerY);
+        var maxHeight = _gameEngine.Terrain.HeightMap.GetHeight(centerX, centerY);
         // on slopes, the height map isn't always exactly where our cursor is (our cursor is a float, and the heightmap is always a ushort), so snap the building to the nearest heightmap value
         UpdateTransform(Transform.Translation with { Z = maxHeight }, Transform.Rotation);
 
         // clear anything applicable in the build area (trees, rubble, etc)
         var toDelete = new BitArray<ObjectKinds>(ObjectKinds.Shrubbery, ObjectKinds.ClearedByBuild); // this may not be completely accurate
-        foreach (var intersecting in _gameContext.Quadtree.FindIntersecting(ShapedCollider))
+        foreach (var intersecting in _gameEngine.Quadtree.FindIntersecting(ShapedCollider))
         {
             if (intersecting.Definition.KindOf.Intersects(toDelete))
             {
-                _gameContext.GameLogic.DestroyObject(intersecting);
+                _gameEngine.GameLogic.DestroyObject(intersecting);
             }
         }
 
-        _gameContext.Terrain.SetMaxHeight(ShapedCollider, maxHeight);
+        _gameEngine.Terrain.SetMaxHeight(ShapedCollider, maxHeight);
     }
 
     /// <summary>
@@ -1157,11 +1157,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         var oldDamageType = _bodyDamageType;
 
-        if (healthPercentage < (Fix64)_gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
+        if (healthPercentage < (Fix64)_gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
         {
             if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged))
             {
-                _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged?.Value);
+                _gameEngine.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged?.Value);
             }
 
             if (!IsBeingConstructed())
@@ -1173,11 +1173,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
             ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
         }
-        else if (healthPercentage < (Fix64)_gameContext.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
+        else if (healthPercentage < (Fix64)_gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
         {
             if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.Damaged))
             {
-                _gameContext.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged?.Value);
+                _gameEngine.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged?.Value);
             }
 
             if (!IsBeingConstructed())
@@ -1384,7 +1384,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     // todo: this probably is not correct
     public bool IsAirborne(float groundDelta = 0.1f)
     {
-        return Translation.Z - _gameContext.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
+        return Translation.Z - _gameEngine.Terrain.HeightMap.GetHeight(Translation.X, Translation.Y) > groundDelta;
     }
 
     public bool IsUsingAirborneLocomotor()
@@ -1423,7 +1423,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             ModelConditionFlags.Set(ModelConditionFlag.DestroyedWhilstBeingConstructed, true);
 
-            var mostRecentConstructor = _gameContext.GameLogic.GetObjectById(BuiltByObjectID);
+            var mostRecentConstructor = _gameEngine.GameLogic.GetObjectById(BuiltByObjectID);
             // mostRecentConstructor is set to the unit currently or most recently building us
             if (mostRecentConstructor.AIUpdate is IBuilderAIUpdate builderAiUpdate && builderAiUpdate.BuildTarget == this)
             {
@@ -1464,7 +1464,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     /// </summary>
     public void Destroy()
     {
-        _gameContext.GameLogic.DestroyObject(this);
+        _gameEngine.GameLogic.DestroyObject(this);
     }
 
     private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
@@ -1476,7 +1476,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             .ToList();
 
         var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-        var random = _gameContext.Random.Next(sumProbabilityModifiers);
+        var random = _gameEngine.Random.Next(sumProbabilityModifiers);
         var cumulative = 0;
         foreach (var deathBehavior in slowDeathBehaviors)
         {
@@ -1500,7 +1500,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (voiceDie != null)
         {
-            _gameContext.AudioSystem.PlayAudioEvent(this, voiceDie);
+            _gameEngine.AudioSystem.PlayAudioEvent(this, voiceDie);
         }
     }
 
@@ -1513,7 +1513,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     internal void AddToContainer(uint containerId)
     {
         _containerId = containerId;
-        _containedFrame = _gameContext.GameLogic.CurrentFrame.Value;
+        _containedFrame = _gameEngine.GameLogic.CurrentFrame.Value;
         var disabledUntilFrame = new LogicFrame(0x3FFFFFFFu); // not sure why this is this way;
         Disable(DisabledType.Held, disabledUntilFrame);
         Hidden = true;
@@ -1551,7 +1551,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         for (var i = 0; i < _disabledTypesFrames.Length; i++)
         {
             var disabledTypeFrame = _disabledTypesFrames[i];
-            if (disabledTypeFrame > LogicFrame.Zero && disabledTypeFrame < _gameContext.GameLogic.CurrentFrame)
+            if (disabledTypeFrame > LogicFrame.Zero && disabledTypeFrame < _gameEngine.GameLogic.CurrentFrame)
             {
                 UnDisable((DisabledType)i);
             }
@@ -1640,8 +1640,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (shouldPromote)
         {
-            _gameContext.AudioSystem.PlayAudioEvent(this,
-                _gameContext.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
+            _gameEngine.AudioSystem.PlayAudioEvent(this,
+                _gameEngine.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
         }
     }
 
@@ -1653,7 +1653,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private void VerifyHealer()
     {
-        if (HealedByObjectId != 0 && (IsFullHealth || _gameContext.GameLogic.CurrentFrame.Value >= HealedEndFrame))
+        if (HealedByObjectId != 0 && (IsFullHealth || _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame))
         {
             HealedByObjectId = 0;
             HealedEndFrame = 0; // todo: is this reset?
@@ -1692,7 +1692,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         var teamId = Team?.Id ?? 0u;
         reader.PersistUInt32(ref teamId);
-        Team = _gameContext.Game.TeamFactory.FindTeamById(teamId);
+        Team = _gameEngine.Game.TeamFactory.FindTeamById(teamId);
 
         Owner = Team.Template.Owner;
 
@@ -1870,14 +1870,14 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         if (ImGui.Button("Bring into view"))
         {
-            _gameContext.Scene3D.TacticalView.LookAt(Translation);
+            _gameEngine.Scene3D.TacticalView.LookAt(Translation);
         }
 
         ImGui.SameLine();
 
         if (ImGui.Button("Select"))
         {
-            _gameContext.Scene3D.LocalPlayer.SelectUnits(new[] { this });
+            _gameEngine.Scene3D.LocalPlayer.SelectUnits(new[] { this });
         }
 
         ImGui.SameLine();
@@ -2003,7 +2003,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     protected override void Dispose(bool disposeManagedResources)
     {
-        _gameContext.GameClient.DestroyDrawable(Drawable);
+        _gameEngine.GameClient.DestroyDrawable(Drawable);
 
         base.Dispose(disposeManagedResources);
     }

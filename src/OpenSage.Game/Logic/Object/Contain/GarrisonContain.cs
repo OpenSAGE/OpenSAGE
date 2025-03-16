@@ -13,7 +13,7 @@ public sealed class GarrisonContain : OpenContainModule
     private readonly Vector3[] _positions = new Vector3[120];
     private bool _originalTeamSet;
 
-    internal GarrisonContain(GameObject gameObject, GameContext gameContext, OpenContainModuleData moduleData) : base(gameObject, gameContext, moduleData)
+    internal GarrisonContain(GameObject gameObject, GameEngine gameEngine, OpenContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -46,8 +46,8 @@ public sealed class GarrisonContain : OpenContainModule
             }
             else
             {
-                var owner = Context.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
-                owner ??= Context.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
+                var owner = GameEngine.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
+                owner ??= GameEngine.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
 
                 GameObject.Owner = owner;
             }
@@ -138,9 +138,9 @@ public class GarrisonContainModuleData : OpenContainModuleData
     [AddedIn(SageGame.Bfme)]
     public ObjectFilter PassengerFilter { get; private set; } = new();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new GarrisonContain(gameObject, context, this);
+        return new GarrisonContain(gameObject, gameEngine, this);
     }
 }
 

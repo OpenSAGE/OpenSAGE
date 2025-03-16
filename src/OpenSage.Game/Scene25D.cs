@@ -102,13 +102,13 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 // AmmoFull, UNUSED?
                 // AmmoEmpty, UNUSED?
 
-                DrawAnimations(drawingContext, obj, scene3D.GameContext.GameLogic.CurrentFrame.Value);
+                DrawAnimations(drawingContext, obj, scene3D.GameEngine.GameLogic.CurrentFrame.Value);
                 // todo: transient animations need to be pulled from a game object, but processed separately
-                EnqueueTransientAnimations(obj, scene3D.GameContext.GameLogic.CurrentFrame.Value);
+                EnqueueTransientAnimations(obj, scene3D.GameEngine.GameLogic.CurrentFrame.Value);
             }
 
             // transient animations are not tied to a specific object
-            DrawTransientAnimations(drawingContext, scene3D.GameContext.GameLogic.CurrentFrame.Value);
+            DrawTransientAnimations(drawingContext, scene3D.GameEngine.GameLogic.CurrentFrame.Value);
         }
     }
 

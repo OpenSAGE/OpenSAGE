@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object;
 public class W3dModelDraw : DrawModule
 {
     private readonly W3dModelDrawModuleData _data;
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
 
     private ModelConditionState _activeConditionState;
     protected AnimationState _activeAnimationState;
@@ -90,11 +90,11 @@ public class W3dModelDraw : DrawModule
     internal W3dModelDraw(
         W3dModelDrawModuleData data,
         Drawable drawable,
-        GameContext context)
+        GameEngine context)
     {
         _data = data;
         Drawable = drawable;
-        _context = context;
+        _gameEngine = context;
 
         UpdateConditionState(new BitArray<ModelConditionFlag>(), context.Random);
 
@@ -148,7 +148,7 @@ public class W3dModelDraw : DrawModule
 
         if (animationState?.Script != null)
         {
-            _context.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
+            _gameEngine.Scene3D.Game.Lua.ExecuteDrawModuleLuaCode(this, animationState.Script);
         }
 
         if (animationState == null
@@ -179,7 +179,7 @@ public class W3dModelDraw : DrawModule
         {
             var flags = animationState.Flags;
             var mode = animationBlock.AnimationMode;
-            var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _context.Random);
+            var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _gameEngine.Random);
             modelInstance.AnimationInstances.Add(animationInstance);
             animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
         }
@@ -192,7 +192,7 @@ public class W3dModelDraw : DrawModule
     public void SetTransitionState(string state)
     {
         var transitionState = _data.TransitionStates.FirstOrDefault(x => x.StateName == state);
-        SetActiveAnimationState(transitionState, _context.Random);
+        SetActiveAnimationState(transitionState, _gameEngine.Random);
     }
 
     internal static T FindBestFittingConditionState<T, TFlag>(List<T> conditionStates, BitArray<TFlag> flags)
@@ -265,7 +265,7 @@ public class W3dModelDraw : DrawModule
     {
         // Load model, fallback to default model.
         var model = conditionState.Model?.Value;
-        var modelInstance = model?.CreateInstance(_context.AssetLoadContext) ?? null;
+        var modelInstance = model?.CreateInstance(_gameEngine.AssetLoadContext) ?? null;
 
         if (modelInstance == null)
         {
@@ -289,12 +289,12 @@ public class W3dModelDraw : DrawModule
                 continue;
             }
 
-            particleSystems.Add(_context.ParticleSystems.Create(
+            particleSystems.Add(_gameEngine.ParticleSystems.Create(
                 particleSystemTemplate,
                 () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
         }
 
-        var drawState = new W3dModelDrawConditionState(modelInstance, particleSystems, _context);
+        var drawState = new W3dModelDrawConditionState(modelInstance, particleSystems, _gameEngine);
         UpdateBoneVisibilities(conditionState, drawState);
 
         return drawState;
@@ -426,19 +426,19 @@ public class W3dModelDraw : DrawModule
 internal sealed class W3dModelDrawConditionState : DisposableBase
 {
     private readonly IEnumerable<ParticleSystem> _particleSystems;
-    private readonly GameContext _context;
+    private readonly GameEngine _gameEngine;
 
     public readonly ModelInstance Model;
 
     public W3dModelDrawConditionState(
         ModelInstance modelInstance,
         IEnumerable<ParticleSystem> particleSystems,
-        GameContext context)
+        GameEngine context)
     {
         Model = AddDisposable(modelInstance);
 
         _particleSystems = particleSystems;
-        _context = context;
+        _gameEngine = context;
 
         AddDisposeAction(() => Deactivate());
     }
@@ -766,7 +766,7 @@ public class W3dModelDrawModuleData : DrawModuleData, IParseCallbacks
         _transitionStatesGenerals.Clear();
     }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameContext context)
+    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine context)
     {
         return new W3dModelDraw(this, drawable, context);
     }

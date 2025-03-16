@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CrushDie : DieModule
 {
-    public CrushDie(GameObject gameObject, GameContext context, CrushDieModuleData moduleData) : base(gameObject, context, moduleData)
+    public CrushDie(GameObject gameObject, GameEngine context, CrushDieModuleData moduleData) : base(gameObject, context, moduleData)
     {
     }
 
@@ -43,7 +43,7 @@ public sealed class CrushDieModuleData : DieModuleData
     public int BackEndCrushSoundPercent { get; private set; }
     public int FrontEndCrushSoundPercent { get; private set; }
 
-    internal override CrushDie CreateModule(GameObject gameObject, GameContext context)
+    internal override CrushDie CreateModule(GameObject gameObject, GameEngine context)
     {
         return new CrushDie(gameObject, context, this);
     }

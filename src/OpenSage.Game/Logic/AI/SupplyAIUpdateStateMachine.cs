@@ -9,7 +9,7 @@ internal sealed class SupplyAIUpdateStateMachine : StateMachineBase
 {
     public override SupplyAIUpdate AIUpdate { get; }
 
-    public SupplyAIUpdateStateMachine(GameObject gameObject, GameContext context, SupplyAIUpdate aiUpdate) : base(gameObject, context, aiUpdate)
+    public SupplyAIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, SupplyAIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
     {
         AIUpdate = aiUpdate;
 

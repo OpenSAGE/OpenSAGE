@@ -401,7 +401,7 @@ public sealed class Game : DisposableBase, IGame
 
     public PartitionCellManager PartitionCellManager { get; }
 
-    public GameContext Context => Scene3D.GameContext;
+    public GameEngine GameEngine => Scene3D.GameEngine;
 
     public Game(GameInstallation installation)
         : this(installation, null, new Configuration(), null)

@@ -17,7 +17,7 @@ internal sealed class FXListView : AssetView
             new FXListExecutionContext(
                 Quaternion.Identity,
                 Vector3.Zero,
-                _renderedView.Scene.GameContext));
+                _renderedView.Scene.GameEngine));
     }
 
     public override void Draw()

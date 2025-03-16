@@ -13,7 +13,7 @@ public class FoundationAIUpdate : AIUpdate
     private LogicFrameSpan _updateInterval;
 
     //TODO: rather notify this when the corresponding order is processed and update again when the object is dead/destroyed
-    internal FoundationAIUpdate(GameObject gameObject, GameContext context, FoundationAIUpdateModuleData moduleData)
+    internal FoundationAIUpdate(GameObject gameObject, GameEngine context, FoundationAIUpdateModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         ModuleData = moduleData;
@@ -34,7 +34,7 @@ public class FoundationAIUpdate : AIUpdate
 
         waitUntil = context.LogicFrame + interval;
 
-        var collidingObjects = context.GameContext.Game.PartitionCellManager.QueryObjects(
+        var collidingObjects = context.GameEngine.Game.PartitionCellManager.QueryObjects(
             obj,
             obj.Translation,
             obj.Geometry.BoundingCircleRadius,
@@ -66,7 +66,7 @@ public class FoundationAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int BuildVariation { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new FoundationAIUpdate(gameObject, context, this);
     }

@@ -36,5 +36,5 @@ public abstract class ClientUpdateModuleData : ModuleData
         { "SwayClientUpdate", SwayClientUpdateModuleData.Parse },
     };
 
-    internal virtual ClientUpdateModule CreateModule(Drawable drawable, GameContext context) => null; // TODO: Make this abstract.
+    internal virtual ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine) => null; // TODO: Make this abstract.
 }

@@ -25,7 +25,7 @@ public sealed class AnimatedParticleSysBoneClientUpdateModuleData : ClientUpdate
 
     internal static readonly IniParseTable<AnimatedParticleSysBoneClientUpdateModuleData> FieldParseTable = new IniParseTable<AnimatedParticleSysBoneClientUpdateModuleData>();
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameContext context)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
     {
         return new AnimatedParticleSysBoneClientUpdate();
     }

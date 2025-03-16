@@ -8,7 +8,7 @@ public sealed class RadarUpdate : UpdateModule
     private bool _isRadarExtending;
     private bool _isRadarExtended;
 
-    public RadarUpdate(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public RadarUpdate(GameObject gameObject, GameEngine context) : base(gameObject, context)
     {
     }
 
@@ -37,7 +37,7 @@ public sealed class RadarUpdateModuleData : UpdateModuleData
 
     public int RadarExtendTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new RadarUpdate(gameObject, context);
     }

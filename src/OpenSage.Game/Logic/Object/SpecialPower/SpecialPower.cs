@@ -33,7 +33,7 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
 
     public SpecialPowerType SpecialPowerType => _moduleData.SpecialPower.Value.Type;
 
-    internal SpecialPowerModule(GameObject gameObject, GameContext context, SpecialPowerModuleData moduleData) : base(gameObject, context)
+    internal SpecialPowerModule(GameObject gameObject, GameEngine gameEngine, SpecialPowerModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _reloadFrames = _moduleData.SpecialPower.Value.ReloadTime;
@@ -79,7 +79,7 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
             }
         }
 
-        var progress = 1 - Math.Clamp((availableAtFrame.Value - Math.Min(availableAtFrame.Value, Context.GameLogic.CurrentFrame.Value)) / (float)_reloadFrames.Value, 0, 1);
+        var progress = 1 - Math.Clamp((availableAtFrame.Value - Math.Min(availableAtFrame.Value, GameEngine.GameLogic.CurrentFrame.Value)) / (float)_reloadFrames.Value, 0, 1);
         _ready = progress >= 1;
         return progress;
     }
@@ -115,7 +115,7 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
             return; // this is handled by SpecialPowerCreate
         }
 
-        _availableAtFrame = Context.GameLogic.CurrentFrame;
+        _availableAtFrame = GameEngine.GameLogic.CurrentFrame;
         if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
         {
             var player = GameObject.Owner;
@@ -131,7 +131,7 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
 
     public void ResetCountdown()
     {
-        _availableAtFrame = Context.GameLogic.CurrentFrame + _moduleData.SpecialPower.Value.ReloadTime;
+        _availableAtFrame = GameEngine.GameLogic.CurrentFrame + _moduleData.SpecialPower.Value.ReloadTime;
         _ready = false;
 
         if (_moduleData.SpecialPower.Value.SharedSyncedTimer)
@@ -143,8 +143,8 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
     internal virtual void Activate(Vector3 position)
     {
         var specialPower = _moduleData.SpecialPower.Value;
-        Context.AudioSystem.PlayAudioEvent(specialPower.InitiateSound?.Value);
-        Context.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSound?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(specialPower.InitiateSound?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(position, specialPower.InitiateAtLocationSound?.Value);
         ResetCountdown();
     }
 
@@ -281,7 +281,7 @@ public class SpecialPowerModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2)]
     public ObjectFilter RequirementsFilterStrategic { get; private set; }
 
-    internal override SpecialPowerModule CreateModule(GameObject gameObject, GameContext context)
+    internal override SpecialPowerModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new SpecialPowerModule(gameObject, context, this);
     }

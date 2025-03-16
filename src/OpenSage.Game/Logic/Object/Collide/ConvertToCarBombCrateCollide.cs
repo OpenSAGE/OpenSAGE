@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class ConvertToCarBombCrateCollide : CrateCollide
 {
-    public ConvertToCarBombCrateCollide(GameObject gameObject, GameContext context) : base(gameObject, context)
+    public ConvertToCarBombCrateCollide(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -27,8 +27,8 @@ public sealed class ConvertToCarBombCrateCollideModuleData : CrateCollideModuleD
     private static new readonly IniParseTable<ConvertToCarBombCrateCollideModuleData> FieldParseTable = CrateCollideModuleData.FieldParseTable
         .Concat(new IniParseTable<ConvertToCarBombCrateCollideModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new ConvertToCarBombCrateCollide(gameObject, context);
+        return new ConvertToCarBombCrateCollide(gameObject, gameEngine);
     }
 }

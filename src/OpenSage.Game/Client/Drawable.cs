@@ -23,7 +23,7 @@ public sealed class Drawable : Entity, IPersistableObject
         return _tagToModuleLookup[tag];
     }
 
-    private readonly GameContext _gameContext;
+    private readonly GameEngine _gameEngine;
 
     private readonly List<string> _hiddenDrawModules;
     private readonly Dictionary<string, bool> _hiddenSubObjects;
@@ -49,7 +49,7 @@ public sealed class Drawable : Entity, IPersistableObject
             {
                 foreach (var drawModule in _drawModules)
                 {
-                    drawModule.UpdateConditionState(ModelConditionFlags, _gameContext.Random);
+                    drawModule.UpdateConditionState(ModelConditionFlags, _gameEngine.Random);
                 }
                 ModelConditionFlags.BitsChanged = false;
             }
@@ -72,7 +72,7 @@ public sealed class Drawable : Entity, IPersistableObject
 
             _id = value;
 
-            _gameContext.GameClient.OnDrawableIdChanged(this, oldDrawableId);
+            _gameEngine.GameClient.OnDrawableIdChanged(this, oldDrawableId);
         }
     }
 
@@ -142,17 +142,17 @@ public sealed class Drawable : Entity, IPersistableObject
 
     private Vector3? _selectionFlashColor;
     private Vector3 SelectionFlashColor => _selectionFlashColor ??=
-        _gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashHouseColor
+        _gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashHouseColor
             ? GameObject.Owner.Color.ToVector3()
             : new Vector3( // the ini comments say "zero leaves color unaffected, 4.0 is purely saturated", however the value in the ini is 0.5 and value in sav files is 0.25, so either it's hardcoded or the comments are wrong and I choose configurability
-                Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
-                Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
-                Math.Clamp(_gameContext.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1));
+                Math.Clamp(_gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                Math.Clamp(_gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
+                Math.Clamp(_gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1));
 
-    internal Drawable(ObjectDefinition objectDefinition, GameContext gameContext, GameObject gameObject)
+    internal Drawable(ObjectDefinition objectDefinition, GameEngine gameEngine, GameObject gameObject)
     {
         Definition = objectDefinition;
-        _gameContext = gameContext;
+        _gameEngine = gameEngine;
         GameObject = gameObject;
 
         ModelConditionFlags = new BitArray<ModelConditionFlag>();
@@ -165,7 +165,7 @@ public sealed class Drawable : Entity, IPersistableObject
         foreach (var drawDataContainer in objectDefinition.Draws.Values)
         {
             var drawModuleData = (DrawModuleData)drawDataContainer.Data;
-            var drawModule = AddDisposable(drawModuleData.CreateDrawModule(this, gameContext));
+            var drawModule = AddDisposable(drawModuleData.CreateDrawModule(this, gameEngine));
             if (drawModule != null)
             {
                 // TODO: This will never be null once we've implemented all the draw modules.
@@ -189,7 +189,7 @@ public sealed class Drawable : Entity, IPersistableObject
         foreach (var clientUpdateModuleDataContainer in objectDefinition.ClientUpdates.Values)
         {
             var clientUpdateModuleData = (ClientUpdateModuleData)clientUpdateModuleDataContainer.Data;
-            var clientUpdateModule = AddDisposable(clientUpdateModuleData.CreateModule(this, gameContext));
+            var clientUpdateModule = AddDisposable(clientUpdateModuleData.CreateModule(this, gameEngine));
             if (clientUpdateModule != null)
             {
                 // TODO: This will never be null once we've implemented all the draw modules.
@@ -206,7 +206,7 @@ public sealed class Drawable : Entity, IPersistableObject
 
     public void LogicTick(in TimeInterval gameTime)
     {
-        var currentFrame = _gameContext.GameLogic.CurrentFrame;
+        var currentFrame = _gameEngine.GameLogic.CurrentFrame;
         if (currentFrame > _lastSelectionFlashFrame)
         {
             _lastSelectionFlashFrame = currentFrame;
@@ -232,7 +232,7 @@ public sealed class Drawable : Entity, IPersistableObject
             return;
         }
 
-        var animationTemplate = _gameContext.Game.AssetStore.Animations.GetByName(Animation.AnimationTypeToName(animationName));
+        var animationTemplate = _gameEngine.Game.AssetStore.Animations.GetByName(Animation.AnimationTypeToName(animationName));
         var animation = new Animation(animationTemplate);
 
         _animations.Add(animation);

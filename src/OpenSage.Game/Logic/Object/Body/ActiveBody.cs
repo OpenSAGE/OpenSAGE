@@ -42,7 +42,7 @@ public class ActiveBody : BodyModule
 
     public DamageData LastDamage => _lastDamage;
 
-    internal ActiveBody(GameObject gameObject, GameContext context, ActiveBodyModuleData moduleData) : base(gameObject, context)
+    internal ActiveBody(GameObject gameObject, GameEngine gameEngine, ActiveBodyModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -98,14 +98,14 @@ public class ActiveBody : BodyModule
 
         SetHealth(newHealth);
 
-        var damager = Context.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
+        var damager = GameEngine.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
         damageInfo.Request.AttackerName = damager?.Definition.Name ?? string.Empty;
 
         damageInfo.Result.DamageAfterArmorCalculation = (float)actualDamage;
         damageInfo.Result.ActualDamageApplied = _lastHealthBeforeDamage - _currentHealth;
 
         _lastDamage = damageInfo;
-        _lastDamagedAt = Context.GameLogic.CurrentFrame;
+        _lastDamagedAt = GameEngine.GameLogic.CurrentFrame;
 
         // TODO: DamageFX
         if (_currentDamageFX != null) //e.g. AmericaJetRaptor's ArmorSet has no DamageFX (None)
@@ -118,7 +118,7 @@ public class ActiveBody : BodyModule
                 new FXListExecutionContext(
                     GameObject.Rotation,
                     GameObject.Translation,
-                    Context));
+                    GameEngine));
         }
 
         if (Health <= Fix64.Zero)
@@ -316,9 +316,9 @@ public class ActiveBodyModuleData : BodyModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public string ReallyDamagedAttributeModifier { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new ActiveBody(gameObject, context, this);
+        return new ActiveBody(gameObject, gameEngine, this);
     }
 }
 

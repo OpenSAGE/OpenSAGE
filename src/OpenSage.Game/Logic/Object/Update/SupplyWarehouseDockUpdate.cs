@@ -7,7 +7,7 @@ public class SupplyWarehouseDockUpdate : DockUpdate
     private SupplyWarehouseDockUpdateModuleData _moduleData;
     private int _currentBoxes;
 
-    internal SupplyWarehouseDockUpdate(GameObject gameObject, GameContext context, SupplyWarehouseDockUpdateModuleData moduleData)
+    internal SupplyWarehouseDockUpdate(GameObject gameObject, GameEngine context, SupplyWarehouseDockUpdateModuleData moduleData)
         : base(gameObject, context, moduleData)
     {
         _moduleData = moduleData;
@@ -73,7 +73,7 @@ public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
     /// </summary>
     public bool DeleteWhenEmpty { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new SupplyWarehouseDockUpdate(gameObject, context, this);
     }

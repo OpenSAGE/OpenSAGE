@@ -18,8 +18,8 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private readonly BitArray<ObjectKinds> _allowedKinds = new();
 
-    public PropagandaTowerBehavior(GameObject gameObject, GameContext context, PropagandaTowerBehaviorModuleData moduleData)
-        : base(gameObject, context)
+    public PropagandaTowerBehavior(GameObject gameObject, GameEngine gameEngine, PropagandaTowerBehaviorModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _allowedKinds.Set(ObjectKinds.Infantry, true);
@@ -49,7 +49,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
         fx.Value.Execute(context);
 
-        foreach (var candidate in Context.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
+        foreach (var candidate in GameEngine.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
         {
             if (!_moduleData.AffectsSelf && candidate == GameObject) continue;
             if (!CanHealUnit(candidate)) continue;
@@ -60,7 +60,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private GameObject GameObjectForId(uint unitId)
     {
-        return Context.GameLogic.GetObjectById(unitId);
+        return GameEngine.GameLogic.GetObjectById(unitId);
     }
 
     private void HealUnit(GameObject gameObject)
@@ -167,8 +167,8 @@ public sealed class PropagandaTowerBehaviorModuleData : BehaviorModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public bool AffectsSelf { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
-        return new PropagandaTowerBehavior(gameObject, context, this);
+        return new PropagandaTowerBehavior(gameObject, gameEngine, this);
     }
 }

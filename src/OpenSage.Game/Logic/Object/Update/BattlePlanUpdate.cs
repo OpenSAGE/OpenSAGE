@@ -31,7 +31,7 @@ public sealed class BattlePlanUpdate : UpdateModule
 
     private int _unknownInt;
 
-    internal BattlePlanUpdate(GameObject gameObject, GameContext context, BattlePlanUpdateModuleData moduleData)
+    internal BattlePlanUpdate(GameObject gameObject, GameEngine context, BattlePlanUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -178,9 +178,9 @@ public sealed class BattlePlanUpdate : UpdateModule
 
     private void DisableAffectedUnits()
     {
-        var disabledUntilFrame = Context.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
+        var disabledUntilFrame = GameEngine.GameLogic.CurrentFrame + _moduleData.BattlePlanChangeParalyzeTime;
         // if deactivating, set disabled_paralyzed to affected units based on kind, frames is current frame + property
-        foreach (var gameObject in Context.GameLogic.Objects)
+        foreach (var gameObject in GameEngine.GameLogic.Objects)
         {
             if (gameObject.Owner == GameObject.Owner && // we must own the object
                 gameObject.Definition.KindOf.Intersects(_moduleData.ValidMemberKindOf) && // and it should be one of these kinds
@@ -201,7 +201,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyPlanUnpackSound,
             _ => null,
         };
-        Context.AudioSystem.PlayAudioEvent(sound?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void PlayPackSound()
@@ -213,7 +213,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyPlanPackSound,
             _ => null,
         };
-        Context.AudioSystem.PlayAudioEvent(sound?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void PlayAnnouncementSound()
@@ -225,7 +225,7 @@ public sealed class BattlePlanUpdate : UpdateModule
             BattlePlanType.SearchAndDestroy => _moduleData.SearchAndDestroyAnnouncement,
             _ => null,
         };
-        Context.AudioSystem.PlayAudioEvent(sound?.Value);
+        GameEngine.AudioSystem.PlayAudioEvent(sound?.Value);
     }
 
     private void SetStateChangeCompleteFrame(LogicFrame currentFrame)
@@ -408,7 +408,7 @@ public sealed class BattlePlanUpdateModuleData : UpdateModuleData
     // Revealing
     public LazyAssetReference<ObjectDefinition> VisionObjectName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new BattlePlanUpdate(gameObject, context, this);
     }

@@ -227,7 +227,7 @@ public class RadarTests : StatePersisterTest
         {
             RadarPriority = RadarPriority.NotOnRadar,
         };
-        var gameObject = new GameObject(objectDefinition, Generals.Context, null);
+        var gameObject = new GameObject(objectDefinition, Generals.GameEngine, null);
         radar.AddGameObject(gameObject);
 
         Assert.False(radar.VisibleItems.TryGetValue(0, out _));
@@ -242,7 +242,7 @@ public class RadarTests : StatePersisterTest
         {
             RadarPriority = RadarPriority.Unit,
         };
-        var gameObject = new GameObject(objectDefinition, Generals.Context, null);
+        var gameObject = new GameObject(objectDefinition, Generals.GameEngine, null);
         radar.AddGameObject(gameObject);
 
         Assert.True(radar.VisibleItems.TryGetValue(0, out var radarItem));
@@ -258,7 +258,7 @@ public class RadarTests : StatePersisterTest
         {
             RadarPriority = RadarPriority.Unit,
         };
-        var gameObject = new GameObject(objectDefinition, Generals.Context, null);
+        var gameObject = new GameObject(objectDefinition, Generals.GameEngine, null);
 
         radar.AddGameObject(gameObject);
 

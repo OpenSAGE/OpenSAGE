@@ -71,7 +71,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
 
     internal bool IsAbleToBeToppled => _toppleState == ToppleState.Upright;
 
-    internal ToppleUpdate(GameObject gameObject, GameContext context, ToppleUpdateModuleData moduleData)
+    internal ToppleUpdate(GameObject gameObject, GameEngine context, ToppleUpdateModuleData moduleData)
         : base(gameObject, context)
     {
         _moduleData = moduleData;
@@ -150,7 +150,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
 
                 if (_moduleData.KillStumpWhenToppled)
                 {
-                    var stump = Context.GameLogic.GetObjectById(_stumpId);
+                    var stump = GameEngine.GameLogic.GetObjectById(_stumpId);
                     if (stump != null)
                     {
                         DeathByToppling(stump);
@@ -166,7 +166,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
                         new FXListExecutionContext(
                             GameObject.Rotation,
                             GameObject.Translation,
-                            Context));
+                            GameEngine));
                 }
             }
         }
@@ -243,7 +243,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
 
         _toppleDirection = Vector3.Normalize(toppleDirection);
 
-        Context.Game.Scripting.AdjustToppleDirection(GameObject, _toppleDirection);
+        GameEngine.Game.Scripting.AdjustToppleDirection(GameObject, _toppleDirection);
 
         _angularVelocity = toppleSpeed * _moduleData.InitialVelocityPercent;
         _angularAcceleration = toppleSpeed * _moduleData.InitialAccelPercent;
@@ -274,7 +274,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
             // waiting for the topple to finish... since we might be in a
             // slightly different position when toppled, which can confuse
             // the pathfinder and not de-obstacle everything correctly.
-            Context.AI.Pathfinder.RemoveObjectFromPathfindMap(GameObject);
+            GameEngine.AI.Pathfinder.RemoveObjectFromPathfindMap(GameObject);
         }
 
         // Desired angle is toppleAngle +/- PI/2, whichever is cloesr to currentAngle.
@@ -295,12 +295,12 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
             new FXListExecutionContext(
                 GameObject.Rotation,
                 GameObject.Translation,
-                Context));
+                GameEngine));
 
         // If this is a tree, create a stump.
         if (_moduleData.StumpName != null)
         {
-            var stump = Context.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
+            var stump = GameEngine.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
             stump.UpdateTransform(GameObject.Translation, GameObject.Rotation);
             _stumpId = stump.ID;
 
@@ -428,7 +428,7 @@ public sealed class ToppleUpdateModuleData : UpdateModuleData
     public Percentage InitialAccelPercent { get; private set; } = new Percentage(StartAccelerationPercent);
     public LazyAssetReference<ObjectDefinition> StumpName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameContext context)
+    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine context)
     {
         return new ToppleUpdate(gameObject, context, this);
     }
