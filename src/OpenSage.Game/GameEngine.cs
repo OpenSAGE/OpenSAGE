@@ -19,16 +19,15 @@ public sealed class GameEngine
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
-    // TODO: These should be configurable at runtime with GameSpeed.
+    /// <summary>
+    /// "Ideal" logic frames per second, used for converting module data and animations.
+    /// </summary>
+    public float LogicFramesPerSecond { get; }
 
-    public const float LogicFramesPerSecond = LogicFramesPerSecondN;
-    public const int LogicFramesPerSecondN = 30;
-    public const float SecondsPerLogicFrame = 1.0f / LogicFramesPerSecond;
-
-    // TODO: Revert this change. We haven't yet implemented interpolation between logic ticks,
-    // so as a temporary workaround, we simply tick the logic at 30fps.
-    //internal const double LogicUpdateInterval = 1000.0 / 5.0;
-    internal const float LogicUpdateInterval = 1000.0f / LogicFramesPerSecond;
+    /// <summary>
+    /// Milliseconds per "ideal" logic frame, computed based on <see cref="LogicFramesPerSecond"/>.
+    /// </summary>
+    public float MsPerLogicFrame { get; }
 
     internal readonly AssetLoadContext AssetLoadContext;
     public readonly AudioSystem AudioSystem;
@@ -85,5 +84,7 @@ public sealed class GameEngine
         Scene3D = scene;
         Quadtree = quadtree;
         Game = game;
+        LogicFramesPerSecond = Game.SageGame.LogicFramesPerSecond();
+        MsPerLogicFrame = Game.SageGame.MsPerLogicFrame();
     }
 }

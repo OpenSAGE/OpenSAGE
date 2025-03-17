@@ -83,7 +83,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         {
             // advance repair progress
             repairTarget.Heal(_moduleData.RepairHealthPercentPerSecond, _gameObject);
-            repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond).Value;
+            repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond(_gameEngine.LogicFramesPerSecond)).Value;
         }
     }
 
