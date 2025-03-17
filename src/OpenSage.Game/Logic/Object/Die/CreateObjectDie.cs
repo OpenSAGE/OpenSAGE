@@ -13,9 +13,11 @@ public sealed class CreateObjectDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
-        context.GameEngine.ObjectCreationLists.Create(_moduleData.CreationList.Value, context);
+        GameEngine.ObjectCreationLists.Create(
+            _moduleData.CreationList.Value,
+            new BehaviorUpdateContext(GameEngine, GameObject));
     }
 
     internal override void Load(StatePersister reader)

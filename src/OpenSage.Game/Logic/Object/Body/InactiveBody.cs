@@ -1,28 +1,113 @@
-﻿using FixedMath.NET;
+﻿using System.Diagnostics;
+using FixedMath.NET;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
+/// <summary>
+/// An inactive body module. They are indestructible and largely cannot be
+/// affected by things in the world. Does not have data storage for health and
+/// damage etc. It's an "inactive" object that isn't affected by matters of the
+/// body... it's all in the mind!
+/// </summary>
 public sealed class InactiveBody : BodyModule
 {
-    internal InactiveBody(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    private bool _dieCalled;
+
+    public override float Health => 0.0f; // Inactive bodies have no health to get.
+
+    public override BodyDamageType DamageState
     {
+        get => BodyDamageType.Pristine;
+        set { }
     }
 
-    public override void AttemptDamage(ref DamageData damageInfo)
+    internal InactiveBody(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
-        // TODO
-
-        GameObject.Die(damageInfo.Request.DeathType);
+        gameObject.IsEffectivelyDead = true;
     }
 
-    public override Fix64 MaxHealth
+    public override DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput)
     {
-        get => Fix64.Zero;
-        internal set { }
+        if (damageInput.DamageType == DamageType.Healing)
+        {
+            // Healing and damage are separate, so this shouldn't happen.
+            return AttemptHealing(damageInput);
+        }
+
+        // Inactive bodies have no health so no damage can really be done.
+        var damageOutput = new DamageInfoOutput
+        {
+            ActualDamageDealt = 0.0f,
+            ActualDamageClipped = 0.0f,
+            NoEffect = true,
+        };
+
+        // ... except damage type UNRESISTABLE always wipes us out.
+        if (damageInput.DamageType == DamageType.Unresistable)
+        {
+            Debug.Assert(!GameObject.Definition.IsPrerequisite, "Prerequisites should not have InactiveBody");
+
+            damageOutput.NoEffect = false;
+
+            // Since we have no health, we do not call DamageModules, nor do
+            // DamageFX. However, we DO process DieModules.
+            if (_dieCalled)
+            {
+                GameObject.OnDie(damageInput);
+                _dieCalled = true;
+            }
+        }
+
+        return damageOutput;
     }
+
+    public override DamageInfoOutput AttemptHealing(in DamageInfoInput damageInput)
+    {
+        if (damageInput.DamageType != DamageType.Healing)
+        {
+            // Healing and damage are separate, so this shouldn't happen.
+            return AttemptDamage(damageInput);
+        }
+
+        // Inactive bodies have no health so no healing can really be done.
+        return new DamageInfoOutput
+        {
+            ActualDamageDealt = 0.0f,
+            ActualDamageClipped = 0.0f,
+            NoEffect = true,
+        };
+    }
+
+    public override float EstimateDamage(in DamageInfoInput damageInfo)
+    {
+        // Inactive bodies have no health so no damage can really be done.
+        var amount = 0.0f;
+
+        // ... with this exception.
+        if (damageInfo.DamageType == DamageType.Unresistable)
+        {
+            amount = damageInfo.Amount;
+        }
+
+        return amount;
+    }
+
+    public override void SetAflame(bool setting) { }
+
+    public override void OnVeterancyLevelChanged(VeterancyLevel oldLevel, VeterancyLevel newLevel, bool provideFeedback) { }
 
     public override void SetArmorSetFlag(ArmorSetCondition armorSetCondition) { }
+
+    public override void ClearArmorSetFlag(ArmorSetCondition armorSetType) { }
+
+    public override bool TestArmorSetFlag(ArmorSetCondition armorSetType) => false;
+
+    public override void InternalChangeHealth(float delta)
+    {
+        // Inactive bodies have no health to increase or decrease.
+    }
 
     internal override void Load(StatePersister reader)
     {

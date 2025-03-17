@@ -31,7 +31,7 @@ internal sealed class LifetimeUpdate : UpdateModule
     {
         if (context.LogicFrame >= _frameToDie)
         {
-            GameObject.Die(_moduleData.DeathType);
+            GameObject.Kill(deathType: _moduleData.DeathType);
             _frameToDie = LogicFrame.MaxValue;
         }
     }

@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
-public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule
+public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableModule, IDieModule
 {
     private readonly FireWeaponWhenDeadBehaviorModuleData _moduleData;
 
@@ -26,9 +26,9 @@ public sealed class FireWeaponWhenDeadBehavior : BehaviorModule, IUpgradeableMod
 
     private void OnUpgrade() { }
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
-        if (!_moduleData.DieData.IsApplicable(deathType, status))
+        if (!_moduleData.DieData.IsDieApplicable(damageInput, GameObject))
         {
             return;
         }

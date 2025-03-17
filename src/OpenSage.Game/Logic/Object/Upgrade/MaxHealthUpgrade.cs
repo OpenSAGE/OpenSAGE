@@ -63,12 +63,15 @@ public sealed class MaxHealthUpgradeModuleData : UpgradeModuleData
 
 public enum MaxHealthChangeType
 {
+    [IniEnum("SAME_CURRENTHEALTH")]
+    SameCurrentHealth,
+
     [IniEnum("PRESERVE_RATIO")]
     PreserveRatio,
 
     [IniEnum("ADD_CURRENT_HEALTH_TOO")]
     AddCurrentHealthToo,
 
-    [IniEnum("SAME_CURRENTHEALTH")]
-    SameCurrentHealth
+    [IniEnum("FULLY_HEAL"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    FullyHeal,
 }

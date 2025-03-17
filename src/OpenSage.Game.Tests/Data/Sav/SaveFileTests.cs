@@ -117,6 +117,14 @@ public class SaveFileTests : IClassFixture<GameFixture>
             CheckEquality(value, comparisonValue);
         }
 
+        public override void PersistEnumUInt16Value<TEnum>(ref TEnum value)
+        {
+            TEnum comparisonValue = default;
+            _comparisonReader.PersistEnumValue(ref comparisonValue);
+
+            CheckEquality(value, comparisonValue);
+        }
+
         public override void PersistEnumByteValue<TEnum>(ref TEnum value)
         {
             TEnum comparisonValue = default;

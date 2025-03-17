@@ -479,11 +479,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 {
                     var damageAmount = netSpeed * Mass * d.FallHeightDamageFactor;
 
-                    var damageInfo = new DamageData();
+                    var damageInfo = new DamageInfo();
                     damageInfo.Request.DamageType = DamageType.Falling;
                     damageInfo.Request.DeathType = DeathType.Splatted;
-                    damageInfo.Request.DamageDealer = obj.ID;
-                    damageInfo.Request.DamageToDeal = damageAmount;
+                    damageInfo.Request.SourceID = obj.ID;
+                    damageInfo.Request.Amount = damageAmount;
                     damageInfo.Request.ShockWaveAmount = 0.0f;
 
                     obj.AttemptDamage(ref damageInfo);
@@ -704,7 +704,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             const float maxStiffness = 0.99f;
 
             var stiffness = Math.Clamp(
-                base.GameEngine.AssetStore.GameData.Current.GroundStiffness,
+                GameEngine.AssetStore.GameData.Current.GroundStiffness,
                 minStiffness,
                 maxStiffness);
 
@@ -1068,11 +1068,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         AddOverlap(crusheeOther);
         if (!WasPreviouslyOverlapped(crusheeOther))
         {
-            var damageInfo = new DamageData();
+            var damageInfo = new DamageInfo();
             damageInfo.Request.DamageType = DamageType.Crush;
             damageInfo.Request.DeathType = DeathType.Crushed;
-            damageInfo.Request.DamageDealer = crusherMe.ID;
-            damageInfo.Request.DamageToDeal = 0.0f; // Yes, that's right - we don't want to damage, just to trigger the minor DamageFX, if any
+            damageInfo.Request.SourceID = crusherMe.ID;
+            damageInfo.Request.Amount = 0.0f; // Yes, that's right - we don't want to damage, just to trigger the minor DamageFX, if any
             crusheeOther.AttemptDamage(ref damageInfo);
         }
 
@@ -1328,11 +1328,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             {
                 // Do a boat load of crush damage, and the OnDie will handle
                 // cases like crushed car object.
-                var damageInfo = new DamageData();
+                var damageInfo = new DamageInfo();
                 damageInfo.Request.DamageType = DamageType.Crush;
                 damageInfo.Request.DeathType = DeathType.Crushed;
-                damageInfo.Request.DamageDealer = crusherMe.ID;
-                damageInfo.Request.DamageToDeal = DamageConstants.HugeDamageAmount; // Make sure they die
+                damageInfo.Request.SourceID = crusherMe.ID;
+                damageInfo.Request.Amount = DamageConstants.HugeDamageAmount; // Make sure they die
                 crusheeOther.AttemptDamage(ref damageInfo);
             }
         }

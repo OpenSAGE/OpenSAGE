@@ -2,13 +2,26 @@
 
 namespace OpenSage.Logic.Object;
 
+/// <summary>
+/// An active body specifically for structures that are built,
+/// and/or interactable with the player.
+/// </summary>
 public sealed class StructureBody : ActiveBody
 {
-    private uint _unknown;
+    /// <summary>
+    /// Object that built this structure.
+    /// </summary>
+    private uint _constructorObjectID;
 
     internal StructureBody(GameObject gameObject, GameEngine gameEngine, StructureBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
+    }
+
+    // This method is in the original code, but isn't actually used anywhere.
+    public void SetConstructorObject(GameObject obj)
+    {
+        _constructorObjectID = obj?.ID ?? 0;
     }
 
     internal override void Load(StatePersister reader)
@@ -19,7 +32,7 @@ public sealed class StructureBody : ActiveBody
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistUInt32(ref _unknown);
+        reader.PersistObjectID(ref _constructorObjectID);
     }
 }
 

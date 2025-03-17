@@ -38,7 +38,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     /// <summary>
     /// Increments the frame after which healing is allowed. If <code>_moduleData.StartHealingDelay</code> is 0, this is a no-op.
     /// </summary>
-    public void OnDamage(in DamageData damageData)
+    public void OnDamage(in DamageInfo damageData)
     {
         // this seems to only apply if the unit is capable of healing itself
         // make sure the upgrade is triggered before resetting any frames

@@ -12,7 +12,7 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic.Object;
 
-public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModule
+public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModule, IDieModule
 {
     internal UpgradeLogic UpgradeLogic { get; }
     internal bool Generated => _generated;
@@ -52,22 +52,20 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
             return;
         }
 
-        GenerateMinefield(new BehaviorUpdateContext(GameEngine, GameObject));
+        GenerateMinefield();
     }
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
         if (_moduleData.GenerateOnlyOnDeath)
         {
-            GenerateMinefield(context);
+            GenerateMinefield();
         }
-
-        base.OnDie(context, deathType, status);
     }
 
-    private void GenerateMinefield(BehaviorUpdateContext context)
+    private void GenerateMinefield()
     {
-        _moduleData.GenerationFX?.Value.Execute(context);
+        _moduleData.GenerationFX?.Value.Execute(new BehaviorUpdateContext(GameEngine, GameObject));
 
         var mineTemplate = _moduleData.MineName?.Value;
 
