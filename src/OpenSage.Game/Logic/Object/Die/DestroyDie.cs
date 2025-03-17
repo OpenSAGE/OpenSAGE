@@ -9,9 +9,9 @@ public sealed class DestroyDie : DieModule
     {
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
-        context.GameEngine.GameLogic.DestroyObject(GameObject);
+        GameEngine.GameLogic.DestroyObject(GameObject);
     }
 
     internal override void Load(StatePersister reader)

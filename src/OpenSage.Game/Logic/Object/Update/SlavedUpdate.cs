@@ -177,7 +177,7 @@ public class SlavedUpdateModule : UpdateModule
         // prior to bfme2, die on master death seems to be the default?
         if (_master.IsDead && (GameEngine.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
         {
-            GameObject.Die(DeathType.Exploded);
+            GameObject.Kill(DeathType.Exploded);
         }
     }
 

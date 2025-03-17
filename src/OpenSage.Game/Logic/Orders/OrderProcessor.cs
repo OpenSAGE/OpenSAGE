@@ -115,7 +115,7 @@ public sealed class OrderProcessor
                         foreach (var unit in player.SelectedUnits)
                         {
                             // This probably shouldn't trigger a Die
-                            unit.Die(DeathType.Normal);
+                            unit.Kill();
                             player.BankAccount.Deposit((uint)unit.Definition.BuildCost);
                         }
                         player.DeselectUnits();

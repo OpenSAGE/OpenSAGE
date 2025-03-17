@@ -34,8 +34,6 @@ public abstract class BehaviorModule : ObjectModule
     {
     }
 
-    internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status) { }
-
     internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
 
     internal override void Load(StatePersister reader)

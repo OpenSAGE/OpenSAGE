@@ -15,13 +15,13 @@ public sealed class CreateCrateDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var crateData = _moduleData.CrateData.Value;
 
         if (GameObject.TryGetLastDamage(out var lastDamageData))
         {
-            var killer = GameEngine.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
+            var killer = GameEngine.GameLogic.GetObjectById(lastDamageData.Request.SourceID);
 
             if (KillerCanSpawnCrate(killer, crateData))
             {
@@ -42,8 +42,6 @@ public sealed class CreateCrateDie : DieModule
                 }
             }
         }
-
-        base.Die(context, deathType);
     }
 
     private bool KillerCanSpawnCrate(GameObject? killer, CrateData crateData)

@@ -15,7 +15,7 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
     /// <summary>
     /// Increments the frame after which healing is allowed.
     /// </summary>
-    public void OnDamage(in DamageData damageData)
+    public void OnDamage(in DamageInfo damageData)
     {
         var currentFrame = GameEngine.GameLogic.CurrentFrame;
         SetNextUpdateFrame(currentFrame + GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);

@@ -47,7 +47,7 @@ public class OCLSpecialPowerModule : SpecialPowerModule
             {
                 if (deliverPayload.SelfDestructObject)
                 {
-                    GameObject.Die(DeathType.Normal); // todo: use some other method of silent despawning
+                    GameObject.Kill(); // todo: use some other method of silent despawning
                 }
             }
         }

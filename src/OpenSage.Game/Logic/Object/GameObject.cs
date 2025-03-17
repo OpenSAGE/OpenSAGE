@@ -235,7 +235,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public BodyModule BodyModule => _body;
     public bool HasActiveBody() => _body is ActiveBody;
 
-    public bool TryGetLastDamage(out DamageData damageData)
+    public bool TryGetLastDamage(out DamageInfo damageData)
     {
         damageData = default;
         if (_body is ActiveBody b)
@@ -264,34 +264,49 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public bool IsDead => Health <= Fix64.Zero;
 
-    public bool IsEffectivelyDead => (_privateStatus & ObjectPrivateStatusFlags.EffectivelyDead) != 0;
+    public bool IsEffectivelyDead
+    {
+        get => GetPrivateStatus(ObjectPrivateStatusFlags.EffectivelyDead);
+        set
+        {
+            SetPrivateStatus(ObjectPrivateStatusFlags.EffectivelyDead, value);
+            if (value)
+            {
+                // TODO(Port): Implement this.
+                //if (_radarData != null)
+                //{
+                //    _gameEngine.Radar.RemoveGameObject(this);
+                //}
+            }
+        }
+    }
 
     public void DoDamage(DamageType damageType, Percentage percentage, DeathType deathType, GameObject damageDealer) =>
         DoDamage(damageType, MaxHealth * (Fix64)(float)percentage, deathType, damageDealer);
 
     public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
     {
-        var damageInfo = new DamageData
+        var damageInfo = new DamageInfo
         {
             Request =
             {
                 DamageType = damageType,
-                DamageToDeal = (float)amount,
+                Amount = (float)amount,
                 DeathType = deathType,
-                DamageDealer = damageDealer.Id,
+                SourceID = damageDealer?.Id ?? ObjectId.Invalid,
             }
         };
         AttemptDamage(ref damageInfo);
     }
 
-    public void AttemptDamage(ref DamageData damageInfo)
+    public DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput)
     {
         _body?.AttemptDamage(ref damageInfo);
 
         // TODO(Port): shockwave and radar stuff.
     }
 
-    internal void OnDamage(in DamageData damageData)
+    internal void OnDamage(in DamageInfo damageData)
     {
         foreach (var damageModule in FindBehaviors<IDamageModule>())
         {
@@ -308,12 +323,12 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     }
 
     /// <summary>
-    /// Heals without any sort of healer or registering any sort of DamageData.
+    /// Heals without any sort of healer or registering any sort of DamageInfo.
     /// </summary>
     public void HealDirectly(Percentage percentage) => HealDirectly(MaxHealth * (Fix64)(float)percentage);
 
     /// <summary>
-    /// Heals without any sort of healer or registering any sort of DamageData.
+    /// Heals without any sort of healer or registering any sort of DamageInfo.
     /// </summary>
     /// <param name="amount"></param>
     public void HealDirectly(Fix64 amount)
@@ -778,7 +793,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
         if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
         {
-            Die(DeathType.Normal);
+            Kill();
             ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
         }
 
@@ -1383,22 +1398,28 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public bool IsOffMap => (_privateStatus & ObjectPrivateStatusFlags.OffMap) != 0;
 
     /// <summary>
-    /// Do so much damage to an object that it will certainly die.
+    /// Kills the object with an optional type of damage and death.
     /// </summary>
-    public void Kill()
+    public void Kill(DamageType damageType = DamageType.Unresistable, DeathType deathType = DeathType.Normal)
     {
-        // TODO(Port): Copy Object::kill()
-        Kill(DeathType.Normal);
+        // Do unmodifiable damage equal to their max health to kill.
+        var damageOutput = AttemptDamage(new DamageInfoInput
+        {
+            DamageType = damageType,
+            DeathType = deathType,
+            SourceID = 0,
+            Amount = _body.MaxHealth,
+            Kill = true, // Triggers object to die no matter what
+        });
+
+        Debug.Assert(!damageOutput.NoEffect, "Attempting to kill an unKillable object (InactiveBody?)");
     }
 
-    internal void Kill(DeathType deathType)
+    internal void OnDie(in DamageInfoInput damageInput)
     {
-        DoDamage(DamageType.Unresistable, _body.Health, deathType, null);
-    }
+        // TODO(Port): Port this from Object::onDie().
 
-    internal void Die(DeathType deathType)
-    {
-        Logger.Info("Object dying " + deathType);
+        Logger.Info("Object dying " + damageInput.DeathType);
         bool construction = IsBeingConstructed();
 
         if (construction)
@@ -1424,21 +1445,15 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (!construction)
         {
-            ExecuteRandomSlowDeathBehavior(deathType);
+            ExecuteRandomSlowDeathBehavior(damageInput.DeathType);
         }
 
-        foreach (var module in _behaviorModules)
+        foreach (var module in FindBehaviors<IDieModule>())
         {
-            if (module is SlowDeathBehavior)
-            {
-                // this is handled above
-                continue;
-            }
-
-            module.OnDie(_behaviorUpdateContext, deathType, _status);
+            module.OnDie(damageInput);
         }
 
-        PlayDieSound(deathType);
+        PlayDieSound(damageInput.DeathType);
     }
 
     /// <summary>
@@ -1454,7 +1469,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         // If there are multiple SlowDeathBehavior modules,
         // we need to use ProbabilityModifier to choose between them.
         var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-            .Where(x => x.IsApplicable(deathType, _status))
+            .Where(x => x.IsDieApplicable(deathType, _status))
             .ToList();
 
         var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
@@ -1575,6 +1590,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         // No need to see if we should skip updates, this flag has no effect on skipping updates.
     }
+
+    private bool GetPrivateStatus(ObjectPrivateStatusFlags flag) => (_privateStatus & flag) != 0;
 
     private void SetPrivateStatus(ObjectPrivateStatusFlags flag, bool value)
     {
@@ -1898,7 +1915,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (ImGui.Button("Kill"))
         {
-            Kill(DeathType.Exploded);
+            Kill(deathType: DeathType.Exploded);
         }
 
         if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
@@ -2074,4 +2091,10 @@ public enum CrushSquishTestType
     TestCrushOnly,
     TestSquishOnly,
     TestCrushOrSquish,
+}
+
+public enum PlayerMaskType : ushort
+{
+    None = 0x0,
+    All = 0xFFFF,
 }

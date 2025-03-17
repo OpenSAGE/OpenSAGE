@@ -19,7 +19,7 @@ public class ActiveBody : BodyModule
     private BodyDamageType _damageType;
     private uint _unknownFrame1;
     private DamageType _lastDamageType;
-    private DamageData _lastDamage;
+    private DamageInfo _lastDamage;
     private LogicFrame _lastDamagedAt;
     private uint _unknownFrame3;
     private bool _frontCrushed;
@@ -40,7 +40,7 @@ public class ActiveBody : BodyModule
 
     public override BodyDamageType DamageState => _damageType;
 
-    public DamageData LastDamage => _lastDamage;
+    public DamageInfo LastDamage => _lastDamage;
 
     internal ActiveBody(GameObject gameObject, GameEngine gameEngine, ActiveBodyModuleData moduleData) : base(gameObject, gameEngine)
     {
@@ -79,7 +79,7 @@ public class ActiveBody : BodyModule
         _lastHealthBeforeDamage = _currentHealth;
     }
 
-    public override void AttemptDamage(ref DamageData damageInfo)
+    public override void AttemptDamage(ref DamageInfo damageInfo)
     {
         if (Health <= Fix64.Zero)
         {
@@ -90,7 +90,7 @@ public class ActiveBody : BodyModule
 
         // Actual amount of damage depends on armor.
         var damagePercent = _currentArmor?.GetDamagePercent(damageInfo.Request.DamageType) ?? new Percentage(1.0f);
-        var actualDamage = (Fix64)damageInfo.Request.DamageToDeal * (Fix64)(float)damagePercent;
+        var actualDamage = (Fix64)damageInfo.Request.Amount * (Fix64)(float)damagePercent;
 
         var takingDamage = damageInfo.Request.DamageType is not DamageType.Healing;
 
@@ -98,11 +98,11 @@ public class ActiveBody : BodyModule
 
         SetHealth(newHealth);
 
-        var damager = GameEngine.GameLogic.GetObjectById(damageInfo.Request.DamageDealer);
+        var damager = GameEngine.GameLogic.GetObjectById(damageInfo.Request.SourceID);
         damageInfo.Request.AttackerName = damager?.Definition.Name ?? string.Empty;
 
-        damageInfo.Result.DamageAfterArmorCalculation = (float)actualDamage;
-        damageInfo.Result.ActualDamageApplied = _lastHealthBeforeDamage - _currentHealth;
+        damageInfo.Result.ActualDamageDealt = (float)actualDamage;
+        damageInfo.Result.ActualDamageClipped = _lastHealthBeforeDamage - _currentHealth;
 
         _lastDamage = damageInfo;
         _lastDamagedAt = GameEngine.GameLogic.CurrentFrame;
@@ -131,14 +131,14 @@ public class ActiveBody : BodyModule
 
     public override void Heal(Fix64 amount, GameObject healer)
     {
-        var damageInfo = new DamageData
+        var damageInfo = new DamageInfo
         {
             Request =
             {
                 DamageType = DamageType.Healing,
                 DeathType = DeathType.None,
-                DamageToDeal = (float)amount,
-                DamageDealer = healer.Id,
+                Amount = (float)amount,
+                SourceID = healer.Id,
             }
         };
         AttemptDamage(ref damageInfo);

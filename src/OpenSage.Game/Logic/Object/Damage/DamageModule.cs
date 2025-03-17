@@ -18,7 +18,7 @@ public abstract class DamageModule : BehaviorModule
 
 internal interface IDamageModule
 {
-    void OnDamage(in DamageData damageData);
+    void OnDamage(in DamageInfo damageData);
 }
 
 public abstract class DamageModuleData : ContainModuleData

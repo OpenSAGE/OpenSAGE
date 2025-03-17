@@ -14,7 +14,7 @@ public sealed class RebuildHoleExposeDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var hole = GameEngine.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, GameObject.Owner);
         hole.SetTransformMatrix(GameObject.TransformMatrix);
@@ -22,8 +22,6 @@ public sealed class RebuildHoleExposeDie : DieModule
         hole.MaxHealth = holeHealth;
         hole.Health = holeHealth;
         hole.FindBehavior<RebuildHoleUpdate>().SetOriginalStructure(GameObject);
-
-        base.Die(context, deathType);
     }
 
     internal override void Load(StatePersister reader)

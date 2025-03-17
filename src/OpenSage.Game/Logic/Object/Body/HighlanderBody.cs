@@ -1,8 +1,12 @@
-﻿using FixedMath.NET;
+﻿using System;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
+/// <summary>
+/// Takes damage according to armor, but can't die from normal damage.
+/// Can die from <see cref="DamageType.Unresistable"/> though.
+/// </summary>
 public sealed class HighlanderBody : ActiveBody
 {
     internal HighlanderBody(GameObject gameObject, GameEngine gameEngine, HighlanderBodyModuleData moduleData)
@@ -10,25 +14,17 @@ public sealed class HighlanderBody : ActiveBody
     {
     }
 
-    public override void AttemptDamage(ref DamageData damageInfo)
+    public override DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput)
     {
-        // TODO: Don't think this is right.
-        if (damageInfo.Request.DamageType == DamageType.Unresistable)
+        var modifiedDamageInput = damageInput;
+
+        // Bind to one hitpoint remaining afterwards, unless it is Unresistable damage.
+        if (damageInput.DamageType != DamageType.Unresistable)
         {
-            Health -= (Fix64)damageInfo.Request.DamageToDeal;
-
-            if (Health < (Fix64)0)
-            {
-                Health = (Fix64)0;
-            }
-
-            // TODO: DamageFX
-
-            if (Health <= Fix64.Zero)
-            {
-                GameObject.Die(damageInfo.Request.DeathType);
-            }
+            modifiedDamageInput.Amount = Math.Min(damageInput.Amount, Health - 1);
         }
+
+        return AttemptDamage(modifiedDamageInput);
     }
 
     internal override void Load(StatePersister reader)

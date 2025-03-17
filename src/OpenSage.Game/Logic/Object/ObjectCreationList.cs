@@ -138,7 +138,7 @@ public sealed class CreateDebrisOCNugget : OCNugget
         debrisObject.LifeTime = context.LogicFrame + lifeTime;
 
         debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
-        debrisObject.Die(DeathType.Normal);
+        debrisObject.Kill();
 
         // Model
         var w3dDebrisDraw = (W3dDebrisDraw)debrisObject.Drawable.DrawModules[0];

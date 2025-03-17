@@ -184,11 +184,11 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     {
         // Use a special "toppling" damage type here so that toppled stuff can
         // have different damage/die modules for toppled-death vs other-death.
-        var damageInfo = new DamageData();
+        var damageInfo = new DamageInfo();
         damageInfo.Request.DamageType = DamageType.Unresistable;
         damageInfo.Request.DeathType = DeathType.Toppled;
-        damageInfo.Request.DamageDealer = ObjectId.Invalid;
-        damageInfo.Request.DamageToDeal = DamageConstants.HugeDamageAmount;
+        damageInfo.Request.SourceID = ObjectId.Invalid;
+        damageInfo.Request.Amount = DamageConstants.HugeDamageAmount;
         obj.AttemptDamage(ref damageInfo);
     }
 
