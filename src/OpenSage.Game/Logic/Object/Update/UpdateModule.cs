@@ -152,6 +152,8 @@ internal interface IUpdateModule
 public interface IProjectileUpdate
 {
     bool ProjectileHandleCollision(GameObject other);
+
+    void ProjectileNowJammed();
 }
 
 public abstract class UpdateModuleData : ContainModuleData

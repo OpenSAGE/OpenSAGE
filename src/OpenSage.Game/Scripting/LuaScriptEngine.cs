@@ -352,7 +352,7 @@ public sealed class LuaScriptEngine : GameSystem
 
     public int ObjectGetHealthFraction(string gameObject)
     {
-        return (int)(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).Health);
+        return (int)(Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).BodyModule.Health);
     }
 
     public string ObjectDescription(string gameObject)  //EXAMPLE C&C3: "Object 1187 (_jIWv4) [NODAvatar, owned by player 3 (MetaIdea)]"

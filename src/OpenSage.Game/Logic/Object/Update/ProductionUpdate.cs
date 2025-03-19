@@ -774,6 +774,8 @@ public enum DisabledType
     TemporarilyBusy,
 
     Infiltrated,
+
+    Subdued,
 }
 
 internal struct DoorStatus : IPersistableObject

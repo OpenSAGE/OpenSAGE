@@ -39,6 +39,19 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
     public bool IsDieApplicable(in DamageInfoInput damageInput) =>
         _moduleData.DieData.IsDieApplicable(damageInput, GameObject);
 
+    public int GetProbabilityModifier(in DamageInfoOutput damageOutput)
+    {
+        // Calculating how far past dead we ewre allows us to pick more
+        // spectacular deaths when severely killed, and more sedate ones when
+        // only slightly killed. For example:
+        // 200 hp max, had 10 left, took 50 damage, 40 overkill, (40/200) * 100 = 20 overkill %
+        var overkillDamage = damageOutput.ActualDamageDealt - damageOutput.ActualDamageClipped;
+        var overkillPercent = (float)overkillDamage / GameObject.BodyModule.MaxHealth;
+        var overkillModifier = (int)(overkillPercent * _moduleData.ModifierBonusPerOverkillPercent);
+
+        return Math.Max(_moduleData.ProbabilityModifier + overkillModifier, 1);
+    }
+
     void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
         if (!_moduleData.DieData.IsDieApplicable(damageInput, GameObject))
@@ -62,6 +75,11 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
         // TODO: Fling
 
         ExecutePhaseActions(SlowDeathPhase.Initial);
+    }
+
+    public void BeginSlowDeath(in DamageInfoInput damageInput)
+    {
+        // TODO(Port): Implement this.
     }
 
     private LogicFrameSpan GetDelayWithVariance(LogicFrameSpan delay, LogicFrameSpan variance)

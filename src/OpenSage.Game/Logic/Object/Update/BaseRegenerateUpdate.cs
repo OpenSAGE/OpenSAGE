@@ -23,9 +23,11 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        GameObject.HealDirectly(GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond);
+        GameObject.AttemptHealing(
+            GameObject.BodyModule.MaxHealth * GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond / GameEngine.LogicFramesPerSecond,
+            GameObject);
 
-        if (GameObject.IsFullHealth)
+        if (GameObject.BodyModule.Health == GameObject.BodyModule.MaxHealth)
         {
             SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
         }

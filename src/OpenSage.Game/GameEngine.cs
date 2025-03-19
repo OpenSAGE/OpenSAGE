@@ -39,6 +39,8 @@ public sealed class GameEngine
 
     public readonly IGame Game;
 
+    public SageGame SageGame => Game.SageGame;
+
     internal GameLogic GameLogic => Game.GameLogic;
 
     internal GameClient GameClient => Game.GameClient;

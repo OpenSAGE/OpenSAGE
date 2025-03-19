@@ -134,7 +134,7 @@ public sealed class LocomotorTemplate : BaseAsset
 
     internal const float BigNumber = 99999.0f;
 
-    // Default damaged values of -1.0f mean "make the same as undamaged if not explicitly specified".
+    // NoArmor damaged values of -1.0f mean "make the same as undamaged if not explicitly specified".
 
     /// <summary>
     /// Flags indicating the kinds of surfaces we can use.

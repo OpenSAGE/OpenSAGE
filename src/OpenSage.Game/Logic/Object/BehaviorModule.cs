@@ -46,11 +46,6 @@ public abstract class BehaviorModule : ObjectModule
     }
 }
 
-public interface IDestroyModule
-{
-    void OnDestroy();
-}
-
 internal sealed class BehaviorUpdateContext
 {
     public readonly GameEngine GameEngine;
@@ -92,6 +87,11 @@ public readonly struct LogicFrame : IEquatable<LogicFrame>
     public static LogicFrame operator -(LogicFrame left, LogicFrame right)
     {
         return new LogicFrame(left.Value - right.Value);
+    }
+
+    public static LogicFrame operator -(LogicFrame left, uint right)
+    {
+        return new LogicFrame(left.Value - right);
     }
 
     public static bool operator <(LogicFrame left, LogicFrame right)
@@ -148,6 +148,10 @@ public readonly struct LogicFrameSpan
     }
 
     public static LogicFrameSpan OneSecond(float logicFramesPerSecond) => new((uint)logicFramesPerSecond);
+
+    public static LogicFrameSpan FromMilliseconds(float milliseconds, SageGame sageGame) => new((uint)MathF.Ceiling(milliseconds / sageGame.MsPerLogicFrame()));
+
+    public static LogicFrameSpan FromSeconds(float seconds, SageGame sageGame) => new((uint)MathF.Ceiling(seconds * sageGame.LogicFramesPerSecond()));
 
     public static LogicFrameSpan operator +(LogicFrameSpan left, LogicFrameSpan right)
     {

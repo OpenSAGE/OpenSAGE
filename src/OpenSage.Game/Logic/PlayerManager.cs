@@ -93,6 +93,13 @@ public sealed class PlayerManager : IPersistableObject
     // TODO: Is this right?
     public Player GetCivilianPlayer() => _players[1];
 
+    /// <summary>
+    /// Returns the "neutral" player. There is always a player that is "neutral"
+    /// with respect to all other players. This is so that everything can be
+    /// associated with a non-null player, to simplify the universe.
+    /// </summary>
+    public Player NeutralPlayer => _players[0];
+
     internal void LogicTick()
     {
         foreach (var player in _players)

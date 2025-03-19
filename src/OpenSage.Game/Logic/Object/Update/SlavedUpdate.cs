@@ -52,12 +52,12 @@ public class SlavedUpdateModule : UpdateModule
         }
 
         var masterIsMoving = _master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
-        var masterHealthPercent = _master.HealthPercentage;
+        var masterHealthPercent = _master.BodyModule.Health / _master.BodyModule.MaxHealth;
 
         var offsetToMaster = _master.Translation - GameObject.Translation;
         var distanceToMaster = offsetToMaster.Vector2XY().Length();
 
-        if (!masterIsMoving && (masterHealthPercent < (Fix64)(_moduleData.RepairWhenBelowHealthPercent / 100.0) || _repairStatus != RepairStatus.INITIAL))
+        if (!masterIsMoving && (masterHealthPercent < (_moduleData.RepairWhenBelowHealthPercent / 100.0f) || _repairStatus != RepairStatus.INITIAL))
         {
             // repair master
             var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
@@ -125,10 +125,11 @@ public class SlavedUpdateModule : UpdateModule
                 case RepairStatus.ZIP_AROUND:
                 case RepairStatus.IN_TRANSITION:
                 case RepairStatus.WELDING:
-                    _master.Health += (Fix64)(_moduleData.RepairRatePerSecond / GameEngine.LogicFramesPerSecond);
-                    if (_master.Health > _master.MaxHealth)
+                    _master.AttemptHealing(
+                        _moduleData.RepairRatePerSecond / GameEngine.LogicFramesPerSecond,
+                        GameObject);
+                    if (_master.BodyModule.Health == _master.BodyModule.MaxHealth)
                     {
-                        _master.Health = _master.MaxHealth;
                         _repairStatus = RepairStatus.INITIAL;
                         GameObject.AIUpdate.SetLocomotor(LocomotorSetType.Normal);
                     }
@@ -175,9 +176,9 @@ public class SlavedUpdateModule : UpdateModule
         }
 
         // prior to bfme2, die on master death seems to be the default?
-        if (_master.IsDead && (GameEngine.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
+        if (_master.IsEffectivelyDead && (GameEngine.Game.SageGame is not SageGame.Bfme2 || _moduleData.DieOnMastersDeath))
         {
-            GameObject.Kill(DeathType.Exploded);
+            GameObject.Kill(deathType: DeathType.Exploded);
         }
     }
 

@@ -230,7 +230,7 @@ public sealed class SidesList : Asset, IPersistableObject
                     );
                 }
 
-                // Default teams are always singletons
+                // NoArmor teams are always singletons
                 if (!playerTeam.IsSingleton)
                 {
                     // TODO(Port): ZH crashes only in debug mode and silently fixes the problem in release mode, should we do the same?

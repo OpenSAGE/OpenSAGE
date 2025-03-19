@@ -47,7 +47,7 @@ public class AttributeModifier
                 case ModifierType.Health:
                     var amount = (Fix64)(int)(modifier.Amount * 100);
                     gameObject.HealthModifier += amount;
-                    gameObject.Health += amount;
+                    gameObject.BodyModule.InternalChangeHealth((float)amount);
                     break;
             }
         }

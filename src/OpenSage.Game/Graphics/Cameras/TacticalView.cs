@@ -411,7 +411,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // "Default camera is rotated 90 degrees, so match" says the original code
+                // "NoArmor camera is rotated 90 degrees, so match" says the original code
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
                 _path.CameraAngle[i] = angle;
@@ -463,7 +463,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // "Default camera is rotated 90 degrees, so match" says the original code
+                // "NoArmor camera is rotated 90 degrees, so match" says the original code
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
 
@@ -609,7 +609,7 @@ public sealed class TacticalView : IPersistableObject
             angle = -angle;
         }
 
-        // Default camera is rotated 90 degrees, so match
+        // NoArmor camera is rotated 90 degrees, so match
         angle -= MathUtility.PiOver2;
         angle = NormalizeAngle(angle);
 
@@ -846,7 +846,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // Default camera is rotated 90 degrees, so match
+                // NoArmor camera is rotated 90 degrees, so match
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
             }
@@ -1242,7 +1242,7 @@ public sealed class TacticalView : IPersistableObject
         // TODO: Remove lock when the object has been destroyed
         // C++ version only stores an object ID and fetches the object from the scene,
         // which handles that automatically
-        if (CameraLock.IsDead)
+        if (CameraLock.IsEffectivelyDead)
         {
             CameraLock = null;
             _followFactor = -1.0f;
@@ -1631,7 +1631,7 @@ public sealed class TacticalView : IPersistableObject
                         angle = -angle;
                     }
 
-                    // Default camera is rotated 90 degrees
+                    // NoArmor camera is rotated 90 degrees
                     _angle = angle + MathUtility.PiOver2;
                     angle = NormalizeAngle(angle);
 

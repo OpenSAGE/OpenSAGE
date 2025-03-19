@@ -74,7 +74,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     private void UpdateRepairTarget(GameObject repairTarget, BehaviorUpdateContext updateContext)
     {
-        if (repairTarget.IsFullHealth)
+        if (repairTarget.BodyModule.Health == repairTarget.BodyModule.MaxHealth)
         {
             ClearDozerTasks();
             _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
@@ -82,7 +82,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         else if (repairTarget.HealedEndFrame <= updateContext.LogicFrame.Value)
         {
             // advance repair progress
-            repairTarget.Heal(_moduleData.RepairHealthPercentPerSecond, _gameObject);
+            repairTarget.AttemptHealing(_moduleData.RepairHealthPercentPerSecond * repairTarget.BodyModule.MaxHealth, _gameObject);
             repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond(_gameEngine.LogicFramesPerSecond)).Value;
         }
     }

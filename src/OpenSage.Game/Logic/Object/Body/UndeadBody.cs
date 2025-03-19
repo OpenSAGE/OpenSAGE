@@ -37,7 +37,7 @@ public sealed class UndeadBody : ActiveBody
         if (damageInput.DamageType != DamageType.Unresistable
             && !_isSecondLife
             && damageInput.Amount >= Health
-            && IsHealthDamagingDamage(damageInput.DamageType))
+            && damageInput.DamageType.IsHealthDamagingDamage())
         {
             modifiedDamageInput.Amount = Math.Min(damageInput.Amount, Health - 1);
             shouldStartSecondLife = true;
@@ -49,13 +49,13 @@ public sealed class UndeadBody : ActiveBody
         // we will do our modifications to the body module.
         if (shouldStartSecondLife)
         {
-            StartSecondLife(damageInput);
+            StartSecondLife(damageInput, damageOutput);
         }
 
         return damageOutput;
     }
 
-    private void StartSecondLife(in DamageInfoInput damageInput)
+    private void StartSecondLife(in DamageInfoInput damageInput, in DamageInfoOutput damageOutput)
     {
         // Flag module as no longer intercepting damage.
         _isSecondLife = true;
@@ -71,22 +71,21 @@ public sealed class UndeadBody : ActiveBody
         var total = 0;
         foreach (var module in GameObject.FindBehaviors<SlowDeathBehavior>())
         {
-            if (module.IsApplicable(damageInput))
+            if (module.IsDieApplicable(damageInput))
             {
-                total += module.GetProbabilityModifier(damageInput);
+                total += module.GetProbabilityModifier(damageOutput);
             }
         }
         Debug.Assert(total > 0, "Hmm, this is wrong");
 
         // This returns a value from 1...total, inclusive.
-        // TODO(Port): The max should be inclusive, but it's actually exclusive.
-        var roll = GameEngine.Random.Next(1, total);
+        var roll = GameEngine.GameLogic.Random.Next(1, total);
 
         foreach (var module in GameObject.FindBehaviors<SlowDeathBehavior>())
         {
-            if (module.IsApplicable(damageInput))
+            if (module.IsDieApplicable(damageInput))
             {
-                roll -= module.GetProbabilityModifier(damageInput);
+                roll -= module.GetProbabilityModifier(damageOutput);
                 if (roll <= 0)
                 {
                     module.BeginSlowDeath(damageInput);

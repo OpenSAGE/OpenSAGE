@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object;
 
-public sealed class SupplyCenterCreate : CreateModule, IDestroyModule
+public sealed class SupplyCenterCreate : CreateModule
 {
     public SupplyCenterCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
@@ -16,7 +16,7 @@ public sealed class SupplyCenterCreate : CreateModule, IDestroyModule
         }
     }
 
-    public void OnDestroy()
+    protected internal override void OnDestroy()
     {
         foreach (var player in GameEngine.Scene3D.Players)
         {

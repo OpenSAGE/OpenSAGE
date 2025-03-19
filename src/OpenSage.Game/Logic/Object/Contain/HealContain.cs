@@ -21,7 +21,7 @@ public sealed class HealContain : OpenContainModule
         foreach (var unitId in ContainedObjectIds)
         {
             var unit = GameObjectForId(unitId);
-            if (unit.HealthPercentage == Fix64.One)
+            if (unit.BodyModule.Health == unit.BodyModule.MaxHealth)
             {
                 Remove(unit.Id);
             }
@@ -30,7 +30,7 @@ public sealed class HealContain : OpenContainModule
 
     protected override bool CanUnitEnter(GameObject unit)
     {
-        return unit.HealthPercentage < Fix64.One;
+        return unit.BodyModule.Health < unit.BodyModule.MaxHealth;
     }
 
     protected override BaseAudioEventInfo? GetEnterVoiceLine(UnitSpecificSounds sounds)

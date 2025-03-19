@@ -2,8 +2,14 @@
 
 internal sealed class StatusDamageHelper : ObjectHelperModule
 {
-    public StatusDamageHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public StatusDamageHelper(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
+    }
+
+    public void DoStatusDamage(ObjectStatus status, LogicFrameSpan duration)
+    {
+        // TODO(Port): Implement this.
     }
 
     internal override void Load(StatePersister reader)

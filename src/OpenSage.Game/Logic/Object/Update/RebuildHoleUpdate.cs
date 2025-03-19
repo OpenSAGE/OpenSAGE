@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object;
 /// <summary>
 /// This is RebuildHoleBehavior in the inis, but appears to be an update module
 /// </summary>
-public sealed class RebuildHoleUpdate : UpdateModule
+public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
 {
     private readonly RebuildHoleUpdateModuleData _moduleData;
 
@@ -54,13 +54,9 @@ public sealed class RebuildHoleUpdate : UpdateModule
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
-        if (!GameObject.IsFullHealth)
+        if (GameObject.BodyModule.Health < GameObject.BodyModule.MaxHealth)
         {
-            if (GameObject.HealthPercentage == Fix64.Zero)
-            {
-                return;
-            }
-            GameObject.HealDirectly(_healPercentagePerFrame);
+            GameObject.AttemptHealing(_healPercentagePerFrame * GameObject.BodyModule.MaxHealth, GameObject);
         }
 
         if (_framesUntilConstructionBegins != LogicFrameSpan.Zero)
@@ -101,13 +97,13 @@ public sealed class RebuildHoleUpdate : UpdateModule
             structure = GameEngine.GameLogic.GetObjectById(_structureId);
         }
 
-        if (worker == null || worker.IsDead)
+        if (worker == null || worker.IsEffectivelyDead)
         {
             // he's dead, jim
             ResetConstructionCounter();
             _workerId = ObjectId.Invalid;
         }
-        else if (structure == null || structure.IsDead)
+        else if (structure == null || structure.IsEffectivelyDead)
         {
             // if the structure dies, we reset the worker as well
             ResetConstructionCounter();
@@ -140,13 +136,12 @@ public sealed class RebuildHoleUpdate : UpdateModule
         }
     }
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
         var worker = GameEngine.GameLogic.GetObjectById(_workerId);
         var structure = GameEngine.GameLogic.GetObjectById(_structureId);
         worker?.Destroy();
         structure?.Destroy();
-        base.OnDie(context, deathType, status);
     }
 
     internal override void Load(StatePersister reader)

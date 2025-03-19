@@ -108,6 +108,9 @@ public enum DamageType
     [IniEnum("SUBDUAL_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
     SubdualBuilding,
 
+    [IniEnum("SUBDUAL_UNRESISTABLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    SubdualUnresistable,
+
     [IniEnum("MICROWAVE"), AddedIn(SageGame.CncGeneralsZeroHour)]
     Microwave,
 

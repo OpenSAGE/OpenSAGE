@@ -122,9 +122,9 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 
     private void HealUnit(GameObject gameObject)
     {
-        if (gameObject.HealthPercentage < Fix64.One)
+        if (gameObject.BodyModule.DamageState != BodyDamageType.Pristine)
         {
-            gameObject.Heal((Fix64)_moduleData.HealingAmount, GameObject);
+            gameObject.AttemptHealing(_moduleData.HealingAmount, GameObject);
             if (gameObject != GameObject)
             {
                 gameObject.SetBeingHealed(GameObject, NextUpdateFrame.Frame);

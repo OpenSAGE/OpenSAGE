@@ -69,7 +69,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
             if (GameObject.Contain != null)
             {
-                result += GameObject.Contain.GetContainedItemsMass();
+                result += GameObject.Contain.ContainedItemsMass;
             }
 
             return result;
@@ -480,14 +480,13 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 {
                     var damageAmount = netSpeed * Mass * d.FallHeightDamageFactor;
 
-                    var damageInfo = new DamageInfo();
-                    damageInfo.Request.DamageType = DamageType.Falling;
-                    damageInfo.Request.DeathType = DeathType.Splatted;
-                    damageInfo.Request.SourceID = obj.Id;
-                    damageInfo.Request.Amount = damageAmount;
-                    damageInfo.Request.ShockWaveAmount = 0.0f;
-
-                    obj.AttemptDamage(ref damageInfo);
+                    obj.AttemptDamage(new DamageInfoInput(obj)
+                    {
+                        DamageType = DamageType.Falling,
+                        DeathType = DeathType.Splatted,
+                        Amount = damageAmount,
+                        ShockWaveAmount = 0.0f
+                    });
 
                     // If this killed us, add SPLATTED to get a cool death.
                     if (obj.IsEffectivelyDead)
@@ -1069,12 +1068,12 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         AddOverlap(crusheeOther);
         if (!WasPreviouslyOverlapped(crusheeOther))
         {
-            var damageInfo = new DamageInfo();
-            damageInfo.Request.DamageType = DamageType.Crush;
-            damageInfo.Request.DeathType = DeathType.Crushed;
-            damageInfo.Request.SourceID = crusherMe.Id;
-            damageInfo.Request.Amount = 0.0f; // Yes, that's right - we don't want to damage, just to trigger the minor DamageFX, if any
-            crusheeOther.AttemptDamage(ref damageInfo);
+            crusheeOther.AttemptDamage(new DamageInfoInput(crusherMe)
+            {
+                DamageType = DamageType.Crush,
+                DeathType = DeathType.Crushed,
+                Amount = 0.0f // Yes, that's right - we don't want to damage, just to trigger the minor DamageFX, if any
+            });
         }
 
         var crusheePos = crusheeOther.Translation;
@@ -1329,12 +1328,12 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             {
                 // Do a boat load of crush damage, and the OnDie will handle
                 // cases like crushed car object.
-                var damageInfo = new DamageInfo();
-                damageInfo.Request.DamageType = DamageType.Crush;
-                damageInfo.Request.DeathType = DeathType.Crushed;
-                damageInfo.Request.SourceID = crusherMe.Id;
-                damageInfo.Request.Amount = DamageConstants.HugeDamageAmount; // Make sure they die
-                crusheeOther.AttemptDamage(ref damageInfo);
+                crusheeOther.AttemptDamage(new DamageInfoInput(crusherMe)
+                {
+                    DamageType = DamageType.Crush,
+                    DeathType = DeathType.Crushed,
+                    Amount = DamageConstants.HugeDamageAmount // Make sure they die
+                });
             }
         }
 

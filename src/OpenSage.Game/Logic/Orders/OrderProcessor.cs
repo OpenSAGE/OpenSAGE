@@ -76,7 +76,9 @@ public sealed class OrderProcessor
                         foreach (var unit in player.SelectedUnits)
                         {
                             unit.AIUpdate?.SetTargetPoint(targetPosition);
-                            var sound = unit.IsDamaged ? unit.Definition.SoundMoveStartDamaged?.Value : null;
+                            var sound = unit.BodyModule?.DamageState.IsWorseThan(BodyDamageType.Damaged) ?? false
+                                ? unit.Definition.SoundMoveStartDamaged?.Value
+                                : null;
                             sound ??= unit.Definition.SoundMoveStart?.Value;
 
                             if (sound != null)

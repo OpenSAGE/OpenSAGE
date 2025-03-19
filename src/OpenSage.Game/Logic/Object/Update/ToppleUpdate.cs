@@ -184,12 +184,12 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     {
         // Use a special "toppling" damage type here so that toppled stuff can
         // have different damage/die modules for toppled-death vs other-death.
-        var damageInfo = new DamageInfo();
-        damageInfo.Request.DamageType = DamageType.Unresistable;
-        damageInfo.Request.DeathType = DeathType.Toppled;
-        damageInfo.Request.SourceID = ObjectId.Invalid;
-        damageInfo.Request.Amount = DamageConstants.HugeDamageAmount;
-        obj.AttemptDamage(ref damageInfo);
+        obj.AttemptDamage(new DamageInfoInput
+        {
+            DamageType = DamageType.Unresistable,
+            DeathType = DeathType.Toppled,
+            Amount = DamageConstants.HugeDamageAmount,
+        });
     }
 
     public void OnCollide(GameObject other, in Vector3 location, in Vector3 normal)

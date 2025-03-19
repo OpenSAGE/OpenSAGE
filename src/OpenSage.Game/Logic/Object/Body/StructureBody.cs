@@ -11,7 +11,7 @@ public sealed class StructureBody : ActiveBody
     /// <summary>
     /// Object that built this structure.
     /// </summary>
-    private uint _constructorObjectID;
+    private ObjectId _constructorObjectID;
 
     internal StructureBody(GameObject gameObject, GameEngine gameEngine, StructureBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
@@ -21,7 +21,7 @@ public sealed class StructureBody : ActiveBody
     // This method is in the original code, but isn't actually used anywhere.
     public void SetConstructorObject(GameObject obj)
     {
-        _constructorObjectID = obj?.ID ?? 0;
+        _constructorObjectID = obj?.Id ?? ObjectId.Invalid;
     }
 
     internal override void Load(StatePersister reader)
@@ -32,7 +32,7 @@ public sealed class StructureBody : ActiveBody
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _constructorObjectID);
+        reader.PersistObjectId(ref _constructorObjectID);
     }
 }
 

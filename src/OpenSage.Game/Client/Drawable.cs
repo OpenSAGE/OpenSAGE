@@ -484,6 +484,31 @@ public sealed class Drawable : Entity, IPersistableObject
         return true;
     }
 
+    private static readonly Dictionary<BodyDamageType, ModelConditionFlag> DamageTypeLookup = new()
+    {
+        { BodyDamageType.Damaged, ModelConditionFlag.Damaged },
+        { BodyDamageType.ReallyDamaged, ModelConditionFlag.ReallyDamaged },
+        { BodyDamageType.Rubble, ModelConditionFlag.Rubble },
+    };
+
+    public void ReactToBodyDamageStateChange(BodyDamageType newState)
+    {
+        ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
+        ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
+        ModelConditionFlags.Set(ModelConditionFlag.Rubble, false);
+
+        if (DamageTypeLookup.TryGetValue(newState, out var flag))
+        {
+            ModelConditionFlags.Set(flag, true);
+        }
+
+        // TODO(Port): Port this.
+        // When loading map, ambient sound starting is handled by onLevelStart(), so that we can
+        // correctly react to customizations
+        //if (!TheGameLogic->isLoadingMap())
+        //    startAmbientSound(newState, TheGlobalData->m_timeOfDay);
+    }
+
     internal void Destroy()
     {
         foreach (var drawModule in DrawModules)
