@@ -18,7 +18,17 @@ public abstract class DamageModule : BehaviorModule
 
 internal interface IDamageModule
 {
-    void OnDamage(in DamageInfo damageData);
+    void OnDamage(in DamageInfo damageInfo);
+
+    void OnHealing(in DamageInfo damageInfo) { }
+
+    void OnBodyDamageStateChange(
+        in DamageInfo damageInfo,
+        BodyDamageType oldState,
+        BodyDamageType newState)
+    {
+
+    }
 }
 
 public abstract class DamageModuleData : ContainModuleData
@@ -29,4 +39,25 @@ public abstract class DamageModuleData : ContainModuleData
 public static class DamageConstants
 {
     public const float HugeDamageAmount = 999999.0f;
+
+    public static bool IsHealthDamagingDamage(this DamageType damageType) => damageType switch
+    {
+        DamageType.Status => false,
+        DamageType.SubdualMissile => false,
+        DamageType.SubdualVehicle => false,
+        DamageType.SubdualBuilding => false,
+        DamageType.SubdualUnresistable => false,
+        DamageType.KillPilot => false,
+        DamageType.KillGarrisoned => false,
+        _ => true,
+    };
+
+    public static bool IsSubdualDamage(this DamageType damageType) => damageType switch
+    {
+        DamageType.SubdualMissile => true,
+        DamageType.SubdualVehicle => true,
+        DamageType.SubdualBuilding => true,
+        DamageType.SubdualUnresistable => true,
+        _ => false,
+    };
 }

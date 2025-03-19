@@ -457,9 +457,9 @@ internal sealed partial class IniParser
     public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
     public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
-    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / GameEngine.LogicUpdateInterval));
+    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => LogicFrameSpan.FromMilliseconds(ParseFloat());
 
-    public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / GameEngine.LogicUpdateInterval;
+    public float ParseTimeMillisecondsToLogicFramesFloat() => LogicFrameSpan.FromMillisecondsToFloat(ParseFloat());
 
     public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * GameEngine.LogicFramesPerSecond));
 

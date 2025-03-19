@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System;
+using System.Diagnostics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
@@ -7,6 +9,20 @@ public sealed class ImmortalBody : ActiveBody
     internal ImmortalBody(GameObject gameObject, GameEngine gameEngine, ImmortalBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
+    }
+
+    public override void InternalChangeHealth(float delta)
+    {
+        // Don't let anything change us to below one hit point.
+        delta = Math.Max(delta, -Health + 1);
+
+        // Extend functionality, but I go first because I can't let you die and
+        // then fix it, I must prevent.
+        base.InternalChangeHealth(delta);
+
+        Debug.Assert(
+            Health > 0 && !GameObject.IsEffectivelyDead,
+            "Immortal objects should never get marked as dead!");
     }
 
     internal override void Load(StatePersister reader)

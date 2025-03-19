@@ -37,15 +37,18 @@ public struct DamageInfo : IPersistableObject
 /// </remarks>
 public struct DamageInfoInput() : IPersistableObject
 {
+    private uint _sourceID;
+    private ObjectDefinition? _sourceTemplate;
+
     /// <summary>
     /// Source of the damage.
     /// </summary>
-    public uint SourceID;
+    public uint SourceID => _sourceID;
 
     /// <summary>
     /// Source of the damage (the template).
     /// </summary>
-    public ObjectDefinition? SourceTemplate;
+    public ObjectDefinition? SourceTemplate => _sourceTemplate;
 
     /// <summary>
     /// Player mask of <see cref="SourceID"/>.
@@ -111,11 +114,18 @@ public struct DamageInfoInput() : IPersistableObject
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public float ShockWaveTaperOff;
 
+    public DamageInfoInput(GameObject source)
+        : this()
+    {
+        _sourceID = source.ID;
+        _sourceTemplate = source.Definition;
+    }
+
     public void Persist(StatePersister reader)
     {
         var version = reader.PersistVersion(3);
 
-        reader.PersistObjectID(ref SourceID);
+        reader.PersistObjectID(ref _sourceID);
         reader.PersistEnumUInt16(ref PlayerMaskType);
         reader.PersistEnum(ref DamageType);
 
@@ -140,7 +150,7 @@ public struct DamageInfoInput() : IPersistableObject
             reader.PersistAsciiString(ref attackerName);
             if (reader.Mode == StatePersistMode.Read)
             {
-                SourceTemplate = reader.AssetStore.ObjectDefinitions.GetByName(attackerName);
+                _sourceTemplate = reader.AssetStore.ObjectDefinitions.GetByName(attackerName);
             }
             
         }

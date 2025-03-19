@@ -24,7 +24,7 @@ public abstract class DieModule : BehaviorModule, IDieModule
         reader.EndObject();
     }
 
-    public void OnDie(in DamageInfoInput damageInput)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
         if (!_moduleData.DieData.IsDieApplicable(damageInput, GameObject))
         {

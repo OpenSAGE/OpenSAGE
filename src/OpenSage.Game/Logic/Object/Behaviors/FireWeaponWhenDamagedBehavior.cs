@@ -97,7 +97,7 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
 
     private void FireWeaponIfPresentAndReady(Weapon?[] weapons)
     {
-        var weapon = weapons[(int)GameObject.BodyDamageType];
+        var weapon = weapons[(int)GameObject.BodyModule.DamageState];
 
         if (weapon == null || !weapon.IsInactive)
         {

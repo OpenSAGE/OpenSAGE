@@ -188,14 +188,10 @@ public abstract class BodyModule : BehaviorModule
         var maxHealth = (float)MaxHealth;
         if (ImGui.InputFloat("MaxHealth", ref maxHealth))
         {
-            MaxHealth = (Fix64)maxHealth;
+            SetMaxHealth(maxHealth);
         }
 
-        var health = (float)Health;
-        if (ImGui.InputFloat("Health", ref health))
-        {
-            Health = (Fix64)health;
-        }
+        ImGui.LabelText("Health", Health.ToString());
 
         ImGui.Separator();
 
@@ -204,7 +200,12 @@ public abstract class BodyModule : BehaviorModule
         ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
         if (ImGui.Button("Apply Damage"))
         {
-            GameObject.DoDamage(_inspectorDamageType, (Fix64)_inspectorDamageAmount, _inspectorDeathType, null);
+            AttemptDamage(new DamageInfoInput
+            {
+                DamageType = _inspectorDamageType,
+                DeathType = _inspectorDeathType,
+                Amount = _inspectorDamageAmount,
+            });
         }
     }
 }

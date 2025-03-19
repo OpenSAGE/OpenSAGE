@@ -15,20 +15,7 @@ internal sealed class MaxHealthUpgrade : UpgradeModule
 
     protected override void OnUpgrade()
     {
-        switch (_moduleData.ChangeType)
-        {
-            case MaxHealthChangeType.PreserveRatio:
-                GameObject.Health += GameObject.HealthPercentage * (Fix64)_moduleData.AddMaxHealth;
-                break;
-            case MaxHealthChangeType.AddCurrentHealthToo:
-                GameObject.Health += (Fix64)_moduleData.AddMaxHealth;
-                break;
-            case MaxHealthChangeType.SameCurrentHealth:
-                // Don't add any new health
-                break;
-        }
-
-        GameObject.MaxHealth += (Fix64)_moduleData.AddMaxHealth;
+        GameObject.BodyModule.SetMaxHealth(_moduleData.AddMaxHealth, _moduleData.ChangeType);
     }
 
     internal override void Load(StatePersister reader)

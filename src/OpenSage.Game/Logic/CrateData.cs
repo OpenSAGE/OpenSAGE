@@ -61,16 +61,16 @@ public sealed class CrateData : BaseAsset
 public enum VeterancyLevel
 {
     [IniEnum("REGULAR")]
-    Regular,
+    Regular = 0,
 
     [IniEnum("VETERAN")]
-    Veteran,
+    Veteran = 1,
 
     [IniEnum("ELITE")]
-    Elite,
+    Elite = 2,
 
     [IniEnum("HEROIC")]
-    Heroic,
+    Heroic = 3,
 }
 
 public readonly record struct CrateObject(LazyAssetReference<ObjectDefinition>? Object, float Probability)

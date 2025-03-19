@@ -46,11 +46,6 @@ public abstract class BehaviorModule : ObjectModule
     }
 }
 
-public interface IDestroyModule
-{
-    void OnDestroy();
-}
-
 internal sealed class BehaviorUpdateContext
 {
     public readonly GameEngine GameEngine;
@@ -92,6 +87,11 @@ public readonly struct LogicFrame : IEquatable<LogicFrame>
     public static LogicFrame operator -(LogicFrame left, LogicFrame right)
     {
         return new LogicFrame(left.Value - right.Value);
+    }
+
+    public static LogicFrame operator -(LogicFrame left, uint right)
+    {
+        return new LogicFrame(left.Value - right);
     }
 
     public static bool operator <(LogicFrame left, LogicFrame right)
@@ -141,6 +141,16 @@ public readonly struct LogicFrameSpan
     public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
 
     public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)GameEngine.LogicFramesPerSecond);
+
+    public static LogicFrameSpan FromMilliseconds(float timeInMilliseconds)
+    {
+        return new LogicFrameSpan((uint)MathF.Ceiling(FromMillisecondsToFloat(timeInMilliseconds)));
+    }
+
+    public static float FromMillisecondsToFloat(float timeInMilliseconds)
+    {
+        return timeInMilliseconds / GameEngine.LogicUpdateInterval;
+    }
 
     internal readonly uint Value;
 

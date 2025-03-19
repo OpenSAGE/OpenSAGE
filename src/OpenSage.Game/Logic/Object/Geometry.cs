@@ -174,6 +174,16 @@ public sealed class Geometry : IPersistableObject
             }
         }
     }
+
+    /// <summary>
+    /// Given an object with this geometry, sets how far above the object's
+    /// canonical position its max z should extend.
+    /// </summary>
+    public void SetMaxHeightAbovePosition(float z)
+    {
+        // TODO(Port): Implement this.
+        MaxZ = z;
+    }
 }
 
 public sealed class GeometryShape

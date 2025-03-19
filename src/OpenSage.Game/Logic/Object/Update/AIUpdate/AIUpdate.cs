@@ -90,6 +90,9 @@ public class AIUpdate : UpdateModule
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
 
+    // TODO(Port): Implement this.
+    public bool IsMoving => false;
+
     internal AIUpdate(GameObject gameObject, GameEngine gameEngine, AIUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
@@ -242,6 +245,16 @@ public class AIUpdate : UpdateModule
             ArrivedAtDestination();
             StopMovingOnly();
         }
+    }
+
+    public void AIEvacuateInstantly(bool exposeStealthUnits, CommandSourceTypes commandSource)
+    {
+        // TODO(Port): Implement this.
+    }
+
+    public void AIIdle(CommandSourceTypes commandSource)
+    {
+        // TODO(Port): Implement this.
     }
 
     internal override void Update(BehaviorUpdateContext context)
