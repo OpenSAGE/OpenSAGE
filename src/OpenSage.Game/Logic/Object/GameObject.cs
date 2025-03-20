@@ -994,6 +994,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             return;
         }
 
+        // TODO: This code should end up in DozerAIUpdate.Construct.
+        // Newly constructed objects start at one hit point.
+        BodyModule.InternalChangeHealth(-BodyModule.Health + 1.0f);
+
         ClearModelConditionFlags();
 
         ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);

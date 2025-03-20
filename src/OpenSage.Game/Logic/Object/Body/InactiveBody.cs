@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-using FixedMath.NET;
+﻿#nullable enable
+
+using System.Diagnostics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
@@ -53,7 +54,7 @@ public sealed class InactiveBody : BodyModule
 
             // Since we have no health, we do not call DamageModules, nor do
             // DamageFX. However, we DO process DieModules.
-            if (_dieCalled)
+            if (!_dieCalled)
             {
                 GameObject.OnDie(damageInput);
                 _dieCalled = true;
@@ -126,7 +127,7 @@ public sealed class InactiveBodyModuleData : BodyModuleData
 {
     internal static InactiveBodyModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-    private static readonly IniParseTable<InactiveBodyModuleData> FieldParseTable = new IniParseTable<InactiveBodyModuleData>();
+    private static readonly IniParseTable<InactiveBodyModuleData> FieldParseTable = [];
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {

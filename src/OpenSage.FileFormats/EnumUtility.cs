@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace OpenSage.FileFormats;
 
@@ -26,8 +27,8 @@ public static class EnumUtility
     }
 
     public static int GetEnumCount<TEnum>()
-        where TEnum : Enum
+        where TEnum : struct, Enum
     {
-        return Enum.GetNames(typeof(TEnum)).Length;
+        return Enum.GetValuesAsUnderlyingType<TEnum>().Cast<int>().Max() + 1;
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
+using OpenSage.Terrain;
 using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
@@ -33,46 +34,12 @@ public class ActiveBody : BodyModule
     private bool _indestructible;
 
     private BitArray<ArmorSetCondition> _currentArmorSetFlags = new();
-    private ArmorTemplateSet _currentArmorSet;
+    private ArmorTemplateSet? _currentArmorSet;
     private Armor _currentArmor = Armor.NoArmor;
-    private DamageFX _currentDamageFX;
+    private DamageFX? _currentDamageFX;
 
-    public override bool FrontCrushed => _frontCrushed;
-
-    public override bool BackCrushed => _backCrushed;
-
-    public override BodyDamageType DamageState
-    {
-        get => _currentDamageState;
-        set
-        {
-            var ratio = value switch
-            {
-                BodyDamageType.Pristine => 1.0f,
-                BodyDamageType.Damaged => GameEngine.AssetStore.GameData.Current.UnitDamagedThreshold,
-                BodyDamageType.ReallyDamaged => GameEngine.AssetStore.GameData.Current.UnitReallyDamagedThreshold,
-                BodyDamageType.Rubble => 0.0f,
-                _ => throw new ArgumentOutOfRangeException(nameof(value))
-            };
-
-            var desiredHealth = Math.Max(
-                _maxHealth * ratio - 1, // -1 because < not <= in CalculateDamageState
-                0.0f);
-
-            InternalChangeHealth(desiredHealth - _currentHealth);
-            SetCorrectDamageState();
-        }
-    }
-
-    public DamageInfo LastDamage => _lastDamageInfo;
-
-    public bool CanBeSubdued => _moduleData.SubdualDamageCap > 0;
-
-    public bool IsSubdued => _maxHealth <= _currentSubdualDamage;
-
-    public override float Health => _currentHealth;
-
-    internal ActiveBody(GameObject gameObject, GameEngine gameEngine, ActiveBodyModuleData moduleData) : base(gameObject, gameEngine)
+    internal ActiveBody(GameObject gameObject, GameEngine gameEngine, ActiveBodyModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -86,116 +53,6 @@ public class ActiveBody : BodyModule
 
         // Start us in the right state.
         SetCorrectDamageState();
-    }
-
-    protected internal override void OnDestroy()
-    {
-        DeleteAllParticleSystems();
-    }
-
-    private void SetCorrectDamageState()
-    {
-        _currentDamageState = CalculateDamageState(_currentHealth, _maxHealth);
-
-        // Original comment:
-        // @todo srj -- bleah, this is an icky way to do it. oh well.
-        if (_currentDamageState == BodyDamageType.Rubble
-            && GameObject.IsKindOf(ObjectKinds.Structure))
-        {
-            var rubbleHeight = GameObject.Definition.StructureRubbleHeight;
-
-            if (rubbleHeight <= 0.0f)
-            {
-                rubbleHeight = GameEngine.AssetStore.GameData.Current.DefaultStructureRubbleHeight;
-            }
-
-            // There's an original comment that says this was changed to a
-            // Z only version, to keep it from disappearing from PartitionManager
-            // for a frame (which didn't previously happen).
-            GameObject.SetGeometryInfoZ(rubbleHeight);
-
-            // Have to tell pathfind as well, as rubble pathfinds differently.
-            GameEngine.AI.Pathfinder.RemoveObjectFromPathfindMap(GameObject);
-            GameEngine.AI.Pathfinder.AddObjectToPathfindMap(GameObject);
-
-            // Here we make sure nobody collides with us, ever again.
-            // This allows projectiles shot from infantry that are inside
-            // rubble to get out of said rubble safely.
-            GameObject.SetObjectStatus(ObjectStatus.NoCollisions, true);
-        }
-    }
-
-    public override float EstimateDamage(in DamageInfoInput damageInput)
-    {
-        ValidateArmorAndDamageFX();
-
-        // Subdual damage can't affect you if you can't be subdued.
-        if (damageInput.DamageType.IsSubdualDamage() && !CanBeSubdued)
-        {
-            return 0.0f;
-        }
-
-        switch (damageInput.DamageType)
-        {
-            case DamageType.KillGarrisoned:
-                var contain = GameObject.Contain;
-
-                var canKillGarrisoned = contain != null
-                    && contain.ContainCount > 0
-                    && contain.IsGarrisonable
-                    && !contain.IsImmuneToClearBuildingAttacks;
-
-                return canKillGarrisoned
-                    ? 1.0f
-                    : 0.0f;
-
-            case DamageType.Sniper:
-                if (GameObject.IsKindOf(ObjectKinds.Structure)
-                    && GameObject.TestStatus(ObjectStatus.UnderConstruction))
-                {
-                    // If we're a pathfinder shooting a stinger site under
-                    // construction... don't. Special case code.
-                    return 0.0f;
-                }
-                break;
-        }
-
-        return _currentArmor.AdjustDamage(
-            damageInput.DamageType,
-            damageInput.Amount);
-    }
-
-    private void DoDamageFX(in DamageInfoInput damageInput, in DamageInfoOutput damageOutput)
-    {
-        // Just the visual aspect of damage can be overridden in some cases.
-        // Unresistable is the default to mean no override, as we are out of bits.
-        var damageTypeToUse = damageInput.DamageFXOverride != DamageType.Unresistable
-            ? damageInput.DamageFXOverride
-            : damageInput.DamageType;
-
-        if (_currentDamageFX == null)
-        {
-            return;
-        }
-
-        var now = GameEngine.GameLogic.CurrentFrame;
-
-        if (damageTypeToUse == _lastDamageFXDone && _nextDamageFXFrame > now)
-        {
-            return;
-        }
-
-        var source = GameEngine.GameLogic.GetObjectById(damageInput.SourceID);
-
-        _lastDamageFXDone = damageTypeToUse;
-        _nextDamageFXFrame = now + _currentDamageFX.GetDamageFXThrottleTime(damageTypeToUse, source);
-
-        _currentDamageFX.DoDamageFX(
-            damageTypeToUse,
-            damageOutput.ActualDamageDealt,
-            source,
-            GameObject,
-            GameEngine);
     }
 
     public override DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput)
@@ -605,72 +462,49 @@ public class ActiveBody : BodyModule
         return damageOutput;
     }
 
-    private void InternalAddSubdualDamage(float delta)
+    public override float EstimateDamage(in DamageInfoInput damageInput)
     {
-        _currentSubdualDamage += delta;
-        _currentSubdualDamage = Math.Min(_currentSubdualDamage, _moduleData.SubdualDamageCap);
-    }
+        ValidateArmorAndDamageFX();
 
-    private void OnSubdualChange(bool isNowSubdued)
-    {
-        if (!GameObject.IsKindOf(ObjectKinds.Projectile))
+        // Subdual damage can't affect you if you can't be subdued.
+        if (damageInput.DamageType.IsSubdualDamage() && !CanBeSubdued)
         {
-            var me = GameObject;
+            return 0.0f;
+        }
 
-            if (isNowSubdued)
-            {
-                me.SetDisabled(DisabledType.Subdued);
+        switch (damageInput.DamageType)
+        {
+            case DamageType.KillGarrisoned:
+                var contain = GameObject.Contain;
 
-                me.Contain?.OrderAllPassengersToIdle(CommandSourceTypes.FromAI);
-            }
-            else
-            {
-                me.ClearDisabled(DisabledType.Subdued);
+                var canKillGarrisoned = contain != null
+                    && contain.ContainCount > 0
+                    && contain.IsGarrisonable
+                    && !contain.IsImmuneToClearBuildingAttacks;
 
-                if (me.IsKindOf(ObjectKinds.FSInternetCenter))
+                return canKillGarrisoned
+                    ? 1.0f
+                    : 0.0f;
+
+            case DamageType.Sniper:
+                if (GameObject.IsKindOf(ObjectKinds.Structure)
+                    && GameObject.TestStatus(ObjectStatus.UnderConstruction))
                 {
-                    // Any unit inside an internet center is a hacker! Order
-                    // them to start hacking again.
-                    me.Contain?.OrderAllPassengersToHackInternet(CommandSourceTypes.FromAI);
+                    // If we're a pathfinder shooting a stinger site under
+                    // construction... don't. Special case code.
+                    return 0.0f;
                 }
-            }
+                break;
         }
-        else if (isNowSubdued)
-        {
-            // There's no coming back from being jammed, and projectiles can't
-            // even heal, but this makes it clear.
-            GameObject.FindBehavior<IProjectileUpdate>()?.ProjectileNowJammed();
-        }
+
+        return _currentArmor.AdjustDamage(
+            damageInput.DamageType,
+            damageInput.Amount);
     }
 
-    private bool ShouldRetaliateAgainstAggressor(GameObject obj, GameObject damager)
-    {
-        // TODO(Port): Implement this.
-        return false;
-    }
+    public override float Health => _currentHealth;
 
-    private void SetLastDamageInfo(in DamageInfo damageInfo)
-    {
-        _lastDamageInfo = damageInfo;
-        _lastDamageCleared = false;
-        _lastDamageFrame = GameEngine.GameLogic.CurrentFrame;
-    }
-
-    /// <summary>
-    /// Simple setting of the initial health value. It does _not_ track any transition
-    /// states for the event of "damage" or the event of "death".
-    /// </summary>
-    public override void SetInitialHealth(int initialPercent)
-    {
-        // Save the current health as the previous health.
-        _previousHealth = _currentHealth;
-
-        var factor = initialPercent / 100.0f;
-        var newHealth = factor * _initialHealth;
-
-        // Change the health to the requested percentage.
-        InternalChangeHealth(newHealth - _currentHealth);
-    }
+    public override float MaxHealth => _maxHealth;
 
     /// <summary>
     /// Simple setting of the health value. It does _not_ track any transition
@@ -726,114 +560,52 @@ public class ActiveBody : BodyModule
         }
     }
 
-    public override void EvaluateVisualCondition()
-    {
-        GameObject.Drawable?.ReactToBodyDamageStateChange(_currentDamageState);
+    public override float InitialHealth => _initialHealth;
 
-        // Destroy any particle systems that were attached to our body for the
-        // old state and create new particle systems for the new state.
-        UpdateBodyParticleSystems();
-    }
-
-    public override void UpdateBodyParticleSystems()
-    {
-        // TODO(Port): Implemement this.
-    }
-
-    private void DeleteAllParticleSystems()
-    {
-        // TODO(Port): Implement this.
-        foreach (var particleSystemId in _particleSystemIds)
-        {
-            
-        }
-
-        _particleSystemIds.Clear();
-    }
-
-    public override void InternalChangeHealth(float delta)
+    /// <summary>
+    /// Simple setting of the initial health value. It does _not_ track any transition
+    /// states for the event of "damage" or the event of "death".
+    /// </summary>
+    public override void SetInitialHealth(int initialPercent)
     {
         // Save the current health as the previous health.
         _previousHealth = _currentHealth;
 
-        // Change the health by the delta. It can be positive or negative.
-        _currentHealth += delta;
+        var factor = initialPercent / 100.0f;
+        var newHealth = factor * _initialHealth;
 
-        // Clamp the new health.
-        _currentHealth = Math.Clamp(_currentHealth, 0.0f, _maxHealth);
+        // Change the health to the requested percentage.
+        InternalChangeHealth(newHealth - _currentHealth);
+    }
 
-        // Recalculate the damage state.
-        var oldState = _currentDamageState;
-        SetCorrectDamageState();
+    public override float PreviousHealth => _previousHealth;
 
-        // If our state has changed...
-        if (_currentDamageState != oldState)
+    public override LogicFrameSpan SubdualDamageHealRate => _moduleData.SubdualDamageHealRate;
+
+    public override bool HasAnySubdualDamage => _currentSubdualDamage > 0;
+
+    public override float CurrentSubdualDamageAmount => _currentSubdualDamage;
+
+    public override BodyDamageType DamageState
+    {
+        get => _currentDamageState;
+        set
         {
-            // ... show a visual change in the model for the damage state. We
-            // do not show visual changes for damage states when things are
-            // under construction, because we just don't have all the art
-            // states for that during buildup animation.
-            if (!GameObject.TestStatus(ObjectStatus.UnderConstruction))
+            var ratio = value switch
             {
-                EvaluateVisualCondition();
-            }
-        }
+                BodyDamageType.Pristine => 1.0f,
+                BodyDamageType.Damaged => GameEngine.AssetStore.GameData.Current.UnitDamagedThreshold,
+                BodyDamageType.ReallyDamaged => GameEngine.AssetStore.GameData.Current.UnitReallyDamagedThreshold,
+                BodyDamageType.Rubble => 0.0f,
+                _ => throw new ArgumentOutOfRangeException(nameof(value))
+            };
 
-        // Mark the bit according to our health. If our AI is dead but our
-        // health improves, it will still re-flag this bit in the AIDeadState
-        // every frame.
-        GameObject.IsEffectivelyDead = _currentHealth <= 0;
-    }
+            var desiredHealth = Math.Max(
+                _maxHealth * ratio - 1, // -1 because < not <= in CalculateDamageState
+                0.0f);
 
-    public override void SetArmorSetFlag(ArmorSetCondition armorSetType)
-    {
-        _currentArmorSetFlags.Set(armorSetType, true);
-    }
-
-    public override void ClearArmorSetFlag(ArmorSetCondition armorSetType)
-    {
-        _currentArmorSetFlags.Set(armorSetType, false);
-    }
-
-    public override bool TestArmorSetFlag(ArmorSetCondition armorSetType)
-    {
-        return _currentArmorSetFlags.Get(armorSetType);
-    }
-
-    private void ValidateArmorAndDamageFX()
-    {
-        var set = BitArrayMatchFinder.FindBest(
-            CollectionsMarshal.AsSpan(GameObject.Definition.ArmorSets),
-            _currentArmorSetFlags);
-
-        if (set != null && set != _currentArmorSet)
-        {
-            _currentArmor = new Armor(set.Armor.Value);
-            _currentDamageFX = set.DamageFX?.Value;
-            _currentArmorSet = set;
-        }
-    }
-
-    private BodyDamageType CalculateDamageState(float health, float maxHealth)
-    {
-        var ratio = health / maxHealth;
-
-        var gameData = GameEngine.AssetStore.GameData.Current;
-        if (ratio > gameData.UnitDamagedThreshold)
-        {
-            return BodyDamageType.Pristine;
-        }
-        else if (ratio > gameData.UnitReallyDamagedThreshold)
-        {
-            return BodyDamageType.Damaged;
-        }
-        else if (ratio > 0.0f)
-        {
-            return BodyDamageType.ReallyDamaged;
-        }
-        else
-        {
-            return BodyDamageType.Rubble;
+            InternalChangeHealth(desiredHealth - _currentHealth);
+            SetCorrectDamageState();
         }
     }
 
@@ -931,6 +703,289 @@ public class ActiveBody : BodyModule
         }
     }
 
+    public override void SetArmorSetFlag(ArmorSetCondition armorSetType)
+    {
+        _currentArmorSetFlags.Set(armorSetType, true);
+    }
+
+    public override void ClearArmorSetFlag(ArmorSetCondition armorSetType)
+    {
+        _currentArmorSetFlags.Set(armorSetType, false);
+    }
+
+    public override bool TestArmorSetFlag(ArmorSetCondition armorSetType)
+    {
+        return _currentArmorSetFlags.Get(armorSetType);
+    }
+
+    public override DamageInfo? LastDamageInfo => _lastDamageInfo;
+
+    public override LogicFrame LastDamageFrame => _lastDamageFrame ?? LogicFrame.Zero;
+
+    public override LogicFrame LastHealingFrame => _lastHealingFrame ?? LogicFrame.Zero;
+
+    public override ObjectId ClearableLastAttacker => _lastDamageCleared ? ObjectId.Invalid : _lastDamageInfo.Request.SourceID;
+
+    public override void ClearLastAttacker()
+    {
+        _lastDamageCleared = true;
+    }
+
+    public override bool FrontCrushed
+    {
+        get => _frontCrushed;
+        set => _frontCrushed = value;
+    }
+
+    public override bool BackCrushed
+    {
+        get => _backCrushed;
+        set => _backCrushed = value;
+    }
+
+    public override void InternalChangeHealth(float delta)
+    {
+        // Save the current health as the previous health.
+        _previousHealth = _currentHealth;
+
+        // Change the health by the delta. It can be positive or negative.
+        _currentHealth += delta;
+
+        // Clamp the new health.
+        _currentHealth = Math.Clamp(_currentHealth, 0.0f, _maxHealth);
+
+        // Recalculate the damage state.
+        var oldState = _currentDamageState;
+        SetCorrectDamageState();
+
+        // If our state has changed...
+        if (_currentDamageState != oldState)
+        {
+            // ... show a visual change in the model for the damage state. We
+            // do not show visual changes for damage states when things are
+            // under construction, because we just don't have all the art
+            // states for that during buildup animation.
+            if (!GameObject.TestStatus(ObjectStatus.UnderConstruction))
+            {
+                EvaluateVisualCondition();
+            }
+        }
+
+        // Mark the bit according to our health. If our AI is dead but our
+        // health improves, it will still re-flag this bit in the AIDeadState
+        // every frame.
+        GameObject.IsEffectivelyDead = _currentHealth <= 0;
+    }
+
+    public override bool IsIndestructible
+    {
+        get => _indestructible;
+        set
+        {
+            _indestructible = value;
+
+            // For bridges, we mirror this state on its towers.
+            if (GameObject.IsKindOf(ObjectKinds.Bridge))
+            {
+                var bb = GameObject.FindBehavior<BridgeBehavior>();
+                if (bb != null)
+                {
+                    foreach (var bridgeTowerType in Enum.GetValues<BridgeTowerType>())
+                    {
+                        var towerId = bb.GetTowerId(bridgeTowerType);
+                        var tower = GameEngine.GameLogic.GetObjectById(towerId);
+
+                        if (tower?.BodyModule != null)
+                        {
+                            tower.BodyModule.IsIndestructible = value;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public override void EvaluateVisualCondition()
+    {
+        GameObject.Drawable?.ReactToBodyDamageStateChange(_currentDamageState);
+
+        // Destroy any particle systems that were attached to our body for the
+        // old state and create new particle systems for the new state.
+        UpdateBodyParticleSystems();
+    }
+
+    public override void UpdateBodyParticleSystems()
+    {
+        // TODO(Port): Implemement this.
+    }
+
+    private bool CanBeSubdued => _moduleData.SubdualDamageCap > 0;
+
+    private bool IsSubdued => _maxHealth <= _currentSubdualDamage;
+
+    private void SetCorrectDamageState()
+    {
+        _currentDamageState = CalculateDamageState(_currentHealth, _maxHealth);
+
+        // Original comment:
+        // @todo srj -- bleah, this is an icky way to do it. oh well.
+        if (_currentDamageState == BodyDamageType.Rubble
+            && GameObject.IsKindOf(ObjectKinds.Structure))
+        {
+            var rubbleHeight = GameObject.Definition.StructureRubbleHeight;
+
+            if (rubbleHeight <= 0.0f)
+            {
+                rubbleHeight = GameEngine.AssetStore.GameData.Current.DefaultStructureRubbleHeight;
+            }
+
+            // There's an original comment that says this was changed to a
+            // Z only version, to keep it from disappearing from PartitionManager
+            // for a frame (which didn't previously happen).
+            GameObject.SetGeometryInfoZ(rubbleHeight);
+
+            // Have to tell pathfind as well, as rubble pathfinds differently.
+            GameEngine.AI.Pathfinder.RemoveObjectFromPathfindMap(GameObject);
+            GameEngine.AI.Pathfinder.AddObjectToPathfindMap(GameObject);
+
+            // Here we make sure nobody collides with us, ever again.
+            // This allows projectiles shot from infantry that are inside
+            // rubble to get out of said rubble safely.
+            GameObject.SetObjectStatus(ObjectStatus.NoCollisions, true);
+        }
+    }
+
+    private void DoDamageFX(in DamageInfoInput damageInput, in DamageInfoOutput damageOutput)
+    {
+        // Just the visual aspect of damage can be overridden in some cases.
+        // Unresistable is the default to mean no override, as we are out of bits.
+        var damageTypeToUse = damageInput.DamageFXOverride != DamageType.Unresistable
+            ? damageInput.DamageFXOverride
+            : damageInput.DamageType;
+
+        if (_currentDamageFX == null)
+        {
+            return;
+        }
+
+        var now = GameEngine.GameLogic.CurrentFrame;
+
+        if (damageTypeToUse == _lastDamageFXDone && _nextDamageFXFrame > now)
+        {
+            return;
+        }
+
+        var source = GameEngine.GameLogic.GetObjectById(damageInput.SourceID);
+
+        _lastDamageFXDone = damageTypeToUse;
+        _nextDamageFXFrame = now + _currentDamageFX.GetDamageFXThrottleTime(damageTypeToUse, source);
+
+        _currentDamageFX.DoDamageFX(
+            damageTypeToUse,
+            damageOutput.ActualDamageDealt,
+            source,
+            GameObject,
+            GameEngine);
+    }
+
+    private void InternalAddSubdualDamage(float delta)
+    {
+        _currentSubdualDamage += delta;
+        _currentSubdualDamage = Math.Min(_currentSubdualDamage, _moduleData.SubdualDamageCap);
+    }
+
+    private void OnSubdualChange(bool isNowSubdued)
+    {
+        if (!GameObject.IsKindOf(ObjectKinds.Projectile))
+        {
+            var me = GameObject;
+
+            if (isNowSubdued)
+            {
+                me.SetDisabled(DisabledType.Subdued);
+
+                me.Contain?.OrderAllPassengersToIdle(CommandSourceTypes.FromAI);
+            }
+            else
+            {
+                me.ClearDisabled(DisabledType.Subdued);
+
+                if (me.IsKindOf(ObjectKinds.FSInternetCenter))
+                {
+                    // Any unit inside an internet center is a hacker! Order
+                    // them to start hacking again.
+                    me.Contain?.OrderAllPassengersToHackInternet(CommandSourceTypes.FromAI);
+                }
+            }
+        }
+        else if (isNowSubdued)
+        {
+            // There's no coming back from being jammed, and projectiles can't
+            // even heal, but this makes it clear.
+            GameObject.FindBehavior<IProjectileUpdate>()?.ProjectileNowJammed();
+        }
+    }
+
+    private bool ShouldRetaliateAgainstAggressor(GameObject obj, GameObject? damager)
+    {
+        // TODO(Port): Implement this.
+        return false;
+    }
+
+    private void SetLastDamageInfo(in DamageInfo damageInfo)
+    {
+        _lastDamageInfo = damageInfo;
+        _lastDamageCleared = false;
+        _lastDamageFrame = GameEngine.GameLogic.CurrentFrame;
+    }
+
+    protected internal override void OnDestroy()
+    {
+        DeleteAllParticleSystems();
+    }
+
+    private void DeleteAllParticleSystems()
+    {
+        // TODO(Port): Implement this.
+    }
+
+    private void ValidateArmorAndDamageFX()
+    {
+        var set = BitArrayMatchFinder.FindBest(
+            CollectionsMarshal.AsSpan(GameObject.Definition.ArmorSets),
+            _currentArmorSetFlags);
+
+        if (set != null && set != _currentArmorSet)
+        {
+            _currentArmor = new Armor(set.Armor.Value);
+            _currentDamageFX = set.DamageFX?.Value;
+            _currentArmorSet = set;
+        }
+    }
+
+    private BodyDamageType CalculateDamageState(float health, float maxHealth)
+    {
+        var ratio = health / maxHealth;
+
+        var gameData = GameEngine.AssetStore.GameData.Current;
+        if (ratio > gameData.UnitDamagedThreshold)
+        {
+            return BodyDamageType.Pristine;
+        }
+        else if (ratio > gameData.UnitReallyDamagedThreshold)
+        {
+            return BodyDamageType.Damaged;
+        }
+        else if (ratio > 0.0f)
+        {
+            return BodyDamageType.ReallyDamaged;
+        }
+        else
+        {
+            return BodyDamageType.Rubble;
+        }
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -991,32 +1046,32 @@ public class ActiveBodyModuleData : BodyModuleData
         return result;
     }
 
-    internal static readonly IniParseTable<ActiveBodyModuleData> FieldParseTable = new IniParseTable<ActiveBodyModuleData>
-{
-{ "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
-{ "InitialHealth", (parser, x) => { x.InitialHealth = parser.ParseFloat(); x._initialHealthSet = true; } },
-{ "MaxHealthDamaged", (parser, x) => x.MaxHealthDamaged = parser.ParseFloat() },
-{ "MaxHealthReallyDamaged", (parser, x) => x.MaxHealthReallyDamaged = parser.ParseFloat() },
-{ "RecoveryTime", (parser, x) => x.RecoveryTime = parser.ParseFloat() },
+    internal static readonly IniParseTable<ActiveBodyModuleData> FieldParseTable = new()
+    {
+        { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
+        { "InitialHealth", (parser, x) => { x.InitialHealth = parser.ParseFloat(); x._initialHealthSet = true; } },
+        { "MaxHealthDamaged", (parser, x) => x.MaxHealthDamaged = parser.ParseFloat() },
+        { "MaxHealthReallyDamaged", (parser, x) => x.MaxHealthReallyDamaged = parser.ParseFloat() },
+        { "RecoveryTime", (parser, x) => x.RecoveryTime = parser.ParseFloat() },
 
-{ "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseFloat() },
-{ "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseTimeMillisecondsToLogicFrames() },
-{ "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseFloat() },
-{ "GrabObject", (parser, x) => x.GrabObject = parser.ParseAssetReference() },
-{ "GrabOffset", (parser, x) => x.GrabOffset = parser.ParsePoint() },
-{ "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
-{ "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
-{ "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
-{ "CheerRadius", (parser, x) => x.CheerRadius = parser.ParseInteger() },
-{ "DodgePercent", (parser, x) => x.DodgePercent = parser.ParsePercentage() },
-{ "UseDefaultDamageSettings", (parser, x) => x.UseDefaultDamageSettings = parser.ParseBoolean() },
-{ "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() },
-{ "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
-{ "BurningDeathBehavior", (parser, x) => x.BurningDeathBehavior = parser.ParseBoolean() },
-{ "BurningDeathFX", (parser, x) => x.BurningDeathFX = parser.ParseAssetReference() },
-{ "DamagedAttributeModifier", (parser, x) => x.DamagedAttributeModifier = parser.ParseAssetReference() },
-{ "ReallyDamagedAttributeModifier", (parser, x) => x.ReallyDamagedAttributeModifier = parser.ParseAssetReference() }
-};
+        { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseFloat() },
+        { "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseTimeMillisecondsToLogicFrames() },
+        { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseFloat() },
+        { "GrabObject", (parser, x) => x.GrabObject = parser.ParseAssetReference() },
+        { "GrabOffset", (parser, x) => x.GrabOffset = parser.ParsePoint() },
+        { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
+        { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
+        { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
+        { "CheerRadius", (parser, x) => x.CheerRadius = parser.ParseInteger() },
+        { "DodgePercent", (parser, x) => x.DodgePercent = parser.ParsePercentage() },
+        { "UseDefaultDamageSettings", (parser, x) => x.UseDefaultDamageSettings = parser.ParseBoolean() },
+        { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() },
+        { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
+        { "BurningDeathBehavior", (parser, x) => x.BurningDeathBehavior = parser.ParseBoolean() },
+        { "BurningDeathFX", (parser, x) => x.BurningDeathFX = parser.ParseAssetReference() },
+        { "DamagedAttributeModifier", (parser, x) => x.DamagedAttributeModifier = parser.ParseAssetReference() },
+        { "ReallyDamagedAttributeModifier", (parser, x) => x.ReallyDamagedAttributeModifier = parser.ParseAssetReference() }
+    };
 
     private bool _initialHealthSet;
 
@@ -1039,19 +1094,19 @@ public class ActiveBodyModuleData : BodyModuleData
     public float RecoveryTime { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
-    public string GrabObject { get; private set; }
+    public string? GrabObject { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
     public Point2D GrabOffset { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
-    public List<DamageCreationList> DamageCreationLists { get; private set; } = new List<DamageCreationList>();
+    public List<DamageCreationList> DamageCreationLists { get; private set; } = [];
 
     [AddedIn(SageGame.Bfme)]
     public float MaxHealthReallyDamaged { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
-    public string GrabFX { get; private set; }
+    public string? GrabFX { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
     public int GrabDamage { get; private set; }
@@ -1069,19 +1124,19 @@ public class ActiveBodyModuleData : BodyModuleData
     public int EnteringDamagedTransitionTime { get; private set; }
 
     [AddedIn(SageGame.Bfme)]
-    public string HealingBuffFx { get; private set; }
+    public string? HealingBuffFx { get; private set; }
 
     [AddedIn(SageGame.Bfme2)]
     public bool BurningDeathBehavior { get; private set; }
 
     [AddedIn(SageGame.Bfme2)]
-    public string BurningDeathFX { get; private set; }
+    public string? BurningDeathFX { get; private set; }
 
     [AddedIn(SageGame.Bfme2Rotwk)]
-    public string DamagedAttributeModifier { get; private set; }
+    public string? DamagedAttributeModifier { get; private set; }
 
     [AddedIn(SageGame.Bfme2Rotwk)]
-    public string ReallyDamagedAttributeModifier { get; private set; }
+    public string? ReallyDamagedAttributeModifier { get; private set; }
 
     internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
     {
@@ -1102,7 +1157,7 @@ public sealed class DamageCreationList
         };
     }
 
-    public string Object { get; private set; }
+    public string? Object { get; private set; }
     public ObjectKinds ObjectKind { get; private set; }
-    public string Unknown { get; private set; }
+    public string? Unknown { get; private set; }
 }

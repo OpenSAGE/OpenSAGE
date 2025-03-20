@@ -128,8 +128,8 @@ public sealed class DamageFX : BaseAsset
         var group = GetGroup(damageType, source);
 
         return damageAmount >= group.AmountForMajorFX
-            ? group.MajorFX.Value
-            : group.MinorFX.Value;
+            ? group.MajorFX?.Value
+            : group.MinorFX?.Value;
     }
 }
 
