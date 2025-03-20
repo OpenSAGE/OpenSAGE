@@ -1,9 +1,14 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Diagnostics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
+/// <summary>
+/// Just like Active Body, but won't let health drop below 1.
+/// </summary>
 public sealed class ImmortalBody : ActiveBody
 {
     internal ImmortalBody(GameObject gameObject, GameEngine gameEngine, ImmortalBodyModuleData moduleData)

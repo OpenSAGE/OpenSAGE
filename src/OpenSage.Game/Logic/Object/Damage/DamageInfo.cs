@@ -114,11 +114,11 @@ public struct DamageInfoInput() : IPersistableObject
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public float ShockWaveTaperOff;
 
-    public DamageInfoInput(GameObject source)
+    public DamageInfoInput(GameObject? source)
         : this()
     {
-        _sourceID = source.ID;
-        _sourceTemplate = source.Definition;
+        _sourceID = source?.ID ?? 0;
+        _sourceTemplate = source?.Definition;
     }
 
     public void Persist(StatePersister reader)
