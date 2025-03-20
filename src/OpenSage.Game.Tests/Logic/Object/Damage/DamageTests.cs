@@ -1,7 +1,4 @@
-﻿using OpenSage.Content;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
-using System.Xml.Linq;
-using OpenSage.Logic.Object;
+﻿using OpenSage.Logic.Object;
 using Xunit;
 
 namespace OpenSage.Tests.Logic.Object.Behaviors;

@@ -152,7 +152,6 @@ public struct DamageInfoInput() : IPersistableObject
             {
                 _sourceTemplate = reader.AssetStore.ObjectDefinitions.GetByName(attackerName);
             }
-            
         }
     }
 }
