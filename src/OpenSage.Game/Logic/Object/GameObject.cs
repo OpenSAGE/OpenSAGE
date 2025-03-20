@@ -273,7 +273,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public DamageInfoOutput AttemptHealing(float amount, GameObject source)
     {
-        return  _body?.AttemptDamage(new DamageInfoInput(source)
+        return _body?.AttemptDamage(new DamageInfoInput(source)
         {
             DamageType = DamageType.Healing,
             DeathType = DeathType.None,
