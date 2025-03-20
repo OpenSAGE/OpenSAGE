@@ -1075,8 +1075,8 @@ public class ActiveBodyModuleData : BodyModuleData
 
     private bool _initialHealthSet;
 
-    public float MaxHealth { get; private set; }
-    public float InitialHealth { get; private set; }
+    public float MaxHealth { get; internal set; }
+    public float InitialHealth { get; internal set; }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public float SubdualDamageCap { get; private set; }
