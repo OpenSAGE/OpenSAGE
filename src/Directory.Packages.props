@@ -20,7 +20,7 @@
     <PackageVersion Include="SharpFileDialog" Version="2.0.0" />
     <PackageVersion Include="Sprintf.NET" Version="2.0.0" />
     <PackageVersion Include="System.Text.Encoding.CodePages" Version="9.0.3" />
-    <PackageVersion Include="System.ValueTuple" Version="4.6.0" />
+    <PackageVersion Include="System.ValueTuple" Version="4.6.1" />
     <PackageVersion Include="Veldrid" Version="4.9.0" />
     <PackageVersion Include="Veldrid.RenderDoc" Version="1.0.1" />
     <PackageVersion Include="Veldrid.SDL2" Version="4.9.0" />
