@@ -156,7 +156,7 @@ public sealed class Scene3D : DisposableBase
             ScriptLists = mapScriptLists
         };
 
-        TacticalView = new TacticalView(game.AssetStore.GameData.Current, Camera, game.TerrainLogic, game.Cursors);
+        TacticalView = new TacticalView(game.AssetStore.GameData.Current, Camera, game.TerrainLogic, game.Cursors, GameEngine.MsPerLogicFrame);
         RegisterInputHandler(TacticalView.LookAtTranslator, game.InputMessageBuffer);
 
         game.ContentManager.GraphicsDevice.WaitForIdle();

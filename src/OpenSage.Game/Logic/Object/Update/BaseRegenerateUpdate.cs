@@ -4,11 +4,12 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 {
-    protected override LogicFrameSpan FramesBetweenUpdates => LogicFrameSpan.OneSecond;
+    protected override LogicFrameSpan FramesBetweenUpdates { get; }
 
     internal BaseRegenerateUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
         SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
+        FramesBetweenUpdates = LogicFrameSpan.OneSecond(gameEngine.LogicFramesPerSecond);
     }
 
     /// <summary>

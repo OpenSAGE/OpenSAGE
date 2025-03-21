@@ -87,7 +87,7 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
         _breezeInfo.DirectionVector.Y = MathF.Cos(_breezeInfo.Direction);
         _breezeInfo.Intensity = 0.07f * MathF.PI / 4.0f;
         _breezeInfo.Lean = 0.07f * MathF.PI / 4.0f;
-        _breezeInfo.BreezePeriod = GameEngine.LogicFramesPerSecondN * 5;
+        _breezeInfo.BreezePeriod = (short)(Game.SageGame.LogicFramesPerSecond() * 5);
         _breezeInfo.Randomness = 0.2f;
         _breezeInfo.BreezeVersion = 0;
     }

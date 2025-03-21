@@ -69,7 +69,7 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
         {
             var cashEvent = gameObject.ActiveCashEvent.Value;
             // as far as I can tell, there aren't any localized strings for this;
-            TransientAnimations.Enqueue(new CashAnimation(Camera, currentFrame, _defaultFont,
+            TransientAnimations.Enqueue(new CashAnimation(Camera, GameEngine.LogicFramesPerSecond, currentFrame, _defaultFont,
                 gameObject.Transform.Translation + cashEvent.Offset, cashEvent.Amount, cashEvent.Color.ToColorRgbaF()));
 
             gameObject.ActiveCashEvent = null;
@@ -77,7 +77,7 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
 
         if (gameObject.VeterancyHelper.ShowRankUpAnimation)
         {
-            TransientAnimations.Enqueue(new RankUpAnimation(Camera, currentFrame, GameData, new Animation(LevelUpAnimation), gameObject.Translation with { Z = gameObject.Translation.Z + 20 }));
+            TransientAnimations.Enqueue(new RankUpAnimation(Camera, GameEngine.LogicFramesPerSecond, currentFrame, GameData, new Animation(LevelUpAnimation, GameEngine.LogicFramesPerSecond), gameObject.Translation with { Z = gameObject.Translation.Z + 20 }));
 
             gameObject.VeterancyHelper.ShowRankUpAnimation = false;
         }
@@ -213,9 +213,9 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
 }
 
 // shows text on-screen with the included offset, slowly moving up and fading out over 2.75 seconds
-internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vector3 baseLocation, int amount, in ColorRgbaF baseColor) : TransientAnimation(camera, currentFrame)
+internal class CashAnimation(Camera camera, float logicFramesPerSecond, uint currentFrame, Font font, in Vector3 baseLocation, int amount, in ColorRgbaF baseColor) : TransientAnimation(camera, currentFrame)
 {
-    protected override uint FrameLength => (uint)(GameEngine.LogicFramesPerSecond * 2.75f);
+    protected override uint FrameLength { get; } = (uint)(logicFramesPerSecond * 2.75f);
 
     private readonly Vector3 _baseLocation = baseLocation;
     private readonly string _text = $"{(amount < 0 ? "-" : string.Empty)}{MoneySymbol.Localize()}{amount}";
@@ -245,9 +245,9 @@ internal class CashAnimation(Camera camera, uint currentFrame, Font font, in Vec
 }
 
 // Shows the rank-up animation rising above the character
-internal class RankUpAnimation(Camera camera, uint currentFrame, GameData gameData, Animation animation, in Vector3 baseLocation) : TransientAnimation(camera, currentFrame)
+internal class RankUpAnimation(Camera camera, float logicFramesPerSecond, uint currentFrame, GameData gameData, Animation animation, in Vector3 baseLocation) : TransientAnimation(camera, currentFrame)
 {
-    protected override uint FrameLength { get; } = (uint)(GameEngine.LogicFramesPerSecond * gameData.LevelGainAnimationTime);
+    protected override uint FrameLength { get; } = (uint)(logicFramesPerSecond * gameData.LevelGainAnimationTime);
     private readonly float _zRise = gameData.LevelGainAnimationZRise;
 
     private readonly Vector3 _baseLocation = baseLocation;

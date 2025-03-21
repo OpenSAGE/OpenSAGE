@@ -322,7 +322,7 @@ public class W3dModelDraw : DrawModule
     {
         var animation = ActiveModelInstance.AnimationInstances.Single();
 
-        var desiredDuration = TimeSpan.FromSeconds(frames.Value / GameEngine.LogicFramesPerSecond);
+        var desiredDuration = TimeSpan.FromSeconds(frames.Value / _gameEngine.LogicFramesPerSecond);
 
         var speedFactor = (float)(animation.Duration / desiredDuration);
 

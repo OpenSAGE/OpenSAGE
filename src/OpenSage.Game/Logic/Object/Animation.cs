@@ -20,10 +20,10 @@ public sealed class Animation : IPersistableObject
     private uint NextFrameUpdateAllowed => _lastUpdatedFrame + _animationDelayFrames;
     private AnimationMode AnimationMode => Template.AnimationMode;
 
-    public Animation(AnimationTemplate template)
+    public Animation(AnimationTemplate template, float logicFramesPerSecond)
     {
         Template = template;
-        _animationDelayFrames = (uint)Math.Round(template.AnimationDelay * (GameEngine.LogicFramesPerSecond / 1000));
+        _animationDelayFrames = (uint)Math.Round(template.AnimationDelay * (logicFramesPerSecond / 1000));
         _lastImageIndex = (ushort)(template.Images.Count - 1);
         AnimationType = AnimationNameToType(template.Name);
         if (template.AnimationMode is AnimationMode.LoopBackwards or AnimationMode.OnceBackwards)

@@ -9,6 +9,7 @@ namespace OpenSage.Tests.Logic;
 public class AnimationTests
 {
     private static readonly List<LazyAssetReference<MappedImage>> Images = [FakeMappedImage(1), FakeMappedImage(2), FakeMappedImage(3), FakeMappedImage(4)];
+    private const float LogicFramesPerSecond = 30;
 
     private static LazyAssetReference<MappedImage> FakeMappedImage(int id)
     {
@@ -19,7 +20,7 @@ public class AnimationTests
     public void TestOnceForwards()
     {
         var template = new AnimationTemplate { AnimationMode = AnimationMode.Once, Images = Images, Name = "DefaultHeal" };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = 1; i <= Images.Count; i++)
@@ -35,7 +36,7 @@ public class AnimationTests
     public void TestOnceBackwards()
     {
         var template = new AnimationTemplate { AnimationMode = AnimationMode.OnceBackwards, Images = Images, Name = "DefaultHeal" };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = Images.Count; i > 0; i--)
@@ -51,7 +52,7 @@ public class AnimationTests
     public void TestLoopForwards()
     {
         var template = new AnimationTemplate { AnimationMode = AnimationMode.Loop, Images = Images, Name = "DefaultHeal" };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = 1; i < Images.Count * 3; i++)
@@ -65,7 +66,7 @@ public class AnimationTests
     public void TestLoopBackwards()
     {
         var template = new AnimationTemplate { AnimationMode = AnimationMode.LoopBackwards, Images = Images, Name = "DefaultHeal", };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = Images.Count * 3; i > 0; i--)
@@ -85,7 +86,7 @@ public class AnimationTests
     public void TestPingPong()
     {
         var template = new AnimationTemplate { AnimationMode = AnimationMode.PingPong, Images = Images, Name = "DefaultHeal" };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = 1; i <= Images.Count; i++)
@@ -113,9 +114,9 @@ public class AnimationTests
     public void TestPlayToEnd(int delay)
     {
         var lastDisplayedFrame = delay * Images.Count; // if I have 4 images, with a delay of 5 frames between images, I'll be done on frame 1 + 5 + 5 + 5 + 5 = 21
-        var msDelay = (1000 / GameEngine.LogicFramesPerSecond) * delay;
+        var msDelay = (1000 / LogicFramesPerSecond) * delay;
         var template = new AnimationTemplate { AnimationMode = AnimationMode.Once, Images = Images, Name = "DefaultHeal", AnimationDelay = (int)msDelay };
-        var animation = new Animation(template);
+        var animation = new Animation(template, LogicFramesPerSecond);
 
         uint frameCount = 1;
         for (var i = 1; i <= lastDisplayedFrame; i++)

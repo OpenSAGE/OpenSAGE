@@ -233,7 +233,7 @@ public sealed class Drawable : Entity, IPersistableObject
         }
 
         var animationTemplate = _gameEngine.Game.AssetStore.Animations.GetByName(Animation.AnimationTypeToName(animationName));
-        var animation = new Animation(animationTemplate);
+        var animation = new Animation(animationTemplate, _gameEngine.LogicFramesPerSecond);
 
         _animations.Add(animation);
         _animationMap[animationName] = animation;
@@ -637,7 +637,7 @@ public sealed class Drawable : Entity, IPersistableObject
             if (reader.Mode == StatePersistMode.Read)
             {
                 var animationTemplate = reader.AssetStore.Animations.GetByName(animation2DName);
-                animation = new Animation(animationTemplate);
+                animation = new Animation(animationTemplate, _gameEngine.LogicFramesPerSecond);
                 _animations.Add(animation);
             }
 

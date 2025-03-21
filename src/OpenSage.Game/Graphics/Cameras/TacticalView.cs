@@ -25,6 +25,7 @@ public sealed class TacticalView : IPersistableObject
     private readonly GameData _gameData;
     internal readonly Camera Camera;
     private readonly TerrainLogic _terrainLogic;
+    private readonly float _msPerLogicFrame;
 
     private float _defaultPitchAngle;
     private float _pitchAngle;
@@ -173,11 +174,12 @@ public sealed class TacticalView : IPersistableObject
         }
     }
 
-    public TacticalView(GameData gameData, Camera camera, TerrainLogic terrainLogic, CursorManager cursorManager)
+    public TacticalView(GameData gameData, Camera camera, TerrainLogic terrainLogic, CursorManager cursorManager, float msPerLogicFrame)
     {
         _gameData = gameData;
         Camera = camera;
         _terrainLogic = terrainLogic;
+        _msPerLogicFrame = msPerLogicFrame;
         _scrollAmountCutoff = _gameData.ScrollAmountCutoff;
         LookAtTranslator = new LookAtTranslator(this, cursorManager, gameData);
 
@@ -1186,7 +1188,7 @@ public sealed class TacticalView : IPersistableObject
                     var zoomAdj = (desiredZoom - _zoom) * _gameData.CameraAdjustSpeed;
                     if (MathF.Abs(zoomAdj) >= 0.0001)
                     {
-                        _zoom += (float)(zoomAdj * gameTime.GetLogicFrameRelativeDeltaTime());
+                        _zoom += (float)(zoomAdj * gameTime.GetLogicFrameRelativeDeltaTime(_msPerLogicFrame));
                         recalcCamera = true;
                     }
                 }
@@ -1198,7 +1200,7 @@ public sealed class TacticalView : IPersistableObject
                 var zoomAdjAbs = MathF.Abs(zoomAdj);
                 if (zoomAdjAbs >= 0.0001 && !didScriptedMovement)
                 {
-                    _zoom -= (float)(zoomAdj * gameTime.GetLogicFrameRelativeDeltaTime());
+                    _zoom -= (float)(zoomAdj * gameTime.GetLogicFrameRelativeDeltaTime(_msPerLogicFrame));
                     recalcCamera = true;
                 }
             }
@@ -1256,7 +1258,7 @@ public sealed class TacticalView : IPersistableObject
         else
         {
             // In C++ this is a fixed addition, but that won't work at arbitrary frame rates
-            _followFactor += (float)(0.05 * gameTime.GetLogicFrameRelativeDeltaTime());
+            _followFactor += (float)(0.05 * gameTime.GetLogicFrameRelativeDeltaTime(_msPerLogicFrame));
             _followFactor = Math.Min(_followFactor, 1.0f);
         }
 
@@ -1358,7 +1360,7 @@ public sealed class TacticalView : IPersistableObject
                     else
                     {
                         // 30 FPS fix, might need to be adjusted
-                        _angle += (float)(diff * 0.1 * gameTime.GetLogicFrameRelativeDeltaTime());
+                        _angle += (float)(diff * 0.1 * gameTime.GetLogicFrameRelativeDeltaTime(_msPerLogicFrame));
                     }
                     _angle = NormalizeAngle(_angle);
                 }
@@ -1703,7 +1705,7 @@ public sealed class TacticalView : IPersistableObject
         world *= 0.1f;
 
         // Original camera movement was designed for fixed 30 FPS time step, so we'll have to scale it with delta time
-        world *= (float)gameTime.GetLogicFrameRelativeDeltaTime();
+        world *= (float)gameTime.GetLogicFrameRelativeDeltaTime(_msPerLogicFrame);
 
         _pos.X += world.X;
         _pos.Y += world.Y;

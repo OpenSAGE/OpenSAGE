@@ -26,7 +26,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     private LogicFrame _nextHealFrame = NoHealingFrame;
     private readonly Fix64 _healAmountPerHealTick;
     private const int HealsPerSecond = 5; // not sure if this is configured anywhere
-    private static readonly LogicFrameSpan HealUpdateRate = new((uint)(GameEngine.LogicFramesPerSecond / HealsPerSecond));
+    private readonly LogicFrameSpan _healUpdateRate;
 
     internal ParkingPlaceBehaviour(GameObject gameObject, GameEngine gameEngine, ParkingPlaceBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
@@ -36,6 +36,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         _parkingSlots = new ParkingSlot[_moduleData.NumRows * _moduleData.NumCols];
         _runwayAssignments = new RunwayAssignment[_moduleData.HasRunways ? _moduleData.NumCols : 0];
         _healAmountPerHealTick = new Fix64(_moduleData.HealAmountPerSecond) / new Fix64(HealsPerSecond);
+        _healUpdateRate = new LogicFrameSpan((uint)(GameEngine.LogicFramesPerSecond / HealsPerSecond));
     }
 
     public bool HasFreeSlots()
@@ -86,7 +87,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         {
             if (_nextHealFrame <= context.LogicFrame)
             {
-                _nextHealFrame += HealUpdateRate;
+                _nextHealFrame += _healUpdateRate;
                 foreach (var objectToHeal in _healingData)
                 {
                     var gameObject = GameEngine.GameLogic.GetObjectById(objectToHeal.ObjectId);

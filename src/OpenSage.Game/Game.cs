@@ -128,6 +128,13 @@ public sealed class Game : DisposableBase, IGame
     /// </summary>
     public event EventHandler RenderCompleted;
 
+    /// <summary>
+    /// This is how fast we actually tick through updates.
+    /// </summary>
+    private float LogicUpdateInterval => GameEngine.MsPerLogicFrame / LogicUpdateScaleFactor;
+
+    public float LogicUpdateScaleFactor { get; set; } = 1f;
+
     public void LoadSaveFile(FileSystemEntry entry)
     {
         SaveFile.Load(entry, this);
@@ -799,7 +806,7 @@ public sealed class Game : DisposableBase, IGame
             LogicTick();
             CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
             // Logic updates happen at 5Hz.
-            _nextLogicUpdate += TimeSpan.FromMilliseconds(GameEngine.LogicUpdateInterval);
+            _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
 
             if (_isStepping)
             {
@@ -838,7 +845,7 @@ public sealed class Game : DisposableBase, IGame
 
         // How close are we to the next logic frame?
         var tickT = (float)(1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
-                                 .TotalMilliseconds / GameEngine.LogicUpdateInterval);
+                                 .TotalMilliseconds / LogicUpdateInterval);
 
         // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
         Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
@@ -864,7 +871,7 @@ public sealed class Game : DisposableBase, IGame
         PartitionCellManager.Update();
     }
 
-    internal TimeInterval GetTimeInterval() => new TimeInterval(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine.LogicUpdateInterval));
+    private TimeInterval GetTimeInterval() => new(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine.MsPerLogicFrame));
 
     public void ToggleLogicRunning()
     {
