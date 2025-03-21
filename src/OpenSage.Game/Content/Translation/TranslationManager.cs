@@ -1,7 +1,10 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using OpenSage.Content.Translation.Providers;
 using OpenSage.IO;
 
@@ -13,7 +16,15 @@ public static class TranslationManager
     {
         private const string Missing = "MISSING: '{0}'";
 
-        private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = new Dictionary<string, List<ITranslationProvider>>();
+        /// <summary>
+        /// Providers that are specific to a language
+        /// </summary>
+        private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = [];
+
+        /// <summary>
+        /// Providers that are not language specific
+        /// </summary>
+        private readonly List<ITranslationProvider> _universalProviders = [];
 
         public string Name => nameof(TranslationManager);
         public string NameOverride { get => Name; set { } } // do nothing on set
@@ -35,24 +46,16 @@ public static class TranslationManager
         public void SetCultureFromLanguage(string language)
         {
             //TODO: just a hack for now
-            var cultureString = "";
-            switch (language.ToLower())
+            var cultureString = language.ToLower() switch
             {
-                case "german":
-                case "german2":
-                    cultureString = "de-DE";
-                    break;
-                // Special case for Generals: 
+                "german" or "german2" => "de-DE",
+                // Special case for Generals:
                 // Generals does not distinct between Simplified Chinese (chinese_s) / Traditional Chinese (chinese_t)
                 // It just assumes it's traditional
-                case "chinese":
-                    cultureString = "zh-Hant";
-                    break;
-                case "english":
-                default:
-                    cultureString = "en-US";
-                    break;
-            }
+                "chinese" => "zh-Hant",
+                _ => "en-US",
+            };
+
             CurrentLanguage = new CultureInfo(cultureString);
         }
 
@@ -85,18 +88,18 @@ public static class TranslationManager
                 if (!_translationProviders.TryGetValue(CurrentLanguage.Name, out var result))
                 {
                     // we don't want to check for null for the current language
-                    result = new List<ITranslationProvider>();
+                    result = [];
                     _translationProviders.Add(CurrentLanguage.Name, result);
                 }
                 return result;
             }
         }
 
-        public event EventHandler LanguageChanged;
+        public event EventHandler? LanguageChanged;
 
-        public IReadOnlyList<ITranslationProvider> GetParticularProviders(string context)
+        public IReadOnlyList<ITranslationProvider>? GetParticularProviders(string context)
         {
-            Debug.Assert(!(context is null), $"{nameof(context)} is null");
+            Debug.Assert(context is not null, $"{nameof(context)} is null");
             _translationProviders.TryGetValue(context, out var result);
             return result;
         }
@@ -108,14 +111,9 @@ public static class TranslationManager
 
         public void RegisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true)
         {
-            if (provider is null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
             if (!_translationProviders.TryGetValue(provider.Name, out var providers))
             {
-                providers = new List<ITranslationProvider> { provider };
+                providers = [provider];
                 _translationProviders.Add(provider.Name, providers);
             }
             else
@@ -145,6 +143,14 @@ public static class TranslationManager
             }
         }
 
+        public void RegisterUniversalProvider(ITranslationProvider provider)
+        {
+            if (!_universalProviders.Contains(provider))
+            {
+                _universalProviders.Add(provider);
+            }
+        }
+
         public string GetString(string str)
         {
             // Do we want to do this here or in the caller?
@@ -159,10 +165,9 @@ public static class TranslationManager
                 return str;
             }
 
-            string result;
-            foreach (var provider in DefaultProviders)
+            foreach (var provider in DefaultProviders.Concat(_universalProviders))
             {
-                if (!((result = provider.GetString(str)) is null))
+                if (provider.GetString(str) is string result)
                 {
                     return result;
                 }
@@ -190,7 +195,7 @@ public static class TranslationManager
             }
             string result;
             var providers = GetParticularProviders(context);
-            if (!(providers is null))
+            if (providers is not null)
             {
                 foreach (var provider in providers)
                 {
@@ -212,23 +217,48 @@ public static class TranslationManager
     {
         var path = gameDefinition.GetLocalizedStringsPath(language);
 
-        FileSystemEntry file;
-        if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
+        if (LoadCsfFile(fileSystem, language, gameDefinition, $"{path}.csf"))
+        {
+            return;
+        }
+
+        if (LoadStrFile(fileSystem, language, $"{path}.str"))
+        {
+            return;
+        }
+    }
+
+    public static bool LoadCsfFile(FileSystem fileSystem, string language, IGameDefinition gameDefinition, string path)
+    {
+        if (fileSystem.GetFile(path) is FileSystemEntry file)
         {
             using var stream = file.Open();
             Instance.SetCultureFromLanguage(language);
             Instance.RegisterProvider(new CsfTranslationProvider(stream, gameDefinition.Game));
-
-            return;
+            return true;
         }
+        return false;
+    }
 
-        if (!((file = fileSystem.GetFile($"{path}.str")) is null))
+    public static bool LoadStrFile(FileSystem fileSystem, string? language, string path)
+    {
+        if (fileSystem.GetFile(path) is FileSystemEntry file)
         {
             using var stream = file.Open();
-            Instance.SetCultureFromLanguage(language);
-            Instance.RegisterProvider(new StrTranslationProvider(stream, language));
 
-            return;
+            if (language != null)
+            {
+                Instance.SetCultureFromLanguage(language);
+                Instance.RegisterProvider(new StrTranslationProvider(stream, language));
+            }
+            else
+            {
+                Instance.RegisterUniversalProvider(new StrTranslationProvider(stream, "default"));
+            }
+
+            return true;
         }
+
+        return false;
     }
 }

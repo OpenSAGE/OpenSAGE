@@ -90,6 +90,15 @@ public sealed class ContentManager : DisposableBase
 
             switch (sageGame)
             {
+                // TOOD: We don't actually know how this file (which was added in the Steam Workshop update) gets loaded,
+                // as the publicly released source code is for a prior version.
+                // This file is required to show the correct label for the "Custom Mission" button in the singleplayer menu,
+                // which was added in the aforementioned update.
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    Translation.TranslationManager.LoadStrFile(fileSystem, null, @"Data\Patch.str");
+                    break;
+
                 // Only load these INI files for a subset of games, because we can't parse them for others yet.
                 // TODO: Defer subsystem loading until necessary
                 case SageGame.Bfme:

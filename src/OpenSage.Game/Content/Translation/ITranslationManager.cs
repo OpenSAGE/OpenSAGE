@@ -17,6 +17,8 @@ public interface ITranslationManager : ITranslationProvider
 
     void UnregisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true);
 
+    void RegisterUniversalProvider(ITranslationProvider provider);
+
     IReadOnlyList<ITranslationProvider> GetParticularProviders(string context);
 
     string GetParticularString(string context, string str);

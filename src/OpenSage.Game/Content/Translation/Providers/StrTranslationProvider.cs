@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -29,10 +31,11 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
         internal readonly Dictionary<string, Dictionary<string, string>> _strings;
 
         internal int _numStrings;
-        internal string _language;
+        internal readonly string _language;
 
-        public Str()
+        public Str(string language)
         {
+            _language = language;
             _strings = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -41,7 +44,6 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
 
         public static void ReadStr(Str str, Stream stream, string language)
         {
-            str._language = language;
             var category = string.Empty;
             var label = string.Empty;
             var value = string.Empty;
@@ -272,9 +274,9 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
                                 dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                                 str._strings.Add(category, dict);
                             }
-                            if (dict.ContainsKey(label))
+                            if (dict.TryGetValue(label, out var dictValue))
                             {
-                                Logger.Info($"[STR] String duplication: '{category}:{label}' -> '{dict[label]}', new value: '{value}'");
+                                Logger.Info($"[STR] String duplication: '{category}:{label}' -> '{dictValue}', new value: '{value}'");
                             }
                             else
                             {
@@ -292,7 +294,7 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
             }
         }
 
-        public bool TryGetString(string str, out string result)
+        public bool TryGetString(string str, out string? result)
         {
             var colonIdx = str.IndexOf(':');
             var label = string.Empty;
@@ -311,7 +313,7 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
         }
     }
 
-    private Str _str;
+    private readonly Str _str;
 
     public override string Name => NameOverride ?? _str._language;
     public override IReadOnlyCollection<string> Labels
@@ -332,17 +334,16 @@ public sealed class StrTranslationProvider : ATranslationProviderBase
 
     public StrTranslationProvider(Stream stream, string language)
     {
-        Debug.Assert(!(stream is null), $"{nameof(stream)} is null");
-        _str = new Str();
+        Debug.Assert(stream is not null, $"{nameof(stream)} is null");
+        _str = new Str(language);
         Str.ReadStr(_str, stream, language);
     }
 
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-    public override string GetString(string str)
+    public override string? GetString(string str)
     {
-        Debug.Assert(!(str is null), $"{nameof(str)} is null");
+        Debug.Assert(str is not null, $"{nameof(str)} is null");
         if (!_str.TryGetString(str, out var result))
         {
             Logger.Warn($"Requested string '{str}' not found in '{Name}'.");
