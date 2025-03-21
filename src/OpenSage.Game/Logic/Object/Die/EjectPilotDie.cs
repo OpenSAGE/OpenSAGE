@@ -14,7 +14,7 @@ public sealed class EjectPilotDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var veterancy = (VeterancyLevel)GameObject.Rank;
 
@@ -25,7 +25,7 @@ public sealed class EjectPilotDie : DieModule
 
         var isOnGround = true; // todo: determine if unit is airborne
         var creationList = isOnGround ? _moduleData.GroundCreationList : _moduleData.AirCreationList;
-        foreach (var gameObject in GameEngine.ObjectCreationLists.Create(creationList.Value, context))
+        foreach (var gameObject in GameEngine.ObjectCreationLists.Create(creationList.Value, new BehaviorUpdateContext(GameEngine, GameObject)))
         {
             gameObject.Rank = GameObject.Rank;
             GameEngine.AudioSystem.PlayAudioEvent(gameObject, GameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);

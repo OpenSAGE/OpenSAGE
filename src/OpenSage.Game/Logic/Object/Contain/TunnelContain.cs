@@ -5,7 +5,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
-public sealed class TunnelContain : OpenContainModule
+public sealed class TunnelContain : OpenContainModule, IDieModule
 {
     public override int TotalSlots => GameEngine.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
     public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
@@ -20,7 +20,7 @@ public sealed class TunnelContain : OpenContainModule
         gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
     }
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
         GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);
 
@@ -28,7 +28,7 @@ public sealed class TunnelContain : OpenContainModule
         {
             foreach (var objectId in ContainedObjectIds)
             {
-                GameObjectForId(objectId).Kill(DeathType.Crushed);
+                GameObjectForId(objectId).Destroy();
             }
 
             ContainedObjectIds.Clear();

@@ -13,7 +13,7 @@ public sealed class UnknownStateData : IPersistableObject
     private uint _unknownUInt1;
     private uint _unknownUInt2;
 
-    private DamageData _damageData;
+    private DamageInfo _damageData;
 
     public void Persist(StatePersister persister)
     {

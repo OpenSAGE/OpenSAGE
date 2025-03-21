@@ -46,13 +46,17 @@ public sealed class OverchargeBehavior : UpdateModule
     internal override void Update(BehaviorUpdateContext context)
     {
         if (!_enabled || // nothing to do if we aren't currently overcharging
-            GameObject.HealthPercentage < (Fix64)(float)_moduleData.NotAllowedWhenHealthBelowPercent || // must be above min health percent
+            GameObject.BodyModule.Health < GameObject.BodyModule.MaxHealth * _moduleData.NotAllowedWhenHealthBelowPercent || // must be above min health percent
             context.LogicFrame.Value < NextUpdateFrame.Frame) // must be ready for us to do more damage
         {
             return;
         }
 
-        GameObject.DoDamage(DamageType.Penalty, _moduleData.HealthPercentToDrainPerSecond, DeathType.Normal, GameObject);
+        GameObject.AttemptDamage(new DamageInfoInput(GameObject)
+        {
+            DamageType = DamageType.Penalty,
+            Amount = GameObject.BodyModule.MaxHealth * _moduleData.HealthPercentToDrainPerSecond / GameEngine.LogicFramesPerSecond,
+        });
         SetNextUpdateFrame(new LogicFrame((uint)GameEngine.LogicFramesPerSecond));
     }
 

@@ -1025,19 +1025,19 @@ public sealed class Locomotor : IPersistableObject
             effectiveSlowDownDist = 1 * AIPathfind.PathfindCellSizeF;
         }
 
-        const float FIFTEEN_DEGREES = MathF.PI / 12.0f;
-        const float PROJECT_FRAMES = GameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
-        if (MathF.Abs(relAngle) > FIFTEEN_DEGREES)
+        const float fifteenDegrees = MathF.PI / 12.0f;
+        const float projectFrames = GameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
+        if (MathF.Abs(relAngle) > fifteenDegrees)
         {
             // If we're turning more than 10 degrees, check & see if we're moving into "impassable territory"
-            var distance = PROJECT_FRAMES * (goalSpeed + actualSpeed) / 2.0f;
+            var distance = projectFrames * (goalSpeed + actualSpeed) / 2.0f;
             var targetAngle = obj.Yaw;
             var turnFactor = ((goalSpeed + actualSpeed) / 2.0f) / turnSpeed;
             if (turnFactor > 1.0f)
             {
                 turnFactor = 1.0f;
             }
-            var turnAmount = PROJECT_FRAMES * turnFactor * maxTurnRate / 4.0f;
+            var turnAmount = projectFrames * turnFactor * maxTurnRate / 4.0f;
             if (relAngle < 0)
             {
                 targetAngle -= turnAmount;

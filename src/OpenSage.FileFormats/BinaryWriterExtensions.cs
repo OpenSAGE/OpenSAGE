@@ -232,6 +232,13 @@ public static class BinaryWriterExtensions
         writer.Write(uintValue);
     }
 
+    public static void WriteEnumAsUInt16<TEnum>(this BinaryWriter writer, TEnum value)
+        where TEnum : struct
+    {
+        var ushortValue = Unsafe.As<TEnum, ushort>(ref value);
+        writer.Write(ushortValue);
+    }
+
     public static void WriteEnumAsByte<TEnum>(this BinaryWriter writer, TEnum value)
         where TEnum : struct
     {

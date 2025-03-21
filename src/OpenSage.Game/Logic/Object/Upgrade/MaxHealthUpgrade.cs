@@ -15,20 +15,7 @@ internal sealed class MaxHealthUpgrade : UpgradeModule
 
     protected override void OnUpgrade()
     {
-        switch (_moduleData.ChangeType)
-        {
-            case MaxHealthChangeType.PreserveRatio:
-                GameObject.Health += GameObject.HealthPercentage * (Fix64)_moduleData.AddMaxHealth;
-                break;
-            case MaxHealthChangeType.AddCurrentHealthToo:
-                GameObject.Health += (Fix64)_moduleData.AddMaxHealth;
-                break;
-            case MaxHealthChangeType.SameCurrentHealth:
-                // Don't add any new health
-                break;
-        }
-
-        GameObject.MaxHealth += (Fix64)_moduleData.AddMaxHealth;
+        GameObject.BodyModule.SetMaxHealth(_moduleData.AddMaxHealth, _moduleData.ChangeType);
     }
 
     internal override void Load(StatePersister reader)
@@ -63,12 +50,15 @@ public sealed class MaxHealthUpgradeModuleData : UpgradeModuleData
 
 public enum MaxHealthChangeType
 {
+    [IniEnum("SAME_CURRENTHEALTH")]
+    SameCurrentHealth,
+
     [IniEnum("PRESERVE_RATIO")]
     PreserveRatio,
 
     [IniEnum("ADD_CURRENT_HEALTH_TOO")]
     AddCurrentHealthToo,
 
-    [IniEnum("SAME_CURRENTHEALTH")]
-    SameCurrentHealth
+    [IniEnum("FULLY_HEAL"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    FullyHeal,
 }

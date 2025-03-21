@@ -43,12 +43,12 @@ public sealed class BattlePlanUpdate : UpdateModule
         GameObject.Owner.InitializeStrategyData(_validMemberKindOf, _invalidMemberKindOf);
     }
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
-    {
-        ClearActiveBattlePlan();
-        // todo: remove unit bonuses (but don't disable units)
-        base.OnDie(context, deathType, status);
-    }
+    //internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    //{
+    //    ClearActiveBattlePlan();
+    //    // todo: remove unit bonuses (but don't disable units)
+    //    base.OnDie(context, deathType, status);
+    //}
 
     private protected override void RunUpdate(BehaviorUpdateContext context)
     {
@@ -150,18 +150,16 @@ public sealed class BattlePlanUpdate : UpdateModule
 
     private void AddHoldTheLineMaxHealthScalar()
     {
-        var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
-        var newMaxHealth = GameObject.MaxHealth * maxHealthScalar;
-        GameObject.Health = GameObject.HealthPercentage * newMaxHealth;
-        GameObject.MaxHealth = newMaxHealth;
+        var maxHealthScalar = _moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
+        var newMaxHealth = GameObject.BodyModule.MaxHealth * maxHealthScalar;
+        GameObject.BodyModule.SetMaxHealth(newMaxHealth);
     }
 
     private void RemoveHoldTheLineMaxHealthScalar()
     {
-        var maxHealthScalar = (Fix64)_moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
-        var newMaxHealth = GameObject.MaxHealth / maxHealthScalar;
-        GameObject.Health = GameObject.HealthPercentage * newMaxHealth;
-        GameObject.MaxHealth = newMaxHealth;
+        var maxHealthScalar = _moduleData.StrategyCenterHoldTheLineMaxHealthScalar;
+        var newMaxHealth = GameObject.BodyModule.MaxHealth / maxHealthScalar;
+        GameObject.BodyModule.SetMaxHealth(newMaxHealth);
     }
 
     private void AddSearchAndDestroyVisionScalar()

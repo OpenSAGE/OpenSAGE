@@ -15,16 +15,16 @@ public sealed class InstantDeathBehavior : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         GameEngine.GameLogic.DestroyObject(GameObject);
 
-        Matrix4x4.Decompose(context.GameObject.TransformMatrix, out _, out var rotation, out var translation);
+        Matrix4x4.Decompose(GameObject.TransformMatrix, out _, out var rotation, out var translation);
 
         _moduleData.FX?.Value?.Execute(new FXListExecutionContext(
             rotation,
             translation,
-            context.GameEngine));
+            GameEngine));
     }
 
     internal override void Load(StatePersister reader)

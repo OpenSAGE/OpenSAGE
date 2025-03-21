@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
+using OpenSage.Terrain;
 
 namespace OpenSage.Logic.Object;
 
@@ -7,8 +8,14 @@ public sealed class BridgeBehavior : UpdateModule
 {
     private readonly uint[] _towerIds = new uint[4];
 
-    public BridgeBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public BridgeBehavior(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
+    }
+
+    public uint GetTowerId(BridgeTowerType towerType)
+    {
+        return _towerIds[(int)towerType];
     }
 
     internal override void Load(StatePersister reader)

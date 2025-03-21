@@ -37,7 +37,12 @@ internal sealed class WeaponTarget
     {
         if (TargetType == WeaponTargetType.Object)
         {
-            GetTargetObject().DoDamage(damageType, amount, deathType, damageDealer);
+            GetTargetObject().AttemptDamage(new DamageInfoInput(damageDealer)
+            {
+                DamageType = damageType,
+                DeathType = deathType,
+                Amount = (float)amount,
+            });
         }
     }
 }

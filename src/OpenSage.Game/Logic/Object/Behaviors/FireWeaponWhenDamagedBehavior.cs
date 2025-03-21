@@ -65,7 +65,7 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
 
     private void OnUpgrade() { }
 
-    public void OnDamage(in DamageData damageData)
+    public void OnDamage(in DamageInfo damageData)
     {
         if (!UpgradeLogic.Triggered)
         {
@@ -77,7 +77,7 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
             return;
         }
 
-        if (damageData.Result.DamageAfterArmorCalculation < _moduleData.DamageAmount)
+        if (damageData.Result.ActualDamageDealt < _moduleData.DamageAmount)
         {
             return;
         }
@@ -97,7 +97,7 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
 
     private void FireWeaponIfPresentAndReady(Weapon?[] weapons)
     {
-        var weapon = weapons[(int)GameObject.BodyDamageType];
+        var weapon = weapons[(int)GameObject.BodyModule.DamageState];
 
         if (weapon == null || !weapon.IsInactive)
         {

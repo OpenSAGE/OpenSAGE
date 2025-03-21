@@ -7,115 +7,165 @@ namespace OpenSage.Logic.Object;
 public enum DamageType
 {
     [IniEnum("EXPLOSION")]
-    Explosion,
+    Explosion = 0,
 
     [IniEnum("CRUSH")]
-    Crush,
+    Crush = 1,
 
     [IniEnum("ARMOR_PIERCING")]
-    ArmorPiercing,
+    ArmorPiercing = 2,
 
     [IniEnum("SMALL_ARMS")]
     SmallArms = 3,
 
     [IniEnum("GATTLING")]
-    Gattling, // [sic]
+    Gattling = 4, // [sic]
 
     [IniEnum("RADIATION")]
-    Radiation,
+    Radiation = 5,
 
     [IniEnum("FLAME")]
     Flame = 6,
 
     [IniEnum("LASER")]
-    Laser,
+    Laser = 7,
 
     [IniEnum("SNIPER")]
-    Sniper,
+    Sniper = 8,
 
     [IniEnum("POISON")]
-    Poison,
+    Poison = 9,
 
     [IniEnum("HEALING")]
     Healing = 10,
 
+    /// <summary>
+    /// This is for scripting to cause "armorproof" damage.
+    /// </summary>
     [IniEnum("UNRESISTABLE")]
-    Unresistable,
+    Unresistable = 11,
 
     [IniEnum("WATER")]
-    Water,
+    Water = 12,
 
+    /// <summary>
+    /// For transports to deploy units and order them to all attack.
+    /// </summary>
     [IniEnum("DEPLOY")]
-    Deploy,
+    Deploy = 13,
 
+    /// <summary>
+    /// If something "dies" to surrender damage, they surrender.
+    /// </summary>
     [IniEnum("SURRENDER")]
-    Surrender,
+    Surrender = 14,
 
     [IniEnum("HACK")]
-    Hack,
+    Hack = 15,
 
+    /// <summary>
+    /// Special snipe attack that kills the pilot and renders a vehicle unmanned.
+    /// </summary>
     [IniEnum("KILL_PILOT")]
-    KillPilot,
+    KillPilot = 16,
 
+    /// <summary>
+    /// From game penalty (you won't receive radar warnings).
+    /// </summary>
     [IniEnum("PENALTY")]
-    Penalty,
+    Penalty = 17,
 
     [IniEnum("FALLING")]
-    Falling,
+    Falling = 18,
 
+    /// <summary>
+    /// Blades, clubs, etc.
+    /// </summary>
     [IniEnum("MELEE")]
-    Melee,
+    Melee = 19,
 
+    /// <summary>
+    /// "Special" damage type used for disarming mines, bombs, etc.
+    /// (_not_ for disarming an opponent!)
+    /// </summary>
     [IniEnum("DISARM")]
-    Disarm,
+    Disarm = 20,
 
+    /// <summary>
+    /// Special damage type for cleaning up hazards like radiation or bio-poison.
+    /// </summary>
     [IniEnum("HAZARD_CLEANUP")]
-    HazardCleanup,
+    HazardCleanup = 21,
+
+    /// <summary>
+    /// Incinerates virtually everything (insanely powerful orbital beam).
+    /// </summary>
+    [IniEnum("PARTICLE_BEAM")]
+    ParticleBeam = 22,
+
+    /// <summary>
+    /// Damage from getting toppled.
+    /// </summary>
+    [IniEnum("TOPPLING")]
+    Toppling = 23,
 
     [IniEnum("INFANTRY_MISSILE")]
     InfantryMissile = 24,
 
     [IniEnum("AURORA_BOMB")]
-    AuroraBomb,
+    AuroraBomb = 25,
 
     [IniEnum("LAND_MINE")]
-    LandMine,
+    LandMine = 26,
 
     [IniEnum("JET_MISSILES")]
-    JetMissiles,
+    JetMissiles = 27,
 
     [IniEnum("STEALTHJET_MISSILES")]
-    StealthjetMissiles,
+    StealthjetMissiles = 28,
 
     [IniEnum("MOLOTOV_COCKTAIL")]
-    MolotovCocktail,
+    MolotovCocktail = 29,
 
     [IniEnum("COMANCHE_VULCAN")]
     ComancheVulcan = 30,
 
     [IniEnum("FLESHY_SNIPER")]
-    FleshySniper,
+    FleshySniper = 31,
 
-    [IniEnum("PARTICLE_BEAM")]
-    ParticleBeam,
-
+    /// <summary>
+    /// Damage that does not kill you, but produces some special effect based
+    /// on your Body Module. Separate HP from normal damage.
+    /// </summary>
     [IniEnum("SUBDUAL_MISSILE"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    SubdualMissile,
+    SubdualMissile = 31, // Yes, it used the same value as Generals' FLESHY_SNIPER
 
     [IniEnum("SUBDUAL_VEHICLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    SubdualVehicle,
+    SubdualVehicle = 32,
 
     [IniEnum("SUBDUAL_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    SubdualBuilding,
+    SubdualBuilding = 33,
 
+    [IniEnum("SUBDUAL_UNRESISTABLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    SubdualUnresistable = 34,
+
+    /// <summary>
+    /// Radiation that only affects infantry.
+    /// </summary>
     [IniEnum("MICROWAVE"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    Microwave,
+    Microwave = 35,
 
-    [IniEnum("STATUS"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    Status,
-
+    /// <summary>
+    /// Kills passengers up to the number specified in damage.
+    /// </summary>
     [IniEnum("KILL_GARRISONED"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    KillGarrisoned,
+    KillGarrisoned = 36,
+
+    /// <summary>
+    /// Damage that gives a status condition, not that does hitpoint damage.
+    /// </summary>
+    [IniEnum("STATUS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    Status = 37,
 
     [IniEnum("SLASH"), AddedIn(SageGame.Bfme)]
     Slash,

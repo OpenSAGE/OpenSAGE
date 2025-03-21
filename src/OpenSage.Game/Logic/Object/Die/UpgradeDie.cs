@@ -22,13 +22,11 @@ public class UpgradeDieModule : DieModule
         reader.EndObject();
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var parent = GameEngine.GameLogic.GetObjectById(GameObject.CreatedByObjectID);
 
         parent?.RemoveUpgrade(_moduleData.UpgradeToRemove.UpgradeName.Value);
-
-        base.Die(context, deathType);
     }
 }
 

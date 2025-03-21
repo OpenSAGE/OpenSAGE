@@ -95,6 +95,11 @@ internal sealed class JsonSaveWriter : StatePersister
         _writer.WriteStringValue(value.ToString());
     }
 
+    public override void PersistEnumUInt16Value<TEnum>(ref TEnum value)
+    {
+        _writer.WriteStringValue(value.ToString());
+    }
+
     public override void PersistEnumByteValue<TEnum>(ref TEnum value)
     {
         _writer.WriteStringValue(value.ToString());

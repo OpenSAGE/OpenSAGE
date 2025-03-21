@@ -1,5 +1,4 @@
-﻿using FixedMath.NET;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
@@ -14,16 +13,13 @@ public sealed class RebuildHoleExposeDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var hole = GameEngine.GameLogic.CreateObject(_moduleData.HoleDefinition.Value, GameObject.Owner);
         hole.SetTransformMatrix(GameObject.TransformMatrix);
-        var holeHealth = (Fix64)_moduleData.HoleMaxHealth;
-        hole.MaxHealth = holeHealth;
-        hole.Health = holeHealth;
+        var holeHealth = _moduleData.HoleMaxHealth;
+        hole.BodyModule.SetMaxHealth(holeHealth);
         hole.FindBehavior<RebuildHoleUpdate>().SetOriginalStructure(GameObject);
-
-        base.Die(context, deathType);
     }
 
     internal override void Load(StatePersister reader)

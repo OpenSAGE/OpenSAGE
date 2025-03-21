@@ -1,6 +1,18 @@
-﻿namespace OpenSage.Logic.Object;
+﻿using System;
+
+namespace OpenSage.Logic.Object;
 
 public interface IContainModule
 {
-    float GetContainedItemsMass();
+    bool IsGarrisonable { get; }
+    bool IsImmuneToClearBuildingAttacks { get; }
+    bool IsRiderChangeContain { get; }
+
+    uint ContainCount { get; }
+    float ContainedItemsMass { get; }
+
+    ReadOnlySpan<GameObject> ContainedItems { get; }
+
+    void OrderAllPassengersToIdle(CommandSourceTypes commandType);
+    void OrderAllPassengersToHackInternet(CommandSourceTypes commandType);
 }
