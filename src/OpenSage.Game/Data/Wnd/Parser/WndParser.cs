@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
-using OpenSage.Gui;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd.Parser;
@@ -294,6 +293,12 @@ internal sealed class WndParser
 
                 case "CHILD":
                     NextToken();
+                    childWindows.Add(ParseWindow());
+                    break;
+
+                case "WINDOW":
+                    // Normally, WINDOW is only allowed after CHILD, but ZH's Steam update includes s new MainMenu.wnd
+                    // which has a WINDOW right after the previous window's END. ZH's original WND parser tolerates this.
                     childWindows.Add(ParseWindow());
                     break;
 
