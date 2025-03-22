@@ -411,7 +411,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // "NoArmor camera is rotated 90 degrees, so match" says the original code
+                // "Default camera is rotated 90 degrees, so match" says the original code
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
                 _path.CameraAngle[i] = angle;
@@ -463,7 +463,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // "NoArmor camera is rotated 90 degrees, so match" says the original code
+                // "Default camera is rotated 90 degrees, so match" says the original code
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
 
@@ -609,7 +609,7 @@ public sealed class TacticalView : IPersistableObject
             angle = -angle;
         }
 
-        // NoArmor camera is rotated 90 degrees, so match
+        // Default camera is rotated 90 degrees, so match
         angle -= MathUtility.PiOver2;
         angle = NormalizeAngle(angle);
 
@@ -846,7 +846,7 @@ public sealed class TacticalView : IPersistableObject
                     angle = -angle;
                 }
 
-                // NoArmor camera is rotated 90 degrees, so match
+                // Default camera is rotated 90 degrees, so match
                 angle -= MathUtility.PiOver2;
                 angle = NormalizeAngle(angle);
             }
@@ -1631,7 +1631,7 @@ public sealed class TacticalView : IPersistableObject
                         angle = -angle;
                     }
 
-                    // NoArmor camera is rotated 90 degrees
+                    // Default camera is rotated 90 degrees
                     _angle = angle + MathUtility.PiOver2;
                     angle = NormalizeAngle(angle);
 

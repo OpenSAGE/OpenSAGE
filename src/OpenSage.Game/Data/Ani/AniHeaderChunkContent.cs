@@ -41,7 +41,7 @@ public sealed class AniHeaderChunkContent : RiffChunkContent
     public uint NumPlanes { get; private set; }
 
     /// <summary>
-    /// NoArmor frame display rate (measured in 1/60th-of-a-second units)
+    /// Default frame display rate (measured in 1/60th-of-a-second units)
     /// </summary>
     public uint DefaultFrameDisplayRate { get; private set; }
 

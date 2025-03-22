@@ -72,7 +72,7 @@ public class W3dTankDraw : W3dModelDraw
 }
 
 /// <summary>
-/// NoArmor Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and 
+/// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and 
 /// TrackDebrisDirtLeft particle system definitions.
 /// </summary>
 public class W3dTankDrawModuleData : W3dModelDrawModuleData

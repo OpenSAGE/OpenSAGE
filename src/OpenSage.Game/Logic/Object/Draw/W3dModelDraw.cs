@@ -569,7 +569,7 @@ public class W3dModelDrawModuleData : DrawModuleData, IParseCallbacks
 
             case ParseConditionStateType.Normal:
                 modelConditionState = _conditionStatesGenerals.Count > 0
-                    ? _conditionStatesGenerals[0].Clone() // TODO: This isn't right, it should only clone a NoArmor state.
+                    ? _conditionStatesGenerals[0].Clone() // TODO: This isn't right, it should only clone a Default state.
                     : new ModelConditionStateGenerals();
                 modelConditionState.ConditionFlags.Clear();
                 modelConditionState.ConditionFlags.Add(parser.ParseEnumBitArray<ModelConditionFlag>());
@@ -609,7 +609,7 @@ public class W3dModelDrawModuleData : DrawModuleData, IParseCallbacks
 
             case ParseConditionStateType.Normal:
                 modelConditionState = ConditionStates.Count > 0
-                    ? ConditionStates[0].Clone() // TODO: This isn't right, it should only clone a NoArmor state.
+                    ? ConditionStates[0].Clone() // TODO: This isn't right, it should only clone a Default state.
                     : new ModelConditionState();
                 modelConditionState.ConditionFlags.Clear();
                 modelConditionState.ConditionFlags.Add(parser.ParseEnumBitArray<ModelConditionFlag>());
