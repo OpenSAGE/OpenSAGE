@@ -29,7 +29,7 @@ public sealed class BigFileSystem : FileSystem
 
             var fileName = directoryParts[directoryParts.Length - 1];
 
-            bigDirectory.Files.TryAdd(fileName, bigArchiveEntry);
+            bigDirectory.Files[fileName] = bigArchiveEntry;
         }
     }
 
