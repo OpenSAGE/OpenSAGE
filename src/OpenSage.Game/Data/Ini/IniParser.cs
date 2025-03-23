@@ -459,6 +459,8 @@ internal sealed partial class IniParser
 
     public float ParsePerSecondFloat() => ParseFloat() / SageGame.LogicFramesPerSecond();
 
+    public float ParseFrictionPerSec() => ParsePerSecondFloat();
+
     public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / SageGame.MsPerLogicFrame()));
 
     public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / SageGame.MsPerLogicFrame();

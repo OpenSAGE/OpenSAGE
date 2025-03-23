@@ -73,7 +73,7 @@ public sealed class LocomotorTemplate : BaseAsset
         { "LateralVelocityRollFactor", (parser, x) => x.LateralVelocityRollFactor = parser.ParseFloat() },
 
         { "Apply2DFrictionWhenAirborne", (parser, x) => x.Apply2DFrictionWhenAirborne = parser.ParseBoolean() },
-        { "Extra2DFriction", (parser, x) => x.Extra2DFriction = parser.ParsePerSecondFloat() },
+        { "Extra2DFriction", (parser, x) => x.Extra2DFriction = parser.ParseFrictionPerSec() },
         { "AirborneTargetingHeight", (parser, x) => x.AirborneTargetingHeight = parser.ParseInteger() },
         { "LocomotorWorksWhenDead", (parser, x) => x.LocomotorWorksWhenDead = parser.ParseBoolean() },
         { "CirclingRadius", (parser, x) => x.CirclingRadius = parser.ParseFloat() },
