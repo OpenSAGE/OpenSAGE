@@ -66,7 +66,7 @@ public class SlowDeathBehavior : UpdateModule
 
     private static LogicFrameSpan GetDelayWithVariance(BehaviorUpdateContext context, LogicFrameSpan delay, LogicFrameSpan variance)
     {
-        var randomMultiplier = (context.GameEngine.Random.NextDouble() * 2.0) - 1.0;
+        var randomMultiplier = context.GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
         return delay + (variance * (float)randomMultiplier);
     }
 

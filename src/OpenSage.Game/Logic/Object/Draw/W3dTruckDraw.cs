@@ -65,7 +65,7 @@ public sealed class W3dTruckDraw : W3dModelDraw
         }
     }
 
-    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
+    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, RandomValue random)
     {
         base.UpdateConditionState(flags, random);
 

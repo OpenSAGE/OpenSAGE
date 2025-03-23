@@ -13,5 +13,5 @@ public readonly struct FloatRange
         High = high;
     }
 
-    public float GetValue(Random random) => (float)(random.NextDouble() * (High - Low) + Low);
+    public float GetValue(RandomValue random) => random.NextSingle(Low, High);
 }

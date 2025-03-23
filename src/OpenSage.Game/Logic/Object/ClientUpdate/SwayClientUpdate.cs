@@ -103,9 +103,9 @@ public sealed class SwayClientUpdate : ClientUpdateModule
 
         var delta = breezeInfo.Randomness * 0.5f;
 
-        _currentAngleLimit = breezeInfo.Intensity * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
-        _currentDelta = 2.0f * MathF.PI / breezeInfo.BreezePeriod * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
-        _leanAngle = breezeInfo.Lean * _gameEngine.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _currentAngleLimit = breezeInfo.Intensity * _gameEngine.GameClient.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _currentDelta = 2.0f * MathF.PI / breezeInfo.BreezePeriod * _gameEngine.GameClient.Random.NextSingle(1.0f - delta, 1.0f + delta);
+        _leanAngle = breezeInfo.Lean * _gameEngine.GameClient.Random.NextSingle(1.0f - delta, 1.0f + delta);
         _currentVersion = breezeInfo.BreezeVersion;
     }
 

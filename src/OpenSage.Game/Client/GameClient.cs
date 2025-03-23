@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Client;
 
@@ -14,6 +15,8 @@ internal sealed class GameClient : DisposableBase, IPersistableObject
     private uint _currentFrame;
 
     internal uint NextDrawableId = 1;
+
+    public readonly RandomValue Random = new();
 
     public GameClient(Game game)
     {

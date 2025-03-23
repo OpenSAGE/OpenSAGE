@@ -5,6 +5,7 @@ using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using Xunit;
 
 namespace OpenSage.Tests.Graphics.Animation;
@@ -318,7 +319,7 @@ public class AnimationInstanceTests
 /// <summary>
 /// Guaranteed random!
 /// </summary>
-internal class QuoteUnquoteRandom : Random
+internal class QuoteUnquoteRandom : RandomValue
 {
     private readonly int _random;
 
@@ -338,19 +339,14 @@ internal class QuoteUnquoteRandom : Random
         _random = random;
     }
 
-    public override int Next()
+    public override int Next(int lo, int hi)
     {
         return _random;
     }
 
-    public override int Next(int maxValue)
+    public override float NextSingle(float lo, float hi)
     {
-        return Next();
-    }
-
-    public override int Next(int minValue, int maxValue)
-    {
-        return Next(minValue);
+        return _random;
     }
 }
 

@@ -46,17 +46,7 @@ public sealed class GameEngine
 
     public AssetStore AssetStore => AssetLoadContext.AssetStore;
 
-    public readonly Random Random = new Random();
-
     public readonly AI AI = new();
-
-    public LogicFrameSpan GetRandomLogicFrameSpan(LogicFrameSpan min, LogicFrameSpan max)
-    {
-        var value = Random.Next(
-            (int)min.Value,
-            (int)max.Value);
-        return new LogicFrameSpan((uint)value);
-    }
 
     public readonly IQuadtree<GameObject> Quadtree;
 

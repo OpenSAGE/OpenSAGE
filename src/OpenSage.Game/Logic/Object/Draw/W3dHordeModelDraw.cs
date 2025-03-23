@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Client;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
@@ -16,7 +17,7 @@ public class W3dHordeModelDraw : W3dScriptedModelDraw
     {
     }
 
-    protected override bool SetActiveAnimationState(AnimationState animationState, Random random)
+    protected override bool SetActiveAnimationState(AnimationState animationState, RandomValue random)
     {
         return base.SetActiveAnimationState(animationState, random);
     }

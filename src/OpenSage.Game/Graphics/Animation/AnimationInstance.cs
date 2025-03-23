@@ -4,6 +4,7 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 
 namespace OpenSage.Graphics.Animation;
 
@@ -19,7 +20,7 @@ public sealed class AnimationInstance
     private bool _playing;
     private readonly AnimationMode _mode;
     private readonly AnimationFlags _flags;
-    private readonly Random _random;
+    private readonly RandomValue _random;
 
     private float _speedFactor;
 
@@ -39,7 +40,7 @@ public sealed class AnimationInstance
     /// <param name="gameObject"></param>
     /// <param name="random">Random number generator used when combined with <see cref="AnimationFlags.RandomStart"/></param>
     public AnimationInstance(ModelBoneInstance[] modelBoneInstances, W3DAnimation animation,
-        AnimationMode mode, AnimationFlags flags, GameObject gameObject, Random random)
+        AnimationMode mode, AnimationFlags flags, GameObject gameObject, RandomValue random)
     {
         _animation = animation;
         _mode = mode;
@@ -100,7 +101,7 @@ public sealed class AnimationInstance
         }
         else if (_flags.HasFlag(AnimationFlags.RandomStart))
         {
-            _currentTimeValue = TimeSpan.FromMilliseconds(_random.Next((int)_animation.Duration.TotalMilliseconds));
+            _currentTimeValue = TimeSpan.FromMilliseconds(_random.Next(0, (int)_animation.Duration.TotalMilliseconds));
         }
         else
         {

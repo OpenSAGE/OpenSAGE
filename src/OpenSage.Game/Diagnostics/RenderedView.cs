@@ -42,7 +42,6 @@ internal sealed class RenderedView : DisposableBase
             () => new Viewport(0, 0, ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y, 0, 1),
             new ArcballCameraController(cameraTarget, cameraDistance),
             WorldLighting.CreateDefault(),
-            Environment.TickCount,
             isDiagnosticScene: true));
 
         createGameObjects?.Invoke(_scene3D.GameObjects);

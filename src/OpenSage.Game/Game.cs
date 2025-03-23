@@ -612,7 +612,6 @@ public sealed class Game : DisposableBase, IGame
             this,
             mapFile,
             entry.FilePath,
-            Environment.TickCount,
             mapPlayers,
             mapTeams,
             mapScriptLists,

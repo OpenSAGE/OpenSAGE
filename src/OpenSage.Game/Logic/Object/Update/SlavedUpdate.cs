@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
 
@@ -77,16 +78,16 @@ public class SlavedUpdateModule : UpdateModule
                     if (!isMoving)
                     {
                         _repairStatus = RepairStatus.READY;
-                        var readyDuration = context.GameEngine.GetRandomLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
+                        var readyDuration = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
                         _waitUntil = context.LogicFrame + readyDuration;
                     }
                     break;
                 case RepairStatus.READY:
                     if (context.LogicFrame >= _waitUntil)
                     {
-                        var range = (float)(context.GameEngine.Random.NextDouble() * _moduleData.RepairRange);
-                        var height = (float)(context.GameEngine.Random.NextDouble() * (_moduleData.RepairMaxAltitude - _moduleData.RepairMinAltitude) + _moduleData.RepairMinAltitude);
-                        var angle = (float)(context.GameEngine.Random.NextDouble() * (Math.PI * 2));
+                        var range = context.GameEngine.GameLogic.Random.NextSingle(0, _moduleData.RepairRange);
+                        var height = context.GameEngine.GameLogic.Random.NextSingle(_moduleData.RepairMinAltitude, _moduleData.RepairMaxAltitude);
+                        var angle = context.GameEngine.GameLogic.Random.NextSingle(0, MathUtility.TwoPi);
 
                         var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                         GameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
@@ -106,7 +107,7 @@ public class SlavedUpdateModule : UpdateModule
 
                         particleSystem.Activate();
 
-                        var weldDuration = context.GameEngine.GetRandomLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
+                        var weldDuration = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
                         _waitUntil = context.LogicFrame + weldDuration;
                         _repairStatus = RepairStatus.WELDING;
                     }

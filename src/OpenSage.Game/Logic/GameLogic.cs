@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic;
 
@@ -51,6 +52,8 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             return _objectsToIterate;
         }
     }
+
+    public readonly RandomValue Random = new();
 
     public GameLogic(IGame game)
     {

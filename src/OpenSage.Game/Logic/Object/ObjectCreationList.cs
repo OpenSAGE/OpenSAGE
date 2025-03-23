@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.InGame;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
 
@@ -133,7 +134,7 @@ public sealed class CreateDebrisOCNugget : OCNugget
 
         var debrisObject = context.GameEngine.GameLogic.CreateObject(debrisObjectDefinition, context.GameObject.Owner);
 
-        var lifeTime = context.GameEngine.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+        var lifeTime = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
         debrisObject.LifeTime = context.LogicFrame + lifeTime;
 
         debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
@@ -155,8 +156,8 @@ public sealed class CreateDebrisOCNugget : OCNugget
             var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
             physicsBehavior.ApplyForce(
                 new Vector3(
-                    ((float)context.GameEngine.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
-                    ((float)context.GameEngine.Random.NextDouble() - 0.5f) * DispositionIntensity * forceMultiplier,
+                    context.GameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
+                    context.GameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
                     DispositionIntensity * forceMultiplier));
         }
 
@@ -357,7 +358,7 @@ public sealed class CreateObjectOCNugget : OCNugget
                 var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
                 if (lifetimeUpdate != null)
                 {
-                    var lifetime = context.GameEngine.GetRandomLogicFrameSpan(MinLifetime, MaxLifetime);
+                    var lifetime = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
                     lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
                 }
 

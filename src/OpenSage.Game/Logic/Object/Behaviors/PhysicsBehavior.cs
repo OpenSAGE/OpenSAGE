@@ -599,13 +599,13 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         // Set bounce to true for a while until the unit is complete bouncing.
         SetAllowBouncing(true);
 
-        var randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
+        var randomModifier = GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
         _yawRate += _moduleData.ShockMaxYaw * randomModifier;
 
-        randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
+        randomModifier = GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
         _pitchRate += _moduleData.ShockMaxPitch * randomModifier;
 
-        randomModifier = GameEngine.Random.NextSingle(-1.0f, 1.0f);
+        randomModifier = GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
         _rollRate += _moduleData.ShockMaxRoll * randomModifier;
 
         MaybeWakeUp();

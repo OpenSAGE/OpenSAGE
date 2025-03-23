@@ -527,7 +527,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         if (objectDefinition.BuildVariations != null && objectDefinition.BuildVariations.Count() > 0)
         {
-            objectDefinition = objectDefinition.BuildVariations[gameContext.Random.Next(0, objectDefinition.BuildVariations.Count())].Value;
+            objectDefinition = objectDefinition.BuildVariations[gameContext.GameLogic.Random.Next(0, objectDefinition.BuildVariations.Length - 1)].Value;
         }
 
         _objectMoved = true;
@@ -1476,7 +1476,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             .ToList();
 
         var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-        var random = _gameEngine.Random.Next(sumProbabilityModifiers);
+        var random = _gameEngine.GameLogic.Random.Next(0, sumProbabilityModifiers);
         var cumulative = 0;
         foreach (var deathBehavior in slowDeathBehaviors)
         {
