@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic;
 
@@ -56,21 +55,6 @@ public sealed class CrateData : BaseAsset
     /// Different crates which may be created if all conditions succeed.
     /// </summary>
     public List<CrateObject> CrateObjects { get; } = [];
-}
-
-public enum VeterancyLevel
-{
-    [IniEnum("REGULAR")]
-    Regular,
-
-    [IniEnum("VETERAN")]
-    Veteran,
-
-    [IniEnum("ELITE")]
-    Elite,
-
-    [IniEnum("HEROIC")]
-    Heroic,
 }
 
 public readonly record struct CrateObject(LazyAssetReference<ObjectDefinition>? Object, float Probability)

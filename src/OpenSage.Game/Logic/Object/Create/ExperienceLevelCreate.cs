@@ -15,7 +15,8 @@ internal sealed class ExperienceLevelCreateBehavior : CreateModule
 
     public override void OnCreate()
     {
-        GameObject.Rank = _moduleData.LevelToGrant;
+        // TODO: This is unlikely to be correct?
+        GameObject.Rank = (VeterancyLevel)_moduleData.LevelToGrant;
     }
 }
 

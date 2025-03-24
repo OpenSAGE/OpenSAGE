@@ -75,11 +75,10 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
             gameObject.ActiveCashEvent = null;
         }
 
-        if (gameObject.VeterancyHelper.ShowRankUpAnimation)
+        if (gameObject.ExperienceTracker.ShowRankUpAnimation)
         {
             TransientAnimations.Enqueue(new RankUpAnimation(Camera, GameEngine.LogicFramesPerSecond, currentFrame, GameData, new Animation(LevelUpAnimation, GameEngine.LogicFramesPerSecond), gameObject.Translation with { Z = gameObject.Translation.Z + 20 }));
-
-            gameObject.VeterancyHelper.ShowRankUpAnimation = false;
+            gameObject.ExperienceTracker.ShowRankUpAnimation = false;
         }
     }
 
@@ -87,9 +86,9 @@ public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D
     {
         var mappedImage = gameObject.Rank switch
         {
-            1 => _veteranPip,
-            2 => _elitePip,
-            3 => _heroicPip,
+            VeterancyLevel.Veteran => _veteranPip,
+            VeterancyLevel.Elite => _elitePip,
+            VeterancyLevel.Heroic => _heroicPip,
             _ => throw new ArgumentOutOfRangeException(nameof(gameObject.Rank), gameObject.Rank, "Rank not supported"),
         };
 

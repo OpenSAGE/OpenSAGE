@@ -30,7 +30,7 @@ public sealed class VeterancyGainCreate : CreateModule
         }
 
         // units like the minigunner or tank battlemaster can start at vet 1 and be upgraded to vet 2, and so have two VeterancyGainCreate modules
-        var level = (int)_moduleData.StartingLevel;
+        var level = _moduleData.StartingLevel;
         if (level > GameObject.Rank)
         {
             GameObject.Rank = level;

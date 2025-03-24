@@ -356,7 +356,7 @@ public sealed class ProductionUpdate : UpdateModule
 
         if (!_moduleData.GiveNoXP)
         {
-            GameObject.GainExperience((int)producedUnit.Definition.BuildCost);
+            GameObject.ExperienceTracker.AddExperiencePoints((int)producedUnit.Definition.BuildCost);
         }
 
         var isHorde = producedUnit.Definition.KindOf.Get(ObjectKinds.Horde);

@@ -14,7 +14,7 @@ internal sealed class ExperienceScalarUpgrade : UpgradeModule
 
     protected override void OnUpgrade()
     {
-        GameObject.VeterancyHelper.ExperienceScalar += _moduleData.AddXPScalar;
+        GameObject.ExperienceTracker.ExperienceScalar += _moduleData.AddXPScalar;
     }
 
     internal override void Load(StatePersister reader)

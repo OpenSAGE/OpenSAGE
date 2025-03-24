@@ -801,6 +801,29 @@ public class Player : IPersistableObject
         _searchAndDestroyActive = false;
         _strategyData?.ClearBattlePlan();
     }
+
+    public RelationshipType GetRelationship(Team? that)
+    {
+        if (that == null)
+        {
+            return RelationshipType.Neutral;
+        }
+
+        // Check team override
+        if (_playerToTeamRelationships.TryGetValue(that.Id, out var relationship))
+        {
+            return relationship;
+        }
+
+        // Check player override
+        if (_playerToPlayerRelationships.TryGetValue(that.ControllingPlayer.Id, out relationship))
+        {
+            return relationship;
+        }
+
+        // Default to neutral
+        return RelationshipType.Neutral;
+    }
 }
 
 public sealed class SupplyManager : IPersistableObject
@@ -938,6 +961,11 @@ public enum RelationshipType : uint
 public sealed class PlayerRelationships : IPersistableObject
 {
     private readonly Dictionary<uint, RelationshipType> _store = new();
+
+    public bool TryGetValue(uint playerOrTeamid, out RelationshipType relationship)
+    {
+        return _store.TryGetValue(playerOrTeamid, out relationship);
+    }
 
     public void Persist(StatePersister reader)
     {

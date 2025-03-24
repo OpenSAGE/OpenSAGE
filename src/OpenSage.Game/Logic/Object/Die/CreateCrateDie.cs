@@ -55,7 +55,7 @@ public sealed class CreateCrateDie : DieModule
 
         return (!crateData.KilledByType.HasValue || killer.Definition.KindOf.Get(crateData.KilledByType.Value)) && // killer type ok
                killer.Team != GameObject.Team && // we can't generate our own salvage
-               (crateData.VeterancyLevel is not { } v || v != GameObject.VeterancyHelper.VeterancyLevel) && // killer meets veterancy requirements
+               (crateData.VeterancyLevel is not { } v || v != GameObject.ExperienceTracker.VeterancyLevel) && // killer meets veterancy requirements
                (crateData.KillerScience is null || killer.Owner.HasScience(crateData.KillerScience.Value)); // killer owner meets science requirements
     }
 
