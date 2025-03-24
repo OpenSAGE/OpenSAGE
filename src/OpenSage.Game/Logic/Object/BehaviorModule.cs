@@ -142,14 +142,14 @@ public readonly struct LogicFrameSpan
 {
     public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
 
-    public static readonly LogicFrameSpan OneSecond = new LogicFrameSpan((uint)GameEngine.LogicFramesPerSecond);
-
     internal readonly uint Value;
 
     public LogicFrameSpan(uint value)
     {
         Value = value;
     }
+
+    public static LogicFrameSpan OneSecond(float logicFramesPerSecond) => new((uint)logicFramesPerSecond);
 
     public static LogicFrameSpan operator +(LogicFrameSpan left, LogicFrameSpan right)
     {

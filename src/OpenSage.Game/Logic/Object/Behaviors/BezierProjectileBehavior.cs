@@ -36,7 +36,7 @@ public class BezierProjectileBehavior : UpdateModule
         var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
         var velocity = direction * context.GameObject.Speed;
 
-        GameObject.SetTranslation(GameObject.Translation + velocity * ((float)GameEngine.LogicUpdateInterval / 1000.0f));
+        GameObject.SetTranslation(GameObject.Translation + velocity * (GameEngine.MsPerLogicFrame / 1000.0f));
 
         CheckForHit(
             context,

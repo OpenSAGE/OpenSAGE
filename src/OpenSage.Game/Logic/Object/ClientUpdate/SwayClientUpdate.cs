@@ -51,7 +51,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
             return;
         }
 
-        _currentValue += (float)(_currentDelta * gameTime.GetLogicFrameRelativeDeltaTime());
+        _currentValue += (float)(_currentDelta * gameTime.GetLogicFrameRelativeDeltaTime(_gameEngine.MsPerLogicFrame));
         if (_currentValue > MathUtility.TwoPi)
         {
             _currentValue -= MathUtility.TwoPi;

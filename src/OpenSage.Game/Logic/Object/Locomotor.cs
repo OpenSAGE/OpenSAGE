@@ -95,7 +95,7 @@ public sealed class Locomotor : IPersistableObject
 
     private void ResetDonutTimer()
     {
-        _donutTimer = _gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * GameEngine.LogicFramesPerSecond));
+        _donutTimer = _gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)(DonutTimeDelaySeconds * _gameEngine.LogicFramesPerSecond));
     }
 
     private bool HasMovementPenalty(BodyDamageType condition)
@@ -353,7 +353,7 @@ public sealed class Locomotor : IPersistableObject
             // If we get high enough to stay up for 3 frames, then we left the ground.
             treatAsAirborne = true;
         }
-        // We apply a zero acceleration to all units, as the call to 
+        // We apply a zero acceleration to all units, as the call to
         // ApplyMotiveForce flags an object as being "driven" by a locomotor, rather
         // than being pushed around by objects bumping it.
         physics.ApplyMotiveForce(Vector3.Zero);
@@ -433,7 +433,7 @@ public sealed class Locomotor : IPersistableObject
 
         if (wasBraking)
         {
-            const float minVel = AIPathfind.PathfindCellSizeF / GameEngine.LogicFramesPerSecond;
+            var minVel = AIPathfind.PathfindCellSizeF / _gameEngine.LogicFramesPerSecond;
 
             if (obj.IsKindOf(ObjectKinds.Projectile))
             {
@@ -581,7 +581,7 @@ public sealed class Locomotor : IPersistableObject
         switch (LocomotorTemplate.BehaviorZ)
         {
             case LocomotorBehaviorZ.NoZMotiveForce:
-                // Nothing to do. 
+                // Nothing to do.
                 requiresConstantCalling = false;
                 break;
 
@@ -786,7 +786,7 @@ public sealed class Locomotor : IPersistableObject
                 -GetBraking();
             var accelForce = mass * acceleration;
 
-            // Don't accelerate/brake more than necessary. do a quick calc to 
+            // Don't accelerate/brake more than necessary. do a quick calc to
             // see how much force we really need to achieve our goal speed...
             var maxForceNeeded = mass * speedDelta;
             if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -916,7 +916,7 @@ public sealed class Locomotor : IPersistableObject
                 : (speedDelta > 0.0f) ? maxAcceleration : -GetBraking();
             var accelForce = mass * acceleration;
 
-            // Don't accelerate/brake more than necessary. do a quick calc to 
+            // Don't accelerate/brake more than necessary. do a quick calc to
             // see how much force we really need to achieve our goal speed...
             var maxForceNeeded = mass * speedDelta;
             if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -1026,18 +1026,18 @@ public sealed class Locomotor : IPersistableObject
         }
 
         const float FIFTEEN_DEGREES = MathF.PI / 12.0f;
-        const float PROJECT_FRAMES = GameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
+        var projectFrames = _gameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
         if (MathF.Abs(relAngle) > FIFTEEN_DEGREES)
         {
             // If we're turning more than 10 degrees, check & see if we're moving into "impassable territory"
-            var distance = PROJECT_FRAMES * (goalSpeed + actualSpeed) / 2.0f;
+            var distance = projectFrames * (goalSpeed + actualSpeed) / 2.0f;
             var targetAngle = obj.Yaw;
             var turnFactor = ((goalSpeed + actualSpeed) / 2.0f) / turnSpeed;
             if (turnFactor > 1.0f)
             {
                 turnFactor = 1.0f;
             }
-            var turnAmount = PROJECT_FRAMES * turnFactor * maxTurnRate / 4.0f;
+            var turnAmount = projectFrames * turnFactor * maxTurnRate / 4.0f;
             if (relAngle < 0)
             {
                 targetAngle -= turnAmount;
@@ -1133,7 +1133,7 @@ public sealed class Locomotor : IPersistableObject
         }
 
 
-        //DEBUG_LOG(("Actual speed %f, Braking factor %f, slowDownDist %f, Pathdist %f, goalSpeed %f\n", 
+        //DEBUG_LOG(("Actual speed %f, Braking factor %f, slowDownDist %f, Pathdist %f, goalSpeed %f\n",
         //	actualSpeed, m_brakingFactor, slowDownDist, onPathDistToGoal, goalSpeed));
 
         {
@@ -1179,7 +1179,7 @@ public sealed class Locomotor : IPersistableObject
                 : (speedDelta > 0.0f) ? maxAcceleration : -_brakingFactor * GetBraking();
             var accelForce = mass * acceleration;
 
-            // Don't accelerate/brake more than necessary. do a quick calc to 
+            // Don't accelerate/brake more than necessary. do a quick calc to
             // see how much force we really need to achieve our goal speed...
             var maxForceNeeded = mass * speedDelta;
             if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -1296,7 +1296,7 @@ public sealed class Locomotor : IPersistableObject
             }
         }
 
-        //DEBUG_LOG(("Actual speed %f, Braking factor %f, slowDownDist %f, Pathdist %f, goalSpeed %f\n", 
+        //DEBUG_LOG(("Actual speed %f, Braking factor %f, slowDownDist %f, Pathdist %f, goalSpeed %f\n",
         //	actualSpeed, m_brakingFactor, slowDownDist, onPathDistToGoal, goalSpeed));
 
         // Maintain goal speed.
@@ -1307,7 +1307,7 @@ public sealed class Locomotor : IPersistableObject
             var acceleration = (speedDelta > 0.0f) ? maxAcceleration : -_brakingFactor * GetBraking();
             var accelForce = mass * acceleration;
 
-            // Don't accelerate/brake more than necessary. do a quick calc to 
+            // Don't accelerate/brake more than necessary. do a quick calc to
             // see how much force we really need to achieve our goal speed...
             var maxForceNeeded = mass * speedDelta;
             if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -1652,7 +1652,7 @@ public sealed class Locomotor : IPersistableObject
             var acceleration = (speedDelta > 0.0f) ? maxAcceleration : -GetBraking();
             var accelForce = mass * acceleration;
 
-            // Don't accelerate/brake more than necessary. do a quick calc to 
+            // Don't accelerate/brake more than necessary. do a quick calc to
             // see how much force we really need to achieve our goal speed...
             var maxForceNeeded = mass * speedDelta;
             if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -1736,7 +1736,7 @@ public sealed class Locomotor : IPersistableObject
                 //	and
                 // t = (-v +- sqrt(v*v + 2*a*dz))/a
                 //
-                // but if we assume t=1, then 
+                // but if we assume t=1, then
                 //	a=2(dz-v)
                 // then, plug it back in and see if t is really 1...
                 desiredAccel = 2.0f * (deltaZ - curVelZ);
@@ -1980,7 +1980,7 @@ public sealed class Locomotor : IPersistableObject
                 var acceleration = (speedDelta > 0.0f) ? maxAcceleration : -GetBraking();
                 var accelForce = mass * acceleration;
 
-                // don't accelerate/brake more than necessary. do a quick calc to 
+                // don't accelerate/brake more than necessary. do a quick calc to
                 // see how much force we really need to achieve our goal speed...
                 var maxForceNeeded = mass * speedDelta;
                 if (MathF.Abs(accelForce) > MathF.Abs(maxForceNeeded))
@@ -2001,7 +2001,7 @@ public sealed class Locomotor : IPersistableObject
                 // Apply a random kick (if applicable) to dirty-up visually.
                 // The idea is that chopper pilots have to do course corrections all the time
                 // Because of changes in wind, pressure, etc.
-                // Those changes are added here, then the 
+                // Those changes are added here, then the
 
                 // Apply forces to object.
                 physics.ApplyMotiveForce(force);
@@ -2053,13 +2053,13 @@ public sealed class Locomotor : IPersistableObject
         var maxTurnRate = GetMaxTurnRate(condition); // in rads/frame
 
         // our minimum circumference will be like so:
-        // 
+        //
         // var minTurnCircum = maxSpeed * (2*PI / maxTurnRate);
-        // 
+        //
         // so therefore our minimum turn radius is:
-        // 
+        //
         // var minTurnRadius = minTurnCircum / 2*PI;
-        // 
+        //
         // so we just eliminate the middleman:
         // if we can't turn, return a huge-but-finite radius rather than NaN...
         var minTurnRadius = (maxTurnRate > 0.0f)

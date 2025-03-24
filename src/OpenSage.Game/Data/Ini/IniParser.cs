@@ -457,19 +457,23 @@ internal sealed partial class IniParser
     public TimeSpan ParseTimeMilliseconds() => TimeSpan.FromMilliseconds(ParseFloat());
     public TimeSpan ParseTimeSeconds() => TimeSpan.FromSeconds(ParseInteger());
 
-    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / GameEngine.LogicUpdateInterval));
+    public float ParsePerSecondFloat() => ParseFloat() / SageGame.LogicFramesPerSecond();
 
-    public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / GameEngine.LogicUpdateInterval;
+    public float ParseFrictionPerSec() => ParsePerSecondFloat();
 
-    public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * GameEngine.LogicFramesPerSecond));
+    public LogicFrameSpan ParseTimeMillisecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() / SageGame.MsPerLogicFrame()));
 
-    public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / GameEngine.LogicUpdateInterval));
+    public float ParseTimeMillisecondsToLogicFramesFloat() => ParseFloat() / SageGame.MsPerLogicFrame();
 
-    public float ParseAngularVelocityToLogicFrames() => ParseFloat() * MathUtility.DegreesToRadiansRatio / GameEngine.LogicFramesPerSecond;
+    public LogicFrameSpan ParseTimeSecondsToLogicFrames() => new LogicFrameSpan((uint)MathF.Ceiling(ParseFloat() * SageGame.LogicFramesPerSecond()));
 
-    public float ParseVelocityToLogicFrames() => ParseFloat() / GameEngine.LogicFramesPerSecond;
+    public LogicFrameSpan ScanTimeMillisecondsToLogicFrames(in IniToken token) => new LogicFrameSpan((uint)MathF.Ceiling(ScanFloat(token) / SageGame.MsPerLogicFrame()));
 
-    public float ParseAccelerationToLogicFrames() => ParseFloat() / (GameEngine.LogicFramesPerSecond * GameEngine.LogicFramesPerSecond);
+    public float ParseAngularVelocityToLogicFrames() => ParseFloat() * MathUtility.DegreesToRadiansRatio / SageGame.LogicFramesPerSecond();
+
+    public float ParseVelocityToLogicFrames() => ParseFloat() / SageGame.LogicFramesPerSecond();
+
+    public float ParseAccelerationToLogicFrames() => ParseFloat() / (SageGame.LogicFramesPerSecond() * SageGame.LogicFramesPerSecond());
 
     public float ParseAngle() => ParseFloat() * MathUtility.DegreesToRadiansRatio;
 

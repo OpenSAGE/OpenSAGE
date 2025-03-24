@@ -20,7 +20,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     private const float InvalidVelocityMagnitude = -1.0f;
 
-    private const int MotiveFrames = (int)GameEngine.LogicFramesPerSecond / 3;
+    private uint MotiveFrames => (uint)GameEngine.LogicFramesPerSecond / 3;
 
     private readonly PhysicsBehaviorModuleData _moduleData;
 
@@ -169,6 +169,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
         _gravity = gameEngine.AssetStore.GameData.Current.Gravity * moduleData.GravityMult;
 
+        // todo: do these clamps still apply at different logic frame rates?
         _aerodynamicFriction = Math.Clamp(moduleData.AerodynamicFriction, MinAeroFriction, MaxFriction);
         _forwardFriction = Math.Clamp(moduleData.ForwardFriction, MinNonAeroFriction, MaxFriction);
         _lateralFriction = Math.Clamp(moduleData.LateralFriction, MinNonAeroFriction, MaxFriction);
@@ -215,7 +216,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     /// <summary>
     /// Basic rigid body physics using an Euler integrator.
-    /// 
+    ///
     /// Original code also has this comment:
     /// @todo Currently, only translations are integrated. Rotations should also be integrated. (MSB)
     /// </summary>
@@ -308,20 +309,20 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             if (GetFlag(PhysicsFlagType.HasPitchRollYaw))
             {
                 // You may be tempted to do something like this:
-                // 
+                //
                 // 	Real rollAngle = -mtx.Get_X_Rotation();
                 // 	Real pitchAngle = mtx.Get_Y_Rotation();
                 // 	Real yawAngle = mtx.Get_Z_Rotation();
                 // 	// do stuff to angles, then rebuild the mtx with 'em
-                // 
+                //
                 // You must resist this temptation, because your code will be wrong!
-                // 
-                // The problem is that you can't use these calls to later reconstruct 
+                //
+                // The problem is that you can't use these calls to later reconstruct
                 // the matrix... because doing such a thing is highly order-dependent,
                 // and furthermore, you'd have to use Euler angles (Not the Get_?_Rotation
                 // calls) to be able to reconstruct 'em, and that's too slow to do for
                 // every object every frame.
-                // 
+                //
                 // The one exception is that it is OK to use Get_Z_Rotation() to get
                 // the yaw angle.
 
@@ -888,10 +889,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     /// Resolves the collision between this object and <paramref name="other"/>
     /// by computing the amount the objects have overlapped, and apply proportional
     /// forces to push them apart.
-    /// 
+    ///
     /// Note that this call only applies force to our object, not to <paramref name="other"/>
     /// Since the forces should be equal and opposite, this could be optimized.
-    /// 
+    ///
     /// TODOs from original code:
     /// @todo Make this work properly for non-cylindrical objects (MSB)
     /// @todo Physics collision resolution is 2D - should it be 3D? (MSB)
@@ -1287,7 +1288,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             }
             else if (crushTarget == CrushType.FrontEndCrush)
             {
-                // Check the front point.  
+                // Check the front point.
                 comparisonCoord = crusheePos;
                 comparisonCoord.X += crushPointOffset.X;
                 comparisonCoord.Y += crushPointOffset.Y;
@@ -1565,10 +1566,10 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
         { "ShockMaxYaw", (parser, x) => x.ShockMaxYaw = parser.ParseFloat() },
         { "ShockMaxPitch", (parser, x) => x.ShockMaxPitch = parser.ParseFloat() },
         { "ShockMaxRoll", (parser, x) => x.ShockMaxRoll = parser.ParseFloat() },
-        { "ForwardFriction", (parser, x) => x.ForwardFriction = ParseFrictionPerSec(parser) },
-        { "LateralFriction", (parser, x) => x.LateralFriction = ParseFrictionPerSec(parser) },
-        { "ZFriction", (parser, x) => x.ZFriction = ParseFrictionPerSec(parser) },
-        { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = ParseFrictionPerSec(parser) },
+        { "ForwardFriction", (parser, x) => x.ForwardFriction = parser.ParseFrictionPerSec() },
+        { "LateralFriction", (parser, x) => x.LateralFriction = parser.ParseFrictionPerSec() },
+        { "ZFriction", (parser, x) => x.ZFriction = parser.ParseFrictionPerSec() },
+        { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = parser.ParseFrictionPerSec() },
         { "CenterOfMassOffset", (parser, x) => x.CenterOfMassOffset = parser.ParseFloat() },
         { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
         { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
@@ -1601,7 +1602,7 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     // thru some bizarre editing mishap, we have been double-apply pitch/roll/yaw rates
     // to objects for, well, a long time, it looks like. I have corrected that problem
     // in the name of efficiency, but to maintain the same visual appearance without having
-    // to edit every freaking INI in the world at this point, I am just multiplying 
+    // to edit every freaking INI in the world at this point, I am just multiplying
     // all the results by a factor so that the effect is the same (but with less execution time).
     // I have put this factor into INI in the unlikely event we ever need to change it,
     // but defaulting it to 2 is, in fact, the right thing for now... (srj)
@@ -1654,12 +1655,5 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     private static float ParseHeightToSpeed(IniParser parser)
     {
         return HeightToSpeed(parser, parser.ParseFloat());
-    }
-
-    private static float ParseFrictionPerSec(IniParser parser)
-    {
-        var frictionPerSecond = parser.ParseFloat();
-        var frictionPerFrame = frictionPerSecond * GameEngine.SecondsPerLogicFrame;
-        return frictionPerFrame;
     }
 }
