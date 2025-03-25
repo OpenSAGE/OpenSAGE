@@ -1,10 +1,12 @@
 ﻿#nullable enable
 
+using OpenSage.Logic.Object;
+
 namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class ExitContainerState : State
 {
-    private uint _containerObjectId;
+    private ObjectId _containerObjectId;
 
     internal ExitContainerState(AIUpdateStateMachine stateMachine) : base(stateMachine)
     {
@@ -14,6 +16,6 @@ internal sealed class ExitContainerState : State
     {
         reader.PersistVersion(1);
 
-        reader.PersistObjectID(ref _containerObjectId);
+        reader.PersistObjectId(ref _containerObjectId);
     }
 }

@@ -96,7 +96,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     private bool TryGetBuildTarget([NotNullWhen(true)] out GameObject? gameObject)
     {
         var id = _dozerTargets[0].ObjectId;
-        if (id > 0)
+        if (id.IsValid)
         {
             gameObject = _gameEngine.GameLogic.GetObjectById(id);
             return true;
@@ -123,7 +123,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     private bool TryGetRepairTarget([NotNullWhen(true)] out GameObject? gameObject)
     {
         var id = _dozerTargets[1].ObjectId;
-        if (id > 0)
+        if (id.IsValid)
         {
             gameObject = _gameEngine.GameLogic.GetObjectById(id);
             return true;
@@ -143,7 +143,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     {
         if (TryGetRepairTarget(out var repairTarget))
         {
-            repairTarget.HealedByObjectId = 0;
+            repairTarget.HealedByObjectId = ObjectId.Invalid;
             repairTarget.HealedEndFrame = 0;
         }
         _dozerTargets[1] = new DozerTarget();
@@ -180,12 +180,12 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     private struct DozerTarget : IPersistableObject
     {
-        public uint ObjectId;
+        public ObjectId ObjectId;
         public uint OrderFrame;
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref ObjectId);
+            persister.PersistObjectId(ref ObjectId);
             persister.PersistUInt32(ref OrderFrame);
         }
     }

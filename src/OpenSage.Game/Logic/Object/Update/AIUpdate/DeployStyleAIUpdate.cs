@@ -11,7 +11,7 @@ public class DeployStyleAIUpdate : AIUpdate
     private LogicFrame _packCompleteFrame; // 0 when not deployed or completely deployed - used for packing and unpacking
     private DeploymentStatus _deploymentStatus;
 
-    private uint _targetObjectId;
+    private ObjectId _targetObjectId;
 
     private Vector3 _targetPosition;
 
@@ -46,7 +46,7 @@ public class DeployStyleAIUpdate : AIUpdate
             reader.PersistEnum(ref _deploymentStatus);
 
             reader.SkipUnknownBytes(4);
-            reader.PersistObjectID(ref _targetObjectId);
+            reader.PersistObjectId(ref _targetObjectId);
             reader.PersistVector3(ref _targetPosition);
 
             reader.PersistBoolean(ref _unknownBool1); // repositioning to fire at ground?

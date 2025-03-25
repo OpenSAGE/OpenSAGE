@@ -9,7 +9,7 @@ internal sealed class WeaponTarget
 
     public readonly WeaponTargetType TargetType;
     public readonly Vector3? TargetGroundPosition;
-    public readonly uint TargetObjectId;
+    public readonly ObjectId TargetObjectId;
 
     public bool IsDestroyed => TargetType == WeaponTargetType.Object && GetTargetObject() == null;
 
@@ -23,7 +23,7 @@ internal sealed class WeaponTarget
         TargetGroundPosition = targetGroundPosition;
     }
 
-    internal WeaponTarget(IGameObjectCollection gameObjects, uint targetObjectId)
+    internal WeaponTarget(IGameObjectCollection gameObjects, ObjectId targetObjectId)
     {
         _gameObjects = gameObjects;
 

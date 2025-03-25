@@ -10,8 +10,8 @@ public class BezierProjectileBehavior : UpdateModule
 {
     private readonly BezierProjectileBehaviorData _moduleData;
 
-    private uint _launcherObjectId;
-    private uint _targetObjectId;
+    private ObjectId _launcherObjectId;
+    private ObjectId _targetObjectId;
     private uint _unknown1;
     private readonly float[] _unknownFloats = new float[7];
     private string _weaponThatFiredThis;
@@ -109,8 +109,8 @@ public class BezierProjectileBehavior : UpdateModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _launcherObjectId);
-        reader.PersistObjectID(ref _targetObjectId);
+        reader.PersistObjectId(ref _launcherObjectId);
+        reader.PersistObjectId(ref _targetObjectId);
         reader.PersistUInt32(ref _unknown1);
 
         reader.PersistArray(

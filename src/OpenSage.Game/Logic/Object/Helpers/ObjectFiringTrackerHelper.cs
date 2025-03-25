@@ -3,7 +3,7 @@
 internal sealed class ObjectFiringTrackerHelper : UpdateModule
 {
     private uint _numShotsFiredAtLastTarget;
-    private uint _lastTargetObjectId;
+    private ObjectId _lastTargetObjectId;
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
 
@@ -20,7 +20,7 @@ internal sealed class ObjectFiringTrackerHelper : UpdateModule
         reader.EndObject();
 
         reader.PersistUInt32(ref _numShotsFiredAtLastTarget);
-        reader.PersistObjectID(ref _lastTargetObjectId);
+        reader.PersistObjectId(ref _lastTargetObjectId);
 
         reader.SkipUnknownBytes(4);
     }

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Orders;
@@ -17,7 +18,7 @@ public struct OrderArgumentValue
     public bool Boolean;
 
     [FieldOffset(0)]
-    public uint ObjectId;
+    public ObjectId ObjectId;
 
     [FieldOffset(0)]
     public Vector3 Position;

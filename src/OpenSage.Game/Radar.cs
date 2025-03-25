@@ -126,7 +126,7 @@ public sealed class Radar : IPersistableObject
     }
 }
 
-public sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>, IPersistableObject
+public sealed class RadarItemCollection : KeyedCollection<ObjectId, RadarItem>, IPersistableObject
 {
     public void Persist(StatePersister reader)
     {
@@ -157,22 +157,22 @@ public sealed class RadarItemCollection : KeyedCollection<uint, RadarItem>, IPer
         reader.EndArray();
     }
 
-    protected override uint GetKeyForItem(RadarItem item) => item.ObjectId;
+    protected override ObjectId GetKeyForItem(RadarItem item) => item.ObjectId;
 }
 
 public class RadarItem : IPersistableObject
 {
-    public uint ObjectId => _objectId;
+    public ObjectId ObjectId => _objectId;
     public ColorRgba Color => _color;
 
-    private uint _objectId;
+    private ObjectId _objectId;
     private ColorRgba _color;
 
     public RadarItem() : this(default, default)
     {
     }
 
-    public RadarItem(uint objectId, ColorRgba color)
+    public RadarItem(ObjectId objectId, ColorRgba color)
     {
         _objectId = objectId;
         _color = color;
@@ -182,7 +182,7 @@ public class RadarItem : IPersistableObject
     {
         reader.PersistVersion(1);
 
-        reader.PersistObjectID(ref _objectId);
+        reader.PersistObjectId(ref _objectId);
         reader.PersistColorBgra(ref _color);
     }
 }

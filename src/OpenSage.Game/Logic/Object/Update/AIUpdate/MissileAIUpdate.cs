@@ -17,8 +17,8 @@ public sealed class MissileAIUpdate : AIUpdate
     private Vector3 _unknownPosition;
     private uint _stateMaybe;
     private uint _unknownFrame1;
-    private uint _launcherObjectId;
-    private uint _unknownObjectId;
+    private ObjectId _launcherObjectId;
+    private ObjectId _unknownObjectId;
     private bool _unknownBool1;
     private uint _unknownFrame2;
     private float _unknownFloat1;
@@ -107,8 +107,8 @@ public sealed class MissileAIUpdate : AIUpdate
             throw new InvalidStateException();
         }
 
-        reader.PersistObjectID(ref _launcherObjectId);
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _launcherObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
         reader.PersistBoolean(ref _unknownBool1);
         reader.PersistFrame(ref _unknownFrame2);
         reader.PersistSingle(ref _unknownFloat1);

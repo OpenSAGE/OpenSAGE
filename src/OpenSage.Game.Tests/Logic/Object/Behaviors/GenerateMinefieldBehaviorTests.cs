@@ -111,7 +111,22 @@ public class GenerateMinefieldBehaviorTests : BehaviorModuleTest<GenerateMinefie
         Assert.True(behavior.Generated);
         Assert.False(behavior.Upgraded);
         Assert.False(behavior.GenerationPosition.HasValue);
-        Assert.Collection(behavior.GeneratedMineIds, id => Assert.Equal(0x04u, id), id => Assert.Equal(0x05u, id), id => Assert.Equal(0x06u, id), id => Assert.Equal(0x07u, id), id => Assert.Equal(0x08u, id), id => Assert.Equal(0x09u, id), id => Assert.Equal(0x0au, id), id => Assert.Equal(0x0bu, id), id => Assert.Equal(0x0cu, id), id => Assert.Equal(0x0du, id), id => Assert.Equal(0x0eu, id), id => Assert.Equal(0x0fu, id), id => Assert.Equal(0x10u, id));
+        Assert.Collection(
+            behavior.GeneratedMineIds,
+            id => Assert.Equal(new ObjectId(0x04u), id),
+            id => Assert.Equal(new ObjectId(0x05u), id),
+            id => Assert.Equal(new ObjectId(0x06u), id),
+            id => Assert.Equal(new ObjectId(0x07u), id),
+            id => Assert.Equal(new ObjectId(0x08u), id),
+            id => Assert.Equal(new ObjectId(0x09u), id),
+            id => Assert.Equal(new ObjectId(0x0au), id),
+            id => Assert.Equal(new ObjectId(0x0bu), id),
+            id => Assert.Equal(new ObjectId(0x0cu), id),
+            id => Assert.Equal(new ObjectId(0x0du), id),
+            id => Assert.Equal(new ObjectId(0x0eu), id),
+            id => Assert.Equal(new ObjectId(0x0fu), id),
+            id => Assert.Equal(new ObjectId(0x10u), id)
+        );
     }
 
     /// <summary>
@@ -132,7 +147,22 @@ public class GenerateMinefieldBehaviorTests : BehaviorModuleTest<GenerateMinefie
         Assert.True(behavior.Generated);
         Assert.True(behavior.Upgraded);
         Assert.False(behavior.GenerationPosition.HasValue);
-        Assert.Collection(behavior.GeneratedMineIds, id => Assert.Equal(0x11u, id), id => Assert.Equal(0x12u, id), id => Assert.Equal(0x13u, id), id => Assert.Equal(0x14u, id), id => Assert.Equal(0x15u, id), id => Assert.Equal(0x16u, id), id => Assert.Equal(0x17u, id), id => Assert.Equal(0x18u, id), id => Assert.Equal(0x19u, id), id => Assert.Equal(0x1au, id), id => Assert.Equal(0x1bu, id), id => Assert.Equal(0x1cu, id), id => Assert.Equal(0x1du, id));
+        Assert.Collection(
+            behavior.GeneratedMineIds,
+            id => Assert.Equal(new ObjectId(0x11u), id),
+            id => Assert.Equal(new ObjectId(0x12u), id),
+            id => Assert.Equal(new ObjectId(0x13u), id),
+            id => Assert.Equal(new ObjectId(0x14u), id),
+            id => Assert.Equal(new ObjectId(0x15u), id),
+            id => Assert.Equal(new ObjectId(0x16u), id),
+            id => Assert.Equal(new ObjectId(0x17u), id),
+            id => Assert.Equal(new ObjectId(0x18u), id),
+            id => Assert.Equal(new ObjectId(0x19u), id),
+            id => Assert.Equal(new ObjectId(0x1au), id),
+            id => Assert.Equal(new ObjectId(0x1bu), id),
+            id => Assert.Equal(new ObjectId(0x1cu), id),
+            id => Assert.Equal(new ObjectId(0x1du), id)
+        );
     }
 
     /// <summary>

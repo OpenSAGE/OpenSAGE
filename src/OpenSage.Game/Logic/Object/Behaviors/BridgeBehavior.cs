@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class BridgeBehavior : UpdateModule
 {
-    private readonly uint[] _towerIds = new uint[4];
+    private readonly ObjectId[] _towerIds = new ObjectId[4];
 
     public BridgeBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
@@ -21,9 +21,9 @@ public sealed class BridgeBehavior : UpdateModule
 
         reader.PersistArray(
             _towerIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.SkipUnknownBytes(7);

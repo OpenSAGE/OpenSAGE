@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic;
 
@@ -14,8 +15,8 @@ public sealed class Team : IPersistableObject
     public readonly TeamTemplate Template;
     public readonly uint Id;
     // TODO: Store actual objects here, not just IDs.
-    public readonly List<uint> ObjectIds = new List<uint>();
-    public uint TargetObjectID;
+    public readonly List<ObjectId> ObjectIds = [];
+    public ObjectId TargetObjectID;
 
     public readonly PlayerRelationships TeamToTeamRelationships = new PlayerRelationships();
     public readonly PlayerRelationships TeamToPlayerRelationships = new PlayerRelationships();
@@ -39,9 +40,9 @@ public sealed class Team : IPersistableObject
 
         reader.PersistList(
             ObjectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.SkipUnknownBytes(1);
@@ -70,7 +71,7 @@ public sealed class Team : IPersistableObject
 
         reader.SkipUnknownBytes(2);
 
-        reader.PersistObjectID(ref TargetObjectID);
+        reader.PersistObjectId(ref TargetObjectID);
         reader.PersistObject(TeamToTeamRelationships);
         reader.PersistObject(TeamToPlayerRelationships);
     }

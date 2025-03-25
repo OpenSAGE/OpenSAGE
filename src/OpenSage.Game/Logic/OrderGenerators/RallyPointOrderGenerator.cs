@@ -53,7 +53,7 @@ public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
             throw new InvalidStateException("Local player not present when setting rally point");
         }
 
-        var objectIds = new List<uint>();
+        var objectIds = new List<ObjectId>();
         foreach (var gameObject in SelectedUnits)
         {
             objectIds.Add(gameObject.ID);

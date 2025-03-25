@@ -18,7 +18,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     private readonly DozerAndWorkerState _state;
 
     private readonly SupplyAIUpdateStateMachine _supplyAIUpdateStateMachine;
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
     private int _unknown5;
     private int _unknown6;
     private readonly WorkerAIUpdateStateMachine3 _stateMachine3;
@@ -212,7 +212,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         reader.PersistObject(_state);
 
         reader.PersistObject(_supplyAIUpdateStateMachine);
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
         reader.PersistInt32(ref _unknown5);
 
         reader.PersistInt32(ref _unknown6); // was 1 when worker was carrying supplies, wandering around cc with no supply stash available

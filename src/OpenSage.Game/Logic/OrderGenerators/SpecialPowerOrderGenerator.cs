@@ -98,7 +98,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
             }
         }
 
-        var commandCenterId = commandCenter?.ID ?? 0;
+        var commandCenterId = commandCenter?.ID ?? ObjectId.Invalid;
 
         var specialPowerOrder = _targetType switch
         {

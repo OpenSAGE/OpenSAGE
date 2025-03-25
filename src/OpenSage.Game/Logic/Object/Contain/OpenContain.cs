@@ -17,7 +17,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     private readonly OpenContainModuleData _moduleData;
 
-    private readonly List<uint> _containedObjectIds = new();
+    private readonly List<ObjectId> _containedObjectIds = new();
     private uint _unknownFrame1;
     private uint _unknownFrame2;
     private uint _unknownInt2;
@@ -30,7 +30,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     private int _unknownInt;
     private bool _passengersAllowedToFire;
 
-    public virtual IList<uint> ContainedObjectIds => _containedObjectIds;
+    public virtual IList<ObjectId> ContainedObjectIds => _containedObjectIds;
     public bool DrawPips => _moduleData.ShouldDrawPips;
     public virtual int TotalSlots => _moduleData.ContainMax;
     public int OccupiedSlots => ContainedObjectIds.Sum(id => SlotValueForUnit(GameObjectForId(id)));
@@ -92,7 +92,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         return sounds.VoiceEnter?.Value;
     }
 
-    public void Remove(uint unitId)
+    public void Remove(ObjectId unitId)
     {
         if (_evacQueue.Any(u => u.ObjectId == unitId))
         {
@@ -141,7 +141,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     private protected virtual void UpdateModuleSpecific(BehaviorUpdateContext context) { }
 
-    protected virtual bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
+    protected virtual bool TryEvacUnit(LogicFrame currentFrame, ObjectId unitId)
     {
         RemoveUnit(unitId);
         return true;
@@ -152,7 +152,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         return false;
     }
 
-    protected void RemoveUnit(uint unitId, bool exitDueToParentDeath = false)
+    protected void RemoveUnit(ObjectId unitId, bool exitDueToParentDeath = false)
     {
         var unit = GameObjectForId(unitId);
 
@@ -192,7 +192,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         }
     }
 
-    protected GameObject GameObjectForId(uint unitId)
+    protected GameObject GameObjectForId(ObjectId unitId)
     {
         return GameEngine.GameLogic.GetObjectById(unitId);
     }
@@ -207,9 +207,9 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
         reader.PersistListWithUInt32Count(
             _containedObjectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.SkipUnknownBytes(2);
@@ -269,12 +269,12 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
 
     private struct QueuedForEvac : IPersistableObject
     {
-        public uint ObjectId;
+        public ObjectId ObjectId;
         public int Unknown;
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref ObjectId);
+            persister.PersistObjectId(ref ObjectId);
             persister.PersistInt32(ref Unknown); // todo: is this version?
         }
     }

@@ -13,8 +13,8 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private readonly PropagandaTowerBehaviorModuleData _moduleData;
     private uint _unknownFrame;
-    private readonly List<uint> _objectIds = new();
-    public IReadOnlyList<uint> ObjectsInRange => _objectIds;
+    private readonly List<ObjectId> _objectIds = new();
+    public IReadOnlyList<ObjectId> ObjectsInRange => _objectIds;
 
     private readonly BitArray<ObjectKinds> _allowedKinds = new();
 
@@ -39,7 +39,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
             if (unit.HealedByObjectId == GameObject.ID)
             {
                 // reset these units, in case they're now out of range
-                unit.HealedByObjectId = 0;
+                unit.HealedByObjectId = ObjectId.Invalid;
             }
         }
 
@@ -58,7 +58,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
         }
     }
 
-    private GameObject GameObjectForId(uint unitId)
+    private GameObject GameObjectForId(ObjectId unitId)
     {
         return GameEngine.GameLogic.GetObjectById(unitId);
     }
@@ -81,12 +81,12 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private bool ObjectNotInContainer(GameObject gameObject)
     {
-        return gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+        return gameObject.ContainerId.IsInvalid; // todo: I believe this should only apply when the container is an enclosing container
     }
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == GameObject.ID;
+        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.ID;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)
@@ -124,9 +124,9 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
         reader.PersistList(
             _objectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
     }
 }

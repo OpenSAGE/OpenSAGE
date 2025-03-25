@@ -18,7 +18,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
     internal bool Generated => _generated;
     internal bool Upgraded => _upgraded;
     internal Vector3? GenerationPosition => _hasGenerationPosition ? _generationPosition : null;
-    internal IReadOnlyList<uint> GeneratedMineIds => _generatedMineIds;
+    internal IReadOnlyList<ObjectId> GeneratedMineIds => _generatedMineIds;
 
     private readonly GenerateMinefieldBehaviorModuleData _moduleData;
 
@@ -31,7 +31,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
     private bool _hasGenerationPosition;
     private Vector3 _generationPosition;
 
-    private readonly List<uint> _generatedMineIds = [];
+    private readonly List<ObjectId> _generatedMineIds = [];
 
     internal GenerateMinefieldBehavior(GameObject gameObject, GameEngine gameEngine, GenerateMinefieldBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
@@ -193,7 +193,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
 
         if (reader.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            reader.PersistListWithByteCount(_generatedMineIds, (StatePersister persister, ref uint item) => persister.PersistObjectIDValue(ref item));
+            reader.PersistListWithByteCount(_generatedMineIds, (StatePersister persister, ref ObjectId item) => persister.PersistObjectIdValue(ref item));
         }
     }
 }

@@ -26,7 +26,7 @@ internal sealed class UnitOrderGenerator(Game game) : OrderGenerator(game)
     public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
     {
         var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
-        var targetId = WorldObject?.ID ?? 0;
+        var targetId = WorldObject?.ID ?? ObjectId.Invalid;
 
         // TODO: handle hordes properly
         var order = _currentOrder switch

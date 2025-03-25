@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 using OpenSage.Network.Packets;
@@ -28,7 +29,8 @@ public sealed class ClientNetworkConnection : NetworkConnection
         if (!_manager.Start(Ports.AnyAvailable))
         {
             Logger.Error("Failed to initialize network connection");
-        };
+        }
+        ;
 
         var host = new IPEndPoint(_hostAddress, Ports.SkirmishGame);
         Logger.Trace($"Initializing network connection from port {_manager.LocalPort} to {host}");
@@ -64,7 +66,8 @@ public sealed class HostNetworkConnection : NetworkConnection
         if (!_manager.Start(Ports.SkirmishGame))
         {
             Logger.Error("Failed to initialize network connection");
-        };
+        }
+        ;
 
         return Task.Run(async () =>
         {
@@ -213,7 +216,7 @@ public abstract class NetworkConnection : EchoConnection
                     order.AddBooleanArgument(reader.GetBool());
                     break;
                 case OrderArgumentType.ObjectId:
-                    order.AddObjectIdArgument(reader.GetUInt());
+                    order.AddObjectIdArgument(new ObjectId(reader.GetUInt()));
                     break;
                 case OrderArgumentType.Position:
                     order.AddPositionArgument(new Vector3(reader.GetFloat(), reader.GetFloat(), reader.GetFloat()));
@@ -255,7 +258,7 @@ public abstract class NetworkConnection : EchoConnection
                     writer.Put(argument.Value.Boolean);
                     break;
                 case OrderArgumentType.ObjectId:
-                    writer.Put(argument.Value.ObjectId);
+                    writer.Put(argument.Value.ObjectId.Index);
                     break;
                 case OrderArgumentType.Position:
                     writer.Put(argument.Value.Position.X);

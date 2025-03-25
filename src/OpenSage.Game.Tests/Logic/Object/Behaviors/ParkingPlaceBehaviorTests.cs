@@ -362,7 +362,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[1]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[2]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[3]);
@@ -462,7 +462,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[1]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[2]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[3]);
@@ -470,7 +470,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         Assert.Equal(ParkingPlaceBehaviour.RunwayAssignment.Empty, behavior.RunwayAssignments[0]);
         Assert.Equal(ParkingPlaceBehaviour.RunwayAssignment.Empty, behavior.RunwayAssignments[1]);
         Assert.Single(behavior.HealingData);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingPlaceHealingData(13, new LogicFrame(6313)), behavior.HealingData[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingPlaceHealingData(new ObjectId(13), new LogicFrame(6313)), behavior.HealingData[0]);
         Assert.Null(behavior.RallyPointManager.RallyPoint);
         Assert.Equal(new LogicFrame(6331), behavior.NextHealFrame);
     }
@@ -558,12 +558,12 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[1]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[2]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[3]);
         Assert.Equal(2, behavior.RunwayAssignments.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(13), behavior.RunwayAssignments[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(13)), behavior.RunwayAssignments[0]);
         Assert.Equal(ParkingPlaceBehaviour.RunwayAssignment.Empty, behavior.RunwayAssignments[1]);
         Assert.Empty(behavior.HealingData);
         Assert.Null(behavior.RallyPointManager.RallyPoint);
@@ -653,13 +653,13 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(14), behavior.ParkingSlots[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(14)), behavior.ParkingSlots[1]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[2]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[3]);
         Assert.Equal(2, behavior.RunwayAssignments.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(13), behavior.RunwayAssignments[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(14), behavior.RunwayAssignments[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(13)), behavior.RunwayAssignments[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(14)), behavior.RunwayAssignments[1]);
         Assert.Empty(behavior.HealingData);
         Assert.Null(behavior.RallyPointManager.RallyPoint);
         Assert.Equal(new LogicFrame(0x3FFFFFFFu), behavior.NextHealFrame);
@@ -745,13 +745,13 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(14), behavior.ParkingSlots[1]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(15), behavior.ParkingSlots[2]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(16), behavior.ParkingSlots[3]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(14)), behavior.ParkingSlots[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(15)), behavior.ParkingSlots[2]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(16)), behavior.ParkingSlots[3]);
         Assert.Equal(2, behavior.RunwayAssignments.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(15, 13), behavior.RunwayAssignments[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(14, 16), behavior.RunwayAssignments[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(15), new ObjectId(13)), behavior.RunwayAssignments[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(14), new ObjectId(16)), behavior.RunwayAssignments[1]);
         Assert.Empty(behavior.HealingData);
         Assert.Null(behavior.RallyPointManager.RallyPoint);
         Assert.Equal(new LogicFrame(0x3FFFFFFFu), behavior.NextHealFrame);
@@ -838,13 +838,13 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(14), behavior.ParkingSlots[1]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(15), behavior.ParkingSlots[2]);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(16), behavior.ParkingSlots[3]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(14)), behavior.ParkingSlots[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(15)), behavior.ParkingSlots[2]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(16)), behavior.ParkingSlots[3]);
         Assert.Equal(2, behavior.RunwayAssignments.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(15, runwayActive: true), behavior.RunwayAssignments[0]);
-        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(14, runwayActive: true), behavior.RunwayAssignments[1]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(15), runwayActive: true), behavior.RunwayAssignments[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.RunwayAssignment(new ObjectId(14), runwayActive: true), behavior.RunwayAssignments[1]);
         Assert.Empty(behavior.HealingData);
         Assert.Null(behavior.RallyPointManager.RallyPoint);
         Assert.Equal(new LogicFrame(0x3FFFFFFFu), behavior.NextHealFrame);
@@ -930,7 +930,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.Load(reader);
 
         Assert.Equal(4, behavior.ParkingSlots.Length);
-        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(13), behavior.ParkingSlots[0]);
+        Assert.Equal(new ParkingPlaceBehaviour.ParkingSlot(new ObjectId(13)), behavior.ParkingSlots[0]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[1]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[2]);
         Assert.Equal(ParkingPlaceBehaviour.ParkingSlot.Empty, behavior.ParkingSlots[3]);
@@ -1293,7 +1293,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId = 1;
+        var vehicleId = new ObjectId(1);
 
         behavior.EnqueueObject();
         behavior.ReportSpawn(vehicleId);
@@ -1312,7 +1312,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId = 1;
+        var vehicleId = new ObjectId(1);
 
         behavior.EnqueueObject();
         behavior.ReportSpawn(vehicleId);
@@ -1332,7 +1332,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId = 1;
+        var vehicleId = new ObjectId(1);
 
         behavior.EnqueueObject();
         behavior.ReportSpawn(vehicleId);
@@ -1352,13 +1352,13 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         // no objects are enqueued
-        Assert.Throws<InvalidStateException>(() => behavior.ReportSpawn(0));
+        Assert.Throws<InvalidStateException>(() => behavior.ReportSpawn(ObjectId.Invalid));
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1400,8 +1400,8 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
         var logicFrame = new LogicFrame(42);
 
         behavior.EnqueueObject();
@@ -1430,10 +1430,10 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1486,10 +1486,10 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1531,8 +1531,8 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1564,10 +1564,10 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1614,9 +1614,9 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1651,7 +1651,7 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
         behavior.EnqueueObject();
 
         // now that we've enqueued another object, this airfield is full, so we can't take any more aircraft
-        Assert.Throws<InvalidStateException>(() => behavior.ReportInbound(99));
+        Assert.Throws<InvalidStateException>(() => behavior.ReportInbound(new ObjectId(99)));
     }
 
     [Fact]
@@ -1659,10 +1659,10 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         behavior.EnqueueObject();
         behavior.EnqueueObject();
@@ -1719,10 +1719,10 @@ public class ParkingPlaceBehaviorTests : UpdateModuleTest<ParkingPlaceBehaviour,
     {
         var behavior = SampleBehavior();
 
-        const uint vehicleId1 = 1;
-        const uint vehicleId2 = 2;
-        const uint vehicleId3 = 3;
-        const uint vehicleId4 = 4;
+        var vehicleId1 = new ObjectId(1);
+        var vehicleId2 = new ObjectId(2);
+        var vehicleId3 = new ObjectId(3);
+        var vehicleId4 = new ObjectId(4);
 
         behavior.EnqueueObject();
         behavior.ReportSpawn(vehicleId1);

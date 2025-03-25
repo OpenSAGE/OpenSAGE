@@ -205,6 +205,14 @@ public class SaveFileTests : IClassFixture<GameFixture>
             PersistUInt32Value(ref value.RawValue);
         }
 
+        public override void PersistObjectIdValue(ref ObjectId value)
+        {
+            ObjectId comparisonValue = default;
+            _comparisonReader.PersistObjectIdValue(ref comparisonValue);
+
+            CheckEquality(value, comparisonValue);
+        }
+
         private static void CheckEquality<T>(T? value, T? comparisonValue)
         {
             if (Equals(value, comparisonValue))

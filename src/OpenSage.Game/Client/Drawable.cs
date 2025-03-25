@@ -76,7 +76,7 @@ public sealed class Drawable : Entity, IPersistableObject
         }
     }
 
-    public uint GameObjectID => GameObject?.ID ?? 0u;
+    public ObjectId GameObjectID => GameObject?.ID ?? ObjectId.Invalid;
 
     /// <summary>
     /// For limiting tree sway, etc to visible objects.
@@ -557,7 +557,7 @@ public sealed class Drawable : Entity, IPersistableObject
         reader.PersistSingle(ref _unknownFloat6); // 0, 1
 
         var objectId = GameObjectID;
-        reader.PersistUInt32(ref objectId);
+        reader.PersistObjectId(ref objectId);
         if (objectId != GameObjectID)
         {
             throw new InvalidStateException();

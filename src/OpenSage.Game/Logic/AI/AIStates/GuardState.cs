@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates;
 
@@ -26,8 +27,8 @@ internal sealed class GuardState : State
 
 internal sealed class GuardStateMachine : StateMachineBase
 {
-    private uint _guardObjectId;
-    private uint _guardObjectId2;
+    private ObjectId _guardObjectId;
+    private ObjectId _guardObjectId2;
     private Vector3 _guardPosition;
     private string _guardPolygonTriggerName = "";
 
@@ -46,8 +47,8 @@ internal sealed class GuardStateMachine : StateMachineBase
         base.Persist(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _guardObjectId);
-        reader.PersistObjectID(ref _guardObjectId2);
+        reader.PersistObjectId(ref _guardObjectId);
+        reader.PersistObjectId(ref _guardObjectId2);
         reader.PersistVector3(ref _guardPosition);
         reader.PersistAsciiString(ref _guardPolygonTriggerName);
     }

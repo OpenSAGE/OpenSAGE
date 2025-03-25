@@ -25,7 +25,7 @@ public sealed class GhostObjectManager : IPersistableObject
 
                 item ??= new GhostObject();
 
-                persister.PersistObjectID(ref item.OriginalObjectId);
+                persister.PersistObjectId(ref item.OriginalObjectId);
                 persister.PersistObject(item, "Value");
 
                 persister.EndObject();

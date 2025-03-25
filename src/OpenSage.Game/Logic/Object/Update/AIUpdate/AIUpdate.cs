@@ -62,7 +62,7 @@ public class AIUpdate : UpdateModule
     private PathfindingPath _path;
     private uint _unknownInt16;
     private Vector3 _unknownPosition1;
-    private uint _ignoreObstacleID;
+    private ObjectId _ignoreObstacleID;
     private float _unknownFloat2;
     private Point2D _unknownPos2D1;
     private Point2D _unknownPos2D2;
@@ -73,7 +73,7 @@ public class AIUpdate : UpdateModule
     private bool _unknownBool10;
     private bool _unknownBool11;
     private bool _unknownBool12;
-    private uint _unknownObjectId2;
+    private ObjectId _unknownObjectId2;
     private uint _unknownInt17;
     private uint _unknownInt18;
     private Vector3 _unknownPosition3;
@@ -81,7 +81,7 @@ public class AIUpdate : UpdateModule
     private int _unknownInt20;
     private uint _unknownFrame3;
 
-    public uint IgnoredObstacleID => _ignoreObstacleID;
+    public ObjectId IgnoredObstacleID => _ignoreObstacleID;
 
     /// <summary>
     /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
@@ -406,7 +406,7 @@ public class AIUpdate : UpdateModule
 
         reader.SkipUnknownBytes(12);
 
-        reader.PersistObjectID(ref _ignoreObstacleID);
+        reader.PersistObjectId(ref _ignoreObstacleID);
         reader.PersistSingle(ref _unknownFloat2);
         reader.PersistPoint2D(ref _unknownPos2D1);
         reader.PersistPoint2D(ref _unknownPos2D2);
@@ -426,7 +426,7 @@ public class AIUpdate : UpdateModule
 
         reader.SkipUnknownBytes(8);
 
-        reader.PersistObjectID(ref _unknownObjectId2);
+        reader.PersistObjectId(ref _unknownObjectId2);
 
         reader.SkipUnknownBytes(4);
 

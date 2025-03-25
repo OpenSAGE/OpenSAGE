@@ -8,7 +8,7 @@ public class SupplyTruckAIUpdate : SupplyAIUpdate
     internal override SupplyTruckAIUpdateModuleData ModuleData { get; }
 
     private readonly SupplyAIUpdateStateMachine _stateMachine;
-    private uint _dockId;
+    private ObjectId _dockId;
     private int _unknownInt;
     private bool _unknownBool;
 
@@ -27,7 +27,7 @@ public class SupplyTruckAIUpdate : SupplyAIUpdate
         reader.EndObject();
 
         reader.PersistObject(_stateMachine);
-        reader.PersistObjectID(ref _dockId);
+        reader.PersistObjectId(ref _dockId);
         reader.PersistInt32(ref _unknownInt);
         reader.PersistBoolean(ref _unknownBool);
     }

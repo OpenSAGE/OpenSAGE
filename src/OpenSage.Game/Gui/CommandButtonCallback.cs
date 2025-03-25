@@ -95,7 +95,7 @@ public static class CommandButtonCallback
                     break;
                 }
 
-                order.AddIntegerArgument((int)selection.First().ID);
+                order.AddObjectIdArgument(selection.First().ID);
 
                 var upgrade = commandButton.Upgrade.Value;
                 order.AddIntegerArgument(upgrade.InternalId);
@@ -148,7 +148,7 @@ public static class CommandButtonCallback
                         order = CreateOrder(OrderType.SpecialPower);
                         order.AddIntegerArgument(specialPower.InternalId);
                         order.AddIntegerArgument(0);
-                        order.AddObjectIdArgument(0);
+                        order.AddObjectIdArgument(ObjectId.Invalid);
                     }
                 }
                 break;

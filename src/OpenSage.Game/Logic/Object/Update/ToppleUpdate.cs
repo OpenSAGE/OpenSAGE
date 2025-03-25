@@ -67,7 +67,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     /// <summary>
     /// Stump generated, if any.
     /// </summary>
-    private uint _stumpId;
+    private ObjectId _stumpId;
 
     internal bool IsAbleToBeToppled => _toppleState == ToppleState.Upright;
 
@@ -187,7 +187,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         var damageInfo = new DamageData();
         damageInfo.Request.DamageType = DamageType.Unresistable;
         damageInfo.Request.DeathType = DeathType.Toppled;
-        damageInfo.Request.DamageDealer = 0;
+        damageInfo.Request.DamageDealer = ObjectId.Invalid;
         damageInfo.Request.DamageToDeal = DamageConstants.HugeDamageAmount;
         obj.AttemptDamage(ref damageInfo);
     }
@@ -358,7 +358,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         reader.PersistInt32(ref _numAngleDeltaX);
         reader.PersistBoolean(ref _doBounceFX);
         reader.PersistEnumFlags(ref _options);
-        reader.PersistUInt32(ref _stumpId);
+        reader.PersistObjectId(ref _stumpId);
     }
 
     private enum ToppleState

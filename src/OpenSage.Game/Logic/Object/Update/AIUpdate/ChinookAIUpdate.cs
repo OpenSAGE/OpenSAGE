@@ -12,7 +12,7 @@ public class ChinookAIUpdate : SupplyTruckAIUpdate
 
     private UnknownStateData _queuedCommand;
     private ChinookState _state;
-    private uint _airfieldToRepairAt;
+    private ObjectId _airfieldToRepairAt;
 
     internal ChinookAIUpdate(GameObject gameObject, GameEngine gameEngine, ChinookAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
@@ -45,7 +45,7 @@ public class ChinookAIUpdate : SupplyTruckAIUpdate
         }
 
         reader.PersistEnum(ref _state);
-        reader.PersistObjectID(ref _airfieldToRepairAt);
+        reader.PersistObjectId(ref _airfieldToRepairAt);
 
         if (version >= 2)
         {

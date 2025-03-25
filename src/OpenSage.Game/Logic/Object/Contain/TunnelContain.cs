@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object;
 public sealed class TunnelContain : OpenContainModule
 {
     public override int TotalSlots => GameEngine.Game.AssetStore.GameData.Current.MaxTunnelCapacity;
-    public override IList<uint> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
+    public override IList<ObjectId> ContainedObjectIds => GameObject.Owner.TunnelManager!.ContainedObjectIds;
 
     private readonly TunnelContainModuleData _moduleData;
     private bool _unknown1;

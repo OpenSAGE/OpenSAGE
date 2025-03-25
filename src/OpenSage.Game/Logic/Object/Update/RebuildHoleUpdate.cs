@@ -15,9 +15,9 @@ public sealed class RebuildHoleUpdate : UpdateModule
 
     private readonly Percentage _healPercentagePerFrame;
 
-    private uint _workerId; // the worker that is building the structure
-    private uint _structureId; // the structure that is being built
-    private uint _originalStructureId; // the structure that was destroyed to create this hole
+    private ObjectId _workerId; // the worker that is building the structure
+    private ObjectId _structureId; // the structure that is being built
+    private ObjectId _originalStructureId; // the structure that was destroyed to create this hole
 
     private LogicFrameSpan _framesUntilConstructionBegins;
 
@@ -70,7 +70,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
         }
 
         GameObject worker;
-        if (_workerId == 0)
+        if (_workerId.IsInvalid)
         {
             // spawn worker first
             worker = GameEngine.GameLogic.CreateObject(WorkerObjectDefinition, GameObject.Owner);
@@ -84,7 +84,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
         }
 
         GameObject structure;
-        if (_structureId == 0)
+        if (_structureId.IsInvalid)
         {
             // spawn structure after spawning worker
             structure = GameEngine.GameLogic.CreateObject(StructureObjectDefinition, GameObject.Owner);
@@ -105,22 +105,22 @@ public sealed class RebuildHoleUpdate : UpdateModule
         {
             // he's dead, jim
             ResetConstructionCounter();
-            _workerId = 0;
+            _workerId = ObjectId.Invalid;
         }
         else if (structure == null || structure.IsDead)
         {
             // if the structure dies, we reset the worker as well
             ResetConstructionCounter();
-            _structureId = 0;
-            _workerId = 0;
+            _structureId = ObjectId.Invalid;
+            _workerId = ObjectId.Invalid;
             worker.Destroy();
             GameObject.SetObjectStatus(ObjectStatus.InsideGarrison, false); // the hole is no longer protected
         }
         else if (!structure.IsBeingConstructed())
         {
             // construction complete - we're done here
-            _workerId = 0;
-            _structureId = 0;
+            _workerId = ObjectId.Invalid;
+            _structureId = ObjectId.Invalid;
             structure.SetUnknownStatus(UnknownScaffoldStatus, false);
             worker.Destroy();
             GameObject.Destroy();
@@ -157,9 +157,9 @@ public sealed class RebuildHoleUpdate : UpdateModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _workerId);
-        reader.PersistObjectID(ref _structureId);
-        reader.PersistObjectID(ref _originalStructureId);
+        reader.PersistObjectId(ref _workerId);
+        reader.PersistObjectId(ref _structureId);
+        reader.PersistObjectId(ref _originalStructureId);
 
         reader.PersistLogicFrameSpan(ref _framesUntilConstructionBegins);
 

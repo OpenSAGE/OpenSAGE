@@ -134,10 +134,10 @@ public sealed class OrderProcessor
                     break;
                 case OrderType.BeginUpgrade:
                     {
-                        var objectDefinitionId = order.Arguments[0].Value.Integer;
+                        var objectDefinitionId = order.Arguments[0].Value.ObjectId;
                         var upgradeDefinitionId = order.Arguments[1].Value.Integer;
 
-                        var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
+                        var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
                         var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
                         player.BankAccount.Withdraw((uint)upgradeDefinition.BuildCost);
 
@@ -259,13 +259,13 @@ public sealed class OrderProcessor
                 case OrderType.AttackObject:
                 case OrderType.ForceAttackObject:
                     {
-                        var objectId = order.Arguments[0].Value.Integer;
+                        var objectId = order.Arguments[0].Value.ObjectId;
 
                         foreach (var unit in player.SelectedUnits)
                         {
                             if (unit.CanAttack)
                             {
-                                unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, (uint)objectId));
+                                unit.CurrentWeapon?.SetTarget(new WeaponTarget(_game.Scene3D.GameObjects, objectId));
                             }
                         }
 
@@ -389,13 +389,13 @@ public sealed class OrderProcessor
                 case OrderType.Enter:
                     {
                         if (order.Arguments[0].ArgumentType != OrderArgumentType.ObjectId ||
-                            order.Arguments[0].Value.ObjectId != 0)
+                            order.Arguments[0].Value.ObjectId.IsValid)
                         {
                             throw new InvalidOperationException();
                         }
 
-                        var objectDefinitionId = order.Arguments[1].Value.Integer;
-                        var gameObject = _game.Scene3D.GameObjects.GetObjectById((uint)objectDefinitionId);
+                        var objectDefinitionId = order.Arguments[1].Value.ObjectId;
+                        var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
 
                         var container = gameObject.FindBehavior<OpenContainModule>();
                         foreach (var unit in player.SelectedUnits)
@@ -415,8 +415,8 @@ public sealed class OrderProcessor
                         break;
                     }
                 case OrderType.GatherDumpSupplies:
-                    var supplyPointId = order.Arguments[0].Value.Integer;
-                    var supplyPoint = _game.Scene3D.GameObjects.GetObjectById((uint)supplyPointId);
+                    var supplyPointId = order.Arguments[0].Value.ObjectId;
+                    var supplyPoint = _game.Scene3D.GameObjects.GetObjectById(supplyPointId);
 
                     foreach (var unit in player.SelectedUnits)
                     {

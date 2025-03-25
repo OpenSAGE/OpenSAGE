@@ -235,9 +235,9 @@ public sealed class SelectionSystem : GameSystem
     private void MultiSelect()
     {
         var boxFrustum = GetSelectionFrustum(SelectionRect);
-        var selectedObjects = new List<uint>();
+        var selectedObjects = new List<ObjectId>();
 
-        uint? structure = null;
+        ObjectId? structure = null;
 
         // TODO: Optimize with quadtree
         foreach (var gameObject in Game.Scene3D.GameObjects.Objects)

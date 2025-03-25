@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Gui.ControlBar;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.InGame;
@@ -364,7 +365,7 @@ public sealed class InGameUI : BaseSingletonAsset, IPersistableObject
     [AddedIn(SageGame.Bfme2)]
     public string RadiusCursorUseWeaponScatterRadius { get; private set; }
 
-    public void AddSuperweaponTimer(string specialPowerName, uint objectId, uint secondsUntilReady)
+    public void AddSuperweaponTimer(string specialPowerName, ObjectId objectId, uint secondsUntilReady)
     {
         _superweaponTimers.Add(new SuperweaponTimer
         {
@@ -443,7 +444,7 @@ public struct SuperweaponTimer
 {
     public string SpecialPowerName1;
     public string SpecialPowerName2;
-    public uint ObjectId;
+    public ObjectId ObjectId;
     public uint SecondsUntilReady; // yes, this is _actually_ seconds, not frames
     public bool UnknownBool1;
     public bool CountdownPausedMaybe;
@@ -460,7 +461,7 @@ public struct SuperweaponTimer
             throw new InvalidStateException();
         }
 
-        reader.PersistObjectID(ref ObjectId);
+        reader.PersistObjectId(ref ObjectId);
         reader.PersistUInt32(ref SecondsUntilReady); // 0xFFFFFFFF if it "can't" be ready?
         reader.PersistBoolean(ref UnknownBool1);
         reader.PersistBoolean(ref CountdownPausedMaybe); // true for napalm strike?

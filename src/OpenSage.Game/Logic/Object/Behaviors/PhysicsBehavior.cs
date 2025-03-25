@@ -42,11 +42,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     private Vector3 _previousAcceleration;
     private Vector3 _velocity;
     private PhysicsTurningType _turning;
-    private uint _ignoreCollisionsWith;
+    private ObjectId _ignoreCollisionsWith;
     private PhysicsFlagType _flags;
     private float _mass;
-    private uint _currentOverlap;
-    private uint _previousOverlap;
+    private ObjectId _currentOverlap;
+    private ObjectId _previousOverlap;
     private LogicFrame _motiveForceExpires;
     private float _extraBounciness;
     private float _extraFriction;
@@ -117,10 +117,10 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         set => _turning = value;
     }
 
-    internal uint IgnoreCollisionsWith => _ignoreCollisionsWith;
+    internal ObjectId IgnoreCollisionsWith => _ignoreCollisionsWith;
     internal PhysicsFlagType Flags => _flags;
-    internal uint CurrentOverlap => _currentOverlap;
-    internal uint PreviousOverlap => _previousOverlap;
+    internal ObjectId CurrentOverlap => _currentOverlap;
+    internal ObjectId PreviousOverlap => _previousOverlap;
     internal LogicFrame MotiveForceExpires => _motiveForceExpires;
     internal float ExtraBounciness => _extraBounciness;
 
@@ -201,12 +201,12 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public void SetIgnoreCollisionsWith(GameObject gameObject)
     {
-        _ignoreCollisionsWith = gameObject?.ID ?? 0;
+        _ignoreCollisionsWith = gameObject?.ID ?? ObjectId.Invalid;
     }
 
-    private bool IsIgnoringCollisionsWith(uint objectID)
+    private bool IsIgnoringCollisionsWith(ObjectId objectId)
     {
-        return objectID != 0 && objectID == _ignoreCollisionsWith;
+        return objectId.IsValid && objectId == _ignoreCollisionsWith;
     }
 
     public void SetStunned(bool allow)
@@ -438,7 +438,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
         // Clear overlap object, which will be set by PhysicsCollide later.
         _previousOverlap = _currentOverlap;
-        _currentOverlap = 0;
+        _currentOverlap = ObjectId.Invalid;
 
         if (gotBounceForce && GetFlag(PhysicsFlagType.AllowBounce))
         {
@@ -875,8 +875,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             && !IsMotive
             && GameObject.Layer == PathfindLayerType.Ground
             && !GameObject.IsAboveTerrain
-            && _currentOverlap == 0
-            && _previousOverlap == 0
+            && _currentOverlap.IsInvalid
+            && _previousOverlap.IsInvalid
             && GetFlag(PhysicsFlagType.UpdateEverRun))
         {
             return UpdateSleepTime.Forever;
@@ -1500,11 +1500,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         reader.PersistEnum(ref _turning);
-        reader.PersistObjectID(ref _ignoreCollisionsWith);
+        reader.PersistObjectId(ref _ignoreCollisionsWith);
         reader.PersistEnumFlags(ref _flags);
         reader.PersistSingle(ref _mass);
-        reader.PersistObjectID(ref _currentOverlap);
-        reader.PersistObjectID(ref _previousOverlap);
+        reader.PersistObjectId(ref _currentOverlap);
+        reader.PersistObjectId(ref _previousOverlap);
         reader.PersistLogicFrame(ref _motiveForceExpires);
         reader.PersistSingle(ref _extraBounciness);
         reader.PersistSingle(ref _extraFriction);

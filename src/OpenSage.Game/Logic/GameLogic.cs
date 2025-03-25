@@ -27,7 +27,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     private uint _rankLevelLimit;
 
     // object id -> some frame? unsure if order matters for this collection
-    private readonly Dictionary<uint, uint> _structuresBeingSold = [];
+    private readonly Dictionary<ObjectId, uint> _structuresBeingSold = [];
 
     internal uint NextObjectId = 1;
 
@@ -68,7 +68,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
         var gameObject = AddDisposable(new GameObject(objectDefinition, _game.GameEngine, player));
 
-        gameObject.ID = NextObjectId++;
+        gameObject.ID = new ObjectId(NextObjectId++);
 
         foreach (var module in gameObject.BehaviorModules)
         {
@@ -85,9 +85,9 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         return gameObject;
     }
 
-    internal void OnObjectIdChanged(GameObject gameObject, uint oldObjectId)
+    internal void OnObjectIdChanged(GameObject gameObject, ObjectId oldObjectId)
     {
-        if (oldObjectId != 0)
+        if (oldObjectId.IsValid)
         {
             SetObject(oldObjectId, null);
         }
@@ -95,18 +95,18 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         SetObject(gameObject.ID, gameObject);
     }
 
-    private void SetObject(uint objectId, GameObject gameObject)
+    private void SetObject(ObjectId objectId, GameObject gameObject)
     {
-        while (_objects.Count <= objectId)
+        while (_objects.Count <= objectId.Index)
         {
             _objects.Add(null);
         }
-        _objects[(int)objectId] = gameObject;
+        _objects[(int)objectId.Index] = gameObject;
     }
 
-    public GameObject GetObjectById(uint id)
+    public GameObject GetObjectById(ObjectId id)
     {
-        return _objects[(int)id];
+        return _objects[(int)id.Index];
     }
 
     public bool TryGetObjectByName(string name, out GameObject gameObject)
@@ -158,7 +158,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
             RemoveToDispose(gameObject);
 
-            _objects[(int)gameObject.ID] = null;
+            _objects[(int)gameObject.ID.Index] = null;
         }
 
         _destroyList.Clear();
@@ -214,7 +214,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
                 reader.PersistObject(gameObject, "Object");
 
-                NextObjectId = Math.Max(NextObjectId, gameObject.ID + 1);
+                NextObjectId = Math.Max(NextObjectId, gameObject.ID.Index + 1);
 
                 reader.EndSegment();
 
@@ -288,9 +288,9 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         reader.PersistUInt32(ref _rankLevelLimit);
 
         reader.PersistDictionaryWithUInt32Count(_structuresBeingSold,
-            (StatePersister persister, ref uint objectId, ref uint saleFinishedFrameMaybe) =>
+            (StatePersister persister, ref ObjectId objectId, ref uint saleFinishedFrameMaybe) =>
             {
-                persister.PersistUInt32(ref objectId);
+                persister.PersistObjectId(ref objectId);
                 persister.PersistUInt32(ref saleFinishedFrameMaybe);
             });
 

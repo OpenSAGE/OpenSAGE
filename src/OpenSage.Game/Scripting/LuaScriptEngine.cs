@@ -182,14 +182,15 @@ public sealed class LuaScriptEngine : GameSystem
         //Add code here
     }
 
-    public uint GetLuaObjectID(string gameObject)
+    public ObjectId GetLuaObjectID(string gameObject)
     {
-        return uint.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
+        var parsed = uint.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
+        return new ObjectId(parsed);
     }
 
-    public string GetLuaObjectIndex(uint ObjectID)
+    public string GetLuaObjectIndex(ObjectId objectId)
     {
-        return string.Concat("ObjID#", ObjectID.ToString("X8"));
+        return string.Concat("ObjID#", objectId.Index.ToString("X8"));
     }
 
     public string Spawn(string objectType)  //quick spawn

@@ -21,7 +21,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
     private int _unknownInt1;
     private int _unknownInt2;
     private readonly List<uint> _unknownIntList = new();
-    private readonly List<uint> _unknownObjectList = new();
+    private readonly List<ObjectId> _unknownObjectList = new();
     private ushort _unknownInt3;
     private int _unknownInt4;
 
@@ -170,9 +170,9 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
         reader.PersistList(
             _unknownObjectList,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.PersistUInt16(ref _unknownInt3);

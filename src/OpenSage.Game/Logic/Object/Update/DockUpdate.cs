@@ -18,9 +18,9 @@ public abstract class DockUpdate : UpdateModule
     private int _numApproachPositions1;
     private bool _unknownBool;
     private readonly List<Vector3> _approachPositions = new();
-    private readonly List<uint> _approachObjectIds = new();
+    private readonly List<ObjectId> _approachObjectIds = new();
     private readonly List<bool> _unknownBools = new();
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
     private ushort _unknownInt1;
 
     protected DockUpdate(GameObject gameObject, GameEngine gameEngine, DockUpdateModuleData moduleData)
@@ -139,9 +139,9 @@ public abstract class DockUpdate : UpdateModule
 
         reader.PersistListWithUInt32Count(
             _approachObjectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.PersistListWithUInt32Count(
@@ -151,7 +151,7 @@ public abstract class DockUpdate : UpdateModule
                 persister.PersistBooleanValue(ref item);
             });
 
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
 
         reader.PersistUInt16(ref _unknownInt1);
         if (_unknownInt1 != 0 && _unknownInt1 != 1)

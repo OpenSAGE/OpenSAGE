@@ -4,10 +4,10 @@ namespace OpenSage.Logic.Object;
 
 public sealed class ProjectileStreamUpdate : UpdateModule
 {
-    private readonly uint[] _objectIds = new uint[20];
+    private readonly ObjectId[] _objectIds = new ObjectId[20];
     private uint _unknownInt1;
     private uint _unknownInt2;
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
 
     public ProjectileStreamUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
     {
@@ -23,14 +23,14 @@ public sealed class ProjectileStreamUpdate : UpdateModule
 
         reader.PersistArray(
             _objectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         reader.PersistUInt32(ref _unknownInt1);
         reader.PersistUInt32(ref _unknownInt2);
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
     }
 }
 

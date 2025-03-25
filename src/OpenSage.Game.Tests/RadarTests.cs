@@ -22,7 +22,7 @@ public class RadarTests : StatePersisterTest
         var data = new RadarItem();
         data.Persist(reader);
 
-        Assert.Equal(7u, data.ObjectId);
+        Assert.Equal(new ObjectId(7u), data.ObjectId);
         Assert.Equal(new ColorRgba(0xff, 0, 0, 0xff), data.Color);
     }
 
@@ -39,7 +39,7 @@ public class RadarTests : StatePersisterTest
         var data = new RadarItem();
         data.Persist(reader);
 
-        Assert.Equal(7u, data.ObjectId);
+        Assert.Equal(new ObjectId(7u), data.ObjectId);
         Assert.Equal(new ColorRgba(0x3e, 0xd1, 0x2e, 0xff), data.Color);
     }
 
@@ -56,7 +56,7 @@ public class RadarTests : StatePersisterTest
         var data = new RadarItem();
         data.Persist(reader);
 
-        Assert.Equal(7u, data.ObjectId);
+        Assert.Equal(new ObjectId(7u), data.ObjectId);
         Assert.Equal(new ColorRgba(0x43, 0x68, 0xfe, 0xff), data.Color);
     }
 
@@ -77,12 +77,12 @@ public class RadarTests : StatePersisterTest
         var data = new RadarItemCollection();
         data.Persist(reader);
 
-        Assert.True(data.TryGetValue(7u, out var object7));
-        Assert.Equal(7u, object7.ObjectId);
+        Assert.True(data.TryGetValue(new ObjectId(7u), out var object7));
+        Assert.Equal(new ObjectId(7u), object7.ObjectId);
         Assert.Equal(new ColorRgba(0x43, 0x68, 0xfe, 0xff), object7.Color);
 
-        Assert.True(data.TryGetValue(8u, out var object8));
-        Assert.Equal(8u, object8.ObjectId);
+        Assert.True(data.TryGetValue(new ObjectId(8u), out var object8));
+        Assert.Equal(new ObjectId(8u), object8.ObjectId);
         Assert.Equal(new ColorRgba(0x43, 0x68, 0xfe, 0xff), object8.Color);
     }
 
@@ -230,7 +230,7 @@ public class RadarTests : StatePersisterTest
         var gameObject = new GameObject(objectDefinition, Generals.GameEngine, null);
         radar.AddGameObject(gameObject);
 
-        Assert.False(radar.VisibleItems.TryGetValue(0, out _));
+        Assert.False(radar.VisibleItems.TryGetValue(new ObjectId(0), out _));
     }
 
     [Fact]
@@ -245,8 +245,8 @@ public class RadarTests : StatePersisterTest
         var gameObject = new GameObject(objectDefinition, Generals.GameEngine, null);
         radar.AddGameObject(gameObject);
 
-        Assert.True(radar.VisibleItems.TryGetValue(0, out var radarItem));
-        Assert.Equal(0u, radarItem.ObjectId);
+        Assert.True(radar.VisibleItems.TryGetValue(new ObjectId(0), out var radarItem));
+        Assert.Equal(new ObjectId(0), radarItem.ObjectId);
     }
 
     [Fact]
@@ -262,11 +262,11 @@ public class RadarTests : StatePersisterTest
 
         radar.AddGameObject(gameObject);
 
-        Assert.True(radar.VisibleItems.TryGetValue(0, out var radarItem));
-        Assert.Equal(0u, radarItem.ObjectId);
+        Assert.True(radar.VisibleItems.TryGetValue(new ObjectId(0), out var radarItem));
+        Assert.Equal(new ObjectId(0), radarItem.ObjectId);
 
         radar.RemoveGameObject(gameObject);
-        Assert.False(radar.VisibleItems.TryGetValue(0, out _));
+        Assert.False(radar.VisibleItems.TryGetValue(new ObjectId(0), out _));
     }
 
     [Fact]

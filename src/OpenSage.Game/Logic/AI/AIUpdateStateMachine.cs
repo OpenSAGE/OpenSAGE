@@ -122,7 +122,7 @@ internal class AIUpdateStateMachine : StateMachineBase
 
 internal sealed class TargetTeam : IPersistableObject
 {
-    private readonly List<uint> _objectIds = new();
+    private readonly List<ObjectId> _objectIds = new();
 
     public void Persist(StatePersister reader)
     {
@@ -130,9 +130,9 @@ internal sealed class TargetTeam : IPersistableObject
 
         reader.PersistList(
             _objectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
         {
-            persister.PersistObjectIDValue(ref item);
+            persister.PersistObjectIdValue(ref item);
         });
     }
 }

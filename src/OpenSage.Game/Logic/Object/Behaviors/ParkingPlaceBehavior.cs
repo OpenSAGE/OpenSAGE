@@ -103,7 +103,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     {
         for (var index = 0; index < _parkingSlots.Length; index++)
         {
-            if (_parkingSlots[index].ObjectId == 0)
+            if (_parkingSlots[index].ObjectId.IsInvalid)
             {
                 return index;
             }
@@ -112,7 +112,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         return -1;
     }
 
-    private int GetCorrespondingSlot(uint gameObjectId)
+    private int GetCorrespondingSlot(ObjectId gameObjectId)
     {
         for (var index = 0; index < _parkingSlots.Length; index++)
         {
@@ -128,7 +128,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// <summary>
     /// Clears the object from its slot, and returns the slot index so the door can be closed
     /// </summary>
-    public int ClearObjectFromSlot(uint objectId)
+    public int ClearObjectFromSlot(ObjectId objectId)
     {
         for (var index = 0; index < _parkingSlots.Length; index++)
         {
@@ -146,7 +146,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
     public Vector3 GetUnitCreatePoint() => throw new InvalidOperationException("use GetUnitCreateTransform instead");
 
-    public Transform GetUnitCreateTransform(bool producedAtHelipad, uint objectId)
+    public Transform GetUnitCreateTransform(bool producedAtHelipad, ObjectId objectId)
     {
         if (producedAtHelipad)
         {
@@ -159,7 +159,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         return GetBoneTransform($"RUNWAY{runway}PARK{hangar}HAN");
     }
 
-    public Transform GetUnitCreateTransform(uint gameObjectId)
+    public Transform GetUnitCreateTransform(ObjectId gameObjectId)
     {
         var slot = GetCorrespondingSlot(gameObjectId);
         var runway = SlotToRunway(slot);
@@ -171,7 +171,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     // this is handled via JetAIUpdate
     public Vector3? GetNaturalRallyPoint() => null;
 
-    public Transform GetParkingTransform(uint gameObjectId)
+    public Transform GetParkingTransform(ObjectId gameObjectId)
     {
         if (_moduleData.ParkInHangars)
         {
@@ -187,9 +187,9 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
     // todo: track multiple aircraft assigned to a single runway
     public bool IsTaxiingPointBlocked(string boneName) =>
-        _runwayAssignments[IndexForRunwayBone(boneName)].Aircraft1Id != 0;
+        _runwayAssignments[IndexForRunwayBone(boneName)].Aircraft1Id.IsValid;
 
-    public void ReserveRunway(uint objectId)
+    public void ReserveRunway(ObjectId objectId)
     {
         // check if there are any free runways
         for (var i = 0; i < _runwayAssignments.Length; i++)
@@ -204,7 +204,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         // if all runways are occupied, check if we can double-stack
         for (var i = 0; i < _runwayAssignments.Length; i++)
         {
-            if (_runwayAssignments[i].Aircraft2Id == 0)
+            if (_runwayAssignments[i].Aircraft2Id.IsInvalid)
             {
                 _runwayAssignments[i] = new RunwayAssignment(_runwayAssignments[i].Aircraft1Id, objectId);
                 return;
@@ -212,7 +212,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         }
     }
 
-    public void ClearRunway(uint gameObjectId)
+    public void ClearRunway(ObjectId gameObjectId)
     {
         for (var i = 0; i < _runwayAssignments.Length; i++)
         {
@@ -222,7 +222,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
                 // if there were previously two aircraft assigned to the runway, then it is probably considered active?
                 // from testing, it seems like runwayActive is never set to false independent of clearing the runway assignment
                 _runwayAssignments[i] =
-                    new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id != 0);
+                    new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id.IsValid);
                 return;
             }
 
@@ -242,7 +242,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// <param name="objectId">object to spawn</param>
     /// <returns>index of parking slot claimed</returns>
     /// <exception cref="InvalidStateException">thrown when there are no parking places available</exception>
-    public int ReportSpawn(uint objectId)
+    public int ReportSpawn(ObjectId objectId)
     {
         for (var i = 0; i < _parkingSlots.Length; i++)
         {
@@ -261,7 +261,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// </summary>
     /// <param name="objectId">The parked aircraft</param>
     /// <param name="currentFrame">The current frame</param>
-    public void ReportParkedIdle(uint objectId, LogicFrame currentFrame)
+    public void ReportParkedIdle(ObjectId objectId, LogicFrame currentFrame)
     {
         _healingData.Add(new ParkingPlaceHealingData(objectId, currentFrame));
         if (_nextHealFrame.Value == NoHealingFrame.Value)
@@ -277,7 +277,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// <param name="runway">The runway assigned to the aircraft</param>
     /// <returns>Whether the aircraft was successfully assigned a runway</returns>
     /// <exception cref="InvalidStateException">thrown when there are no runways available (all runways are double-stacked)</exception>
-    public bool ReportReadyToTaxi(uint objectId, out int runway)
+    public bool ReportReadyToTaxi(ObjectId objectId, out int runway)
     {
         var healingDataSlot = _healingData.FindIndex(s => s.ObjectId == objectId);
 
@@ -301,7 +301,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
                 return assignment.Aircraft1Id == objectId;
             }
 
-            if (assignment.Aircraft1Id == 0)
+            if (assignment.Aircraft1Id.IsInvalid)
             {
                 // this runway is free
                 _runwayAssignments[i] = new RunwayAssignment(objectId);
@@ -315,7 +315,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         {
             var assignment = _runwayAssignments[i];
 
-            if (assignment.Aircraft2Id == 0)
+            if (assignment.Aircraft2Id.IsInvalid)
             {
                 // todo: we should actually kick Aircraft1 off the runway ownership (and just set the bool to true) if they aren't actively taxiing to or landing on the runway
                 _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft1Id, objectId);
@@ -328,12 +328,12 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     }
 
     // todo: if there are any aircraft waiting for the runway, they need a way of knowing they can have it now
-    public void ReportEngineRunUp(uint objectId)
+    public void ReportEngineRunUp(ObjectId objectId)
     {
         for (var i = 0; i < _runwayAssignments.Length; i++)
         {
             var assignment = _runwayAssignments[i];
-            if (assignment.Aircraft1Id == objectId && assignment.Aircraft2Id != 0)
+            if (assignment.Aircraft1Id == objectId && assignment.Aircraft2Id.IsValid)
             {
                 // promote aircraft2 to the owner of this runway
                 _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft2Id, runwayActive: true);
@@ -345,14 +345,14 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// Reports that an aircraft has fully departed the airfield frees up their runway.
     /// </summary>
     /// <param name="objectId">The departing aircraft</param>
-    public void ReportDeparted(uint objectId)
+    public void ReportDeparted(ObjectId objectId)
     {
         for (var i = 0; i < _runwayAssignments.Length; i++)
         {
             var assignment = _runwayAssignments[i];
             if (assignment.Aircraft1Id == objectId)
             {
-                _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id != 0);
+                _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id.IsValid);
             }
         }
     }
@@ -364,7 +364,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// <param name="objectId">Inbound aircraft</param>
     /// <returns>Hangar index assigned</returns>
     /// <exception cref="InvalidStateException">thrown when the airfield doesn't have any parking slots available</exception>
-    public int ReportInbound(uint objectId)
+    public int ReportInbound(ObjectId objectId)
     {
         for (var i = 0; i < _parkingSlots.Length; i++)
         {
@@ -392,11 +392,11 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// </summary>
     /// <param name="objectId">Landing aircraft</param>
     /// <returns>Runway assignment, or -1 if no runways are available</returns>
-    public int ReportLanding(uint objectId)
+    public int ReportLanding(ObjectId objectId)
     {
         for (var i = 0; i < _runwayAssignments.Length; i++)
         {
-            if (_runwayAssignments[i].Aircraft1Id == 0)
+            if (_runwayAssignments[i].Aircraft1Id.IsInvalid)
             {
                 _runwayAssignments[i] = new RunwayAssignment(objectId);
                 return i;
@@ -413,7 +413,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     /// <param name="objectId">Landed aircraft</param>
     /// <returns>Hangar assignment</returns>
     /// <exception cref="InvalidStateException">thrown when an aircraft doesn't have a hangar reserved</exception>
-    public (int Runway, int Hangar) ReportLanded(uint objectId)
+    public (int Runway, int Hangar) ReportLanded(ObjectId objectId)
     {
         var runway = -1;
         for (var i = 0; i < _runwayAssignments.Length; i++)
@@ -422,7 +422,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
             var assignment = _runwayAssignments[i];
             if (assignment.Aircraft1Id == objectId)
             {
-                _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id != 0);
+                _runwayAssignments[i] = new RunwayAssignment(assignment.Aircraft2Id, runwayActive: assignment.Aircraft2Id.IsValid);
                 runway = i;
                 break;
             }
@@ -446,7 +446,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
     private static int IndexForRunwayBone(string boneName) => int.Parse(boneName[^1].ToString()) - 1;
 
-    public Queue<string> GetPathToRunway(uint objectId, int runway)
+    public Queue<string> GetPathToRunway(ObjectId objectId, int runway)
     {
         var slot = GetCorrespondingSlot(objectId);
         return GetPathToStart(SlotToHangar(slot), runway + 1);
@@ -516,7 +516,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         return result;
     }
 
-    public Vector3 GetRunwayEndPoint(uint vehicleId)
+    public Vector3 GetRunwayEndPoint(ObjectId vehicleId)
     {
         var slot = GetCorrespondingSlot(vehicleId);
         var runway = SlotToRunway(slot);
@@ -571,17 +571,17 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         /// <summary>
         /// The object id of the object being healed.
         /// </summary>
-        public uint ObjectId => _objectId;
+        public ObjectId ObjectId => _objectId;
 
         /// <summary>
         /// The frame at which the object was fully parked and facing the correct direction, ready to be healed.
         /// </summary>
         public LogicFrame ParkedAtFrame => _parkedAtFrame;
 
-        private uint _objectId;
+        private ObjectId _objectId;
         private LogicFrame _parkedAtFrame;
 
-        public ParkingPlaceHealingData(uint objectId, LogicFrame parkedAtFrame)
+        public ParkingPlaceHealingData(ObjectId objectId, LogicFrame parkedAtFrame)
         {
             _objectId = objectId;
             _parkedAtFrame = parkedAtFrame;
@@ -589,7 +589,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref _objectId);
+            persister.PersistObjectId(ref _objectId);
             persister.PersistLogicFrame(ref _parkedAtFrame);
         }
     }
@@ -599,22 +599,22 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         /// <summary>
         /// The object ID of the object which currently owns the parking space.
         /// </summary>
-        public uint ObjectId => _objectId;
+        public ObjectId ObjectId => _objectId;
 
         /// <summary>
         /// Whether the parking space is currently reserved for construction.
         /// </summary>
         public bool Constructing => _constructing;
 
-        public bool Occupied => Constructing || ObjectId != 0;
+        public bool Occupied => Constructing || ObjectId.IsValid;
 
-        private uint _objectId;
+        private ObjectId _objectId;
         private bool _constructing;
 
         public static ParkingSlot Empty => new();
         public static ParkingSlot UnderConstruction => new(true);
 
-        public ParkingSlot(uint objectId)
+        public ParkingSlot(ObjectId objectId)
         {
             _objectId = objectId;
         }
@@ -626,7 +626,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref _objectId);
+            persister.PersistObjectId(ref _objectId);
             persister.PersistBoolean(ref _constructing);
         }
     }
@@ -636,12 +636,12 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         /// <summary>
         /// The object ID of the object which is currently assigned the runway.
         /// </summary>
-        public uint Aircraft1Id => _aircraft1Id;
+        public ObjectId Aircraft1Id => _aircraft1Id;
 
         /// <summary>
         /// The object ID of the object which will take the runway after aircraft 1 clears the runway.
         /// </summary>
-        public uint Aircraft2Id => _aircraft2Id;
+        public ObjectId Aircraft2Id => _aircraft2Id;
 
         /// <summary>
         /// Whether an aircraft which is <i>not</i> <see cref="Aircraft1Id"/> is currently occupying the runway.
@@ -651,13 +651,13 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         /// </remarks>
         public bool AircraftOccupyingRunway => _aircraftOccupyingRunway;
 
-        private uint _aircraft1Id;
-        private uint _aircraft2Id;
+        private ObjectId _aircraft1Id;
+        private ObjectId _aircraft2Id;
         private bool _aircraftOccupyingRunway;
 
         public static RunwayAssignment Empty => new();
 
-        public RunwayAssignment(uint aircraft1Id, uint aircraft2Id = 0, bool runwayActive = false)
+        public RunwayAssignment(ObjectId aircraft1Id, ObjectId aircraft2Id = default, bool runwayActive = false)
         {
             _aircraft1Id = aircraft1Id;
             _aircraft2Id = aircraft2Id;
@@ -666,8 +666,8 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref _aircraft1Id);
-            persister.PersistObjectID(ref _aircraft2Id);
+            persister.PersistObjectId(ref _aircraft1Id);
+            persister.PersistObjectId(ref _aircraft2Id);
             persister.PersistBoolean(ref _aircraftOccupyingRunway);
         }
     }
