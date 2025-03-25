@@ -123,7 +123,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private ObjectId _id;
 
-    public ObjectId ID
+    public ObjectId Id
     {
         get => _id;
         internal set
@@ -278,7 +278,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
                 DamageType = damageType,
                 DamageToDeal = (float)amount,
                 DeathType = deathType,
-                DamageDealer = damageDealer.ID,
+                DamageDealer = damageDealer.Id,
             }
         };
         AttemptDamage(ref damageInfo);
@@ -304,7 +304,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public void Heal(Fix64 amount, GameObject healer)
     {
         _body.Heal(amount, healer);
-        HealedByObjectId = healer.ID;
+        HealedByObjectId = healer.Id;
     }
 
     /// <summary>
@@ -1647,7 +1647,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal void SetBeingHealed(GameObject healer, uint endFrame)
     {
-        HealedByObjectId = healer.ID;
+        HealedByObjectId = healer.Id;
         HealedEndFrame = endFrame;
     }
 
@@ -1674,11 +1674,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         var version = reader.PersistVersion(9);
 
-        var id = ID;
+        var id = Id;
         reader.PersistObjectId(ref id, "ObjectId");
         if (reader.Mode == StatePersistMode.Read)
         {
-            ID = id;
+            Id = id;
         }
 
         var transform = reader.Mode == StatePersistMode.Write

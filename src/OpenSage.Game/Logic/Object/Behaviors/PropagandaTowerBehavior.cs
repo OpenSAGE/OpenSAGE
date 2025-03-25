@@ -36,7 +36,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
         foreach (var unitId in ObjectsInRange)
         {
             var unit = GameObjectForId(unitId);
-            if (unit.HealedByObjectId == GameObject.ID)
+            if (unit.HealedByObjectId == GameObject.Id)
             {
                 // reset these units, in case they're now out of range
                 unit.HealedByObjectId = ObjectId.Invalid;
@@ -53,7 +53,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
         {
             if (!_moduleData.AffectsSelf && candidate == GameObject) continue;
             if (!CanHealUnit(candidate)) continue;
-            _objectIds.Add(candidate.ID);
+            _objectIds.Add(candidate.Id);
             HealUnit(candidate);
         }
     }
@@ -86,7 +86,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.ID;
+        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.Id;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)

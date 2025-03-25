@@ -53,12 +53,12 @@ public sealed class Radar : IPersistableObject
             ? _visibleItems
             : _hiddenItems;
 
-        items.Add(new RadarItem(gameObject.ID, gameObject.Owner.Color.ToColorRgba()));
+        items.Add(new RadarItem(gameObject.Id, gameObject.Owner.Color.ToColorRgba()));
     }
 
     public void RemoveGameObject(GameObject gameObject)
     {
-        var objectId = gameObject.ID;
+        var objectId = gameObject.Id;
 
         _visibleItems.Remove(objectId);
         _hiddenItems.Remove(objectId);

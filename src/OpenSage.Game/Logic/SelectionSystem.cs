@@ -228,7 +228,7 @@ public sealed class SelectionSystem : GameSystem
 
         if (closestObject != null)
         {
-            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, closestObject.ID));
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, closestObject.Id));
         }
     }
 
@@ -257,11 +257,11 @@ public sealed class SelectionSystem : GameSystem
             {
                 if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == false)
                 {
-                    selectedObjects.Add(gameObject.ID);
+                    selectedObjects.Add(gameObject.Id);
                 }
                 else if (gameObject.Definition.KindOf.Get(ObjectKinds.Structure) == true)
                 {
-                    structure ??= gameObject.ID;
+                    structure ??= gameObject.Id;
                 }
             }
         }

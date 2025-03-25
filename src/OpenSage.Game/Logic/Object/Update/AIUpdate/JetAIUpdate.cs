@@ -141,7 +141,7 @@ public sealed class JetAIUpdate : AIUpdate
         switch (CurrentJetAIState)
         {
             case JetAIState.JustCreated:
-                var parkingTransform = parkingPlaceBehavior.GetParkingTransform(GameObject.ID);
+                var parkingTransform = parkingPlaceBehavior.GetParkingTransform(GameObject.Id);
                 var parkingOffset = Vector4.Transform(new Vector4(ModuleData.ParkingOffset, 0, 0, 1),
                     parkingTransform.Rotation).ToVector3();
                 base.SetTargetPoint(Base.ToWorldspace(parkingTransform.Translation + parkingOffset));
@@ -158,7 +158,7 @@ public sealed class JetAIUpdate : AIUpdate
                 break;
 
             case JetAIState.ReachedParkingPlace:
-                var createTransform = Base.ToWorldspace(parkingPlaceBehavior.GetUnitCreateTransform(GameObject.ID));
+                var createTransform = Base.ToWorldspace(parkingPlaceBehavior.GetUnitCreateTransform(GameObject.Id));
                 SetTargetDirection(createTransform.LookDirection);
                 CurrentJetAIState = JetAIState.Rotating;
                 break;
@@ -170,18 +170,18 @@ public sealed class JetAIUpdate : AIUpdate
                 }
 
                 //base.SetTargetPoint(GameObject.Transform.Translation + GameObject.Transform.LookDirection * _moduleData.ParkingOffset);
-                parkingPlaceBehavior.ReportParkedIdle(GameObject.ID, context.LogicFrame);
+                parkingPlaceBehavior.ReportParkedIdle(GameObject.Id, context.LogicFrame);
                 CurrentJetAIState = JetAIState.Parked;
                 break;
 
             case JetAIState.Parked:
                 if (_unparkingRequested)
                 {
-                    if (!parkingPlaceBehavior.ReportReadyToTaxi(GameObject.ID, out var runway))
+                    if (!parkingPlaceBehavior.ReportReadyToTaxi(GameObject.Id, out var runway))
                     {
                         break;
                     }
-                    _pathToStart = parkingPlaceBehavior.GetPathToRunway(GameObject.ID, runway);
+                    _pathToStart = parkingPlaceBehavior.GetPathToRunway(GameObject.Id, runway);
                     CurrentJetAIState = JetAIState.MovingTowardsStart;
                     _unparkingRequested = false;
                 }
@@ -193,7 +193,7 @@ public sealed class JetAIUpdate : AIUpdate
                     break;
                 }
 
-                parkingPlaceBehavior.ReportEngineRunUp(GameObject.ID);
+                parkingPlaceBehavior.ReportEngineRunUp(GameObject.Id);
                 CurrentJetAIState = JetAIState.PreparingStart;
                 _waitUntil = context.LogicFrame + ModuleData.TakeoffPause;
                 break;
@@ -209,7 +209,7 @@ public sealed class JetAIUpdate : AIUpdate
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetAfterburner, true);
                 _afterburnerEnabled = true;
                 var endPointPosition =
-                    Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject.ID));
+                    Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject.Id));
                 base.SetTargetPoint(endPointPosition);
                 AddTargetPoint(_currentTargetPoint);
                 CurrentJetAIState = JetAIState.Starting;
@@ -226,7 +226,7 @@ public sealed class JetAIUpdate : AIUpdate
                 }
 
                 // todo: this actually shouldn't happen until we're above a certain altitude
-                parkingPlaceBehavior.ReportDeparted(GameObject.ID);
+                parkingPlaceBehavior.ReportDeparted(GameObject.Id);
                 CurrentJetAIState = JetAIState.MovingTowardsTarget;
                 break;
 
@@ -250,14 +250,14 @@ public sealed class JetAIUpdate : AIUpdate
                     break;
                 }
 
-                parkingPlaceBehavior.ReportInbound(GameObject.ID);
-                var endPosition = Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject.ID));
+                parkingPlaceBehavior.ReportInbound(GameObject.Id);
+                var endPosition = Base.ToWorldspace(parkingPlaceBehavior.GetRunwayEndPoint(GameObject.Id));
 
                 base.SetTargetPoint(endPosition);
                 CurrentJetAIState = JetAIState.Landing;
                 break;
             case JetAIState.Landing:
-                parkingPlaceBehavior.ReportLanding(GameObject.ID);
+                parkingPlaceBehavior.ReportLanding(GameObject.Id);
                 CurrentJetAIState = JetAIState.ReturningToBase;
                 break;
 
@@ -270,7 +270,7 @@ public sealed class JetAIUpdate : AIUpdate
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.JetExhaust, false);
                 CurrentJetAIState = JetAIState.MovingBackToHangar;
                 SetLocomotor(LocomotorSetType.Taxiing);
-                var (landedRunway, parkingSlot) = parkingPlaceBehavior.ReportLanded(GameObject.ID);
+                var (landedRunway, parkingSlot) = parkingPlaceBehavior.ReportLanded(GameObject.Id);
                 _pathToParking = parkingPlaceBehavior.GetPathToHangar(landedRunway, parkingSlot);
                 break;
 
@@ -293,7 +293,7 @@ public sealed class JetAIUpdate : AIUpdate
 
         if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Dying))
         {
-            Base.ProductionUpdate?.CloseDoor(parkingPlaceBehavior.ClearObjectFromSlot(GameObject.ID));
+            Base.ProductionUpdate?.CloseDoor(parkingPlaceBehavior.ClearObjectFromSlot(GameObject.Id));
         }
     }
 
@@ -301,7 +301,7 @@ public sealed class JetAIUpdate : AIUpdate
     {
         if (_currentTaxiingTarget != null)
         {
-            parkingPlaceBehavior.ClearRunway(GameObject.ID);
+            parkingPlaceBehavior.ClearRunway(GameObject.Id);
         }
 
         if (path.Count > 0)
@@ -318,7 +318,7 @@ public sealed class JetAIUpdate : AIUpdate
             }
 
             _currentTaxiingTarget = nextPoint;
-            parkingPlaceBehavior.ReserveRunway(GameObject.ID);
+            parkingPlaceBehavior.ReserveRunway(GameObject.Id);
             base.SetTargetPoint(Base.ToWorldspace(parkingPlaceBehavior.GetBoneTranslation(path.Dequeue())));
             return true;
         }

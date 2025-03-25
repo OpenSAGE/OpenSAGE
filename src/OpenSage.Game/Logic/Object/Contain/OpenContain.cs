@@ -75,8 +75,8 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
             return;
         }
 
-        ContainedObjectIds.Add(unit.ID);
-        unit.AddToContainer(GameObject.ID);
+        ContainedObjectIds.Add(unit.Id);
+        unit.AddToContainer(GameObject.Id);
         if (!initial)
         {
             GameEngine.AudioSystem.PlayAudioEvent(unit, GetEnterVoiceLine(unit.Definition.UnitSpecificSounds));

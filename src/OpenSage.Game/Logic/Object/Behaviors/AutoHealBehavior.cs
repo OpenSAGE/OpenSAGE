@@ -106,7 +106,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.ID;
+        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.Id;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)

@@ -302,7 +302,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
         {
             var stump = GameEngine.GameLogic.CreateObject(_moduleData.StumpName.Value, null);
             stump.UpdateTransform(GameObject.Translation, GameObject.Rotation);
-            _stumpId = stump.ID;
+            _stumpId = stump.Id;
 
             // If we are "burned", then we will burn our stump.
             if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Burned))

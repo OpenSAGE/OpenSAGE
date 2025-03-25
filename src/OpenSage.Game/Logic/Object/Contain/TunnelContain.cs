@@ -17,12 +17,12 @@ public sealed class TunnelContain : OpenContainModule
     internal TunnelContain(GameObject gameObject, GameEngine gameEngine, TunnelContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
-        gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.ID);
+        gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.Id);
     }
 
     internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
     {
-        GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.ID);
+        GameObject.Owner.TunnelManager?.TunnelIds.Remove(GameObject.Id);
 
         if (GameObject.Owner.TunnelManager?.TunnelIds.Count == 0)
         {

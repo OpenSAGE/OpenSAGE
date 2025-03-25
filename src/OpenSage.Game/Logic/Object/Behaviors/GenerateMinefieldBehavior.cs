@@ -140,8 +140,8 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
         {
             var newMine = GameEngine.GameLogic.CreateObject(mineTemplate, GameObject.Owner);
             newMine.UpdateTransform(transform.Translation, transform.Rotation);
-            newMine.CreatedByObjectID = GameObject.ID;
-            _generatedMineIds.Add(newMine.ID);
+            newMine.CreatedByObjectID = GameObject.Id;
+            _generatedMineIds.Add(newMine.Id);
         }
     }
 

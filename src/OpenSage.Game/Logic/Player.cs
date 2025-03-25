@@ -820,27 +820,27 @@ public sealed class SupplyManager : IPersistableObject
 
     public void AddSupplyCenter(GameObject supplyCenter)
     {
-        _supplyCenters.Add(supplyCenter.ID);
+        _supplyCenters.Add(supplyCenter.Id);
     }
 
     public void RemoveSupplyCenter(GameObject supplyCenter)
     {
-        _supplyCenters.Remove(supplyCenter.ID);
+        _supplyCenters.Remove(supplyCenter.Id);
     }
 
     public void AddSupplyWarehouse(GameObject supplyWarehouse)
     {
-        _supplyWarehouses.Add(supplyWarehouse.ID);
+        _supplyWarehouses.Add(supplyWarehouse.Id);
     }
 
     public void RemoveSupplyWarehouse(GameObject supplyWarehouse)
     {
-        _supplyWarehouses.Remove(supplyWarehouse.ID);
+        _supplyWarehouses.Remove(supplyWarehouse.Id);
     }
 
     public bool Contains(GameObject supplyCenter)
     {
-        return _supplyCenters.Contains(supplyCenter.ID);
+        return _supplyCenters.Contains(supplyCenter.Id);
     }
 
     public GameObject? FindClosestSupplyCenter(GameObject supplyGatherer)

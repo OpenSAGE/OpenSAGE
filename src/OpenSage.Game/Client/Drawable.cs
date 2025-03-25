@@ -76,7 +76,7 @@ public sealed class Drawable : Entity, IPersistableObject
         }
     }
 
-    public ObjectId GameObjectID => GameObject?.ID ?? ObjectId.Invalid;
+    public ObjectId GameObjectID => GameObject?.Id ?? ObjectId.Invalid;
 
     /// <summary>
     /// For limiting tree sway, etc to visible objects.

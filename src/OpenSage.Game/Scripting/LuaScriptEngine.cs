@@ -205,7 +205,7 @@ public sealed class LuaScriptEngine : GameSystem
         var startingBuilding = Game.Scene3D.GameObjects.CreateObject(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
         spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
         spawnUnit.SetTranslation(spawnUnitPosition);
-        return GetLuaObjectIndex(spawnUnit.ID);
+        return GetLuaObjectIndex(spawnUnit.Id);
     }
 
     public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
@@ -219,7 +219,7 @@ public sealed class LuaScriptEngine : GameSystem
         var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
         spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
         spawnUnit.SetTranslation(spawnPosition);
-        return GetLuaObjectIndex(spawnUnit.ID);
+        return GetLuaObjectIndex(spawnUnit.Id);
     }
 
     public string GetActionNameVariant(string action, int variant)

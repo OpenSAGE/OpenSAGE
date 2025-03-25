@@ -202,7 +202,7 @@ public class SlavedUpdateModule : UpdateModule
     public void SetMaster(GameObject gameObject)
     {
         _master = gameObject;
-        _parentObjectId = gameObject.ID;
+        _parentObjectId = gameObject.Id;
     }
 }
 

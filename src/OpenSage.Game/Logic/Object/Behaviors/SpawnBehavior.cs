@@ -40,7 +40,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
         var spawnedObject = GameEngine.GameLogic.CreateObject(_moduleData.SpawnTemplate?.Value, GameObject.Owner);
         _spawnedUnits.Add(spawnedObject);
 
-        spawnedObject.CreatedByObjectID = GameObject.ID;
+        spawnedObject.CreatedByObjectID = GameObject.Id;
         var slavedUpdate = spawnedObject.FindBehavior<SlavedUpdateModule>();
         slavedUpdate?.SetMaster(GameObject);
 

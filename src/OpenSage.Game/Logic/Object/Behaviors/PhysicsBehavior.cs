@@ -201,7 +201,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     public void SetIgnoreCollisionsWith(GameObject gameObject)
     {
-        _ignoreCollisionsWith = gameObject?.ID ?? ObjectId.Invalid;
+        _ignoreCollisionsWith = gameObject?.Id ?? ObjectId.Invalid;
     }
 
     private bool IsIgnoringCollisionsWith(ObjectId objectId)
@@ -483,7 +483,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                     var damageInfo = new DamageData();
                     damageInfo.Request.DamageType = DamageType.Falling;
                     damageInfo.Request.DeathType = DeathType.Splatted;
-                    damageInfo.Request.DamageDealer = obj.ID;
+                    damageInfo.Request.DamageDealer = obj.Id;
                     damageInfo.Request.DamageToDeal = damageAmount;
                     damageInfo.Request.ShockWaveAmount = 0.0f;
 
@@ -940,7 +940,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
         // Ignore collisions with our "ignore" thingie, if any (and vice versa).
         var ai = obj.AIUpdate;
-        if (ai != null && ai.IgnoredObstacleID == other.ID)
+        if (ai != null && ai.IgnoredObstacleID == other.Id)
         {
             // Original todo: @todo srj -- what the hell is this code doing here? ack!
             // Before we return, check for a very special case of an infantry colliding with
@@ -969,12 +969,12 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
 
         var aiOther = other.AIUpdate;
-        if (aiOther != null && aiOther.IgnoredObstacleID == obj.ID)
+        if (aiOther != null && aiOther.IgnoredObstacleID == obj.Id)
         {
             return;
         }
 
-        if (IsIgnoringCollisionsWith(other.ID))
+        if (IsIgnoringCollisionsWith(other.Id))
         {
             return;
         }
@@ -985,7 +985,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         var otherPhysics = other.Physics;
         if (otherPhysics != null)
         {
-            if (otherPhysics.IsIgnoringCollisionsWith(obj.ID))
+            if (otherPhysics.IsIgnoringCollisionsWith(obj.Id))
             {
                 return;
             }
@@ -1072,7 +1072,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
             var damageInfo = new DamageData();
             damageInfo.Request.DamageType = DamageType.Crush;
             damageInfo.Request.DeathType = DeathType.Crushed;
-            damageInfo.Request.DamageDealer = crusherMe.ID;
+            damageInfo.Request.DamageDealer = crusherMe.Id;
             damageInfo.Request.DamageToDeal = 0.0f; // Yes, that's right - we don't want to damage, just to trigger the minor DamageFX, if any
             crusheeOther.AttemptDamage(ref damageInfo);
         }
@@ -1332,7 +1332,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
                 var damageInfo = new DamageData();
                 damageInfo.Request.DamageType = DamageType.Crush;
                 damageInfo.Request.DeathType = DeathType.Crushed;
-                damageInfo.Request.DamageDealer = crusherMe.ID;
+                damageInfo.Request.DamageDealer = crusherMe.Id;
                 damageInfo.Request.DamageToDeal = DamageConstants.HugeDamageAmount; // Make sure they die
                 crusheeOther.AttemptDamage(ref damageInfo);
             }
@@ -1345,18 +1345,18 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     {
         if (obj != null && !IsCurrentlyOverlapped(obj))
         {
-            _currentOverlap = obj.ID;
+            _currentOverlap = obj.Id;
         }
     }
 
     private bool IsCurrentlyOverlapped(GameObject obj)
     {
-        return obj != null && obj.ID == _currentOverlap;
+        return obj != null && obj.Id == _currentOverlap;
     }
 
     private bool WasPreviouslyOverlapped(GameObject obj)
     {
-        return obj != null && obj.ID == _previousOverlap;
+        return obj != null && obj.Id == _previousOverlap;
     }
 
     private static bool PerpsLogicallyEqual(float perpOne, float perpTwo)

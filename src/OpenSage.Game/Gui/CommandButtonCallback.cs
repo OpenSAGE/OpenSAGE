@@ -95,7 +95,7 @@ public static class CommandButtonCallback
                     break;
                 }
 
-                order.AddObjectIdArgument(selection.First().ID);
+                order.AddObjectIdArgument(selection.First().Id);
 
                 var upgrade = commandButton.Upgrade.Value;
                 order.AddIntegerArgument(upgrade.InternalId);

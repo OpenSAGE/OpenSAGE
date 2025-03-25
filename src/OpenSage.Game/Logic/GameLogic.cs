@@ -68,7 +68,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
         var gameObject = AddDisposable(new GameObject(objectDefinition, _game.GameEngine, player));
 
-        gameObject.ID = new ObjectId(NextObjectId++);
+        gameObject.Id = new ObjectId(NextObjectId++);
 
         foreach (var module in gameObject.BehaviorModules)
         {
@@ -92,7 +92,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             SetObject(oldObjectId, null);
         }
 
-        SetObject(gameObject.ID, gameObject);
+        SetObject(gameObject.Id, gameObject);
     }
 
     private void SetObject(ObjectId objectId, GameObject gameObject)
@@ -158,7 +158,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
             RemoveToDispose(gameObject);
 
-            _objects[(int)gameObject.ID.Index] = null;
+            _objects[(int)gameObject.Id.Index] = null;
         }
 
         _destroyList.Clear();
@@ -214,7 +214,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
                 reader.PersistObject(gameObject, "Object");
 
-                NextObjectId = Math.Max(NextObjectId, gameObject.ID.Index + 1);
+                NextObjectId = Math.Max(NextObjectId, gameObject.Id.Index + 1);
 
                 reader.EndSegment();
 

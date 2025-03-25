@@ -40,7 +40,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
     // set on creation in RebuildHoleExposeDie
     public void SetOriginalStructure(GameObject originalStructure)
     {
-        _originalStructureId = originalStructure.ID;
+        _originalStructureId = originalStructure.Id;
         _structureObjectName = originalStructure.Definition.Name;
     }
 
@@ -76,7 +76,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
             worker = GameEngine.GameLogic.CreateObject(WorkerObjectDefinition, GameObject.Owner);
             worker.SetTransformMatrix(GameObject.TransformMatrix);
             worker.SetSelectable(false); // we have no control over this worker
-            _workerId = worker.ID;
+            _workerId = worker.Id;
         }
         else
         {
@@ -90,7 +90,7 @@ public sealed class RebuildHoleUpdate : UpdateModule
             structure = GameEngine.GameLogic.CreateObject(StructureObjectDefinition, GameObject.Owner);
             structure.SetTransformMatrix(GameObject.TransformMatrix);
             // todo: some special property that disables the cancel construction button?
-            _structureId = structure.ID;
+            _structureId = structure.Id;
             structure.SetIsBeingConstructed();
             structure.SetObjectStatus(ObjectStatus.UnderConstruction, true);
             structure.SetUnknownStatus(UnknownScaffoldStatus, true);

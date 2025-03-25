@@ -108,10 +108,10 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     public void SetBuildTarget(GameObject buildTarget, uint currentFrame)
     {
-        _dozerTargets[0] = new DozerTarget { ObjectId = buildTarget.ID, OrderFrame = currentFrame };
+        _dozerTargets[0] = new DozerTarget { ObjectId = buildTarget.Id, OrderFrame = currentFrame };
         // these are both set to the unit currently (or most recently) constructing the object
-        buildTarget.CreatedByObjectID = _gameObject.ID;
-        buildTarget.BuiltByObjectID = _gameObject.ID;
+        buildTarget.CreatedByObjectID = _gameObject.Id;
+        buildTarget.BuiltByObjectID = _gameObject.Id;
     }
 
     private void ClearBuildTarget()
@@ -135,8 +135,8 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     public void SetRepairTarget(GameObject repairTarget, uint currentFrame)
     {
-        repairTarget.HealedByObjectId = _gameObject.ID;
-        _dozerTargets[1] = new DozerTarget { ObjectId = repairTarget.ID, OrderFrame = currentFrame };
+        repairTarget.HealedByObjectId = _gameObject.Id;
+        _dozerTargets[1] = new DozerTarget { ObjectId = repairTarget.Id, OrderFrame = currentFrame };
     }
 
     private void ClearRepairTarget()

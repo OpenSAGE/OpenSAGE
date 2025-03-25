@@ -43,7 +43,7 @@ public sealed class GhostObject : IPersistableObject
         reader.PersistVersion(1);
         reader.EndObject();
 
-        var objectId = _gameObject?.ID ?? ObjectId.Invalid;
+        var objectId = _gameObject?.Id ?? ObjectId.Invalid;
         reader.PersistObjectId(ref objectId);
         if (reader.Mode == StatePersistMode.Read)
         {

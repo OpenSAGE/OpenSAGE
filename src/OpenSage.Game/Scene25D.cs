@@ -66,7 +66,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 DrawPips(drawingContext, obj, focused);
 
                 // todo: break out animations?
-                if (propagandizedUnits.Contains(obj.ID))
+                if (propagandizedUnits.Contains(obj.Id))
                 {
                     // todo: not sure how this visually stacks with other items
                     // todo: subliminal vs enthusiastic
