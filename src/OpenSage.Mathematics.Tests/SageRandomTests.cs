@@ -2,12 +2,12 @@
 
 namespace OpenSage.Mathematics.Tests;
 
-public class RandomValueTests
+public class SageRandomTests
 {
     [Fact]
     public void CanGenerateRandomIntegers()
     {
-        var random = new RandomValue();
+        var random = new SageRandom();
 
         Assert.Equal(5, random.Next(0, 5));
         Assert.Equal(1, random.Next(0, 5));
@@ -30,7 +30,7 @@ public class RandomValueTests
     [InlineData(-10, 5)]
     public void GeneratesIntegerValuesInRequestedRange(int lo, int hi)
     {
-        var random = new RandomValue();
+        var random = new SageRandom();
         for (var i = 0; i < 1000; i++)
         {
             var value = random.Next(lo, hi);
@@ -41,7 +41,7 @@ public class RandomValueTests
     [Fact]
     public void CanGenerateRandomFloats()
     {
-        var random = new RandomValue();
+        var random = new SageRandom();
 
         Assert.Equal(1.67192996f, random.NextSingle(0, 5));
         Assert.Equal(0.767719746f, random.NextSingle(0, 5));
@@ -57,7 +57,7 @@ public class RandomValueTests
     [InlineData(-1.5f, 3.5f)]
     public void GeneratesFloatValuesInRequestedRange(int lo, int hi)
     {
-        var random = new RandomValue();
+        var random = new SageRandom();
         for (var i = 0; i < 1000; i++)
         {
             var value = random.NextSingle(lo, hi);

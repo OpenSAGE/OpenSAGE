@@ -7,7 +7,7 @@ namespace OpenSage.Client;
 
 internal sealed class GameClient : DisposableBase, IPersistableObject
 {
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
     private readonly List<Drawable> _drawables = new();
     private readonly List<string> _briefingTexts = new();
@@ -16,12 +16,14 @@ internal sealed class GameClient : DisposableBase, IPersistableObject
 
     internal uint NextDrawableId = 1;
 
-    public readonly RandomValue Random = new();
+    public readonly IRandom Random;
 
-    public GameClient(Game game)
+    public GameClient(IGame game)
     {
         _game = game;
         _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
+
+        Random = game.CreateRandom();
     }
 
     public Drawable CreateDrawable(ObjectDefinition objectDefinition, GameObject gameObject)

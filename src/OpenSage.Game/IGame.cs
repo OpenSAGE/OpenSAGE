@@ -4,6 +4,7 @@ using OpenSage.Client;
 using OpenSage.Content;
 using OpenSage.Data.Sav;
 using OpenSage.Logic;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
 
@@ -39,4 +40,8 @@ public interface IGame
     void StartSkirmishOrMultiPlayerGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int seed, bool isMultiPlayer);
     void StartSinglePlayerGame(string mapFileName);
     IEnumerable<PlayerTemplate> GetPlayableSides();
+
+    // TODO: Move this somewhere where it could be configured for specific games;
+    // e.g. for a replay we might want to use SageRandom.
+    IRandom CreateRandom() => new SystemRandom();
 }

@@ -53,12 +53,14 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         }
     }
 
-    public readonly RandomValue Random = new();
+    public readonly IRandom Random;
 
     public GameLogic(IGame game)
     {
         _game = game;
         _objectDefinitionLookupTable = new ObjectDefinitionLookupTable(game.AssetStore.ObjectDefinitions);
+
+        Random = game.CreateRandom();
     }
 
     public GameObject CreateObject(ObjectDefinition objectDefinition, Player player)

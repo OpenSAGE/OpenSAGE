@@ -129,7 +129,7 @@ public sealed class Waypoint
     /// b) the returned enumerable is potentially infinite, so avoid materializing it by
     /// calling <see cref="Enumerable.ToList"/> and co.
     /// </summary>
-    public IEnumerable<Vector3> FollowPath(RandomValue random)
+    public IEnumerable<Vector3> FollowPath(IRandom random)
     {
         var currentWaypoint = this;
         while (currentWaypoint != null)

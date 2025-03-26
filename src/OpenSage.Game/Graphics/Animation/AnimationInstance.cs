@@ -20,7 +20,7 @@ public sealed class AnimationInstance
     private bool _playing;
     private readonly AnimationMode _mode;
     private readonly AnimationFlags _flags;
-    private readonly RandomValue _random;
+    private readonly IRandom _random;
 
     private float _speedFactor;
 
@@ -40,7 +40,7 @@ public sealed class AnimationInstance
     /// <param name="gameObject"></param>
     /// <param name="random">Random number generator used when combined with <see cref="AnimationFlags.RandomStart"/></param>
     public AnimationInstance(ModelBoneInstance[] modelBoneInstances, W3DAnimation animation,
-        AnimationMode mode, AnimationFlags flags, GameObject gameObject, RandomValue random)
+        AnimationMode mode, AnimationFlags flags, GameObject gameObject, IRandom random)
     {
         _animation = animation;
         _mode = mode;

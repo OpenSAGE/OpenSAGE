@@ -17,7 +17,7 @@ public class W3dHordeModelDraw : W3dScriptedModelDraw
     {
     }
 
-    protected override bool SetActiveAnimationState(AnimationState animationState, RandomValue random)
+    protected override bool SetActiveAnimationState(AnimationState animationState, IRandom random)
     {
         return base.SetActiveAnimationState(animationState, random);
     }

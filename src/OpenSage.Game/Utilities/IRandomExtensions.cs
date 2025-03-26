@@ -3,10 +3,10 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Utilities;
 
-public static class RandomExtensions
+public static class IRandomExtensions
 {
     public static LogicFrameSpan NextLogicFrameSpan(
-        this RandomValue random,
+        this IRandom random,
         LogicFrameSpan min,
         LogicFrameSpan max)
     {
@@ -14,7 +14,7 @@ public static class RandomExtensions
         return new LogicFrameSpan((uint)value);
     }
 
-    public static bool NextBoolean(this RandomValue random)
+    public static bool NextBoolean(this IRandom random)
     {
         return random.Next(0, 1) == 1;
     }

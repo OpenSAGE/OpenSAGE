@@ -105,7 +105,7 @@ public class W3dModelDraw : DrawModule
         }
     }
 
-    private void SetActiveConditionState(ModelConditionState conditionState, RandomValue random)
+    private void SetActiveConditionState(ModelConditionState conditionState, IRandom random)
     {
         if (_activeConditionState == conditionState || ShouldWaitForRunningAnimationsToFinish())
         {
@@ -139,7 +139,7 @@ public class W3dModelDraw : DrawModule
         //&& (_activeModelDrawConditionState?.StillActive() ?? false);
     }
 
-    protected virtual bool SetActiveAnimationState(AnimationState animationState, RandomValue random)
+    protected virtual bool SetActiveAnimationState(AnimationState animationState, IRandom random)
     {
         if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
         {
@@ -204,7 +204,7 @@ public class W3dModelDraw : DrawModule
             flags);
     }
 
-    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, RandomValue random)
+    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, IRandom random)
     {
         if (!flags.BitsChanged)
         {
@@ -261,7 +261,7 @@ public class W3dModelDraw : DrawModule
         }
     }
 
-    private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, RandomValue random)
+    private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, IRandom random)
     {
         // Load model, fallback to default model.
         var model = conditionState.Model?.Value;

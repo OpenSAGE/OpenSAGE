@@ -3,16 +3,55 @@ using System.Runtime.CompilerServices;
 
 namespace OpenSage.Mathematics;
 
-public class RandomValue
+public interface IRandom
+{
+    uint Seed { get; }
+
+    void Initialize(uint seed);
+
+    int Next(int lo, int hi);
+    float NextSingle(float lo, float hi);
+}
+
+public sealed class SystemRandom : IRandom
+{
+    private Random _random;
+
+    public uint Seed => throw new NotImplementedException();
+
+    public SystemRandom()
+    {
+        _random = CreateRandom(0);
+    }
+
+    public void Initialize(uint seed)
+    {
+        _random = CreateRandom((int)seed);
+    }
+
+    private static Random CreateRandom(int seed) => new(seed);
+
+    public int Next(int lo, int hi)
+    {
+        return _random.Next(lo, hi + 1);
+    }
+
+    public float NextSingle(float lo, float hi)
+    {
+        return lo + (hi - lo) * _random.NextSingle();
+    }
+}
+
+public sealed class SageRandom : IRandom
 {
     private static readonly float MultiplicationFactor = 1.0f / (MathF.Pow(2, 8 * sizeof(uint)) - 1.0f);
 
     private readonly uint[] _seed;
     private uint _baseSeed;
 
-    internal uint BaseSeed => _baseSeed;
+    public uint Seed => _baseSeed;
 
-    public RandomValue()
+    public SageRandom()
     {
         _seed = new uint[6];
 
@@ -38,7 +77,7 @@ public class RandomValue
         _seed[5] = ax;
     }
 
-    public virtual int Next(int lo, int hi)
+    public int Next(int lo, int hi)
     {
         var delta = (uint)(hi - lo + 1);
 
@@ -50,7 +89,7 @@ public class RandomValue
         return (int)((GetRandomValue() % delta) + lo);
     }
 
-    public virtual float NextSingle(float lo, float hi)
+    public float NextSingle(float lo, float hi)
     {
         var delta = hi - lo;
 

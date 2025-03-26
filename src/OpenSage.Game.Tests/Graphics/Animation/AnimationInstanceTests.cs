@@ -319,9 +319,11 @@ public class AnimationInstanceTests
 /// <summary>
 /// Guaranteed random!
 /// </summary>
-internal class QuoteUnquoteRandom : RandomValue
+internal class QuoteUnquoteRandom : IRandom
 {
     private readonly int _random;
+
+    public uint Seed => 0;
 
     /// <summary>
     /// Constructs a new "random" number generator which will always return 0.
@@ -329,6 +331,8 @@ internal class QuoteUnquoteRandom : RandomValue
     public QuoteUnquoteRandom() : this(0)
     {
     }
+
+    public void Initialize(uint seed) { }
 
     /// <summary>
     /// Constructs a new "random" number generator.
@@ -339,12 +343,12 @@ internal class QuoteUnquoteRandom : RandomValue
         _random = random;
     }
 
-    public override int Next(int lo, int hi)
+    public int Next(int lo, int hi)
     {
         return _random;
     }
 
-    public override float NextSingle(float lo, float hi)
+    public float NextSingle(float lo, float hi)
     {
         return _random;
     }
