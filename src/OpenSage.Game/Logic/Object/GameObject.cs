@@ -1476,7 +1476,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             .ToList();
 
         var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
-        var random = _gameEngine.GameLogic.Random.Next(0, sumProbabilityModifiers);
+        var random = _gameEngine.GameLogic.Random.Next(0, sumProbabilityModifiers - 1);
         var cumulative = 0;
         foreach (var deathBehavior in slowDeathBehaviors)
         {

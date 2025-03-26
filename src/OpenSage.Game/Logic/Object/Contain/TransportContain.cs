@@ -59,7 +59,7 @@ public class TransportContain : OpenContainModule
                 // testing with a humvee, evacuating individually, the units never use the same exit path
                 // using the evac command, two pairs of rangers will share an exit path, and the 5th ranger will use a 3rd exit path
                 // todo: this doesn't seem to be strictly random, but it's unclear how this works at the moment
-                var pathToChoose = GameEngine.GameLogic.Random.Next(1, _moduleData.NumberOfExitPaths + 1);
+                var pathToChoose = GameEngine.GameLogic.Random.Next(1, _moduleData.NumberOfExitPaths);
                 startBoneName = $"{startBoneName}{pathToChoose:00}";
                 endBoneName = $"{endBoneName}{pathToChoose:00}";
             }
