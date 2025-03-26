@@ -101,12 +101,12 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 
     private bool ObjectNotInContainer(GameObject gameObject)
     {
-        return gameObject.ContainerId == 0; // todo: I believe this should only apply when the container is an enclosing container
+        return gameObject.ContainerId.IsInvalid; // todo: I believe this should only apply when the container is an enclosing container
     }
 
     private bool ObjectNotBeingHealedByAnybodyElse(GameObject gameObject)
     {
-        return gameObject.HealedByObjectId == 0 || gameObject.HealedByObjectId == GameObject.ID;
+        return gameObject.HealedByObjectId.IsInvalid || gameObject.HealedByObjectId == GameObject.Id;
     }
 
     private bool ObjectIsOnSameTeam(GameObject gameObject)

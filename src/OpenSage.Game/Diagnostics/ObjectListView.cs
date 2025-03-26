@@ -88,6 +88,6 @@ internal sealed class ObjectListView : DiagnosticView
 
     private string GetObjectName(GameObject gameObject)
     {
-        return gameObject.ID + " - " + (gameObject.Name ?? gameObject.Definition.Name);
+        return gameObject.Id + " - " + (gameObject.Name ?? gameObject.Definition.Name);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI;
 
@@ -16,7 +17,7 @@ public class AIPlayer : IPersistableObject
     private int _unknownInt2;
     private uint _countdownSomething1;
     private uint _countdownSomething2;
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
     private uint _unknownInt5;
     private uint _unknownInt6;
     private int _unknownInt7;
@@ -81,7 +82,7 @@ public class AIPlayer : IPersistableObject
             throw new InvalidDataException();
         }
 
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
         reader.PersistUInt32(ref _unknownInt5); // 0, 1
 
         reader.PersistUInt32(ref _unknownInt6);
@@ -132,7 +133,7 @@ public class AIPlayer : IPersistableObject
     private sealed class AIPlayerUnknownOtherThing : IPersistableObject
     {
         private string _objectName;
-        private uint _objectId;
+        private ObjectId _objectId;
         private uint _unknownInt1;
         private uint _unknownInt2;
         private bool _unknownBool1;
@@ -143,7 +144,7 @@ public class AIPlayer : IPersistableObject
             reader.PersistVersion(1);
 
             reader.PersistAsciiString(ref _objectName);
-            reader.PersistObjectID(ref _objectId);
+            reader.PersistObjectId(ref _objectId);
             reader.PersistUInt32(ref _unknownInt1); // 0
             reader.PersistUInt32(ref _unknownInt2); // 1
             reader.PersistBoolean(ref _unknownBool1);

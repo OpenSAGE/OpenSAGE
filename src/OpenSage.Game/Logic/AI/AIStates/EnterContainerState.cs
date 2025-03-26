@@ -1,10 +1,12 @@
 ﻿#nullable enable
 
+using OpenSage.Logic.Object;
+
 namespace OpenSage.Logic.AI.AIStates;
 
 internal class EnterContainerState : MoveTowardsState
 {
-    private uint _containerObjectId;
+    private ObjectId _containerObjectId;
 
     internal EnterContainerState(StateMachineBase stateMachine) : base(stateMachine)
     {
@@ -18,6 +20,6 @@ internal class EnterContainerState : MoveTowardsState
         base.Persist(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _containerObjectId);
+        reader.PersistObjectId(ref _containerObjectId);
     }
 }

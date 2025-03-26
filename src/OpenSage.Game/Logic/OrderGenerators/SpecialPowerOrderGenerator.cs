@@ -98,12 +98,12 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
             }
         }
 
-        var commandCenterId = commandCenter?.ID ?? 0;
+        var commandCenterId = commandCenter?.Id ?? ObjectId.Invalid;
 
         var specialPowerOrder = _targetType switch
         {
             SpecialPowerTargetType.Location => Order.CreateSpecialPowerAtLocation(playerIdx, _specialPower.InternalId, WorldPosition, orderFlags, commandCenterId),
-            SpecialPowerTargetType.Object when WorldObject is not null => Order.CreateSpecialPowerAtObject(playerIdx, _specialPower.InternalId, WorldObject.ID, orderFlags, commandCenterId),
+            SpecialPowerTargetType.Object when WorldObject is not null => Order.CreateSpecialPowerAtObject(playerIdx, _specialPower.InternalId, WorldObject.Id, orderFlags, commandCenterId),
             SpecialPowerTargetType.None => Order.CreateSpecialPower(playerIdx, _specialPower.InternalId, orderFlags, commandCenterId),
             _ => null,
         };

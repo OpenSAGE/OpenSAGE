@@ -23,7 +23,7 @@ public sealed class HealContain : OpenContainModule
             var unit = GameObjectForId(unitId);
             if (unit.HealthPercentage == Fix64.One)
             {
-                Remove(unit.ID);
+                Remove(unit.Id);
             }
         }
     }

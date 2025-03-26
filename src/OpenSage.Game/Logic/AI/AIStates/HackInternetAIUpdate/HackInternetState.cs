@@ -56,7 +56,7 @@ internal sealed class HackInternetState : State
 
     private void SetFramesUntilNextHack(GameObject gameObject)
     {
-        _framesUntilNextHack = gameObject.ContainerId != 0
+        _framesUntilNextHack = gameObject.ContainerId.IsValid
             ? _stateMachine.AIUpdate.ModuleData.CashUpdateDelayFast
             : _stateMachine.AIUpdate.ModuleData.CashUpdateDelay;
     }

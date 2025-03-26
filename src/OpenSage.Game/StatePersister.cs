@@ -223,6 +223,15 @@ public abstract class StatePersister : DisposableBase
     {
     }
 
+    public void PersistObjectId(ref ObjectId value, [CallerArgumentExpression("value")] string name = "")
+    {
+        PersistFieldName(name);
+
+        PersistObjectIdValue(ref value);
+    }
+
+    public abstract void PersistObjectIdValue(ref ObjectId value);
+
     public abstract void PersistSpan(Span<byte> span);
 
     public abstract void PersistUpdateFrameValue(ref UpdateFrame value);
@@ -307,6 +316,12 @@ public sealed class StateReader : StatePersister
     public override void PersistSpan(Span<byte> span) => _binaryReader.BaseStream.Read(span);
 
     public override void PersistUpdateFrameValue(ref UpdateFrame value) => PersistUInt32Value(ref value.RawValue);
+
+    public override void PersistObjectIdValue(ref ObjectId value)
+    {
+        var id = _binaryReader.ReadUInt32();
+        value = new ObjectId(id);
+    }
 
     public override uint BeginSegment(string segmentName)
     {
@@ -428,6 +443,8 @@ public sealed class StateWriter : StatePersister
 
     public override void PersistUpdateFrameValue(ref UpdateFrame value) => PersistUInt32Value(ref value.RawValue);
 
+    public override void PersistObjectIdValue(ref ObjectId value) => _binaryWriter.Write(value.Index);
+
     public override uint BeginSegment(string segmentName)
     {
         if (SageGame >= SageGame.Bfme)
@@ -491,26 +508,17 @@ public interface IPersistableObject
 public struct ObjectNameAndId : IPersistableObject
 {
     public string Name;
-    public uint ObjectId;
+    public ObjectId ObjectId;
 
     public void Persist(StatePersister persister)
     {
         persister.PersistAsciiString(ref Name);
-        persister.PersistObjectID(ref ObjectId);
+        persister.PersistObjectId(ref ObjectId);
     }
 }
 
 public static class StatePersisterExtensions
 {
-    public static void PersistObjectID(this StatePersister persister, ref uint value, [CallerArgumentExpression("value")] string name = "")
-    {
-        persister.PersistFieldName(name);
-
-        persister.PersistObjectIDValue(ref value);
-    }
-
-    public static void PersistObjectIDValue(this StatePersister persister, ref uint value) => persister.PersistUInt32Value(ref value);
-
     public static void PersistFrame(this StatePersister persister, ref uint value, [CallerArgumentExpression("value")] string name = "")
     {
         persister.PersistFieldName(name);

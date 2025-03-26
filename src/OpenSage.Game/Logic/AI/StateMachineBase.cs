@@ -21,7 +21,7 @@ internal abstract class StateMachineBase : IPersistableObject
     private uint _currentStateId;
     internal State? CurrentState { get; private set; }
 
-    private uint _targetObjectId;
+    private ObjectId _targetObjectId;
     private Vector3 _targetPosition;
     private bool _unknownBool1;
     private bool _unknownBool2;
@@ -100,7 +100,7 @@ internal abstract class StateMachineBase : IPersistableObject
         reader.SkipUnknownBytes(1);
 
         reader.PersistObject(CurrentState);
-        reader.PersistObjectID(ref _targetObjectId);
+        reader.PersistObjectId(ref _targetObjectId);
         reader.PersistVector3(ref _targetPosition);
         reader.PersistBoolean(ref _unknownBool1);
         reader.PersistBoolean(ref _unknownBool2);

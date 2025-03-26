@@ -121,9 +121,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private readonly Dictionary<string, AttributeModifier> _attributeModifiers;
 
-    private uint _id;
+    private ObjectId _id;
 
-    public uint ID
+    public ObjectId Id
     {
         get => _id;
         internal set
@@ -161,8 +161,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private bool _objectMoved;
 
-    public uint CreatedByObjectID;
-    public uint BuiltByObjectID;
+    public ObjectId CreatedByObjectID;
+    public ObjectId BuiltByObjectID;
 
     private BitArray<ObjectStatus> _status = new();
     private byte _scriptStatus;
@@ -190,11 +190,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private BitArray<DisabledType> _disabledTypes = new();
     private readonly LogicFrame[] _disabledTypesFrames = new LogicFrame[9];
     public readonly ObjectVeterancyHelper VeterancyHelper;
-    private uint _containerId;
-    public uint ContainerId => _containerId;
+    private ObjectId _containerId;
+    public ObjectId ContainerId => _containerId;
     private uint _containedFrame;
 
-    public GameObject ContainedBy => _containerId != 0
+    public GameObject ContainedBy => _containerId.IsValid
         ? _gameEngine.GameLogic.GetObjectById(_containerId)
         : null;
 
@@ -204,7 +204,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private PolygonTriggerState[] _polygonTriggersState;
     private int _unknown5;
     private uint _unknownFrame;
-    public uint HealedByObjectId;
+    public ObjectId HealedByObjectId;
     public uint HealedEndFrame;
     private BitArray<WeaponBonusType> _weaponBonusTypes = new();
     private byte _weaponSomethingPrimary;
@@ -278,7 +278,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
                 DamageType = damageType,
                 DamageToDeal = (float)amount,
                 DeathType = deathType,
-                DamageDealer = damageDealer?.ID ?? 0,
+                DamageDealer = damageDealer.Id,
             }
         };
         AttemptDamage(ref damageInfo);
@@ -304,7 +304,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public void Heal(Fix64 amount, GameObject healer)
     {
         _body.Heal(amount, healer);
-        HealedByObjectId = healer?.ID ?? 0;
+        HealedByObjectId = healer.Id;
     }
 
     /// <summary>
@@ -1510,7 +1510,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         _status.Set(ObjectStatus.Unselectable, !selectable);
     }
 
-    internal void AddToContainer(uint containerId)
+    internal void AddToContainer(ObjectId containerId)
     {
         _containerId = containerId;
         _containedFrame = _gameEngine.GameLogic.CurrentFrame.Value;
@@ -1525,7 +1525,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal void RemoveFromContainer()
     {
-        _containerId = 0;
+        _containerId = ObjectId.Invalid;
         _containedFrame = 0;
         UnDisable(DisabledType.Held);
         Hidden = false;
@@ -1647,15 +1647,15 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal void SetBeingHealed(GameObject healer, uint endFrame)
     {
-        HealedByObjectId = healer.ID;
+        HealedByObjectId = healer.Id;
         HealedEndFrame = endFrame;
     }
 
     private void VerifyHealer()
     {
-        if (HealedByObjectId != 0 && (IsFullHealth || _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame))
+        if (HealedByObjectId.IsValid && (IsFullHealth || _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame))
         {
-            HealedByObjectId = 0;
+            HealedByObjectId = ObjectId.Invalid;
             HealedEndFrame = 0; // todo: is this reset?
         }
     }
@@ -1674,11 +1674,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         var version = reader.PersistVersion(9);
 
-        var id = ID;
-        reader.PersistObjectID(ref id, "ObjectId");
+        var id = Id;
+        reader.PersistObjectId(ref id, "ObjectId");
         if (reader.Mode == StatePersistMode.Read)
         {
-            ID = id;
+            Id = id;
         }
 
         var transform = reader.Mode == StatePersistMode.Write
@@ -1696,8 +1696,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         Owner = Team.Template.Owner;
 
-        reader.PersistObjectID(ref CreatedByObjectID);
-        reader.PersistUInt32(ref BuiltByObjectID);
+        reader.PersistObjectId(ref CreatedByObjectID);
+        reader.PersistObjectId(ref BuiltByObjectID);
 
         var drawableId = Drawable.ID;
         reader.PersistUInt32(ref drawableId);
@@ -1756,7 +1756,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
 
         reader.PersistObject(VeterancyHelper);
-        reader.PersistObjectID(ref _containerId);
+        reader.PersistObjectId(ref _containerId);
         reader.PersistFrame(ref _containedFrame);
 
         // TODO: This goes up to 100, not 1, as other code in GameObject expects
@@ -1838,7 +1838,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
         reader.EndArray();
 
-        reader.PersistObjectID(ref HealedByObjectId);
+        reader.PersistObjectId(ref HealedByObjectId);
         reader.PersistFrame(ref HealedEndFrame);
         reader.PersistBitArray(ref WeaponSetConditions);
         reader.PersistBitArrayAsUInt32(ref _weaponBonusTypes);
@@ -2015,7 +2015,7 @@ public sealed class ObjectVeterancyHelper : IPersistableObject
 {
     public VeterancyLevel VeterancyLevel;
     public int ExperiencePoints;
-    private uint _experienceSinkObjectId;
+    private ObjectId _experienceSinkObjectId;
     public float ExperienceScalar = 1;
 
     public bool ShowRankUpAnimation;
@@ -2031,7 +2031,7 @@ public sealed class ObjectVeterancyHelper : IPersistableObject
 
     public bool GainExperience(int experience)
     {
-        if (_experienceSinkObjectId > 0)
+        if (_experienceSinkObjectId.IsValid)
         {
             var experienceSink = _gameObjectCollection.GetObjectById(_experienceSinkObjectId);
             experienceSink?.GainExperience(experience);
@@ -2063,7 +2063,7 @@ public sealed class ObjectVeterancyHelper : IPersistableObject
 
         reader.PersistEnum(ref VeterancyLevel);
         reader.PersistInt32(ref ExperiencePoints);
-        reader.PersistObjectID(ref _experienceSinkObjectId);
+        reader.PersistObjectId(ref _experienceSinkObjectId);
         reader.PersistSingle(ref ExperienceScalar);
     }
 }

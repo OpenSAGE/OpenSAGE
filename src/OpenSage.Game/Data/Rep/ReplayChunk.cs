@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.FileFormats;
+using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Data.Rep;
@@ -54,7 +54,7 @@ public sealed class ReplayChunk
                         break;
 
                     case OrderArgumentType.ObjectId:
-                        order.AddObjectIdArgument(reader.ReadUInt32());
+                        order.AddObjectIdArgument(new ObjectId(reader.ReadUInt32()));
                         break;
 
                     case OrderArgumentType.Position:

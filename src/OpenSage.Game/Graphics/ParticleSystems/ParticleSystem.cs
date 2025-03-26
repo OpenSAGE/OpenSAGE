@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content.Loaders;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Rendering;
 using OpenSage.Utilities.Extensions;
@@ -43,8 +43,8 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
 
     private uint _systemId;
 
-    private uint _attachedToDrawableId;
-    private uint _attachedToObjectId;
+    private ObjectId _attachedToDrawableId;
+    private ObjectId _attachedToObjectId;
 
     private bool _localTransformIsIdentity = true;
     private Matrix4x3 _localTransform = Matrix4x3.Identity;
@@ -550,8 +550,8 @@ public sealed class ParticleSystem : RenderObject, IPersistableObject
         reader.PersistObject(Template.LegacyTemplate, "TemplateData");
 
         reader.PersistUInt32(ref _systemId);
-        reader.PersistUInt32(ref _attachedToDrawableId);
-        reader.PersistObjectID(ref _attachedToObjectId);
+        reader.PersistObjectId(ref _attachedToDrawableId);
+        reader.PersistObjectId(ref _attachedToObjectId);
         reader.PersistBoolean(ref _localTransformIsIdentity);
         reader.PersistMatrix4x3(ref _localTransform, readVersion: false);
         reader.PersistBoolean(ref _worldTransformIsIdentity);

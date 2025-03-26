@@ -25,7 +25,7 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
 
             foreach (var createdObject in createdObjects)
             {
-                createdObject.CreatedByObjectID = GameObject.ID;
+                createdObject.CreatedByObjectID = GameObject.Id;
                 var slavedUpdateBehaviour = createdObject.FindBehavior<SlavedUpdateModule>();
                 slavedUpdateBehaviour?.SetMaster(GameObject);
             }

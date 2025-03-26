@@ -8,7 +8,7 @@ public sealed class UnknownStateData : IPersistableObject
     private int _unknownInt2;
 
     public Vector3 TargetPosition;
-    private uint _stateTargetObjectId;
+    private ObjectId _stateTargetObjectId;
 
     private uint _unknownUInt1;
     private uint _unknownUInt2;
@@ -32,7 +32,7 @@ public sealed class UnknownStateData : IPersistableObject
         }
 
         persister.PersistVector3(ref TargetPosition); // the purpose of this target seems to vary based on the next state
-        persister.PersistObjectID(ref _stateTargetObjectId); // the purpose of this object seems to vary based on the next state
+        persister.PersistObjectId(ref _stateTargetObjectId); // the purpose of this object seems to vary based on the next state
 
         persister.SkipUnknownBytes(9);
 

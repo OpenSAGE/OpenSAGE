@@ -373,13 +373,13 @@ public sealed class ProductionUpdate : UpdateModule
 
             if (!producedAtHelipad)
             {
-                parkingPlace.ReportSpawn(producedUnit.ID);
+                parkingPlace.ReportSpawn(producedUnit.Id);
                 producedUnit.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
                 var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
                 jetAIUpdate.Base = GameObject;
                 jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
             }
-            producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad, producedUnit.ID).Matrix * GameObject.TransformMatrix);
+            producedUnit.SetTransformMatrix(parkingPlace.GetUnitCreateTransform(producedAtHelipad, producedUnit.Id).Matrix * GameObject.TransformMatrix);
             return producedUnit;
         }
 

@@ -158,4 +158,9 @@ internal sealed class JsonSaveWriter : StatePersister
     {
 
     }
+
+    public override void PersistObjectIdValue(ref ObjectId value)
+    {
+        _writer.WriteNumberValue(value.Index);
+    }
 }

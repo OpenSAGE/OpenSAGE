@@ -18,7 +18,7 @@ public sealed class Weapon : IPersistableObject
     private uint _unknownFrame2;
     private uint _unknownFrame3;
     private uint _unknownFrame4;
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
     private uint _unknownInt4;
     private uint _unknownInt5;
     private uint _unknownInt6;
@@ -152,7 +152,7 @@ public sealed class Weapon : IPersistableObject
         reader.PersistFrame(ref _unknownFrame2);
         reader.PersistFrame(ref _unknownFrame3);
         reader.PersistFrame(ref _unknownFrame4);
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
 
         reader.SkipUnknownBytes(4);
 

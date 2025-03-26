@@ -8,7 +8,7 @@ namespace OpenSage.Logic;
 
 public sealed class GhostObject : IPersistableObject
 {
-    public uint OriginalObjectId;
+    public ObjectId OriginalObjectId;
 
     private GameObject _gameObject;
 
@@ -43,8 +43,8 @@ public sealed class GhostObject : IPersistableObject
         reader.PersistVersion(1);
         reader.EndObject();
 
-        var objectId = _gameObject?.ID ?? 0u;
-        reader.PersistObjectID(ref objectId);
+        var objectId = _gameObject?.Id ?? ObjectId.Invalid;
+        reader.PersistObjectId(ref objectId);
         if (reader.Mode == StatePersistMode.Read)
         {
             _gameObject = reader.Game.GameLogic.GetObjectById(objectId);

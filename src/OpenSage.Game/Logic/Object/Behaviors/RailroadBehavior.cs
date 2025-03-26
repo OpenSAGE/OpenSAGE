@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class RailroadBehavior : PhysicsBehavior
 {
-    private uint _unknownObjectId;
+    private ObjectId _unknownObjectId;
     private uint _unknownInt1;
     private bool _unknownBool1;
     private bool _unknownBool2;
@@ -36,7 +36,7 @@ public sealed class RailroadBehavior : PhysicsBehavior
 
         reader.SkipUnknownBytes(4);
 
-        reader.PersistObjectID(ref _unknownObjectId);
+        reader.PersistObjectId(ref _unknownObjectId);
         reader.PersistUInt32(ref _unknownInt1);
 
         reader.SkipUnknownBytes(4);

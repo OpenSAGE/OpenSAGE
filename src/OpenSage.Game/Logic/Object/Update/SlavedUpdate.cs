@@ -17,7 +17,7 @@ public class SlavedUpdateModule : UpdateModule
     private LogicFrame _waitUntil;
     private RepairStatus _repairStatus;
 
-    private uint _parentObjectId;
+    private ObjectId _parentObjectId;
     private Vector3 _nextRelativePosition; // next coordinates relative to the parent we should move to
     private int _unknownInt; // 1, 4, 5, 9, 13
     private int _unknownInt2; // 0, 3, 6
@@ -188,7 +188,7 @@ public class SlavedUpdateModule : UpdateModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistObjectID(ref _parentObjectId);
+        reader.PersistObjectId(ref _parentObjectId);
         reader.PersistVector3(ref _nextRelativePosition);
 
         reader.PersistInt32(ref _unknownInt);
@@ -202,7 +202,7 @@ public class SlavedUpdateModule : UpdateModule
     public void SetMaster(GameObject gameObject)
     {
         _master = gameObject;
-        _parentObjectId = gameObject.ID;
+        _parentObjectId = gameObject.Id;
     }
 }
 

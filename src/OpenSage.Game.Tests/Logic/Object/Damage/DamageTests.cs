@@ -38,7 +38,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(0u, data.DamageDealer);
+        Assert.Equal(ObjectId.Invalid, data.DamageDealer);
         Assert.Equal(0, data.Unknown1);
         Assert.Equal(DamageType.Explosion, data.DamageType); // this is correct - a DamageType of 0 is Explosion (see Generals_DamageDataRequest_Tomahawk)
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -60,7 +60,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(7u, data.DamageDealer);
+        Assert.Equal(new ObjectId(7u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -82,7 +82,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(15u, data.DamageDealer);
+        Assert.Equal(new ObjectId(15u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.Explosion, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -104,7 +104,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(17u, data.DamageDealer);
+        Assert.Equal(new ObjectId(17u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.ComancheVulcan, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -126,7 +126,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(5u, data.DamageDealer);
+        Assert.Equal(new ObjectId(5u), data.DamageDealer);
         Assert.Equal(0, data.Unknown1);
         Assert.Equal(DamageType.Healing, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -148,7 +148,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(5u, data.DamageDealer);
+        Assert.Equal(new ObjectId(5u), data.DamageDealer);
         Assert.Equal(0, data.Unknown1);
         Assert.Equal(DamageType.Flame, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -170,7 +170,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(7u, data.DamageDealer);
+        Assert.Equal(new ObjectId(7u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.Explosion, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -192,7 +192,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(28u, data.DamageDealer);
+        Assert.Equal(new ObjectId(28u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.Poison, data.DamageType);
         Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
@@ -214,7 +214,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(0u, data.DamageDealer);
+        Assert.Equal(ObjectId.Invalid, data.DamageDealer);
         Assert.Equal(0, data.Unknown1);
         Assert.Equal(DamageType.Explosion, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageTypeUnknown); // unclear what this is
@@ -237,7 +237,7 @@ public class DamageTests : StatePersisterTest
         var data = new DamageDataRequest();
         data.Persist(reader);
 
-        Assert.Equal(5u, data.DamageDealer);
+        Assert.Equal(new ObjectId(5u), data.DamageDealer);
         Assert.Equal(4, data.Unknown1);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageTypeUnknown); // unclear what this is

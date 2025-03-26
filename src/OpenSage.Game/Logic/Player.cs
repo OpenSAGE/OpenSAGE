@@ -820,27 +820,27 @@ public sealed class SupplyManager : IPersistableObject
 
     public void AddSupplyCenter(GameObject supplyCenter)
     {
-        _supplyCenters.Add(supplyCenter.ID);
+        _supplyCenters.Add(supplyCenter.Id);
     }
 
     public void RemoveSupplyCenter(GameObject supplyCenter)
     {
-        _supplyCenters.Remove(supplyCenter.ID);
+        _supplyCenters.Remove(supplyCenter.Id);
     }
 
     public void AddSupplyWarehouse(GameObject supplyWarehouse)
     {
-        _supplyWarehouses.Add(supplyWarehouse.ID);
+        _supplyWarehouses.Add(supplyWarehouse.Id);
     }
 
     public void RemoveSupplyWarehouse(GameObject supplyWarehouse)
     {
-        _supplyWarehouses.Remove(supplyWarehouse.ID);
+        _supplyWarehouses.Remove(supplyWarehouse.Id);
     }
 
     public bool Contains(GameObject supplyCenter)
     {
-        return _supplyCenters.Contains(supplyCenter.ID);
+        return _supplyCenters.Contains(supplyCenter.Id);
     }
 
     public GameObject? FindClosestSupplyCenter(GameObject supplyGatherer)
@@ -998,7 +998,7 @@ public sealed class UpgradeSet : HashSet<UpgradeTemplate>, IPersistableObject
     }
 }
 
-public sealed class ObjectIdSet : HashSet<uint>, IPersistableObject
+public sealed class ObjectIdSet : HashSet<ObjectId>, IPersistableObject
 {
     public void Persist(StatePersister persister)
     {
@@ -1006,9 +1006,9 @@ public sealed class ObjectIdSet : HashSet<uint>, IPersistableObject
 
         persister.PersistHashSet(
             this,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistUInt32Value(ref item);
+                persister.PersistObjectIdValue(ref item);
             },
             "Values");
     }
@@ -1099,7 +1099,7 @@ public sealed class BankAccount(IGame game, Player owner) : IPersistableObject
 public sealed class TunnelManager : IPersistableObject
 {
     public ObjectIdSet TunnelIds { get; } = [];
-    public List<uint> ContainedObjectIds { get; } = [];
+    public List<ObjectId> ContainedObjectIds { get; } = [];
 
     public void Persist(StatePersister reader)
     {
@@ -1109,9 +1109,9 @@ public sealed class TunnelManager : IPersistableObject
 
         reader.PersistListWithUInt32Count(
             ContainedObjectIds,
-            static (StatePersister persister, ref uint item) =>
+            static (StatePersister persister, ref ObjectId item) =>
             {
-                persister.PersistObjectIDValue(ref item);
+                persister.PersistObjectIdValue(ref item);
             });
 
         var tunnelCount = (uint)TunnelIds.Count;

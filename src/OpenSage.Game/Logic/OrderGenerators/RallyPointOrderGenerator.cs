@@ -43,7 +43,7 @@ public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
                 throw new InvalidStateException("World object null for set selection order");
             }
 
-            var setSelectionOrder = Order.CreateSetSelection(playerId, WorldObject.ID);
+            var setSelectionOrder = Order.CreateSetSelection(playerId, WorldObject.Id);
 
             return OrderGeneratorResult.SuccessAndContinue(new[] { setSelectionOrder });
         }
@@ -53,10 +53,10 @@ public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
             throw new InvalidStateException("Local player not present when setting rally point");
         }
 
-        var objectIds = new List<uint>();
+        var objectIds = new List<ObjectId>();
         foreach (var gameObject in SelectedUnits)
         {
-            objectIds.Add(gameObject.ID);
+            objectIds.Add(gameObject.Id);
         }
 
         var order = Order.CreateSetRallyPointOrder(playerId, objectIds, WorldPosition);

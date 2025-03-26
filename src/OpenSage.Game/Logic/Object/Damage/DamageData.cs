@@ -39,7 +39,7 @@ public struct DamageDataRequest : IPersistableObject
     /// <summary>
     /// Source of the damage.
     /// </summary>
-    public uint DamageDealer;
+    public ObjectId DamageDealer;
 
     public ushort Unknown1 => _unknown1; // some enum?
 
@@ -108,7 +108,7 @@ public struct DamageDataRequest : IPersistableObject
     /// <param name="deathType">Death type to apply if the target is killed from this damage</param>
     /// <param name="damageToDeal">Raw damage to apply before any armor calculations</param>
     /// <param name="damageDealerName">The object definition name of the attacker</param>
-    public DamageDataRequest(uint damageDealer, DamageType damageType, DeathType deathType, float damageToDeal, string damageDealerName)
+    public DamageDataRequest(ObjectId damageDealer, DamageType damageType, DeathType deathType, float damageToDeal, string damageDealerName)
     {
         DamageDealer = damageDealer;
         DamageType = damageType;
@@ -121,7 +121,7 @@ public struct DamageDataRequest : IPersistableObject
     {
         var version = reader.PersistVersion(3);
 
-        reader.PersistObjectID(ref DamageDealer);
+        reader.PersistObjectId(ref DamageDealer);
         reader.PersistUInt16(ref _unknown1);
         reader.PersistEnum(ref DamageType);
 

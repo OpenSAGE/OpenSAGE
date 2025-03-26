@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Numerics;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.AI.AIStates;
 
@@ -30,7 +31,7 @@ internal sealed class GuardInTunnelNetworkState : State
 
 internal sealed class GuardInTunnelNetworkStateMachine : StateMachineBase
 {
-    private uint _guardObjectId;
+    private ObjectId _guardObjectId;
     private Vector3 _guardPosition;
 
     public GuardInTunnelNetworkStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
@@ -45,7 +46,7 @@ internal sealed class GuardInTunnelNetworkStateMachine : StateMachineBase
 
         base.Persist(reader);
 
-        reader.PersistObjectID(ref _guardObjectId);
+        reader.PersistObjectId(ref _guardObjectId);
         reader.PersistVector3(ref _guardPosition);
     }
 

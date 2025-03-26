@@ -26,13 +26,13 @@ internal sealed class UnitOrderGenerator(Game game) : OrderGenerator(game)
     public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
     {
         var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
-        var targetId = WorldObject?.ID ?? 0;
+        var targetId = WorldObject?.Id ?? ObjectId.Invalid;
 
         // TODO: handle hordes properly
         var order = _currentOrder switch
         {
             OrderType.SetSelection => Order.CreateSetSelection(playerId, targetId),
-            OrderType.SetRallyPoint => Order.CreateSetRallyPointOrder(playerId, SelectedUnits!.Select(u => u.ID).ToList(), WorldPosition),
+            OrderType.SetRallyPoint => Order.CreateSetRallyPointOrder(playerId, SelectedUnits!.Select(u => u.Id).ToList(), WorldPosition),
             OrderType.AttackObject => Order.CreateAttackObject(playerId, targetId, false),
             OrderType.ForceAttackObject => Order.CreateAttackObject(playerId, targetId, true),
             OrderType.ForceAttackGround => Order.CreateAttackGround(playerId, WorldPosition),

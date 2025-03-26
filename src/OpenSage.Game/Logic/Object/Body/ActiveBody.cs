@@ -138,7 +138,7 @@ public class ActiveBody : BodyModule
                 DamageType = DamageType.Healing,
                 DeathType = DeathType.None,
                 DamageToDeal = (float)amount,
-                DamageDealer = healer.ID,
+                DamageDealer = healer.Id,
             }
         };
         AttemptDamage(ref damageInfo);

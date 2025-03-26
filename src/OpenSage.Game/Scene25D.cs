@@ -31,7 +31,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
         // The AssetViewer has no LocalPlayer
         if (LocalPlayer != null)
         {
-            HashSet<uint> propagandizedUnits = [];
+            HashSet<ObjectId> propagandizedUnits = [];
 
             foreach (var obj in GameObjects.Objects)
             {
@@ -66,7 +66,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
                 DrawPips(drawingContext, obj, focused);
 
                 // todo: break out animations?
-                if (propagandizedUnits.Contains(obj.ID))
+                if (propagandizedUnits.Contains(obj.Id))
                 {
                     // todo: not sure how this visually stacks with other items
                     // todo: subliminal vs enthusiastic
@@ -79,7 +79,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
 
                 var healType = obj.IsKindOf(ObjectKinds.Structure) ? AnimationType.StructureHeal :
                     obj.IsKindOf(ObjectKinds.Vehicle) ? AnimationType.VehicleHeal : AnimationType.DefaultHeal;
-                if (!obj.IsKindOf(ObjectKinds.NoHealIcon) && obj.HealedByObjectId > 0)
+                if (!obj.IsKindOf(ObjectKinds.NoHealIcon) && obj.HealedByObjectId.IsValid)
                 {
                     // todo: how to tell if a unit is being healed by itself?
                     // a unit can be healing itself (usually from an upgrade like junk repair or veterancy, where healedbyobjectid is 0),

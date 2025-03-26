@@ -182,14 +182,15 @@ public sealed class LuaScriptEngine : GameSystem
         //Add code here
     }
 
-    public uint GetLuaObjectID(string gameObject)
+    public ObjectId GetLuaObjectID(string gameObject)
     {
-        return uint.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
+        var parsed = uint.Parse(gameObject.Replace("ObjID#", ""), System.Globalization.NumberStyles.HexNumber);
+        return new ObjectId(parsed);
     }
 
-    public string GetLuaObjectIndex(uint ObjectID)
+    public string GetLuaObjectIndex(ObjectId objectId)
     {
-        return string.Concat("ObjID#", ObjectID.ToString("X8"));
+        return string.Concat("ObjID#", objectId.Index.ToString("X8"));
     }
 
     public string Spawn(string objectType)  //quick spawn
@@ -204,7 +205,7 @@ public sealed class LuaScriptEngine : GameSystem
         var startingBuilding = Game.Scene3D.GameObjects.CreateObject(playerTemplate.StartingBuilding.Value, Game.Scene3D.LocalPlayer);
         spawnUnitPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, startingBuilding.Rotation) * startingBuilding.Definition.Geometry.Shapes[0].MajorRadius;
         spawnUnit.SetTranslation(spawnUnitPosition);
-        return GetLuaObjectIndex(spawnUnit.ID);
+        return GetLuaObjectIndex(spawnUnit.Id);
     }
 
     public string Spawn2(string objectType, float xPos, float yPos, float zPos, float rotation)
@@ -218,7 +219,7 @@ public sealed class LuaScriptEngine : GameSystem
         var rot = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, Mathematics.MathUtility.ToRadians(rotation));
         spawnPosition += System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, rot);
         spawnUnit.SetTranslation(spawnPosition);
-        return GetLuaObjectIndex(spawnUnit.ID);
+        return GetLuaObjectIndex(spawnUnit.Id);
     }
 
     public string GetActionNameVariant(string action, int variant)

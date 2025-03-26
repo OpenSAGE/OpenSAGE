@@ -35,12 +35,12 @@ public sealed class AssaultTransportAIUpdate : AIUpdate
 
     private struct AssaultTransportMember : IPersistableObject
     {
-        public uint ObjectId;
+        public ObjectId ObjectId;
         public bool Unknown;
 
         public void Persist(StatePersister persister)
         {
-            persister.PersistObjectID(ref ObjectId);
+            persister.PersistObjectId(ref ObjectId);
             persister.PersistBoolean(ref Unknown);
         }
     }

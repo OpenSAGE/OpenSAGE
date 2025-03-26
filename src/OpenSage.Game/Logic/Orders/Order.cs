@@ -46,7 +46,7 @@ public sealed class Order
             new OrderArgumentValue { Boolean = value }));
     }
 
-    public void AddObjectIdArgument(uint value)
+    public void AddObjectIdArgument(ObjectId value)
     {
         _arguments.Add(new OrderArgument(
             OrderArgumentType.ObjectId,
@@ -100,7 +100,7 @@ public sealed class Order
         return new Order(playerId, OrderType.ClearSelection);
     }
 
-    public static Order CreateSetSelection(int playerId, uint objectId)
+    public static Order CreateSetSelection(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.SetSelection);
 
@@ -111,7 +111,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSetSelection(int playerId, IEnumerable<uint> objectIds)
+    public static Order CreateSetSelection(int playerId, IEnumerable<ObjectId> objectIds)
     {
         var order = new Order(playerId, OrderType.SetSelection);
 
@@ -135,7 +135,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSetRallyPointOrder(int playerId, List<uint> objectIds, in Vector3 targetPosition)
+    public static Order CreateSetRallyPointOrder(int playerId, List<ObjectId> objectIds, in Vector3 targetPosition)
     {
         var order = new Order(playerId, OrderType.SetRallyPoint);
 
@@ -167,7 +167,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateResumeBuild(int playerId, uint objectId)
+    public static Order CreateResumeBuild(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.ResumeBuild);
 
@@ -185,7 +185,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateAttackObject(int playerId, uint objectId, bool force)
+    public static Order CreateAttackObject(int playerId, ObjectId objectId, bool force)
     {
         var order = new Order(playerId, force ? OrderType.ForceAttackObject : OrderType.AttackObject);
 
@@ -194,7 +194,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSpecialPower(int playerId, int specialPowerId, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
+    public static Order CreateSpecialPower(int playerId, int specialPowerId, SpecialPowerOrderFlags orderFlags, ObjectId commandCenterId)
     {
         var order = new Order(playerId, OrderType.SpecialPower);
 
@@ -205,7 +205,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSpecialPowerAtObject(int playerId, int specialPowerId, uint targetId, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
+    public static Order CreateSpecialPowerAtObject(int playerId, int specialPowerId, ObjectId targetId, SpecialPowerOrderFlags orderFlags, ObjectId commandCenterId)
     {
         var order = new Order(playerId, OrderType.SpecialPowerAtObject);
 
@@ -217,32 +217,32 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position, SpecialPowerOrderFlags orderFlags, uint commandCenterId)
+    public static Order CreateSpecialPowerAtLocation(int playerId, int specialPowerId, in Vector3 position, SpecialPowerOrderFlags orderFlags, ObjectId commandCenterId)
     {
         var order = new Order(playerId, OrderType.SpecialPowerAtLocation);
 
         order.AddIntegerArgument(specialPowerId);
         order.AddPositionArgument(position);
-        order.AddObjectIdArgument(0); // todo: unknown
+        order.AddObjectIdArgument(ObjectId.Invalid); // todo: unknown
         order.AddIntegerArgument((int)orderFlags);
         order.AddObjectIdArgument(commandCenterId);
 
         return order;
     }
 
-    public static Order CreateEnter(int playerId, uint objectId)
+    public static Order CreateEnter(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.Enter);
 
         // TODO: Figure this out.
-        order.AddObjectIdArgument(0);
+        order.AddObjectIdArgument(ObjectId.Invalid);
 
         order.AddObjectIdArgument(objectId);
 
         return order;
     }
 
-    public static Order CreateRepairVehicle(int playerId, uint objectId)
+    public static Order CreateRepairVehicle(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.RepairVehicle);
 
@@ -251,7 +251,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateRepairStructure(int playerId, uint objectId)
+    public static Order CreateRepairStructure(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.RepairStructure);
 
@@ -260,7 +260,7 @@ public sealed class Order
         return order;
     }
 
-    public static Order CreateSupplyGatherDump(int playerId, uint objectId)
+    public static Order CreateSupplyGatherDump(int playerId, ObjectId objectId)
     {
         var order = new Order(playerId, OrderType.GatherDumpSupplies);
 

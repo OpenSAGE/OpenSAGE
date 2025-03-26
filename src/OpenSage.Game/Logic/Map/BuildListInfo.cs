@@ -3,6 +3,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.FileFormats;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.Map;
 
@@ -52,8 +53,8 @@ public sealed class BuildListInfo : IPersistableObject
     private bool _automaticallyBuild = true;
     public bool AutomaticallyBuild { get => _automaticallyBuild; private set => _automaticallyBuild = value; }
 
-    private uint _objectId;
-    public uint ObjectId { get => _objectId; private set => _objectId = value; }
+    private ObjectId _objectId;
+    public ObjectId objectId { get => _objectId; private set => _objectId = value; }
 
     private uint _objectTimestamp;
     public uint ObjectTimestamp { get => _objectTimestamp; private set => _objectTimestamp = value; }
@@ -108,7 +109,7 @@ public sealed class BuildListInfo : IPersistableObject
         reader.PersistBoolean(ref _unsellable);
         reader.PersistBoolean(ref _repairable);
         reader.PersistBoolean(ref _automaticallyBuild);
-        reader.PersistObjectID(ref _objectId);
+        reader.PersistObjectId(ref _objectId);
         reader.PersistUInt32(ref _objectTimestamp);
         reader.PersistBoolean(ref _underConstruction);
         reader.PersistArray(

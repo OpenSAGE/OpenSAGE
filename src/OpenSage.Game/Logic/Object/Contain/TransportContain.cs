@@ -96,7 +96,7 @@ public class TransportContain : OpenContainModule
         return true;
     }
 
-    protected override bool TryEvacUnit(LogicFrame currentFrame, uint unitId)
+    protected override bool TryEvacUnit(LogicFrame currentFrame, ObjectId unitId)
     {
         if (_nextEvacAllowedAfter < currentFrame)
         {

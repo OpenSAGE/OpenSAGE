@@ -106,11 +106,11 @@ internal sealed class GameClient : DisposableBase, IPersistableObject
 
                 reader.BeginSegment(objectDefinition.Name);
 
-                var objectID = 0u;
-                reader.PersistUInt32(ref objectID);
+                var objectId = ObjectId.Invalid;
+                reader.PersistObjectId(ref objectId);
 
-                var drawable = objectID != 0u
-                    ? _game.GameLogic.GetObjectById(objectID).Drawable
+                var drawable = objectId.IsValid
+                    ? _game.GameLogic.GetObjectById(objectId).Drawable
                     : CreateDrawable(objectDefinition, null);
 
                 reader.PersistObject(drawable);
@@ -136,8 +136,8 @@ internal sealed class GameClient : DisposableBase, IPersistableObject
 
                 reader.BeginSegment(drawable.Definition.Name);
 
-                var objectID = drawable.GameObjectID;
-                reader.PersistUInt32(ref objectID);
+                var objectId = drawable.GameObjectID;
+                reader.PersistObjectId(ref objectId);
 
                 reader.PersistObject(drawable);
 
