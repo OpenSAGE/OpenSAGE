@@ -9,7 +9,36 @@ public interface IRandom
 
     void Initialize(uint seed);
 
+    /// <summary>
+    /// Returns a random integer that is within a specified range.
+    /// </summary>
+    /// <param name="lo">The inclusive lower bound of the random number returned.</param>
+    /// <param name="hi">The inclusive upper bound of the random number returned.
+    /// <paramref name="hi"/> must be greater than or equal to
+    /// <paramref name="lo"/>.</param>
+    /// <returns>
+    /// A 32-bit signed integer greater than or equal to <paramref name="lo"/>
+    /// and less than or equal to <paramref name="hi"/>; that is, the range of
+    /// return values includes both <paramref name="lo"/> and <paramref name="hi"/>.
+    /// If <paramref name="lo"/> equals <paramref name="hi"/>, <paramref name="lo"/>
+    /// is returned.
+    /// </returns>
     int Next(int lo, int hi);
+
+    /// <summary>
+    /// Returns a random floating-point number that is within a specified range.
+    /// </summary>
+    /// <param name="lo">The inclusive lower bound of the random number returned.</param>
+    /// <param name="hi">The inclusive upper bound of the random number returned.
+    /// <paramref name="hi"/> must be greater than or equal to
+    /// <paramref name="lo"/>.</param>
+    /// <returns>
+    /// A 32-bit floating-point number greater than or equal to <paramref name="lo"/>
+    /// and less than or equal to <paramref name="hi"/>; that is, the range of
+    /// return values includes both <paramref name="lo"/> and <paramref name="hi"/>.
+    /// If <paramref name="lo"/> equals <paramref name="hi"/>, <paramref name="lo"/>
+    /// is returned.
+    /// </returns>
     float NextSingle(float lo, float hi);
 }
 
