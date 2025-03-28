@@ -22,4 +22,6 @@ public sealed class VeterancyValues
     }
 
     public int[] Values { get; private set; }
+
+    public int this[VeterancyLevel level] => Values[(int)level];
 }

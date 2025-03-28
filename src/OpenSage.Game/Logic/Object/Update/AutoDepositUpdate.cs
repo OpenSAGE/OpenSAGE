@@ -45,7 +45,7 @@ internal sealed class AutoDepositUpdate : UpdateModule
             GameObject.Owner.BankAccount.Deposit(amount);
             if (!_moduleData.GiveNoXP)
             {
-                GameObject.GainExperience((int)amount);
+                GameObject.ExperienceTracker.AddExperiencePoints((int)amount);
             }
         }
     }

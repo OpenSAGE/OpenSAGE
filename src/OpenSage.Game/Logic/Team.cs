@@ -27,6 +27,26 @@ public sealed class Team : IPersistableObject
         Id = id;
     }
 
+    public Player ControllingPlayer => Template.Owner;
+
+    public RelationshipType GetRelationship(Team that)
+    {
+        // Check team override
+        if (TeamToTeamRelationships.TryGetValue(that.Id, out var relationship))
+        {
+            return relationship;
+        }
+
+        // Check player override
+        if (TeamToPlayerRelationships.TryGetValue(ControllingPlayer.Id, out relationship))
+        {
+            return relationship;
+        }
+
+        // Otherwise use player's personal relationship
+        return ControllingPlayer.GetRelationship(that);
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(1);

@@ -299,24 +299,24 @@ public sealed class GeneralsControlBar : IControlBar
 
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        protected Image? RankOverlayLarge(GeneralsControlBar controlBar, int rank)
+        protected Image? RankOverlayLarge(GeneralsControlBar controlBar, VeterancyLevel rank)
         {
             return rank switch
             {
-                1 => controlBar.Rank1OverlayLarge,
-                2 => controlBar.Rank2OverlayLarge,
-                3 => controlBar.Rank3OverlayLarge,
+                VeterancyLevel.Veteran => controlBar.Rank1OverlayLarge,
+                VeterancyLevel.Elite => controlBar.Rank2OverlayLarge,
+                VeterancyLevel.Heroic => controlBar.Rank3OverlayLarge,
                 _ => null,
             };
         }
 
-        protected Image? RankOverlaySmall(GeneralsControlBar controlBar, int rank)
+        protected Image? RankOverlaySmall(GeneralsControlBar controlBar, VeterancyLevel rank)
         {
             return rank switch
             {
-                1 => controlBar.Rank1OverlaySmall,
-                2 => controlBar.Rank2OverlaySmall,
-                3 => controlBar.Rank3OverlaySmall,
+                VeterancyLevel.Veteran => controlBar.Rank1OverlaySmall,
+                VeterancyLevel.Elite => controlBar.Rank2OverlaySmall,
+                VeterancyLevel.Heroic => controlBar.Rank3OverlaySmall,
                 _ => null,
             };
         }
@@ -401,7 +401,7 @@ public sealed class GeneralsControlBar : IControlBar
                 .FirstOrDefault(d => d.ScienceRequired == null || player.HasScience(d.ScienceRequired.Value)) // take the first one that actively applies
                 ?.StartingLevel ?? VeterancyLevel.Regular; // or default to regular if there isn't one
 
-            return RankOverlaySmall(controlBar, (int)startingVeterancy);
+            return RankOverlaySmall(controlBar, startingVeterancy);
         }
 
         protected void ApplyCommandSet(Player player, GameObject selectedUnit, GeneralsControlBar controlBar, CommandSet commandSet)

@@ -23,9 +23,9 @@ public class ExperienceUpdate : UpdateModule
     private void Initialize(BehaviorUpdateContext context)
     {
         // not sure why the required experience for rank 1 is 1 instead of 0
-        if (GameObject.ExperienceValue == 0)
+        if (GameObject.ExperienceTracker.CurrentExperience == 0)
         {
-            GameObject.ExperienceValue = 1;
+            GameObject.ExperienceTracker.SetExperienceAndLevel(1);
         }
 
         _experienceLevels = FindRelevantExperienceLevels(context);
@@ -35,7 +35,7 @@ public class ExperienceUpdate : UpdateModule
             GameObject.ExperienceRequiredForNextLevel = _nextLevel.RequiredExperience;
             ObjectGainsExperience = true;
 
-            while (GameObject.Rank >= _nextLevel.Rank)
+            while ((int)GameObject.Rank >= _nextLevel.Rank)
             {
                 levelUp();
             }
@@ -53,7 +53,7 @@ public class ExperienceUpdate : UpdateModule
         }
 
         if (_experienceLevels == null || _experienceLevels.Count == 0
-            || GameObject.ExperienceValue < _nextLevel.RequiredExperience)
+            || GameObject.ExperienceTracker.CurrentExperience < _nextLevel.RequiredExperience)
         {
             return;
         }
@@ -66,8 +66,7 @@ public class ExperienceUpdate : UpdateModule
                 context.GameEngine));
         }
 
-        GameObject.ExperienceValue -= _nextLevel.RequiredExperience;
-        GameObject.Rank = _nextLevel.Rank; GameObject.Rank = _nextLevel.Rank;
+        GameObject.ExperienceTracker.SetVeterancyLevel((VeterancyLevel)_nextLevel.Rank, false);
 
         levelUp();
     }

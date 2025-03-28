@@ -43,7 +43,7 @@ internal sealed class HackInternetState : State
 
             GameObject.ActiveCashEvent = new CashEvent(amount, new ColorRgb(0, 255, 0), new Vector3(0, 0, 20));
 
-            GameObject.GainExperience(_stateMachine.AIUpdate.ModuleData.XpPerCashUpdate);
+            GameObject.ExperienceTracker.AddExperiencePoints(_stateMachine.AIUpdate.ModuleData.XpPerCashUpdate);
         }
 
         return UpdateStateResult.Continue();
@@ -63,10 +63,10 @@ internal sealed class HackInternetState : State
 
     private int GetCashGrant(GameObject gameObject) => gameObject.Rank switch
     {
-        0 => _stateMachine.AIUpdate.ModuleData.RegularCashAmount,
-        1 => _stateMachine.AIUpdate.ModuleData.VeteranCashAmount,
-        2 => _stateMachine.AIUpdate.ModuleData.EliteCashAmount,
-        3 => _stateMachine.AIUpdate.ModuleData.HeroicCashAmount,
+        VeterancyLevel.Regular => _stateMachine.AIUpdate.ModuleData.RegularCashAmount,
+        VeterancyLevel.Veteran => _stateMachine.AIUpdate.ModuleData.VeteranCashAmount,
+        VeterancyLevel.Elite => _stateMachine.AIUpdate.ModuleData.EliteCashAmount,
+        VeterancyLevel.Heroic => _stateMachine.AIUpdate.ModuleData.HeroicCashAmount,
         _ => throw new ArgumentOutOfRangeException(nameof(GameObject.Rank)),
     };
 

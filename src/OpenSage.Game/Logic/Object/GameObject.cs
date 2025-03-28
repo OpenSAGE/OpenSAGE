@@ -189,7 +189,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private BitArray<DisabledType> _disabledTypes = new();
     private readonly LogicFrame[] _disabledTypesFrames = new LogicFrame[9];
-    public readonly ObjectVeterancyHelper VeterancyHelper;
+    public readonly ExperienceTracker ExperienceTracker;
     private ObjectId _containerId;
     public ObjectId ContainerId => _containerId;
     private uint _containedFrame;
@@ -425,33 +425,15 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private const string VeterancyUpgradeNameElite = "Upgrade_Veterancy_ELITE";
     private const string VeterancyUpgradeNameHeroic = "Upgrade_Veterancy_HEROIC";
 
-    public int Rank
+    public VeterancyLevel Rank
     {
-        get => (int)VeterancyHelper.VeterancyLevel;
+        get => ExperienceTracker.VeterancyLevel;
         set
         {
-            var rank = (VeterancyLevel)value;
-            VeterancyHelper.VeterancyLevel = rank;
-            var upgradeToApply = rank switch
-            {
-                VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
-                VeterancyLevel.Elite => VeterancyUpgradeNameElite,
-                VeterancyLevel.Heroic => VeterancyUpgradeNameHeroic,
-                _ => null,
-            };
-            // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
-            if (upgradeToApply != null)
-            {
-                Upgrade(_gameEngine.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
-            }
+            ExperienceTracker.SetVeterancyLevel(value);
         }
     }
 
-    public int ExperienceValue
-    {
-        get => VeterancyHelper.ExperiencePoints;
-        set => VeterancyHelper.ExperiencePoints = value;
-    }
     public int ExperienceRequiredForNextLevel { get; set; }
 
     public int EnergyProduction { get; internal set; }
@@ -534,7 +516,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         Hidden = false;
 
         Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
-        VeterancyHelper = new ObjectVeterancyHelper(this, gameContext.GameLogic);
+        ExperienceTracker = new ExperienceTracker(this, gameContext);
 
         _attributeModifiers = new Dictionary<string, AttributeModifier>();
         _gameEngine = gameContext;
@@ -1629,22 +1611,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         Owner.DeselectUnit(this);
     }
 
-    internal void GainExperience(int experience)
-    {
-        if (!Definition.IsTrainable)
-        {
-            return;
-        }
-
-        var shouldPromote = VeterancyHelper.GainExperience(experience);
-
-        if (shouldPromote)
-        {
-            _gameEngine.AudioSystem.PlayAudioEvent(this,
-                _gameEngine.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value);
-        }
-    }
-
     internal void SetBeingHealed(GameObject healer, uint endFrame)
     {
         HealedByObjectId = healer.Id;
@@ -1668,6 +1634,54 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public void RemoveWeaponBonusType(WeaponBonusType bonusType)
     {
         _weaponBonusTypes.Set(bonusType, false);
+    }
+
+    public bool IsUndetectedDefector => _privateStatus.HasFlag(ObjectPrivateStatusFlags.UndetectedDefector);
+
+    public RelationshipType GetRelationship(GameObject that)
+    {
+        if (Team == null || that == null)
+        {
+            return RelationshipType.Neutral;
+        }
+
+        if (IsUndetectedDefector)
+        {
+            // so my AI does not give away my position by auto acquire
+            return RelationshipType.Neutral;
+        }
+        else if (that.IsUndetectedDefector)
+        {
+            // so I treat undetecteddefectors like they were my very own
+            return RelationshipType.Allies;
+        }
+        else
+        {
+            return Team.GetRelationship(that.Team);
+        }
+    }
+
+    public void OnVeterancyLevelChanged(VeterancyLevel oldLevel, VeterancyLevel newLevel, bool provideFeedback = true)
+    {
+        // TODO(Port): Implement this properly.
+
+        var upgradeToApply = newLevel switch
+        {
+            VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
+            VeterancyLevel.Elite => VeterancyUpgradeNameElite,
+            VeterancyLevel.Heroic => VeterancyUpgradeNameHeroic,
+            _ => null,
+        };
+        // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic
+        if (upgradeToApply != null)
+        {
+            Upgrade(_gameEngine.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
+        }
+
+        _gameEngine.AudioSystem.PlayAudioEvent(
+            this,
+            _gameEngine.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value
+        );
     }
 
     public void Persist(StatePersister reader)
@@ -1755,7 +1769,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             reader.SkipUnknownBytes(12);
         }
 
-        reader.PersistObject(VeterancyHelper);
+        reader.PersistObject(ExperienceTracker);
         reader.PersistObjectId(ref _containerId);
         reader.PersistFrame(ref _containedFrame);
 
@@ -1890,10 +1904,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
             ImGui.CollapsingHeader("Veterancy"))
         {
-            ImGui.LabelText("Experience", VeterancyHelper.ExperiencePoints.ToString());
-            var rank = VeterancyHelper.VeterancyLevel;
+            ImGui.LabelText("Experience", ExperienceTracker.CurrentExperience.ToString());
+            var rank = ExperienceTracker.VeterancyLevel;
             ImGuiUtility.ComboEnum("Current Rank", ref rank);
-            Rank = (int)rank;
+            Rank = rank;
         }
 
         if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
@@ -1987,7 +2001,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         /// Set to true when object defects from its team.
         /// Set to false when object attacks anything or when time runs out.
         /// </summary>
-        UndetectedDetector = 2,
+        UndetectedDefector = 2,
 
         /// <summary>
         /// Set to true if object has been captured. Otherwise, it's false.
@@ -2010,63 +2024,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 }
 
 public record struct CashEvent(int Amount, ColorRgb Color, Vector3 Offset = default);
-
-public sealed class ObjectVeterancyHelper : IPersistableObject
-{
-    public VeterancyLevel VeterancyLevel;
-    public int ExperiencePoints;
-    private ObjectId _experienceSinkObjectId;
-    public float ExperienceScalar = 1;
-
-    public bool ShowRankUpAnimation;
-
-    private readonly GameObject _gameObject;
-    private readonly IGameObjectCollection _gameObjectCollection;
-
-    internal ObjectVeterancyHelper(GameObject gameObject, IGameObjectCollection gameObjectCollection)
-    {
-        _gameObject = gameObject;
-        _gameObjectCollection = gameObjectCollection;
-    }
-
-    public bool GainExperience(int experience)
-    {
-        if (_experienceSinkObjectId.IsValid)
-        {
-            var experienceSink = _gameObjectCollection.GetObjectById(_experienceSinkObjectId);
-            experienceSink?.GainExperience(experience);
-            return false;
-        }
-
-        ExperiencePoints += (int)(ExperienceScalar * experience);
-        var nextRank = (int)VeterancyLevel + 1;
-
-        if (_gameObject.Definition.ExperienceRequired == null || nextRank >= _gameObject.Definition.ExperienceRequired.Values.Length)
-        {
-            return false; // nothing left for us to gain
-        }
-
-        var xpForNextRank = _gameObject.Definition.ExperienceRequired.Values[nextRank];
-        if (ExperiencePoints >= xpForNextRank)
-        {
-            VeterancyLevel = (VeterancyLevel)nextRank;
-            ShowRankUpAnimation = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    public void Persist(StatePersister reader)
-    {
-        reader.PersistVersion(1);
-
-        reader.PersistEnum(ref VeterancyLevel);
-        reader.PersistInt32(ref ExperiencePoints);
-        reader.PersistObjectId(ref _experienceSinkObjectId);
-        reader.PersistSingle(ref ExperienceScalar);
-    }
-}
 
 internal struct PolygonTriggerState : IPersistableObject
 {

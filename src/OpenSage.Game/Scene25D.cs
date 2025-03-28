@@ -211,7 +211,7 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
             DrawBar(
                 experienceBoxRect,
                 new ColorRgba(255, 255, 0, 255).ToColorRgbaF(),
-                gameObject.ExperienceValue / (float)gameObject.ExperienceRequiredForNextLevel);
+                gameObject.ExperienceTracker.CurrentExperience / (float)gameObject.ExperienceTracker.ExperienceRequiredForNextLevel);
         }
     }
 
