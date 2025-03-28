@@ -1133,7 +1133,7 @@ public sealed class GameData : BaseSingletonAsset
 
     public WeaponBonusSet WeaponBonuses { get; } = new WeaponBonusSet();
 
-    public Percentage[] HealthBonus { get; private set; } = new Percentage[EnumUtility.GetEnumCount<VeterancyLevel>()];
+    public Percentage[] HealthBonus { get; private set; } = new Percentage[EnumUtility.GetEnumValueLength<VeterancyLevel>()];
 
     public Percentage HumanSoloPlayerHealthBonusEasy { get; private set; }
     public Percentage HumanSoloPlayerHealthBonusNormal { get; private set; }

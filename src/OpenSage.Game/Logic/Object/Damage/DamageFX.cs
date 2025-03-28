@@ -25,8 +25,8 @@ public sealed class DamageFX : BaseAsset
         { "VeterancyMinorFX", (parser, x) => x.ParseVeterancyGroupProperty(parser, parser.ParseFXListReference, (g, v) => g.MinorFX = v) },
     };
 
-    private static readonly int NumDamageTypes = EnumUtility.GetEnumCount<DamageType>();
-    private static readonly int NumVeterancyLevels = EnumUtility.GetEnumCount<VeterancyLevel>();
+    private static readonly int NumDamageTypes = EnumUtility.GetEnumValueLength<DamageType>();
+    private static readonly int NumVeterancyLevels = EnumUtility.GetEnumValueLength<VeterancyLevel>();
 
     public DamageFXGroup[,] Groups { get; }
 
