@@ -31,11 +31,11 @@ public class GameOptionsUtil
     private readonly string _mapSelectPath;
     private readonly List<PlayerTemplate> _playableSides;
     private readonly Window _window;
-    private readonly Game _game;
+    private readonly IGame _game;
 
     public MapCache CurrentMap { get; private set; }
 
-    public GameOptionsUtil(Window window, Game game, string basePrefix)
+    public GameOptionsUtil(Window window, IGame game, string basePrefix)
     {
         _optionsPath = basePrefix + "GameOptionsMenu.wnd";
         _mapSelectPath = basePrefix + "MapSelectMenu.wnd";

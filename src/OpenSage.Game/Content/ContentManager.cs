@@ -12,7 +12,7 @@ namespace OpenSage.Content;
 
 public sealed class ContentManager : DisposableBase
 {
-    private readonly Game _game;
+    private readonly IGame _game;
 
     public SubsystemLoader SubsystemLoader { get; }
 
@@ -34,7 +34,7 @@ public sealed class ContentManager : DisposableBase
     public string Language { get; }
 
     public ContentManager(
-        Game game,
+        IGame game,
         FileSystem fileSystem,
         GraphicsDevice graphicsDevice,
         SageGame sageGame)

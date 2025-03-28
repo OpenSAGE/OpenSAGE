@@ -577,9 +577,9 @@ public delegate void ControlCallback(Control control, WndWindowMessage message, 
 public sealed class ControlCallbackContext
 {
     public WndWindowManager WindowManager { get; }
-    public Game Game { get; }
+    public IGame Game { get; }
 
-    public ControlCallbackContext(WndWindowManager windowManager, Game game)
+    public ControlCallbackContext(WndWindowManager windowManager, IGame game)
     {
         WindowManager = windowManager;
         Game = game;

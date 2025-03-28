@@ -6,14 +6,14 @@ namespace OpenSage.Tests;
 
 public class GameFixture : IDisposable
 {
-    private readonly Dictionary<SageGame, Game> _games = new();
+    private readonly Dictionary<SageGame, IGame> _games = new();
 
     public GameFixture()
     {
         Platform.Start();
     }
 
-    public Game GetGame(SageGame sageGame)
+    public IGame GetGame(SageGame sageGame)
     {
         if (!_games.TryGetValue(sageGame, out var game))
         {

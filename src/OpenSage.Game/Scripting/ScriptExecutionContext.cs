@@ -2,7 +2,7 @@
 
 public sealed class ScriptExecutionContext
 {
-    public readonly Game Game;
+    public readonly IGame Game;
 
     public ScriptingSystem Scripting => Game.Scripting;
 
@@ -10,7 +10,7 @@ public sealed class ScriptExecutionContext
 
     public Scene3D Scene => Game.Scene3D;
 
-    public ScriptExecutionContext(Game game)
+    public ScriptExecutionContext(IGame game)
     {
         Game = game;
     }

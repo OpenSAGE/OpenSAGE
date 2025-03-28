@@ -38,7 +38,7 @@ public static class NetworkDirectConnectCallbacks
         }
     }
 
-    public static void NetworkDirectConnectInit(Window window, Game game)
+    public static void NetworkDirectConnectInit(Window window, IGame game)
     {
         // Initialize player name
         var editPlayerName = (TextBox)window.Controls.FindControl(EditPlayerNamePrefix);

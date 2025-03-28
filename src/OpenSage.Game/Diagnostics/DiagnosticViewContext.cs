@@ -5,7 +5,7 @@ namespace OpenSage.Diagnostics;
 
 internal sealed class DiagnosticViewContext
 {
-    public Game Game { get; }
+    public IGame Game { get; }
     public GameWindow Window { get; }
     public ImGuiRenderer ImGuiRenderer { get; }
 
@@ -13,7 +13,7 @@ internal sealed class DiagnosticViewContext
 
     public object SelectedObject { get; set; }
 
-    public DiagnosticViewContext(Game game, GameWindow window, ImGuiRenderer imGuiRenderer)
+    public DiagnosticViewContext(IGame game, GameWindow window, ImGuiRenderer imGuiRenderer)
     {
         Game = game;
         Window = window;

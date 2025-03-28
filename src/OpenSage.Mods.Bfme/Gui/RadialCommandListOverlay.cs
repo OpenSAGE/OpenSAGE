@@ -15,7 +15,7 @@ namespace OpenSage.Mods.Bfme.Gui;
 
 public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
 {
-    Game _game;
+    IGame _game;
 
     private bool _visible;
     private Point2D _center;
@@ -26,7 +26,7 @@ public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
 
     public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
-    public RadialCommandListOverlay(Game game)
+    public RadialCommandListOverlay(IGame game)
     {
         _game = game;
         _game.InputMessageBuffer.Handlers.Add(this);
@@ -162,5 +162,5 @@ public class RadialCommandListOverlay : InputMessageHandler, ICommandListOverlay
 
 public class RadialUnitOverlaySource : ICommandListOverlaySource
 {
-    public ICommandListOverlay Create(Game game) => new RadialCommandListOverlay(game);
+    public ICommandListOverlay Create(IGame game) => new RadialCommandListOverlay(game);
 }

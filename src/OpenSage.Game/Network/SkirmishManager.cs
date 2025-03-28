@@ -145,7 +145,7 @@ public abstract class NetworkSkirmishManager : SkirmishManager
 
     protected abstract void Loop();
 
-    protected NetworkSkirmishManager(Game game, bool isHosting)
+    protected NetworkSkirmishManager(IGame game, bool isHosting)
         : base(game, isHosting)
     {
         _listener = new EventBasedNetListener();
@@ -220,7 +220,7 @@ public sealed class ClientSkirmishManager : NetworkSkirmishManager
         Settings.Slots[packet.Index].Ready = true;
     }
 
-    public ClientSkirmishManager(Game game, IPEndPoint endPoint) : base(game, isHosting: false)
+    public ClientSkirmishManager(IGame game, IPEndPoint endPoint) : base(game, isHosting: false)
     {
         _processor.SubscribeReusable<SkirmishGameStatusPacket, IPEndPoint>(SkirmishGameStatusPacketReceived);
         _processor.SubscribeReusable<SkirmishStartGamePacket>(SkirmishStartGamePacketReceived);
@@ -396,7 +396,7 @@ public sealed class HostSkirmishManager : NetworkSkirmishManager
         slot.PlayerName = packet.PlayerName;
     }
 
-    public HostSkirmishManager(Game game) : base(game, isHosting: true)
+    public HostSkirmishManager(IGame game) : base(game, isHosting: true)
     {
         _processor.SubscribeReusable<SkirmishClientConnectPacket, SkirmishSlot>(SkirmishClientConnectPacketReceived);
         _processor.SubscribeReusable<SkirmishClientUpdatePacket, SkirmishSlot>(SkirmishClientUpdatePacketReceived);

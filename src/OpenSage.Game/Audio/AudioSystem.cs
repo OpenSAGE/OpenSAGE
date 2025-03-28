@@ -28,7 +28,7 @@ public sealed class AudioSystem : GameSystem
     private string _currentTrackName;
     private SoundStream _currentTrack;
 
-    public AudioSystem(Game game) : base(game)
+    public AudioSystem(IGame game) : base(game)
     {
         _engine = AddDisposable(AudioEngine.CreateDefault());
         _3dengine = _engine.Create3DEngine();

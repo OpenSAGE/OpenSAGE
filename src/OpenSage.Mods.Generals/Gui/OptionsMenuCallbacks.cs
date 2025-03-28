@@ -24,7 +24,7 @@ public static class OptionsMenuCallbacks
         }
     }
 
-    public static void OptionsMenuInit(Window window, Game game)
+    public static void OptionsMenuInit(Window window, IGame game)
     {
         var comboBoxIP = (ComboBox)window.Controls.FindControl(ComboBoxIPPrefix);
         var items = new List<ListBoxDataItem>();

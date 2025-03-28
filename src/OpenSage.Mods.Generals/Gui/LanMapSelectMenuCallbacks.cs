@@ -13,7 +13,7 @@ public static class LanMapSelectMenuCallbacks
     private const string ListBoxMapPrefix = "LanMapSelectMenu.wnd:ListboxMap";
 
     private static Window Window;
-    private static Game Game;
+    private static IGame Game;
     private static MapCache PreviewMap;
 
     public static void LanMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -35,7 +35,7 @@ public static class LanMapSelectMenuCallbacks
         }
     }
 
-    public static void LanMapSelectMenuInit(Window window, Game game)
+    public static void LanMapSelectMenuInit(Window window, IGame game)
     {
         Window = window;
         Game = game;

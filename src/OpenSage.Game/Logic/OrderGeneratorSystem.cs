@@ -30,7 +30,7 @@ public class OrderGeneratorSystem : GameSystem
         }
     }
 
-    public OrderGeneratorSystem(Game game)
+    public OrderGeneratorSystem(IGame game)
         : base(game)
     {
         _activeGenerator = new UnitOrderGenerator(game);

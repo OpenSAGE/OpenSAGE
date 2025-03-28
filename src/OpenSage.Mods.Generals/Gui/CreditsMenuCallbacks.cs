@@ -29,7 +29,7 @@ public static class CreditsMenuCallbacks
         public RectangleF Rect;
     }
 
-    public static void CreditsMenuInit(Window window, Game game)
+    public static void CreditsMenuInit(Window window, IGame game)
     {
         var credits = game.AssetStore.Credits.Current;
 
@@ -101,7 +101,7 @@ public static class CreditsMenuCallbacks
         control.Tag = data;
     }
 
-    public static void CreditsMenuUpdate(Window window, Game game)
+    public static void CreditsMenuUpdate(Window window, IGame game)
     {
         var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
         var data = (CreditsMenuData)control.Tag;

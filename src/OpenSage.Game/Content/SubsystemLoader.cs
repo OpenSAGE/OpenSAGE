@@ -139,7 +139,7 @@ public sealed class SubsystemLoader
     private readonly FileSystem _fileSystem;
     private readonly ScopedAssetCollection<LoadSubsystem> _subsystems;
 
-    public SubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, Game game, ContentManager contentManager)
+    public SubsystemLoader(IGameDefinition gameDefinition, FileSystem fileSystem, IGame game, ContentManager contentManager)
     {
         _gameDefinition = gameDefinition;
         _contentManager = contentManager;

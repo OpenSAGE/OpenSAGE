@@ -14,7 +14,7 @@ public static class SkirmishMapSelectMenuCallbacks
     private const string ListBoxMapPrefix = "SkirmishMapSelectMenu.wnd:ListboxMap";
 
     private static MapCache PreviewMap;
-    private static Game Game;
+    private static IGame Game;
 
     public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
     {
@@ -35,7 +35,7 @@ public static class SkirmishMapSelectMenuCallbacks
         }
     }
 
-    public static void SkirmishMapSelectMenuInit(Window window, Game game)
+    public static void SkirmishMapSelectMenuInit(Window window, IGame game)
     {
         Game = game;
 

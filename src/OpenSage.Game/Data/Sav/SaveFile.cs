@@ -8,7 +8,7 @@ namespace OpenSage.Data.Sav;
 
 public static class SaveFile
 {
-    public static GameState GetGameState(FileSystemEntry entry, Game game)
+    public static GameState GetGameState(FileSystemEntry entry, IGame game)
     {
         using (var stream = entry.Open())
         {
@@ -35,13 +35,13 @@ public static class SaveFile
         throw new InvalidStateException();
     }
 
-    public static void Load(FileSystemEntry entry, Game game)
+    public static void Load(FileSystemEntry entry, IGame game)
     {
         using var stream = entry.Open();
         LoadFromStream(stream, game);
     }
 
-    public static void LoadFromStream(Stream stream, Game game)
+    public static void LoadFromStream(Stream stream, IGame game)
     {
         using var statePersister = new StateReader(stream, game);
 

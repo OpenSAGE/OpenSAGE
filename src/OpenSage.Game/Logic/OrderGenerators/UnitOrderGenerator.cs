@@ -11,7 +11,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.OrderGenerators;
 
-internal sealed class UnitOrderGenerator(Game game) : OrderGenerator(game)
+internal sealed class UnitOrderGenerator(IGame game) : OrderGenerator(game)
 {
     public override bool CanDrag => false;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
@@ -15,7 +14,6 @@ using OpenSage.Data.Sav;
 using OpenSage.Data.Wnd;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
@@ -44,8 +42,9 @@ public sealed class Game : DisposableBase, IGame
     private readonly FileSystem _fileSystem;
     private readonly WndCallbackResolver _wndCallbackResolver;
 
-    internal readonly CursorManager Cursors;
+    public CursorManager Cursors { get; }
 
+    GraphicsLoadContext IGame.GraphicsLoadContext => GraphicsLoadContext;
     internal GraphicsLoadContext GraphicsLoadContext { get; }
     public AssetStore AssetStore { get; }
 
@@ -59,7 +58,7 @@ public sealed class Game : DisposableBase, IGame
 
     public LobbyManager LobbyManager { get; }
 
-    internal List<GameSystem> GameSystems { get; }
+    public List<GameSystem> GameSystems { get; }
 
     /// <summary>
     /// Gets the graphics system.
@@ -242,7 +241,7 @@ public sealed class Game : DisposableBase, IGame
     public bool IsLogicRunning
     {
         get => _isLogicRunning;
-        internal set
+        set
         {
             _isLogicRunning = value;
             _isStepping = false;
@@ -375,20 +374,15 @@ public sealed class Game : DisposableBase, IGame
 
     public Texture LauncherImage { get; }
 
-    // currently, the only way to implement internal interface properties is explicitly
     GameLogic IGame.GameLogic => GameLogic;
-
-    internal readonly GameLogic GameLogic;
+    internal GameLogic GameLogic { get; }
 
     GameClient IGame.GameClient => GameClient;
-
-    internal readonly GameClient GameClient;
+    internal GameClient GameClient { get; }
 
     public PlayerManager PlayerManager { get; }
 
-    TeamFactory IGame.TeamFactory => TeamFactory;
-
-    internal readonly TeamFactory TeamFactory;
+    public TeamFactory TeamFactory { get; }
 
     public PartitionCellManager PartitionCellManager { get; }
 
@@ -856,7 +850,7 @@ public sealed class Game : DisposableBase, IGame
         Updating?.Invoke(this, new GameUpdatingEventArgs(RenderTime));
     }
 
-    internal void LogicTick()
+    private void LogicTick()
     {
         GameLogic.Update();
 
@@ -872,7 +866,7 @@ public sealed class Game : DisposableBase, IGame
 
     private TimeInterval GetTimeInterval() => new(MapTime.TotalTime, TimeSpan.FromMilliseconds(GameEngine.MsPerLogicFrame));
 
-    public void ToggleLogicRunning()
+    private void ToggleLogicRunning()
     {
         IsLogicRunning = !IsLogicRunning;
         _isStepping = false;
@@ -925,14 +919,14 @@ public sealed class Game : DisposableBase, IGame
     }
 
     // TODO: Move these to somewhere more suitable.
-    internal Vector2 GetTopLeftUV()
+    public Vector2 GetTopLeftUV()
     {
         return GraphicsDevice.IsUvOriginTopLeft ?
             new Vector2(0, 0) :
             new Vector2(0, 1);
     }
 
-    internal Vector2 GetBottomRightUV()
+    public Vector2 GetBottomRightUV()
     {
         return GraphicsDevice.IsUvOriginTopLeft ?
             new Vector2(1, 1) :

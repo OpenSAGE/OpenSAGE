@@ -50,7 +50,7 @@ internal sealed class RenderPipeline : DisposableBase
     public int RenderedObjectsOpaque { get; private set; }
     public int RenderedObjectsTransparent { get; private set; }
 
-    public RenderPipeline(Game game)
+    public RenderPipeline(IGame game)
     {
         _renderList = new RenderList();
 

@@ -19,10 +19,10 @@ public class Window : Control
     public WindowCallback LayoutShutdown { get; set; }
 
     public Control Root { get; }
-    public Game Game { get; set; }
+    public IGame Game { get; set; }
     public ImageLoader ImageLoader { get; }
 
-    public Window(WndFile wndFile, Game game, WndCallbackResolver wndCallbackResolver)
+    public Window(WndFile wndFile, IGame game, WndCallbackResolver wndCallbackResolver)
         : this(wndFile.RootWindow.ScreenRect.CreationResolution, game.GraphicsLoadContext)
     {
         Game = game;
@@ -41,7 +41,7 @@ public class Window : Control
         Controls.Add(Root);
     }
 
-    public Window(in Size creationResolution, Control root, Game game)
+    public Window(in Size creationResolution, Control root, IGame game)
         : this(creationResolution, game.GraphicsLoadContext)
     {
         Root = root;
@@ -113,4 +113,4 @@ public class Window : Control
     }
 }
 
-public delegate void WindowCallback(Window window, Game game);
+public delegate void WindowCallback(Window window, IGame game);

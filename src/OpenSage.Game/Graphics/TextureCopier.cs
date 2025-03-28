@@ -9,7 +9,7 @@ public sealed class TextureCopier : DisposableBase
     private readonly CommandList _commandList;
     private readonly SpriteBatch _intermediateSpriteBatch;
 
-    public TextureCopier(Game game, in OutputDescription outputDescription)
+    public TextureCopier(IGame game, in OutputDescription outputDescription)
     {
         _graphicsDevice = game.GraphicsDevice;
 

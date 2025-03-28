@@ -12,9 +12,9 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class ReplayMenuCallbacks
 {
-    private static DiskFileSystem GetReplaysFileSystem(Game game) => new(Path.Combine(game.UserDataFolder, "Replays"));
+    private static DiskFileSystem GetReplaysFileSystem(IGame game) => new(Path.Combine(game.UserDataFolder, "Replays"));
 
-    public static void ReplayMenuInit(Window window, Game game)
+    public static void ReplayMenuInit(Window window, IGame game)
     {
         var listBox = GetListBox(window);
 
@@ -40,7 +40,7 @@ public static class ReplayMenuCallbacks
         listBox.Items = newItems.ToArray();
     }
 
-    public static void ReplayMenuShutdown(Window window, Game game)
+    public static void ReplayMenuShutdown(Window window, IGame game)
     {
         // TODO
     }

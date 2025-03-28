@@ -12,10 +12,10 @@ public sealed class AptWindowManager
 
     internal Stack<AptWindow> WindowStack { get; }
     public int OpenWindowCount => WindowStack.Count;
-    public Game Game { get; }
+    public IGame Game { get; }
 
 
-    public AptWindowManager(Game game)
+    public AptWindowManager(IGame game)
     {
         Game = game;
         _inputHandler = new AptInputMessageHandler(this, Game);

@@ -28,12 +28,12 @@ public static class SkirmishGameOptionsMenuCallbacks
         }
     }
 
-    public static void SkirmishGameOptionsMenuInit(Window window, Game game)
+    public static void SkirmishGameOptionsMenuInit(Window window, IGame game)
     {
         GameOptions = new GameOptionsUtil(window, game, "Skirmish");
     }
 
-    public static void SkirmishGameOptionsMenuUpdate(Window window, Game game)
+    public static void SkirmishGameOptionsMenuUpdate(Window window, IGame game)
     {
         GameOptions.UpdateUI(window);
     }

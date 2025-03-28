@@ -13,7 +13,7 @@ public sealed class LuaScriptEngine : GameSystem
 
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public LuaScriptEngine(Game game) : base(game)
+    public LuaScriptEngine(IGame game) : base(game)
     {
         MoonSharp.Interpreter.Script.DefaultOptions.DebugPrint = text =>
         {

@@ -51,7 +51,7 @@ class LanGameOptionsMenuCallbacks
         }
     }
 
-    public static async void LanGameOptionsMenuInit(Window window, Game game)
+    public static async void LanGameOptionsMenuInit(Window window, IGame game)
     {
         GameOptions = new GameOptionsUtil(window, game, "Lan");
 
@@ -93,7 +93,7 @@ class LanGameOptionsMenuCallbacks
         }
     }
 
-    public static void LanGameOptionsMenuUpdate(Window window, Game game)
+    public static void LanGameOptionsMenuUpdate(Window window, IGame game)
     {
         GameOptions.UpdateUI(window);
     }

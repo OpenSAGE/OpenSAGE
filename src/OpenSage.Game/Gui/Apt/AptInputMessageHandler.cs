@@ -6,7 +6,7 @@ namespace OpenSage.Gui.Apt;
 public sealed class AptInputMessageHandler : InputMessageHandler
 {
     private readonly AptWindowManager _windowManager;
-    private readonly Game _game;
+    private readonly IGame _game;
 
     public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
@@ -18,7 +18,7 @@ public sealed class AptInputMessageHandler : InputMessageHandler
 
     public MouseData _MouseData;
 
-    public AptInputMessageHandler(AptWindowManager windowManager, Game game)
+    public AptInputMessageHandler(AptWindowManager windowManager, IGame game)
     {
         _game = game;
         _windowManager = windowManager;

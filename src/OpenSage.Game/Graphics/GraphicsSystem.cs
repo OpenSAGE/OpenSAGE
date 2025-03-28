@@ -13,7 +13,7 @@ public sealed class GraphicsSystem : GameSystem
     public Texture ReflectionMap => RenderPipeline.ReflectionMap;
     public Texture RefractionMap => RenderPipeline.RefractionMap;
 
-    public GraphicsSystem(Game game)
+    public GraphicsSystem(IGame game)
         : base(game)
     {
         _renderContext = new RenderContext();

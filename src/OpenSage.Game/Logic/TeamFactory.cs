@@ -5,7 +5,7 @@ namespace OpenSage.Logic;
 
 public sealed class TeamFactory : IPersistableObject
 {
-    private readonly Game _game;
+    private readonly IGame _game;
 
     private readonly List<TeamTemplate> _teamTemplates;
     private readonly Dictionary<uint, TeamTemplate> _teamTemplatesById;
@@ -13,7 +13,7 @@ public sealed class TeamFactory : IPersistableObject
 
     private uint _lastTeamId;
 
-    public TeamFactory(Game game)
+    public TeamFactory(IGame game)
     {
         _game = game;
 

@@ -14,7 +14,7 @@ public sealed class Scene2D
     public IControlBar ControlBar { get; set; }
     public ICommandListOverlay UnitOverlay { get; set; }
 
-    public Scene2D(Game game)
+    public Scene2D(IGame game)
     {
         WndWindowManager = new WndWindowManager(game);
         AptWindowManager = new AptWindowManager(game);
