@@ -5,6 +5,11 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
+/// <summary>
+/// An armor encapsulates a set of modifiers for different types of damage taken,
+/// in order to simulate different materials, and to help make game balance
+/// easier to adjust.
+/// </summary>
 public sealed class ArmorTemplate : BaseAsset
 {
     internal static ArmorTemplate Parse(IniParser parser)
@@ -54,11 +59,33 @@ public sealed class ArmorTemplate : BaseAsset
     public Percentage FlankedPenalty { get; private set; }
 
     /// <summary>
-    /// If this is 0%, the object will not be harmed at all by the specified <see cref="DamageType"/>.
-    /// If this is 100%, the object will receive the full damage amount.
+    /// Given a damage type and amount, adjusts the damage and returns the
+    /// amount that should be dealt.
     /// </summary>
-    internal Percentage GetDamagePercent(DamageType damageType)
+    internal float AdjustDamage(DamageType damageType, float damage)
     {
-        return Values[(int)damageType];
+        if (damageType == DamageType.Unresistable)
+        {
+            return damage;
+        }
+
+        damage *= Values[(int)damageType];
+
+        if (damage < 0.0f)
+        {
+            damage = 0.0f;
+        }
+
+        return damage;
+    }
+}
+
+internal readonly struct Armor(ArmorTemplate template)
+{
+    public static readonly Armor NoArmor = new Armor(null);
+
+    public float AdjustDamage(DamageType type, float damage)
+    {
+        return template?.AdjustDamage(type, damage) ?? damage;
     }
 }

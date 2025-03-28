@@ -66,11 +66,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         if (_body != null)
         {
-            var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
-                ? (int)health.Value / 100.0f
-                : 1.0f;
-
-            _body.SetInitialHealth(healthMultiplier);
+            if (mapObject.Properties.TryGetValue("objectInitialHealth", out var health))
+            {
+                _body.SetInitialHealth((int)health.Value);
+            }
         }
 
         if (mapObject.Properties.TryGetValue("objectName", out var objectName))
@@ -139,13 +138,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public Percentage ProductionModifier { get; set; } = new Percentage(1);
     public Fix64 HealthModifier { get; set; }
 
-
     private readonly GameEngine _gameEngine;
 
     private readonly BehaviorUpdateContext _behaviorUpdateContext;
-
-    private BodyDamageType _bodyDamageType = BodyDamageType.Pristine;
-    public BodyDamageType BodyDamageType => _bodyDamageType;
 
     internal BitArray<WeaponSetConditions> WeaponSetConditions;
     private readonly WeaponSet _weaponSet;
@@ -156,6 +151,15 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public PartitionObject PartitionObject { get; internal set; }
 
     public readonly Geometry Geometry;
+
+    public void SetGeometryInfoZ(float newZ)
+    {
+        // A z-only change does not need to un/register with PartitionManager.
+        Geometry.SetMaxHeightAbovePosition(newZ);
+
+        // TODO(Port): Implement this.
+        //Drawable?.ReactToGeometryChange();
+    }
 
     public readonly Transform ModelTransform;
 
@@ -227,6 +231,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private FrozenDictionary<Type, object> _firstBehaviorCache;
     private FrozenDictionary<Type, List<object>> _behaviorCache;
 
+    private readonly StatusDamageHelper _statusDamageHelper;
+    private readonly SubdualDamageHelper _subdualDamageHelper;
+
     public IContainModule Contain { get; }
 
     public PhysicsBehavior Physics { get; }
@@ -235,90 +242,43 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public BodyModule BodyModule => _body;
     public bool HasActiveBody() => _body is ActiveBody;
 
-    public bool TryGetLastDamage(out DamageData damageData)
+    // TODO(Port): Implement this.
+    public bool IsFactionStructure => false;
+
+    public bool IsEffectivelyDead
     {
-        damageData = default;
-        if (_body is ActiveBody b)
+        get => GetPrivateStatus(ObjectPrivateStatusFlags.EffectivelyDead);
+        set
         {
-            damageData = b.LastDamage;
-            return true;
-        }
-
-        return false;
-    }
-
-    public Fix64 Health
-    {
-        get => _body?.Health ?? Fix64.Zero;
-        set => _body.Health = value < Fix64.Zero ? Fix64.Zero : value;
-    }
-
-    public Fix64 MaxHealth
-    {
-        get => _body?.MaxHealth + HealthModifier ?? Fix64.Zero;
-        set => _body.MaxHealth = value;
-    }
-    public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
-
-    public bool IsFullHealth => Health >= MaxHealth;
-
-    public bool IsDead => Health <= Fix64.Zero;
-
-    public bool IsEffectivelyDead => (_privateStatus & ObjectPrivateStatusFlags.EffectivelyDead) != 0;
-
-    public void DoDamage(DamageType damageType, Percentage percentage, DeathType deathType, GameObject damageDealer) =>
-        DoDamage(damageType, MaxHealth * (Fix64)(float)percentage, deathType, damageDealer);
-
-    public void DoDamage(DamageType damageType, Fix64 amount, DeathType deathType, GameObject damageDealer)
-    {
-        var damageInfo = new DamageData
-        {
-            Request =
+            SetPrivateStatus(ObjectPrivateStatusFlags.EffectivelyDead, value);
+            if (value)
             {
-                DamageType = damageType,
-                DamageToDeal = (float)amount,
-                DeathType = deathType,
-                DamageDealer = damageDealer.Id,
+                // TODO(Port): Implement this.
+                //if (_radarData != null)
+                //{
+                //    _gameEngine.Radar.RemoveGameObject(this);
+                //}
             }
-        };
-        AttemptDamage(ref damageInfo);
+        }
     }
 
-    public void AttemptDamage(ref DamageData damageInfo)
+    public DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput)
     {
-        _body?.AttemptDamage(ref damageInfo);
+        var damageOutput = _body?.AttemptDamage(damageInput) ?? default;
 
         // TODO(Port): shockwave and radar stuff.
+
+        return damageOutput;
     }
 
-    internal void OnDamage(in DamageData damageData)
+    public DamageInfoOutput AttemptHealing(float amount, GameObject source)
     {
-        foreach (var damageModule in FindBehaviors<IDamageModule>())
+        return _body?.AttemptDamage(new DamageInfoInput(source)
         {
-            damageModule.OnDamage(damageData);
-        }
-    }
-
-    public void Heal(Percentage percentage, GameObject healer) => Heal(MaxHealth * (Fix64)(float)percentage, healer);
-
-    public void Heal(Fix64 amount, GameObject healer)
-    {
-        _body.Heal(amount, healer);
-        HealedByObjectId = healer.Id;
-    }
-
-    /// <summary>
-    /// Heals without any sort of healer or registering any sort of DamageData.
-    /// </summary>
-    public void HealDirectly(Percentage percentage) => HealDirectly(MaxHealth * (Fix64)(float)percentage);
-
-    /// <summary>
-    /// Heals without any sort of healer or registering any sort of DamageData.
-    /// </summary>
-    /// <param name="amount"></param>
-    public void HealDirectly(Fix64 amount)
-    {
-        _body.Heal(amount);
+            DamageType = DamageType.Healing,
+            DeathType = DeathType.None,
+            Amount = amount,
+        }) ?? default;
     }
 
     public Collider RoughCollider { get; set; }
@@ -390,16 +350,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     }
 
     public bool Hidden { get; set; }
-
-    public bool IsDamaged
-    {
-        get
-        {
-            var healthPercentage = (float)_body.HealthPercentage;
-            var damagedThreshold = _gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold;
-            return healthPercentage <= damagedThreshold;
-        }
-    }
 
     public float Speed { get; set; }
     public float SteeringWheelsYaw { get; set; }
@@ -555,8 +505,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameEngine.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            AddBehavior("ModuleTag_StatusDamageHelper", new StatusDamageHelper(this, gameContext));
-            AddBehavior("ModuleTag_SubdualDamageHelper", new SubdualDamageHelper(this, gameContext));
+            AddBehavior("ModuleTag_StatusDamageHelper", _statusDamageHelper = new StatusDamageHelper(this, gameContext));
+            AddBehavior("ModuleTag_SubdualDamageHelper", _subdualDamageHelper = new SubdualDamageHelper(this, gameContext));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
@@ -778,7 +728,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         }
         if (ModelConditionFlags.Get(ModelConditionFlag.Sold))
         {
-            Die(DeathType.Normal);
+            Kill();
             ModelConditionFlags.Set(ModelConditionFlag.Sold, false);
         }
 
@@ -811,7 +761,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             foreach (var behavior in _behaviorModules)
             {
-                if (IsDead && behavior is not SlowDeathBehavior and not LifetimeUpdate and not DeletionUpdate)
+                if (IsEffectivelyDead && behavior is not SlowDeathBehavior and not LifetimeUpdate and not DeletionUpdate)
                 {
                     continue; // if we're dead, we should only update SlowDeathBehavior, LifetimeUpdate, or DeletionUpdate
                 }
@@ -894,10 +844,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         foreach (var behavior in _behaviorModules)
         {
-            if (behavior is IDestroyModule destroyModule)
-            {
-                destroyModule.OnDestroy();
-            }
+            behavior.OnDestroy();
         }
     }
 
@@ -1047,7 +994,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             return;
         }
 
-        Health = Fix64.Zero;
+        // TODO: This code should end up in DozerAIUpdate.Construct.
+        // Newly constructed objects start at one hit point.
+        BodyModule.InternalChangeHealth(-BodyModule.Health + 1.0f);
+
         ClearModelConditionFlags();
 
         ModelConditionFlags.Set(ModelConditionFlag.ActivelyBeingConstructed, false);
@@ -1097,8 +1047,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         var lastBuildProgress = BuildProgress;
         BuildProgress = Math.Clamp(++ConstructionProgress / Definition.BuildTime, 0.0f, 1.0f);
         // structures can be attacked while under construction, and their health is a factor of their build progress;
-        var newHealth = (Fix64)(BuildProgress - lastBuildProgress) * MaxHealth;
-        HealDirectly(newHealth);
+        var newHealth = (BuildProgress - lastBuildProgress) * _body.MaxHealth;
+        AttemptHealing(newHealth, null);
 
         if (BuildProgress >= 1.0f)
         {
@@ -1130,64 +1080,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public bool IsUnderActiveConstruction()
     {
         return ModelConditionFlags.Get(ModelConditionFlag.ActivelyBeingConstructed);
-    }
-
-    internal void UpdateDamageFlags(Fix64 healthPercentage, bool takingDamage)
-    {
-        // TODO: SoundDie
-        // TODO: TransitionDamageFX
-
-        var oldDamageType = _bodyDamageType;
-
-        if (healthPercentage < (Fix64)_gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitReallyDamagedThreshold)
-        {
-            if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.ReallyDamaged))
-            {
-                _gameEngine.AudioSystem.PlayAudioEvent(Definition.SoundOnReallyDamaged?.Value);
-            }
-
-            if (!IsBeingConstructed())
-            {
-                // prevents damaged flags from being set while the building is being constructed - generals has models for this it seems, but they're not implemented as far as I can tell?
-                ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, true);
-                _bodyDamageType = BodyDamageType.ReallyDamaged;
-            }
-
-            ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
-        }
-        else if (healthPercentage < (Fix64)_gameEngine.AssetLoadContext.AssetStore.GameData.Current.UnitDamagedThreshold)
-        {
-            if (takingDamage && !ModelConditionFlags.Get(ModelConditionFlag.Damaged))
-            {
-                _gameEngine.AudioSystem.PlayAudioEvent(Definition.SoundOnDamaged?.Value);
-            }
-
-            if (!IsBeingConstructed())
-            {
-                ModelConditionFlags.Set(ModelConditionFlag.Damaged, true);
-                _bodyDamageType = BodyDamageType.Damaged;
-            }
-            ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
-        }
-        else
-        {
-            ModelConditionFlags.Set(ModelConditionFlag.ReallyDamaged, false);
-            ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
-            _bodyDamageType = BodyDamageType.Pristine;
-        }
-
-        if (oldDamageType == _bodyDamageType)
-        {
-            return;
-        }
-
-        foreach (var behavior in _behaviorModules)
-        {
-            behavior.OnDamageStateChanged(
-                _behaviorUpdateContext,
-                oldDamageType,
-                _bodyDamageType);
-        }
     }
 
     internal void LocalLogicTick(in TimeInterval gameTime, float tickT, HeightMap heightMap)
@@ -1383,22 +1275,27 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public bool IsOffMap => (_privateStatus & ObjectPrivateStatusFlags.OffMap) != 0;
 
     /// <summary>
-    /// Do so much damage to an object that it will certainly die.
+    /// Kills the object with an optional type of damage and death.
     /// </summary>
-    public void Kill()
+    public void Kill(DamageType damageType = DamageType.Unresistable, DeathType deathType = DeathType.Normal)
     {
-        // TODO(Port): Copy Object::kill()
-        Kill(DeathType.Normal);
+        // Do unmodifiable damage equal to their max health to kill.
+        var damageOutput = AttemptDamage(new DamageInfoInput
+        {
+            DamageType = damageType,
+            DeathType = deathType,
+            Amount = _body.MaxHealth,
+            Kill = true, // Triggers object to die no matter what
+        });
+
+        Debug.Assert(!damageOutput.NoEffect, "Attempting to kill an unKillable object (InactiveBody?)");
     }
 
-    internal void Kill(DeathType deathType)
+    internal void OnDie(in DamageInfoInput damageInput)
     {
-        DoDamage(DamageType.Unresistable, _body.Health, deathType, null);
-    }
+        // TODO(Port): Port this from Object::onDie().
 
-    internal void Die(DeathType deathType)
-    {
-        Logger.Info("Object dying " + deathType);
+        Logger.Info("Object dying " + damageInput.DeathType);
         bool construction = IsBeingConstructed();
 
         if (construction)
@@ -1424,21 +1321,36 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (!construction)
         {
-            ExecuteRandomSlowDeathBehavior(deathType);
+            ExecuteRandomSlowDeathBehavior(damageInput);
         }
 
-        foreach (var module in _behaviorModules)
+        foreach (var module in FindBehaviors<IDieModule>())
         {
-            if (module is SlowDeathBehavior)
-            {
-                // this is handled above
-                continue;
-            }
-
-            module.OnDie(_behaviorUpdateContext, deathType, _status);
+            module.OnDie(damageInput);
         }
 
-        PlayDieSound(deathType);
+        PlayDieSound(damageInput.DeathType);
+    }
+
+    public void DoStatusDamage(ObjectStatus status, LogicFrameSpan duration)
+    {
+        _statusDamageHelper?.DoStatusDamage(status, duration);
+    }
+
+    public void NotifySubdualDamage(float amount)
+    {
+        _subdualDamageHelper?.NotifySubdualDamage(amount);
+
+        // If we are gaining subdual damage, we are slowly tinting.
+        if (Drawable != null)
+        {
+            // TODO(Port): Implement this:
+
+            //if (amount > 0)
+            //    getDrawable()->setTintStatus(TINT_STATUS_GAINING_SUBDUAL_DAMAGE);
+            //else
+            //    getDrawable()->clearTintStatus(TINT_STATUS_GAINING_SUBDUAL_DAMAGE);
+        }
     }
 
     /// <summary>
@@ -1449,12 +1361,14 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         _gameEngine.GameLogic.DestroyObject(this);
     }
 
-    private void ExecuteRandomSlowDeathBehavior(DeathType deathType)
+    private void ExecuteRandomSlowDeathBehavior(in DamageInfoInput damageInput)
     {
+        var damageInputCopy = damageInput;
+
         // If there are multiple SlowDeathBehavior modules,
         // we need to use ProbabilityModifier to choose between them.
         var slowDeathBehaviors = FindBehaviors<SlowDeathBehavior>()
-            .Where(x => x.IsApplicable(deathType, _status))
+            .Where(x => x.IsDieApplicable(damageInputCopy))
             .ToList();
 
         var sumProbabilityModifiers = slowDeathBehaviors.Sum(x => x.ProbabilityModifier);
@@ -1465,7 +1379,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             cumulative += deathBehavior.ProbabilityModifier;
             if (random < cumulative)
             {
-                deathBehavior.OnDie(_behaviorUpdateContext, deathType, _status);
+                ((IDieModule)deathBehavior).OnDie(damageInput);
                 return;
             }
         }
@@ -1576,6 +1490,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         // No need to see if we should skip updates, this flag has no effect on skipping updates.
     }
 
+    private bool GetPrivateStatus(ObjectPrivateStatusFlags flag) => (_privateStatus & flag) != 0;
+
     private void SetPrivateStatus(ObjectPrivateStatusFlags flag, bool value)
     {
         if (value)
@@ -1619,7 +1535,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private void VerifyHealer()
     {
-        if (HealedByObjectId.IsValid && (IsFullHealth || _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame))
+        if (HealedByObjectId.IsValid && _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame)
         {
             HealedByObjectId = ObjectId.Invalid;
             HealedEndFrame = 0; // todo: is this reset?
@@ -1678,10 +1594,17 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             Upgrade(_gameEngine.Game.AssetStore.Upgrades.GetByName(upgradeToApply));
         }
 
+        _body?.OnVeterancyLevelChanged(oldLevel, newLevel, provideFeedback);
+
         _gameEngine.AudioSystem.PlayAudioEvent(
             this,
             _gameEngine.AssetLoadContext.AssetStore.MiscAudio.Current.UnitPromoted.Value
         );
+    }
+
+    public void ScoreTheKill(GameObject victim)
+    {
+        // TODO(Port): Implement this.
     }
 
     public void Persist(StatePersister reader)
@@ -1898,7 +1821,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (ImGui.Button("Kill"))
         {
-            Kill(DeathType.Exploded);
+            Kill(deathType: DeathType.Exploded);
         }
 
         if ((Definition.IsTrainable || Definition.BuildVariations?.Any(v => v.Value.IsTrainable) == true) &&
@@ -2074,4 +1997,11 @@ public enum CrushSquishTestType
     TestCrushOnly,
     TestSquishOnly,
     TestCrushOrSquish,
+}
+
+public enum PlayerMaskType : ushort
+{
+    None = 0x0,
+    Player4 = 0x4,
+    All = 0xFFFF,
 }

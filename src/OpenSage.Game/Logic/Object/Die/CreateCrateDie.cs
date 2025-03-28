@@ -15,35 +15,30 @@ public sealed class CreateCrateDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         var crateData = _moduleData.CrateData.Value;
 
-        if (GameObject.TryGetLastDamage(out var lastDamageData))
-        {
-            var killer = GameEngine.GameLogic.GetObjectById(lastDamageData.Request.DamageDealer);
+        var killer = GameEngine.GameLogic.GetObjectById(damageInput.SourceID);
 
-            if (KillerCanSpawnCrate(killer, crateData))
+        if (KillerCanSpawnCrate(killer, crateData))
+        {
+            if (GameEngine.GameLogic.Random.NextSingle(0, 1) < crateData.CreationChance)
             {
-                if (GameEngine.GameLogic.Random.NextSingle(0, 1) < crateData.CreationChance)
+                // actually create the crate
+                float totalProbability = 0;
+                var selection = GameEngine.GameLogic.Random.NextSingle(0, 1);
+                foreach (var crate in crateData.CrateObjects)
                 {
-                    // actually create the crate
-                    float totalProbability = 0;
-                    var selection = GameEngine.GameLogic.Random.NextSingle(0, 1);
-                    foreach (var crate in crateData.CrateObjects)
+                    totalProbability += crate.Probability;
+                    if (totalProbability > selection)
                     {
-                        totalProbability += crate.Probability;
-                        if (totalProbability > selection)
-                        {
-                            SpawnCrate(crate, crateData);
-                            break;
-                        }
+                        SpawnCrate(crate, crateData);
+                        break;
                     }
                 }
             }
         }
-
-        base.Die(context, deathType);
     }
 
     private bool KillerCanSpawnCrate(GameObject? killer, CrateData crateData)

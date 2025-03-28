@@ -14,12 +14,12 @@ public sealed class FXListDie : DieModule
         _moduleData = moduleData;
     }
 
-    private protected override void Die(BehaviorUpdateContext context, DeathType deathType)
+    protected override void Die(in DamageInfoInput damageInput)
     {
         _moduleData.DeathFX.Value.Execute(new FXListExecutionContext(
-            context.GameObject.Rotation,
-            context.GameObject.Translation,
-            context.GameEngine));
+            GameObject.Rotation,
+            GameObject.Translation,
+            GameEngine));
     }
 
     internal override void Load(StatePersister reader)

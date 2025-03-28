@@ -140,6 +140,17 @@ public abstract class StatePersister : DisposableBase
     public abstract void PersistEnumValue<TEnum>(ref TEnum value)
         where TEnum : struct;
 
+    public void PersistEnumUInt16<TEnum>(ref TEnum value, [CallerArgumentExpression("value")] string name = "")
+        where TEnum : struct
+    {
+        PersistFieldName(name);
+
+        PersistEnumUInt16Value(ref value);
+    }
+
+    public abstract void PersistEnumUInt16Value<TEnum>(ref TEnum value)
+        where TEnum : struct;
+
     public void PersistEnumByte<TEnum>(ref TEnum value, [CallerArgumentExpression("value")] string name = "")
         where TEnum : struct
     {
@@ -307,6 +318,8 @@ public sealed class StateReader : StatePersister
 
     public override void PersistEnumValue<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt32AsEnum<TEnum>();
 
+    public override void PersistEnumUInt16Value<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt16AsEnum<TEnum>();
+
     public override void PersistEnumByteValue<TEnum>(ref TEnum value) => value = _binaryReader.ReadByteAsEnum<TEnum>();
 
     public override void PersistEnumFlagsValue<TEnum>(ref TEnum value) => value = _binaryReader.ReadUInt32AsEnumFlags<TEnum>();
@@ -433,6 +446,8 @@ public sealed class StateWriter : StatePersister
 
     public override void PersistEnumValue<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
 
+    public override void PersistEnumUInt16Value<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt16(value);
+
     public override void PersistEnumByteValue<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsByte(value);
 
     public override void PersistEnumFlagsValue<TEnum>(ref TEnum value) => _binaryWriter.WriteEnumAsUInt32(value);
@@ -542,6 +557,33 @@ public static class StatePersisterExtensions
         value = new LogicFrame(innerValue);
     }
 
+    public static void PersistLogicFrameOptional(this StatePersister persister, ref LogicFrame? value, [CallerArgumentExpression("value")] string name = "")
+    {
+        persister.PersistFieldName(name);
+
+        if (persister.Mode == StatePersistMode.Read)
+        {
+            var actualValue = -1;
+            persister.PersistInt32Value(ref actualValue);
+            value = (actualValue > -1)
+                ? new LogicFrame((uint)actualValue)
+                : null;
+        }
+        else
+        {
+            if (value != null)
+            {
+                var actualValue = value.Value;
+                persister.PersistLogicFrame(ref actualValue);
+            }
+            else
+            {
+                var actualValue = -1;
+                persister.PersistInt32Value(ref actualValue);
+            }
+        }
+    }
+
     public static void PersistLogicFrameSpan(this StatePersister persister, ref LogicFrameSpan value, [CallerArgumentExpression("value")] string name = "")
     {
         persister.PersistFieldName(name);
@@ -563,6 +605,34 @@ public static class StatePersisterExtensions
         persister.PersistUpdateFrameValue(ref value);
 
         persister.EndObject();
+    }
+
+    public static void PersistEnumOptional<TEnum>(this StatePersister persister, ref TEnum? value, [CallerArgumentExpression("value")] string name = "")
+        where TEnum : struct
+    {
+        persister.PersistFieldName(name);
+
+        if (persister.Mode == StatePersistMode.Read)
+        {
+            var actualValue = -1;
+            persister.PersistInt32Value(ref actualValue);
+            value = (actualValue > -1)
+                ? (TEnum)(object)actualValue
+                : null;
+        }
+        else
+        {
+            if (value != null)
+            {
+                var actualValue = value.Value;
+                persister.PersistEnum(ref actualValue);
+            }
+            else
+            {
+                var actualValue = -1;
+                persister.PersistInt32Value(ref actualValue);
+            }
+        }
     }
 
     public static void PersistMatrix4x3(this StatePersister persister, ref Matrix4x3 value, bool readVersion = true, [CallerArgumentExpression("value")] string name = "")

@@ -176,6 +176,11 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         NextObjectId = 1;
     }
 
+    public void DeselectObject(GameObject obj, PlayerMaskType playerMask, bool affectClient)
+    {
+        // TODO(Port): Implement this.
+    }
+
     public void Update()
     {
         foreach (var gameObject in Objects)

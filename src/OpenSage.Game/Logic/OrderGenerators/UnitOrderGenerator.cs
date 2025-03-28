@@ -110,7 +110,7 @@ internal sealed class UnitOrderGenerator(Game game) : OrderGenerator(game)
                         return OrderType.ResumeBuild;
                     }
                 }
-                else if (target.HealthPercentage < Fix64.One)
+                else if (target.BodyModule.Health < target.BodyModule.MaxHealth)
                 {
                     return OrderType.RepairStructure; // has priority over units garrisoning structure
                 }
@@ -186,7 +186,7 @@ internal sealed class UnitOrderGenerator(Game game) : OrderGenerator(game)
     {
         orderType = null;
         var allKinds = SelectedUnits?
-            .Where(u => u.Health < Fix64.One)
+            .Where(u => u.BodyModule.Health < 1)
             .Select(u => u.Definition.KindOf)
             .Aggregate(new BitArray<ObjectKinds>(), (s, t) => s | t);
 

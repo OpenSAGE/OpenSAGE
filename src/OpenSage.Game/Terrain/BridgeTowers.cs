@@ -61,3 +61,15 @@ public sealed class BridgeTowers
         CreateTower(template.TowerObjectNameToRight.Value, endX, endY);
     }
 }
+
+/// <summary>
+/// Bridges have 4 towers around it that the player can attack or use to repair
+/// the bridge.
+/// </summary>
+public enum BridgeTowerType
+{
+    TowerFromLeft,
+    TowerFromRight,
+    TowerToLeft,
+    TowerToRight,
+}

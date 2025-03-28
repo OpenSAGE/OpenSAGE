@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.FileFormats;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -380,9 +383,9 @@ public sealed class GameData : BaseSingletonAsset
 
         { "WeaponBonus", (parser, x) => x.WeaponBonuses.Parse(parser) },
 
-        { "HealthBonus_Veteran", (parser, x) => x.HealthBonusVeteran = parser.ParsePercentage() },
-        { "HealthBonus_Elite", (parser, x) => x.HealthBonusElite = parser.ParsePercentage() },
-        { "HealthBonus_Heroic", (parser, x) => x.HealthBonusHeroic = parser.ParsePercentage() },
+        { "HealthBonus_Veteran", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Veteran] = parser.ParsePercentage() },
+        { "HealthBonus_Elite", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Elite] = parser.ParsePercentage() },
+        { "HealthBonus_Heroic", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Heroic] = parser.ParsePercentage() },
 
         { "HumanSoloPlayerHealthBonus_Easy", (parser, x) => x.HumanSoloPlayerHealthBonusEasy = parser.ParsePercentage() },
         { "HumanSoloPlayerHealthBonus_Normal", (parser, x) => x.HumanSoloPlayerHealthBonusNormal = parser.ParsePercentage() },
@@ -593,6 +596,14 @@ public sealed class GameData : BaseSingletonAsset
         { "Sounds3DOn", (parser, x) => x.Sounds3DOn = parser.ParseBoolean() }
     };
 
+    public GameData()
+    {
+        for (var i = 0; i < HealthBonus.Length; i++)
+        {
+            HealthBonus[i] = new Percentage(1.0f);
+        }
+    }
+
     public string ShellMapName { get; private set; }
     public string MapName { get; private set; }
     public string MoveHintName { get; private set; }
@@ -671,7 +682,7 @@ public sealed class GameData : BaseSingletonAsset
     public string DefaultStructureRepairBuffFxList { get; private set; }
 
     public float TimeAfterDamageUntilRepairAllowed { get; private set; }
-    public float DefaultStructureRubbleHeight { get; private set; }
+    public float DefaultStructureRubbleHeight { get; private set; } = 1.0f;
 
     public string VertexWaterAvailableMaps1 { get; private set; }
     public float VertexWaterHeightClampLow1 { get; private set; }
@@ -1122,9 +1133,7 @@ public sealed class GameData : BaseSingletonAsset
 
     public WeaponBonusSet WeaponBonuses { get; } = new WeaponBonusSet();
 
-    public Percentage HealthBonusVeteran { get; private set; }
-    public Percentage HealthBonusElite { get; private set; }
-    public Percentage HealthBonusHeroic { get; private set; }
+    public Percentage[] HealthBonus { get; private set; } = new Percentage[EnumUtility.GetEnumValueLength<VeterancyLevel>()];
 
     public Percentage HumanSoloPlayerHealthBonusEasy { get; private set; }
     public Percentage HumanSoloPlayerHealthBonusNormal { get; private set; }
@@ -1537,6 +1546,12 @@ public static class BodyDamageTypeExtensions
     {
         // This assumes the conditions in BodyDamageType are in sequential order.
         return a < b;
+    }
+
+    public static bool IsWorseThan(this BodyDamageType a, BodyDamageType b)
+    {
+        // This assumes the conditions in BodyDamageType are in sequential order.
+        return a > b;
     }
 }
 

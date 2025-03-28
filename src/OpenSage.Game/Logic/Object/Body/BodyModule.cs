@@ -1,6 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
-using FixedMath.NET;
+using System.Diagnostics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
@@ -9,36 +11,158 @@ namespace OpenSage.Logic.Object;
 
 public abstract class BodyModule : BehaviorModule
 {
-    private float _armorDamageScalar;
+    private float _damageScalar = 1.0f;
 
-    protected BodyModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    protected BodyModule(GameObject gameObject, GameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
     }
 
-    public Fix64 Health { get; internal set; }
+    /// <summary>
+    /// Try to damage this object. The module's Armor will be taken into account,
+    /// so the actual damage done may vary considerably from what you requested.
+    /// Also note that (if damage is done) the DamageFX will be invoked to
+    /// provide audio/video effects as appropriate.
+    /// </summary>
+    public abstract DamageInfoOutput AttemptDamage(in DamageInfoInput damageInput);
 
-    public abstract Fix64 MaxHealth { get; internal set; }
+    /// <summary>
+    /// Instead of having negative damage count as healing, or allowing access
+    /// to the private ChangeHealth method, we will use this parallel to
+    /// <see cref="AttemptDamage"/> to do healing without hack.
+    /// </summary>
+    public abstract DamageInfoOutput AttemptHealing(in DamageInfoInput damageInput);
 
-    public Fix64 HealthPercentage => MaxHealth != Fix64.Zero ? Health / MaxHealth : Fix64.Zero;
+    /// <summary>
+    /// Estimates the (unclipped) damage that would be done to this object by
+    /// the given damage (taking bonuses, armor, etc. into account), but DO NOT
+    /// alter the body in any way. (This is used by the AI system to choose
+    /// weapons.)
+    /// </summary>
+    public abstract float EstimateDamage(in DamageInfoInput damageInput);
 
-    // TODO(Port): Make this abstract.
-    public virtual bool FrontCrushed => false;
+    /// <summary>
+    /// Gets the current health.
+    /// </summary>
+    public abstract float Health { get; }
 
-    // TODO(Port): Make this abstract.
-    public virtual bool BackCrushed => false;
+    /// <summary>
+    /// Gets the maximum health.
+    /// </summary>
+    public virtual float MaxHealth => 0.0f;
 
-    // TODO(Port): Make this abstract.
-    public virtual BodyDamageType DamageState => BodyDamageType.Pristine;
+    /// <summary>
+    /// Sets the max health.
+    /// </summary>
+    public virtual void SetMaxHealth(float maxHealth, MaxHealthChangeType healthChangeType = MaxHealthChangeType.SameCurrentHealth) { }
 
-    public virtual void SetInitialHealth(float multiplier) { }
+    /// <summary>
+    /// Gets the initial health.
+    /// </summary>
+    public virtual float InitialHealth => 0.0f;
 
-    public virtual void AttemptDamage(ref DamageData damageInfo) { }
+    /// <summary>
+    /// Sets the initial health percentage.
+    /// </summary>
+    public virtual void SetInitialHealth(int initialPercent) { }
 
-    public virtual void Heal(Fix64 amount) { }
+    /// <summary>
+    /// Gets the previous health.
+    /// </summary>
+    public virtual float PreviousHealth => 0.0f;
 
-    public virtual void Heal(Fix64 amount, GameObject healer) { }
+    public virtual LogicFrameSpan SubdualDamageHealRate => LogicFrameSpan.Zero;
 
-    public abstract void SetArmorSetFlag(ArmorSetCondition armorSetCondition);
+    public virtual float SubdualDamageHealAmount => 0.0f;
+
+    public virtual bool HasAnySubdualDamage => false;
+
+    public virtual float CurrentSubdualDamageAmount => 0.0f;
+
+    /// <summary>
+    /// Setting this controls damage state directly. Will adjust hitpoints.
+    /// </summary>
+    public abstract BodyDamageType DamageState { get; set; }
+
+    /// <summary>
+    /// This is a major change like a damage state.
+    /// </summary>
+    public abstract void SetAflame(bool setting);
+
+    /// <summary>
+    /// Called immediately upon a new level being achieved.
+    /// </summary>
+    public abstract void OnVeterancyLevelChanged(VeterancyLevel oldLevel, VeterancyLevel newLevel, bool provideFeedback = false);
+
+    public abstract void SetArmorSetFlag(ArmorSetCondition armorSetType);
+
+    public abstract void ClearArmorSetFlag(ArmorSetCondition armorSetType);
+
+    public abstract bool TestArmorSetFlag(ArmorSetCondition armorSetType);
+
+    /// <summary>
+    /// Returns info on last damage dealt to this object.
+    /// </summary>
+    public virtual DamageInfo? LastDamageInfo => null;
+
+    /// <summary>
+    /// Returns frame of last damage dealt to this object.
+    /// </summary>
+    public virtual LogicFrame LastDamageFrame => LogicFrame.Zero;
+
+    /// <summary>
+    /// Returns frame of last healing dealt to this object.
+    /// </summary>
+    public virtual LogicFrame LastHealingFrame => LogicFrame.Zero;
+
+    public virtual ObjectId ClearableLastAttacker => ObjectId.Invalid;
+
+    public virtual void ClearLastAttacker() { }
+
+    public virtual bool FrontCrushed
+    {
+        get => false;
+        set => Debug.Fail("You should never call this for generic Bodys");
+    }
+
+    public virtual bool BackCrushed
+    {
+        get => false;
+        set => Debug.Fail("You should never call this for generic Bodys");
+    }
+
+    public float DamageScalar => _damageScalar;
+
+    /// <summary>
+    /// Allows outside systems to apply defensive bonus of penalties (they all
+    /// stack as a multiplier).
+    /// </summary>
+    public void ApplyDamageScalar(float scalar)
+    {
+        _damageScalar *= scalar;
+    }
+
+    /// <summary>
+    /// Changes the module's health by the given delta. Note that the module's
+    /// DamageFX and Armor are NOT taken into account, so you should think
+    /// about what you're bypassing when you call this directly (especially
+    /// when decreasing health, since you probably want
+    /// <see cref="AttemptDamage"/> or
+    /// <see cref="AttemptHealing"/>.
+    /// </summary>
+    public abstract void InternalChangeHealth(float delta);
+
+    public virtual bool IsIndestructible
+    {
+        get => true;
+        set { }
+    }
+
+    public virtual void EvaluateVisualCondition() { }
+
+    // Original comment says that this was made public for topple and building
+    // collapse updates.
+    public virtual void UpdateBodyParticleSystems() { }
 
     internal override void Load(StatePersister reader)
     {
@@ -48,7 +172,7 @@ public abstract class BodyModule : BehaviorModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistSingle(ref _armorDamageScalar); // was roughly 0.9 after changing to hold the line
+        reader.PersistSingle(ref _damageScalar); // was roughly 0.9 after changing to hold the line
     }
 
     private DamageType _inspectorDamageType = DamageType.Explosion;
@@ -57,17 +181,33 @@ public abstract class BodyModule : BehaviorModule
 
     internal override void DrawInspector()
     {
+        ImGui.InputFloat("Damage scalar", ref _damageScalar);
+
+        ImGui.LabelText("Health", Health.ToString());
+
         var maxHealth = (float)MaxHealth;
-        if (ImGui.InputFloat("MaxHealth", ref maxHealth))
+        if (ImGui.InputFloat("Max health", ref maxHealth))
         {
-            MaxHealth = (Fix64)maxHealth;
+            SetMaxHealth(maxHealth);
         }
 
-        var health = (float)Health;
-        if (ImGui.InputFloat("Health", ref health))
+        ImGui.LabelText("Initial health", InitialHealth.ToString());
+        ImGui.LabelText("Previous health", PreviousHealth.ToString());
+        ImGui.LabelText("Subdual damage heal rate", SubdualDamageHealAmount.ToString());
+        ImGui.LabelText("Has any subdual damage", HasAnySubdualDamage.ToString());
+        ImGui.LabelText("Current subdual damage amount", CurrentSubdualDamageAmount.ToString());
+
+        var damageState = DamageState;
+        if (ImGuiUtility.ComboEnum("Damage state", ref damageState))
         {
-            Health = (Fix64)health;
+            DamageState = damageState;
         }
+
+        ImGui.LabelText("Last damage frame", LastDamageFrame.ToString());
+        ImGui.LabelText("Last healing frame", LastHealingFrame.ToString());
+        ImGui.LabelText("Front crushed", FrontCrushed.ToString());
+        ImGui.LabelText("Back crushed", BackCrushed.ToString());
+        ImGui.LabelText("Is indestructible", IsIndestructible.ToString());
 
         ImGui.Separator();
 
@@ -76,7 +216,12 @@ public abstract class BodyModule : BehaviorModule
         ImGuiUtility.ComboEnum("Death Type", ref _inspectorDeathType);
         if (ImGui.Button("Apply Damage"))
         {
-            GameObject.DoDamage(_inspectorDamageType, (Fix64)_inspectorDamageAmount, _inspectorDeathType, null);
+            AttemptDamage(new DamageInfoInput
+            {
+                DamageType = _inspectorDamageType,
+                DeathType = _inspectorDeathType,
+                Amount = _inspectorDamageAmount,
+            });
         }
     }
 }
@@ -87,7 +232,7 @@ public abstract class BodyModuleData : BehaviorModuleData
 
     internal static ModuleDataContainer ParseBody(IniParser parser, ModuleInheritanceMode inheritanceMode) => ParseModule(parser, BodyParseTable, inheritanceMode);
 
-    private static readonly Dictionary<string, Func<IniParser, BodyModuleData>> BodyParseTable = new Dictionary<string, Func<IniParser, BodyModuleData>>
+    private static readonly Dictionary<string, Func<IniParser, BodyModuleData>> BodyParseTable = new()
     {
         { "ActiveBody", ActiveBodyModuleData.Parse },
         { "DelayedDeathBody", DelayedDeathBodyModuleData.Parse },

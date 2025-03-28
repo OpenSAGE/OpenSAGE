@@ -34,8 +34,6 @@ public abstract class BehaviorModule : ObjectModule
     {
     }
 
-    internal virtual void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status) { }
-
     internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
 
     internal override void Load(StatePersister reader)
@@ -46,11 +44,6 @@ public abstract class BehaviorModule : ObjectModule
         base.Load(reader);
         reader.EndObject();
     }
-}
-
-public interface IDestroyModule
-{
-    void OnDestroy();
 }
 
 internal sealed class BehaviorUpdateContext
@@ -94,6 +87,11 @@ public readonly struct LogicFrame : IEquatable<LogicFrame>
     public static LogicFrame operator -(LogicFrame left, LogicFrame right)
     {
         return new LogicFrame(left.Value - right.Value);
+    }
+
+    public static LogicFrame operator -(LogicFrame left, uint right)
+    {
+        return new LogicFrame(left.Value - right);
     }
 
     public static bool operator <(LogicFrame left, LogicFrame right)
@@ -150,6 +148,10 @@ public readonly struct LogicFrameSpan
     }
 
     public static LogicFrameSpan OneSecond(float logicFramesPerSecond) => new((uint)logicFramesPerSecond);
+
+    public static LogicFrameSpan FromMilliseconds(float milliseconds, SageGame sageGame) => new((uint)MathF.Ceiling(milliseconds / sageGame.MsPerLogicFrame()));
+
+    public static LogicFrameSpan FromSeconds(float seconds, SageGame sageGame) => new((uint)MathF.Ceiling(seconds * sageGame.LogicFramesPerSecond()));
 
     public static LogicFrameSpan operator +(LogicFrameSpan left, LogicFrameSpan right)
     {

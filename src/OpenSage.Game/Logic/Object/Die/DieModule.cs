@@ -5,11 +5,12 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
-public abstract class DieModule : BehaviorModule
+public abstract class DieModule : BehaviorModule, IDieModule
 {
     private readonly DieModuleData _moduleData;
 
-    protected DieModule(GameObject gameObject, GameEngine gameEngine, DieModuleData moduleData) : base(gameObject, gameEngine)
+    protected DieModule(GameObject gameObject, GameEngine gameEngine, DieModuleData moduleData)
+        : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
@@ -23,17 +24,23 @@ public abstract class DieModule : BehaviorModule
         reader.EndObject();
     }
 
-    internal sealed override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
     {
-        if (!_moduleData.DieData.IsApplicable(deathType, status))
+        if (!_moduleData.DieData.IsDieApplicable(damageInput, GameObject))
         {
             return;
         }
 
-        Die(context, deathType);
+        Die(damageInput);
     }
 
-    private protected virtual void Die(BehaviorUpdateContext context, DeathType deathType) { }
+    // TODO(Port): Make this abstract.
+    protected virtual void Die(in DamageInfoInput damageInput) { }
+}
+
+public interface IDieModule
+{
+    void OnDie(in DamageInfoInput damageInput);
 }
 
 public abstract class DieModuleData : BehaviorModuleData
@@ -58,15 +65,15 @@ public sealed class DieLogicData
     public ObjectStatus? RequiredStatus { get; private set; }
     public ObjectStatus? ExemptStatus { get; internal set; }
 
-    public bool IsApplicable(DeathType deathType, BitArray<ObjectStatus> status) =>
-        (DeathTypes?.Get(deathType) ?? true) && IsCorrectStatus(status);
+    public bool IsDieApplicable(in DamageInfoInput damageInput, GameObject obj) =>
+        (DeathTypes?.Get(damageInput.DeathType) ?? true) && IsCorrectStatus(obj);
 
-    private bool IsCorrectStatus(BitArray<ObjectStatus> status)
+    private bool IsCorrectStatus(GameObject obj)
     {
         var required = !RequiredStatus.HasValue || // if nothing is required, we pass
-            status.Get(RequiredStatus.Value);      // or if we are the one of the required statuses, we pass
+            obj.TestStatus(RequiredStatus.Value);  // or if we are the one of the required statuses, we pass
         var notExempt = !ExemptStatus.HasValue ||  // if nothing is exempt, we pass
-            !status.Get(ExemptStatus.Value);       // or if we are not one of the exempt statuses, we pass
+            !obj.TestStatus(ExemptStatus.Value);   // or if we are not one of the exempt statuses, we pass
         return required && notExempt;
     }
 }

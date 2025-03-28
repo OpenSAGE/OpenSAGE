@@ -83,6 +83,11 @@ public class Player : IPersistableObject
 
     public AIPlayer? AIPlayer { get; private set; }
 
+    public AcademyStats AcademyStats { get; } = new AcademyStats();
+
+    // TODO(Port): Implement this.
+    public bool IsLogicalRetaliationModeEnabled { get; set; }
+
     // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
     public int GetEnergy(IGameObjectCollection allGameObjects)
     {
@@ -824,6 +829,11 @@ public class Player : IPersistableObject
         // Default to neutral
         return RelationshipType.Neutral;
     }
+
+    public void SetAttackedBy(uint playerIndex)
+    {
+        // TODO(Port): Implement this.
+    }
 }
 
 public sealed class SupplyManager : IPersistableObject
@@ -1285,4 +1295,11 @@ public sealed class StrategyData : IPersistableObject
         persister.PersistBitArray(ref _validMemberKindOf);
         persister.PersistBitArray(ref _invalidMemberKindOf);
     }
+}
+
+// TODO(Port): Port this.
+public sealed class AcademyStats
+{
+    public void RecordClearedGarrisonedBuilding() { }
+    public void RecordVehicleSniped() { }
 }

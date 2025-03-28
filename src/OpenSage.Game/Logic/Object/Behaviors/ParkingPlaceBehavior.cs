@@ -91,7 +91,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
                 foreach (var objectToHeal in _healingData)
                 {
                     var gameObject = GameEngine.GameLogic.GetObjectById(objectToHeal.ObjectId);
-                    gameObject?.Heal(_healAmountPerHealTick, GameObject);
+                    gameObject?.AttemptHealing((float)_healAmountPerHealTick, GameObject);
                 }
             }
         }

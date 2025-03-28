@@ -10,6 +10,12 @@ public abstract class ModuleBase : DisposableBase, IPersistableObject
     /// </summary>
     protected internal virtual void OnObjectCreated() { }
 
+    /// <summary>
+    /// Called immediately before the owning GameObject or Drawable
+    /// is destroyed.
+    /// </summary>
+    protected internal virtual void OnDestroy() { }
+
     protected virtual void LoadPostProcess() { }
 
     void IPersistableObject.Persist(StatePersister persister)

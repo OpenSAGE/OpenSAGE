@@ -36,7 +36,7 @@ public class SupplyWarehouseDockUpdate : DockUpdate
 
         if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
         {
-            GameObject.Die(DeathType.Normal);
+            GameEngine.GameLogic.DestroyObject(GameObject);
         }
     }
 

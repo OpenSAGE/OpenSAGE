@@ -55,6 +55,13 @@ public class ObjectDefinition : BaseAsset
         return result;
     }
 
+    public ObjectDefinition() { }
+
+    internal ObjectDefinition(string name)
+    {
+        SetNameAndInstanceId("GameObject", name);
+    }
+
     internal bool ObjectIsMemberOfBuildVariations(ObjectDefinition definition)
     {
         if (BuildVariations == null)
@@ -87,6 +94,7 @@ public class ObjectDefinition : BaseAsset
         { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
         { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
         { "EditorSorting", (parser, x) => x.EditorSorting = parser.ParseEnumFlags<ObjectEditorSortingFlags>() },
+        { "StructureRubbleHeight", (parser, x) => x.StructureRubbleHeight = parser.ParseByte() },
         { "Browser", (parser, x) => x.Browser = parser.ParseEnumFlags<ObjectBrowserFlags>() },
         { "TransportSlotCount", (parser, x) => x.TransportSlotCount = parser.ParseInteger() },
         { "VisionRange", (parser, x) => x.VisionRange = parser.ParseFloat() },
@@ -248,9 +256,9 @@ public class ObjectDefinition : BaseAsset
         { "SoundCreated", (parser, x) => x.SoundCreated = parser.ParseAssetReference() },
         { "SoundEnter", (parser, x) => x.SoundEnter = parser.ParseAudioEventReference() },
         { "SoundExit", (parser, x) => x.SoundExit = parser.ParseAudioEventReference() },
-        { "SoundPromotedVeteran", (parser, x) => x.SoundPromotedVeteran = parser.ParseAssetReference() },
-        { "SoundPromotedElite", (parser, x) => x.SoundPromotedElite = parser.ParseAssetReference() },
-        { "SoundPromotedHero", (parser, x) => x.SoundPromotedHero = parser.ParseAssetReference() },
+        { "SoundPromotedVeteran", (parser, x) => x.SoundPromotedVeteran = parser.ParseAudioEventReference() },
+        { "SoundPromotedElite", (parser, x) => x.SoundPromotedElite = parser.ParseAudioEventReference() },
+        { "SoundPromotedHero", (parser, x) => x.SoundPromotedHero = parser.ParseAudioEventReference() },
         { "SoundFallingFromPlane", (parser, x) => x.SoundFallingFromPlane = parser.ParseAssetReference() },
         { "SoundImpact", (parser, x) => x.SoundImpact = parser.ParseAssetReference() },
         { "SoundImpactCyclonic", (parser, x) => x.SoundImpactCyclonic = parser.ParseAssetReference() },
@@ -490,6 +498,7 @@ public class ObjectDefinition : BaseAsset
     public string Side { get; private set; }
     public string DisplayName { get; private set; }
     public ObjectEditorSortingFlags EditorSorting { get; private set; }
+    public float StructureRubbleHeight { get; private set; }
     public ObjectBrowserFlags Browser { get; private set; }
     public int TransportSlotCount { get; private set; }
     public float VisionRange { get; private set; }
@@ -838,14 +847,11 @@ public class ObjectDefinition : BaseAsset
     public LazyAssetReference<BaseAudioEventInfo> SoundEnter { get; private set; }
     public LazyAssetReference<BaseAudioEventInfo> SoundExit { get; private set; }
 
-    [AddedIn(SageGame.Bfme)]
-    public string SoundPromotedVeteran { get; private set; }
+    public LazyAssetReference<BaseAudioEventInfo> SoundPromotedVeteran { get; private set; }
 
-    [AddedIn(SageGame.Bfme)]
-    public string SoundPromotedElite { get; private set; }
+    public LazyAssetReference<BaseAudioEventInfo> SoundPromotedElite { get; private set; }
 
-    [AddedIn(SageGame.Bfme)]
-    public string SoundPromotedHero { get; private set; }
+    public LazyAssetReference<BaseAudioEventInfo> SoundPromotedHero { get; private set; }
 
     public string SoundFallingFromPlane { get; private set; }
 

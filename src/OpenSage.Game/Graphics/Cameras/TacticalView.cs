@@ -1242,7 +1242,7 @@ public sealed class TacticalView : IPersistableObject
         // TODO: Remove lock when the object has been destroyed
         // C++ version only stores an object ID and fetches the object from the scene,
         // which handles that automatically
-        if (CameraLock.IsDead)
+        if (CameraLock.IsEffectivelyDead)
         {
             CameraLock = null;
             _followFactor = -1.0f;

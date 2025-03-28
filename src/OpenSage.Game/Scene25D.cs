@@ -171,21 +171,22 @@ public class Scene25D(Scene3D scene3D, AssetStore assetStore)
             float green;
             var blue = 0f;
 
+            var healthPercentage = gameObject.BodyModule.Health / gameObject.BodyModule.MaxHealth;
             if (gameObject.IsBeingConstructed())
             {
-                green = (float)gameObject.HealthPercentage;
+                green = healthPercentage;
                 blue = 1;
             }
             else
             {
-                red = Math.Clamp((1 - (float)gameObject.HealthPercentage) * 2, 0, 1);
-                green = Math.Clamp((float)gameObject.HealthPercentage * 2, 0, 1);
+                red = Math.Clamp((1 - healthPercentage) * 2, 0, 1);
+                green = Math.Clamp(healthPercentage * 2, 0, 1);
             }
 
             DrawBar(
                 healthBoxRect.Value,
                 new ColorRgbaF(red, green, blue, 1),
-                (float)gameObject.HealthPercentage);
+                healthPercentage);
         }
 
         var yOffset = 0;

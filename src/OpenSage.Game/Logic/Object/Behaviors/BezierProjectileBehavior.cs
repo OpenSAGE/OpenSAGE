@@ -93,11 +93,11 @@ public class BezierProjectileBehavior : UpdateModule
 
         if (detonateCallsKill)
         {
-            context.GameObject.Kill(DeathType.Detonated);
+            context.GameObject.Kill(deathType: DeathType.Detonated);
         }
         else
         {
-            context.GameObject.Die(DeathType.Detonated);
+            context.GameObject.Destroy();
         }
     }
 

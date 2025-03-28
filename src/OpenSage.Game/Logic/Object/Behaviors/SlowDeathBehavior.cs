@@ -11,7 +11,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
-public class SlowDeathBehavior : UpdateModule
+public class SlowDeathBehavior : UpdateModule, IDieModule
 {
     private readonly SlowDeathBehaviorModuleData _moduleData;
 
@@ -36,56 +36,74 @@ public class SlowDeathBehavior : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal bool IsApplicable(DeathType deathType, BitArray<ObjectStatus> status) =>
-        _moduleData.DieData.IsApplicable(deathType, status);
+    public bool IsDieApplicable(in DamageInfoInput damageInput) =>
+        _moduleData.DieData.IsDieApplicable(damageInput, GameObject);
 
-    internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
+    public int GetProbabilityModifier(in DamageInfoOutput damageOutput)
     {
-        if (!_moduleData.DieData.IsApplicable(deathType, status))
+        // Calculating how far past dead we ewre allows us to pick more
+        // spectacular deaths when severely killed, and more sedate ones when
+        // only slightly killed. For example:
+        // 200 hp max, had 10 left, took 50 damage, 40 overkill, (40/200) * 100 = 20 overkill %
+        var overkillDamage = damageOutput.ActualDamageDealt - damageOutput.ActualDamageClipped;
+        var overkillPercent = (float)overkillDamage / GameObject.BodyModule.MaxHealth;
+        var overkillModifier = (int)(overkillPercent * _moduleData.ModifierBonusPerOverkillPercent);
+
+        return Math.Max(_moduleData.ProbabilityModifier + overkillModifier, 1);
+    }
+
+    void IDieModule.OnDie(in DamageInfoInput damageInput)
+    {
+        if (!_moduleData.DieData.IsDieApplicable(damageInput, GameObject))
         {
             return;
         }
 
         _isDying = true;
 
-        context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
+        GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, true);
 
         // TODO: ProbabilityModifier
 
-        var destructionDelay = GetDelayWithVariance(context, _moduleData.DestructionDelay, _moduleData.DestructionDelayVariance);
-        _midpointTime = context.LogicFrame + (destructionDelay / 2.0f);
-        _destructionTime = context.LogicFrame + destructionDelay;
+        var destructionDelay = GetDelayWithVariance(_moduleData.DestructionDelay, _moduleData.DestructionDelayVariance);
+        _midpointTime = GameEngine.GameLogic.CurrentFrame + (destructionDelay / 2.0f);
+        _destructionTime = GameEngine.GameLogic.CurrentFrame + destructionDelay;
 
-        _sinkStartTime = context.LogicFrame + GetDelayWithVariance(context, _moduleData.SinkDelay, _moduleData.SinkDelayVariance);
+        _sinkStartTime = GameEngine.GameLogic.CurrentFrame + GetDelayWithVariance(_moduleData.SinkDelay, _moduleData.SinkDelayVariance);
 
         // TODO: Decay
         // TODO: Fling
 
-        ExecutePhaseActions(context, SlowDeathPhase.Initial);
+        ExecutePhaseActions(SlowDeathPhase.Initial);
     }
 
-    private static LogicFrameSpan GetDelayWithVariance(BehaviorUpdateContext context, LogicFrameSpan delay, LogicFrameSpan variance)
+    public void BeginSlowDeath(in DamageInfoInput damageInput)
     {
-        var randomMultiplier = context.GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
+        // TODO(Port): Implement this.
+    }
+
+    private LogicFrameSpan GetDelayWithVariance(LogicFrameSpan delay, LogicFrameSpan variance)
+    {
+        var randomMultiplier = GameEngine.GameLogic.Random.NextSingle(-1.0f, 1.0f);
         return delay + (variance * (float)randomMultiplier);
     }
 
-    private void ExecutePhaseActions(BehaviorUpdateContext context, SlowDeathPhase phase)
+    private void ExecutePhaseActions(SlowDeathPhase phase)
     {
         _phase = phase;
 
         if (_moduleData.OCLs.TryGetValue(phase, out var ocl) && ocl != null)
         {
-            context.GameEngine.ObjectCreationLists.Create(ocl.Value, context);
+            GameEngine.ObjectCreationLists.Create(ocl.Value, new BehaviorUpdateContext(GameEngine, GameObject));
         }
 
         if (_moduleData.FXs.TryGetValue(phase, out var fx) && fx != null)
         {
             fx.Value.Execute(
                 new FXListExecutionContext(
-                    context.GameObject.Rotation,
-                    context.GameObject.Translation,
-                    context.GameEngine));
+                    GameObject.Rotation,
+                    GameObject.Translation,
+                    GameEngine));
         }
 
         // TODO: Weapon
@@ -103,14 +121,14 @@ public class SlowDeathBehavior : UpdateModule
         // Midpoint
         if (!_passedMidpoint && context.LogicFrame >= _midpointTime)
         {
-            ExecutePhaseActions(context, SlowDeathPhase.Midpoint);
+            ExecutePhaseActions(SlowDeathPhase.Midpoint);
             _passedMidpoint = true;
         }
 
         // Destruction
         if (context.LogicFrame >= _destructionTime)
         {
-            ExecutePhaseActions(context, SlowDeathPhase.Final);
+            ExecutePhaseActions(SlowDeathPhase.Final);
             context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
             context.GameEngine.GameLogic.DestroyObject(context.GameObject);
             _isDying = false;

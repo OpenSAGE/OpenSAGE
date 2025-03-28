@@ -8,7 +8,7 @@ public class DamageTests : StatePersisterTest
     #region DamageData
 
     /// <summary>
-    /// Generals default DamageData object.
+    /// Generals default DamageInfo object.
     /// </summary>
     private static readonly byte[] GeneralsDefaultDamageData = [V1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, V1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
@@ -17,7 +17,7 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsDefaultDamageData);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageData();
+        var data = new DamageInfo();
         data.Persist(reader);
     }
 
@@ -26,7 +26,7 @@ public class DamageTests : StatePersisterTest
     #region DamageData Request
 
     /// <summary>
-    /// Generals default DamageDataRequest object.
+    /// Generals default DamageInfoInput object.
     /// </summary>
     private static readonly byte[] GeneralsDefaultDamageDataRequest = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
@@ -35,16 +35,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsDefaultDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(ObjectId.Invalid, data.DamageDealer);
-        Assert.Equal(0, data.Unknown1);
+        Assert.Equal(ObjectId.Invalid, data.SourceID);
+        Assert.Equal(PlayerMaskType.None, data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType); // this is correct - a DamageType of 0 is Explosion (see Generals_DamageDataRequest_Tomahawk)
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
-        Assert.Equal(0, data.DamageToDeal);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(0, data.Amount);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -57,16 +57,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsMissileDefenderDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(7u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(7u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
-        Assert.Equal(40, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(40, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -79,16 +79,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsTomahawkDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(15u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(15u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Exploded, data.DeathType);
-        Assert.Equal(150, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(150, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -101,16 +101,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsHumveeGunDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(17u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(17u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.ComancheVulcan, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
-        Assert.Equal(8, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(8, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -123,16 +123,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsHealingDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(5u), data.DamageDealer);
-        Assert.Equal(0, data.Unknown1);
+        Assert.Equal(new ObjectId(5u), data.SourceID);
+        Assert.Equal(PlayerMaskType.None, data.PlayerMaskType);
         Assert.Equal(DamageType.Healing, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.None, data.DeathType);
-        Assert.Equal(3.333, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(3.333, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -145,16 +145,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsBurningEmberDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(5u), data.DamageDealer);
-        Assert.Equal(0, data.Unknown1);
+        Assert.Equal(new ObjectId(5u), data.SourceID);
+        Assert.Equal(PlayerMaskType.None, data.PlayerMaskType);
         Assert.Equal(DamageType.Flame, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Burned, data.DeathType);
-        Assert.Equal(3, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(3, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -167,16 +167,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsTntDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(7u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(7u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Suicided, data.DeathType);
-        Assert.Equal(500, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(500, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
@@ -189,20 +189,20 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsToxinFieldDamageDataRequest);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(28u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(28u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.Poison, data.DamageType);
-        Assert.Equal(DamageType.Explosion, data.DamageTypeUnknown); // v3
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Poisoned, data.DeathType);
-        Assert.Equal(2, data.DamageToDeal, 0.01);
-        Assert.Null(data.AttackerName); // v3
+        Assert.Equal(2, data.Amount, 0.01);
+        Assert.Null(data.SourceTemplate); // v3
     }
 
     /// <summary>
-    /// Zero Hour default DamageDataRequest object.
+    /// Zero Hour default DamageInfoInput object.
     /// </summary>
     private static readonly byte[] ZeroHourDefaultDamageDataRequest = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
@@ -211,16 +211,16 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(ZeroHourDefaultDamageDataRequest, V3);
         var reader = new StateReader(stream, ZeroHour);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(ObjectId.Invalid, data.DamageDealer);
-        Assert.Equal(0, data.Unknown1);
+        Assert.Equal(ObjectId.Invalid, data.SourceID);
+        Assert.Equal(PlayerMaskType.None, data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType);
-        Assert.Equal(DamageType.Unresistable, data.DamageTypeUnknown); // unclear what this is
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride);
         Assert.Equal(DeathType.Normal, data.DeathType);
-        Assert.Equal(0, data.DamageToDeal);
-        Assert.Equal("", data.AttackerName);
+        Assert.Equal(0, data.Amount);
+        Assert.Null(data.SourceTemplate);
     }
 
 
@@ -232,18 +232,20 @@ public class DamageTests : StatePersisterTest
     [Fact]
     public void DamageDataRequest_MissileDefender_V3()
     {
+        ZeroHour.AssetStore.ObjectDefinitions.Add(new ObjectDefinition("AmericaInfantryMissileDefender"));
+
         var stream = SaveData(ZeroHourMissileDefenderDamageDataRequest, V3);
         var reader = new StateReader(stream, ZeroHour);
-        var data = new DamageDataRequest();
+        var data = new DamageInfoInput();
         data.Persist(reader);
 
-        Assert.Equal(new ObjectId(5u), data.DamageDealer);
-        Assert.Equal(4, data.Unknown1);
+        Assert.Equal(new ObjectId(5u), data.SourceID);
+        Assert.Equal(4, (int)data.PlayerMaskType);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
-        Assert.Equal(DamageType.Unresistable, data.DamageTypeUnknown); // unclear what this is
+        Assert.Equal(DamageType.Unresistable, data.DamageFXOverride);
         Assert.Equal(DeathType.Normal, data.DeathType);
-        Assert.Equal(40, data.DamageToDeal, 0.01);
-        Assert.Equal("AmericaInfantryMissileDefender", data.AttackerName);
+        Assert.Equal(40, data.Amount, 0.01);
+        Assert.Equal("AmericaInfantryMissileDefender", data.SourceTemplate.Name);
     }
 
     #endregion
@@ -251,7 +253,7 @@ public class DamageTests : StatePersisterTest
     #region DamageData Result
 
     /// <summary>
-    /// Generals default DamageDataResult object.
+    /// Generals default DamageInfoOutput object.
     /// </summary>
     private static readonly byte[] GeneralsDefaultDamageDataResult = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
@@ -260,11 +262,11 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsDefaultDamageDataResult);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataResult();
+        var data = new DamageInfoOutput();
         data.Persist(reader);
 
-        Assert.Equal(0, data.DamageAfterArmorCalculation);
-        Assert.Equal(0, data.ActualDamageApplied);
+        Assert.Equal(0, data.ActualDamageDealt);
+        Assert.Equal(0, data.ActualDamageClipped);
     }
 
     /// <summary>
@@ -277,11 +279,11 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsMissileDamageDataResult);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataResult();
+        var data = new DamageInfoOutput();
         data.Persist(reader);
 
-        Assert.Equal(40, data.DamageAfterArmorCalculation, 0.01);
-        Assert.Equal(40, data.ActualDamageApplied, 0.01);
+        Assert.Equal(40, data.ActualDamageDealt, 0.01);
+        Assert.Equal(40, data.ActualDamageClipped, 0.01);
     }
 
     /// <summary>
@@ -294,11 +296,11 @@ public class DamageTests : StatePersisterTest
     {
         var stream = SaveData(GeneralsHealingDamageDataResult);
         var reader = new StateReader(stream, Generals);
-        var data = new DamageDataResult();
+        var data = new DamageInfoOutput();
         data.Persist(reader);
 
-        Assert.Equal(3.333, data.DamageAfterArmorCalculation, 0.01);
-        Assert.Equal(-3.333, data.ActualDamageApplied, 0.01);
+        Assert.Equal(3.333, data.ActualDamageDealt, 0.01);
+        Assert.Equal(-3.333, data.ActualDamageClipped, 0.01);
     }
 
     #endregion

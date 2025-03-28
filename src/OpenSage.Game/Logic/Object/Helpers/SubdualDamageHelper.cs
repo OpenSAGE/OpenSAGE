@@ -6,6 +6,11 @@ internal sealed class SubdualDamageHelper : ObjectHelperModule
     {
     }
 
+    public void NotifySubdualDamage(float amount)
+    {
+        // TODO(Port): Implement this.
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

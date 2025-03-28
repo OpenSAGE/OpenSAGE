@@ -65,9 +65,9 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private void HealUnit(GameObject gameObject)
     {
-        if (gameObject.HealthPercentage < Fix64.One)
+        if (gameObject.BodyModule.Health < gameObject.BodyModule.MaxHealth)
         {
-            gameObject.Heal(GetHealPercentage(), GameObject);
+            gameObject.AttemptHealing(GetHealPercentage() * gameObject.BodyModule.MaxHealth, GameObject);
         }
     }
 
