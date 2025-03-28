@@ -81,9 +81,9 @@ public sealed class Locomotor : IPersistableObject
         _preferredHeight = template.PreferredHeight;
         _preferredHeightDamping = template.PreferredHeightDamping;
 
-        _angleOffset = gameEngine.Random.NextSingle(-MathF.PI / 6.0f, MathF.PI / 6.0f);
-        _offsetIncrement = (MathF.PI / 40.0f) * (gameEngine.Random.NextSingle(0.8f, 1.2f) / template.WanderLengthFactor);
-        SetFlag(LocomotorFlags.OffsetIncreasing, gameEngine.Random.NextBoolean());
+        _angleOffset = gameEngine.GameLogic.Random.NextSingle(-MathF.PI / 6.0f, MathF.PI / 6.0f);
+        _offsetIncrement = (MathF.PI / 40.0f) * (gameEngine.GameLogic.Random.NextSingle(0.8f, 1.2f) / template.WanderLengthFactor);
+        SetFlag(LocomotorFlags.OffsetIncreasing, gameEngine.GameLogic.Random.NextBoolean());
 
         ResetDonutTimer();
     }

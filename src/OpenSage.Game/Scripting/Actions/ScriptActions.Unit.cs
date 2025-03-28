@@ -50,7 +50,7 @@ partial class ScriptActions
         var nearestWaypoint = waypoints.MinByOrDefault(w => Vector3.DistanceSquared(unit.Translation, w.Position));
         if (nearestWaypoint != null)
         {
-            var positions = nearestWaypoint.FollowPath(context.Scene.Random);
+            var positions = nearestWaypoint.FollowPath(context.Game.GameLogic.Random);
             unit.AIUpdate.FollowWaypoints(positions);
         }
     }

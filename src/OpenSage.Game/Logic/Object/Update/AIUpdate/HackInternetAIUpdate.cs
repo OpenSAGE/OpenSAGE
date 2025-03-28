@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System.Numerics;
-using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.AI.AIStates;
@@ -106,8 +105,11 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
 
     internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameEngine gameEngine)
     {
-        // take a random float, *2 for 0 - 2, -1 for -1 - 1, *variance for our actual variance factor
-        return new LogicFrameSpan((uint)(time.Value + time.Value * ((gameEngine.Random.NextSingle() * 2 - 1) * AIUpdate.ModuleData.PackUnpackVariationFactor)));
+        var variationFactor = AIUpdate.ModuleData.PackUnpackVariationFactor;
+        var variation = gameEngine.GameLogic.Random.NextSingle(
+            1.0f - variationFactor,
+            1.0f + variationFactor);
+        return new LogicFrameSpan((uint)(time.Value * variation));
     }
 }
 

@@ -96,7 +96,7 @@ public class W3dModelDraw : DrawModule
         Drawable = drawable;
         _gameEngine = gameEngine;
 
-        UpdateConditionState(new BitArray<ModelConditionFlag>(), gameEngine.Random);
+        UpdateConditionState(new BitArray<ModelConditionFlag>(), gameEngine.GameClient.Random);
 
         _unknownSomething = new List<W3dModelDrawSomething>[3];
         for (var i = 0; i < _unknownSomething.Length; i++)
@@ -105,7 +105,7 @@ public class W3dModelDraw : DrawModule
         }
     }
 
-    private void SetActiveConditionState(ModelConditionState conditionState, Random random)
+    private void SetActiveConditionState(ModelConditionState conditionState, IRandom random)
     {
         if (_activeConditionState == conditionState || ShouldWaitForRunningAnimationsToFinish())
         {
@@ -139,7 +139,7 @@ public class W3dModelDraw : DrawModule
         //&& (_activeModelDrawConditionState?.StillActive() ?? false);
     }
 
-    protected virtual bool SetActiveAnimationState(AnimationState animationState, Random random)
+    protected virtual bool SetActiveAnimationState(AnimationState animationState, IRandom random)
     {
         if (animationState == _activeAnimationState && (_activeModelDrawConditionState?.StillActive() ?? false))
         {
@@ -179,7 +179,7 @@ public class W3dModelDraw : DrawModule
         {
             var flags = animationState.Flags;
             var mode = animationBlock.AnimationMode;
-            var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _gameEngine.Random);
+            var animationInstance = new AnimationInstance(modelInstance.ModelBoneInstances, anim, mode, flags, GameObject, _gameEngine.GameClient.Random);
             modelInstance.AnimationInstances.Add(animationInstance);
             animationInstance.Play(animationBlock.AnimationSpeedFactorRange.GetValue(random));
         }
@@ -192,7 +192,7 @@ public class W3dModelDraw : DrawModule
     public void SetTransitionState(string state)
     {
         var transitionState = _data.TransitionStates.FirstOrDefault(x => x.StateName == state);
-        SetActiveAnimationState(transitionState, _gameEngine.Random);
+        SetActiveAnimationState(transitionState, _gameEngine.GameClient.Random);
     }
 
     internal static T FindBestFittingConditionState<T, TFlag>(List<T> conditionStates, BitArray<TFlag> flags)
@@ -204,7 +204,7 @@ public class W3dModelDraw : DrawModule
             flags);
     }
 
-    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
+    public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, IRandom random)
     {
         if (!flags.BitsChanged)
         {
@@ -261,7 +261,7 @@ public class W3dModelDraw : DrawModule
         }
     }
 
-    private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Random random)
+    private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, IRandom random)
     {
         // Load model, fallback to default model.
         var model = conditionState.Model?.Value;

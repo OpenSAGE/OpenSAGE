@@ -49,7 +49,7 @@ public sealed class Drawable : Entity, IPersistableObject
             {
                 foreach (var drawModule in _drawModules)
                 {
-                    drawModule.UpdateConditionState(ModelConditionFlags, _gameEngine.Random);
+                    drawModule.UpdateConditionState(ModelConditionFlags, _gameEngine.GameClient.Random);
                 }
                 ModelConditionFlags.BitsChanged = false;
             }

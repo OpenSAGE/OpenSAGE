@@ -30,7 +30,7 @@ public abstract class DrawModule : ModuleBase
     internal abstract string GetWeaponFireFXBone(WeaponSlot slot);
     internal abstract string GetWeaponLaunchBone(WeaponSlot slot);
 
-    public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, Random random)
+    public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, IRandom random)
     {
 
     }

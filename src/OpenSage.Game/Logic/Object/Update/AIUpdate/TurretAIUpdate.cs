@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
 
@@ -75,7 +76,7 @@ public class TurretAIUpdate : UpdateModule
                 {
                     if (!FoundTargetWhileScanning(context, autoAcquireEnemiesWhenIdle))
                     {
-                        var scanInterval = context.GameEngine.GetRandomLogicFrameSpan(
+                        var scanInterval = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(
                             _moduleData.MinIdleScanInterval,
                             _moduleData.MaxIdleScanInterval);
                         _waitUntil = context.LogicFrame + scanInterval;

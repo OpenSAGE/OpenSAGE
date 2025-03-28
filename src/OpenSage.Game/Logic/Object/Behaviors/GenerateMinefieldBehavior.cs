@@ -149,7 +149,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
     {
         // todo: should the normal matching be handled by KindOf STICK_TO_TERRAIN_SLOPE?
         var normal = GameEngine.Terrain.HeightMap.GetNormal(location.X, location.Y);
-        var rotation = (float)(GameEngine.Random.NextDouble() * 2 * Math.PI);
+        var rotation = GameEngine.GameLogic.Random.NextSingle(0, MathUtility.TwoPi);
         return new Transform(location, Quaternion.CreateFromAxisAngle(normal, rotation));
     }
 

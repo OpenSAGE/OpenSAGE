@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSage.Mathematics;
+﻿namespace OpenSage.Mathematics;
 
 public readonly struct FloatRange
 {
@@ -13,5 +11,5 @@ public readonly struct FloatRange
         High = high;
     }
 
-    public float GetValue(Random random) => (float)(random.NextDouble() * (High - Low) + Low);
+    public float GetValue(IRandom random) => random.NextSingle(Low, High);
 }

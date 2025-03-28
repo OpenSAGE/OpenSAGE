@@ -99,8 +99,6 @@ public sealed class Scene3D : DisposableBase
     internal AudioSystem Audio => Game.Audio;
     internal AssetLoadContext AssetLoadContext => Game.AssetStore.LoadContext;
 
-    public readonly Random Random;
-
     private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
     public readonly Radar Radar;
@@ -119,12 +117,11 @@ public sealed class Scene3D : DisposableBase
         Game game,
         MapFile mapFile,
         string mapPath,
-        int randomSeed,
         Data.Map.Player[] mapPlayers,
         Data.Map.Team[] mapTeams,
         ScriptList[] mapScriptLists,
         GameType gameType)
-        : this(game, () => game.Viewport, game.InputMessageBuffer, randomSeed, false, mapFile, mapPath)
+        : this(game, () => game.Viewport, game.InputMessageBuffer, false, mapFile, mapPath)
     {
         game.Scene3D = this;
 
@@ -266,9 +263,8 @@ public sealed class Scene3D : DisposableBase
         Func<Viewport> getViewport,
         IEditorCameraController cameraController,
         WorldLighting lighting,
-        int randomSeed,
         bool isDiagnosticScene = false)
-        : this(game, getViewport, inputMessageBuffer, randomSeed, isDiagnosticScene, null, null)
+        : this(game, getViewport, inputMessageBuffer, isDiagnosticScene, null, null)
     {
         WaterAreas = AddDisposable(new WaterAreaCollection());
         Lighting = lighting;
@@ -281,7 +277,7 @@ public sealed class Scene3D : DisposableBase
         EditorCameraController = cameraController;
     }
 
-    private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, int randomSeed, bool isDiagnosticScene, MapFile mapFile, string mapPath)
+    private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, bool isDiagnosticScene, MapFile mapFile, string mapPath)
     {
         Game = game;
 
@@ -290,8 +286,6 @@ public sealed class Scene3D : DisposableBase
         SelectionGui = new SelectionGui();
 
         DebugOverlay = new DebugOverlay(this, game.ContentManager);
-
-        Random = new Random(randomSeed);
 
         RenderScene = new RenderScene();
 

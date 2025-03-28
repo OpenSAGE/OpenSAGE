@@ -20,7 +20,7 @@ internal sealed class LifetimeUpdate : UpdateModule
     {
         _moduleData = moduleData;
 
-        var lifetimeFrames = gameEngine.Random.Next(
+        var lifetimeFrames = gameEngine.GameLogic.Random.Next(
             (int)moduleData.MinLifetime.Value,
             (int)moduleData.MaxLifetime.Value);
 

@@ -25,11 +25,11 @@ public sealed class CreateCrateDie : DieModule
 
             if (KillerCanSpawnCrate(killer, crateData))
             {
-                if (GameEngine.Random.NextSingle() < crateData.CreationChance)
+                if (GameEngine.GameLogic.Random.NextSingle(0, 1) < crateData.CreationChance)
                 {
                     // actually create the crate
                     float totalProbability = 0;
-                    var selection = GameEngine.Random.NextSingle();
+                    var selection = GameEngine.GameLogic.Random.NextSingle(0, 1);
                     foreach (var crate in crateData.CrateObjects)
                     {
                         totalProbability += crate.Probability;

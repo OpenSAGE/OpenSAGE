@@ -5,6 +5,7 @@ using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using Xunit;
 
 namespace OpenSage.Tests.Graphics.Animation;
@@ -318,9 +319,11 @@ public class AnimationInstanceTests
 /// <summary>
 /// Guaranteed random!
 /// </summary>
-internal class QuoteUnquoteRandom : Random
+internal class QuoteUnquoteRandom : IRandom
 {
     private readonly int _random;
+
+    public uint Seed => 0;
 
     /// <summary>
     /// Constructs a new "random" number generator which will always return 0.
@@ -328,6 +331,8 @@ internal class QuoteUnquoteRandom : Random
     public QuoteUnquoteRandom() : this(0)
     {
     }
+
+    public void Initialize(uint seed) { }
 
     /// <summary>
     /// Constructs a new "random" number generator.
@@ -338,19 +343,14 @@ internal class QuoteUnquoteRandom : Random
         _random = random;
     }
 
-    public override int Next()
+    public int Next(int lo, int hi)
     {
         return _random;
     }
 
-    public override int Next(int maxValue)
+    public float NextSingle(float lo, float hi)
     {
-        return Next();
-    }
-
-    public override int Next(int minValue, int maxValue)
-    {
-        return Next(minValue);
+        return _random;
     }
 }
 

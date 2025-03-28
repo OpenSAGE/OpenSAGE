@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Scripting;
@@ -128,7 +129,7 @@ public sealed class Waypoint
     /// b) the returned enumerable is potentially infinite, so avoid materializing it by
     /// calling <see cref="Enumerable.ToList"/> and co.
     /// </summary>
-    public IEnumerable<Vector3> FollowPath(Random random)
+    public IEnumerable<Vector3> FollowPath(IRandom random)
     {
         var currentWaypoint = this;
         while (currentWaypoint != null)
@@ -139,7 +140,7 @@ public sealed class Waypoint
             {
                 0 => null,
                 1 => connectedWaypoints[0],
-                int n => connectedWaypoints[random.Next(n)]
+                int n => connectedWaypoints[random.Next(0, n - 1)]
             };
         }
     }

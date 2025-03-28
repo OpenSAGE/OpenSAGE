@@ -1,6 +1,6 @@
-﻿using System;
-using ImGuiNET;
+﻿using ImGuiNET;
 using OpenSage.Data.Ini;
+using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
 
@@ -15,7 +15,7 @@ internal class DeletionUpdate : UpdateModule
     {
         _moduleData = moduleData;
 
-        _frameToDelete = gameEngine.GameLogic.CurrentFrame + gameEngine.GetRandomLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
+        _frameToDelete = gameEngine.GameLogic.CurrentFrame + gameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
         SetNextUpdateFrame(_frameToDelete);
     }
 
