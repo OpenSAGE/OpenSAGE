@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -484,12 +485,12 @@ public sealed class Drawable : Entity, IPersistableObject
         return true;
     }
 
-    private static readonly Dictionary<BodyDamageType, ModelConditionFlag> DamageTypeLookup = new()
+    private static readonly FrozenDictionary<BodyDamageType, ModelConditionFlag> DamageTypeLookup = new Dictionary<BodyDamageType, ModelConditionFlag>()
     {
         { BodyDamageType.Damaged, ModelConditionFlag.Damaged },
         { BodyDamageType.ReallyDamaged, ModelConditionFlag.ReallyDamaged },
         { BodyDamageType.Rubble, ModelConditionFlag.Rubble },
-    };
+    }.ToFrozenDictionary();
 
     public void ReactToBodyDamageStateChange(BodyDamageType newState)
     {

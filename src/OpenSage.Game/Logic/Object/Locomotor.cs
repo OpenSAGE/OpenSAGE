@@ -1029,7 +1029,7 @@ public sealed class Locomotor : IPersistableObject
         var projectFrames = _gameEngine.LogicFramesPerSecond / 2; // Project out 1/2 second.
         if (MathF.Abs(relAngle) > fifteenDegrees)
         {
-            // If we're turning more than 10 degrees, check & see if we're moving into "impassable territory"
+            // If we're turning more than 15 degrees, check & see if we're moving into "impassable territory"
             var distance = projectFrames * (goalSpeed + actualSpeed) / 2.0f;
             var targetAngle = obj.Yaw;
             var turnFactor = ((goalSpeed + actualSpeed) / 2.0f) / turnSpeed;

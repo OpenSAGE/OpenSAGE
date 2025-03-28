@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using FixedMath.NET;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -43,6 +42,7 @@ public sealed class BattlePlanUpdate : UpdateModule
         GameObject.Owner.InitializeStrategyData(_validMemberKindOf, _invalidMemberKindOf);
     }
 
+    // TODO(Port): Implement this. BattlePlanUpdate doesn't actually implement IDieModule so this must be done in a different way.
     //internal override void OnDie(BehaviorUpdateContext context, DeathType deathType, BitArray<ObjectStatus> status)
     //{
     //    ClearActiveBattlePlan();
