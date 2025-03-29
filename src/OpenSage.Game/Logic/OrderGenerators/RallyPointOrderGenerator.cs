@@ -32,7 +32,7 @@ public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
         _rallyPointMarker = Game.GameClient.CreateDrawable(rpMarkerDef, null);
     }
 
-    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    public override OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers)
     {
         var playerId = scene.GetPlayerIndex(LocalPlayer);
 

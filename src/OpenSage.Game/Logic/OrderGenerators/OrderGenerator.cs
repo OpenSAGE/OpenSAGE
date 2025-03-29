@@ -19,7 +19,7 @@ public abstract class OrderGenerator(IGame game) : IOrderGenerator
     protected Player? LocalPlayer => game.Scene3D.LocalPlayer;
     protected IReadOnlyCollection<GameObject>? SelectedUnits => LocalPlayer?.SelectedUnits;
 
-    public abstract OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers);
+    public abstract OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers);
     public abstract string? GetCursor(KeyModifiers keyModifiers);
 
     public virtual void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime) { }

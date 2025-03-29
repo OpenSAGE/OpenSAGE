@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.ParticleSystems;
 
 internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
 {
-    private readonly Scene3D _scene;
+    private readonly IScene3D _scene;
     private readonly AssetLoadContext _loadContext;
     private readonly int _maxParticleCount;
 
@@ -18,7 +18,7 @@ internal sealed class ParticleSystemManager : DisposableBase, IPersistableObject
 
     private uint _previousParticleSystemId;
 
-    public ParticleSystemManager(Scene3D scene, AssetLoadContext assetLoadContext)
+    public ParticleSystemManager(IScene3D scene, AssetLoadContext assetLoadContext)
     {
         _scene = scene;
         _loadContext = assetLoadContext;

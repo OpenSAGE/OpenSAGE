@@ -10,7 +10,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage;
 
-public class Scene25D(Scene3D scene3D, AssetStore assetStore)
+public class Scene25D(IScene3D scene3D, AssetStore assetStore)
 {
     protected IGameObjectCollection GameObjects => scene3D.GameObjects;
     protected Camera Camera => scene3D.Camera;

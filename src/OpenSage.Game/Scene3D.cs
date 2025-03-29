@@ -28,7 +28,7 @@ using Player = OpenSage.Logic.Player;
 
 namespace OpenSage;
 
-public sealed class Scene3D : DisposableBase
+public sealed class Scene3D : DisposableBase, IScene3D
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -45,6 +45,7 @@ public sealed class Scene3D : DisposableBase
     private readonly DebugMessageHandler _debugMessageHandler;
     public DebugOverlay DebugOverlay { get; private set; }
 
+    ParticleSystemManager IScene3D.ParticleSystemManager => ParticleSystemManager;
     internal ParticleSystemManager ParticleSystemManager { get; }
 
     private readonly OrderGeneratorSystem _orderGeneratorSystem;
@@ -96,7 +97,9 @@ public sealed class Scene3D : DisposableBase
     public Player LocalPlayer => Game.PlayerManager.LocalPlayer;
     public Navigation.Navigation Navigation { get; }
 
-    internal AudioSystem Audio => Game.Audio;
+    public AudioSystem Audio => Game.Audio;
+
+    AssetLoadContext IScene3D.AssetLoadContext => AssetLoadContext;
     internal AssetLoadContext AssetLoadContext => Game.AssetStore.LoadContext;
 
     private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
@@ -105,7 +108,7 @@ public sealed class Scene3D : DisposableBase
 
     public IGame Game { get; }
 
-    public GameObject BuildPreviewObject;
+    public GameObject BuildPreviewObject { get; set; }
 
     public RenderScene RenderScene { get; }
 
@@ -345,7 +348,7 @@ public sealed class Scene3D : DisposableBase
     // TODO: Move this over to a player collection?
     public int GetPlayerIndex(Player player) => Game.PlayerManager.GetPlayerIndex(player);
 
-    internal void LogicTick(in TimeInterval time)
+    public void LogicTick(in TimeInterval time)
     {
         Game.PlayerManager.LogicTick();
 
@@ -357,7 +360,7 @@ public sealed class Scene3D : DisposableBase
         GameObjects.DeleteDestroyed();
     }
 
-    internal void LocalLogicTick(in TimeInterval gameTime, float tickT)
+    public void LocalLogicTick(in TimeInterval gameTime, float tickT)
     {
         _orderGeneratorInputHandler?.Update();
 
@@ -382,7 +385,7 @@ public sealed class Scene3D : DisposableBase
         ParticleSystemManager?.Update(gameTime);
     }
 
-    internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
+    public void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
     {
         if (ShowWater)
         {
@@ -414,7 +417,7 @@ public sealed class Scene3D : DisposableBase
     }
 
     // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
-    internal void Render(DrawingContext2D drawingContext)
+    public void Render(DrawingContext2D drawingContext)
     {
         _scene25D?.Draw(drawingContext);
 
@@ -423,7 +426,7 @@ public sealed class Scene3D : DisposableBase
     }
 
     // TODO(Port): placeNetworkBuildingsForPlayer in GameLogic.cpp
-    internal GameObject CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
+    public GameObject CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player)
     {
         // TODO: Not sure what the OG does here.
         var playerStartPosition = new Vector3(80, 80, 0);

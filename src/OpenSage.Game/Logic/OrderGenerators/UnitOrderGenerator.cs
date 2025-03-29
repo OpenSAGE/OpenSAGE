@@ -23,7 +23,7 @@ internal sealed class UnitOrderGenerator(IGame game) : OrderGenerator(game)
         return Cursors.CursorForOrder(_currentOrder);
     }
 
-    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    public override OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers)
     {
         var playerId = scene.GetPlayerIndex(scene.LocalPlayer);
         var targetId = WorldObject?.Id ?? ObjectId.Invalid;

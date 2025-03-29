@@ -166,7 +166,7 @@ internal sealed class RenderPipeline : DisposableBase
 
     private void Render3DScene(
         CommandList commandList,
-        Scene3D scene,
+        IScene3D scene,
         RenderContext context)
     {
         Texture cloudTexture;
@@ -246,7 +246,7 @@ internal sealed class RenderPipeline : DisposableBase
             new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
     }
 
-    private void CalculateWaterShaderMap(Scene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
+    private void CalculateWaterShaderMap(IScene3D scene, RenderContext context, CommandList commandList, RenderItem renderItem, ResourceSet forwardPassResourceSet)
     {
         _waterMapRenderer.RenderWaterShaders(
             scene,

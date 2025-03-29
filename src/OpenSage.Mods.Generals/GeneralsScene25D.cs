@@ -10,7 +10,7 @@ using SixLabors.Fonts;
 
 namespace OpenSage.Mods.Generals;
 
-public class GeneralsScene25D(Scene3D scene3D, AssetStore assetStore) : Scene25D(scene3D, assetStore)
+public class GeneralsScene25D(IScene3D scene3D, AssetStore assetStore) : Scene25D(scene3D, assetStore)
 {
     private const string VeterancyPipPrefix = "SCVETER";
     private const string EmptyContainerPipName = "SCPPipEmpty";

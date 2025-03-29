@@ -17,14 +17,14 @@ internal sealed class RenderedView : DisposableBase
 {
     private readonly DiagnosticViewContext _context;
     private readonly InputMessageBuffer _inputMessageBuffer;
-    private readonly Scene3D _scene3D;
+    private readonly IScene3D _scene3D;
     private readonly RenderTarget _renderTarget;
 
     private Vector2 _cachedSize;
 
     public RenderPipeline RenderPipeline { get; }
 
-    public Scene3D Scene => _scene3D;
+    public IScene3D Scene => _scene3D;
 
     public RenderedView(
         DiagnosticViewContext context,

@@ -71,7 +71,7 @@ public interface IOrderGenerator
     // TODO: Should we use some other way of rendering, via Scene3D?
     void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime);
 
-    OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers);
+    OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers);
 
     void UpdatePosition(Vector2 mousePosition, Vector3 worldPosition);
 

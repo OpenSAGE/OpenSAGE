@@ -33,7 +33,7 @@ internal sealed class ShadowMapRenderer : DisposableBase
     }
 
     public void RenderShadowMap(
-        Scene3D scene,
+        IScene3D scene,
         GraphicsDevice graphicsDevice,
         CommandList commandList,
         Action<Framebuffer, BoundingFrustum> drawSceneCallback)
@@ -102,7 +102,7 @@ internal sealed class ShadowMapRenderer : DisposableBase
         new ColorRgbaF(1, 1, 1, 1),
     };
 
-    public void DrawDebugOverlay(Scene3D scene, DrawingContext2D drawingContext)
+    public void DrawDebugOverlay(IScene3D scene, DrawingContext2D drawingContext)
     {
         if (scene?.Shadows.VisualizeShadowFrustums is not true)
         {

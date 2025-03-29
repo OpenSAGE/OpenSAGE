@@ -41,7 +41,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
     private readonly Player _player;
     private readonly GameEngine _gameEngine;
     private readonly SpecialPowerTargetType _targetType;
-    private readonly Scene3D _scene;
+    private readonly IScene3D _scene;
 
     private readonly DecalHandle? _decalHandle;
 
@@ -55,7 +55,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
        Player player,
        GameEngine gameContext,
        SpecialPowerTargetType targetType,
-       Scene3D scene,
+       IScene3D scene,
        in TimeInterval time) : base(gameContext.Game)
     {
         _specialPower = cursorInformation.SpecialPower;
@@ -78,7 +78,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
         }
     }
 
-    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    public override OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers)
     {
         var player = scene.LocalPlayer;
         var playerIdx = scene.GetPlayerIndex(player);
