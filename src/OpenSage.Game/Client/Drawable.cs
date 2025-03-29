@@ -406,8 +406,8 @@ public sealed class Drawable : Entity, IPersistableObject
         // TODO(Port): Port more checks.
         var frozen = // _gameEngine.Scene3D.TacticalView.IsTimeFrozen ||
             !_gameEngine.Scene3D.TacticalView.IsCameraMovementFinished;
-            //_gameEngine.Game.Scripting.IsTimeFrozenDebug ||
-            //_gameEngine.Game.Scripting.IsTimeFrozenScript;
+        //_gameEngine.Game.Scripting.IsTimeFrozenDebug ||
+        //_gameEngine.Game.Scripting.IsTimeFrozenScript;
 
         if (frozen)
         {
@@ -901,7 +901,7 @@ public sealed class Drawable : Entity, IPersistableObject
             var pitchHeight2 = length2 * MathF.Sin(_locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch - groundPitch);
             //Real rollHeight = width*Sin(_locomotorInfo.Roll + _locomotorInfo.AccelerationRoll - groundRoll);
             info.TotalZ = MathF.Abs(pitchHeight2) / 4;// + MathF.Abs(rollHeight)/4;
-                                                  //return; // maintain the same orientation while we fly through the air.
+            //return; // maintain the same orientation while we fly through the air.
         }
 
         // Bouncy.
