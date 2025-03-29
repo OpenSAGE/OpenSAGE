@@ -130,7 +130,7 @@ internal sealed class WaterMapRenderer : DisposableBase
     }
 
     public void RenderWaterShaders(
-        Scene3D scene,
+        IScene3D scene,
         GraphicsDevice graphicsDevice,
         CommandList commandList,
         Action<Framebuffer, Framebuffer> drawSceneCallback)

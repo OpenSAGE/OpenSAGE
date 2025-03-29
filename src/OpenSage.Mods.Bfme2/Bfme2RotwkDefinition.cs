@@ -47,7 +47,7 @@ public class Bfme2RotwkDefinition : IGameDefinition
         return new OnDemandAssetLoadStrategy(PathResolvers.Bfme2W3d, PathResolvers.Bfme2Texture);
     }
 
-    public Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore) => new(scene3D, assetStore);
+    public Scene25D CreateScene25D(IScene3D scene3D, AssetStore assetStore) => new(scene3D, assetStore);
 
     public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();
 

@@ -19,13 +19,13 @@ public class DebugOverlay
     public Point2D MousePosition { get; internal set; }
     private Vector3? _mouseWorldPosition = null;
 
-    private readonly Scene3D _scene3D;
+    private readonly IScene3D _scene3D;
     private readonly Font _debugFont;
     private readonly StringBuilder _debugStringBuilder;
 
     private readonly List<IDebugDrawable> _debugDrawables;
 
-    public DebugOverlay(Scene3D scene3D, ContentManager contentManager)
+    public DebugOverlay(IScene3D scene3D, ContentManager contentManager)
     {
         _scene3D = scene3D;
         _debugFont = contentManager.FontManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);

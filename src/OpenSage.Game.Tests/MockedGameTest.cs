@@ -61,7 +61,7 @@ public abstract class MockedGameTest : IDisposable
         public bool IsRunning { get; }
         public Action Restart { get; set; }
         public Scene2D Scene2D { get; }
-        public Scene3D Scene3D { get; set; }
+        public IScene3D Scene3D { get; set; }
         public NetworkMessageBuffer NetworkMessageBuffer { get; set; }
         public Texture LauncherImage { get; }
         public GameLogic GameLogic { get; }

@@ -8,7 +8,7 @@ public sealed class ScriptExecutionContext
 
     public TimeInterval UpdateTime => Game.MapTime;
 
-    public Scene3D Scene => Game.Scene3D;
+    public IScene3D Scene => Game.Scene3D;
 
     public ScriptExecutionContext(IGame game)
     {

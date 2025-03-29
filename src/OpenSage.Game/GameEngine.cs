@@ -52,7 +52,7 @@ public sealed class GameEngine
     public readonly IQuadtree<GameObject> Quadtree;
 
     // TODO: This is temporary until Scene3D and GameEngine are merged.
-    public readonly Scene3D Scene3D;
+    public readonly IScene3D Scene3D;
 
     internal GameEngine(
         AssetLoadContext assetLoadContext,
@@ -63,7 +63,7 @@ public sealed class GameEngine
         Navigation.Navigation navigation,
         Radar radar,
         IQuadtree<GameObject> quadtree,
-        Scene3D scene,
+        IScene3D scene,
         IGame game)
     {
         AssetLoadContext = assetLoadContext;

@@ -112,7 +112,7 @@ public interface IGame
     GamePanel Panel { get; }
     Viewport Viewport { get; }
     Scene2D Scene2D { get; }
-    Scene3D Scene3D { get; set; }
+    IScene3D Scene3D { get; set; }
 
     NetworkMessageBuffer NetworkMessageBuffer { get; set; }
 

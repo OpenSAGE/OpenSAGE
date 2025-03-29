@@ -334,8 +334,8 @@ public sealed class Game : DisposableBase, IGame
 
     public Scene2D Scene2D { get; }
 
-    private Scene3D _scene3D;
-    public Scene3D Scene3D
+    private IScene3D _scene3D;
+    public IScene3D Scene3D
     {
         get => _scene3D;
         set

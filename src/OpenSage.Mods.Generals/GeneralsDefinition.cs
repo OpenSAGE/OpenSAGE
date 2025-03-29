@@ -46,7 +46,7 @@ public class GeneralsDefinition : IGameDefinition
         return new OnDemandAssetLoadStrategy(PathResolvers.W3d, PathResolvers.GeneralsTexture);
     }
 
-    public Scene25D CreateScene25D(Scene3D scene3D, AssetStore assetStore) => new GeneralsScene25D(scene3D, assetStore);
+    public Scene25D CreateScene25D(IScene3D scene3D, AssetStore assetStore) => new GeneralsScene25D(scene3D, assetStore);
 
     public bool Probe(string directory)
     {

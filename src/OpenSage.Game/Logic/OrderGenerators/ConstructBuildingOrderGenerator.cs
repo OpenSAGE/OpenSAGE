@@ -19,7 +19,7 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
     private readonly ObjectDefinition _buildingDefinition;
     private readonly int _definitionIndex;
     private readonly GameData _config;
-    private readonly Scene3D _scene;
+    private readonly IScene3D _scene;
 
     private readonly GameObject _previewObject;
 
@@ -33,7 +33,7 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
         GameData config,
         Player player,
         GameEngine gameContext,
-        Scene3D scene) : base(gameContext.Game)
+        IScene3D scene) : base(gameContext.Game)
     {
         _buildingDefinition = buildingDefinition;
         _definitionIndex = definitionIndex;
@@ -66,7 +66,7 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
         _previewObject.BuildRenderList(renderList, camera, gameTime);
     }
 
-    public override OrderGeneratorResult TryActivate(Scene3D scene, KeyModifiers keyModifiers)
+    public override OrderGeneratorResult TryActivate(IScene3D scene, KeyModifiers keyModifiers)
     {
         if (scene.Game.SageGame == SageGame.Bfme)
         {
