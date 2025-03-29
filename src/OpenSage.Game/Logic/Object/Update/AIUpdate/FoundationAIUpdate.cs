@@ -42,12 +42,12 @@ public class FoundationAIUpdate : AIUpdate
 
         if (collidingObjects.Any())
         {
-            obj.IsSelectable = false;
+            obj.SetSelectable(false);
             obj.Hidden = true;
             return;
         }
 
-        obj.IsSelectable = true;
+        obj.SetSelectable(true);
         obj.Hidden = false;
     }
 }

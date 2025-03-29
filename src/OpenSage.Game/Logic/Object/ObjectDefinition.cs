@@ -1371,6 +1371,11 @@ public class ObjectDefinition : BaseAsset
 
         modules[module.Tag] = module;
     }
+
+    public bool IsKindOf(ObjectKinds kind)
+    {
+        return KindOf.Get(kind);
+    }
 }
 
 [AddedIn(SageGame.CncGeneralsZeroHour)]

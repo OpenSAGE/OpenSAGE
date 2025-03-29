@@ -1,5 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using OpenSage.Content;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
@@ -12,7 +15,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     private readonly IGame _game;
     private readonly ObjectDefinitionLookupTable _objectDefinitionLookupTable;
 
-    private readonly List<GameObject> _objects = new();
+    private readonly List<GameObject?> _objects = new();
 
     private readonly Dictionary<string, GameObject> _nameLookup = new();
 
@@ -63,7 +66,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         Random = game.CreateRandom();
     }
 
-    public GameObject CreateObject(ObjectDefinition objectDefinition, Player player)
+    public GameObject? CreateObject(ObjectDefinition objectDefinition, Player? player)
     {
         if (objectDefinition == null)
         {
@@ -100,7 +103,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         SetObject(gameObject.Id, gameObject);
     }
 
-    private void SetObject(ObjectId objectId, GameObject gameObject)
+    private void SetObject(ObjectId objectId, GameObject? gameObject)
     {
         while (_objects.Count <= objectId.Index)
         {
@@ -109,12 +112,22 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         _objects[(int)objectId.Index] = gameObject;
     }
 
-    public GameObject GetObjectById(ObjectId id)
+    public GameObject? GetObjectById(ObjectId id)
     {
+        if (id.IsInvalid)
+        {
+            return null;
+        }
+
+        if (id.Index >= _objects.Count)
+        {
+            return null;
+        }
+
         return _objects[(int)id.Index];
     }
 
-    public bool TryGetObjectByName(string name, out GameObject gameObject)
+    public bool TryGetObjectByName(string name, [NotNullWhen(true)] out GameObject? gameObject)
     {
         return _nameLookup.TryGetValue(name, out gameObject);
     }
@@ -219,6 +232,11 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
                 var objectDefinition = _objectDefinitionLookupTable.GetById(objectDefinitionId);
 
                 var gameObject = CreateObject(objectDefinition, null);
+
+                if (gameObject == null)
+                {
+                    throw new InvalidOperationException($"Could not find object definition for object in save file: {objectDefinitionId}");
+                }
 
                 reader.BeginSegment(objectDefinition.Name);
 

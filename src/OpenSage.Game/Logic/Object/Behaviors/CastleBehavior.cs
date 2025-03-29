@@ -41,7 +41,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
         }
 
         GameObject.Hidden = true;
-        GameObject.IsSelectable = false;
+        GameObject.SetSelectable(false);
 
         var castleEntry = FindCastle(player.Template.Side);
 

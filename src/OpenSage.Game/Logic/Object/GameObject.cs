@@ -79,7 +79,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
         {
-            IsSelectable = (bool)selectable.Value;
+            SetSelectable((bool)selectable.Value);
         }
 
         // TODO: handle "align to terrain" property
@@ -206,8 +206,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private uint _enteredOrExitedPolygonTriggerFrame;
     private Point3D _integerPosition;
     private PolygonTriggerState[] _polygonTriggersState;
-    private int _unknown5;
-    private uint _unknownFrame;
+    private uint _safeOcclusionFrame;
     public ObjectId HealedByObjectId;
     public uint HealedEndFrame;
     private BitArray<WeaponBonusType> _weaponBonusTypes = new();
@@ -322,7 +321,30 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public Team Team { get; internal set; }
 
-    public bool IsSelectable;
+    private bool _isSelectable;
+    public bool IsSelectable
+    {
+        get
+        {
+            if (Definition.IsKindOf(ObjectKinds.AlwaysSelectable))
+            {
+                return true;
+            }
+
+            if (_isSelectable)
+            {
+                if (!TestStatus(ObjectStatus.Unselectable))
+                {
+                    if (!IsEffectivelyDead)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
     public bool IsProjectile { get; private set; } = false;
     public bool CanAttack { get; private set; }
 
@@ -394,6 +416,13 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     {
         get => _layer;
         set => _layer = value;
+    }
+
+    private PathfindLayerType _destinationLayer = PathfindLayerType.Invalid;
+    public PathfindLayerType DestinationLayer
+    {
+        get => _destinationLayer;
+        set => _destinationLayer = value;
     }
 
     // TODO(Port): Cache this, just like Thing::getHeightAboveTerrain().
@@ -589,7 +618,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         _shroudRevealSomething1.VisionRange = Definition.VisionRange;
         _shroudClearingRange = Definition.ShroudClearingRange;
 
-        IsSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
+        _isSelectable = Definition.KindOf.Get(ObjectKinds.Selectable);
         CanAttack = Definition.KindOf.Get(ObjectKinds.CanAttack);
 
         if (Definition.KindOf.Get(ObjectKinds.Projectile))
@@ -1316,7 +1345,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             ModelConditionFlags.Set(ModelConditionFlag.Damaged, false);
         }
 
-        IsSelectable = false;
         Owner.DeselectUnit(this);
 
         if (!construction)
@@ -1402,7 +1430,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     public void SetSelectable(bool selectable)
     {
-        IsSelectable = selectable;
+        _isSelectable = selectable;
+        // TODO: Generals doesn't update status when setSelectable is called, should we?
         _status.Set(ObjectStatus.Unselectable, !selectable);
     }
 
@@ -1724,9 +1753,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         reader.EndArray();
 
         reader.PersistEnum(ref _layer);
-        reader.PersistInt32(ref _unknown5); // 0, 1
-        reader.PersistBoolean(ref IsSelectable);
-        reader.PersistFrame(ref _unknownFrame);
+        reader.PersistEnum(ref _destinationLayer);
+        reader.PersistBoolean(ref _isSelectable);
+        reader.PersistFrame(ref _safeOcclusionFrame);
 
         reader.SkipUnknownBytes(4);
 

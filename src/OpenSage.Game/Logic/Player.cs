@@ -886,6 +886,11 @@ public sealed class SupplyManager : IPersistableObject
         {
             var supplyCenter = _game.GameLogic.GetObjectById(supplyCenterId);
 
+            if (supplyCenter == null)
+            {
+                continue;
+            }
+
             if (supplyCenter.Owner != supplyGatherer.Owner)
             {
                 continue;
