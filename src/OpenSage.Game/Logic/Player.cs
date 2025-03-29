@@ -1296,10 +1296,3 @@ public sealed class StrategyData : IPersistableObject
         persister.PersistBitArray(ref _invalidMemberKindOf);
     }
 }
-
-// TODO(Port): Port this.
-public sealed class AcademyStats
-{
-    public void RecordClearedGarrisonedBuilding() { }
-    public void RecordVehicleSniped() { }
-}
