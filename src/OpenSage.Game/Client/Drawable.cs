@@ -13,7 +13,6 @@ using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Utilities;
 
 namespace OpenSage.Client;
 
@@ -593,7 +592,7 @@ public sealed class Drawable : Entity, IPersistableObject
             if (MathF.Abs(_locomotorInfo.PitchRate) < factor * BOUNCE_ANGLE_KICK / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * BOUNCE_ANGLE_KICK / 8)
             {
                 // do the bouncy. 
-                switch (_gameEngine.Random.Next(0, 3))
+                switch (_gameEngine.GameClient.Random.Next(0, 3))
                 {
                     case 0:
                         _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
@@ -914,7 +913,7 @@ public sealed class Drawable : Entity, IPersistableObject
             if (MathF.Abs(_locomotorInfo.PitchRate) < factor * BOUNCE_ANGLE_KICK / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * BOUNCE_ANGLE_KICK / 8)
             {
                 // do the bouncy. 
-                switch (_gameEngine.Random.Next(0, 4))
+                switch (_gameEngine.GameClient.Random.Next(0, 3))
                 {
                     case 0:
                         _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
@@ -1234,8 +1233,8 @@ public sealed class Drawable : Entity, IPersistableObject
                         0.2f); // 0.25
 
                     var up = new Vector3(
-                        _gameEngine.Random.NextSingle(-rough, rough),
-                        _gameEngine.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
                         1.0f);
                     up = Vector3.Normalize(up);
 
@@ -1252,8 +1251,8 @@ public sealed class Drawable : Entity, IPersistableObject
                     overlapZ = height;
 
                     normal = new Vector3(
-                        _gameEngine.Random.NextSingle(-rough, rough),
-                        _gameEngine.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
                         1.0f);
                     normal = Vector3.Normalize(normal);
                 }
@@ -1263,7 +1262,7 @@ public sealed class Drawable : Entity, IPersistableObject
         {
             // if we had an overlap last frame, and we're now in the air, give a
             // kick to the pitch for effect
-            if (physics.PreviousOverlap != 0 && _locomotorInfo.OverlapZ > 0.0f)
+            if (physics.PreviousOverlap.IsValid && _locomotorInfo.OverlapZ > 0.0f)
             {
                 _locomotorInfo.PitchRate += LEAVE_OVERLAP_PITCH_KICK;
             }
@@ -1785,7 +1784,7 @@ public sealed class Drawable : Entity, IPersistableObject
         reader.PersistMatrix4x3(ref _instanceMatrix, false);
         reader.PersistSingle(ref _instanceScale);
 
-        reader.PersistObjectID(ref _drawableInfo.ShroudStatusObjectId);
+        reader.PersistObjectId(ref _drawableInfo.ShroudStatusObjectId);
 
         reader.PersistUInt32(ref _expirationDate);
 
@@ -2188,7 +2187,7 @@ public class DrawableInfo
     /// Since we sometimes have drawables without objects, this points to a
     /// parent object from which we pull shroud status.
     /// </summary>
-    public uint ShroudStatusObjectId;
+    public ObjectId ShroudStatusObjectId;
 
     /// <summary>
     /// Pointer back to drawable containing this <see cref="DrawableInfo"/>.
