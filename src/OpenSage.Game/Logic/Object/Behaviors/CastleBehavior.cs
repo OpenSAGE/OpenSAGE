@@ -18,7 +18,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
 
     public bool IsUnpacked { get; set; }
 
-    internal CastleBehavior(GameObject gameObject, GameEngine gameEngine, CastleBehaviorModuleData moduleData)
+    internal CastleBehavior(GameObject gameObject, IGameEngine gameEngine, CastleBehaviorModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         IsUnpacked = false;
@@ -211,7 +211,7 @@ public class CastleBehaviorModuleData : FoundationAIUpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool Summoned { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CastleBehavior(gameObject, gameEngine, this);
     }

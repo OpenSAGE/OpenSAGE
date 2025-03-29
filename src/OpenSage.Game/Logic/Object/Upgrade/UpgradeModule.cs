@@ -12,7 +12,7 @@ public abstract class UpgradeModule : BehaviorModule, IUpgradeableModule
 
     internal bool Triggered => _upgradeLogic.Triggered;
 
-    internal UpgradeModule(GameObject gameObject, GameEngine gameEngine, UpgradeModuleData moduleData) : base(gameObject, gameEngine)
+    internal UpgradeModule(GameObject gameObject, IGameEngine gameEngine, UpgradeModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);

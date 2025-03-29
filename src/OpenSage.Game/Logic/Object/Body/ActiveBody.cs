@@ -38,7 +38,7 @@ public class ActiveBody : BodyModule
     private Armor _currentArmor = Armor.NoArmor;
     private DamageFX? _currentDamageFX;
 
-    internal ActiveBody(GameObject gameObject, GameEngine gameEngine, ActiveBodyModuleData moduleData)
+    internal ActiveBody(GameObject gameObject, IGameEngine gameEngine, ActiveBodyModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -152,7 +152,7 @@ public class ActiveBody : BodyModule
                 {
                     // Original comment (which suggests that this code and the code
                     // mentioned in DumbProjectileBehavior) could be refactored:
-                    // 
+                    //
                     // This code is very misleading (but in a good way). One would think this is
                     // an excellent place to add the hook to kill garrisoned troops. And that is
                     // a correct assumption. Unfortunately, the vast majority of garrison slayings
@@ -1138,7 +1138,7 @@ public class ActiveBodyModuleData : BodyModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public string? ReallyDamagedAttributeModifier { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ActiveBody(gameObject, gameEngine, this);
     }

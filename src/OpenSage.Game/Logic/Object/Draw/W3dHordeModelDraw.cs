@@ -13,7 +13,7 @@ public class W3dHordeModelDraw : W3dScriptedModelDraw
     internal W3dHordeModelDraw(
         W3dHordeModelDrawModuleData data,
         Drawable drawable,
-        GameEngine gameEngine) : base(data, drawable, gameEngine)
+        IGameEngine gameEngine) : base(data, drawable, gameEngine)
     {
     }
 
@@ -35,7 +35,7 @@ public class W3dHordeModelDrawModuleData : W3dScriptedModelDrawModuleData
 
     public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dHordeModelDraw(this, drawable, gameEngine);
     }

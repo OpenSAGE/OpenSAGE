@@ -14,7 +14,7 @@ public sealed class TunnelContain : OpenContainModule, IDieModule
     private bool _unknown1;
     private bool _unknown2;
 
-    internal TunnelContain(GameObject gameObject, GameEngine gameEngine, TunnelContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal TunnelContain(GameObject gameObject, IGameEngine gameEngine, TunnelContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
         gameObject.Owner.TunnelManager?.TunnelIds.Add(gameObject.Id);
@@ -125,7 +125,7 @@ public sealed class TunnelContainModuleData : GarrisonContainModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool AllowOwnPlayerInsideOverride { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new TunnelContain(gameObject, gameEngine, this);
     }

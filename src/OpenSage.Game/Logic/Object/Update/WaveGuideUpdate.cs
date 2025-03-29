@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 public sealed class WaveGuideUpdate : UpdateModule
 {
     // TODO
-    public WaveGuideUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public WaveGuideUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -64,7 +64,7 @@ public sealed class WaveGuideUpdateModuleData : UpdateModuleData
     public float BridgeParticleAngleFudge { get; private set; }
     public string LoopingSound { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new WaveGuideUpdate(gameObject, gameEngine);
     }

@@ -7,7 +7,7 @@ public sealed class VeterancyGainCreate : CreateModule
 {
     private readonly VeterancyGainCreateModuleData _moduleData;
 
-    public VeterancyGainCreate(GameObject gameObject, GameEngine gameEngine, VeterancyGainCreateModuleData moduleData)
+    public VeterancyGainCreate(GameObject gameObject, IGameEngine gameEngine, VeterancyGainCreateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -51,7 +51,7 @@ public sealed class VeterancyGainCreateModuleData : CreateModuleData
     public VeterancyLevel StartingLevel { get; private set; }
     public LazyAssetReference<Science> ScienceRequired { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new VeterancyGainCreate(gameObject, gameEngine, this);
     }

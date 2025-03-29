@@ -2,7 +2,7 @@
 
 internal sealed class StatusDamageHelper : ObjectHelperModule
 {
-    public StatusDamageHelper(GameObject gameObject, GameEngine gameEngine)
+    public StatusDamageHelper(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
     }

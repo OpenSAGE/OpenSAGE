@@ -6,7 +6,7 @@ internal sealed class WeaponSetUpgrade : UpgradeModule
 {
     private readonly WeaponSetUpgradeModuleData _moduleData;
 
-    internal WeaponSetUpgrade(GameObject gameObject, GameEngine gameEngine, WeaponSetUpgradeModuleData moduleData)
+    internal WeaponSetUpgrade(GameObject gameObject, IGameEngine gameEngine, WeaponSetUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -44,7 +44,7 @@ public sealed class WeaponSetUpgradeModuleData : UpgradeModuleData
 
     public WeaponSetConditions WeaponCondition { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new WeaponSetUpgrade(gameObject, gameEngine, this);
     }

@@ -22,7 +22,7 @@ public sealed class FireWeaponUpdate : UpdateModule
     private uint _unknownUInt4;
     private uint _unknownUInt5;
 
-    public FireWeaponUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public FireWeaponUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -111,7 +111,7 @@ public sealed class FireWeaponUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeaponNugget FireWeaponNugget { get; private set; }
 
-    internal override FireWeaponUpdate CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override FireWeaponUpdate CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new FireWeaponUpdate(gameObject, gameEngine);
     }

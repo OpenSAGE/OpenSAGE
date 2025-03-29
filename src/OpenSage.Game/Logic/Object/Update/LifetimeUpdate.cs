@@ -15,7 +15,7 @@ internal sealed class LifetimeUpdate : UpdateModule
         set => _frameToDie = value;
     }
 
-    public LifetimeUpdate(GameObject gameObject, GameEngine gameEngine, LifetimeUpdateModuleData moduleData)
+    public LifetimeUpdate(GameObject gameObject, IGameEngine gameEngine, LifetimeUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -69,7 +69,7 @@ public sealed class LifetimeUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public DeathType DeathType { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new LifetimeUpdate(gameObject, gameEngine, this);
     }

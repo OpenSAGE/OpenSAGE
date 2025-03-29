@@ -17,7 +17,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     /// </summary>
     private LogicFrame _endOfStartHealingDelay;
 
-    public AutoHealBehavior(GameObject gameObject, GameEngine gameEngine, AutoHealBehaviorModuleData moduleData)
+    public AutoHealBehavior(GameObject gameObject, IGameEngine gameEngine, AutoHealBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -254,7 +254,7 @@ public sealed class AutoHealBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public bool HealOnlyIfNotUnderAttack { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new AutoHealBehavior(gameObject, gameEngine, this);
     }

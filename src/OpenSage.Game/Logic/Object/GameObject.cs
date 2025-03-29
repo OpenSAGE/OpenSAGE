@@ -29,7 +29,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 {
     internal static GameObject FromMapObject(
         MapObject mapObject,
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         bool useRotationAnchorOffset = true,
         in float? overwriteAngle = 0.0f)
     {
@@ -41,10 +41,10 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 name = name.Split('/')[1];
             }
-            teamTemplate = gameContext.Game.TeamFactory.FindTeamTemplateByName(name);
+            teamTemplate = gameEngine.Game.TeamFactory.FindTeamTemplateByName(name);
         }
 
-        var gameObjectDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
+        var gameObjectDefinition = gameEngine.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
 
         // TODO: Is there any valid case where we'd want to allow a game object to be null?
         if (gameObjectDefinition is null)
@@ -52,7 +52,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             return null;
         }
 
-        var gameObject = gameContext.GameLogic.CreateObject(gameObjectDefinition, teamTemplate?.Owner);
+        var gameObject = gameEngine.GameLogic.CreateObject(gameObjectDefinition, teamTemplate?.Owner);
         gameObject.TeamTemplate = teamTemplate;
         gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
 
@@ -138,7 +138,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     public Percentage ProductionModifier { get; set; } = new Percentage(1);
     public Fix64 HealthModifier { get; set; }
 
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
 
     private readonly BehaviorUpdateContext _behaviorUpdateContext;
 
@@ -454,25 +454,25 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     internal GameObject(
         ObjectDefinition objectDefinition,
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         Player owner)
     {
         if (objectDefinition.BuildVariations != null && objectDefinition.BuildVariations.Count() > 0)
         {
-            objectDefinition = objectDefinition.BuildVariations[gameContext.GameLogic.Random.Next(0, objectDefinition.BuildVariations.Length - 1)].Value;
+            objectDefinition = objectDefinition.BuildVariations[gameEngine.GameLogic.Random.Next(0, objectDefinition.BuildVariations.Length - 1)].Value;
         }
 
         _objectMoved = true;
         Hidden = false;
 
         Definition = objectDefinition ?? throw new ArgumentNullException(nameof(objectDefinition));
-        ExperienceTracker = new ExperienceTracker(this, gameContext);
+        ExperienceTracker = new ExperienceTracker(this, gameEngine);
 
         _attributeModifiers = new Dictionary<string, AttributeModifier>();
-        _gameEngine = gameContext;
-        Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
+        _gameEngine = gameEngine;
+        Owner = owner ?? gameEngine.Game.PlayerManager.GetCivilianPlayer();
 
-        _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
+        _behaviorUpdateContext = new BehaviorUpdateContext(gameEngine, this);
 
         _weaponSet = new WeaponSet(this, _gameEngine);
         WeaponSetConditions = new BitArray<WeaponSetConditions>();
@@ -483,7 +483,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         // TODO: Instead of GameObject owning the drawable, which makes logic tests a little awkward,
         // perhaps create Drawable somewhere else and attach it to this GameObject?
-        Drawable = gameContext.GameClient?.CreateDrawable(objectDefinition, this);
+        Drawable = gameEngine.GameClient?.CreateDrawable(objectDefinition, this);
 
         var behaviors = new List<BehaviorModule>();
 
@@ -495,49 +495,49 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             AddModule(tag, behavior);
         }
 
-        AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper(this, gameContext));
+        AddBehavior("ModuleTag_SMCHelper", new ObjectSpecialModelConditionHelper(this, gameEngine));
 
         if (objectDefinition.KindOf.Get(ObjectKinds.CanBeRepulsed))
         {
-            AddBehavior("ModuleTag_RepulsorHelper", new ObjectRepulsorHelper(this, gameContext));
+            AddBehavior("ModuleTag_RepulsorHelper", new ObjectRepulsorHelper(this, gameEngine));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameEngine.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            AddBehavior("ModuleTag_StatusDamageHelper", _statusDamageHelper = new StatusDamageHelper(this, gameContext));
-            AddBehavior("ModuleTag_SubdualDamageHelper", _subdualDamageHelper = new SubdualDamageHelper(this, gameContext));
+            AddBehavior("ModuleTag_StatusDamageHelper", _statusDamageHelper = new StatusDamageHelper(this, gameEngine));
+            AddBehavior("ModuleTag_SubdualDamageHelper", _subdualDamageHelper = new SubdualDamageHelper(this, gameEngine));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Maybe KindOf = CAN_ATTACK ?
-        AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper(this, gameContext));
+        AddBehavior("ModuleTag_DefectionHelper", new ObjectDefectionHelper(this, gameEngine));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Probably only those with weapons.
-        AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper(this, gameContext));
+        AddBehavior("ModuleTag_WeaponStatusHelper", new ObjectWeaponStatusHelper(this, gameEngine));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         // Probably only those with weapons.
-        AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper(this, gameContext));
+        AddBehavior("ModuleTag_FiringTrackerHelper", new ObjectFiringTrackerHelper(this, gameEngine));
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameEngine.Game.SageGame is not SageGame.CncGenerals and not SageGame.CncGeneralsZeroHour)
         {
             // this was added in bfme and is not present in generals or zero hour
-            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this, gameContext));
+            AddBehavior("ModuleTag_ExperienceHelper", new ExperienceUpdate(this, gameEngine));
         }
 
         // TODO: This shouldn't be added to all objects. I don't know what the rule is.
         if (_gameEngine.Game.SageGame >= SageGame.CncGeneralsZeroHour)
         {
-            AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper(this, gameContext));
+            AddBehavior("ModuleTag_TempWeaponBonusHelper", new TempWeaponBonusHelper(this, gameEngine));
         }
 
         foreach (var behaviorDataContainer in objectDefinition.Behaviors.Values)
         {
             var behaviorModuleData = (BehaviorModuleData)behaviorDataContainer.Data;
-            var module = AddDisposable(behaviorModuleData.CreateModule(this, gameContext));
+            var module = AddDisposable(behaviorModuleData.CreateModule(this, gameEngine));
 
             // TODO: This will never be null once we've implemented all the behaviors.
             if (module != null)
@@ -599,7 +599,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         if (Definition.KindOf.Get(ObjectKinds.Tree))
         {
-            Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameContext.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
+            Supply = Definition.SupplyOverride > 0 ? Definition.SupplyOverride : gameEngine.AssetLoadContext.AssetStore.GameData.Current.SupplyBoxesPerTree;
         }
 
         if (Definition.KindOf.Get(ObjectKinds.Structure))

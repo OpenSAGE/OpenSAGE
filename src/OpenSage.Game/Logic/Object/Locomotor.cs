@@ -41,7 +41,7 @@ public sealed class Locomotor : IPersistableObject
     private const float DonutDistance = 4.0f * AIPathfind.PathfindCellSizeF;
     private const float MaxBrakingFactor = 5.0f;
 
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly float _baseSpeedFactor;
 
     private LogicFrame _donutTimer;
@@ -66,7 +66,7 @@ public sealed class Locomotor : IPersistableObject
 
     public float MinSpeed => LocomotorTemplate.MinSpeed;
 
-    public Locomotor(GameEngine gameEngine, LocomotorTemplate template, float baseSpeed)
+    public Locomotor(IGameEngine gameEngine, LocomotorTemplate template, float baseSpeed)
     {
         _gameEngine = gameEngine;
 

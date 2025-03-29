@@ -7,7 +7,7 @@ internal sealed class UnpauseSpecialPowerUpgrade : UpgradeModule
 {
     private readonly UnpauseSpecialPowerUpgradeModuleData _moduleData;
 
-    internal UnpauseSpecialPowerUpgrade(GameObject gameObject, GameEngine gameEngine, UnpauseSpecialPowerUpgradeModuleData moduleData)
+    internal UnpauseSpecialPowerUpgrade(GameObject gameObject, IGameEngine gameEngine, UnpauseSpecialPowerUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -51,7 +51,7 @@ public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool ObeyRechageOnTrigger { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new UnpauseSpecialPowerUpgrade(gameObject, gameEngine, this);
     }

@@ -3,7 +3,7 @@
 internal sealed class ObjectRepulsorHelper : ObjectHelperModule
 {
     // TODO
-    public ObjectRepulsorHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public ObjectRepulsorHelper(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

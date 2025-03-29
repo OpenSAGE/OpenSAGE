@@ -12,7 +12,7 @@ public class PassiveAreaEffectBehavior : UpdateModule
     private readonly PassiveAreaEffectBehaviorModuleData _moduleData;
     private LogicFrame _nextPing;
 
-    public PassiveAreaEffectBehavior(GameObject gameObject, GameEngine gameEngine, PassiveAreaEffectBehaviorModuleData moduleData)
+    public PassiveAreaEffectBehavior(GameObject gameObject, IGameEngine gameEngine, PassiveAreaEffectBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -80,7 +80,7 @@ public sealed class PassiveAreaEffectBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public BitArray<ModifierCategory> AntiCategories { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new PassiveAreaEffectBehavior(gameObject, gameEngine, this);
     }

@@ -8,7 +8,7 @@
 internal sealed class ObjectSpecialModelConditionHelper : ObjectHelperModule
 {
     // TODO
-    public ObjectSpecialModelConditionHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public ObjectSpecialModelConditionHelper(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

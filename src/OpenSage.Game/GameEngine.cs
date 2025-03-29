@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
@@ -12,7 +11,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage;
 
-public sealed class GameEngine
+public sealed class GameEngine : IGameEngine
 {
     static GameEngine()
     {
@@ -29,30 +28,35 @@ public sealed class GameEngine
     /// </summary>
     public float MsPerLogicFrame { get; }
 
-    internal readonly AssetLoadContext AssetLoadContext;
-    public readonly AudioSystem AudioSystem;
-    internal readonly ParticleSystemManager ParticleSystems;
-    internal readonly ObjectCreationListManager ObjectCreationLists;
-    public readonly Terrain.Terrain Terrain;
-    public readonly Navigation.Navigation Navigation;
-    public readonly Radar Radar;
+    AssetLoadContext IGameEngine.AssetLoadContext => AssetLoadContext;
+    internal AssetLoadContext AssetLoadContext { get; }
+    public AudioSystem AudioSystem { get; }
+    ParticleSystemManager IGameEngine.ParticleSystems => ParticleSystems;
+    internal ParticleSystemManager ParticleSystems { get; }
+    ObjectCreationListManager IGameEngine.ObjectCreationLists => ObjectCreationLists;
+    internal ObjectCreationListManager ObjectCreationLists { get; }
+    public Terrain.Terrain Terrain { get; }
+    public Navigation.Navigation Navigation { get; }
+    public Radar Radar { get; }
 
-    public readonly IGame Game;
+    public IGame Game { get; }
 
     public SageGame SageGame => Game.SageGame;
 
+    GameLogic IGameEngine.GameLogic => GameLogic;
     internal GameLogic GameLogic => Game.GameLogic;
 
+    GameClient IGameEngine.GameClient => GameClient;
     internal GameClient GameClient => Game.GameClient;
 
     public AssetStore AssetStore => AssetLoadContext.AssetStore;
 
-    public readonly AI AI = new();
+    public AI AI { get; } = new();
 
-    public readonly IQuadtree<GameObject> Quadtree;
+    public IQuadtree<GameObject> Quadtree { get; }
 
     // TODO: This is temporary until Scene3D and GameEngine are merged.
-    public readonly IScene3D Scene3D;
+    public IScene3D Scene3D { get; }
 
     internal GameEngine(
         AssetLoadContext assetLoadContext,

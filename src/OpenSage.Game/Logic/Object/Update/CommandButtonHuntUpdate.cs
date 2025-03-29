@@ -6,7 +6,7 @@ public sealed class CommandButtonHuntUpdate : UpdateModule
 {
     private string _commandButtonName;
 
-    public CommandButtonHuntUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public CommandButtonHuntUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -31,7 +31,7 @@ public sealed class CommandButtonHuntUpdateModuleData : UpdateModuleData
 
     private static readonly IniParseTable<CommandButtonHuntUpdateModuleData> FieldParseTable = new IniParseTable<CommandButtonHuntUpdateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CommandButtonHuntUpdate(gameObject, gameEngine);
     }

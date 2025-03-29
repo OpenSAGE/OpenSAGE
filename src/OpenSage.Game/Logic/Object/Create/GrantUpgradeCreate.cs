@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class GrantUpgradeCreate : CreateModule
 {
-    public GrantUpgradeCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public GrantUpgradeCreate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -35,7 +35,7 @@ public sealed class GrantUpgradeCreateModuleData : CreateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool GiveOnBuildComplete { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new GrantUpgradeCreate(gameObject, gameEngine);
     }

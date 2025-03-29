@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object;
 public sealed class WeaponSet : IPersistableObject
 {
     private readonly GameObject _gameObject;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly Weapon[] _weapons;
     private WeaponTemplateSet _currentWeaponTemplateSet;
     private WeaponSlot _currentWeaponSlot;
@@ -21,7 +21,7 @@ public sealed class WeaponSet : IPersistableObject
     internal Weapon CurrentWeapon => _weapons[(int)_currentWeaponSlot];
     public IEnumerable<Weapon> Weapons => _weapons;
 
-    internal WeaponSet(GameObject gameObject, GameEngine gameEngine)
+    internal WeaponSet(GameObject gameObject, IGameEngine gameEngine)
     {
         _gameObject = gameObject;
         _gameEngine = gameEngine;

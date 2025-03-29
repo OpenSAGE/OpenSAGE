@@ -13,7 +13,7 @@ public class SpecialAbilityUpdate : UpdateModule
     private bool _unknownBool3;
     private float _unknownFloat;
 
-    public SpecialAbilityUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public SpecialAbilityUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -214,7 +214,7 @@ public class SpecialAbilityUpdateModuleData : UpdateModuleData
 
     public int FreezeAfterTriggerDuration { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpecialAbilityUpdate(gameObject, gameEngine);
     }

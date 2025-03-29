@@ -8,7 +8,7 @@ internal class CommandSetUpgrade : UpgradeModule
 {
     private readonly CommandSetUpgradeModuleData _moduleData;
 
-    public CommandSetUpgrade(GameObject gameObject, GameEngine gameEngine, CommandSetUpgradeModuleData moduleData)
+    public CommandSetUpgrade(GameObject gameObject, IGameEngine gameEngine, CommandSetUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -57,7 +57,7 @@ public sealed class CommandSetUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public string TriggerAlt { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CommandSetUpgrade(gameObject, gameEngine, this);
     }

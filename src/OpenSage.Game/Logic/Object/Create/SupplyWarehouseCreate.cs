@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SupplyWarehouseCreate : CreateModule
 {
-    public SupplyWarehouseCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public SupplyWarehouseCreate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -43,7 +43,7 @@ public sealed class SupplyWarehouseCreateModuleData : CreateModuleData
 
     private static readonly IniParseTable<SupplyWarehouseCreateModuleData> FieldParseTable = new IniParseTable<SupplyWarehouseCreateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SupplyWarehouseCreate(gameObject, gameEngine);
     }

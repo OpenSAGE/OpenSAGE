@@ -13,7 +13,7 @@ public sealed class GarrisonContain : OpenContainModule
     private readonly Vector3[] _positions = new Vector3[120];
     private bool _originalTeamSet;
 
-    internal GarrisonContain(GameObject gameObject, GameEngine gameEngine, OpenContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal GarrisonContain(GameObject gameObject, IGameEngine gameEngine, OpenContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -138,7 +138,7 @@ public class GarrisonContainModuleData : OpenContainModuleData
     [AddedIn(SageGame.Bfme)]
     public ObjectFilter PassengerFilter { get; private set; } = new();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new GarrisonContain(gameObject, gameEngine, this);
     }

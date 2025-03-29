@@ -25,7 +25,7 @@ namespace OpenSage;
 public interface IScene3D : IDisposable
 {
     IEditorCameraController EditorCameraController { get; }
-    GameEngine GameEngine { get; }
+    IGameEngine GameEngine { get; }
     SelectionGui SelectionGui { get; }
     DebugOverlay DebugOverlay { get; }
     internal ParticleSystemManager ParticleSystemManager { get; }

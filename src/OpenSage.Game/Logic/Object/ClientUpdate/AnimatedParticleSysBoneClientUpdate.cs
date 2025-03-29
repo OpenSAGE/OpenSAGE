@@ -16,7 +16,7 @@ public sealed class AnimatedParticleSysBoneClientUpdate : ClientUpdateModule
 }
 
 /// <summary>
-/// Allows the object to have particle system effects dynamically attached to animated 
+/// Allows the object to have particle system effects dynamically attached to animated
 /// sub objects or bones.
 /// </summary>
 public sealed class AnimatedParticleSysBoneClientUpdateModuleData : ClientUpdateModuleData
@@ -25,7 +25,7 @@ public sealed class AnimatedParticleSysBoneClientUpdateModuleData : ClientUpdate
 
     internal static readonly IniParseTable<AnimatedParticleSysBoneClientUpdateModuleData> FieldParseTable = new IniParseTable<AnimatedParticleSysBoneClientUpdateModuleData>();
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new AnimatedParticleSysBoneClientUpdate();
     }

@@ -71,7 +71,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
 
     internal bool IsAbleToBeToppled => _toppleState == ToppleState.Upright;
 
-    internal ToppleUpdate(GameObject gameObject, GameEngine gameEngine, ToppleUpdateModuleData moduleData)
+    internal ToppleUpdate(GameObject gameObject, IGameEngine gameEngine, ToppleUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -428,7 +428,7 @@ public sealed class ToppleUpdateModuleData : UpdateModuleData
     public Percentage InitialAccelPercent { get; private set; } = new Percentage(StartAccelerationPercent);
     public LazyAssetReference<ObjectDefinition> StumpName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ToppleUpdate(gameObject, gameEngine, this);
     }

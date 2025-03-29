@@ -9,7 +9,7 @@ public sealed class InstantDeathBehavior : DieModule
 {
     private readonly InstantDeathBehaviorModuleData _moduleData;
 
-    internal InstantDeathBehavior(GameObject gameObject, GameEngine gameEngine, InstantDeathBehaviorModuleData moduleData)
+    internal InstantDeathBehavior(GameObject gameObject, IGameEngine gameEngine, InstantDeathBehaviorModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -51,7 +51,7 @@ public sealed class InstantDeathBehaviorModuleData : DieModuleData
     public LazyAssetReference<FXList> FX { get; private set; }
     public string OCL { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new InstantDeathBehavior(gameObject, gameEngine, this);
     }

@@ -99,7 +99,7 @@ public sealed class W3dLaserDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme)]
     public Envelope Envelope { get; private set; }
 
-    internal override W3dLaserDraw CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override W3dLaserDraw CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dLaserDraw();
     }

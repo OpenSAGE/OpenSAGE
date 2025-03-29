@@ -21,7 +21,7 @@ public sealed class UndeadBody : ActiveBody
     /// </summary>
     private bool _isSecondLife;
 
-    internal UndeadBody(GameObject gameObject, GameEngine gameEngine, UndeadBodyModuleData moduleData)
+    internal UndeadBody(GameObject gameObject, IGameEngine gameEngine, UndeadBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -99,7 +99,7 @@ public sealed class UndeadBody : ActiveBody
 }
 
 /// <summary>
-/// Treats the first death as a state change. Triggers the Use of SECOND_LIFE 
+/// Treats the first death as a state change. Triggers the Use of SECOND_LIFE
 /// ModelConditionState/ArmorSet and allows the use of the BattleBusSlowDeathBehavior module.
 /// </summary>
 [AddedIn(SageGame.CncGeneralsZeroHour)]

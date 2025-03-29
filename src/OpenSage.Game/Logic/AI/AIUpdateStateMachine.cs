@@ -14,7 +14,7 @@ internal class AIUpdateStateMachine : StateMachineBase
     private State _overrideState;
     private LogicFrame _overrideStateUntilFrame;
 
-    public AIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
+    public AIUpdateStateMachine(GameObject gameObject, IGameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
     {
         AddState(IdleState.StateId, new IdleState(this));
         AddState(1, new MoveTowardsState(this));

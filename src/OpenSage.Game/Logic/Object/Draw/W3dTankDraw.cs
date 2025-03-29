@@ -23,7 +23,7 @@ public class W3dTankDraw : W3dModelDraw
         "TREADSR01",
     };
 
-    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, GameEngine gameEngine)
+    internal W3dTankDraw(W3dTankDrawModuleData data, Drawable drawable, IGameEngine gameEngine)
         : base(data, drawable, gameEngine)
     {
         _data = data;
@@ -72,7 +72,7 @@ public class W3dTankDraw : W3dModelDraw
 }
 
 /// <summary>
-/// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and 
+/// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and
 /// TrackDebrisDirtLeft particle system definitions.
 /// </summary>
 public class W3dTankDrawModuleData : W3dModelDrawModuleData
@@ -104,7 +104,7 @@ public class W3dTankDrawModuleData : W3dModelDrawModuleData
     public float TreadDriveSpeedFraction { get; private set; }
     public float TreadPivotSpeedFraction { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dTankDraw(this, drawable, gameEngine);
     }

@@ -8,7 +8,7 @@ public sealed class FXListDie : DieModule
 {
     private readonly FXListDieModuleData _moduleData;
 
-    internal FXListDie(GameObject gameObject, GameEngine gameEngine, FXListDieModuleData moduleData)
+    internal FXListDie(GameObject gameObject, IGameEngine gameEngine, FXListDieModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -58,7 +58,7 @@ public sealed class FXListDieModuleData : DieModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public string[] TriggeredBy { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new FXListDie(gameObject, gameEngine, this);
     }

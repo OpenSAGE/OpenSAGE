@@ -8,7 +8,7 @@ public class SupplyCenterDockUpdate : DockUpdate
 {
     private SupplyCenterDockUpdateModuleData _moduleData;
 
-    internal SupplyCenterDockUpdate(GameObject gameObject, GameEngine gameEngine, SupplyCenterDockUpdateModuleData moduleData)
+    internal SupplyCenterDockUpdate(GameObject gameObject, IGameEngine gameEngine, SupplyCenterDockUpdateModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -75,7 +75,7 @@ public sealed class SupplyCenterDockUpdateModuleData : DockUpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public float ValueMultiplier { get; private set; } = 1.0f;
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SupplyCenterDockUpdate(gameObject, gameEngine, this);
     }

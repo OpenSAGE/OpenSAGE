@@ -27,7 +27,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
 
     public UpdateOrder UpdatePhase => UpdateOrder.Order2;
 
-    internal SpawnBehavior(GameObject gameObject, GameEngine gameEngine, SpawnBehaviorModuleData moduleData) : base(gameObject, gameEngine)
+    internal SpawnBehavior(GameObject gameObject, IGameEngine gameEngine, SpawnBehaviorModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -243,7 +243,7 @@ public sealed class SpawnBehaviorModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool SpawnInsideBuilding { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpawnBehavior(gameObject, gameEngine, this);
     }

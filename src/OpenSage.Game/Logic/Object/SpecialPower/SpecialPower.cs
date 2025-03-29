@@ -33,7 +33,7 @@ public class SpecialPowerModule : BehaviorModule, IUpgradableScienceModule
 
     public SpecialPowerType SpecialPowerType => _moduleData.SpecialPower.Value.Type;
 
-    internal SpecialPowerModule(GameObject gameObject, GameEngine gameEngine, SpecialPowerModuleData moduleData) : base(gameObject, gameEngine)
+    internal SpecialPowerModule(GameObject gameObject, IGameEngine gameEngine, SpecialPowerModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
         _reloadFrames = _moduleData.SpecialPower.Value.ReloadTime;
@@ -281,7 +281,7 @@ public class SpecialPowerModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2)]
     public ObjectFilter RequirementsFilterStrategic { get; private set; }
 
-    internal override SpecialPowerModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override SpecialPowerModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpecialPowerModule(gameObject, gameEngine, this);
     }

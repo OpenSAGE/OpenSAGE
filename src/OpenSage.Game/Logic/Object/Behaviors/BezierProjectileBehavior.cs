@@ -19,7 +19,7 @@ public class BezierProjectileBehavior : UpdateModule
 
     internal FXList DetonationFX { get; set; }
 
-    internal BezierProjectileBehavior(GameObject gameObject, GameEngine gameEngine, BezierProjectileBehaviorData moduleData)
+    internal BezierProjectileBehavior(GameObject gameObject, IGameEngine gameEngine, BezierProjectileBehaviorData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -208,7 +208,7 @@ public class BezierProjectileBehaviorData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool PreLandingEmotionAffectsAllies { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new BezierProjectileBehavior(gameObject, gameEngine, this);
     }

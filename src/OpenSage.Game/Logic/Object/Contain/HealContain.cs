@@ -10,7 +10,7 @@ public sealed class HealContain : OpenContainModule
 {
     private readonly HealContainModuleData _moduleData;
 
-    internal HealContain(GameObject gameObject, GameEngine gameEngine, HealContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal HealContain(GameObject gameObject, IGameEngine gameEngine, HealContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
     }
@@ -63,7 +63,7 @@ public sealed class HealContainModuleData : GarrisonContainModuleData
 
     public int TimeForFullHeal { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new HealContain(gameObject, gameEngine, this);
     }

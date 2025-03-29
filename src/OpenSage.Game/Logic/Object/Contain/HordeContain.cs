@@ -17,7 +17,7 @@ public sealed class HordeContainBehavior : UpdateModule
     private ProductionUpdate _productionUpdate;
     private int _pendingRegistrations;
 
-    public HordeContainBehavior(GameObject gameObject, GameEngine gameEngine, HordeContainModuleData moduleData)
+    public HordeContainBehavior(GameObject gameObject, IGameEngine gameEngine, HordeContainModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -295,7 +295,7 @@ public class HordeContainModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public string LivingWorldOverloadTemplate { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new HordeContainBehavior(gameObject, gameEngine, this);
     }

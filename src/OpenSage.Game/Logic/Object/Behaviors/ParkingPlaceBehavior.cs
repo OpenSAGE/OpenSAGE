@@ -28,7 +28,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
     private const int HealsPerSecond = 5; // not sure if this is configured anywhere
     private readonly LogicFrameSpan _healUpdateRate;
 
-    internal ParkingPlaceBehaviour(GameObject gameObject, GameEngine gameEngine, ParkingPlaceBehaviorModuleData moduleData)
+    internal ParkingPlaceBehaviour(GameObject gameObject, IGameEngine gameEngine, ParkingPlaceBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -715,7 +715,7 @@ public sealed class ParkingPlaceBehaviorModuleData : UpdateModuleData
     public int ApproachHeight { get; private set; }
     public bool ParkInHangars { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ParkingPlaceBehaviour(gameObject, gameEngine, this);
     }

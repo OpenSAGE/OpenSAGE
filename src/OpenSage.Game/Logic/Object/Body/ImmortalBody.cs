@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object;
 /// </summary>
 public sealed class ImmortalBody : ActiveBody
 {
-    internal ImmortalBody(GameObject gameObject, GameEngine gameEngine, ImmortalBodyModuleData moduleData)
+    internal ImmortalBody(GameObject gameObject, IGameEngine gameEngine, ImmortalBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
     }
@@ -50,7 +50,7 @@ public sealed class ImmortalBodyModuleData : ActiveBodyModuleData
     private static new readonly IniParseTable<ImmortalBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
         .Concat(new IniParseTable<ImmortalBodyModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ImmortalBody(gameObject, gameEngine, this);
     }

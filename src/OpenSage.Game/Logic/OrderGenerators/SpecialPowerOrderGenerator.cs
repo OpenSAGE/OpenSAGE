@@ -39,7 +39,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
     private readonly SpecialPowerCursorInformation _cursorInformation;
     private readonly GameData _config;
     private readonly Player _player;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly SpecialPowerTargetType _targetType;
     private readonly IScene3D _scene;
 
@@ -53,10 +53,10 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
        SpecialPowerCursorInformation cursorInformation,
        GameData config,
        Player player,
-       GameEngine gameContext,
+       IGameEngine gameEngine,
        SpecialPowerTargetType targetType,
        IScene3D scene,
-       in TimeInterval time) : base(gameContext.Game)
+       in TimeInterval time) : base(gameEngine.Game)
     {
         _specialPower = cursorInformation.SpecialPower;
         _cursorInformation = cursorInformation;
@@ -64,7 +64,7 @@ public sealed class SpecialPowerOrderGenerator : OrderGenerator, IDisposable
         _scene = scene;
         _config = config;
         _player = player;
-        _gameEngine = gameContext;
+        _gameEngine = gameEngine;
 
         // TODO: Improve this check.
         var radiusCursors = _scene.GameEngine.AssetLoadContext.AssetStore.InGameUI.Current.RadiusCursors;

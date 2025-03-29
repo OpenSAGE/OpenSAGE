@@ -61,8 +61,8 @@ public sealed class W3dDefaultDraw : DrawModule
 }
 
 /// <summary>
-/// All world objects should use a draw module. This module is used where an object should 
-/// never actually be drawn due either to the nature or type of the object or because its 
+/// All world objects should use a draw module. This module is used where an object should
+/// never actually be drawn due either to the nature or type of the object or because its
 /// drawing is handled by other logic, e.g. bridges.
 /// </summary>
 public sealed class W3dDefaultDrawModuleData : DrawModuleData
@@ -71,7 +71,7 @@ public sealed class W3dDefaultDrawModuleData : DrawModuleData
 
     internal static readonly IniParseTable<W3dDefaultDrawModuleData> DefaultFieldParseTable = new IniParseTable<W3dDefaultDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dDefaultDraw();
     }

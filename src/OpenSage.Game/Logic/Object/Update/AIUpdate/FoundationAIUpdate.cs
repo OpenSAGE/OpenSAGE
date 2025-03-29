@@ -13,7 +13,7 @@ public class FoundationAIUpdate : AIUpdate
     private LogicFrameSpan _updateInterval;
 
     //TODO: rather notify this when the corresponding order is processed and update again when the object is dead/destroyed
-    internal FoundationAIUpdate(GameObject gameObject, GameEngine gameEngine, FoundationAIUpdateModuleData moduleData)
+    internal FoundationAIUpdate(GameObject gameObject, IGameEngine gameEngine, FoundationAIUpdateModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
@@ -66,7 +66,7 @@ public class FoundationAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int BuildVariation { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new FoundationAIUpdate(gameObject, gameEngine, this);
     }

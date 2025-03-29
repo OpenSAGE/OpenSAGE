@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class PreorderCreate : CreateModule
 {
-    public PreorderCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public PreorderCreate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -29,7 +29,7 @@ public sealed class PreorderCreateModuleData : CreateModuleData
 
     private static readonly IniParseTable<PreorderCreateModuleData> FieldParseTable = new IniParseTable<PreorderCreateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new PreorderCreate(gameObject, gameEngine);
     }

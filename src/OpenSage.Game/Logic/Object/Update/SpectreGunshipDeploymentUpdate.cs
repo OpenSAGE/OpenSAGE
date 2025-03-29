@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.CncGeneralsZeroHour)]
 public sealed class SpectreGunshipDeploymentUpdate : UpdateModule
 {
-    public SpectreGunshipDeploymentUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public SpectreGunshipDeploymentUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -41,7 +41,7 @@ public sealed class SpectreGunshipDeploymentUpdateModuleData : BehaviorModuleDat
     public int AttackAreaRadius { get; private set; }
     public OCLCreateLocation CreateLocation { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpectreGunshipDeploymentUpdate(gameObject, gameEngine);
     }

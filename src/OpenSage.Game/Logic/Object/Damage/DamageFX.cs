@@ -96,7 +96,7 @@ public sealed class DamageFX : BaseAsset
         return GetGroup(damageType, source).ThrottleTime;
     }
 
-    public void DoDamageFX(DamageType damageType, float damageAmount, GameObject source, GameObject victim, GameEngine gameEngine)
+    public void DoDamageFX(DamageType damageType, float damageAmount, GameObject source, GameObject victim, IGameEngine gameEngine)
     {
         var fxList = GetDamageFXList(damageType, damageAmount, source);
 

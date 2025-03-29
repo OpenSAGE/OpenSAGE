@@ -93,7 +93,7 @@ public class AIUpdate : UpdateModule
     // TODO(Port): Implement this.
     public bool IsMoving => false;
 
-    internal AIUpdate(GameObject gameObject, GameEngine gameEngine, AIUpdateModuleData moduleData)
+    internal AIUpdate(GameObject gameObject, IGameEngine gameEngine, AIUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         ModuleData = moduleData;
@@ -574,7 +574,7 @@ public class AIUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int BurningDeathTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new AIUpdate(gameObject, gameEngine, this);
     }

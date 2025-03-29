@@ -19,12 +19,12 @@ public sealed class Bridge : DisposableBase
     private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
 
     internal Bridge(
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         MapObject mapObject,
         in Vector3 startPosition,
         in Vector3 endPosition)
     {
-        var template = gameContext.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
+        var template = gameEngine.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(mapObject.TypeName);
         if (template == null)
         {
             return;
@@ -37,19 +37,19 @@ public sealed class Bridge : DisposableBase
         }
 
         // TODO: Cache this.
-        var genericBridgeDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericBridge");
+        var genericBridgeDefinition = gameEngine.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericBridge");
 
-        _bridgeObject = gameContext.GameLogic.CreateObject(genericBridgeDefinition, null);
+        _bridgeObject = gameEngine.GameLogic.CreateObject(genericBridgeDefinition, null);
         _bridgeObject.SetMapObjectProperties(mapObject);
 
         _model = model;
 
-        _modelInstance = AddDisposable(_model.CreateInstance(gameContext.AssetLoadContext));
+        _modelInstance = AddDisposable(_model.CreateInstance(gameEngine.AssetLoadContext));
 
         _modelInstance.Update(TimeInterval.Zero);
 
         _meshes = CreateMeshes(
-            gameContext,
+            gameEngine,
             template,
             startPosition,
             endPosition,
@@ -58,7 +58,7 @@ public sealed class Bridge : DisposableBase
     }
 
     private List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         BridgeTemplate template,
         in Vector3 startPosition,
         in Vector3 endPosition,
@@ -83,10 +83,10 @@ public sealed class Bridge : DisposableBase
         var lengthRight = GetLength(bridgeRight) * template.BridgeScale;
 
         var startPositionWithHeight = startPosition;
-        startPositionWithHeight.Z = gameContext.Scene3D.Terrain.HeightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
+        startPositionWithHeight.Z = gameEngine.Scene3D.Terrain.HeightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
 
         var endPositionWithHeight = endPosition;
-        endPositionWithHeight.Z = gameContext.Scene3D.Terrain.HeightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
+        endPositionWithHeight.Z = gameEngine.Scene3D.Terrain.HeightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
 
         var horizontalDistance = Vector3.Distance(startPosition, endPosition);
 
@@ -144,7 +144,7 @@ public sealed class Bridge : DisposableBase
         new BridgeTowers(
             template,
             _bridgeObject.Owner,
-            gameContext,
+            gameEngine,
             worldMatrix,
             0,
             transformedLeftBounds.Min.Y,

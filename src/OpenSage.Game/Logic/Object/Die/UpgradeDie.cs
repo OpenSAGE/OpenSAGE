@@ -7,7 +7,7 @@ public class UpgradeDieModule : DieModule
 {
     private readonly UpgradeDieModuleData _moduleData;
 
-    internal UpgradeDieModule(GameObject gameObject, GameEngine gameEngine, UpgradeDieModuleData moduleData)
+    internal UpgradeDieModule(GameObject gameObject, IGameEngine gameEngine, UpgradeDieModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -45,7 +45,7 @@ public sealed class UpgradeDieModuleData : DieModuleData
 
     public UpgradeToRemove UpgradeToRemove { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new UpgradeDieModule(gameObject, gameEngine, this);
     }

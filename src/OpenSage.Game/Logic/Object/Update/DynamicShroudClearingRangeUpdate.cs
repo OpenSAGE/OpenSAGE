@@ -15,7 +15,7 @@ public sealed class DynamicShroudClearingRangeUpdate : UpdateModule
     private float _unknown9;
     private float _unknownFloat;
 
-    public DynamicShroudClearingRangeUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public DynamicShroudClearingRangeUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -79,7 +79,7 @@ public sealed class DynamicShroudClearingRangeUpdateModuleData : UpdateModuleDat
 
     public RadiusDecalTemplate GridDecalTemplate { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new DynamicShroudClearingRangeUpdate(gameObject, gameEngine);
     }

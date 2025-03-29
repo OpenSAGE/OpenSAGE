@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class RadarUpgrade : UpgradeModule
 {
-    internal RadarUpgrade(GameObject gameObject, GameEngine gameEngine, RadarUpgradeModuleData moduleData)
+    internal RadarUpgrade(GameObject gameObject, IGameEngine gameEngine, RadarUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
     }
@@ -35,7 +35,7 @@ public sealed class RadarUpgradeModuleData : UpgradeModuleData
 
     public bool DisableProof { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new RadarUpgrade(gameObject, gameEngine, this);
     }

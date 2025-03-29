@@ -6,12 +6,12 @@ internal sealed class FXListExecutionContext
 {
     public readonly Quaternion Rotation;
     public readonly Vector3 Position;
-    public readonly GameEngine GameEngine;
+    public readonly IGameEngine GameEngine;
 
     public FXListExecutionContext(
         in Quaternion rotation,
         in Vector3 position,
-        GameEngine gameEngine)
+        IGameEngine gameEngine)
     {
         Rotation = rotation;
         Position = position;

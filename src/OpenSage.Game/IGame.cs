@@ -122,7 +122,7 @@ public interface IGame
     PlayerManager PlayerManager { get; }
     TeamFactory TeamFactory { get; }
     PartitionCellManager PartitionCellManager { get; }
-    GameEngine GameEngine { get; }
+    IGameEngine GameEngine { get; }
 
     event EventHandler<GameUpdatingEventArgs> Updating;
 

@@ -17,13 +17,13 @@ namespace OpenSage.Logic.Object;
 public sealed class W3dFloorDraw : DrawModule
 {
     private readonly Drawable _drawable;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly ModelInstance _modelInstance;
     private readonly W3dFloorDrawModuleData _moduleData;
 
     public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
-    internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, GameEngine gameEngine, Drawable drawable)
+    internal W3dFloorDraw(W3dFloorDrawModuleData moduleData, IGameEngine gameEngine, Drawable drawable)
     {
         _drawable = drawable;
         _gameEngine = gameEngine;
@@ -110,7 +110,7 @@ public sealed class W3dFloorDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme2)]
     public WeatherTexture WeatherTexture { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return Model.Value == null ? null : (DrawModule)new W3dFloorDraw(this, gameEngine, drawable);
     }

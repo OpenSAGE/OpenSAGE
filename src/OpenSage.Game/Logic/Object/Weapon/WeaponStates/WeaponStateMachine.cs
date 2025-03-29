@@ -11,17 +11,17 @@ namespace OpenSage.Logic.Object;
 /// transitions to Inactive.
 ///
 /// When first created, the weapon has a full clip equal to ClipSize.
-/// 
+///
 /// Inactive
 /// ========
 /// The weapon starts out in the Inactive state.
-/// 
+///
 /// If:
 /// - the weapon is in the Inactive state
 /// - and it has less than a full clip
 /// - and AutoReloadsClip is Yes or ReturnToBase
 /// then it transitions to InactivePendingReload.
-/// 
+///
 /// When the weapon is given a new target, it transitions to the PreAttack state.
 ///
 /// InactivePendingReload
@@ -132,16 +132,16 @@ internal sealed class WeaponStateContext
 {
     public readonly GameObject GameObject;
     public readonly Weapon Weapon;
-    public readonly GameEngine GameEngine;
+    public readonly IGameEngine GameEngine;
 
     public WeaponStateContext(
         GameObject gameObject,
         Weapon weapon,
-        GameEngine gameContext)
+        IGameEngine gameEngine)
     {
         GameObject = gameObject;
         Weapon = weapon;
-        GameEngine = gameContext;
+        GameEngine = gameEngine;
     }
 }
 

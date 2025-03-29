@@ -12,7 +12,7 @@ public sealed class CashHackSpecialPower : SpecialPowerModule
 
     private uint _currentAmount;
 
-    internal CashHackSpecialPower(GameObject gameObject, GameEngine gameEngine, CashHackSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal CashHackSpecialPower(GameObject gameObject, IGameEngine gameEngine, CashHackSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
         _currentAmount = (uint)moduleData.MoneyAmount;
@@ -75,7 +75,7 @@ public sealed class CashHackSpecialPowerModuleData : SpecialPowerModuleData
     /// </summary>
     public int MoneyAmount { get; private set; }
 
-    internal override CashHackSpecialPower CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override CashHackSpecialPower CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CashHackSpecialPower(gameObject, gameEngine, this);
     }

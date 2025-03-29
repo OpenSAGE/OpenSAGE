@@ -2,7 +2,7 @@
 
 internal abstract class ObjectHelperModule : UpdateModule
 {
-    protected ObjectHelperModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    protected ObjectHelperModule(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

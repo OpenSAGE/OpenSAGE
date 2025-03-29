@@ -7,14 +7,14 @@ namespace OpenSage.Terrain;
 public sealed class BridgeTowers
 {
     internal static BridgeTowers CreateForLandmarkBridge(
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         GameObject gameObject)
     {
         var worldMatrix =
             Matrix4x4.CreateFromQuaternion(gameObject.Rotation)
             * Matrix4x4.CreateTranslation(gameObject.Translation);
 
-        var landmarkBridgeTemplate = gameContext.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(gameObject.Definition.Name);
+        var landmarkBridgeTemplate = gameEngine.AssetLoadContext.AssetStore.BridgeTemplates.GetByName(gameObject.Definition.Name);
 
         var geometryShape = gameObject.Definition.Geometry.Shapes[0];
 
@@ -24,7 +24,7 @@ public sealed class BridgeTowers
         return new BridgeTowers(
             landmarkBridgeTemplate,
             gameObject.Owner,
-            gameContext,
+            gameEngine,
             worldMatrix,
             -halfWidth,
             -halfLength,
@@ -36,7 +36,7 @@ public sealed class BridgeTowers
     internal BridgeTowers(
         BridgeTemplate template,
         Player owner,
-        GameEngine gameContext,
+        IGameEngine gameEngine,
         Matrix4x4 worldMatrix,
         float startX,
         float startY,
@@ -46,7 +46,7 @@ public sealed class BridgeTowers
     {
         void CreateTower(ObjectDefinition objectDefinition, float x, float y)
         {
-            var tower = gameContext.GameLogic.CreateObject(objectDefinition, owner);
+            var tower = gameEngine.GameLogic.CreateObject(objectDefinition, owner);
 
             var translation = Vector3.Transform(
                 new Vector3(x, y, 0),

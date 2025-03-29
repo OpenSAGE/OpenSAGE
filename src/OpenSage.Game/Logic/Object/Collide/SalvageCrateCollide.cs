@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class SalvageCrateCollide : CrateCollide
 {
-    public SalvageCrateCollide(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public SalvageCrateCollide(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -76,7 +76,7 @@ public sealed class SalvageCrateCollideModuleData : CrateCollideModuleData
     [AddedIn(SageGame.Bfme)]
     public bool AllowAIPickup { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SalvageCrateCollide(gameObject, gameEngine);
     }

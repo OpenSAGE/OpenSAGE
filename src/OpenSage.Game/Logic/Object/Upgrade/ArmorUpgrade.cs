@@ -7,7 +7,7 @@ internal sealed class ArmorUpgrade : UpgradeModule
 {
     private readonly ArmorUpgradeModuleData _moduleData;
 
-    internal ArmorUpgrade(GameObject gameObject, GameEngine gameEngine, ArmorUpgradeModuleData moduleData)
+    internal ArmorUpgrade(GameObject gameObject, IGameEngine gameEngine, ArmorUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -55,7 +55,7 @@ public sealed class ArmorUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme)]
     public bool IgnoreArmorUpgrade { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ArmorUpgrade(gameObject, gameEngine, this);
     }

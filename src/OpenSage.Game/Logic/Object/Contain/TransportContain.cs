@@ -14,7 +14,7 @@ public class TransportContain : OpenContainModule
 
     private LogicFrame _nextEvacAllowedAfter; // unsure if this is correct, but seems plausible from testing?
 
-    internal TransportContain(GameObject gameObject, GameEngine gameEngine, TransportContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal TransportContain(GameObject gameObject, IGameEngine gameEngine, TransportContainModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
 
@@ -310,7 +310,7 @@ public class TransportContainModuleData : OpenContainModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public ModelConditionFlag ConditionForEntry { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new TransportContain(gameObject, gameEngine, this);
     }

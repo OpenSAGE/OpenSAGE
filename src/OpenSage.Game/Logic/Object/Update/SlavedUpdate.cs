@@ -37,7 +37,7 @@ public class SlavedUpdateModule : UpdateModule
 
     private FXParticleSystemTemplate _particleTemplate;
 
-    internal SlavedUpdateModule(GameObject gameObject, GameEngine gameEngine, SlavedUpdateModuleData moduleData)
+    internal SlavedUpdateModule(GameObject gameObject, IGameEngine gameEngine, SlavedUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -295,7 +295,7 @@ public sealed class SlavedUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int FadeTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SlavedUpdateModule(gameObject, gameEngine, this);
     }

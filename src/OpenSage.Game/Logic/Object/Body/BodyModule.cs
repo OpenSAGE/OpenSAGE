@@ -13,7 +13,7 @@ public abstract class BodyModule : BehaviorModule
 {
     private float _damageScalar = 1.0f;
 
-    protected BodyModule(GameObject gameObject, GameEngine gameEngine)
+    protected BodyModule(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
     }
