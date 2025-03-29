@@ -178,18 +178,26 @@ public sealed class Animation : IPersistableObject
 
 public enum AnimationType
 {
-    DefaultHeal,
-    StructureHeal,
-    VehicleHeal,
+    DefaultHeal = 0,
+    StructureHeal = 1,
+    VehicleHeal = 2,
+
+    // Demoralized = 3,
+
+    BombTimed = 4,
+    BombRemote = 5,
+    Disabled = 6,
+    BattlePlanBombard = 7,
+    BattlePlanHoldTheLine = 8,
+    BattlePlanSeekAndDestroy = 9,
+    Emoticon = 10,
+    Enthusiastic = 11,
+    Subliminal = 12,
+    CarBomb = 13,
+
     MoneyPickUp,
     LevelGainedAnimation,
     GetHealedAnimation,
-    BombTimed,
-    BombRemote,
-    CarBomb,
-    Disabled,
     AmmoFull,
     AmmoEmpty,
-    Enthusiastic,
-    Subliminal,
 }
