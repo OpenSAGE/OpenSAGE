@@ -7,7 +7,7 @@ public sealed class AcademyStats(IGame game) : IPersistableObject
 {
     private readonly IGame _game = game;
 
-    private uint _nextUpdateFrame;
+    private LogicFrame _nextUpdateFrame;
     private bool _firstUpdate;
     private bool _unknownSide;
 
@@ -17,7 +17,7 @@ public sealed class AcademyStats(IGame game) : IPersistableObject
     private bool _spentCashBeforeBuildingSupplyCenter;
     private uint _supplyCentersBuilt;
     private ObjectDefinition _supplyCenterTemplate;
-    uint _supplyCenterCost;
+    private uint _supplyCenterCost;
 
     // Did player build radar (if applicable)?
     private bool _researchedRadar;
@@ -142,7 +142,7 @@ public sealed class AcademyStats(IGame game) : IPersistableObject
     {
         persister.PersistVersion(1);
 
-        persister.PersistUInt32(ref _nextUpdateFrame);
+        persister.PersistLogicFrame(ref _nextUpdateFrame);
         persister.PersistBoolean(ref _firstUpdate);
         persister.PersistBoolean(ref _unknownSide);
 

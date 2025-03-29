@@ -83,7 +83,7 @@ public class Player : IPersistableObject
 
     public AIPlayer? AIPlayer { get; private set; }
 
-    public AcademyStats AcademyStats { get; } = new AcademyStats();
+    public AcademyStats AcademyStats { get; }
 
     // TODO(Port): Implement this.
     public bool IsLogicalRetaliationModeEnabled { get; set; }
@@ -182,7 +182,8 @@ public class Player : IPersistableObject
             }
         }
 
-        BankAccount = new BankAccount(_game, this);
+        BankAccount = new BankAccount(_game, Id);
+        AcademyStats = new AcademyStats(_game);
     }
 
     internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
@@ -1087,51 +1088,6 @@ public enum UpgradeStatus
     Invalid = 0,
     Queued = 1,
     Completed = 2
-}
-
-public sealed class BankAccount(IGame game, Player owner) : IPersistableObject
-{
-    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-    public uint Money;
-
-    public void Withdraw(uint amount)
-    {
-        // TODO: Play MoneyWithdrawSound
-
-        if (game.PlayerManager.LocalPlayer == owner) // only play the deposit sound for the owner
-        {
-            game.Audio.PlayAudioEvent(game.AssetStore.MiscAudio.Current.MoneyWithdrawSound.Value);
-        }
-
-        if (Money >= amount)
-        {
-            Money -= amount;
-        }
-        else
-        {
-            // this should not happen since we should check first if we can spend that much
-            Logger.Warn($"Spent more money ({amount}) than player had ({Money})!");
-            Money = 0;
-        }
-    }
-
-    public void Deposit(uint amount)
-    {
-        if (game.PlayerManager.LocalPlayer == owner) // only play the deposit sound for the owner
-        {
-            game.Audio.PlayAudioEvent(game.AssetStore.MiscAudio.Current.MoneyDepositSound.Value);
-        }
-
-        Money += amount;
-    }
-
-    public void Persist(StatePersister reader)
-    {
-        reader.PersistVersion(1);
-
-        reader.PersistUInt32(ref Money);
-    }
 }
 
 public sealed class TunnelManager : IPersistableObject
