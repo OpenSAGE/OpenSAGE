@@ -228,6 +228,11 @@ public readonly struct LogicFrameSpan
         return left.Value <= right.Value;
     }
 
+    public static LogicFrameSpan Max(in LogicFrameSpan a, in LogicFrameSpan b)
+    {
+        return new LogicFrameSpan(Math.Max(a.Value, b.Value));
+    }
+
     public override bool Equals(object obj)
     {
         return obj is LogicFrameSpan logicFrameSpan && Equals(logicFrameSpan);
