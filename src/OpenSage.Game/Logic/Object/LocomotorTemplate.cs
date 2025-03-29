@@ -15,7 +15,7 @@ public sealed class LocomotorTemplate : BaseAsset
              (x, name) => x.SetNameAndInstanceId("LocomotorTemplate", name),
              FieldParseTable);
 
-        result.Validate();
+        result.Validate(parser.SageGame);
 
         return result;
     }
@@ -533,8 +533,15 @@ public sealed class LocomotorTemplate : BaseAsset
     [AddedIn(SageGame.Bfme2)]
     public Percentage RiverModifier { get; private set; }
 
-    private void Validate()
+    private void Validate(SageGame sageGame)
     {
+        // Generals didn't have DecelerationPitchLimit; that was added in Zero Hour.
+        // In Generals there was just a single AccelerationPitchLimit value.
+        if (sageGame == SageGame.CncGenerals)
+        {
+            DecelerationPitchLimit = AccelerationPitchLimit;
+        }
+
         // For "damaged" stuff that was omitted, set them to be the same as "undamaged".
         if (MaxSpeedDamaged < 0.0f)
         {

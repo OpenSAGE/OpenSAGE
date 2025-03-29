@@ -93,6 +93,20 @@ public class AIUpdate : UpdateModule
     /// </summary>
     public List<Vector3> TargetPoints { get; set; }
 
+    public float CurrentLocomotorSpeed
+    {
+        get
+        {
+            if (CurrentLocomotor != null)
+            {
+                return CurrentLocomotor.GetMaxSpeedForCondition(GameObject.BodyModule.DamageState);
+            }
+
+            Logger.Info("No current locomotor!");
+            return 0.0f;
+        }
+    }
+
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order0;
 
     // TODO(Port): Implement this.
@@ -136,7 +150,8 @@ public class AIUpdate : UpdateModule
         _locomotorSet.Initialize(locomotorSetTemplate);
 
         // TODO: Use actual surface type.
-        CurrentLocomotor = _locomotorSet.GetLocomotorForSurfaces(Surfaces.Ground);
+        CurrentLocomotor = _locomotorSet.GetLocomotorForSurfaces(Surfaces.Ground)
+            ?? _locomotorSet.GetLocomotorForSurfaces(Surfaces.Air);
     }
 
     public bool HasLocomotorForSurface(Surfaces surfaceType)
@@ -287,6 +302,8 @@ public class AIUpdate : UpdateModule
 
         if (CurrentLocomotor != null)
         {
+            CurrentLocomotor.SetPhysicsOptions(GameObject);
+
             if (TargetPoints.Count > 0)
             {
                 Vector3? nextPoint = null;

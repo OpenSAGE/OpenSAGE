@@ -26,6 +26,7 @@ public sealed class Geometry : IPersistableObject
 
     // TODO(Port): What to do for multiple shapes?
     public float MajorRadius => Shapes[0].MajorRadius;
+    public float MinorRadius => Shapes[0].MinorRadius;
 
     public Geometry()
     {

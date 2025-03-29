@@ -107,9 +107,20 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
     }
 
-    internal Vector3 Acceleration => _acceleration;
-    internal Vector3 LastAcceleration => _previousAcceleration;
-    internal Vector3 Velocity => _velocity;
+    /// <summary>
+    /// Returns last frame's acceleration.
+    /// </summary>
+    public Vector3 Acceleration => _previousAcceleration;
+
+    /// <summary>
+    /// Returns current frame's acceleration. Should only be used for tests.
+    /// </summary>
+    internal Vector3 CurrentAcceleration => _acceleration;
+
+    /// <summary>
+    /// Returns current velocity.
+    /// </summary>
+    public Vector3 Velocity => _velocity;
 
     public PhysicsTurningType Turning
     {
