@@ -9,7 +9,7 @@ namespace OpenSage.Gui.Wnd;
 
 public sealed class WndWindowManager
 {
-    private readonly Game _game;
+    private readonly IGame _game;
 
     public int OpenWindowCount => WindowStack.Count;
 
@@ -20,7 +20,7 @@ public sealed class WndWindowManager
 
     public Window TopWindow => WindowStack.Count > 0 ? WindowStack.Peek() : null;
 
-    public WndWindowManager(Game game)
+    public WndWindowManager(IGame game)
     {
         _game = game;
         WindowStack = new Stack<Window>();

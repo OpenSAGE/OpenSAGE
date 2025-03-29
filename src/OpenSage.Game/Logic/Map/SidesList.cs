@@ -409,7 +409,7 @@ public sealed class SidesList : Asset, IPersistableObject
 
     // TODO(Port): Does this really belong here?
     // I think this should be a method on Game or some other global class
-    public void PrepareForMpOrSkirmish(Game game)
+    public void PrepareForMpOrSkirmish(IGame game)
     {
         // Move teams from the global list to the skirmish list
         SkirmishTeams.Clear();

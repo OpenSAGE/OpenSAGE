@@ -10,7 +10,7 @@ public class AptCallbackResolver
 {
     private readonly Dictionary<string, MethodInfo> _callbackCache;
 
-    internal AptCallbackResolver(Game game)
+    internal AptCallbackResolver(IGame game)
     {
         _callbackCache = new Dictionary<string, MethodInfo>();
 

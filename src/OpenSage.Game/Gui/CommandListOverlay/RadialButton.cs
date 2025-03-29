@@ -11,7 +11,7 @@ namespace OpenSage.Gui.CommandListOverlay;
 public class RadialButton
 {
     private readonly GameObject _owner;
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly int _width;
 
     private readonly MappedImage _background;
@@ -41,7 +41,7 @@ public class RadialButton
     public bool IsVisible { get; set; }
     public bool IsRecruitHeroButton { get; }
 
-    public RadialButton(Game game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
+    public RadialButton(IGame game, GameObject owner, CommandButton commandButton, bool isHeroButton = false)
     {
         _game = game;
         _owner = owner;

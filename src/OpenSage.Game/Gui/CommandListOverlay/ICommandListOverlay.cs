@@ -10,5 +10,5 @@ public interface ICommandListOverlay
 
 public interface ICommandListOverlaySource
 {
-    ICommandListOverlay Create(Game game);
+    ICommandListOverlay Create(IGame game);
 }

@@ -8,7 +8,7 @@ namespace OpenSage.Scripting;
 
 internal sealed class CameraFadeOverlay : DisposableBase, IPersistableObject
 {
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly DrawingContext2D _drawingContext;
 
     public CameraFadeType FadeType;
@@ -23,7 +23,7 @@ internal sealed class CameraFadeOverlay : DisposableBase, IPersistableObject
     public uint FramesHold;
     public uint FramesDecrease;
 
-    public CameraFadeOverlay(Game game)
+    public CameraFadeOverlay(IGame game)
     {
         _game = game;
 

@@ -6,7 +6,7 @@ namespace OpenSage.Mods.Bfme.Gui;
 [AptCallbacks(SageGame.Bfme)]
 static class AptOnlineLogin
 {
-    public static void CloseCurrentMovie(string param, ActionContext context, AptWindow window, Game game)
+    public static void CloseCurrentMovie(string param, ActionContext context, AptWindow window, IGame game)
     {
 
     }

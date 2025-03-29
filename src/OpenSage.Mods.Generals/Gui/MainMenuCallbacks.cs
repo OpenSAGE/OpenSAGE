@@ -16,7 +16,7 @@ public static class MainMenuCallbacks
     private static string CurrentSide;
     private static string CurrentSideWindowSuffix;
 
-    public static void W3DMainMenuInit(Window window, Game game)
+    public static void W3DMainMenuInit(Window window, IGame game)
     {
         if (!game.Configuration.LoadShellMap)
         {

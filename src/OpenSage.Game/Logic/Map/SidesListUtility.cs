@@ -13,7 +13,7 @@ using Team = Data.Map.Team;
 internal static class SidesListUtility
 {
     public static void SetupGameSides(
-        Game game,
+        IGame game,
         MapFile mapFile,
         PlayerSetting[] playerSettings,
         GameType gameType,
@@ -79,7 +79,7 @@ internal static class SidesListUtility
     }
 
     private static void SetupSkirmishGameSides(
-        Game game,
+        IGame game,
         MapFile mapFile,
         PlayerSetting[] playerSettings,
         GameType gameType,
@@ -273,7 +273,7 @@ internal static class SidesListUtility
 
     // TODO(Port): SidesList.PrepareForMpOrSkirmish contains a ported near-equivalent of this function
     private static void CreateTeamsFromScbFile(
-        Game game,
+        IGame game,
         ScriptList[] originalMapScriptLists,
         string[] originalMapPlayerNames,
         List<Player> mapPlayers,

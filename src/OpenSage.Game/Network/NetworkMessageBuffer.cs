@@ -17,7 +17,7 @@ public sealed class NetworkMessageBuffer : DisposableBase
     //TODO: use this for generating a replay file later on
     public Dictionary<uint, List<Order>> FrameOrders { get; }
 
-    public NetworkMessageBuffer(Game game, IConnection connection)
+    public NetworkMessageBuffer(IGame game, IConnection connection)
     {
         FrameOrders = new Dictionary<uint, List<Order>>();
         _localOrders = new List<Order>();

@@ -36,45 +36,45 @@ public sealed class Scene3D : DisposableBase
     // RtsCameraController uses its own input handling, so these are only used for debug cameras
     private readonly EditorCameraInputMessageHandler _editorCameraInputMessageHandler;
     private EditorCameraInputState _editorCameraInputState;
-    public readonly IEditorCameraController EditorCameraController;
+    public IEditorCameraController EditorCameraController { get; }
 
-    internal readonly GameEngine GameEngine;
+    public GameEngine GameEngine { get; }
 
     public SelectionGui SelectionGui { get; }
 
     private readonly DebugMessageHandler _debugMessageHandler;
     public DebugOverlay DebugOverlay { get; private set; }
 
-    internal readonly ParticleSystemManager ParticleSystemManager;
+    internal ParticleSystemManager ParticleSystemManager { get; }
 
     private readonly OrderGeneratorSystem _orderGeneratorSystem;
 
-    public readonly Camera Camera;
+    public Camera Camera { get; }
 
     public TacticalView TacticalView { get; }
 
-    public readonly MapFile MapFile;
+    public MapFile MapFile { get; }
 
-    public readonly Terrain.Terrain Terrain;
+    public Terrain.Terrain Terrain { get; }
 
-    public readonly IQuadtree<GameObject> Quadtree;
+    public IQuadtree<GameObject> Quadtree { get; }
     public bool ShowTerrain
     {
         get => RenderScene.GetRenderBucket("Terrain").Visible;
         set => RenderScene.GetRenderBucket("Terrain").Visible = value;
     }
 
-    public readonly WaterAreaCollection WaterAreas;
+    public WaterAreaCollection WaterAreas { get; }
     public bool ShowWater { get; set; } = true;
 
-    public readonly RoadCollection Roads;
+    public RoadCollection Roads { get; }
     public bool ShowRoads
     {
         get => RenderScene.GetRenderBucket("Roads").Visible;
         set => RenderScene.GetRenderBucket("Roads").Visible = value;
     }
 
-    public readonly Bridge[] Bridges;
+    public Bridge[] Bridges { get; }
     public bool ShowBridges { get; set; } = true;
 
     public bool FrustumCulling { get; set; } = false;
@@ -83,38 +83,38 @@ public sealed class Scene3D : DisposableBase
 
     public IGameObjectCollection GameObjects => GameEngine.GameLogic;
     public bool ShowObjects { get; set; } = true;
-    public readonly CameraCollection Cameras;
-    public readonly WaypointCollection Waypoints;
+    public CameraCollection Cameras { get; }
+    public WaypointCollection Waypoints { get; }
 
-    public readonly WorldLighting Lighting;
+    public WorldLighting Lighting { get; }
 
-    public readonly ShadowSettings Shadows = new ShadowSettings();
+    public ShadowSettings Shadows { get; } = new ShadowSettings();
 
     public WaterSettings Waters { get; } = new WaterSettings();
 
     public IReadOnlyList<Player> Players => Game.PlayerManager.Players;
     public Player LocalPlayer => Game.PlayerManager.LocalPlayer;
-    public readonly Navigation.Navigation Navigation;
+    public Navigation.Navigation Navigation { get; }
 
     internal AudioSystem Audio => Game.Audio;
     internal AssetLoadContext AssetLoadContext => Game.AssetStore.LoadContext;
 
     private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
 
-    public readonly Radar Radar;
+    public Radar Radar { get; }
 
-    public readonly Game Game;
+    public IGame Game { get; }
 
     public GameObject BuildPreviewObject;
 
-    public readonly RenderScene RenderScene;
+    public RenderScene RenderScene { get; }
 
     private readonly Scene25D _scene25D;
 
-    public readonly RadarDrawUtil RadarDrawUtil;
+    public RadarDrawUtil RadarDrawUtil { get; }
 
     internal Scene3D(
-        Game game,
+        IGame game,
         MapFile mapFile,
         string mapPath,
         Data.Map.Player[] mapPlayers,
@@ -258,7 +258,7 @@ public sealed class Scene3D : DisposableBase
     }
 
     internal Scene3D(
-        Game game,
+        IGame game,
         InputMessageBuffer inputMessageBuffer,
         Func<Viewport> getViewport,
         IEditorCameraController cameraController,
@@ -277,7 +277,7 @@ public sealed class Scene3D : DisposableBase
         EditorCameraController = cameraController;
     }
 
-    private Scene3D(Game game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, bool isDiagnosticScene, MapFile mapFile, string mapPath)
+    private Scene3D(IGame game, Func<Viewport> getViewport, InputMessageBuffer inputMessageBuffer, bool isDiagnosticScene, MapFile mapFile, string mapPath)
     {
         Game = game;
 

@@ -48,7 +48,7 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
 
     public event EventHandler<ScriptingSystem> OnUpdateFinished;
 
-    public ScriptingSystem(Game game)
+    public ScriptingSystem(IGame game)
         : base(game)
     {
         CameraFadeOverlay = AddDisposable(new CameraFadeOverlay(game));

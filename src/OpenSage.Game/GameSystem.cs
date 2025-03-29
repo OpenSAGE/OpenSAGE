@@ -5,12 +5,12 @@ public abstract class GameSystem : DisposableBase
     /// <summary>
     /// Gets the current game.
     /// </summary>
-    protected Game Game { get; }
+    protected IGame Game { get; }
 
     /// <summary>
     /// Creates a new <see cref="GameSystem"/>.
     /// </summary>
-    protected GameSystem(Game game)
+    protected GameSystem(IGame game)
     {
         Game = game;
 

@@ -13,7 +13,7 @@ namespace OpenSage.Gui.Apt;
 public sealed class AptWindow : DisposableBase
 {
     private readonly AptContext _context;
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly AptCallbackResolver _resolver;
     private readonly AptRenderingContext _renderingContext;
     private Vector2 _movieSize;
@@ -41,7 +41,7 @@ public sealed class AptWindow : DisposableBase
     /// </summary>
     public MappedImage BackgroundImage { get; set; }
 
-    public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
+    public AptWindow(IGame game, ContentManager contentManager, AptFile aptFile)
     {
         _game = game;
         ContentManager = contentManager;
@@ -152,5 +152,5 @@ public sealed class AptWindow : DisposableBase
         return aptFile;
     }
 
-    public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);
+    public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, IGame game);
 }

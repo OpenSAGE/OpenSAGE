@@ -11,7 +11,7 @@ public class WndMainMenuSource : IMainMenuSource
         _wndFileName = wndFileName;
     }
 
-    public void AddToScene(Game game, Scene2D scene, bool useShellMap)
+    public void AddToScene(IGame game, Scene2D scene, bool useShellMap)
     {
         scene.WndWindowManager.PushWindow(_wndFileName);
     }

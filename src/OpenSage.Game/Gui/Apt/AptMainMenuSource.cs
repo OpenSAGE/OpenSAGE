@@ -11,7 +11,7 @@ public class AptMainMenuSource : IMainMenuSource
         _fallbackShell = "ShellMapLowLOD";
     }
 
-    public void AddToScene(Game game, Scene2D scene, bool useShellMap)
+    public void AddToScene(IGame game, Scene2D scene, bool useShellMap)
     {
         var aptWindow = game.LoadAptWindow(_aptFileName);
         if (!useShellMap)

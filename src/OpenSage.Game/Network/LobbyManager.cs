@@ -11,7 +11,7 @@ namespace OpenSage.Network;
 
 public class LobbyManager
 {
-    private Game _game;
+    private IGame _game;
     private EventBasedNetListener _listener;
     private NetManager _manager;
     private Thread _thread;
@@ -24,7 +24,7 @@ public class LobbyManager
 
     public bool IsRunning { get; private set; }
 
-    public LobbyManager(Game game)
+    public LobbyManager(IGame game)
     {
         _game = game;
 

@@ -21,7 +21,7 @@ namespace OpenSage.Mods.Bfme;
 
 class AptControlBar : IControlBar
 {
-    Game _game;
+    IGame _game;
     AptWindow _window;
     SpriteItem _root;
     private bool _commandbarVisible = false;
@@ -35,7 +35,7 @@ class AptControlBar : IControlBar
     private readonly int _fontSize = 11;
     private readonly ColorRgbaF _fontColor;
 
-    public AptControlBar(Game game)
+    public AptControlBar(IGame game)
     {
         _game = game;
 
@@ -326,7 +326,7 @@ class AptControlBar : IControlBar
 
 public class AptControlBarSource : IControlBarSource
 {
-    public IControlBar Create(string side, Game game)
+    public IControlBar Create(string side, IGame game)
     {
         return new AptControlBar(game);
     }

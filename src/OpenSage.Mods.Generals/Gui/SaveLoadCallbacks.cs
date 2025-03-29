@@ -11,9 +11,9 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class SaveLoadCallbacks
 {
-    private static FileSystem GetSavesFileSystem(Game game) => new DiskFileSystem(Path.Combine(game.UserDataFolder, "Save"));
+    private static FileSystem GetSavesFileSystem(IGame game) => new DiskFileSystem(Path.Combine(game.UserDataFolder, "Save"));
 
-    public static void SaveLoadMenuFullScreenInit(Window window, Game game)
+    public static void SaveLoadMenuFullScreenInit(Window window, IGame game)
     {
         var listBox = (ListBox)window.Controls.FindControl("SaveLoad.wnd:ListboxGames");
 
@@ -40,7 +40,7 @@ public static class SaveLoadCallbacks
         }
     }
 
-    public static void SaveLoadMenuShutdown(Window window, Game game)
+    public static void SaveLoadMenuShutdown(Window window, IGame game)
     {
         // TODO
     }

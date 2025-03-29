@@ -9,13 +9,13 @@ namespace OpenSage.Gui.Wnd;
 internal sealed class WndInputMessageHandler : InputMessageHandler
 {
     private readonly WndWindowManager _windowManager;
-    private readonly Game _game;
+    private readonly IGame _game;
 
     private readonly List<Control> _lastMouseOverControls = new List<Control>();
 
     public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
-    public WndInputMessageHandler(WndWindowManager windowManager, Game game)
+    public WndInputMessageHandler(WndWindowManager windowManager, IGame game)
     {
         _windowManager = windowManager;
         _game = game;

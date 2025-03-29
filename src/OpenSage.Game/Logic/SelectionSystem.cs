@@ -56,7 +56,7 @@ public sealed class SelectionSystem : GameSystem
         }
     }
 
-    public SelectionSystem(Game game) : base(game) { }
+    public SelectionSystem(IGame game) : base(game) { }
 
     public void OnStartRightClickDrag(Point2D point)
     {

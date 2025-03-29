@@ -79,7 +79,7 @@ public sealed class GeneralsControlBar : IControlBar
     private readonly Image? _commandButtonHover;
     private readonly Image? _commandButtonPushed;
 
-    internal Game Game { get; }
+    internal IGame Game { get; }
 
     public Image? Rank1OverlayLarge { get; }
     public Image? Rank2OverlayLarge { get; }
@@ -750,7 +750,7 @@ public sealed class GeneralsControlBar : IControlBar
 
 public sealed class GeneralsControlBarSource : IControlBarSource
 {
-    public IControlBar Create(string side, Game game)
+    public IControlBar Create(string side, IGame game)
     {
         var scheme = game.AssetStore.ControlBarSchemes.FindBySide(side);
 

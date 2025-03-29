@@ -10,5 +10,5 @@ public interface IControlBar
 
 public interface IControlBarSource
 {
-    IControlBar Create(string side, Game game);
+    IControlBar Create(string side, IGame game);
 }

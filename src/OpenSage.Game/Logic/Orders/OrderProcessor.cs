@@ -11,9 +11,9 @@ namespace OpenSage.Logic.Orders;
 
 public sealed class OrderProcessor
 {
-    private readonly Game _game;
+    private readonly IGame _game;
 
-    public OrderProcessor(Game game)
+    public OrderProcessor(IGame game)
     {
         _game = game;
     }

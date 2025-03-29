@@ -23,7 +23,7 @@ public sealed class RallyPointOrderGenerator : OrderGenerator, IDisposable
 
     private OrderType _currentOrder = OrderType.Zero;
 
-    public RallyPointOrderGenerator(Game game, GameObject gameObject)
+    public RallyPointOrderGenerator(IGame game, GameObject gameObject)
         : base(game)
     {
         _gameObject = gameObject;

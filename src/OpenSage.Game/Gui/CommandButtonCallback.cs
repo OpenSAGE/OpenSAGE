@@ -11,7 +11,7 @@ namespace OpenSage.Gui;
 
 public static class CommandButtonCallback
 {
-    public static void HandleCommand(Game game, CommandButton commandButton, ObjectDefinition objectDefinition, bool cancel = false, int index = 0)
+    public static void HandleCommand(IGame game, CommandButton commandButton, ObjectDefinition objectDefinition, bool cancel = false, int index = 0)
     {
         var playerIndex = game.Scene3D.GetPlayerIndex(game.Scene3D.LocalPlayer);
         Order CreateOrder(OrderType type) => new Order(playerIndex, type);

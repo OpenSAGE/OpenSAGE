@@ -47,7 +47,7 @@ public static class MapUtils
         return new Vector2(relPos.X, relPos.Y);
     }
 
-    public static void SetMapPreview(MapCache mapCache, Control mapWindow, Game game)
+    public static void SetMapPreview(MapCache mapCache, Control mapWindow, IGame game)
     {
         var mapPath = FileSystem.NormalizeFilePath(mapCache.Name);
         var thumbPath = Path.ChangeExtension(mapPath, ".tga");

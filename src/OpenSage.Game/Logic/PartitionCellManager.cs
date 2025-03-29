@@ -11,7 +11,7 @@ namespace OpenSage.Logic;
 
 public sealed class PartitionCellManager : IPersistableObject
 {
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly float _partitionCellSize;
     private readonly List<ShroudReveal> _shroudReveals = new();
     private readonly List<PartitionObject> _objects = new();
@@ -30,7 +30,7 @@ public sealed class PartitionCellManager : IPersistableObject
 
     public PartitionCell this[int x, int y] => _cells[(y * _numCellsX) + x];
 
-    internal PartitionCellManager(Game game)
+    internal PartitionCellManager(IGame game)
     {
         _game = game;
         _partitionCellSize = game.AssetStore.GameData.Current.PartitionCellSize;

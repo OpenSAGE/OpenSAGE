@@ -9,7 +9,7 @@ namespace OpenSage.Mods.Generals.Gui;
 [WndCallbacks]
 public static class LanLobbyMenuCallbacks
 {
-    private static Game Game;
+    private static IGame Game;
 
     private const string ListBoxGamesPrefix = "LanLobbyMenu.wnd:ListboxGames";
     private const string ListBoxPlayersPrefix = "LanLobbyMenu.wnd:ListboxPlayers";
@@ -59,11 +59,11 @@ public static class LanLobbyMenuCallbacks
         }
     }
 
-    public static void LanLobbyMenuShutdown(Window window, Game game)
+    public static void LanLobbyMenuShutdown(Window window, IGame game)
     {
     }
 
-    public static void LanLobbyMenuUpdate(Window window, Game game)
+    public static void LanLobbyMenuUpdate(Window window, IGame game)
     {
         // Update games
         var listBoxGames = (ListBox)window.Controls.FindControl(ListBoxGamesPrefix);
@@ -89,7 +89,7 @@ public static class LanLobbyMenuCallbacks
         textEditPlayerName.Text = string.Empty;
     }
 
-    public static void LanLobbyMenuInit(Window window, Game game)
+    public static void LanLobbyMenuInit(Window window, IGame game)
     {
         Game = game;
 

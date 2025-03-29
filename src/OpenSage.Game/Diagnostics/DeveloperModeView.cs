@@ -9,7 +9,7 @@ namespace OpenSage.Diagnostics;
 
 public sealed class DeveloperModeView : DisposableBase
 {
-    private readonly Game _game;
+    private readonly IGame _game;
     private readonly GameWindow _window;
     private readonly ImGuiRenderer _imGuiRenderer;
 
@@ -20,7 +20,7 @@ public sealed class DeveloperModeView : DisposableBase
 
     private readonly MainView _mainView;
 
-    public DeveloperModeView(Game game, GameWindow window)
+    public DeveloperModeView(IGame game, GameWindow window)
     {
         _game = game;
         _window = window;

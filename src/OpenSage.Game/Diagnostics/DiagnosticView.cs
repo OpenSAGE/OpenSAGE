@@ -9,7 +9,7 @@ internal abstract class DiagnosticView : DisposableBase
     private bool _isVisible;
 
     protected DiagnosticViewContext Context { get; }
-    protected Game Game { get; }
+    protected IGame Game { get; }
     protected GameWindow Window { get; }
     protected ImGuiRenderer ImGuiRenderer { get; }
 

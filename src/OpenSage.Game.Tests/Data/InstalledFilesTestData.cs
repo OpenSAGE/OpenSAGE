@@ -59,12 +59,12 @@ internal static class InstalledFilesTestData
         }
     }
 
-    public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<Game, FileSystemEntry> processFileCallback)
+    public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<IGame, FileSystemEntry> processFileCallback)
     {
         ReadFiles(fileExtension, output, GameDefinition.All, processFileCallback);
     }
 
-    public static void ReadFiles(string fileExtension, ITestOutputHelper output, IEnumerable<IGameDefinition> gameDefinitions, Action<Game, FileSystemEntry> processFileCallback)
+    public static void ReadFiles(string fileExtension, ITestOutputHelper output, IEnumerable<IGameDefinition> gameDefinitions, Action<IGame, FileSystemEntry> processFileCallback)
     {
         var foundAtLeastOneFile = false;
 
