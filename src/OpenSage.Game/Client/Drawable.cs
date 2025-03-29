@@ -585,7 +585,7 @@ public sealed class Drawable : Entity, IPersistableObject
         // Bouncy.
         var curSpeed = physics.VelocityMagnitude;
 
-	    var maxSpeed = ai.CurrentLocomotorSpeed;
+        var maxSpeed = ai.CurrentLocomotorSpeed;
         if (!airborne && curSpeed > maxSpeed / 10)
         {
             var factor = curSpeed / maxSpeed;
