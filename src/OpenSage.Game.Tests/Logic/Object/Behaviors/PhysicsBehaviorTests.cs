@@ -26,8 +26,8 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(0.0f, behavior.YawRate);
         Assert.Equal(0.0f, behavior.RollRate);
         Assert.Equal(0.0f, behavior.PitchRate);
+        Assert.Equal(Vector3.Zero, behavior.CurrentAcceleration);
         Assert.Equal(Vector3.Zero, behavior.Acceleration);
-        Assert.Equal(Vector3.Zero, behavior.LastAcceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
         Assert.Equal(PhysicsTurningType.None, behavior.Turning);
         Assert.Equal(ObjectId.Invalid, behavior.IgnoreCollisionsWith);
@@ -55,8 +55,8 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(0.0f, behavior.YawRate);
         Assert.Equal(0.0f, behavior.RollRate);
         Assert.Equal(0.0f, behavior.PitchRate);
-        Assert.Equal(new Vector3(1.1111113f, 0, 0), behavior.Acceleration);
-        Assert.Equal(Vector3.Zero, behavior.LastAcceleration);
+        Assert.Equal(new Vector3(1.1111113f, 0, 0), behavior.CurrentAcceleration);
+        Assert.Equal(Vector3.Zero, behavior.Acceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
         Assert.Equal(PhysicsTurningType.None, behavior.Turning);
         Assert.Equal(ObjectId.Invalid, behavior.IgnoreCollisionsWith);
@@ -84,8 +84,8 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(0.0f, behavior.YawRate);
         Assert.Equal(0.0f, behavior.RollRate);
         Assert.Equal(0.0f, behavior.PitchRate);
-        Assert.Equal(Vector3.Zero, behavior.Acceleration);
-        Assert.Equal(new Vector3(2.2222226f, 0, 0), behavior.LastAcceleration);
+        Assert.Equal(Vector3.Zero, behavior.CurrentAcceleration);
+        Assert.Equal(new Vector3(2.2222226f, 0, 0), behavior.Acceleration);
         Assert.Equal(new Vector3(2.2222226f, 0, -3.9488077e-07f), behavior.Velocity);
         Assert.Equal(PhysicsTurningType.None, behavior.Turning);
         Assert.Equal(ObjectId.Invalid, behavior.IgnoreCollisionsWith);
@@ -113,8 +113,8 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
         Assert.Equal(0.0f, behavior.YawRate);
         Assert.Equal(0.0f, behavior.RollRate);
         Assert.Equal(0.0f, behavior.PitchRate);
-        Assert.Equal(Vector3.Zero, behavior.Acceleration);
-        Assert.Equal(new Vector3(-0.22222255f, 0, 0), behavior.LastAcceleration);
+        Assert.Equal(Vector3.Zero, behavior.CurrentAcceleration);
+        Assert.Equal(new Vector3(-0.22222255f, 0, 0), behavior.Acceleration);
         Assert.Equal(new Vector3(2, 0, 0), behavior.Velocity);
         Assert.Equal(PhysicsTurningType.None, behavior.Turning);
         Assert.Equal(ObjectId.Invalid, behavior.IgnoreCollisionsWith);
@@ -140,7 +140,7 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
 
         behavior.ApplyForce(new Vector3(45, 40, 35));
 
-        Assert.Equal(new Vector3(9, 8, 7), behavior.Acceleration);
+        Assert.Equal(new Vector3(9, 8, 7), behavior.CurrentAcceleration);
         Assert.Equal(Vector3.Zero, behavior.Velocity);
     }
 
@@ -153,7 +153,7 @@ public class PhysicsBehaviorTests : UpdateModuleTest<PhysicsBehavior, PhysicsBeh
 
         behavior.Update();
 
-        Assert.Equal(Vector3.Zero, behavior.Acceleration);
+        Assert.Equal(Vector3.Zero, behavior.CurrentAcceleration);
         Assert.Equal(new Vector3(1, 2, 3), behavior.Velocity);
         Assert.Equal(new Vector3(1, 2, 3), gameObject.Translation);
     }
