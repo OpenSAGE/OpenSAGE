@@ -116,7 +116,7 @@ public class ActiveBody : BodyModule
                             {
                                 // Removing the rider will scuttle the bike.
                                 var rider = contain.ContainedItems[0];
-                                ai.AIEvacuateInstantly(true, CommandSourceTypes.FromAI);
+                                ai.AIEvacuateInstantly(true, CommandSourceType.FromAI);
 
                                 // Kill the rider.
                                 damager?.ScoreTheKill(rider);
@@ -130,7 +130,7 @@ public class ActiveBody : BodyModule
                             obj.SetDisabled(DisabledType.Unmanned);
                             GameEngine.GameLogic.DeselectObject(obj, PlayerMaskType.All, true);
 
-                            obj.AIUpdate?.AIIdle(CommandSourceTypes.FromAI);
+                            obj.AIUpdate?.AIIdle(CommandSourceType.FromAI);
 
                             // Convert it to the neutral team so it renders gray
                             // giving visual representation that it is unmanned.
@@ -904,7 +904,7 @@ public class ActiveBody : BodyModule
             {
                 me.SetDisabled(DisabledType.Subdued);
 
-                me.Contain?.OrderAllPassengersToIdle(CommandSourceTypes.FromAI);
+                me.Contain?.OrderAllPassengersToIdle(CommandSourceType.FromAI);
             }
             else
             {
@@ -914,7 +914,7 @@ public class ActiveBody : BodyModule
                 {
                     // Any unit inside an internet center is a hacker! Order
                     // them to start hacking again.
-                    me.Contain?.OrderAllPassengersToHackInternet(CommandSourceTypes.FromAI);
+                    me.Contain?.OrderAllPassengersToHackInternet(CommandSourceType.FromAI);
                 }
             }
         }

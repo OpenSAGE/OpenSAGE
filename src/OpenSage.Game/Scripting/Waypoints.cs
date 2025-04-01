@@ -81,6 +81,8 @@ public sealed class WaypointCollection
 [DebuggerDisplay("ID = {ID}, Name = {Name}")]
 public sealed class Waypoint
 {
+    public const uint InvalidId = 0x7FFFFFFF;
+
     public const string ObjectTypeName = "*Waypoints/Waypoint";
 
     private List<Waypoint>? _connectedWaypoints;

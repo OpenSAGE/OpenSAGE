@@ -5,29 +5,40 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public enum LocomotorSetType
 {
+    Invalid = -1,
+
     [IniEnum("SET_NORMAL")]
-    Normal,
+    Normal = 0,
 
     [IniEnum("SET_NORMAL_UPGRADED")]
-    NormalUpgraded,
-
-    [IniEnum("SET_WANDER")]
-    Wander,
-
-    [IniEnum("SET_PANIC")]
-    Panic,
+    NormalUpgraded = 1,
 
     [IniEnum("SET_FREEFALL")]
-    FreeFall,
+    FreeFall = 2,
 
+    [IniEnum("SET_WANDER")]
+    Wander = 3,
+
+    [IniEnum("SET_PANIC")]
+    Panic = 4,
+
+    /// <summary>
+    /// Used for normally-airborne items while taxiing on ground.
+    /// </summary>
     [IniEnum("SET_TAXIING")]
-    Taxiing,
+    Taxiing = 5,
 
+    /// <summary>
+    /// Used for high-speed attacks 
+    /// </summary>
     [IniEnum("SET_SUPERSONIC")]
-    Supersonic,
+    Supersonic = 6,
 
+    /// <summary>
+    /// Used for abnormally slow (but not damaged) speeds
+    /// </summary>
     [IniEnum("SET_SLUGGISH")]
-    Sluggish,
+    Sluggish = 7,
 
     [IniEnum("SET_ENRAGED")]
     Enraged,

@@ -242,12 +242,12 @@ public sealed class Side
         return new Side()
         {
             SideName = parser.ParseString(),
-            CommandSourceTypes = parser.ParseEnumFlags<CommandSourceTypes>()
+            CommandSourceTypes = parser.ParseEnumBitArray<CommandSourceType>()
         };
     }
 
     public string SideName { get; private set; }
-    public CommandSourceTypes CommandSourceTypes { get; private set; }
+    public BitArray<CommandSourceType> CommandSourceTypes { get; private set; } = new BitArray<CommandSourceType>();
 }
 
 public sealed class PreBuildObject

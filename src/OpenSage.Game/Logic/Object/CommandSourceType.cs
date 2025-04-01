@@ -3,8 +3,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
-[Flags]
-public enum CommandSourceTypes
+public enum CommandSourceType
 {
     [IniEnum("NONE")]
     None = 0,
