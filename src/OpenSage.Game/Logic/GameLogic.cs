@@ -275,7 +275,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             throw new InvalidStateException();
         }
 
-        reader.PersistListWithUInt32Count(
+        reader.PersistFixedLengthListWithUInt32Count(
             _game.Scene3D.MapFile.PolygonTriggers.Triggers,
             static (StatePersister persister, ref PolygonTrigger item) =>
             {

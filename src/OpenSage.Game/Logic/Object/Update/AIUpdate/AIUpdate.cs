@@ -386,7 +386,23 @@ public class AIUpdate : UpdateModule
         reader.PersistSingle(ref _desiredSpeed);
         reader.PersistEnum(ref _lastCommandSource);
         reader.PersistEnum(ref _guardTargetType0);
+
+        var guardTargetType1Copy = _guardTargetType1;
+
+        // Original game accidentally used 8 bytes for _guardTargetType0.
+        // The extra 4 bytes are actually the same value as _guardTargetType1.
+        var garbageBytes0 = 0;
+        reader.PersistInt32(ref garbageBytes0);
+
         reader.PersistEnum(ref _guardTargetType1);
+
+        // Original game accidentally used 8 bytes for _guardTargetType1.
+        // These 4 bytes contain whatever happens to be in the 4 bytes of memory
+        // following _guardTargetType1... which is the first float value in
+        // m_locationToGuard.
+        var garbageBytes1 = 0;
+        reader.PersistInt32(ref garbageBytes1);
+
         reader.PersistVector3(ref _locationToGuard);
         reader.PersistObjectId(ref _objectToGuard);
 
@@ -418,7 +434,7 @@ public class AIUpdate : UpdateModule
         reader.PersistUInt32(ref completedWaypointId);
         if (reader.Mode == StatePersistMode.Read)
         {
-            _completedWaypoint = GameEngine.Scene3D.Waypoints[(int)completedWaypointId];
+            GameEngine.Scene3D.Waypoints.TryGetById((int)completedWaypointId, out _completedWaypoint);
         }
 
         reader.PersistBoolean(ref _waitingForPath);

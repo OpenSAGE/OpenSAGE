@@ -126,7 +126,7 @@ public struct DamageInfoInput() : IPersistableObject
         var version = reader.PersistVersion(3);
 
         reader.PersistObjectId(ref _sourceID);
-        reader.PersistEnumUInt16(ref PlayerMaskType);
+        reader.PersistPlayerMaskType(ref PlayerMaskType);
         reader.PersistEnum(ref DamageType);
 
         if (version >= 3)

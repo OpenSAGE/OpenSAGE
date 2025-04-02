@@ -61,7 +61,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(7u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
@@ -83,7 +83,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(15u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Exploded, data.DeathType);
@@ -105,7 +105,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(17u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.ComancheVulcan, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Normal, data.DeathType);
@@ -171,7 +171,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(7u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.Explosion, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Suicided, data.DeathType);
@@ -193,7 +193,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(28u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.Poison, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride); // v3
         Assert.Equal(DeathType.Poisoned, data.DeathType);
@@ -240,7 +240,7 @@ public class DamageTests : StatePersisterTest
         data.Persist(reader);
 
         Assert.Equal(new ObjectId(5u), data.SourceID);
-        Assert.Equal(4, (int)data.PlayerMaskType);
+        Assert.Equal(new PlayerMaskType(4), data.PlayerMaskType);
         Assert.Equal(DamageType.InfantryMissile, data.DamageType);
         Assert.Equal(DamageType.Unresistable, data.DamageFXOverride);
         Assert.Equal(DeathType.Normal, data.DeathType);

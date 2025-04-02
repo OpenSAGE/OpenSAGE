@@ -245,7 +245,7 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
             }
         }
 
-        return _attackPriorities[0];
+        return null;
     }
 
     public void ScriptingTick()
