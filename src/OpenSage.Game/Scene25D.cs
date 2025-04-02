@@ -15,7 +15,7 @@ public class Scene25D(IScene3D scene3D, AssetStore assetStore)
     protected IGameObjectCollection GameObjects => scene3D.GameObjects;
     protected Camera Camera => scene3D.Camera;
     protected GameData GameData => assetStore.GameData.Current;
-    protected GameEngine GameEngine => scene3D.GameEngine;
+    protected IGameEngine GameEngine => scene3D.GameEngine;
 
     private Player LocalPlayer => scene3D.LocalPlayer;
 

@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object;
 public sealed class SwayClientUpdate : ClientUpdateModule
 {
     private readonly Drawable _drawable;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
 
     private float _currentValue;
     private float _currentAngle;
@@ -24,7 +24,7 @@ public sealed class SwayClientUpdate : ClientUpdateModule
     private short _currentVersion = -1; // So we don't match the first time
     private bool _swaying = true;
 
-    internal SwayClientUpdate(Drawable drawable, GameEngine gameEngine)
+    internal SwayClientUpdate(Drawable drawable, IGameEngine gameEngine)
     {
         _drawable = drawable;
         _gameEngine = gameEngine;
@@ -149,7 +149,7 @@ public sealed class SwayClientUpdateModuleData : ClientUpdateModuleData
 
     private static readonly IniParseTable<SwayClientUpdateModuleData> FieldParseTable = new IniParseTable<SwayClientUpdateModuleData>();
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new SwayClientUpdate(drawable, gameEngine);
     }

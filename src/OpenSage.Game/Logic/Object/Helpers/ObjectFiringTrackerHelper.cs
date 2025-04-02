@@ -7,7 +7,7 @@ internal sealed class ObjectFiringTrackerHelper : UpdateModule
 
     protected override UpdateOrder UpdateOrder => UpdateOrder.Order3;
 
-    public ObjectFiringTrackerHelper(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public ObjectFiringTrackerHelper(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

@@ -24,7 +24,7 @@ public sealed class Drawable : Entity, IPersistableObject
         return _tagToModuleLookup[tag];
     }
 
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
 
     private readonly List<string> _hiddenDrawModules;
     private readonly Dictionary<string, bool> _hiddenSubObjects;
@@ -150,7 +150,7 @@ public sealed class Drawable : Entity, IPersistableObject
                 Math.Clamp(_gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1),
                 Math.Clamp(_gameEngine.AssetLoadContext.AssetStore.GameData.Current.SelectionFlashSaturationFactor / 2f, 0, 1));
 
-    internal Drawable(ObjectDefinition objectDefinition, GameEngine gameEngine, GameObject gameObject)
+    internal Drawable(ObjectDefinition objectDefinition, IGameEngine gameEngine, GameObject gameObject)
     {
         Definition = objectDefinition;
         _gameEngine = gameEngine;

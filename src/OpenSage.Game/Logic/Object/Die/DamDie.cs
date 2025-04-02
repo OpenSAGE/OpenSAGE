@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 public sealed class DamDie : DieModule
 {
     // TODO
-    public DamDie(GameObject gameObject, GameEngine gameEngine, DamDieModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    public DamDie(GameObject gameObject, IGameEngine gameEngine, DamDieModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -30,7 +30,7 @@ public sealed class DamDieModuleData : DieModuleData
     private static new readonly IniParseTable<DamDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
         .Concat(new IniParseTable<DamDieModuleData>());
 
-    internal override DamDie CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override DamDie CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new DamDie(gameObject, gameEngine, this);
     }

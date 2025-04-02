@@ -18,7 +18,7 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
     private readonly BitArray<ObjectKinds> _allowedKinds = new();
 
-    public PropagandaTowerBehavior(GameObject gameObject, GameEngine gameEngine, PropagandaTowerBehaviorModuleData moduleData)
+    public PropagandaTowerBehavior(GameObject gameObject, IGameEngine gameEngine, PropagandaTowerBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -167,7 +167,7 @@ public sealed class PropagandaTowerBehaviorModuleData : BehaviorModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public bool AffectsSelf { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new PropagandaTowerBehavior(gameObject, gameEngine, this);
     }

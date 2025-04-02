@@ -16,7 +16,7 @@ public sealed class HordeUpdate : UpdateModule
 
     protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.UpdateRate;
 
-    internal HordeUpdate(GameObject gameObject, GameEngine gameEngine, HordeUpdateModuleData moduleData)
+    internal HordeUpdate(GameObject gameObject, IGameEngine gameEngine, HordeUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -160,7 +160,7 @@ public sealed class HordeUpdateModuleData : UpdateModuleData
     /// </summary>
     public WeaponBonusType Action { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new HordeUpdate(gameObject, gameEngine, this);
     }

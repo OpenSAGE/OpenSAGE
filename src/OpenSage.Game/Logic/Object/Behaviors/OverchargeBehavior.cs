@@ -11,7 +11,7 @@ public sealed class OverchargeBehavior : UpdateModule
     private bool _enabled;
     public bool Enabled => _enabled;
 
-    public OverchargeBehavior(GameObject gameObject, GameEngine gameEngine, OverchargeBehaviorModuleData moduleData)
+    public OverchargeBehavior(GameObject gameObject, IGameEngine gameEngine, OverchargeBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -103,7 +103,7 @@ public sealed class OverchargeBehaviorModuleData : UpdateModuleData
     /// </summary>
     public Percentage NotAllowedWhenHealthBelowPercent { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new OverchargeBehavior(gameObject, gameEngine, this);
     }

@@ -15,7 +15,7 @@ public class ExperienceUpdate : UpdateModule
 
     public bool ObjectGainsExperience { get; private set; }
 
-    internal ExperienceUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    internal ExperienceUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
         _initial = true;
     }

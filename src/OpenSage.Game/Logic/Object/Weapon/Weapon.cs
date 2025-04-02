@@ -67,7 +67,7 @@ public sealed class Weapon : IPersistableObject
         GameObject gameObject,
         WeaponTemplate weaponTemplate,
         WeaponSlot slot,
-        GameEngine gameContext)
+        IGameEngine gameEngine)
     {
         ParentGameObject = gameObject;
         Template = weaponTemplate;
@@ -82,7 +82,7 @@ public sealed class Weapon : IPersistableObject
             new WeaponStateContext(
                 gameObject,
                 this,
-                gameContext));
+                gameEngine));
 
         _usingFlag = ModelConditionFlagUtility.GetUsingWeaponFlag(WeaponIndex);
     }

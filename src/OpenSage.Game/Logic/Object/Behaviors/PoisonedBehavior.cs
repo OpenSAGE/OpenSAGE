@@ -6,7 +6,7 @@ public sealed class PoisonedBehavior : UpdateModule
 {
     private uint _unknown;
 
-    public PoisonedBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public PoisonedBehavior(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -44,7 +44,7 @@ public sealed class PoisonedBehaviorModuleData : UpdateModuleData
     /// </summary>
     public int PoisonDuration { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new PoisonedBehavior(gameObject, gameEngine);
     }

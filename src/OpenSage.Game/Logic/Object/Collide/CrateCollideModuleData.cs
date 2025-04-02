@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public abstract class CrateCollide : CollideModule
 {
-    protected CrateCollide(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    protected CrateCollide(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

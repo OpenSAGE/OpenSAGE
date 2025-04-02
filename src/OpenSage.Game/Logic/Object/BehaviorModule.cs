@@ -9,9 +9,9 @@ public abstract class ObjectModule : ModuleBase
 {
     protected GameObject GameObject { get; }
 
-    protected GameEngine GameEngine { get; }
+    protected IGameEngine GameEngine { get; }
 
-    protected ObjectModule(GameObject gameObject, GameEngine gameEngine)
+    protected ObjectModule(GameObject gameObject, IGameEngine gameEngine)
     {
         GameObject = gameObject;
         GameEngine = gameEngine;
@@ -29,7 +29,7 @@ public abstract class ObjectModule : ModuleBase
 
 public abstract class BehaviorModule : ObjectModule
 {
-    protected BehaviorModule(GameObject gameObject, GameEngine gameEngine)
+    protected BehaviorModule(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
     }
@@ -48,13 +48,13 @@ public abstract class BehaviorModule : ObjectModule
 
 internal sealed class BehaviorUpdateContext
 {
-    public readonly GameEngine GameEngine;
+    public readonly IGameEngine GameEngine;
     public readonly GameObject GameObject;
 
     public LogicFrame LogicFrame => GameEngine.GameLogic.CurrentFrame;
 
     public BehaviorUpdateContext(
-        GameEngine gameEngine,
+        IGameEngine gameEngine,
         GameObject gameObject)
     {
         GameEngine = gameEngine;
@@ -621,5 +621,5 @@ public abstract class BehaviorModuleData : ModuleData
         { "WeaponSetUpgrade", WeaponSetUpgradeModuleData.Parse },
     };
 
-    internal virtual BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine) => null; // TODO: Make this abstract.
+    internal virtual BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine) => null; // TODO: Make this abstract.
 }

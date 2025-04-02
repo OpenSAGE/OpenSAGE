@@ -9,7 +9,7 @@ public sealed class BeaconClientUpdate : ClientUpdateModule
 }
 
 /// <summary>
-/// Hardcoded to produce the BeaconSmokeFFFFFF particle system definition by default but will 
+/// Hardcoded to produce the BeaconSmokeFFFFFF particle system definition by default but will
 /// call the BeaconSmoke###### particle system definition relative to the player's color.
 /// </summary>
 public sealed class BeaconClientUpdateModuleData : ClientUpdateModuleData
@@ -25,7 +25,7 @@ public sealed class BeaconClientUpdateModuleData : ClientUpdateModuleData
     public int RadarPulseFrequency { get; private set; }
     public int RadarPulseDuration { get; private set; }
 
-    internal override ClientUpdateModule CreateModule(Drawable drawable, GameEngine gameEngine)
+    internal override ClientUpdateModule CreateModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new BeaconClientUpdate();
     }

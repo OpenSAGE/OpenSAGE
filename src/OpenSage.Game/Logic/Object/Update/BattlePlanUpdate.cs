@@ -30,7 +30,7 @@ public sealed class BattlePlanUpdate : UpdateModule
 
     private int _unknownInt;
 
-    internal BattlePlanUpdate(GameObject gameObject, GameEngine gameEngine, BattlePlanUpdateModuleData moduleData)
+    internal BattlePlanUpdate(GameObject gameObject, IGameEngine gameEngine, BattlePlanUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -406,7 +406,7 @@ public sealed class BattlePlanUpdateModuleData : UpdateModuleData
     // Revealing
     public LazyAssetReference<ObjectDefinition> VisionObjectName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new BattlePlanUpdate(gameObject, gameEngine, this);
     }

@@ -9,7 +9,7 @@ public abstract class DieModule : BehaviorModule, IDieModule
 {
     private readonly DieModuleData _moduleData;
 
-    protected DieModule(GameObject gameObject, GameEngine gameEngine, DieModuleData moduleData)
+    protected DieModule(GameObject gameObject, IGameEngine gameEngine, DieModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;

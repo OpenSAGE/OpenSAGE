@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object;
 public class W3dModelDraw : DrawModule
 {
     private readonly W3dModelDrawModuleData _data;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
 
     private ModelConditionState _activeConditionState;
     protected AnimationState _activeAnimationState;
@@ -90,7 +90,7 @@ public class W3dModelDraw : DrawModule
     internal W3dModelDraw(
         W3dModelDrawModuleData data,
         Drawable drawable,
-        GameEngine gameEngine)
+        IGameEngine gameEngine)
     {
         _data = data;
         Drawable = drawable;
@@ -426,14 +426,14 @@ public class W3dModelDraw : DrawModule
 internal sealed class W3dModelDrawConditionState : DisposableBase
 {
     private readonly IEnumerable<ParticleSystem> _particleSystems;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
 
     public readonly ModelInstance Model;
 
     public W3dModelDrawConditionState(
         ModelInstance modelInstance,
         IEnumerable<ParticleSystem> particleSystems,
-        GameEngine gameEngine)
+        IGameEngine gameEngine)
     {
         Model = AddDisposable(modelInstance);
 
@@ -766,7 +766,7 @@ public class W3dModelDrawModuleData : DrawModuleData, IParseCallbacks
         _transitionStatesGenerals.Clear();
     }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dModelDraw(this, drawable, gameEngine);
     }

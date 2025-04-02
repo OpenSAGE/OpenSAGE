@@ -114,5 +114,5 @@ public abstract class DrawModuleData : ModuleData
         { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
     };
 
-    internal virtual DrawModule? CreateDrawModule(Drawable drawable, GameEngine gameEngine) => null; // TODO: Make this abstract.
+    internal virtual DrawModule? CreateDrawModule(Drawable drawable, IGameEngine gameEngine) => null; // TODO: Make this abstract.
 }

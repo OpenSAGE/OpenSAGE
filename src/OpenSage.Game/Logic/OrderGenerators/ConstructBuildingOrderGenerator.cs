@@ -32,8 +32,8 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
         int definitionIndex,
         GameData config,
         Player player,
-        GameEngine gameContext,
-        IScene3D scene) : base(gameContext.Game)
+        IGameEngine gameEngine,
+        IScene3D scene) : base(gameEngine.Game)
     {
         _buildingDefinition = buildingDefinition;
         _definitionIndex = definitionIndex;
@@ -45,7 +45,7 @@ public sealed class ConstructBuildingOrderGenerator : OrderGenerator, IDisposabl
 
         _previewObject = new GameObject(
             buildingDefinition,
-            gameContext,
+            gameEngine,
             player)
         {
             IsPlacementPreview = true

@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public class SpecialPowerCreate : CreateModule
 {
-    public SpecialPowerCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public SpecialPowerCreate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -36,7 +36,7 @@ public sealed class SpecialPowerCreateModuleData : CreateModuleData
 
     private static readonly IniParseTable<SpecialPowerCreateModuleData> FieldParseTable = new IniParseTable<SpecialPowerCreateModuleData>();
 
-    internal override SpecialPowerCreate CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override SpecialPowerCreate CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpecialPowerCreate(gameObject, gameEngine);
     }

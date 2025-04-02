@@ -74,7 +74,7 @@ public sealed class LaserUpdateModuleData : ClientUpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public LogicFrameSpan LaserLifetime { get; private set; }
 
-    internal override LaserUpdate CreateModule(Drawable drawable, GameEngine gameEngine)
+    internal override LaserUpdate CreateModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new LaserUpdate();
     }

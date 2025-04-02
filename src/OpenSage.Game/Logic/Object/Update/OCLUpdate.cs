@@ -7,7 +7,7 @@ public sealed class OCLUpdate : UpdateModule
 {
     private bool _unknownBool;
 
-    public OCLUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public OCLUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -56,7 +56,7 @@ public sealed class OCLUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public int Amount { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new OCLUpdate(gameObject, gameEngine);
     }

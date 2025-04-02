@@ -8,7 +8,7 @@ public sealed class BridgeBehavior : UpdateModule
 {
     private readonly ObjectId[] _towerIds = new ObjectId[4];
 
-    public BridgeBehavior(GameObject gameObject, GameEngine gameEngine)
+    public BridgeBehavior(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
     }
@@ -60,7 +60,7 @@ public sealed class BridgeBehaviorModuleData : BehaviorModuleData
     public List<BridgeDieObjectCreationList> BridgeDieOCLs { get; } = new List<BridgeDieObjectCreationList>();
     public List<BridgeDieFX> BridgeDieFXs { get; } = new List<BridgeDieFX>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new BridgeBehavior(gameObject, gameEngine);
     }

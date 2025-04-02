@@ -9,7 +9,7 @@ public sealed class ProjectileStreamUpdate : UpdateModule
     private uint _unknownInt2;
     private ObjectId _unknownObjectId;
 
-    public ProjectileStreamUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public ProjectileStreamUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -43,7 +43,7 @@ public sealed class ProjectileStreamUpdateModuleData : UpdateModuleData
 
     private static readonly IniParseTable<ProjectileStreamUpdateModuleData> FieldParseTable = new IniParseTable<ProjectileStreamUpdateModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ProjectileStreamUpdate(gameObject, gameEngine);
     }

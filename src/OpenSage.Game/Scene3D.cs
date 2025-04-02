@@ -38,7 +38,7 @@ public sealed class Scene3D : DisposableBase, IScene3D
     private EditorCameraInputState _editorCameraInputState;
     public IEditorCameraController EditorCameraController { get; }
 
-    public GameEngine GameEngine { get; }
+    public IGameEngine GameEngine { get; }
 
     public SelectionGui SelectionGui { get; }
 

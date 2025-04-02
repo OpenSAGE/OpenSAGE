@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class DefectorSpecialPower : SpecialPowerModule
 {
-    internal DefectorSpecialPower(GameObject gameObject, GameEngine gameEngine, DefectorSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal DefectorSpecialPower(GameObject gameObject, IGameEngine gameEngine, DefectorSpecialPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -29,7 +29,7 @@ public sealed class DefectorSpecialPowerModuleData : SpecialPowerModuleData
     private static new readonly IniParseTable<DefectorSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
         .Concat(new IniParseTable<DefectorSpecialPowerModuleData>());
 
-    internal override DefectorSpecialPower CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override DefectorSpecialPower CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new DefectorSpecialPower(gameObject, gameEngine, this);
     }

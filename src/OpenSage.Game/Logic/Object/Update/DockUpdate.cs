@@ -23,7 +23,7 @@ public abstract class DockUpdate : UpdateModule
     private ObjectId _unknownObjectId;
     private ushort _unknownInt1;
 
-    protected DockUpdate(GameObject gameObject, GameEngine gameEngine, DockUpdateModuleData moduleData)
+    protected DockUpdate(GameObject gameObject, IGameEngine gameEngine, DockUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;

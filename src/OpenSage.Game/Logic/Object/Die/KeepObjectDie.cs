@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class KeepObjectDie : DieModule
 {
-    public KeepObjectDie(GameObject gameObject, GameEngine gameEngine, KeepObjectDieModuleData moduleData)
+    public KeepObjectDie(GameObject gameObject, IGameEngine gameEngine, KeepObjectDieModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
     }
@@ -36,7 +36,7 @@ public sealed class KeepObjectDieModuleData : DieModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool StayOnRadar { get; private set; }
 
-    internal override KeepObjectDie CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override KeepObjectDie CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new KeepObjectDie(gameObject, gameEngine, this);
     }

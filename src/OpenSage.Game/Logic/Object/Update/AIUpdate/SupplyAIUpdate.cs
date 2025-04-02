@@ -40,7 +40,7 @@ public abstract class SupplyAIUpdate : AIUpdate
 
     protected virtual int GetAdditionalValuePerSupplyBox(ScopedAssetCollection<UpgradeTemplate> upgrades) => 0;
 
-    internal SupplyAIUpdate(GameObject gameObject, GameEngine gameEngine, SupplyAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal SupplyAIUpdate(GameObject gameObject, IGameEngine gameEngine, SupplyAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
         SupplyGatherState = SupplyGatherStates.Default;

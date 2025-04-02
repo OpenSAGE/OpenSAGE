@@ -15,7 +15,7 @@ public sealed class StructureBody : ActiveBody
     /// </summary>
     private ObjectId _constructorObjectID;
 
-    internal StructureBody(GameObject gameObject, GameEngine gameEngine, StructureBodyModuleData moduleData)
+    internal StructureBody(GameObject gameObject, IGameEngine gameEngine, StructureBodyModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
     }
@@ -48,7 +48,7 @@ public sealed class StructureBodyModuleData : ActiveBodyModuleData
     private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
         .Concat(new IniParseTable<StructureBodyModuleData>());
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new StructureBody(gameObject, gameEngine, this);
     }

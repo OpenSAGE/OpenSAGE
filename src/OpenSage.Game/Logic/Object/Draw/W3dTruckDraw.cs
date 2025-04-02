@@ -12,7 +12,7 @@ public sealed class W3dTruckDraw : W3dModelDraw
 
     private readonly (string name, bool affectedBySteering)[] _boneList;
 
-    internal W3dTruckDraw(W3dTruckDrawModuleData data, Drawable drawable, GameEngine gameEngine)
+    internal W3dTruckDraw(W3dTruckDrawModuleData data, Drawable drawable, IGameEngine gameEngine)
         : base(data, drawable, gameEngine)
     {
         _data = data;
@@ -185,7 +185,7 @@ public class W3dTruckDrawModuleData : W3dModelDrawModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public RandomTexture RandomTexture { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dTruckDraw(this, drawable, gameEngine);
     }

@@ -7,7 +7,7 @@ public class StructureCollapseUpdate : UpdateModule
 {
     private readonly StructureCollapseUpdateModuleData _moduleData;
 
-    public StructureCollapseUpdate(GameObject gameObject, GameEngine gameEngine, StructureCollapseUpdateModuleData moduleData)
+    public StructureCollapseUpdate(GameObject gameObject, IGameEngine gameEngine, StructureCollapseUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -64,7 +64,7 @@ public sealed class StructureCollapseUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public int CollapseHeight { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new StructureCollapseUpdate(gameObject, gameEngine, this);
     }

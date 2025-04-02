@@ -7,7 +7,7 @@ public sealed class BridgeTowerBehavior : BehaviorModule
     private int _unknown1;
     private int _unknown2;
 
-    public BridgeTowerBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public BridgeTowerBehavior(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -33,7 +33,7 @@ public sealed class BridgeTowerBehaviorModuleData : BehaviorModuleData
 
     private static readonly IniParseTable<BridgeTowerBehaviorModuleData> FieldParseTable = new IniParseTable<BridgeTowerBehaviorModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new BridgeTowerBehavior(gameObject, gameEngine);
     }

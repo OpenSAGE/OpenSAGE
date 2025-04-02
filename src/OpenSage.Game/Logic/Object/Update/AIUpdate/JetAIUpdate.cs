@@ -56,7 +56,7 @@ public sealed class JetAIUpdate : AIUpdate
         MovingBackToHangar
     }
 
-    internal JetAIUpdate(GameObject gameObject, GameEngine gameEngine, JetAIUpdateModuleData moduleData)
+    internal JetAIUpdate(GameObject gameObject, IGameEngine gameEngine, JetAIUpdateModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
@@ -331,7 +331,7 @@ internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override JetAIUpdate AIUpdate { get; }
 
-    public JetAIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, JetAIUpdate aiUpdate)
+    public JetAIUpdateStateMachine(GameObject gameObject, IGameEngine gameEngine, JetAIUpdate aiUpdate)
         : base(gameObject, gameEngine, aiUpdate)
     {
         AIUpdate = aiUpdate;
@@ -415,7 +415,7 @@ public sealed class JetAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public Percentage TakeoffDistForMaxLift { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new JetAIUpdate(gameObject, gameEngine, this);
     }

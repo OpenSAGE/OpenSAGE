@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object;
 public sealed class FireSpreadUpdate : UpdateModule
 {
     // TODO
-    public FireSpreadUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public FireSpreadUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -38,7 +38,7 @@ public sealed class FireSpreadUpdateModuleData : UpdateModuleData
     public TimeSpan MaxSpreadDelay { get; private set; }
     public int SpreadTryRange { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new FireSpreadUpdate(gameObject, gameEngine);
     }

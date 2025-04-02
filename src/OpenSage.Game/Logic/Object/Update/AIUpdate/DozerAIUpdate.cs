@@ -14,7 +14,7 @@ public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
 
     private readonly DozerAndWorkerState _state;
 
-    internal DozerAIUpdate(GameObject gameObject, GameEngine gameEngine, DozerAIUpdateModuleData moduleData)
+    internal DozerAIUpdate(GameObject gameObject, IGameEngine gameEngine, DozerAIUpdateModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
@@ -92,7 +92,7 @@ public sealed class DozerAIUpdateModuleData : AIUpdateModuleData, IBuilderAIUpda
     public LogicFrameSpan BoredTime { get; private set; }
     public int BoredRange { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new DozerAIUpdate(gameObject, gameEngine, this);
     }

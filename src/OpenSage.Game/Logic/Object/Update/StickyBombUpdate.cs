@@ -8,7 +8,7 @@ public sealed class StickyBombUpdate : UpdateModule
     private uint _unknown2;
     private uint _unknown3;
 
-    public StickyBombUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public StickyBombUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -47,7 +47,7 @@ public sealed class StickyBombUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public string GeometryBasedDamageFX { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new StickyBombUpdate(gameObject, gameEngine);
     }

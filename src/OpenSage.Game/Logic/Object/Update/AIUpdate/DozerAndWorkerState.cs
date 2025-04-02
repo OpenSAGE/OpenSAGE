@@ -13,7 +13,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     public GameObject? RepairTarget => TryGetRepairTarget(out var repairTarget) ? repairTarget : null;
 
     private readonly GameObject _gameObject;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly AIUpdate _aiUpdate;
     private readonly IBuilderAIUpdateData _moduleData;
 
@@ -23,7 +23,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     private readonly DozerSomething2[] _unknownList2 = new DozerSomething2[9]; // these seem to be in groups of 3, one group for each target
     private int _unknown4;
 
-    public DozerAndWorkerState(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate)
+    public DozerAndWorkerState(GameObject gameObject, IGameEngine gameEngine, AIUpdate aiUpdate)
     {
         _gameObject = gameObject;
         _gameEngine = gameEngine;
@@ -204,7 +204,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
 
     internal sealed class BuilderStateMachine : StateMachineBase
     {
-        public BuilderStateMachine(GameObject gameObject, GameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
+        public BuilderStateMachine(GameObject gameObject, IGameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
             AddState(0, new BuilderUnknown0State(this));
             AddState(1, new BuilderUnknown1State(this));

@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class TechBuildingBehavior : UpdateModule
 {
-    public TechBuildingBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public TechBuildingBehavior(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -27,7 +27,7 @@ public sealed class TechBuildingBehaviorModuleData : BehaviorModuleData
 
     private static readonly IniParseTable<TechBuildingBehaviorModuleData> FieldParseTable = new IniParseTable<TechBuildingBehaviorModuleData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new TechBuildingBehavior(gameObject, gameEngine);
     }

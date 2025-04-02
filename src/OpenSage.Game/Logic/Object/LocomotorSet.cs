@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object;
 public sealed class LocomotorSet : IPersistableObject
 {
     private readonly GameObject _gameObject;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private readonly List<Locomotor> _locomotors;
     private Surfaces _surfaces;
 
-    public LocomotorSet(GameObject gameObject, GameEngine gameEngine)
+    public LocomotorSet(GameObject gameObject, IGameEngine gameEngine)
     {
         _gameObject = gameObject;
         _gameEngine = gameEngine;

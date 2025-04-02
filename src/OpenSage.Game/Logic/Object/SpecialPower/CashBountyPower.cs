@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CashBountyPower : SpecialPowerModule
 {
-    internal CashBountyPower(GameObject gameObject, GameEngine gameEngine, CashBountyPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal CashBountyPower(GameObject gameObject, IGameEngine gameEngine, CashBountyPowerModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
     }
 
@@ -29,7 +29,7 @@ public sealed class CashBountyPowerModuleData : SpecialPowerModuleData
 
     public Percentage Bounty { get; private set; }
 
-    internal override CashBountyPower CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override CashBountyPower CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CashBountyPower(gameObject, gameEngine, this);
     }

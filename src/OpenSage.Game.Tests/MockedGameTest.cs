@@ -79,7 +79,7 @@ public abstract class MockedGameTest : IDisposable
         public OrderGeneratorSystem OrderGenerator { get; }
         public AudioSystem Audio { get; }
         public SelectionSystem Selection { get; }
-        public GameEngine GameEngine { get; }
+        public IGameEngine GameEngine { get; }
         public event EventHandler<GameUpdatingEventArgs> Updating;
         public event EventHandler RenderCompleted;
         public void LoadSaveFile(FileSystemEntry entry)

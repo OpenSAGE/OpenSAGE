@@ -23,7 +23,7 @@ public sealed class InactiveBody : BodyModule
         set { }
     }
 
-    internal InactiveBody(GameObject gameObject, GameEngine gameEngine)
+    internal InactiveBody(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
         gameObject.IsEffectivelyDead = true;
@@ -129,7 +129,7 @@ public sealed class InactiveBodyModuleData : BodyModuleData
 
     private static readonly IniParseTable<InactiveBodyModuleData> FieldParseTable = [];
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new InactiveBody(gameObject, gameEngine);
     }

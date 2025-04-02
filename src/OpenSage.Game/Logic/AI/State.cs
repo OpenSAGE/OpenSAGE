@@ -9,7 +9,7 @@ internal abstract class State : IPersistableObject
     public uint Id { get; internal set; }
 
     private protected GameObject GameObject => _stateMachine.GameObject;
-    private protected GameEngine GameEngine => _stateMachine.GameEngine;
+    private protected IGameEngine GameEngine => _stateMachine.GameEngine;
 
     private readonly StateMachineBase _stateMachine;
 

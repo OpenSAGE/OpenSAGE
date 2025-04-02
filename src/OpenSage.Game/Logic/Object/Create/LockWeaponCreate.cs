@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.CncGeneralsZeroHour)]
 public sealed class LockWeaponCreate : CreateModule
 {
-    public LockWeaponCreate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public LockWeaponCreate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -34,7 +34,7 @@ public sealed class LockWeaponCreateModuleData : CreateModuleData
 
     public WeaponSlot SlotToLock { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new LockWeaponCreate(gameObject, gameEngine);
     }

@@ -39,7 +39,7 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
     protected const string ExitBoneStartName = "ExitStart";
     protected const string ExitBoneEndName = "ExitEnd";
 
-    private protected OpenContainModule(GameObject gameObject, GameEngine gameEngine, OpenContainModuleData moduleData)
+    private protected OpenContainModule(GameObject gameObject, IGameEngine gameEngine, OpenContainModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;

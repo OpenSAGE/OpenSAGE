@@ -10,7 +10,7 @@ public sealed class SpawnPointProductionExitUpdate : UpdateModule, IProductionEx
     private readonly SpawnPointProductionExitUpdateModuleData _moduleData;
     private int _nextIndex;
 
-    internal SpawnPointProductionExitUpdate(GameObject gameObject, GameEngine gameEngine, SpawnPointProductionExitUpdateModuleData moduleData)
+    internal SpawnPointProductionExitUpdate(GameObject gameObject, IGameEngine gameEngine, SpawnPointProductionExitUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -55,7 +55,7 @@ public sealed class SpawnPointProductionExitUpdateModuleData : UpdateModuleData
 
     public string SpawnPointBoneName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SpawnPointProductionExitUpdate(gameObject, gameEngine, this);
     }

@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class CleanupHazardUpdate : UpdateModule
 {
-    public CleanupHazardUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public CleanupHazardUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -38,7 +38,7 @@ public sealed class CleanupHazardUpdateModuleData : UpdateModuleData
     public int ScanRate { get; private set; }
     public float ScanRange { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new CleanupHazardUpdate(gameObject, gameEngine);
     }

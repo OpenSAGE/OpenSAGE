@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object;
 
 public abstract class CollideModule : BehaviorModule, ICollideModule
 {
-    protected CollideModule(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    protected CollideModule(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 

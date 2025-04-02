@@ -7,7 +7,7 @@ internal sealed class ExperienceLevelCreateBehavior : CreateModule
 {
     ExperienceLevelCreateModuleData _moduleData;
 
-    internal ExperienceLevelCreateBehavior(GameObject gameObject, GameEngine gameEngine, ExperienceLevelCreateModuleData moduleData)
+    internal ExperienceLevelCreateBehavior(GameObject gameObject, IGameEngine gameEngine, ExperienceLevelCreateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -33,7 +33,7 @@ public sealed class ExperienceLevelCreateModuleData : CreateModuleData
     public int LevelToGrant { get; private set; }
     public bool MPOnly { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ExperienceLevelCreateBehavior(gameObject, gameEngine, this);
     }

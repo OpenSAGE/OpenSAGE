@@ -30,7 +30,7 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
 
     public int ProbabilityModifier => _moduleData.ProbabilityModifier;
 
-    internal SlowDeathBehavior(GameObject gameObject, GameEngine gameEngine, SlowDeathBehaviorModuleData moduleData)
+    internal SlowDeathBehavior(GameObject gameObject, IGameEngine gameEngine, SlowDeathBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -253,7 +253,7 @@ public class SlowDeathBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2Rotwk)]
     public bool DoNotRandomizeMidpoint { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SlowDeathBehavior(gameObject, gameEngine, this);
     }

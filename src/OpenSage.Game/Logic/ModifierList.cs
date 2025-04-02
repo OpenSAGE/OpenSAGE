@@ -30,7 +30,7 @@ public class AttributeModifier
         _delayedUpgrades = new List<(UpgradeTemplate, TimeSpan)>();
     }
 
-    public void Apply(GameObject gameObject, GameEngine gameEngine, in TimeInterval time)
+    public void Apply(GameObject gameObject, IGameEngine gameEngine, in TimeInterval time)
     {
         if (_selfExpiring)
         {
@@ -98,7 +98,7 @@ public class AttributeModifier
         }
     }
 
-    public void Remove(GameObject gameObject, GameEngine gameEngine)
+    public void Remove(GameObject gameObject, IGameEngine gameEngine)
     {
         foreach (var modifier in _modifierList.Modifiers)
         {
@@ -127,7 +127,7 @@ public class AttributeModifier
         TriggerFX(_modifierList.EndFX3, gameObject, gameEngine);
     }
 
-    private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, GameEngine gameEngine)
+    private void TriggerFX(LazyAssetReference<FXList> fx, GameObject gameObject, IGameEngine gameEngine)
     {
         fx?.Value?.Execute(new FXListExecutionContext(
                 gameObject.Rotation,

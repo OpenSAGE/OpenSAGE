@@ -33,7 +33,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
 
     private readonly List<ObjectId> _generatedMineIds = [];
 
-    internal GenerateMinefieldBehavior(GameObject gameObject, GameEngine gameEngine, GenerateMinefieldBehaviorModuleData moduleData)
+    internal GenerateMinefieldBehavior(GameObject gameObject, IGameEngine gameEngine, GenerateMinefieldBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -292,7 +292,7 @@ public sealed class GenerateMinefieldBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public LazyAssetReference<ObjectDefinition>? UpgradedMineName { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new GenerateMinefieldBehavior(gameObject, gameEngine, this);
     }

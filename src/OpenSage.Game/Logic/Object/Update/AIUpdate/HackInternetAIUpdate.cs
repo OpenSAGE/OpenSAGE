@@ -13,7 +13,7 @@ public class HackInternetAIUpdate : AIUpdate
 
     private UnknownStateData? _packingUpData;
 
-    internal HackInternetAIUpdate(GameObject gameObject, GameEngine gameEngine, HackInternetAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal HackInternetAIUpdate(GameObject gameObject, IGameEngine gameEngine, HackInternetAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
     }
@@ -93,7 +93,7 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override HackInternetAIUpdate AIUpdate { get; }
 
-    public HackInternetAIUpdateStateMachine(GameObject gameObject, GameEngine gameEngine, HackInternetAIUpdate aiUpdate)
+    public HackInternetAIUpdateStateMachine(GameObject gameObject, IGameEngine gameEngine, HackInternetAIUpdate aiUpdate)
         : base(gameObject, gameEngine, aiUpdate)
     {
         AIUpdate = aiUpdate;
@@ -103,7 +103,7 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
         AddState(StopHackingInternetState.StateId, new StopHackingInternetState(this));
     }
 
-    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, GameEngine gameEngine)
+    internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, IGameEngine gameEngine)
     {
         var variationFactor = AIUpdate.ModuleData.PackUnpackVariationFactor;
         var variation = gameEngine.GameLogic.Random.NextSingle(
@@ -166,7 +166,7 @@ public sealed class HackInternetAIUpdateModuleData : AIUpdateModuleData
     /// </example>
     public float PackUnpackVariationFactor { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new HackInternetAIUpdate(gameObject, gameEngine, this);
     }

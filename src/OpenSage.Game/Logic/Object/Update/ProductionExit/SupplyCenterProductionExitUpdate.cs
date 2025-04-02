@@ -9,7 +9,7 @@ public sealed class SupplyCenterProductionExitUpdate : UpdateModule, IHasRallyPo
 
     private readonly SupplyCenterProductionExitUpdateModuleData _moduleData;
 
-    internal SupplyCenterProductionExitUpdate(GameObject gameObject, GameEngine gameEngine, SupplyCenterProductionExitUpdateModuleData moduleData)
+    internal SupplyCenterProductionExitUpdate(GameObject gameObject, IGameEngine gameEngine, SupplyCenterProductionExitUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -55,7 +55,7 @@ public sealed class SupplyCenterProductionExitUpdateModuleData : UpdateModuleDat
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public int GrantTemporaryStealth { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new SupplyCenterProductionExitUpdate(gameObject, gameEngine, this);
     }

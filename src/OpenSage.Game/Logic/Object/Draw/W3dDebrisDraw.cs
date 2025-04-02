@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object;
 public sealed class W3dDebrisDraw : DrawModule
 {
     private readonly W3dDebrisDrawModuleData _data;
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private ModelInstance _modelInstance;
 
     private string _modelName;
@@ -22,7 +22,7 @@ public sealed class W3dDebrisDraw : DrawModule
     private uint _unknownInt2;
     private bool _unknownBool;
 
-    internal W3dDebrisDraw(W3dDebrisDrawModuleData data, GameEngine gameEngine)
+    internal W3dDebrisDraw(W3dDebrisDrawModuleData data, IGameEngine gameEngine)
     {
         _data = data;
         _gameEngine = gameEngine;
@@ -98,8 +98,8 @@ public sealed class W3dDebrisDraw : DrawModule
 }
 
 /// <summary>
-/// Special-case draw module used by ObjectCreationList.INI when using the CreateDebris code 
-/// which defaults to calling the GenericDebris object definition as a template for each debris 
+/// Special-case draw module used by ObjectCreationList.INI when using the CreateDebris code
+/// which defaults to calling the GenericDebris object definition as a template for each debris
 /// object generated.
 /// </summary>
 public sealed class W3dDebrisDrawModuleData : DrawModuleData
@@ -108,7 +108,7 @@ public sealed class W3dDebrisDrawModuleData : DrawModuleData
 
     internal static readonly IniParseTable<W3dDebrisDrawModuleData> FieldParseTable = new IniParseTable<W3dDebrisDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dDebrisDraw(this, gameEngine);
     }

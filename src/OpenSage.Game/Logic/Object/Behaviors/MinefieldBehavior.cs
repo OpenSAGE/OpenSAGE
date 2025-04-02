@@ -8,7 +8,7 @@ public sealed class MinefieldBehavior : UpdateModule
     private uint _numVirtualMachines;
     private uint _unknownFrame;
 
-    public MinefieldBehavior(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public MinefieldBehavior(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -72,7 +72,7 @@ public sealed class MinefieldBehaviorModuleData : BehaviorModuleData
     public bool StopsRegenAfterCreatorDies { get; private set; }
     public Percentage DegenPercentPerSecondAfterCreatorDies { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new MinefieldBehavior(gameObject, gameEngine);
     }

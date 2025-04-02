@@ -16,13 +16,13 @@ namespace OpenSage.Logic.Object;
 [AddedIn(SageGame.Bfme)]
 public sealed class W3dTreeDraw : DrawModule
 {
-    private readonly GameEngine _gameEngine;
+    private readonly IGameEngine _gameEngine;
     private ModelInstance _modelInstance;
     private readonly W3dTreeDrawModuleData _moduleData;
 
     public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; } = Array.Empty<BitArray<ModelConditionFlag>>();
 
-    internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, GameEngine gameEngine)
+    internal W3dTreeDraw(W3dTreeDrawModuleData moduleData, IGameEngine gameEngine)
     {
         _gameEngine = gameEngine;
         _moduleData = moduleData;
@@ -143,7 +143,7 @@ public sealed class W3dTreeDrawModuleData : DrawModuleData
     [AddedIn(SageGame.Bfme)]
     public string MorphTree { get; private set; }
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dTreeDraw(this, gameEngine);
     }

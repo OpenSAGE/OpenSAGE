@@ -11,7 +11,7 @@ public sealed class FireWeaponCollide : CollideModule
     private readonly Weapon _collideWeapon;
     private bool _unknown2;
 
-    internal FireWeaponCollide(GameObject gameObject, GameEngine gameEngine, FireWeaponCollideModuleData moduleData) : base(gameObject, gameEngine)
+    internal FireWeaponCollide(GameObject gameObject, IGameEngine gameEngine, FireWeaponCollideModuleData moduleData) : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
@@ -49,7 +49,7 @@ public sealed class FireWeaponCollideModuleData : CollideModuleData
     public LazyAssetReference<WeaponTemplate> CollideWeapon { get; private set; }
     public ModelConditionFlag RequiredStatus { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new FireWeaponCollide(gameObject, gameEngine, this);
     }

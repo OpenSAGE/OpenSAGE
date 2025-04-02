@@ -2,9 +2,9 @@
 
 namespace OpenSage.Logic.Object;
 
-public class ExperienceTracker(GameObject parent, GameEngine engine) : IPersistableObject
+public class ExperienceTracker(GameObject parent, IGameEngine gameEngine) : IPersistableObject
 {
-    private readonly GameEngine _engine = engine;
+    private readonly IGameEngine _gameEngine = gameEngine;
 
     /// <summary>
     /// Object I am owned by.
@@ -135,7 +135,7 @@ public class ExperienceTracker(GameObject parent, GameEngine engine) : IPersista
         if (ExperienceSink.IsValid)
         {
             // I have been set up to give my experience to someone else
-            var sinkObject = _engine.Scene3D.GameObjects.GetObjectById(ExperienceSink);
+            var sinkObject = _gameEngine.Scene3D.GameObjects.GetObjectById(ExperienceSink);
 
             if (sinkObject != null)
             {
@@ -212,7 +212,7 @@ public class ExperienceTracker(GameObject parent, GameEngine engine) : IPersista
     {
         if (ExperienceSink.IsValid)
         {
-            var sinkObject = _engine.Scene3D.GameObjects.GetObjectById(ExperienceSink);
+            var sinkObject = _gameEngine.Scene3D.GameObjects.GetObjectById(ExperienceSink);
 
             if (sinkObject != null)
             {

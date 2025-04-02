@@ -14,7 +14,7 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 
     UpdateOrder IUpdateModule.UpdatePhase => UpdateOrder;
 
-    protected UpdateModule(GameObject gameObject, GameEngine gameEngine)
+    protected UpdateModule(GameObject gameObject, IGameEngine gameEngine)
         : base(gameObject, gameEngine)
     {
         _nextUpdateFrame.UpdateOrder = UpdateOrder;

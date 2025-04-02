@@ -155,7 +155,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         set => SetFlag(PhysicsFlagType.ApplyFriction2DWhenAirborne, value);
     }
 
-    internal PhysicsBehavior(GameObject gameObject, GameEngine gameEngine, PhysicsBehaviorModuleData moduleData)
+    internal PhysicsBehavior(GameObject gameObject, IGameEngine gameEngine, PhysicsBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -1640,7 +1640,7 @@ public class PhysicsBehaviorModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme)]
     public int SecondHeight { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new PhysicsBehavior(gameObject, gameEngine, this);
     }

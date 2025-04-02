@@ -8,7 +8,7 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
 {
     private readonly ObjectCreationUpgradeModuleData _moduleData;
 
-    internal ObjectCreationUpgrade(GameObject gameObject, GameEngine gameEngine, ObjectCreationUpgradeModuleData moduleData)
+    internal ObjectCreationUpgrade(GameObject gameObject, IGameEngine gameEngine, ObjectCreationUpgradeModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         _moduleData = moduleData;
@@ -93,7 +93,7 @@ public sealed class ObjectCreationUpgradeModuleData : UpgradeModuleData
     [AddedIn(SageGame.Bfme2)]
     public bool UseBuildingProduction { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ObjectCreationUpgrade(gameObject, gameEngine, this);
     }

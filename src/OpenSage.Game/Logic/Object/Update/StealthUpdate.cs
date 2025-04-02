@@ -10,7 +10,7 @@ public sealed class StealthUpdate : UpdateModule
     private float _unknownFloat1;
     private float _unknownFloat2;
 
-    public StealthUpdate(GameObject gameObject, GameEngine gameEngine) : base(gameObject, gameEngine)
+    public StealthUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
     }
 
@@ -180,7 +180,7 @@ public sealed class StealthUpdateModuleData : BehaviorModuleData
     [AddedIn(SageGame.Bfme2)]
     public string[] RequiredUpgradeNames { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new StealthUpdate(gameObject, gameEngine);
     }

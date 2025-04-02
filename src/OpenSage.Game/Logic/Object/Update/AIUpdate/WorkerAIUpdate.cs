@@ -23,7 +23,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     private int _unknown6;
     private readonly WorkerAIUpdateStateMachine3 _stateMachine3;
 
-    internal WorkerAIUpdate(GameObject gameObject, GameEngine gameEngine, WorkerAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
+    internal WorkerAIUpdate(GameObject gameObject, IGameEngine gameEngine, WorkerAIUpdateModuleData moduleData) : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
         _state = new DozerAndWorkerState(gameObject, gameEngine, this);
@@ -224,7 +224,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
     {
         public override WorkerAIUpdate AIUpdate { get; }
 
-        public WorkerAIUpdateStateMachine3(GameObject gameObject, GameEngine gameEngine, WorkerAIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
+        public WorkerAIUpdateStateMachine3(GameObject gameObject, IGameEngine gameEngine, WorkerAIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
             AIUpdate = aiUpdate;
 
@@ -284,7 +284,7 @@ public sealed class WorkerAIUpdateModuleData : SupplyAIUpdateModuleData, IBuilde
     [AddedIn(SageGame.Bfme)]
     public LogicFrameSpan HarvestActionTime { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new WorkerAIUpdate(gameObject, gameEngine, this);
     }

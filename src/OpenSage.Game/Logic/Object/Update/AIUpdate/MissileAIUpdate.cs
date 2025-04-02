@@ -31,7 +31,7 @@ public sealed class MissileAIUpdate : AIUpdate
 
     internal FXList DetonationFX { get; set; }
 
-    internal MissileAIUpdate(GameObject gameObject, GameEngine gameEngine, MissileAIUpdateModuleData moduleData)
+    internal MissileAIUpdate(GameObject gameObject, IGameEngine gameEngine, MissileAIUpdateModuleData moduleData)
         : base(gameObject, gameEngine, moduleData)
     {
         ModuleData = moduleData;
@@ -197,7 +197,7 @@ public sealed class MissileAIUpdateModuleData : AIUpdateModuleData
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public int DistanceScatterWhenJammed { get; private set; }
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new MissileAIUpdate(gameObject, gameEngine, this);
     }

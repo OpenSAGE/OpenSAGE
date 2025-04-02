@@ -17,7 +17,7 @@ public class W3dTracerDraw : DrawModule
 
     public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates => Array.Empty<BitArray<ModelConditionFlag>>();
 
-    internal W3dTracerDraw(W3dTracerDrawModuleData data, GameEngine gameEngine)
+    internal W3dTracerDraw(W3dTracerDrawModuleData data, IGameEngine gameEngine)
     {
         _data = data;
     }
@@ -72,7 +72,7 @@ public sealed class W3dTracerDrawModuleData : DrawModuleData
 
     private static readonly IniParseTable<W3dTracerDrawModuleData> FieldParseTable = new IniParseTable<W3dTracerDrawModuleData>();
 
-    internal override DrawModule CreateDrawModule(Drawable drawable, GameEngine gameEngine)
+    internal override DrawModule CreateDrawModule(Drawable drawable, IGameEngine gameEngine)
     {
         return new W3dTracerDraw(this, gameEngine);
     }

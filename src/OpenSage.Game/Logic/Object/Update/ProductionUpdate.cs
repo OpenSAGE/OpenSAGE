@@ -44,7 +44,7 @@ public sealed class ProductionUpdate : UpdateModule
 
     public IReadOnlyList<ProductionJob> ProductionQueue => _productionQueue;
 
-    internal ProductionUpdate(GameObject gameObject, GameEngine gameEngine, ProductionUpdateModuleData moduleData)
+    internal ProductionUpdate(GameObject gameObject, IGameEngine gameEngine, ProductionUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -711,7 +711,7 @@ public sealed class ProductionUpdateModuleData : UpdateModuleData
     [AddedIn(SageGame.Bfme2)]
     public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new ProductionUpdate(gameObject, gameEngine, this);
     }

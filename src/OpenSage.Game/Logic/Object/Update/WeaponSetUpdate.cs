@@ -8,7 +8,7 @@ public sealed class WeaponSetUpdate : UpdateModule
 {
     private readonly WeaponSetUpdateModuleData _moduleData;
 
-    internal WeaponSetUpdate(GameObject gameObject, GameEngine gameEngine, WeaponSetUpdateModuleData moduleData)
+    internal WeaponSetUpdate(GameObject gameObject, IGameEngine gameEngine, WeaponSetUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
@@ -26,7 +26,7 @@ public sealed class WeaponSetUpdateModuleData : UpdateModuleData
     public List<WeaponSlotTurretData> WeaponSlotTurrets { get; } = new List<WeaponSlotTurretData>();
     public List<WeaponSlotHierarchicalTurretData> WeaponSlotHierarchicalTurrets { get; } = new List<WeaponSlotHierarchicalTurretData>();
 
-    internal override BehaviorModule CreateModule(GameObject gameObject, GameEngine gameEngine)
+    internal override BehaviorModule CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {
         return new WeaponSetUpdate(gameObject, gameEngine, this);
     }
