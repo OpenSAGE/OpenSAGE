@@ -3,7 +3,9 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.AI;
+using OpenSage.Logic.Map;
 using OpenSage.Mathematics;
+using OpenSage.Scripting;
 
 namespace OpenSage.Logic.Object;
 
@@ -34,54 +36,57 @@ public class AIUpdate : UpdateModule
 
     private Vector3? _targetDirection;
 
-    private uint _unknownInt1;
-    private uint _unknownInt2;
-    private bool _unknownBool1;
-    private bool _unknownBool2;
-    private uint _unknownInt4;
-    private uint _unknownInt5;
-    private float _unknownFloat1;
-    private uint _unknownInt6;
-    private uint _unknownInt7;
-    private uint _unknownInt8;
-    private uint _unknownInt9;
-    private uint _unknownInt10;
-    private uint _unknownInt11;
-    private uint _unknownInt12;
-    private uint _unknownInt13;
-    private bool _unknownBool3;
-    private bool _unknownBool4;
-    private bool _unknownBool5;
-    private bool _unknownBool6;
-    private string _guardAreaPolygonTriggerName;
-    private string _attackPriorityName;
-    private uint _unknownInt14;
-    private bool _unknownBool7;
-    private uint _unknownInt15;
-    private bool _pathSomething;
+    private uint _priorWaypointId;
+    private uint _currentWaypointId;
+    private bool _isAIDead;
+    private bool _isRecruitable;
+    private uint _nextEnemyScanTime;
+    private ObjectId _currentVictimId;
+    private float _desiredSpeed;
+    private CommandSourceType _lastCommandSource;
+    private GuardTargetType _guardTargetType0;
+    private GuardTargetType _guardTargetType1;
+    private Vector3 _locationToGuard;
+    private ObjectId _objectToGuard;
+    private PolygonTrigger _areaToGuard;
+    private AttackPriority _attackInfo;
+    private readonly List<Vector3> _waypointQueue = new(16);
+    private int _waypointIndex;
+    private bool _executingWaypointQueue;
+    private Waypoint _completedWaypoint;
+    private bool _waitingForPath;
     private PathfindingPath _path;
-    private uint _unknownInt16;
-    private Vector3 _unknownPosition1;
-    private ObjectId _ignoreObstacleID;
-    private float _unknownFloat2;
-    private Point2D _unknownPos2D1;
-    private Point2D _unknownPos2D2;
-    private uint _unknownFrame1;
-    private uint _unknownFrame2;
-    private Vector3 _unknownPosition2;
-    private bool _unknownBool9;
-    private bool _unknownBool10;
-    private bool _unknownBool11;
-    private bool _unknownBool12;
-    private ObjectId _unknownObjectId2;
-    private uint _unknownInt17;
-    private uint _unknownInt18;
-    private Vector3 _unknownPosition3;
-    private int _unknownInt19;
-    private int _unknownInt20;
-    private uint _unknownFrame3;
+    private ObjectId _requestedVictimId;
+    private Vector3 _requestedDestination;
+    private Vector3 _requestedDestination2;
+    private ObjectId _ignoreObstacleId;
+    private float _pathExtraDistance;
+    private Point2D _pathfindGoalCell;
+    private Point2D _pathfindCurrentCell;
+    private LogicFrame _ignoreCollisionsUntil;
+    private LogicFrame _queueForPathFrame;
+    private Vector3 _finalPosition;
+    private bool _doFinalPosition;
+    private bool _isAttackPath;
+    private bool _isFinalGoal;
+    private bool _isApproachPath;
+    private bool _isSafePath;
+    private bool _movementComplete;
+    private bool _upgradedLocomotors;
+    private bool _canPathThroughUnits;
+    private bool _randomlyOffsetMoodCheck;
+    private ObjectId _repulsor1;
+    private ObjectId _repulsor2;
+    private ObjectId _moveOutOfWay1;
+    private ObjectId _moveOutOfWay2;
+    private LocomotorGoalType _locomotorGoalType;
+    private Vector3 _locomotorGoalData;
+    private WhichTurretType _turretSyncFlag;
+    private AttitudeType _attitude;
+    private LogicFrame _nextMoodCheckTime;
+    private ObjectId _crateCreated;
 
-    public ObjectId IgnoredObstacleID => _ignoreObstacleID;
+    public ObjectId IgnoredObstacleID => _ignoreObstacleId;
 
     /// <summary>
     /// A list of positions along the path to the current target point. "Path" as in pathfinding, not waypoint path.
@@ -101,7 +106,7 @@ public class AIUpdate : UpdateModule
         TargetPoints = new List<Vector3>();
 
         _locomotorSet = new LocomotorSet(gameObject, gameEngine);
-        _currentLocomotorSetType = (LocomotorSetType)(-1);
+        _currentLocomotorSetType = LocomotorSetType.Invalid;
 
         SetLocomotor(LocomotorSetType.Normal);
 
@@ -247,12 +252,12 @@ public class AIUpdate : UpdateModule
         }
     }
 
-    public void AIEvacuateInstantly(bool exposeStealthUnits, CommandSourceTypes commandSource)
+    public void AIEvacuateInstantly(bool exposeStealthUnits, CommandSourceType commandSource)
     {
         // TODO(Port): Implement this.
     }
 
-    public void AIIdle(CommandSourceTypes commandSource)
+    public void AIIdle(CommandSourceType commandSource)
     {
         // TODO(Port): Implement this.
     }
@@ -371,40 +376,66 @@ public class AIUpdate : UpdateModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistUInt32(ref _unknownInt1);
-        reader.PersistUInt32(ref _unknownInt2);
+        reader.PersistUInt32(ref _priorWaypointId);
+        reader.PersistUInt32(ref _currentWaypointId);
         reader.PersistObject(StateMachine);
-        reader.PersistBoolean(ref _unknownBool1);
-        reader.PersistBoolean(ref _unknownBool2);
-        reader.PersistUInt32(ref _unknownInt4);
-        reader.PersistUInt32(ref _unknownInt5);
-        reader.PersistSingle(ref _unknownFloat1); // 999999
-        reader.PersistUInt32(ref _unknownInt6); // 2
-        reader.PersistUInt32(ref _unknownInt7); // 3
-        reader.PersistUInt32(ref _unknownInt8); // 3
-        reader.PersistUInt32(ref _unknownInt9); // 3
-        reader.PersistUInt32(ref _unknownInt10); // 0
-        reader.PersistUInt32(ref _unknownInt11); // 0
-        reader.PersistUInt32(ref _unknownInt12); // 0
-        reader.PersistUInt32(ref _unknownInt13); // 0
-        reader.PersistBoolean(ref _unknownBool3);
-        reader.PersistBoolean(ref _unknownBool4);
-        reader.PersistBoolean(ref _unknownBool5); // 0
-        reader.PersistBoolean(ref _unknownBool6); // 0
-        reader.PersistAsciiString(ref _guardAreaPolygonTriggerName);
-        reader.PersistAsciiString(ref _attackPriorityName);
-        reader.PersistUInt32(ref _unknownInt14); // 0
-        reader.PersistBoolean(ref _unknownBool7);
-        reader.PersistUInt32(ref _unknownInt15); // 0
+        reader.PersistBoolean(ref _isAIDead);
+        reader.PersistBoolean(ref _isRecruitable);
+        reader.PersistUInt32(ref _nextEnemyScanTime);
+        reader.PersistObjectId(ref _currentVictimId);
+        reader.PersistSingle(ref _desiredSpeed);
+        reader.PersistEnum(ref _lastCommandSource);
+        reader.PersistEnum(ref _guardTargetType0);
 
-        var unknownInt15_1 = 0x7FFFFFFFu;
-        reader.PersistUInt32(ref unknownInt15_1);
-        if (unknownInt15_1 != 0x7FFFFFFF)
+        // Original game accidentally used 8 bytes for _guardTargetType0.
+        // The extra 4 bytes are actually the same value as _guardTargetType1.
+        var garbageBytes0 = 0;
+        reader.PersistInt32(ref garbageBytes0);
+
+        reader.PersistEnum(ref _guardTargetType1);
+
+        // Original game accidentally used 8 bytes for _guardTargetType1.
+        // These 4 bytes contain whatever happens to be in the 4 bytes of memory
+        // following _guardTargetType1... which is the first float value in
+        // m_locationToGuard.
+        var garbageBytes1 = 0;
+        reader.PersistInt32(ref garbageBytes1);
+
+        reader.PersistVector3(ref _locationToGuard);
+        reader.PersistObjectId(ref _objectToGuard);
+
+        var triggerName = _areaToGuard?.Name ?? "";
+        reader.PersistAsciiString(ref triggerName, "AreaToGuard");
+        if (reader.Mode == StatePersistMode.Read && triggerName != "")
         {
-            throw new InvalidStateException();
+            _areaToGuard = GameEngine.Scene3D.MapFile.PolygonTriggers.GetPolygonTriggerByName(triggerName);
         }
 
-        reader.PersistBoolean(ref _pathSomething); // This is true on the frame that a unit is moved, and then false on the frame that a path is present
+        var attackName = _attackInfo?.Name ?? "";
+        reader.PersistAsciiString(ref attackName);
+        if (reader.Mode == StatePersistMode.Read && attackName != "")
+        {
+            _attackInfo = GameEngine.Game.Scripting.GetAttackInfo(attackName);
+        }
+
+        reader.PersistListWithUInt32Count(
+            _waypointQueue,
+            static (StatePersister persister, ref Vector3 item) =>
+            {
+                persister.PersistVector3(ref item);
+            });
+
+        reader.PersistInt32(ref _waypointIndex);
+        reader.PersistBoolean(ref _executingWaypointQueue);
+
+        var completedWaypointId = (uint)(_completedWaypoint?.ID ?? (int)Waypoint.InvalidId);
+        reader.PersistUInt32(ref completedWaypointId);
+        if (reader.Mode == StatePersistMode.Read)
+        {
+            GameEngine.Scene3D.Waypoints.TryGetById((int)completedWaypointId, out _completedWaypoint);
+        }
+
+        reader.PersistBoolean(ref _waitingForPath);
 
         var hasPath = _path != null;
         reader.PersistBoolean(ref hasPath);
@@ -414,40 +445,40 @@ public class AIUpdate : UpdateModule
             reader.PersistObject(_path);
         }
 
-        reader.PersistUInt32(ref _unknownInt16);
-        reader.PersistVector3(ref _unknownPosition1);
+        reader.PersistObjectId(ref _requestedVictimId);
+        reader.PersistVector3(ref _requestedDestination);
+        reader.PersistVector3(ref _requestedDestination2);
 
-        reader.SkipUnknownBytes(12);
+        reader.PersistObjectId(ref _ignoreObstacleId);
+        reader.PersistSingle(ref _pathExtraDistance);
+        reader.PersistPoint2D(ref _pathfindGoalCell);
+        reader.PersistPoint2D(ref _pathfindCurrentCell);
+        reader.PersistLogicFrame(ref _ignoreCollisionsUntil);
+        reader.PersistLogicFrame(ref _queueForPathFrame);
 
-        reader.PersistObjectId(ref _ignoreObstacleID);
-        reader.PersistSingle(ref _unknownFloat2);
-        reader.PersistPoint2D(ref _unknownPos2D1);
-        reader.PersistPoint2D(ref _unknownPos2D2);
-        reader.PersistFrame(ref _unknownFrame1);
-        reader.PersistFrame(ref _unknownFrame2);
-        reader.PersistVector3(ref _unknownPosition2);
+        reader.PersistVector3(ref _finalPosition);
+        reader.PersistBoolean(ref _doFinalPosition);
 
-        reader.SkipUnknownBytes(1);
+        reader.PersistBoolean(ref _isAttackPath);
+        reader.PersistBoolean(ref _isFinalGoal);
+        reader.PersistBoolean(ref _isApproachPath);
+        reader.PersistBoolean(ref _isSafePath);
+        reader.PersistBoolean(ref _movementComplete);
+        reader.PersistBoolean(ref _isSafePath); // Yes, an exact copy of two lines above
+        reader.PersistBoolean(ref _upgradedLocomotors);
+        reader.PersistBoolean(ref _canPathThroughUnits);
+        reader.PersistBoolean(ref _randomlyOffsetMoodCheck);
 
-        reader.PersistBoolean(ref _unknownBool9);
-        reader.PersistBoolean(ref _unknownBool10);
+        reader.PersistObjectId(ref _repulsor1);
+        reader.PersistObjectId(ref _repulsor2);
 
-        reader.SkipUnknownBytes(5);
-
-        reader.PersistBoolean(ref _unknownBool11);
-        reader.PersistBoolean(ref _unknownBool12);
-
-        reader.SkipUnknownBytes(8);
-
-        reader.PersistObjectId(ref _unknownObjectId2);
-
-        reader.SkipUnknownBytes(4);
+        reader.PersistObjectId(ref _moveOutOfWay1);
+        reader.PersistObjectId(ref _moveOutOfWay2);
 
         reader.PersistObject(_locomotorSet);
 
-        var currentLocomotorTemplateName = CurrentLocomotor?.LocomotorTemplate.Name;
+        var currentLocomotorTemplateName = CurrentLocomotor?.LocomotorTemplate.Name ?? "";
         reader.PersistAsciiString(ref currentLocomotorTemplateName);
-
         if (reader.Mode == StatePersistMode.Read)
         {
             CurrentLocomotor = currentLocomotorTemplateName != ""
@@ -455,31 +486,34 @@ public class AIUpdate : UpdateModule
                 : null;
         }
 
-        reader.PersistUInt32(ref _unknownInt17);
-        if (_unknownInt17 != 0 && _unknownInt17 != 3 && _unknownInt17 != 5 && _unknownInt17 != uint.MaxValue)
-        {
-            throw new InvalidStateException();
-        }
-
-        reader.PersistUInt32(ref _unknownInt18); // 0 when unit stationary, 1 when moving
-        reader.PersistVector3(ref _unknownPosition3);
+        reader.PersistEnum(ref _currentLocomotorSetType);
+        reader.PersistEnum(ref _locomotorGoalType);
+        reader.PersistVector3(ref _locomotorGoalData);
 
         if (ModuleData.Turret != null)
         {
             reader.PersistObject(_turretAIUpdate, "TurretAI");
         }
 
-        reader.PersistInt32(ref _unknownInt19); // -1, 258
+        reader.PersistEnum(ref _turretSyncFlag);
+        reader.PersistEnum(ref _attitude);
+        reader.PersistLogicFrame(ref _nextMoodCheckTime);
+        reader.PersistObjectId(ref _crateCreated);
+    }
 
-        reader.PersistInt32(ref _unknownInt20);
-        if (_unknownInt20 != 0 && _unknownInt20 != 1 && _unknownInt20 != 2 && _unknownInt20 != -2)
-        {
-            throw new InvalidStateException();
-        }
+    private enum LocomotorGoalType
+    {
+        None = 0,
+        PositionOnPath = 1,
+        PositionExplicit = 2,
+        Angle = 3,
+    }
 
-        reader.PersistFrame(ref _unknownFrame3);
-
-        reader.SkipUnknownBytes(4);
+    private enum WhichTurretType
+    {
+        Invalid = -1,
+        Main = 0,
+        Alt = 1,
     }
 }
 
@@ -655,4 +689,37 @@ internal struct PathPoint : IPersistableObject
         reader.PersistBoolean(ref _unknownBool1);
         reader.PersistUInt32(ref _nextId);
     }
+}
+
+public enum GuardTargetType
+{
+    /// <summary>
+    /// Guard a location.
+    /// </summary>
+    Location = 0,
+
+    /// <summary>
+    /// Guard an object.
+    /// </summary>
+    Object = 1,
+
+    /// <summary>
+    /// Guard a polygon trigger.
+    /// </summary>
+    Area = 2,
+
+    /// <summary>
+    /// Currently not guarding.
+    /// </summary>
+    None = 3,
+}
+
+public enum AttitudeType
+{
+    Sleep = -2,
+    Passive = -1,
+    Normal = 0,
+    Alert = 1,
+    Aggressive = 2,
+    Invalid = 3,
 }

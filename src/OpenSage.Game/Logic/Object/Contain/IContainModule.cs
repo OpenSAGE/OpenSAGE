@@ -13,6 +13,6 @@ public interface IContainModule
 
     ReadOnlySpan<GameObject> ContainedItems { get; }
 
-    void OrderAllPassengersToIdle(CommandSourceTypes commandType);
-    void OrderAllPassengersToHackInternet(CommandSourceTypes commandType);
+    void OrderAllPassengersToIdle(CommandSourceType commandType);
+    void OrderAllPassengersToHackInternet(CommandSourceType commandType);
 }

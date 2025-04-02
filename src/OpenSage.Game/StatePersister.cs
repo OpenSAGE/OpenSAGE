@@ -1302,6 +1302,48 @@ public static class StatePersisterExtensions
         persister.EndArray();
     }
 
+    public static void PersistFixedLengthListWithUInt32Count<T>(this StatePersister persister, List<T> value, PersistListItemCallback<T> callback, [CallerArgumentExpression("value")] string name = "")
+    {
+        persister.BeginObject(name);
+
+        var count = (uint)value.Count;
+        persister.PersistUInt32(ref count);
+
+        PersistFixedLengthListImpl(persister, value, count, callback);
+
+        persister.EndObject();
+    }
+
+    private static void PersistFixedLengthListImpl<T>(this StatePersister persister, List<T> value, uint count, PersistListItemCallback<T> callback)
+    {
+        persister.BeginArray("Items");
+
+        if (persister.Mode == StatePersistMode.Read)
+        {
+            if (value.Count != count)
+            {
+                throw new InvalidStateException();
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                var item = value[i];
+                callback(persister, ref item);
+                value[i] = item;
+            }
+        }
+        else
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var item = value[i];
+                callback(persister, ref item);
+            }
+        }
+
+        persister.EndArray();
+    }
+
     public static void PersistObjectNameAndIdList(this StatePersister persister, List<ObjectNameAndId> value, [CallerArgumentExpression("value")] string name = "")
     {
         persister.BeginObject();
@@ -1317,5 +1359,14 @@ public static class StatePersisterExtensions
             name);
 
         persister.EndObject();
+    }
+
+    public static void PersistPlayerMaskType(this StatePersister persister, ref PlayerMaskType value, [CallerArgumentExpression("value")] string name = "")
+    {
+        persister.PersistFieldName(name);
+
+        var innerValue = value.Value;
+        persister.PersistUInt16Value(ref innerValue);
+        value = new PlayerMaskType(innerValue);
     }
 }

@@ -235,6 +235,19 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
         return ref result;
     }
 
+    public AttackPriority GetAttackInfo(string name)
+    {
+        for (var i = 0; i < _attackPriorities.Count; i++)
+        {
+            if (_attackPriorities[i].Name == name)
+            {
+                return _attackPriorities[i];
+            }
+        }
+
+        return null;
+    }
+
     public void ScriptingTick()
     {
         if (Game.Scene3D?.PlayerScripts?.ScriptLists == null)

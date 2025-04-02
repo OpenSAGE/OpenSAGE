@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object;
 public sealed class WeaponSetSlot
 {
     public LazyAssetReference<WeaponTemplate> Weapon { get; internal set; }
-    public CommandSourceTypes AutoChooseSources { get; internal set; }
+    public BitArray<CommandSourceType> AutoChooseSources { get; internal set; } = BitArray<CommandSourceType>.CreateAllSet();
     public BitArray<ObjectKinds> PreferredAgainst { get; internal set; }
 
     [AddedIn(SageGame.Bfme)]

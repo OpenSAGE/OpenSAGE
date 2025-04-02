@@ -18,7 +18,6 @@ public sealed class WaypointCollection
     private readonly Dictionary<string, HashSet<Waypoint>> _waypointsByPathLabel;
 
     public Waypoint this[string name] => _waypointsByName[name];
-    public Waypoint this[int id] => _waypointsByID[id];
 
     public WaypointCollection()
     {
@@ -64,6 +63,11 @@ public sealed class WaypointCollection
         return _waypointsByName.TryGetValue(name, out waypoint);
     }
 
+    public bool TryGetById(int id, out Waypoint? waypoint)
+    {
+        return _waypointsByID.TryGetValue(id, out waypoint);
+    }
+
     public IReadOnlyCollection<Waypoint> GetByPathLabel(string pathLabel)
     {
         return _waypointsByPathLabel.TryGetValue(pathLabel, out var waypoints) ? waypoints : Array.Empty<Waypoint>();
@@ -81,6 +85,8 @@ public sealed class WaypointCollection
 [DebuggerDisplay("ID = {ID}, Name = {Name}")]
 public sealed class Waypoint
 {
+    public const uint InvalidId = 0x7FFFFFFF;
+
     public const string ObjectTypeName = "*Waypoints/Waypoint";
 
     private List<Waypoint>? _connectedWaypoints;
