@@ -387,8 +387,6 @@ public class AIUpdate : UpdateModule
         reader.PersistEnum(ref _lastCommandSource);
         reader.PersistEnum(ref _guardTargetType0);
 
-        var guardTargetType1Copy = _guardTargetType1;
-
         // Original game accidentally used 8 bytes for _guardTargetType0.
         // The extra 4 bytes are actually the same value as _guardTargetType1.
         var garbageBytes0 = 0;

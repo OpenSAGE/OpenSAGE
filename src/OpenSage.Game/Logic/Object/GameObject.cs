@@ -2001,6 +2001,6 @@ public enum CrushSquishTestType
 
 public readonly record struct PlayerMaskType(ushort Value)
 {
-    public static readonly PlayerMaskType None = new(0xFFFF);
+    public static readonly PlayerMaskType None = new(0x0);
     public static readonly PlayerMaskType All = new(0xFFFF);
 }
