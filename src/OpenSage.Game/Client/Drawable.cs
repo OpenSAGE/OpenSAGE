@@ -361,6 +361,9 @@ public sealed class Drawable : Entity, IPersistableObject
                 break;
         }
 
+        var finalMatrix = InstanceMatrix * worldMatrix;
+        ApplyPhysicsTransform(ref finalMatrix);
+
         // Update all draw modules
         foreach (var drawModule in DrawModules)
         {
@@ -380,8 +383,6 @@ public sealed class Drawable : Entity, IPersistableObject
 
             drawModule.Update(gameTime);
 
-            var finalMatrix = InstanceMatrix * worldMatrix;
-            ApplyPhysicsTransform(ref finalMatrix);
             drawModule.SetWorldMatrix(finalMatrix);
 
             drawModule.BuildRenderList(
