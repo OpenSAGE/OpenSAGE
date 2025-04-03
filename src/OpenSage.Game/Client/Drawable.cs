@@ -496,22 +496,19 @@ public sealed class Drawable : Entity, IPersistableObject
     {
         EnsureDrawableLocomotorInfo();
 
-        var ACCEL_PITCH_LIMIT = locomotor.LocomotorTemplate.AccelerationPitchLimit;
-        var DECEL_PITCH_LIMIT = locomotor.LocomotorTemplate.DecelerationPitchLimit;
-        var BOUNCE_ANGLE_KICK = locomotor.LocomotorTemplate.BounceAmount;
-        var PITCH_STIFFNESS = locomotor.LocomotorTemplate.PitchStiffness;
-        var ROLL_STIFFNESS = locomotor.LocomotorTemplate.RollStiffness;
-        var PITCH_DAMPING = locomotor.LocomotorTemplate.PitchDamping;
-        var ROLL_DAMPING = locomotor.LocomotorTemplate.RollDamping;
-        var FORWARD_ACCEL_COEFF = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
-        var LATERAL_ACCEL_COEFF = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
-        var UNIFORM_AXIAL_DAMPING = locomotor.LocomotorTemplate.UniformAxialDamping;
-
-        var MAX_SUSPENSION_EXTENSION = locomotor.LocomotorTemplate.MaximumWheelExtension; //-2.3f;
-        //const Real MAX_SUSPENSION_COMPRESSION = locomotor->getMaxWheelCompression(); //1.4f;
-        var WHEEL_ANGLE = locomotor.LocomotorTemplate.FrontWheelTurnAngle;
-
-        var DO_WHEELS = locomotor.LocomotorTemplate.HasSuspension;
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var bounceAmount = locomotor.LocomotorTemplate.BounceAmount;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+        var maxSuspensionExtension = locomotor.LocomotorTemplate.MaximumWheelExtension;
+        var wheelAngle = locomotor.LocomotorTemplate.FrontWheelTurnAngle;
+        var hasSuspension = locomotor.LocomotorTemplate.HasSuspension;
 
         // get object from logic
         var obj = GameObject;
@@ -557,15 +554,15 @@ public sealed class Drawable : Entity, IPersistableObject
 
         if (airborne)
         {
-            if (DO_WHEELS)
+            if (hasSuspension)
             {
                 // Wheels extend when airborne.
                 _locomotorInfo.WheelInfo.FramesAirborne = 0;
                 _locomotorInfo.WheelInfo.FramesAirborneCounter++;
-                if (pos.Z - hheight > -MAX_SUSPENSION_EXTENSION)
+                if (pos.Z - hheight > -maxSuspensionExtension)
                 {
-                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (MAX_SUSPENSION_EXTENSION - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
-                    _locomotorInfo.WheelInfo.RearRightHeightOffset += (MAX_SUSPENSION_EXTENSION - _locomotorInfo.WheelInfo.RearRightHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearRightHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearRightHeightOffset) / 2.0f;
                 }
                 else
                 {
@@ -589,26 +586,26 @@ public sealed class Drawable : Entity, IPersistableObject
         if (!airborne && curSpeed > maxSpeed / 10)
         {
             var factor = curSpeed / maxSpeed;
-            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * BOUNCE_ANGLE_KICK / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * BOUNCE_ANGLE_KICK / 8)
+            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * bounceAmount / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * bounceAmount / 8)
             {
                 // do the bouncy. 
                 switch (_gameEngine.GameClient.Random.Next(0, 3))
                 {
                     case 0:
-                        _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate -= BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
                         break;
                     case 1:
-                        _locomotorInfo.PitchRate += BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate -= BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
                         break;
                     case 2:
-                        _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate += BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
                         break;
                     case 3:
-                        _locomotorInfo.PitchRate += BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate += BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
                         break;
                 }
             }
@@ -619,22 +616,22 @@ public sealed class Drawable : Entity, IPersistableObject
         // the ground can only push back if we're touching it
         if (!airborne)
         {
-            _locomotorInfo.PitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.Pitch - groundPitch)) + (-PITCH_DAMPING * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
             if (_locomotorInfo.PitchRate > 0.0f)
                 _locomotorInfo.PitchRate *= 0.5f;
 
-            _locomotorInfo.RollRate += ((-ROLL_STIFFNESS * (_locomotorInfo.Roll - groundRoll)) + (-ROLL_DAMPING * _locomotorInfo.RollRate));       // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
         }
 
-        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * UNIFORM_AXIAL_DAMPING;
-        _locomotorInfo.Roll += _locomotorInfo.RollRate * UNIFORM_AXIAL_DAMPING;
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
 
         // process chassis acceleration dynamics - damp back towards zero
 
-        _locomotorInfo.AccelerationPitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.AccelerationPitch)) + (-PITCH_DAMPING * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
         _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
 
-        _locomotorInfo.AccelerationRollRate += ((-ROLL_STIFFNESS * _locomotorInfo.AccelerationRoll) + (-ROLL_DAMPING * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
         _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
 
         // compute total pitch and roll of tank
@@ -645,23 +642,23 @@ public sealed class Drawable : Entity, IPersistableObject
         {
             // cause the chassis to pitch & roll in reaction to acceleration/deceleration
             var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
-            _locomotorInfo.AccelerationPitchRate += -(FORWARD_ACCEL_COEFF * forwardAccel);
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
 
             var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
-            _locomotorInfo.AccelerationRollRate += -(LATERAL_ACCEL_COEFF * lateralAccel);
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
         }
 
         // limit acceleration pitch and roll
 
-        if (_locomotorInfo.AccelerationPitch > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationPitch < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
 
-        if (_locomotorInfo.AccelerationRoll > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationRoll < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
 
         info.TotalZ = 0;
 
@@ -670,20 +667,20 @@ public sealed class Drawable : Entity, IPersistableObject
         var width = obj.Geometry.MinorRadius;
         var pitchHeight = length * MathF.Sin(info.TotalPitch - groundPitch);
         var rollHeight = width * MathF.Sin(info.TotalRoll - groundRoll);
-        if (DO_WHEELS)
+        if (hasSuspension)
         {
             // calculate each wheel position
             _locomotorInfo.WheelInfo.FramesAirborne = _locomotorInfo.WheelInfo.FramesAirborneCounter;
             _locomotorInfo.WheelInfo.FramesAirborneCounter = 0;
             var newInfo = _locomotorInfo.WheelInfo;
-            PhysicsTurningType rotation = physics.Turning;
+            var rotation = physics.Turning;
             if (rotation == PhysicsTurningType.Negative)
             {
-                newInfo.WheelAngle = -WHEEL_ANGLE;
+                newInfo.WheelAngle = -wheelAngle;
             }
             else if (rotation == PhysicsTurningType.Positive)
             {
-                newInfo.WheelAngle = WHEEL_ANGLE;
+                newInfo.WheelAngle = wheelAngle;
             }
             else
             {
@@ -704,37 +701,40 @@ public sealed class Drawable : Entity, IPersistableObject
             // etc, this smaller angle we'll be adding covers the constant wheel shifting 
             // left and right when moving in a relatively straight line
             //
-            const float WHEEL_SMOOTHNESS = 10.0f; // higher numbers add smaller angles, make it more "smooth"
-            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / WHEEL_SMOOTHNESS;
+            const float wheelSmoothness = 10.0f; // higher numbers add smaller angles, make it more "smooth"
+            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / wheelSmoothness;
 
-            const float SPRING_FACTOR = 0.9f;
+            const float springFactor = 0.9f;
             if (pitchHeight < 0)
-            {   // Front raising up
-                newInfo.FrontLeftHeightOffset = SPRING_FACTOR * (pitchHeight / 3 + pitchHeight / 2);
-                newInfo.FrontRightHeightOffset = SPRING_FACTOR * (pitchHeight / 3 + pitchHeight / 2);
+            {
+                // Front raising up.
+                newInfo.FrontLeftHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
+                newInfo.FrontRightHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
                 newInfo.RearLeftHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
                 newInfo.RearRightHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
             }
             else
-            {   // Back rasing up.
+            {   // Back raising up.
                 newInfo.FrontLeftHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
                 newInfo.FrontRightHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
-                newInfo.RearLeftHeightOffset = SPRING_FACTOR * (-pitchHeight / 2 + -pitchHeight / 3);
-                newInfo.RearRightHeightOffset = SPRING_FACTOR * (-pitchHeight / 2 + -pitchHeight / 3);
+                newInfo.RearLeftHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
+                newInfo.RearRightHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
             }
             if (rollHeight > 0)
-            {   // Right raising up
-                newInfo.FrontRightHeightOffset += -SPRING_FACTOR * (rollHeight / 3 + rollHeight / 2);
-                newInfo.RearRightHeightOffset += -SPRING_FACTOR * (rollHeight / 3 + rollHeight / 2);
+            {
+                // Right raising up.
+                newInfo.FrontRightHeightOffset += -springFactor * (rollHeight / 3 + rollHeight / 2);
+                newInfo.RearRightHeightOffset += -springFactor * (rollHeight / 3 + rollHeight / 2);
                 newInfo.RearLeftHeightOffset += rollHeight / 2 - rollHeight / 4;
                 newInfo.FrontLeftHeightOffset += rollHeight / 2 - rollHeight / 4;
             }
             else
-            {   // Left rasing up.
+            {
+                // Left raising up.
                 newInfo.FrontRightHeightOffset += -rollHeight / 2 + rollHeight / 4;
                 newInfo.RearRightHeightOffset += -rollHeight / 2 + rollHeight / 4;
-                newInfo.RearLeftHeightOffset += SPRING_FACTOR * (rollHeight / 3 + rollHeight / 2);
-                newInfo.FrontLeftHeightOffset += SPRING_FACTOR * (rollHeight / 3 + rollHeight / 2);
+                newInfo.RearLeftHeightOffset += springFactor * (rollHeight / 3 + rollHeight / 2);
+                newInfo.FrontLeftHeightOffset += springFactor * (rollHeight / 3 + rollHeight / 2);
             }
             if (newInfo.FrontLeftHeightOffset < _locomotorInfo.WheelInfo.FrontLeftHeightOffset)
             {
@@ -773,38 +773,22 @@ public sealed class Drawable : Entity, IPersistableObject
                 _locomotorInfo.WheelInfo.RearRightHeightOffset = newInfo.RearRightHeightOffset;
             }
             //_locomotorInfo.WheelInfo = newInfo;
-            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = maxSuspensionExtension;
             }
-            if (_locomotorInfo.WheelInfo.FrontRightHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.FrontRightHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.FrontRightHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = maxSuspensionExtension;
             }
-            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.RearLeftHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = maxSuspensionExtension;
             }
-            if (_locomotorInfo.WheelInfo.RearRightHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.RearRightHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.RearRightHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = maxSuspensionExtension;
             }
-
-            // Original has commented out code to clamp to max compression values.
-            /*
-            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset>MAX_SUSPENSION_COMPRESSION) {
-                _locomotorInfo.WheelInfo.FrontLeftHeightOffset=MAX_SUSPENSION_COMPRESSION;
-            }
-            if (_locomotorInfo.WheelInfo.FrontRightHeightOffset>MAX_SUSPENSION_COMPRESSION) {
-                _locomotorInfo.WheelInfo.FrontRightHeightOffset=MAX_SUSPENSION_COMPRESSION;
-            }
-            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset>MAX_SUSPENSION_COMPRESSION) {
-                _locomotorInfo.WheelInfo.RearLeftHeightOffset=MAX_SUSPENSION_COMPRESSION;
-            }
-            if (_locomotorInfo.WheelInfo.RearRightHeightOffset>MAX_SUSPENSION_COMPRESSION) {
-                _locomotorInfo.WheelInfo.RearRightHeightOffset=MAX_SUSPENSION_COMPRESSION;
-            }	
-            */
         }
         // If we are > 22 degrees, need to raise height;
         var divisor = 4.0f;
@@ -822,22 +806,19 @@ public sealed class Drawable : Entity, IPersistableObject
     {
         EnsureDrawableLocomotorInfo();
 
-        var ACCEL_PITCH_LIMIT = locomotor.LocomotorTemplate.AccelerationPitchLimit;
-        var DECEL_PITCH_LIMIT = locomotor.LocomotorTemplate.DecelerationPitchLimit;
-        var BOUNCE_ANGLE_KICK = locomotor.LocomotorTemplate.BounceAmount;
-        var PITCH_STIFFNESS = locomotor.LocomotorTemplate.PitchStiffness;
-        var ROLL_STIFFNESS = locomotor.LocomotorTemplate.RollStiffness;
-        var PITCH_DAMPING = locomotor.LocomotorTemplate.PitchDamping;
-        var ROLL_DAMPING = locomotor.LocomotorTemplate.RollDamping;
-        var FORWARD_ACCEL_COEFF = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
-        var LATERAL_ACCEL_COEFF = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
-        var UNIFORM_AXIAL_DAMPING = locomotor.LocomotorTemplate.UniformAxialDamping;
-
-        var MAX_SUSPENSION_EXTENSION = locomotor.LocomotorTemplate.MaximumWheelExtension; //-2.3f;
-        //	const Real MAX_SUSPENSION_COMPRESSION = locomotor->getMaxWheelCompression(); //1.4f;
-        var WHEEL_ANGLE = locomotor.LocomotorTemplate.FrontWheelTurnAngle; //PI/8;
-
-        var DO_WHEELS = locomotor.LocomotorTemplate.HasSuspension;
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var bounceAmount = locomotor.LocomotorTemplate.BounceAmount;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+        var maxSuspensionExtension = locomotor.LocomotorTemplate.MaximumWheelExtension;
+        var wheelAngle = locomotor.LocomotorTemplate.FrontWheelTurnAngle;
+        var hasSuspension = locomotor.LocomotorTemplate.HasSuspension;
 
         // get object from logic
         var obj = GameObject;
@@ -879,14 +860,14 @@ public sealed class Drawable : Entity, IPersistableObject
 
         if (airborne)
         {
-            if (DO_WHEELS)
+            if (hasSuspension)
             {
                 // Wheels extend when airborne.
                 _locomotorInfo.WheelInfo.FramesAirborne = 0;
                 _locomotorInfo.WheelInfo.FramesAirborneCounter++;
-                if (pos.Z - hheight > -MAX_SUSPENSION_EXTENSION)
+                if (pos.Z - hheight > -maxSuspensionExtension)
                 {
-                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (MAX_SUSPENSION_EXTENSION - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
                     _locomotorInfo.WheelInfo.RearRightHeightOffset = _locomotorInfo.WheelInfo.RearLeftHeightOffset;
                 }
                 else
@@ -910,26 +891,26 @@ public sealed class Drawable : Entity, IPersistableObject
         if (!airborne && curSpeed > maxSpeed / 10)
         {
             var factor = curSpeed / maxSpeed;
-            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * BOUNCE_ANGLE_KICK / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * BOUNCE_ANGLE_KICK / 8)
+            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * bounceAmount / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * bounceAmount / 8)
             {
                 // do the bouncy. 
                 switch (_gameEngine.GameClient.Random.Next(0, 3))
                 {
                     case 0:
-                        _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate -= BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
                         break;
                     case 1:
-                        _locomotorInfo.PitchRate += BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate -= BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
                         break;
                     case 2:
-                        _locomotorInfo.PitchRate -= BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate += BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
                         break;
                     case 3:
-                        _locomotorInfo.PitchRate += BOUNCE_ANGLE_KICK * factor;
-                        _locomotorInfo.RollRate += BOUNCE_ANGLE_KICK * factor / 2;
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
                         break;
                 }
             }
@@ -940,61 +921,57 @@ public sealed class Drawable : Entity, IPersistableObject
         // the ground can only push back if we're touching it
         if (!airborne)
         {
-            _locomotorInfo.PitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.Pitch - groundPitch)) + (-PITCH_DAMPING * _locomotorInfo.PitchRate));     // spring/damper
-            _locomotorInfo.RollRate += ((-ROLL_STIFFNESS * (_locomotorInfo.Roll - groundRoll)) + (-ROLL_DAMPING * _locomotorInfo.RollRate));       // spring/damper
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
         }
         else
         {
             //Autolevel
-            _locomotorInfo.PitchRate += ((-PITCH_STIFFNESS * _locomotorInfo.Pitch) + (-PITCH_DAMPING * _locomotorInfo.PitchRate));     // spring/damper
-            _locomotorInfo.RollRate += ((-ROLL_STIFFNESS * _locomotorInfo.Roll) + (-ROLL_DAMPING * _locomotorInfo.RollRate));      // spring/damper
+            _locomotorInfo.PitchRate += ((-pitchStiffness * _locomotorInfo.Pitch) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * _locomotorInfo.Roll) + (-rollDamping * _locomotorInfo.RollRate));      // spring/damper
         }
 
-        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * UNIFORM_AXIAL_DAMPING;
-        _locomotorInfo.Roll += _locomotorInfo.RollRate * UNIFORM_AXIAL_DAMPING;
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
 
         // process chassis acceleration dynamics - damp back towards zero
 
-        _locomotorInfo.AccelerationPitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.AccelerationPitch)) + (-PITCH_DAMPING * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
         _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
 
-        _locomotorInfo.AccelerationRollRate += ((-ROLL_STIFFNESS * _locomotorInfo.AccelerationRoll) + (-ROLL_DAMPING * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
         _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
 
         // compute total pitch and roll of tank
         info.TotalPitch = _locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch;
 
-
         // THis logic had recently been added to Drawable::applyPhysicsXform(), which was naughty, since it clamped the roll in every drawable in the game
         // Now only motorcycles enjoy this constraint
         var unclampedRoll = _locomotorInfo.Roll + _locomotorInfo.AccelerationRoll;
+        // This looks like a bug, but it was in the original code. I don't think this comparison will ever be true?
         info.TotalRoll = (unclampedRoll > 0.5f && unclampedRoll < -0.5f ? unclampedRoll : 0.0f);
-
-        if (airborne)
-        {
-        }
 
         if (physics.IsMotive)
         {
             // cause the chassis to pitch & roll in reaction to acceleration/deceleration
             var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
-            _locomotorInfo.AccelerationPitchRate += -(FORWARD_ACCEL_COEFF * forwardAccel);
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
 
             var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
-            _locomotorInfo.AccelerationRollRate += -(LATERAL_ACCEL_COEFF * lateralAccel);
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
         }
 
         // limit acceleration pitch and roll
 
-        if (_locomotorInfo.AccelerationPitch > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationPitch < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
 
-        if (_locomotorInfo.AccelerationRoll > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationRoll < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
 
         info.TotalZ = 0;
 
@@ -1003,7 +980,7 @@ public sealed class Drawable : Entity, IPersistableObject
         var width = obj.Geometry.MinorRadius;
         var pitchHeight = length * MathF.Sin(info.TotalPitch - groundPitch);
         var rollHeight = width * MathF.Sin(info.TotalRoll - groundRoll);
-        if (DO_WHEELS)
+        if (hasSuspension)
         {
             // calculate each wheel position
             _locomotorInfo.WheelInfo.FramesAirborne = _locomotorInfo.WheelInfo.FramesAirborneCounter;
@@ -1012,11 +989,11 @@ public sealed class Drawable : Entity, IPersistableObject
             PhysicsTurningType rotation = physics.Turning;
             if (rotation == PhysicsTurningType.Negative)
             {
-                newInfo.WheelAngle = -WHEEL_ANGLE;
+                newInfo.WheelAngle = -wheelAngle;
             }
             else if (rotation == PhysicsTurningType.Positive)
             {
-                newInfo.WheelAngle = WHEEL_ANGLE;
+                newInfo.WheelAngle = wheelAngle;
             }
             else
             {
@@ -1037,14 +1014,14 @@ public sealed class Drawable : Entity, IPersistableObject
             // etc, this smaller angle we'll be adding covers the constant wheel shifting 
             // left and right when moving in a relatively straight line
             //
-            const float WHEEL_SMOOTHNESS = 10.0f; // higher numbers add smaller angles, make it more "smooth"
-            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / WHEEL_SMOOTHNESS;
+            const float wheelSmoothness = 10.0f; // higher numbers add smaller angles, make it more "smooth"
+            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / wheelSmoothness;
 
-            const float SPRING_FACTOR = 0.9f;
+            const float springFactor = 0.9f;
             if (pitchHeight < 0)
             {
-                // Front raising up
-                newInfo.FrontLeftHeightOffset = SPRING_FACTOR * (pitchHeight / 3 + pitchHeight / 2);
+                // Front raising up.
+                newInfo.FrontLeftHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
                 newInfo.RearLeftHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
                 newInfo.FrontRightHeightOffset = newInfo.FrontLeftHeightOffset;
                 newInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
@@ -1053,19 +1030,10 @@ public sealed class Drawable : Entity, IPersistableObject
             {
                 // Back raising up.
                 newInfo.FrontLeftHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
-                newInfo.RearLeftHeightOffset = SPRING_FACTOR * (-pitchHeight / 2 + -pitchHeight / 3);
+                newInfo.RearLeftHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
                 newInfo.FrontRightHeightOffset = newInfo.FrontLeftHeightOffset;
                 newInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
             }
-            /*
-            if (rollHeight>0) {	// Right raising up
-                newInfo.FrontRightHeightOffset += -SPRING_FACTOR*(rollHeight/3+rollHeight/2);
-                newInfo.RearLeftHeightOffset += rollHeight/2 - rollHeight/4;
-            }	else {	// Left raising up.
-                newInfo.FrontRightHeightOffset += -rollHeight/2 + rollHeight/4;
-                newInfo.RearLeftHeightOffset += SPRING_FACTOR*(rollHeight/3+rollHeight/2);
-            }
-            */
             if (newInfo.FrontLeftHeightOffset < _locomotorInfo.WheelInfo.FrontLeftHeightOffset)
             {
                 // If it's going down, dampen the movement a bit
@@ -1088,16 +1056,15 @@ public sealed class Drawable : Entity, IPersistableObject
                 _locomotorInfo.WheelInfo.RearLeftHeightOffset = newInfo.RearLeftHeightOffset;
                 _locomotorInfo.WheelInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
             }
-            //_locomotorInfo.WheelInfo = newInfo;
-            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = MAX_SUSPENSION_EXTENSION;
-                _locomotorInfo.WheelInfo.FrontRightHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = maxSuspensionExtension;
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = maxSuspensionExtension;
             }
-            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < MAX_SUSPENSION_EXTENSION)
+            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < maxSuspensionExtension)
             {
-                _locomotorInfo.WheelInfo.RearLeftHeightOffset = MAX_SUSPENSION_EXTENSION;
-                _locomotorInfo.WheelInfo.RearRightHeightOffset = MAX_SUSPENSION_EXTENSION;
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = maxSuspensionExtension;
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = maxSuspensionExtension;
             }
         }
         // If we are > 22 degrees, need to raise height;
@@ -1120,20 +1087,20 @@ public sealed class Drawable : Entity, IPersistableObject
     {
         EnsureDrawableLocomotorInfo();
 
-        var OVERLAP_SHRINK_FACTOR = 0.8f;
-        var FLATTENED_OBJECT_HEIGHT = 0.5f;
-        var LEAVE_OVERLAP_PITCH_KICK = MathF.PI / 128;
-        var OVERLAP_ROUGH_VIBRATION_FACTOR = 5.0f;
-        var MAX_ROUGH_VIBRATION = 0.5f;
-        var ACCEL_PITCH_LIMIT = locomotor.LocomotorTemplate.AccelerationPitchLimit;
-        var DECEL_PITCH_LIMIT = locomotor.LocomotorTemplate.DecelerationPitchLimit;
-        var PITCH_STIFFNESS = locomotor.LocomotorTemplate.PitchStiffness;
-        var ROLL_STIFFNESS = locomotor.LocomotorTemplate.RollStiffness;
-        var PITCH_DAMPING = locomotor.LocomotorTemplate.PitchDamping;
-        var ROLL_DAMPING = locomotor.LocomotorTemplate.RollDamping;
-        var FORWARD_ACCEL_COEFF = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
-        var LATERAL_ACCEL_COEFF = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
-        var UNIFORM_AXIAL_DAMPING = locomotor.LocomotorTemplate.UniformAxialDamping;
+        var overlapShrinkFactor = 0.8f;
+        var flattenedObjectHeight = 0.5f;
+        var leaveOverlapPitchKick = MathF.PI / 128;
+        var overlapRoughVibrationFactor = 5.0f;
+        var maxRoughVibration = 0.5f;
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
 
         // get object from logic
         var obj = GameObject;
@@ -1194,7 +1161,7 @@ public sealed class Drawable : Entity, IPersistableObject
             var maxCenterDist = otherSize + ourSize;
 
             // shrink the overlap distance a bit to avoid floating
-            maxCenterDist *= OVERLAP_SHRINK_FACTOR;
+            maxCenterDist *= overlapShrinkFactor;
             if (centerDistSqr < MathUtility.Square(maxCenterDist))
             {
                 var centerDist = MathF.Sqrt(centerDistSqr);
@@ -1205,9 +1172,9 @@ public sealed class Drawable : Entity, IPersistableObject
                     amount = 1.0f;
 
                 // rough vibrations proportional to speed when we drive over something
-                var rough = (vel.X * vel.X + vel.Y * vel.Y) * OVERLAP_ROUGH_VIBRATION_FACTOR;
-                if (rough > MAX_ROUGH_VIBRATION)
-                    rough = MAX_ROUGH_VIBRATION;
+                var rough = (vel.X * vel.X + vel.Y * vel.Y) * overlapRoughVibrationFactor;
+                if (rough > maxRoughVibration)
+                    rough = maxRoughVibration;
 
                 var height = overlapped.Geometry.MaxZ;
 
@@ -1218,10 +1185,10 @@ public sealed class Drawable : Entity, IPersistableObject
                     || (overlapped.BodyModule.FrontCrushed && overlapped.BodyModule.BackCrushed))
                 {
                     flat = true;
-                    height = FLATTENED_OBJECT_HEIGHT;
+                    height = flattenedObjectHeight;
                 }
 
-                if (amount < FLATTENED_OBJECT_HEIGHT && flat == false)
+                if (amount < flattenedObjectHeight && flat == false)
                 {
                     overlapZ = height * 2.0f * amount;
 
@@ -1258,13 +1225,13 @@ public sealed class Drawable : Entity, IPersistableObject
                 }
             }
         }
-        else    // no overlap this frame
+        else // no overlap this frame
         {
             // if we had an overlap last frame, and we're now in the air, give a
             // kick to the pitch for effect
             if (physics.PreviousOverlap.IsValid && _locomotorInfo.OverlapZ > 0.0f)
             {
-                _locomotorInfo.PitchRate += LEAVE_OVERLAP_PITCH_KICK;
+                _locomotorInfo.PitchRate += leaveOverlapPitchKick;
             }
         }
 
@@ -1279,22 +1246,22 @@ public sealed class Drawable : Entity, IPersistableObject
         // the ground can only push back if we're touching it
         if (overlapped != null || _locomotorInfo.OverlapZ <= 0.0f)
         {
-            _locomotorInfo.PitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.Pitch - groundPitch)) + (-PITCH_DAMPING * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
             if (_locomotorInfo.PitchRate > 0.0f)
                 _locomotorInfo.PitchRate *= 0.5f;
 
-            _locomotorInfo.RollRate += ((-ROLL_STIFFNESS * (_locomotorInfo.Roll - groundRoll)) + (-ROLL_DAMPING * _locomotorInfo.RollRate));       // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
         }
 
-        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * UNIFORM_AXIAL_DAMPING;
-        _locomotorInfo.Roll += _locomotorInfo.RollRate * UNIFORM_AXIAL_DAMPING;
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
 
         // process chassis recoil dynamics - damp back towards zero
 
-        _locomotorInfo.AccelerationPitchRate += ((-PITCH_STIFFNESS * (_locomotorInfo.AccelerationPitch)) + (-PITCH_DAMPING * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
         _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
 
-        _locomotorInfo.AccelerationRollRate += ((-ROLL_STIFFNESS * _locomotorInfo.AccelerationRoll) + (-ROLL_DAMPING * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
         _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
 
         // compute total pitch and roll of tank
@@ -1305,25 +1272,25 @@ public sealed class Drawable : Entity, IPersistableObject
         {
             // cause the chassis to pitch & roll in reaction to acceleration/deceleration
             var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
-            _locomotorInfo.AccelerationPitchRate += -(FORWARD_ACCEL_COEFF * forwardAccel);
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
 
             var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
-            _locomotorInfo.AccelerationRollRate += -(LATERAL_ACCEL_COEFF * lateralAccel);
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
         }
 
         // There's a section of #ifdef'd-out code in the original, for recoiling from being damaged.
 
         // limit recoil pitch and roll
 
-        if (_locomotorInfo.AccelerationPitch > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationPitch < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationPitch = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
 
-        if (_locomotorInfo.AccelerationRoll > DECEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = DECEL_PITCH_LIMIT;
-        else if (_locomotorInfo.AccelerationRoll < -ACCEL_PITCH_LIMIT)
-            _locomotorInfo.AccelerationRoll = -ACCEL_PITCH_LIMIT;
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
 
         // adjust z
         if (overlapZ > _locomotorInfo.OverlapZ)
