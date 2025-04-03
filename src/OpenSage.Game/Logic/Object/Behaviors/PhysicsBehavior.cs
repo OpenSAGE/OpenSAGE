@@ -1477,7 +1477,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         ImGui.DragFloat3("Acceleration", ref _acceleration);
         ImGui.DragFloat3("Previous acceleration", ref _previousAcceleration);
         ImGui.DragFloat3("Velocity", ref _velocity);
-        ImGui.LabelText("Velocity magnitude", _velocityMagnitude.ToString());
+        ImGui.LabelText("Velocity magnitude", VelocityMagnitude.ToString());
         ImGui.InputFloat("Yaw rate", ref _yawRate);
         ImGui.InputFloat("Roll rate", ref _rollRate);
         ImGui.InputFloat("Pitch rate", ref _pitchRate);
