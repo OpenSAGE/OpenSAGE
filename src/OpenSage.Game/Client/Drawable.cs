@@ -1811,6 +1811,7 @@ public sealed class Drawable : Entity, IPersistableObject
 
             if (customized)
             {
+                // TODO(Port): Implement this.
                 throw new NotImplementedException();
             }
         }
@@ -2148,7 +2149,10 @@ public class DrawableInfo
         PotentialOccludee = 0x4,
         IsTranslucent = 0x8,
         IsNonOccluderOrOccludee = 0x10,
-        DelayedRender = IsTranslucent | PotentialOccludee,
+
+        // TODO(Port):
+        // Original has this enum value, but we'll instead do it with an extension method.
+        //DelayedRender = IsTranslucent | PotentialOccludee,
     }
 
     /// <summary>
