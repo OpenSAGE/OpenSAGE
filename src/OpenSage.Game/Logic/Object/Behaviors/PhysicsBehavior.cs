@@ -106,9 +106,20 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         }
     }
 
-    internal Vector3 Acceleration => _acceleration;
-    internal Vector3 LastAcceleration => _previousAcceleration;
-    internal Vector3 Velocity => _velocity;
+    /// <summary>
+    /// Returns last frame's acceleration.
+    /// </summary>
+    public Vector3 Acceleration => _previousAcceleration;
+
+    /// <summary>
+    /// Returns current frame's acceleration. Should only be used for tests.
+    /// </summary>
+    internal Vector3 CurrentAcceleration => _acceleration;
+
+    /// <summary>
+    /// Returns current velocity.
+    /// </summary>
+    public Vector3 Velocity => _velocity;
 
     public PhysicsTurningType Turning
     {
@@ -1465,7 +1476,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         ImGui.DragFloat3("Acceleration", ref _acceleration);
         ImGui.DragFloat3("Previous acceleration", ref _previousAcceleration);
         ImGui.DragFloat3("Velocity", ref _velocity);
-        ImGui.LabelText("Velocity magnitude", _velocityMagnitude.ToString());
+        ImGui.LabelText("Velocity magnitude", VelocityMagnitude.ToString());
         ImGui.InputFloat("Yaw rate", ref _yawRate);
         ImGui.InputFloat("Roll rate", ref _rollRate);
         ImGui.InputFloat("Pitch rate", ref _pitchRate);

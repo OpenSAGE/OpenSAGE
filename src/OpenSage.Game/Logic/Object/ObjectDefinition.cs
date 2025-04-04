@@ -1363,6 +1363,10 @@ public class ObjectDefinition : BaseAsset
                         throw new InvalidOperationException();
                 }
             }
+            else if (module.Data is AIUpdateModuleData && existingBehavior.Data is AIUpdateModuleData)
+            {
+                behaviorsToRemove.Add(existingBehavior);
+            }
         }
         foreach (var behaviorToRemove in behaviorsToRemove)
         {

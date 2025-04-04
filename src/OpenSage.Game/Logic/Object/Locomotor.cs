@@ -65,6 +65,8 @@ public sealed class Locomotor : IPersistableObject
 
     public float MinSpeed => LocomotorTemplate.MinSpeed;
 
+    public LocomotorAppearance Appearance => LocomotorTemplate.Appearance;
+
     public Locomotor(IGameEngine gameEngine, LocomotorTemplate template, float baseSpeed)
     {
         _gameEngine = gameEngine;

@@ -10,6 +10,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -101,6 +102,21 @@ public sealed class Drawable : Entity, IPersistableObject
     // TODO(Port): Unify this, Drawable._transformMatrix, and GameObject.ModelTransform.
     public Matrix4x4 InstanceMatrix = Matrix4x4.Identity;
 
+    public Vector3 UnitDirectionVector2D
+    {
+        get
+        {
+            // TODO: Move this to Entity base class and share with GameObject.
+            var angle = Transform.Yaw;
+            return new Vector3(
+                MathF.Cos(angle),
+                MathF.Sin(angle),
+                0.0f);
+        }
+    }
+
+    public Geometry DrawableGeometryInfo => GameObject?.Geometry ?? Definition.Geometry;
+
     // TODO(Port): Implement this.
     public bool ShadowsEnabled { get; set; }
 
@@ -111,35 +127,46 @@ public sealed class Drawable : Entity, IPersistableObject
 
     private ObjectDecalType _terrainDecalType;
 
-    private float _unknownFloat2;
-    private float _unknownFloat3;
-    private float _unknownFloat4;
-    private float _unknownFloat6;
+    private float _explicitOpacity;
+    private float _stealthOpacity;
+    private float _effectiveStealthOpacity;
+    private float _decalOpacityFadeTarget;
+    private float _decalOpacityFadeRate;
+    private float _decalOpacity;
 
-    private uint _unknownInt1;
-    private uint _unknownInt2;
-    private uint _unknownInt3;
-    private uint _unknownInt4;
-    private uint _unknownInt5;
-    private uint _unknownInt6;
+    private DrawableStatus _status;
+    private TintStatus _tintStatus;
+    private TintStatus _previousTintStatus;
+    private FadingMode _fadeMode;
+    private uint _timeElapsedFade;
+    private uint _timeToFade;
 
-    private bool _hasUnknownFloats;
-    private readonly float[] _unknownFloats = new float[19];
+    private DrawableLocomotorInfo? _locomotorInfo;
 
-    private uint _unknownInt7;
+    private StealthLookType _stealthLook;
 
-    private uint _flashFrameCount;
+    private uint _flashCount;
     private ColorRgba _flashColor;
 
-    private bool _unknownBool1;
-    private bool _unknownBool2;
+    private bool _hidden;
+    private bool _hiddenByStealth;
 
-    private bool _someMatrixIsIdentity;
-    private Matrix4x3 _someMatrix;
+    private float _secondMaterialPassOpacity;
+
+    private bool _instanceMatrixIsIdentity;
+    private Matrix4x3 _instanceMatrix;
+    private float _instanceScale;
+
+    private readonly DrawableInfo _drawableInfo = new();
+
+    private uint _expirationDate;
 
     private List<Animation> _animations = [];
     public IReadOnlyList<Animation> Animations => _animations;
     private readonly Dictionary<AnimationType, Animation> _animationMap = [];
+
+    private bool _ambientSoundEnabled;
+    private bool _ambientSoundEnabledFromScript;
 
     private Vector3? _selectionFlashColor;
     private Vector3 SelectionFlashColor => _selectionFlashColor ??=
@@ -334,6 +361,9 @@ public sealed class Drawable : Entity, IPersistableObject
                 break;
         }
 
+        var finalMatrix = InstanceMatrix * worldMatrix;
+        ApplyPhysicsTransform(ref finalMatrix);
+
         // Update all draw modules
         foreach (var drawModule in DrawModules)
         {
@@ -352,7 +382,9 @@ public sealed class Drawable : Entity, IPersistableObject
             }
 
             drawModule.Update(gameTime);
-            drawModule.SetWorldMatrix(InstanceMatrix * worldMatrix);
+
+            drawModule.SetWorldMatrix(finalMatrix);
+
             drawModule.BuildRenderList(
                 renderList,
                 camera,
@@ -360,6 +392,1110 @@ public sealed class Drawable : Entity, IPersistableObject
                 pitchShift,
                 _shownSubObjects,
                 _hiddenSubObjects);
+        }
+    }
+
+    private void ApplyPhysicsTransform(ref Matrix4x4 matrix)
+    {
+        var obj = GameObject;
+
+        if (obj == null || obj.IsDisabledByType(DisabledType.Held))
+        {
+            return;
+        }
+
+        // TODO(Port): Port more checks.
+        var frozen = // _gameEngine.Scene3D.TacticalView.IsTimeFrozen ||
+            !_gameEngine.Scene3D.TacticalView.IsCameraMovementFinished;
+        //_gameEngine.Game.Scripting.IsTimeFrozenDebug ||
+        //_gameEngine.Game.Scripting.IsTimeFrozenScript;
+
+        if (frozen)
+        {
+            return;
+        }
+
+        if (CalculatePhysicsTransform(out var info))
+        {
+            matrix = Matrix4x4.CreateRotationZ(info.TotalYaw)
+                * Matrix4x4.CreateRotationX(-info.TotalRoll)
+                * Matrix4x4.CreateRotationY(info.TotalPitch)
+                * Matrix4x4.CreateTranslation(0, 0, info.TotalZ)
+                * matrix;
+        }
+    }
+
+    private bool CalculatePhysicsTransform(out PhysicsTransformInfo info)
+    {
+        var locomotor = GameObject.AIUpdate?.CurrentLocomotor;
+
+        var hasPhysicsTransform = false;
+        info = new PhysicsTransformInfo();
+
+        if (locomotor != null)
+        {
+            switch (locomotor.Appearance)
+            {
+                case LocomotorAppearance.FourWheels:
+                    CalculatePhysicsTransformWheels(locomotor, ref info);
+                    hasPhysicsTransform = true;
+                    break;
+
+                case LocomotorAppearance.Motorcycle:
+                    CalculatePhysicsTransformMotorcycle(locomotor, ref info);
+                    hasPhysicsTransform = true;
+                    break;
+
+                case LocomotorAppearance.Treads:
+                    CalculatePhysicsTransformTreads(locomotor, ref info);
+                    hasPhysicsTransform = true;
+                    break;
+
+                case LocomotorAppearance.Hover:
+                case LocomotorAppearance.Wings:
+                    CalculatePhysicsTransformHoverOrWings(locomotor, ref info);
+                    hasPhysicsTransform = true;
+                    break;
+
+                case LocomotorAppearance.Thrust:
+                    CalculatePhysicsTransformThrust(locomotor, ref info);
+                    hasPhysicsTransform = true;
+                    break;
+            }
+        }
+
+        if (hasPhysicsTransform)
+        {
+            // Original comment:
+            // HOTFIX: Ensure that we are not passing denormalized values back to caller
+            // @todo remove hotfix
+            if (info.TotalPitch > -1e-20f && info.TotalPitch < 1e-20f)
+            {
+                info.TotalPitch = 0.0f;
+            }
+
+            if (info.TotalRoll > -1e-20f && info.TotalRoll < 1e-20f)
+            {
+                info.TotalRoll = 0.0f;
+            }
+
+            if (info.TotalYaw > -1e-20f && info.TotalYaw < 1e-20f)
+            {
+                info.TotalYaw = 0.0f;
+            }
+
+            if (info.TotalZ > -1e-20f && info.TotalZ < 1e-20f)
+            {
+                info.TotalZ = 0.0f;
+            }
+        }
+
+        return hasPhysicsTransform;
+    }
+
+    private void CalculatePhysicsTransformWheels(Locomotor locomotor, ref PhysicsTransformInfo info)
+    {
+        EnsureDrawableLocomotorInfo();
+
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var bounceAmount = locomotor.LocomotorTemplate.BounceAmount;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+        var maxSuspensionExtension = locomotor.LocomotorTemplate.MaximumWheelExtension;
+        var wheelAngle = locomotor.LocomotorTemplate.FrontWheelTurnAngle;
+        var hasSuspension = locomotor.LocomotorTemplate.HasSuspension;
+
+        // get object from logic
+        var obj = GameObject;
+        if (obj == null)
+        {
+            return;
+        }
+
+        var ai = obj.AIUpdate;
+        if (ai == null)
+        {
+            return;
+        }
+
+        // get object physics state
+        var physics = obj.Physics;
+        if (physics == null)
+        {
+            return;
+        }
+
+        // get our position and direction vector
+        var pos = Translation;
+        var dir = UnitDirectionVector2D;
+        var accel = physics.Acceleration;
+
+        // compute perpendicular (2d)
+        var perp = new Vector3(
+            -dir.Y,
+            dir.X,
+            0.0f);
+
+        // find pitch and roll of terrain under chassis
+        var hheight = _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer, out var normal);
+
+        var dot = normal.X * dir.X + normal.Y * dir.Y;
+        var groundPitch = dot * (MathF.PI / 2.0f);
+
+        dot = normal.X * perp.X + normal.Y * perp.Y;
+        var groundRoll = dot * (MathF.PI / 2.0f);
+
+        var airborne = obj.IsSignificantlyAboveTerrain;
+
+        if (airborne)
+        {
+            if (hasSuspension)
+            {
+                // Wheels extend when airborne.
+                _locomotorInfo.WheelInfo.FramesAirborne = 0;
+                _locomotorInfo.WheelInfo.FramesAirborneCounter++;
+                if (pos.Z - hheight > -maxSuspensionExtension)
+                {
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearRightHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearRightHeightOffset) / 2.0f;
+                }
+                else
+                {
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (0 - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearRightHeightOffset += (0 - _locomotorInfo.WheelInfo.RearRightHeightOffset) / 2.0f;
+                }
+            }
+            // Calculate suspension info.
+            var length2 = obj.Geometry.MajorRadius;
+            var width2 = obj.Geometry.MinorRadius;
+            var pitchHeight2 = length2 * MathF.Sin(_locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch - groundPitch);
+            var rollHeight2 = width2 * MathF.Sin(_locomotorInfo.Roll + _locomotorInfo.AccelerationRoll - groundRoll);
+            info.TotalZ = MathF.Abs(pitchHeight2) / 4 + MathF.Abs(rollHeight2) / 4;
+            return; // maintain the same orientation while we fly through the air.
+        }
+
+        // Bouncy.
+        var curSpeed = physics.VelocityMagnitude;
+
+        var maxSpeed = ai.CurrentLocomotorSpeed;
+        if (!airborne && curSpeed > maxSpeed / 10)
+        {
+            var factor = curSpeed / maxSpeed;
+            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * bounceAmount / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * bounceAmount / 8)
+            {
+                // do the bouncy. 
+                switch (_gameEngine.GameClient.Random.Next(0, 3))
+                {
+                    case 0:
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
+                        break;
+                    case 1:
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
+                        break;
+                    case 2:
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
+                        break;
+                    case 3:
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
+                        break;
+                }
+            }
+        }
+
+        // process chassis suspension dynamics - damp back towards groundPitch
+
+        // the ground can only push back if we're touching it
+        if (!airborne)
+        {
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            if (_locomotorInfo.PitchRate > 0.0f)
+                _locomotorInfo.PitchRate *= 0.5f;
+
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
+        }
+
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
+
+        // process chassis acceleration dynamics - damp back towards zero
+
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
+
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
+
+        // compute total pitch and roll of tank
+        info.TotalPitch = _locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch;
+        info.TotalRoll = _locomotorInfo.Roll + _locomotorInfo.AccelerationRoll;
+
+        if (physics.IsMotive)
+        {
+            // cause the chassis to pitch & roll in reaction to acceleration/deceleration
+            var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
+
+            var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
+        }
+
+        // limit acceleration pitch and roll
+
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
+
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
+
+        info.TotalZ = 0;
+
+        // Calculate suspension info.
+        var length = obj.Geometry.MajorRadius;
+        var width = obj.Geometry.MinorRadius;
+        var pitchHeight = length * MathF.Sin(info.TotalPitch - groundPitch);
+        var rollHeight = width * MathF.Sin(info.TotalRoll - groundRoll);
+        if (hasSuspension)
+        {
+            // calculate each wheel position
+            _locomotorInfo.WheelInfo.FramesAirborne = _locomotorInfo.WheelInfo.FramesAirborneCounter;
+            _locomotorInfo.WheelInfo.FramesAirborneCounter = 0;
+            var newInfo = _locomotorInfo.WheelInfo;
+            var rotation = physics.Turning;
+            if (rotation == PhysicsTurningType.Negative)
+            {
+                newInfo.WheelAngle = -wheelAngle;
+            }
+            else if (rotation == PhysicsTurningType.Positive)
+            {
+                newInfo.WheelAngle = wheelAngle;
+            }
+            else
+            {
+                newInfo.WheelAngle = 0;
+            }
+            if (physics.GetForwardSpeed2D() < 0.0f)
+            {
+                // if we're moving backwards, the wheels rotate in the opposite direction.
+                newInfo.WheelAngle = -newInfo.WheelAngle;
+            }
+
+            //
+            ///@todo Steven/John ... please review this and make sure it makes sense (CBD)
+            // we're going to add the angle to the current wheel rotation ... but we're going to 
+            // divide that number to add small angles.  This allows for "smoother" wheel turning
+            // transitions ... and when the AI has things move in a straight line, since it's
+            // constantly telling the object to go left, go straight, go right, go straight,
+            // etc, this smaller angle we'll be adding covers the constant wheel shifting 
+            // left and right when moving in a relatively straight line
+            //
+            const float wheelSmoothness = 10.0f; // higher numbers add smaller angles, make it more "smooth"
+            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / wheelSmoothness;
+
+            const float springFactor = 0.9f;
+            if (pitchHeight < 0)
+            {
+                // Front raising up.
+                newInfo.FrontLeftHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
+                newInfo.FrontRightHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
+                newInfo.RearLeftHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
+                newInfo.RearRightHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
+            }
+            else
+            {   // Back raising up.
+                newInfo.FrontLeftHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
+                newInfo.FrontRightHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
+                newInfo.RearLeftHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
+                newInfo.RearRightHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
+            }
+            if (rollHeight > 0)
+            {
+                // Right raising up.
+                newInfo.FrontRightHeightOffset += -springFactor * (rollHeight / 3 + rollHeight / 2);
+                newInfo.RearRightHeightOffset += -springFactor * (rollHeight / 3 + rollHeight / 2);
+                newInfo.RearLeftHeightOffset += rollHeight / 2 - rollHeight / 4;
+                newInfo.FrontLeftHeightOffset += rollHeight / 2 - rollHeight / 4;
+            }
+            else
+            {
+                // Left raising up.
+                newInfo.FrontRightHeightOffset += -rollHeight / 2 + rollHeight / 4;
+                newInfo.RearRightHeightOffset += -rollHeight / 2 + rollHeight / 4;
+                newInfo.RearLeftHeightOffset += springFactor * (rollHeight / 3 + rollHeight / 2);
+                newInfo.FrontLeftHeightOffset += springFactor * (rollHeight / 3 + rollHeight / 2);
+            }
+            if (newInfo.FrontLeftHeightOffset < _locomotorInfo.WheelInfo.FrontLeftHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset += (newInfo.FrontLeftHeightOffset - _locomotorInfo.WheelInfo.FrontLeftHeightOffset) / 2.0f;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = newInfo.FrontLeftHeightOffset;
+            }
+            if (newInfo.FrontRightHeightOffset < _locomotorInfo.WheelInfo.FrontRightHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset += (newInfo.FrontRightHeightOffset - _locomotorInfo.WheelInfo.FrontRightHeightOffset) / 2.0f;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = newInfo.FrontRightHeightOffset;
+            }
+            if (newInfo.RearLeftHeightOffset < _locomotorInfo.WheelInfo.RearLeftHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset += (newInfo.RearLeftHeightOffset - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = newInfo.RearLeftHeightOffset;
+            }
+            if (newInfo.RearRightHeightOffset < _locomotorInfo.WheelInfo.RearRightHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.RearRightHeightOffset += (newInfo.RearRightHeightOffset - _locomotorInfo.WheelInfo.RearRightHeightOffset) / 2.0f;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = newInfo.RearRightHeightOffset;
+            }
+            //_locomotorInfo.WheelInfo = newInfo;
+            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = maxSuspensionExtension;
+            }
+            if (_locomotorInfo.WheelInfo.FrontRightHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = maxSuspensionExtension;
+            }
+            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = maxSuspensionExtension;
+            }
+            if (_locomotorInfo.WheelInfo.RearRightHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = maxSuspensionExtension;
+            }
+        }
+        // If we are > 22 degrees, need to raise height;
+        var divisor = 4.0f;
+        var pitch = MathF.Abs(info.TotalPitch - groundPitch);
+
+        if (pitch > MathF.PI / 8)
+        {
+            divisor = ((4 * MathF.PI / 8) + (1 * (pitch - MathF.PI / 8))) / pitch;
+        }
+        info.TotalZ += MathF.Abs(pitchHeight) / divisor;
+        info.TotalZ += MathF.Abs(rollHeight) / divisor;
+    }
+
+    private void CalculatePhysicsTransformMotorcycle(Locomotor locomotor, ref PhysicsTransformInfo info)
+    {
+        EnsureDrawableLocomotorInfo();
+
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var bounceAmount = locomotor.LocomotorTemplate.BounceAmount;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+        var maxSuspensionExtension = locomotor.LocomotorTemplate.MaximumWheelExtension;
+        var wheelAngle = locomotor.LocomotorTemplate.FrontWheelTurnAngle;
+        var hasSuspension = locomotor.LocomotorTemplate.HasSuspension;
+
+        // get object from logic
+        var obj = GameObject;
+
+        var ai = obj.AIUpdate;
+        if (ai == null)
+        {
+            return;
+        }
+
+        // get object physics state
+        var physics = obj.Physics;
+        if (physics == null)
+        {
+            return;
+        }
+
+        // get our position and direction vector
+        var pos = Translation;
+        var dir = UnitDirectionVector2D;
+        var accel = physics.Acceleration;
+
+        // compute perpendicular (2d)
+        var perp = new Vector3(
+            -dir.Y,
+            dir.X,
+            0.0f);
+
+        // find pitch and roll of terrain under chassis
+        var hheight = _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer, out var normal);
+
+        var dot = normal.X * dir.X + normal.Y * dir.Y;
+        var groundPitch = dot * (MathF.PI / 2.0f);
+
+        dot = normal.X * perp.X + normal.Y * perp.Y;
+        var groundRoll = dot * (MathF.PI / 2.0f);
+
+        var airborne = obj.IsSignificantlyAboveTerrain;
+
+        if (airborne)
+        {
+            if (hasSuspension)
+            {
+                // Wheels extend when airborne.
+                _locomotorInfo.WheelInfo.FramesAirborne = 0;
+                _locomotorInfo.WheelInfo.FramesAirborneCounter++;
+                if (pos.Z - hheight > -maxSuspensionExtension)
+                {
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (maxSuspensionExtension - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearRightHeightOffset = _locomotorInfo.WheelInfo.RearLeftHeightOffset;
+                }
+                else
+                {
+                    _locomotorInfo.WheelInfo.RearLeftHeightOffset += (0 - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                    _locomotorInfo.WheelInfo.RearRightHeightOffset = _locomotorInfo.WheelInfo.RearLeftHeightOffset;
+                }
+            }
+            // Calculate suspension info.
+            var length2 = obj.Geometry.MajorRadius;
+            //Real width = obj->getGeometryInfo().getMinorRadius();
+            var pitchHeight2 = length2 * MathF.Sin(_locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch - groundPitch);
+            //Real rollHeight = width*Sin(_locomotorInfo.Roll + _locomotorInfo.AccelerationRoll - groundRoll);
+            info.TotalZ = MathF.Abs(pitchHeight2) / 4;// + MathF.Abs(rollHeight)/4;
+            //return; // maintain the same orientation while we fly through the air.
+        }
+
+        // Bouncy.
+        var curSpeed = physics.VelocityMagnitude;
+        var maxSpeed = ai.CurrentLocomotorSpeed;
+        if (!airborne && curSpeed > maxSpeed / 10)
+        {
+            var factor = curSpeed / maxSpeed;
+            if (MathF.Abs(_locomotorInfo.PitchRate) < factor * bounceAmount / 4 && MathF.Abs(_locomotorInfo.RollRate) < factor * bounceAmount / 8)
+            {
+                // do the bouncy. 
+                switch (_gameEngine.GameClient.Random.Next(0, 3))
+                {
+                    case 0:
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
+                        break;
+                    case 1:
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate -= bounceAmount * factor / 2;
+                        break;
+                    case 2:
+                        _locomotorInfo.PitchRate -= bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
+                        break;
+                    case 3:
+                        _locomotorInfo.PitchRate += bounceAmount * factor;
+                        _locomotorInfo.RollRate += bounceAmount * factor / 2;
+                        break;
+                }
+            }
+        }
+
+        // process chassis suspension dynamics - damp back towards groundPitch
+
+        // the ground can only push back if we're touching it
+        if (!airborne)
+        {
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
+        }
+        else
+        {
+            //Autolevel
+            _locomotorInfo.PitchRate += ((-pitchStiffness * _locomotorInfo.Pitch) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            _locomotorInfo.RollRate += ((-rollStiffness * _locomotorInfo.Roll) + (-rollDamping * _locomotorInfo.RollRate));      // spring/damper
+        }
+
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
+
+        // process chassis acceleration dynamics - damp back towards zero
+
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
+
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
+
+        // compute total pitch and roll of tank
+        info.TotalPitch = _locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch;
+
+        // THis logic had recently been added to Drawable::applyPhysicsXform(), which was naughty, since it clamped the roll in every drawable in the game
+        // Now only motorcycles enjoy this constraint
+        var unclampedRoll = _locomotorInfo.Roll + _locomotorInfo.AccelerationRoll;
+        // This looks like a bug, but it was in the original code. I don't think this comparison will ever be true?
+        info.TotalRoll = (unclampedRoll > 0.5f && unclampedRoll < -0.5f ? unclampedRoll : 0.0f);
+
+        if (physics.IsMotive)
+        {
+            // cause the chassis to pitch & roll in reaction to acceleration/deceleration
+            var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
+
+            var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
+        }
+
+        // limit acceleration pitch and roll
+
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
+
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
+
+        info.TotalZ = 0;
+
+        // Calculate suspension info.
+        var length = obj.Geometry.MajorRadius;
+        var width = obj.Geometry.MinorRadius;
+        var pitchHeight = length * MathF.Sin(info.TotalPitch - groundPitch);
+        var rollHeight = width * MathF.Sin(info.TotalRoll - groundRoll);
+        if (hasSuspension)
+        {
+            // calculate each wheel position
+            _locomotorInfo.WheelInfo.FramesAirborne = _locomotorInfo.WheelInfo.FramesAirborneCounter;
+            _locomotorInfo.WheelInfo.FramesAirborneCounter = 0;
+            var newInfo = _locomotorInfo.WheelInfo;
+            PhysicsTurningType rotation = physics.Turning;
+            if (rotation == PhysicsTurningType.Negative)
+            {
+                newInfo.WheelAngle = -wheelAngle;
+            }
+            else if (rotation == PhysicsTurningType.Positive)
+            {
+                newInfo.WheelAngle = wheelAngle;
+            }
+            else
+            {
+                newInfo.WheelAngle = 0;
+            }
+            if (physics.GetForwardSpeed2D() < 0.0f)
+            {
+                // if we're moving backwards, the wheels rotate in the opposite direction.
+                newInfo.WheelAngle = -newInfo.WheelAngle;
+            }
+
+            //
+            ///@todo Steven/John ... please review this and make sure it makes sense (CBD)
+            // we're going to add the angle to the current wheel rotation ... but we're going to 
+            // divide that number to add small angles.  This allows for "smoother" wheel turning
+            // transitions ... and when the AI has things move in a straight line, since it's
+            // constantly telling the object to go left, go straight, go right, go straight,
+            // etc, this smaller angle we'll be adding covers the constant wheel shifting 
+            // left and right when moving in a relatively straight line
+            //
+            const float wheelSmoothness = 10.0f; // higher numbers add smaller angles, make it more "smooth"
+            _locomotorInfo.WheelInfo.WheelAngle += (newInfo.WheelAngle - _locomotorInfo.WheelInfo.WheelAngle) / wheelSmoothness;
+
+            const float springFactor = 0.9f;
+            if (pitchHeight < 0)
+            {
+                // Front raising up.
+                newInfo.FrontLeftHeightOffset = springFactor * (pitchHeight / 3 + pitchHeight / 2);
+                newInfo.RearLeftHeightOffset = -pitchHeight / 2 + pitchHeight / 4;
+                newInfo.FrontRightHeightOffset = newInfo.FrontLeftHeightOffset;
+                newInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
+            }
+            else
+            {
+                // Back raising up.
+                newInfo.FrontLeftHeightOffset = (-pitchHeight / 4 + pitchHeight / 2);
+                newInfo.RearLeftHeightOffset = springFactor * (-pitchHeight / 2 + -pitchHeight / 3);
+                newInfo.FrontRightHeightOffset = newInfo.FrontLeftHeightOffset;
+                newInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
+            }
+            if (newInfo.FrontLeftHeightOffset < _locomotorInfo.WheelInfo.FrontLeftHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset += (newInfo.FrontLeftHeightOffset - _locomotorInfo.WheelInfo.FrontLeftHeightOffset) / 2.0f;
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = _locomotorInfo.WheelInfo.FrontLeftHeightOffset;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = newInfo.FrontLeftHeightOffset;
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = newInfo.FrontLeftHeightOffset;
+            }
+            if (newInfo.RearLeftHeightOffset < _locomotorInfo.WheelInfo.RearLeftHeightOffset)
+            {
+                // If it's going down, dampen the movement a bit
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset += (newInfo.RearLeftHeightOffset - _locomotorInfo.WheelInfo.RearLeftHeightOffset) / 2.0f;
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = _locomotorInfo.WheelInfo.RearLeftHeightOffset;
+            }
+            else
+            {
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = newInfo.RearLeftHeightOffset;
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = newInfo.RearLeftHeightOffset;
+            }
+            if (_locomotorInfo.WheelInfo.FrontLeftHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.FrontLeftHeightOffset = maxSuspensionExtension;
+                _locomotorInfo.WheelInfo.FrontRightHeightOffset = maxSuspensionExtension;
+            }
+            if (_locomotorInfo.WheelInfo.RearLeftHeightOffset < maxSuspensionExtension)
+            {
+                _locomotorInfo.WheelInfo.RearLeftHeightOffset = maxSuspensionExtension;
+                _locomotorInfo.WheelInfo.RearRightHeightOffset = maxSuspensionExtension;
+            }
+        }
+        // If we are > 22 degrees, need to raise height;
+        var divisor = 4.0f;
+        var pitch = MathF.Abs(info.TotalPitch - groundPitch);
+
+        if (pitch > MathF.PI / 8)
+        {
+            divisor = ((4 * MathF.PI / 8) + (1 * (pitch - MathF.PI / 8))) / pitch;
+        }
+
+        if (!airborne)
+        {
+            info.TotalZ += MathF.Abs(pitchHeight) / divisor;
+            info.TotalZ += MathF.Abs(rollHeight) / divisor;
+        }
+    }
+
+    private void CalculatePhysicsTransformTreads(Locomotor locomotor, ref PhysicsTransformInfo info)
+    {
+        EnsureDrawableLocomotorInfo();
+
+        var overlapShrinkFactor = 0.8f;
+        var flattenedObjectHeight = 0.5f;
+        var leaveOverlapPitchKick = MathF.PI / 128;
+        var overlapRoughVibrationFactor = 5.0f;
+        var maxRoughVibration = 0.5f;
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+
+        // get object from logic
+        var obj = GameObject;
+        if (obj == null)
+        {
+            return;
+        }
+
+        var ai = obj.AIUpdate;
+        if (ai == null)
+        {
+            return;
+        }
+
+        // get object physics state
+        var physics = obj.Physics;
+        if (physics == null)
+        {
+            return;
+        }
+
+        // get our position and direction vector
+        var pos = Translation;
+        var dir = UnitDirectionVector2D;
+        var accel = physics.Acceleration;
+        var vel = physics.Velocity;
+
+        // compute perpendicular (2d)
+        var perp = new Vector3(
+            -dir.Y,
+            dir.X,
+            0.0f);
+
+        // find pitch and roll of terrain under chassis
+        /*	Real hheight = */
+        _gameEngine.Game.TerrainLogic.GetLayerHeight(pos.X, pos.Y, obj.Layer, out var normal);
+
+        // override surface normal if we are overlapping another object - crushing it
+        var overlapZ = 0.0f;
+
+        // get object we are currently overlapping, if any
+        var overlapped = _gameEngine.GameLogic.GetObjectById(physics.CurrentOverlap);
+        if (overlapped != null && overlapped.IsKindOf(ObjectKinds.Shrubbery))
+        {
+            overlapped = null; // We just smash through shrubbery.  jba.
+        }
+
+        if (overlapped != null)
+        {
+            var overPos = overlapped.Translation;
+            var dx = overPos.X - pos.X;
+            var dy = overPos.Y - pos.Y;
+            var centerDistSqr = MathUtility.Square(dx) + MathUtility.Square(dy);
+
+            // compute maximum distance between objects, if their edges just touched
+            var ourSize = DrawableGeometryInfo.BoundingCircleRadius;
+            var otherSize = overlapped.Geometry.BoundingCircleRadius;
+            var maxCenterDist = otherSize + ourSize;
+
+            // shrink the overlap distance a bit to avoid floating
+            maxCenterDist *= overlapShrinkFactor;
+            if (centerDistSqr < MathUtility.Square(maxCenterDist))
+            {
+                var centerDist = MathF.Sqrt(centerDistSqr);
+                var amount = 1.0f - centerDist / maxCenterDist;
+                if (amount < 0.0f)
+                    amount = 0.0f;
+                else if (amount > 1.0f)
+                    amount = 1.0f;
+
+                // rough vibrations proportional to speed when we drive over something
+                var rough = (vel.X * vel.X + vel.Y * vel.Y) * overlapRoughVibrationFactor;
+                if (rough > maxRoughVibration)
+                    rough = maxRoughVibration;
+
+                var height = overlapped.Geometry.MaxZ;
+
+                // do not "go up" flattened crushed things
+                var flat = false;
+                if (overlapped.IsKindOf(ObjectKinds.LowOverlappable)
+                    || overlapped.IsKindOf(ObjectKinds.Infantry)
+                    || (overlapped.BodyModule.FrontCrushed && overlapped.BodyModule.BackCrushed))
+                {
+                    flat = true;
+                    height = flattenedObjectHeight;
+                }
+
+                if (amount < flattenedObjectHeight && flat == false)
+                {
+                    overlapZ = height * 2.0f * amount;
+
+                    // compute vector along "surface"
+                    // not proportional to actual geometry to avoid overlay steep inclines, etc
+                    var v = new Vector3(
+                        dx / centerDist,
+                        dy / centerDist,
+                        0.2f); // 0.25
+
+                    var up = new Vector3(
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        1.0f);
+                    up = Vector3.Normalize(up);
+
+                    // TODO: Check these arguments are the right way round.
+                    var prp = Vector3.Cross(v, up);
+                    normal = Vector3.Cross(prp, v);
+
+                    // compute unit normal
+                    normal = Vector3.Normalize(normal);
+                }
+                else
+                {
+                    // sitting on top of object
+                    overlapZ = height;
+
+                    normal = new Vector3(
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        _gameEngine.GameClient.Random.NextSingle(-rough, rough),
+                        1.0f);
+                    normal = Vector3.Normalize(normal);
+                }
+            }
+        }
+        else // no overlap this frame
+        {
+            // if we had an overlap last frame, and we're now in the air, give a
+            // kick to the pitch for effect
+            if (physics.PreviousOverlap.IsValid && _locomotorInfo.OverlapZ > 0.0f)
+            {
+                _locomotorInfo.PitchRate += leaveOverlapPitchKick;
+            }
+        }
+
+        var dot = normal.X * dir.X + normal.Y * dir.Y;
+        var groundPitch = dot * (MathF.PI / 2.0f);
+
+        dot = normal.X * perp.X + normal.Y * perp.Y;
+        var groundRoll = dot * (MathF.PI / 2.0f);
+
+        // process chassis suspension dynamics - damp back towards groundPitch
+
+        // the ground can only push back if we're touching it
+        if (overlapped != null || _locomotorInfo.OverlapZ <= 0.0f)
+        {
+            _locomotorInfo.PitchRate += ((-pitchStiffness * (_locomotorInfo.Pitch - groundPitch)) + (-pitchDamping * _locomotorInfo.PitchRate));     // spring/damper
+            if (_locomotorInfo.PitchRate > 0.0f)
+                _locomotorInfo.PitchRate *= 0.5f;
+
+            _locomotorInfo.RollRate += ((-rollStiffness * (_locomotorInfo.Roll - groundRoll)) + (-rollDamping * _locomotorInfo.RollRate));       // spring/damper
+        }
+
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
+
+        // process chassis recoil dynamics - damp back towards zero
+
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate));       // spring/damper
+        _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
+
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate));      // spring/damper
+        _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
+
+        // compute total pitch and roll of tank
+        info.TotalPitch = _locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch;
+        info.TotalRoll = _locomotorInfo.Roll + _locomotorInfo.AccelerationRoll;
+
+        if (physics.IsMotive)
+        {
+            // cause the chassis to pitch & roll in reaction to acceleration/deceleration
+            var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
+
+            var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
+        }
+
+        // There's a section of #ifdef'd-out code in the original, for recoiling from being damaged.
+
+        // limit recoil pitch and roll
+
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
+
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
+
+        // adjust z
+        if (overlapZ > _locomotorInfo.OverlapZ)
+        {
+            _locomotorInfo.OverlapZ = overlapZ;
+            /// @todo Z needs to accelerate/decelerate, not be directly set (MSB)
+            // _locomotorInfo.OverlapZ += 0.4f;
+            _locomotorInfo.OverlapZVelocity = 0.0f;
+        }
+
+        var ztmp = _locomotorInfo.OverlapZ / 2.0f;
+
+        // do fake Z physics
+        if (_locomotorInfo.OverlapZ > 0.0f)
+        {
+            _locomotorInfo.OverlapZVelocity -= 0.2f;
+            _locomotorInfo.OverlapZ += _locomotorInfo.OverlapZVelocity;
+        }
+
+        if (_locomotorInfo.OverlapZ <= 0.0f)
+        {
+            _locomotorInfo.OverlapZ = 0.0f;
+            _locomotorInfo.OverlapZVelocity = 0.0f;
+        }
+        info.TotalZ = ztmp;
+    }
+
+    private void CalculatePhysicsTransformHoverOrWings(Locomotor locomotor, ref PhysicsTransformInfo info)
+    {
+        EnsureDrawableLocomotorInfo();
+
+        var accelerationPitchLimit = locomotor.LocomotorTemplate.AccelerationPitchLimit;
+        var decelerationPitchLimit = locomotor.LocomotorTemplate.DecelerationPitchLimit;
+        var pitchStiffness = locomotor.LocomotorTemplate.PitchStiffness;
+        var rollStiffness = locomotor.LocomotorTemplate.RollStiffness;
+        var pitchDamping = locomotor.LocomotorTemplate.PitchDamping;
+        var rollDamping = locomotor.LocomotorTemplate.RollDamping;
+        var zVelocityPitchCoefficient = locomotor.LocomotorTemplate.PitchInDirectionOfZVelFactor;
+        var forwardVelocityCoefficient = locomotor.LocomotorTemplate.ForwardVelocityPitchFactor;
+        var lateralVelocityCoefficient = locomotor.LocomotorTemplate.LateralVelocityRollFactor;
+        var forwardAccelerationCoefficient = locomotor.LocomotorTemplate.ForwardAccelerationPitchFactor;
+        var lateralAccelerationCoefficient = locomotor.LocomotorTemplate.LateralAccelerationRollFactor;
+        var uniformAxialDamping = locomotor.LocomotorTemplate.UniformAxialDamping;
+
+        // get object from logic
+        var physics = GameObject?.Physics;
+        if (physics == null)
+        {
+            return;
+        }
+
+        var dir = UnitDirectionVector2D;
+        var accel = physics.Acceleration;
+        var vel = physics.Velocity;
+
+        _locomotorInfo.PitchRate += ((-pitchStiffness * _locomotorInfo.Pitch) + (-pitchDamping * _locomotorInfo.PitchRate)); // Spring/damper
+        _locomotorInfo.Pitch += _locomotorInfo.PitchRate * uniformAxialDamping;
+
+        _locomotorInfo.RollRate += ((-rollStiffness * _locomotorInfo.Roll) + (-rollDamping * _locomotorInfo.RollRate)); // Spring/damper
+        _locomotorInfo.Roll += _locomotorInfo.RollRate * uniformAxialDamping;
+
+        // Process chassis acceleration dynamics - damp back towards zero.
+
+        _locomotorInfo.AccelerationPitchRate += ((-pitchStiffness * (_locomotorInfo.AccelerationPitch)) + (-pitchDamping * _locomotorInfo.AccelerationPitchRate)); // Spring/damper
+        _locomotorInfo.AccelerationPitch += _locomotorInfo.AccelerationPitchRate;
+
+        _locomotorInfo.AccelerationRollRate += ((-rollStiffness * _locomotorInfo.AccelerationRoll) + (-rollDamping * _locomotorInfo.AccelerationRollRate)); // Spring/damper
+        _locomotorInfo.AccelerationRoll += _locomotorInfo.AccelerationRollRate;
+
+        // Compute total pitch and roll of tank.
+        info.TotalPitch = _locomotorInfo.Pitch + _locomotorInfo.AccelerationPitch;
+        info.TotalRoll = _locomotorInfo.Roll + _locomotorInfo.AccelerationRoll;
+
+        if (physics.IsMotive)
+        {
+            if (zVelocityPitchCoefficient != 0.0f)
+            {
+                const float tinyDeltaZ = 0.001f;
+                if (MathF.Abs(vel.Z) > tinyDeltaZ)
+                {
+                    var pitch = MathF.Atan2(vel.Z, MathF.Sqrt(MathUtility.Square(vel.X) + MathUtility.Square(vel.Y)));
+                    _locomotorInfo.Pitch -= zVelocityPitchCoefficient * pitch;
+                }
+            }
+
+            // Cause the chassis to pitch & roll in reaction to current speed.
+            var forwardVel = dir.X * vel.X + dir.Y * vel.Y;
+            _locomotorInfo.Pitch += -(forwardVelocityCoefficient * forwardVel);
+
+            var lateralVel = -dir.Y * vel.X + dir.X * vel.Y;
+            _locomotorInfo.Roll += -(lateralVelocityCoefficient * lateralVel);
+
+            // Cause the chassis to pitch & roll in reaction to acceleration/deceleration.
+            var forwardAccel = dir.X * accel.X + dir.Y * accel.Y;
+            _locomotorInfo.AccelerationPitchRate += -(forwardAccelerationCoefficient * forwardAccel);
+
+            var lateralAccel = -dir.Y * accel.X + dir.X * accel.Y;
+            _locomotorInfo.AccelerationRollRate += -(lateralAccelerationCoefficient * lateralAccel);
+        }
+
+        // limit acceleration pitch and roll
+
+        if (_locomotorInfo.AccelerationPitch > decelerationPitchLimit)
+        {
+            _locomotorInfo.AccelerationPitch = decelerationPitchLimit;
+        }
+        else if (_locomotorInfo.AccelerationPitch < -accelerationPitchLimit)
+        {
+            _locomotorInfo.AccelerationPitch = -accelerationPitchLimit;
+        }
+
+        if (_locomotorInfo.AccelerationRoll > decelerationPitchLimit)
+        {
+            _locomotorInfo.AccelerationRoll = decelerationPitchLimit;
+        }
+        else if (_locomotorInfo.AccelerationRoll < -accelerationPitchLimit)
+        {
+            _locomotorInfo.AccelerationRoll = -accelerationPitchLimit;
+        }
+
+        var rudderCorrectionDegree = locomotor.LocomotorTemplate.RudderCorrectionDegree;
+        var rudderCorrectionRate = locomotor.LocomotorTemplate.RudderCorrectionRate;
+        var elevatorCorrectionDegree = locomotor.LocomotorTemplate.ElevatorCorrectionDegree;
+        var elevatorCorrectionRate = locomotor.LocomotorTemplate.ElevatorCorrectionRate;
+
+        info.TotalYaw = rudderCorrectionDegree * MathF.Sin(_locomotorInfo.YawModulator += rudderCorrectionRate);
+        info.TotalPitch += elevatorCorrectionDegree * MathF.Cos(_locomotorInfo.PitchModulator += elevatorCorrectionRate);
+
+        info.TotalZ = 0.0f;
+    }
+
+    private void CalculatePhysicsTransformThrust(Locomotor locomotor, ref PhysicsTransformInfo info)
+    {
+        EnsureDrawableLocomotorInfo();
+
+        // TODO(Port): These values should be scaled by deltaTime.
+        var thrustRoll = locomotor.LocomotorTemplate.ThrustRoll;
+        var wobbleRate = locomotor.LocomotorTemplate.ThrustWobbleRate;
+        var maxWobble = locomotor.LocomotorTemplate.ThrustMaxWobble;
+        var minWobble = locomotor.LocomotorTemplate.ThrustMinWobble;
+
+        // Original comment:
+        // this is a kind of quick thrust implementation cause we need scud missiles to wobble *now*,
+        // we deal with just adjusting pitch, yaw, and roll just a little bit
+
+        if (wobbleRate != 0)
+        {
+            // Wobble is either 0 or 1.
+            // If it's 0, we're wobbling in one direction.
+            // If it's 1, we're wobbling in the other direction.
+            if (_locomotorInfo.Wobble >= 1.0f)
+            {
+                // Near centre, increase pitch and yaw faster, then when we get near max wobble,
+                // slow down the rate of increase.
+                if (_locomotorInfo.Pitch < maxWobble - wobbleRate * 2)
+                {
+                    _locomotorInfo.Pitch += wobbleRate;
+                    _locomotorInfo.Yaw += wobbleRate;
+                }
+                else
+                {
+                    _locomotorInfo.Pitch += (wobbleRate / 2.0f);
+                    _locomotorInfo.Yaw += (wobbleRate / 2.0f);
+                }
+                if (_locomotorInfo.Pitch >= maxWobble)
+                {
+                    _locomotorInfo.Wobble = -1.0f;
+                }
+            }
+            else
+            {
+                if (_locomotorInfo.Pitch >= minWobble + wobbleRate * 2.0f)
+                {
+                    _locomotorInfo.Pitch -= wobbleRate;
+                    _locomotorInfo.Yaw -= wobbleRate;
+                }
+                else
+                {
+                    _locomotorInfo.Pitch -= (wobbleRate / 2.0f);
+                    _locomotorInfo.Yaw -= (wobbleRate / 2.0f);
+                }
+                if (_locomotorInfo.Pitch <= minWobble)
+                {
+                    _locomotorInfo.Wobble = 1.0f;
+                }
+            }
+
+            info.TotalPitch = _locomotorInfo.Pitch;
+            info.TotalYaw = _locomotorInfo.Yaw;
+        }
+
+        if (thrustRoll != 0)
+        {
+            _locomotorInfo.Roll += thrustRoll;
+            info.TotalRoll = _locomotorInfo.Roll;
+        }
+    }
+
+    [MemberNotNull(nameof(_locomotorInfo))]
+    private void EnsureDrawableLocomotorInfo()
+    {
+        if (_locomotorInfo == null)
+        {
+            _locomotorInfo = new DrawableLocomotorInfo();
         }
     }
 
@@ -567,20 +1703,12 @@ public sealed class Drawable : Entity, IPersistableObject
             SetTerrainDecal(decalType);
         }
 
-        var unknownFloat1 = 1.0f;
-        reader.PersistSingle(ref unknownFloat1);
-        if (unknownFloat1 != 1)
-        {
-            throw new InvalidStateException();
-        }
-
-        reader.PersistSingle(ref _unknownFloat2); // 0, 1
-        reader.PersistSingle(ref _unknownFloat3); // 0, 1
-        reader.PersistSingle(ref _unknownFloat4); // 0, 1
-
-        reader.SkipUnknownBytes(4);
-
-        reader.PersistSingle(ref _unknownFloat6); // 0, 1
+        reader.PersistSingle(ref _explicitOpacity);
+        reader.PersistSingle(ref _stealthOpacity);
+        reader.PersistSingle(ref _effectiveStealthOpacity);
+        reader.PersistSingle(ref _decalOpacityFadeTarget);
+        reader.PersistSingle(ref _decalOpacityFadeRate);
+        reader.PersistSingle(ref _decalOpacity);
 
         var objectId = GameObjectID;
         reader.PersistObjectId(ref objectId);
@@ -589,49 +1717,44 @@ public sealed class Drawable : Entity, IPersistableObject
             throw new InvalidStateException();
         }
 
-        reader.PersistUInt32(ref _unknownInt1);
-        reader.PersistUInt32(ref _unknownInt2); // 0, 1
-        reader.PersistUInt32(ref _unknownInt3);
-        reader.PersistUInt32(ref _unknownInt4);
-        reader.PersistUInt32(ref _unknownInt5);
-        reader.PersistUInt32(ref _unknownInt6);
+        reader.PersistEnumFlags(ref _status);
+        reader.PersistEnumFlags(ref _tintStatus);
+        reader.PersistEnumFlags(ref _previousTintStatus);
+        reader.PersistEnum(ref _fadeMode);
+        reader.PersistUInt32(ref _timeElapsedFade);
+        reader.PersistUInt32(ref _timeToFade);
 
-        reader.PersistBoolean(ref _hasUnknownFloats);
-        if (_hasUnknownFloats)
+        var hasLocomotorInfo = _locomotorInfo != null;
+        reader.PersistBoolean(ref hasLocomotorInfo);
+        if (hasLocomotorInfo)
         {
-            reader.PersistArray(_unknownFloats, static (StatePersister persister, ref float item) =>
+            if (reader.Mode == StatePersistMode.Read && _locomotorInfo == null)
             {
-                persister.PersistSingleValue(ref item);
-            });
+                _locomotorInfo = new DrawableLocomotorInfo();
+            }
+
+            reader.PersistObject(_locomotorInfo);
         }
 
         PersistModules(reader);
 
-        reader.PersistUInt32(ref _unknownInt7);
+        reader.PersistEnum(ref _stealthLook);
 
-        reader.PersistUInt32(ref _flashFrameCount);
+        reader.PersistUInt32(ref _flashCount);
         reader.PersistColorRgba(ref _flashColor);
 
-        reader.PersistBoolean(ref _unknownBool1);
-        reader.PersistBoolean(ref _unknownBool2);
+        reader.PersistBoolean(ref _hidden);
+        reader.PersistBoolean(ref _hiddenByStealth);
 
-        reader.SkipUnknownBytes(4);
+        reader.PersistSingle(ref _secondMaterialPassOpacity);
 
-        reader.PersistBoolean(ref _someMatrixIsIdentity);
+        reader.PersistBoolean(ref _instanceMatrixIsIdentity);
+        reader.PersistMatrix4x3(ref _instanceMatrix, false);
+        reader.PersistSingle(ref _instanceScale);
 
-        reader.PersistMatrix4x3(ref _someMatrix, false);
+        reader.PersistObjectId(ref _drawableInfo.ShroudStatusObjectId);
 
-        var unknownFloat10 = 1.0f;
-        reader.PersistSingle(ref unknownFloat10);
-        if (unknownFloat10 != 1)
-        {
-            throw new InvalidStateException();
-        }
-
-        reader.SkipUnknownBytes(4);
-
-        var unknownInt8 = 0u;
-        reader.PersistUInt32(ref unknownInt8); // 232...frameSomething?
+        reader.PersistUInt32(ref _expirationDate);
 
         var animation2DCount = (byte)_animations.Count;
         reader.PersistByte(ref animation2DCount);
@@ -650,8 +1773,8 @@ public sealed class Drawable : Entity, IPersistableObject
             var animation2DName = animation?.Template.Name;
             reader.PersistAsciiString(ref animation2DName);
 
-            var unknownInt = 0;
-            reader.PersistInt32(ref unknownInt); // was non-zero for bombtimed - potentially a frame?
+            var keepTillFrame = 0;
+            reader.PersistInt32(ref keepTillFrame);
 
             var animation2DName2 = animation2DName;
             reader.PersistAsciiString(ref animation2DName2);
@@ -674,23 +1797,23 @@ public sealed class Drawable : Entity, IPersistableObject
 
         reader.EndArray();
 
-        var unknownBool3 = true;
-        reader.PersistBoolean(ref unknownBool3);
-        if (!unknownBool3)
+        reader.PersistBoolean(ref _ambientSoundEnabled);
+
+        if (version >= 6)
         {
-            throw new InvalidStateException();
+            reader.PersistBoolean(ref _ambientSoundEnabledFromScript);
         }
 
         if (version >= 7)
         {
-            var unknownBool4 = true;
-            reader.PersistBoolean(ref unknownBool4);
-            if (!unknownBool4)
-            {
-                throw new InvalidStateException();
-            }
+            var customized = false;
+            reader.PersistBoolean(ref customized);
 
-            reader.SkipUnknownBytes(1);
+            if (customized)
+            {
+                // TODO(Port): Implement this.
+                throw new NotImplementedException();
+            }
         }
     }
 
@@ -753,6 +1876,215 @@ public sealed class Drawable : Entity, IPersistableObject
 
         reader.EndObject();
     }
+
+    [Flags]
+    private enum DrawableStatus
+    {
+        /// <summary>
+        /// No status.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Drawable can reflect.
+        /// </summary>
+        DrawsInMirror = 0x1,
+
+        /// <summary>
+        /// Use SetShadowsEnabled access method.
+        /// </summary>
+        Shadows = 0x2,
+
+        /// <summary>
+        /// Drawable tint color is "locked" and won't fade to normal.
+        /// </summary>
+        TintColorLocked = 0x4,
+
+        /// <summary>
+        /// Do _not_ auto-create particle systems based on model condition.
+        /// </summary>
+        NoStateParticles = 0x8,
+
+        /// <summary>
+        /// Do _not_ save this drawable (UI fluff only).
+        /// Ignored (error, actually) if attached to an object.
+        /// </summary>
+        NoSave = 0x10,
+    }
+
+    [Flags]
+    private enum TintStatus
+    {
+        None = 0,
+
+        /// <summary>
+        /// Drawable tint color is deathly dark grey.
+        /// </summary>
+        Disabled = 0x1,
+
+        /// <summary>
+        /// Drawable tint color is sickly green.
+        /// </summary>
+        Irradiated = 0x2,
+
+        /// <summary>
+        /// Drawable tint color is open-sore red.
+        /// </summary>
+        Poisoned = 0x4,
+
+        /// <summary>
+        /// When gaining subdual damage, we tint SUBDUAL_DAMAGE_COLOR.
+        /// </summary>
+        GainingSubdualDamage = 0x8,
+
+        /// <summary>
+        /// When frenzied, we tint FRENZY_COLOR.
+        /// </summary>
+        Frenzy = 0x10,
+    }
+
+    private enum FadingMode
+    {
+        None = 0,
+        In = 1,
+        Out = 2,
+    }
+
+    private class DrawableLocomotorInfo : IPersistableObject
+    {
+        /// <summary>
+        /// Pitch of the entire drawable.
+        /// </summary>
+        public float Pitch = 0.0f;
+
+        /// <summary>
+        /// Rate of change of pitch.
+        /// </summary>
+        public float PitchRate = 0.0f;
+
+        /// <summary>
+        /// Roll of the entire drawable.
+        /// </summary>
+        public float Roll = 0.0f;
+
+        /// <summary>
+        /// Rate of change of roll.
+        /// </summary>
+        public float RollRate = 0.0f;
+
+        /// <summary>
+        /// Yaw for the entire drawable.
+        /// </summary>
+        public float Yaw = 0.0f;
+
+        /// <summary>
+        /// Pitch of the drawable due to impact/acceleration.
+        /// </summary>
+        public float AccelerationPitch = 0.0f;
+
+        /// <summary>
+        /// Rate of change of pitch.
+        /// </summary>
+        public float AccelerationPitchRate = 0.0f;
+
+        /// <summary>
+        /// Roll of the entire drawable.
+        /// </summary>
+        public float AccelerationRoll = 0.0f;
+
+        /// <summary>
+        /// Rate of change of roll.
+        /// </summary>
+        public float AccelerationRollRate = 0.0f;
+
+        /// <summary>
+        /// Fake Z velocity.
+        /// </summary>
+        public float OverlapZVelocity = 0.0f;
+
+        /// <summary>
+        /// Current height (additional).
+        /// </summary>
+        public float OverlapZ = 0.0f;
+
+        /// <summary>
+        /// For wobbling.
+        /// </summary>
+        public float Wobble = 1.0f;
+
+        /// <summary>
+        /// For the swimmy soft hover of a helicopter.
+        /// </summary>
+        public float YawModulator = 0.0f;
+
+        /// <summary>
+        /// For the swimmy soft hover of a helicopter.
+        /// </summary>
+        public float PitchModulator = 0.0f;
+
+        /// <summary>
+        /// Wheel offset and angle info for a wheeled type locomotor.
+        /// </summary>
+        public readonly WheelInfo WheelInfo = new();
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistSingle(ref Pitch);
+            persister.PersistSingle(ref PitchRate);
+            persister.PersistSingle(ref Roll);
+            persister.PersistSingle(ref RollRate);
+            persister.PersistSingle(ref Yaw);
+            persister.PersistSingle(ref AccelerationPitch);
+            persister.PersistSingle(ref AccelerationPitchRate);
+            persister.PersistSingle(ref AccelerationRoll);
+            persister.PersistSingle(ref AccelerationRollRate);
+            persister.PersistSingle(ref OverlapZVelocity);
+            persister.PersistSingle(ref OverlapZ);
+            persister.PersistSingle(ref Wobble);
+
+            persister.PersistObject(WheelInfo);
+        }
+    }
+
+    private class WheelInfo : IPersistableObject
+    {
+        // Height offsets for tires due to suspension sway.
+        public float FrontLeftHeightOffset = 0.0f;
+        public float FrontRightHeightOffset = 0.0f;
+        public float RearLeftHeightOffset = 0.0f;
+        public float RearRightHeightOffset = 0.0f;
+
+        /// <summary>
+        /// Wheel angle. 0 = straight, > 0 = left, < 0 = right.
+        /// </summary>
+        public float WheelAngle = 0.0f;
+
+        public int FramesAirborneCounter = 0;
+
+        /// <summary>
+        /// How many frames it was in the ir.
+        /// </summary>
+        public int FramesAirborne;
+
+        public void Persist(StatePersister persister)
+        {
+            persister.PersistSingle(ref FrontLeftHeightOffset);
+            persister.PersistSingle(ref FrontRightHeightOffset);
+            persister.PersistSingle(ref RearLeftHeightOffset);
+            persister.PersistSingle(ref RearRightHeightOffset);
+            persister.PersistSingle(ref WheelAngle);
+            persister.PersistInt32(ref FramesAirborneCounter);
+            persister.PersistInt32(ref FramesAirborne);
+        }
+    }
+
+    private struct PhysicsTransformInfo
+    {
+        public float TotalPitch;
+        public float TotalRoll;
+        public float TotalYaw;
+        public float TotalZ;
+    }
 }
 
 public enum ObjectDecalType
@@ -766,4 +2098,81 @@ public enum ObjectDecalType
     ChemSuit = 7,
     None = 8,
     ShadowTexture = 9,
+}
+
+public enum StealthLookType
+{
+    /// <summary>
+    /// Unit is not stealthed at all.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// Unit is stealthed-but-visible due to friendly status.
+    /// </summary>
+    VisibleFriendly = 1,
+
+    /// <summary>
+    /// We can have units that are disguised (instead of invisible).
+    /// </summary>
+    DisguisedEnemy = 2,
+
+    /// <summary>
+    /// Unit is stealthed and invisible, but a second material pass
+    /// is added to reveal the invisible unit as with heat vision.
+    /// </summary>
+    VisibleDetected = 3,
+
+    /// <summary>
+    /// Unit is stealthed-but-visible due to being detected,
+    /// and rendered in heatvision effect second material pass.
+    /// </summary>
+    VisibleFriendlyDetected = 4,
+
+    /// <summary>
+    /// Unit is stealthed-and-invisible.
+    /// </summary>
+    Invisible = 5,
+}
+
+/// <summary>
+/// Simple structure used to bind W3D render objects to our own Drawables.
+/// </summary>
+public class DrawableInfo
+{
+    [Flags]
+    public enum ExtraRenderFlags
+    {
+        None = 0,
+        IsOccluded = 0x1,
+        PotentialOccluder = 0x2,
+        PotentialOccludee = 0x4,
+        IsTranslucent = 0x8,
+        IsNonOccluderOrOccludee = 0x10,
+
+        // TODO(Port):
+        // Original has this enum value, but we'll instead do it with an extension method.
+        //DelayedRender = IsTranslucent | PotentialOccludee,
+    }
+
+    /// <summary>
+    /// Since we sometimes have drawables without objects, this points to a
+    /// parent object from which we pull shroud status.
+    /// </summary>
+    public ObjectId ShroudStatusObjectId;
+
+    /// <summary>
+    /// Pointer back to drawable containing this <see cref="DrawableInfo"/>.
+    /// </summary>
+    public Drawable? Drawable;
+
+    /// <summary>
+    /// Pointer to ghost object for this drawable used for fogged versions.
+    /// </summary>
+    public GhostObject? GhostObject;
+
+    /// <summary>
+    /// Extra render settings flags that are tied to render objects with drawables.
+    /// </summary>
+    public ExtraRenderFlags Flags;
 }
