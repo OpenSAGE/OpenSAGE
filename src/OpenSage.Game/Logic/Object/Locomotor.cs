@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Logic.AI;
@@ -204,7 +203,7 @@ public sealed class Locomotor : IPersistableObject
         var physics = obj.Physics;
         if (physics == null)
         {
-            Debug.Fail("You can only apply Locomotors to objects with Physics");
+            DebugUtility.Crash("You can only apply Locomotors to objects with Physics");
             return;
         }
 
@@ -233,7 +232,7 @@ public sealed class Locomotor : IPersistableObject
         }
         else
         {
-            Debug.Assert(LocomotorTemplate.Appearance != LocomotorAppearance.Thrust, "THRUST should always have minspeeds!");
+            DebugUtility.AssertCrash(LocomotorTemplate.Appearance != LocomotorAppearance.Thrust, "THRUST should always have minspeeds!");
             var desiredPos = obj.Translation;
             desiredPos.X += MathF.Cos(goalAngle) * 1000.0f;
             desiredPos.Y += MathF.Sin(goalAngle) * 1000.0f;
@@ -256,7 +255,7 @@ public sealed class Locomotor : IPersistableObject
         var physics = obj.Physics;
         if (physics == null)
         {
-            Debug.Fail("You can only apply Locomotors to objects with Physics");
+            DebugUtility.Crash("You can only apply Locomotors to objects with Physics");
             return;
         }
 
@@ -300,7 +299,7 @@ public sealed class Locomotor : IPersistableObject
         var physics = obj.Physics;
         if (physics == null)
         {
-            Debug.Fail("You can only apply Locomotors to objects with Physics");
+            DebugUtility.Crash("You can only apply Locomotors to objects with Physics");
             return;
         }
 
@@ -1886,7 +1885,7 @@ public sealed class Locomotor : IPersistableObject
         var physics = obj.Physics;
         if (physics == null)
         {
-            Debug.Fail("You can only apply Locomotors to objects with Physics");
+            DebugUtility.Crash("You can only apply Locomotors to objects with Physics");
             return true;
         }
 
@@ -1940,7 +1939,7 @@ public sealed class Locomotor : IPersistableObject
 
     private void MaintainCurrentPositionThrust(GameObject obj, PhysicsBehavior physics)
     {
-        Debug.Assert(GetFlag(LocomotorFlags.MaintainPositionIsValid), "invalid maintain pos");
+        DebugUtility.AssertCrash(GetFlag(LocomotorFlags.MaintainPositionIsValid), "invalid maintain pos");
         // Original comment:
         // @todo srj -- should these also use the "circling radius" stuff, like wings?
         MoveTowardsPositionThrust(obj, physics, _maintainPosition, 0, LocomotorTemplate.MinSpeed);
@@ -1966,7 +1965,7 @@ public sealed class Locomotor : IPersistableObject
         physics.Turning = PhysicsTurningType.None;
         if (physics.IsMotive) // no need to stop something that isn't moving.
         {
-            Debug.Assert(LocomotorTemplate.MinSpeed == 0.0f, "HOVER should always have zero minSpeeds (otherwise, they WING)");
+            DebugUtility.AssertCrash(LocomotorTemplate.MinSpeed == 0.0f, "HOVER should always have zero minSpeeds (otherwise, they WING)");
 
             var bdt = obj.BodyModule.DamageState;
             var maxAcceleration = GetMaxAcceleration(bdt);
@@ -2011,7 +2010,7 @@ public sealed class Locomotor : IPersistableObject
 
     private void MaintainCurrentPositionWings(GameObject obj, PhysicsBehavior physics)
     {
-        Debug.Assert(GetFlag(LocomotorFlags.MaintainPositionIsValid), "invalid maintain pos");
+        DebugUtility.AssertCrash(GetFlag(LocomotorFlags.MaintainPositionIsValid), "invalid maintain pos");
         physics.Turning = PhysicsTurningType.None;
         if (physics.IsMotive && obj.IsAboveTerrain) // no need to stop something that isn't moving (or is just sitting on the ground)
         {

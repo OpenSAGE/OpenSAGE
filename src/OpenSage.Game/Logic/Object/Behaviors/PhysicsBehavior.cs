@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Audio;
@@ -229,7 +228,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         var bounceForce = Vector3.Zero;
         var gotBounceForce = false;
 
-        Debug.Assert(!GetFlag(PhysicsFlagType.IsInUpdate));
+        DebugUtility.AssertCrash(!GetFlag(PhysicsFlagType.IsInUpdate));
 
         SetFlag(PhysicsFlagType.IsInUpdate, true);
 
@@ -290,7 +289,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
             if (Vector3Utility.IsNaN(mtx.Translation))
             {
-                Debug.Fail("Object position is NaN");
+                DebugUtility.Crash("Object position is NaN, deleting");
                 GameEngine.GameLogic.DestroyObject(obj);
             }
 
@@ -535,7 +534,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     /// <param name="force">The force to apply.</param>
     public void ApplyForce(in Vector3 force)
     {
-        Debug.Assert(!Vector3Utility.IsNaN(force));
+        DebugUtility.AssertCrash(!Vector3Utility.IsNaN(force));
         if (Vector3Utility.IsNaN(force))
         {
             return;
@@ -632,7 +631,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
         SetFlag(PhysicsFlagType.HasPitchRollYaw, false);
 
-        Debug.Assert(!GetFlag(PhysicsFlagType.IsInUpdate), "hmm, should not happen, may not work");
+        DebugUtility.AssertCrash(!GetFlag(PhysicsFlagType.IsInUpdate), "hmm, should not happen, may not work");
 
         SetWakeFrame(CalculateSleepTime());
     }
@@ -1039,7 +1038,7 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         if (selfCrushingOther && selfBeingCrushed)
         {
             // Is it possible to crush and be crushed at the same time?
-            Debug.Fail($"{crusherMe.Definition.Name} (Crusher:{crusherMe.CrusherLevel}, Crushable:{crusherMe.CrushableLevel}) is attempting to crush {crusheeOther.Definition.Name} (Crusher:{crusheeOther.CrusherLevel}, Crushable:{crusheeOther.CrushableLevel}) but it is reciprocating - shouldn't be possible!");
+            DebugUtility.Crash($"{crusherMe.Definition.Name} (Crusher:{crusherMe.CrusherLevel}, Crushable:{crusherMe.CrushableLevel}) is attempting to crush {crusheeOther.Definition.Name} (Crusher:{crusheeOther.CrusherLevel}, Crushable:{crusheeOther.CrushableLevel}) but it is reciprocating - shouldn't be possible!");
             return false;
         }
 

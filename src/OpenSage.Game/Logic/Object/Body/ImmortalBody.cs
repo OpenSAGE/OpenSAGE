@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System;
-using System.Diagnostics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
@@ -25,7 +24,7 @@ public sealed class ImmortalBody : ActiveBody
         // then fix it, I must prevent.
         base.InternalChangeHealth(delta);
 
-        Debug.Assert(
+        DebugUtility.AssertCrash(
             Health > 0 && !GameObject.IsEffectivelyDead,
             "Immortal objects should never get marked as dead!");
     }

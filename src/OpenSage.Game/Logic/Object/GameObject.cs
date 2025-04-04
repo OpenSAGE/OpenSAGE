@@ -1288,7 +1288,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             Kill = true, // Triggers object to die no matter what
         });
 
-        Debug.Assert(!damageOutput.NoEffect, "Attempting to kill an unKillable object (InactiveBody?)");
+        DebugUtility.AssertCrash(!damageOutput.NoEffect, "Attempting to kill an unKillable object (InactiveBody?)");
     }
 
     internal void OnDie(in DamageInfoInput damageInput)
