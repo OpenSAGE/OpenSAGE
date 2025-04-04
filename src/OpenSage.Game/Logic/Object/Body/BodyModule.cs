@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
@@ -122,13 +121,13 @@ public abstract class BodyModule : BehaviorModule
     public virtual bool FrontCrushed
     {
         get => false;
-        set => Debug.Fail("You should never call this for generic Bodys");
+        set => DebugUtility.Crash("You should never call this for generic Bodys");
     }
 
     public virtual bool BackCrushed
     {
         get => false;
-        set => Debug.Fail("You should never call this for generic Bodys");
+        set => DebugUtility.Crash("You should never call this for generic Bodys");
     }
 
     public float DamageScalar => _damageScalar;

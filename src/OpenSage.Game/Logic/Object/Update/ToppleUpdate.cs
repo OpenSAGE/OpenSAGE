@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Content;
@@ -86,7 +85,7 @@ public sealed class ToppleUpdate : UpdateModule, ICollideModule
     /// </summary>
     public override UpdateSleepTime Update()
     {
-        Debug.Assert(_toppleState != ToppleState.Upright, "Hmm, we should we sleeping here");
+        DebugUtility.AssertCrash(_toppleState != ToppleState.Upright, "Hmm, we should be sleeping here");
         if (_toppleState == ToppleState.Upright || _toppleState == ToppleState.Down)
         {
             return UpdateSleepTime.Forever;

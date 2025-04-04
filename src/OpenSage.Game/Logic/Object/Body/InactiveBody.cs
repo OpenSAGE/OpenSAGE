@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using System.Diagnostics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
@@ -48,7 +47,7 @@ public sealed class InactiveBody : BodyModule
         // ... except damage type UNRESISTABLE always wipes us out.
         if (damageInput.DamageType == DamageType.Unresistable)
         {
-            Debug.Assert(!GameObject.Definition.IsPrerequisite, "Prerequisites should not have InactiveBody");
+            DebugUtility.AssertCrash(!GameObject.Definition.IsPrerequisite, "Prerequisites should not have InactiveBody");
 
             damageOutput.NoEffect = false;
 

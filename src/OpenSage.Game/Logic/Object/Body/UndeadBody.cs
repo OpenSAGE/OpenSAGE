@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System;
-using System.Diagnostics;
 using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
@@ -78,7 +77,7 @@ public sealed class UndeadBody : ActiveBody
                 total += module.GetProbabilityModifier(damageOutput);
             }
         }
-        Debug.Assert(total > 0, "Hmm, this is wrong");
+        DebugUtility.AssertCrash(total > 0, "Hmm, this is wrong");
 
         // This returns a value from 1...total, inclusive.
         var roll = GameEngine.GameLogic.Random.Next(1, total);

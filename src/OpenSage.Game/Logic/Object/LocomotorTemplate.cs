@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -557,12 +556,12 @@ public sealed class LocomotorTemplate : BaseAsset
         {
             if (MinSpeed <= 0.0f)
             {
-                Debug.Fail("WINGS should always have positive MinSpeed (otherwise, they hover)");
+                DebugUtility.Crash("WINGS should always have positive MinSpeed (otherwise, they hover)");
                 MinSpeed = 0.01f;
             }
             if (MinTurnSpeed <= 0.0f)
             {
-                Debug.Fail("WINGS should always have positive MinTurnSpeed");
+                DebugUtility.Crash("WINGS should always have positive MinTurnSpeed");
                 MinTurnSpeed = 0.01f;
             }
         }
