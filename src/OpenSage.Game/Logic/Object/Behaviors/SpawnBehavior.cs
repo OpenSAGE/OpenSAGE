@@ -7,7 +7,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
-internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
+internal sealed class SpawnBehavior : UpdateModule
 {
     SpawnBehaviorModuleData _moduleData;
 
@@ -121,7 +121,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
         }
     }
 
-    public void Update(BehaviorUpdateContext context)
+    private protected override void RunUpdate(BehaviorUpdateContext context)
     {
         if (_initial && !GameObject.IsBeingConstructed())
         {
