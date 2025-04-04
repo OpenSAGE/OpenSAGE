@@ -211,14 +211,31 @@ internal class UserMapCache
 
         mapCache.IsMultiplayer = mapCache.NumPlayers > 1;
 
+        mapCache.FileCrc = CalculateCrc(fileSystemEntry);
+
         // TODO
         // mapCache.DisplayName
         // mapCache.Description
-        // mapCache.FileCrc
         // mapCache.IsScenarioMP
         // mapCache.PlayerPositions
 
         return mapCache;
+    }
+
+    private static uint CalculateCrc(FileSystemEntry fileSystemEntry)
+    {
+        using var stream = fileSystemEntry.Open();
+        using var reader = new BinaryReader(stream);
+
+        uint crc = 0;
+        while (reader.BaseStream.Position < reader.BaseStream.Length)
+        {
+            uint hibit = (crc & 0x80000000u) != 0x0u ? 1u : 0u;
+            crc <<= 1;
+            crc += reader.ReadByte();
+            crc += hibit;
+        }
+        return crc;
     }
 
     private void GenerateMapCacheIniFile(string path, IReadOnlyDictionary<string, MapCache> mapCacheEntries)
