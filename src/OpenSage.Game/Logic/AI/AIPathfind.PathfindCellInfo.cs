@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Mathematics;
 
 #nullable enable
 
@@ -72,7 +73,7 @@ public partial class AIPathfind
             FirstFree = null;
         }
 
-        public static PathfindCellInfo? GetACellInfo(PathfindCell cell, Vector2 position)
+        public static PathfindCellInfo? GetACellInfo(PathfindCell cell, Point2D position)
         {
             PathfindCellInfo? info = FirstFree;
             if (FirstFree is not null)
@@ -150,7 +151,7 @@ public partial class AIPathfind
         /// <summary>
         /// have to include cell's coordinates, since cells are often accessed via pointer only
         /// </summary>
-        internal Vector2 _position;
+        internal Point2D _position;
 
         /// <summary>
         /// The objectID of the ground unit whose goal this is.
