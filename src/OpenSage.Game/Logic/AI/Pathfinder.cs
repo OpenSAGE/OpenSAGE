@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 
@@ -39,5 +40,26 @@ public sealed class Pathfinder : BaseSingletonAsset
     public void RemoveObjectFromPathfindMap(GameObject gameObject)
     {
         // TODO(Port): Implement this.
+    }
+
+    // TEMPORARY STUBS
+    internal bool IsLinePassable(GameObject obj, Surfaces acceptableSurfaces, PathfindLayerType layer, Vector3 position1, /* ref ?! */ Vector3 position2, bool blocked, bool v)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal AIPathfind.PathfindCell GetCell(PathfindLayerType layer, Vector3 position)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal bool IsGroundPathPassable(bool crusher, Vector3 position1, PathfindLayerType layer, Vector3 position2, int pathDiameter)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void SetDebugPathPosition(Vector3 positionOnPath)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -230,7 +230,7 @@ public partial class AIPathfind
                     }
 
                     PathfindCell cell = ai.Pathfinder.GetCell(layer, node.Position);
-                    if (cell is not null && cell.Type == PathfindCell.Cliff && !cell.Pinched)
+                    if (cell is not null && cell.Type == PathfindCell.CellType.Cliff && !cell.Pinched)
                     {
                         isPassable = true;
                     }
@@ -292,7 +292,7 @@ public partial class AIPathfind
                             mightBePassable = true;
                             for (tmpNode = node.Previous; tmpNode is not null && tmpNode != anchor; tmpNode = tmpNode.Previous)
                             {
-                                dx = (int)(tmpNode.Next.Position.X - tmpNode.Position.X)
+                                dx = (int)(tmpNode.Next.Position.X - tmpNode.Position.X);
                                 dy = (int)(tmpNode.Next.Position.Y - tmpNode.Position.Y);
                                 if (dy != -dx)
                                 {
@@ -659,7 +659,7 @@ public partial class AIPathfind
                 var closePrev = closeNode.Previous;
                 if (closePrev?.Layer > PathfindLayerType.Ground)
                 {
-                    // TODO:
+                    // TODO (Port):
                     // This looks like it should be closePrev.Layer,
                     // but the original C++ code uses closeNode.Layer:
                     // https://github.com/electronicarts/CnC_Generals_Zero_Hour/blob/0a05454d8574207440a5fb15241b98ad0b435590/Generals/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp#L877
@@ -708,7 +708,7 @@ public partial class AIPathfind
 
                 var gotPos = false;
                 // CRCDEBUG_LOG(("Path::computePointOnPath() calling isLinePassable() 1\n"));
-                if (ai.Pathfinder->IsLinePassable(obj, locomotorSet.GetValidSurfaces(), info.Layer, position, ref nextNodePos, false, true))
+                if (ai.Pathfinder.IsLinePassable(obj, locomotorSet.Surfaces, info.Layer, position, /*ref*/ nextNodePos, false, true))
                 {
                     info.PositionOnPath = nextNodePos;
                     gotPos = true;
@@ -743,11 +743,11 @@ public partial class AIPathfind
                         if (next is not null)
                         {
                             Vector3 tryPos;
-                            tryPos.X = (nextNodePos.X + next.Position.X * 0.5f;
+                            tryPos.X = (nextNodePos.X + next.Position.X) * 0.5f;
                             tryPos.Y = (nextNodePos.Y + next.Position.Y) * 0.5f;
                             tryPos.Z = nextNodePos.Z;
                             //CRCDEBUG_LOG(("Path::computePointOnPath() calling isLinePassable() 2\n"));
-                            if (veryClose || ai.Pathfinder.IsLinePassable(obj, locomotorSet.GetValidSurfaces(), closeNext.Layer, position, ref tryPos, false, true))
+                            if (veryClose || ai.Pathfinder.IsLinePassable(obj, locomotorSet.Surfaces, closeNext.Layer, position, /*ref*/ tryPos, false, true))
                             {
                                 gotPos = true;
                                 info.PositionOnPath = tryPos;
@@ -767,7 +767,7 @@ public partial class AIPathfind
 
                     //CRCDEBUG_LOG(("Path::computePointOnPath() calling isLinePassable() 3\n"));
                     var positionOnPath = info.PositionOnPath;
-                    if (ai.Pathfinder.IsLinePassable(obj, locomotorSet.GetValidSurfaces(), info.Layer, position, ref positionOnPath, false, true))
+                    if (ai.Pathfinder.IsLinePassable(obj, locomotorSet.Surfaces, info.Layer, position, /*ref*/ positionOnPath, false, true))
                     {
                         info.PositionOnPath = positionOnPath;
                         k = 0.5f;

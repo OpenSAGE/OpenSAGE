@@ -38,7 +38,7 @@ public partial class AIPathfind
     /// and are also used for efficient A* pathfinding.
     /// TODO Optimize memory usage of pathfind grid.
     /// </summary>
-    class PathfindCell : IDisposable
+    public class PathfindCell : IDisposable
     {
         public enum CellType
         {
@@ -158,9 +158,9 @@ public partial class AIPathfind
             get => (CellType)((_data & TypeMask) >>> 16);
             set
             {
-                if (_info is { _obstacleId: not PathfindCellInfo.InvalidId })
+                if (_info is not null && _info._obstacleId != ObjectId.Invalid)
                 {
-                    Debug.Assert(value == CellType.Obstacle, "Wrong type.");
+                    DebugUtility.AssertCrash(value == CellType.Obstacle, "Wrong type.");
                 }
 
                 _data = (_data & ~TypeMask) | (((uint)value << 16) & TypeMask);
@@ -198,11 +198,11 @@ public partial class AIPathfind
         /// return true if the given object ID is registered as an obstacle in this cell
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IsObstaclePresent(uint objectId)
+        bool IsObstaclePresent(ObjectId objectId)
         {
-            if (objectId != PathfindCellInfo.InvalidId && Type == CellType.Obstacle)
+            if (objectId != ObjectId.Invalid && Type == CellType.Obstacle)
             {
-                Debug.Assert(_info is not null, "Should have info to be obstacle.");
+                DebugUtility.AssertCrash(_info is not null, "Should have info to be obstacle.");
                 return _info is not null && _info._obstacleId == objectId;
             }
 
@@ -243,7 +243,7 @@ public partial class AIPathfind
             Pinched = false;
             if (_info is not null)
             {
-                _info._obstacleId = PathfindCellInfo.InvalidId;
+                _info._obstacleId = ObjectId.Invalid;
                 PathfindCellInfo.ReleaseACellInfo(_info);
                 _info = null;
             }
@@ -274,7 +274,7 @@ public partial class AIPathfind
                 Type = CellType.Rubble;
                 if (_info is not null)
                 {
-                    _info._obstacleId = PathfindCellInfo.InvalidId;
+                    _info._obstacleId = ObjectId.Invalid;
                     ReleaseInfo();
                 }
 
@@ -287,12 +287,12 @@ public partial class AIPathfind
                 _info = PathfindCellInfo.GetACellInfo(this, position);
                 if (_info is null)
                 {
-                    Debug.Fail("Not enough PathFindCellInfos in pool.");
+                    DebugUtility.Crash("Not enough PathFindCellInfos in pool.");
                     return false;
                 }
             }
 
-            _info._obstacleId = obstacle.ID;
+            _info._obstacleId = obstacle.Id;
             _info.ObstacleIsFence = isFence;
             _info.ObstacleIsTransparent = obstacle.IsKindOf(ObjectKinds.CanSeeThroughStructure);
 
@@ -315,13 +315,13 @@ public partial class AIPathfind
                 return false;
             }
 
-            if (_info._obstacleId != obstacle.ID)
+            if (_info._obstacleId != obstacle.Id)
             {
                 return false;
             }
 
             Type = CellType.Clear;
-            _info._obstacleId = PathfindCellInfo.InvalidId;
+            _info._obstacleId = ObjectId.Invalid;
             ReleaseInfo();
 
             return true;
@@ -332,7 +332,7 @@ public partial class AIPathfind
         /// </summary>
         public uint CostToGoal(PathfindCell goal)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
             int dx = _info._position.X - goal.XIndex;
             int dy = _info._position.Y - goal.YIndex;
 
@@ -359,7 +359,7 @@ public partial class AIPathfind
         {
             if (_info is null)
             {
-                Debug.Fail("Has to have info.");
+                DebugUtility.Crash("Has to have info.");
                 return 100000; //...patch hack 1.01
             }
 
@@ -376,7 +376,7 @@ public partial class AIPathfind
         /// </summary>
         public uint GetCostSoFar(PathfindCell parent)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
             
             // very first node in path - no turns, no cost
             if (parent is null)
@@ -442,8 +442,8 @@ public partial class AIPathfind
         /// </summary>
         public PathfindCell PutOnSortedOpenList(PathfindCell list)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
-            Debug.Assert(!_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(!_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
             if (list is null)
             {
                 list = this;
@@ -503,8 +503,8 @@ public partial class AIPathfind
         /// </summary>
         public PathfindCell RemoveFromOpenList(PathfindCell list)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
-            Debug.Assert(!_info.Closed && _info.Open, "Serious error - Invalid flags. jba");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(!_info.Closed && _info.Open, "Serious error - Invalid flags. jba");
 
             if (_info._nextOpen is not null)
             {
@@ -532,8 +532,8 @@ public partial class AIPathfind
         /// </summary>
         public PathfindCell PutOnClosedList(PathfindCell list)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
-            Debug.Assert(!_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(!_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
 
             // only put on list if not already on it
             if (_info.Closed == false)
@@ -559,8 +559,8 @@ public partial class AIPathfind
         /// </summary>
         public PathfindCell RemoveFromClosedList(PathfindCell list)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
-            Debug.Assert(_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info.Closed && !_info.Open, "Serious error - Invalid flags. jba");
 
             if (_info._nextOpen is not null)
             {
@@ -593,8 +593,8 @@ public partial class AIPathfind
             {
                 count++;
 
-                Debug.Assert(list._info is not null, "Has to have info.");
-                Debug.Assert(list._info.Closed && !list._info.Open, "Serious error - Invalid flags. jba");
+                DebugUtility.AssertCrash(list._info is not null, "Has to have info.");
+                DebugUtility.AssertCrash(list._info.Closed && !list._info.Open, "Serious error - Invalid flags. jba");
 
                 PathfindCell? cur = list;
                 PathfindCellInfo curInfo = list._info;
@@ -607,7 +607,7 @@ public partial class AIPathfind
                     list = null;
                 }
 
-                Debug.Assert(cur == curInfo._cell, "Bad backpointer in PathfindCellInfo");
+                DebugUtility.AssertCrash(cur == curInfo._cell, "Bad backpointer in PathfindCellInfo");
                 curInfo._nextOpen = null;
                 curInfo._prevOpen = null;
                 curInfo.Closed = false;
@@ -626,8 +626,8 @@ public partial class AIPathfind
             {
                 count++;
 
-                Debug.Assert(list._info is not null, "Has to have info.");
-                Debug.Assert(!list._info.Closed && list._info.Open, "Serious error - Invalid flags. jba");
+                DebugUtility.AssertCrash(list._info is not null, "Has to have info.");
+                DebugUtility.AssertCrash(!list._info.Closed && list._info.Open, "Serious error - Invalid flags. jba");
 
                 PathfindCell cur = list;
                 PathfindCellInfo curInfo = list._info;
@@ -640,7 +640,7 @@ public partial class AIPathfind
                     list = null;
                 }
 
-                Debug.Assert(cur == curInfo._cell, "Bad backpointer in PathfindCellInfo");
+                DebugUtility.AssertCrash(cur == curInfo._cell, "Bad backpointer in PathfindCellInfo");
 
                 curInfo._nextOpen = null;
                 curInfo._prevOpen = null;
@@ -690,14 +690,14 @@ public partial class AIPathfind
             get => _info?._pathParent?._cell;
             set
             {
-                Debug.Assert(_info is not null, "Has to have info.");
+                DebugUtility.AssertCrash(_info is not null, "Has to have info.");
                 _info._pathParent = value?._info;
                 int dx = (int)(_info._position.X - value!._info!._position.X);
                 int dy = (int)(_info._position.Y - value!._info!._position.Y);
 
                 if (dx < -1 || dx > 1 || dy < -1 || dy > 1)
                 {
-                    Debug.Fail("Invalid parent index.");
+                    DebugUtility.Crash("Invalid parent index.");
                 }
             }
         }
@@ -707,7 +707,7 @@ public partial class AIPathfind
         /// </summary>
         public void ClearParentCell()
         {
-            Debug.Assert(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
             _info._pathParent = null;
         }
 
@@ -716,7 +716,7 @@ public partial class AIPathfind
         /// </summary>
         public void SetParentCellHierarchical(PathfindCell parent)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
             _info._pathParent = parent._info;
         }
 
@@ -725,7 +725,7 @@ public partial class AIPathfind
         /// </summary>
 	    public bool StartPathfind(PathfindCell goalCell)
         {
-            Debug.Assert(_info is not null, "Has to have info.");
+            DebugUtility.AssertCrash(_info is not null, "Has to have info.");
             _info._nextOpen = null;
             _info._prevOpen = null;
             _info._pathParent = null;
@@ -778,10 +778,10 @@ public partial class AIPathfind
 
             if (_info is not null)
             {
-                Debug.Assert(_info._prevOpen is null && _info._nextOpen is null, "Shouldn't be linked.");
-                Debug.Assert(_info.Open && _info.Closed, "Shouldn't be linked.");
-                Debug.Assert(_info._goalUnitId == PathfindCellInfo.InvalidId && _info._posUnitId == PathfindCellInfo.InvalidId, "Shouldn't be occupied.");
-                Debug.Assert(_info._goalAircraftId == PathfindCellInfo.InvalidId, "Shouldn't be occupied by aircraft.");
+                DebugUtility.AssertCrash(_info._prevOpen is null && _info._nextOpen is null, "Shouldn't be linked.");
+                DebugUtility.AssertCrash(_info.Open && _info.Closed, "Shouldn't be linked.");
+                DebugUtility.AssertCrash(_info._goalUnitId == ObjectId.Invalid && _info._posUnitId == ObjectId.Invalid, "Shouldn't be occupied.");
+                DebugUtility.AssertCrash(_info._goalAircraftId == ObjectId.Invalid, "Shouldn't be occupied by aircraft.");
                 if (_info._prevOpen is not null || _info._nextOpen is not null || _info.Open || _info.Closed)
                 {
                     // Bad release. Skip for now, better leak than crash. jba.
@@ -798,18 +798,18 @@ public partial class AIPathfind
         /// <summary>
         /// Sets the goal unit into the info record for a cell.
         /// </summary>
-        public void SetGoalUnit(uint unitId, Point2D position)
+        public void SetGoalUnit(ObjectId unitId, Point2D position)
         {
-            if (unitId == PathfindCellInfo.InvalidId)
+            if (unitId == ObjectId.Invalid)
             {
                 // removing goal.
                 if (_info is not null)
                 {
-                    _info._goalUnitId = PathfindCellInfo.InvalidId;
-                    if (_info._posUnitId == PathfindCellInfo.InvalidId)
+                    _info._goalUnitId = ObjectId.Invalid;
+                    if (_info._posUnitId == ObjectId.Invalid)
                     {
                         // No units here.
-                        Debug.Assert(Flags == CellFlags.UnitGoal, "Bad flags.");
+                        DebugUtility.AssertCrash(Flags == CellFlags.UnitGoal, "Bad flags.");
                         Flags = CellFlags.NoUnits;
                         ReleaseInfo();
                     }
@@ -820,7 +820,7 @@ public partial class AIPathfind
                 }
                 else
                 {
-                    Debug.Assert(Flags == CellFlags.NoUnits, "Bad flags.");
+                    DebugUtility.AssertCrash(Flags == CellFlags.NoUnits, "Bad flags.");
                 }
             }
             else
@@ -828,13 +828,13 @@ public partial class AIPathfind
                 // adding goal.
                 if (_info is null)
                 {
-                    Debug.Assert(Flags == CellFlags.NoUnits, "Bad flags.");
+                    DebugUtility.AssertCrash(Flags == CellFlags.NoUnits, "Bad flags.");
                     AllocateInfo(position);
                 }
 
                 if (_info is null)
                 {
-                    Debug.Fail("Ran out of pathfind cells - fatal error!!!!! jba.");
+                    DebugUtility.Crash("Ran out of pathfind cells - fatal error!!!!! jba.");
                     return;
                 }
 
@@ -844,7 +844,7 @@ public partial class AIPathfind
                 {
                     Flags = CellFlags.UnitPresentFixed;
                 }
-                else if (_info._posUnitId == PathfindCellInfo.InvalidId)
+                else if (_info._posUnitId == ObjectId.Invalid)
                 {
                     Flags = CellFlags.UnitGoal;
                 }
@@ -858,20 +858,20 @@ public partial class AIPathfind
         /// <summary>
         /// Sets the goal aircraft into the info record for a cell.
         /// </summary>
-        public void SetGoalAircraft(uint unitId, Point2D position)
+        public void SetGoalAircraft(ObjectId unitId, Point2D position)
         {
-            if (unitId == PathfindCellInfo.InvalidId)
+            if (unitId == ObjectId.Invalid)
             {
                 // removing goal.
                 if (_info is not null)
                 {
-                    _info._goalAircraftId = PathfindCellInfo.InvalidId;
+                    _info._goalAircraftId = ObjectId.Invalid;
                     IsAircraftGoal = false;
                     ReleaseInfo();
                 }
                 else
                 {
-                    Debug.Assert(!IsAircraftGoal, "Bad flags.");
+                    DebugUtility.AssertCrash(!IsAircraftGoal, "Bad flags.");
                 }
             }
             else
@@ -879,13 +879,13 @@ public partial class AIPathfind
                 // adding goal.
                 if (_info is null)
                 {
-                    Debug.Assert(!IsAircraftGoal, "Bad flags.");
+                    DebugUtility.AssertCrash(!IsAircraftGoal, "Bad flags.");
                     AllocateInfo(position);
                 }
 
                 if (_info is null)
                 {
-                    Debug.Fail("Ran out of pathfind cells - fatal error!!!!! jba.");
+                    DebugUtility.Crash("Ran out of pathfind cells - fatal error!!!!! jba.");
                     return;
                 }
 
@@ -897,18 +897,18 @@ public partial class AIPathfind
         /// <summary>
         /// Sets the position unit into the info record for a cell.
         /// </summary>
-        public void SetPosUnit(uint unitId, Point2D position)
+        public void SetPosUnit(ObjectId unitId, Point2D position)
         {
-            if (unitId == PathfindCellInfo.InvalidId)
+            if (unitId == ObjectId.Invalid)
             {
                 // removing position.
                 if (_info is not null)
                 {
-                    _info._posUnitId = PathfindCellInfo.InvalidId;
-                    if (_info._goalUnitId == PathfindCellInfo.InvalidId)
+                    _info._posUnitId = ObjectId.Invalid;
+                    if (_info._goalUnitId == ObjectId.Invalid)
                     {
                         // No units here.
-                        Debug.Assert(Flags == CellFlags.UnitPresentMoving, "Bad flags.");
+                        DebugUtility.AssertCrash(Flags == CellFlags.UnitPresentMoving, "Bad flags.");
                         Flags = CellFlags.NoUnits;
                         ReleaseInfo();
                     }
@@ -919,7 +919,7 @@ public partial class AIPathfind
                 }
                 else
                 {
-                    Debug.Assert(Flags == CellFlags.NoUnits, "Bad flags.");
+                    DebugUtility.AssertCrash(Flags == CellFlags.NoUnits, "Bad flags.");
                 }
             }
             else
@@ -927,17 +927,17 @@ public partial class AIPathfind
                 // adding goal.
                 if (_info is null)
                 {
-                    Debug.Assert(Flags == CellFlags.NoUnits, "Bad flags.");
+                    DebugUtility.AssertCrash(Flags == CellFlags.NoUnits, "Bad flags.");
                     AllocateInfo(position);
                 }
 
                 if (_info is null)
                 {
-                    Debug.Fail("Ran out of pathfind cells - fatal error!!!!! jba.");
+                    DebugUtility.Crash("Ran out of pathfind cells - fatal error!!!!! jba.");
                     return;
                 }
 
-                if (_info._goalUnitId != PathfindCellInfo.InvalidId && (_info._goalUnitId == _info._posUnitId))
+                if (_info._goalUnitId != ObjectId.Invalid && (_info._goalUnitId == _info._posUnitId))
                 {
                     // A unit is already occupying this cell.
                     return;
@@ -948,7 +948,7 @@ public partial class AIPathfind
                 {
                     Flags = CellFlags.UnitPresentFixed;
                 }
-                else if (_info._goalUnitId == PathfindCellInfo.InvalidId)
+                else if (_info._goalUnitId == ObjectId.Invalid)
                 {
                     Flags = CellFlags.UnitPresentMoving;
                 }
@@ -960,15 +960,15 @@ public partial class AIPathfind
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint GetGoalUnit() =>
-            _info?._goalUnitId ?? PathfindCellInfo.InvalidId;
+        public ObjectId GetGoalUnit() =>
+            _info?._goalUnitId ?? ObjectId.Invalid;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint GetGoalAircraft() =>
-            _info?._goalAircraftId ?? PathfindCellInfo.InvalidId;
+        public ObjectId GetGoalAircraft() =>
+            _info?._goalAircraftId ?? ObjectId.Invalid;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint GetPosUnit() =>
-            _info?._posUnitId ?? PathfindCellInfo.InvalidId;
+        public ObjectId GetPosUnit() =>
+            _info?._posUnitId ?? ObjectId.Invalid;
     }
 }

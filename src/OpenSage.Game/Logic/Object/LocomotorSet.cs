@@ -34,6 +34,8 @@ public sealed class LocomotorSet : IPersistableObject
         }
     }
 
+    public Surfaces Surfaces => _surfaces;
+
     public void Reset()
     {
         _locomotors.Clear();

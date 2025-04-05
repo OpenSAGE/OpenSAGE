@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 #nullable enable
@@ -17,8 +18,6 @@ public partial class AIPathfind
 {
     class PathfindCellInfo
     {
-        public const uint InvalidId = 0;
-
         /// <summary>
         /// Number of cells we will search pathfinding per frame.
         /// </summary>
@@ -62,12 +61,12 @@ public partial class AIPathfind
             while (FirstFree is not null)
             {
                 count++;
-                Debug.Assert(FirstFree.IsFree, "Should be free");
+                DebugUtility.AssertCrash(FirstFree.IsFree, "Should be free");
                 FirstFree = FirstFree._pathParent;
                 count++;
             }
 
-            Debug.Assert(count == CellInfosToAllocate, "Error - Allocated cellinfos");
+            DebugUtility.AssertCrash(count == CellInfosToAllocate, "Error - Allocated cellinfos");
 
             InfoArray = null;
             FirstFree = null;
@@ -78,7 +77,7 @@ public partial class AIPathfind
             PathfindCellInfo? info = FirstFree;
             if (FirstFree is not null)
             {
-                Debug.Assert(FirstFree.IsFree, "Should be free");
+                DebugUtility.AssertCrash(FirstFree.IsFree, "Should be free");
                 FirstFree = FirstFree._pathParent;
                 info!.IsFree = false; // Just allocated it.
                 info._cell = cell;
@@ -91,10 +90,10 @@ public partial class AIPathfind
                 info._totalCost = 0;
                 info.Open = false;
                 info.Closed = false;
-                info._obstacleId = InvalidId;
-                info._goalUnitId = InvalidId;
-                info._posUnitId = InvalidId;
-                info._goalAircraftId = InvalidId;
+                info._obstacleId = ObjectId.Invalid;
+                info._goalUnitId = ObjectId.Invalid;
+                info._posUnitId = ObjectId.Invalid;
+                info._goalAircraftId = ObjectId.Invalid;
                 info.ObstacleIsFence = false;
                 info.ObstacleIsTransparent = false;
                 info.BlockedByAlly = false;
@@ -108,10 +107,10 @@ public partial class AIPathfind
         /// </summary>        
         public static void ReleaseACellInfo(PathfindCellInfo info)
         {
-            Debug.Assert(!info.IsFree, "Shouldn't be free");
+            DebugUtility.AssertCrash(!info.IsFree, "Shouldn't be free");
 
             //TODO -fix this assert on usa04. jba.
-            //Debug.Assert(info._obstacleId == 0, "Shouldn't be obstacle");
+            //DebugUtility.AssertCrash(info._obstacleId == 0, "Shouldn't be obstacle");
 
             info._pathParent = FirstFree;
             FirstFree = info;
@@ -156,22 +155,22 @@ public partial class AIPathfind
         /// <summary>
         /// The objectID of the ground unit whose goal this is.
         /// </summary>
-        internal uint _goalUnitId;
+        internal ObjectId _goalUnitId;
 
         /// <summary>
         /// The objectID of the ground unit that is occupying this cell.
         /// </summary>
-        internal uint _posUnitId;
+        internal ObjectId _posUnitId;
 
         /// <summary>
         /// The objectID of the aircraft whose goal this is.
         /// </summary>
-        internal uint _goalAircraftId;
+        internal ObjectId _goalAircraftId;
 
         /// <summary>
         /// the object ID who overlaps this cell
         /// </summary>
-        internal uint _obstacleId;
+        internal ObjectId _obstacleId;
 
         protected BitArray _flags = new BitArray(sizeof(uint) * 8);
 
