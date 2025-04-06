@@ -10,8 +10,6 @@ public sealed class StealthDetectorUpdate : UpdateModule
     private readonly StealthDetectorUpdateModuleData _moduleData;
     public bool Active;
 
-    protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DetectionRate;
-
     public StealthDetectorUpdate(GameObject gameObject, IGameEngine gameEngine, StealthDetectorUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
@@ -19,14 +17,18 @@ public sealed class StealthDetectorUpdate : UpdateModule
         Active = !_moduleData.InitiallyDisabled;
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (!Active)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         // todo: detect stealth
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.Frames(_moduleData.DetectionRate);
     }
 
     internal override void Load(StatePersister reader)

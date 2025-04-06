@@ -42,6 +42,12 @@ public sealed class SpawnPointProductionExitUpdate : UpdateModule, IProductionEx
         => GameObject.Drawable.FindBone(_moduleData.SpawnPointBoneName + index.ToString("D2"));
 
     Vector3? IProductionExit.GetNaturalRallyPoint() => null;
+
+    public override UpdateSleepTime Update()
+    {
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
+    }
 }
 
 public sealed class SpawnPointProductionExitUpdateModuleData : UpdateModuleData

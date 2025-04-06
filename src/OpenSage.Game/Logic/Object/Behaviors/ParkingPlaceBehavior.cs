@@ -77,7 +77,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         _parkingSlots[^1] = ParkingSlot.Empty;
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_healingData.Count == 0)
         {
@@ -85,7 +85,7 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
         }
         else
         {
-            if (_nextHealFrame <= context.LogicFrame)
+            if (_nextHealFrame <= GameEngine.GameLogic.CurrentFrame)
             {
                 _nextHealFrame += _healUpdateRate;
                 foreach (var objectToHeal in _healingData)
@@ -96,7 +96,8 @@ public sealed class ParkingPlaceBehaviour : UpdateModule, IHasRallyPoint, IProdu
             }
         }
 
-        base.RunUpdate(context);
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     public int NextSpawnableSlot()

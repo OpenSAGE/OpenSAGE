@@ -65,12 +65,12 @@ public abstract class SupplyAIUpdate : AIUpdate
     internal virtual float GetHarvestActivationRange() => 0.0f;
     internal virtual LogicFrameSpan GetPreparationTime() => LogicFrameSpan.Zero;
 
-    internal virtual bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
+    internal virtual bool SupplySourceHasBoxes(SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
     {
         return dockUpdate?.HasBoxes() ?? false;
     }
 
-    internal virtual void GetBox(BehaviorUpdateContext context)
+    internal virtual void GetBox()
     {
         if (_currentSourceDockUpdate?.GetBox() == true && !_currentSourceDockUpdate.HasBoxes())
         {
@@ -95,19 +95,19 @@ public abstract class SupplyAIUpdate : AIUpdate
 
     }
 
-    internal virtual GameObject FindClosestSupplyWarehouse(BehaviorUpdateContext context)
+    internal virtual GameObject FindClosestSupplyWarehouse()
     {
-        return context.GameObject.Owner.SupplyManager.FindClosestSupplyWarehouse(context.GameObject);
+        return GameObject.Owner.SupplyManager.FindClosestSupplyWarehouse(GameObject);
     }
 
-    private static GameObject FindClosestSupplyCenter(BehaviorUpdateContext context)
+    private GameObject FindClosestSupplyCenter()
     {
-        return context.GameObject.Owner.SupplyManager.FindClosestSupplyCenter(context.GameObject);
+        return GameObject.Owner.SupplyManager.FindClosestSupplyCenter(GameObject);
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
+        var sleepTime = base.Update();
 
         var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
@@ -122,7 +122,7 @@ public abstract class SupplyAIUpdate : AIUpdate
                 if (CurrentSupplySource == null
                     || (_currentSourceDockUpdate != null && !_currentSourceDockUpdate.HasBoxes()))
                 {
-                    CurrentSupplySource = FindClosestSupplyWarehouse(context);
+                    CurrentSupplySource = FindClosestSupplyWarehouse();
                 }
 
                 if (CurrentSupplySource == null)
@@ -147,7 +147,7 @@ public abstract class SupplyAIUpdate : AIUpdate
                 break;
 
             case SupplyGatherStates.RequestingSupplies:
-                var boxesAvailable = SupplySourceHasBoxes(context, _currentSourceDockUpdate, CurrentSupplySource);
+                var boxesAvailable = SupplySourceHasBoxes(_currentSourceDockUpdate, CurrentSupplySource);
 
                 if (!boxesAvailable)
                 {
@@ -161,9 +161,9 @@ public abstract class SupplyAIUpdate : AIUpdate
                 }
                 else if (_numBoxes < ModuleData.MaxBoxes)
                 {
-                    GetBox(context);
+                    GetBox();
                     var waitTime = ModuleData.SupplyWarehouseActionDelay + GetPreparationTime();
-                    _waitUntil = context.LogicFrame + waitTime;
+                    _waitUntil = GameEngine.GameLogic.CurrentFrame + waitTime;
                     SupplyGatherState = SupplyGatherStates.GatheringSupplies;
                     SetGatheringConditionFlags();
                     break;
@@ -171,12 +171,12 @@ public abstract class SupplyAIUpdate : AIUpdate
 
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, false);
                 SetActionConditionFlags();
-                _waitUntil = context.LogicFrame + GetPickingUpTime();
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + GetPickingUpTime();
                 SupplyGatherState = SupplyGatherStates.PickingUpSupplies;
                 break;
 
             case SupplyGatherStates.GatheringSupplies:
-                if (context.LogicFrame >= _waitUntil)
+                if (GameEngine.GameLogic.CurrentFrame >= _waitUntil)
                 {
                     _numBoxes++;
                     GameObject.Supply = _numBoxes;
@@ -186,7 +186,7 @@ public abstract class SupplyAIUpdate : AIUpdate
                 break;
 
             case SupplyGatherStates.PickingUpSupplies:
-                if (context.LogicFrame >= _waitUntil)
+                if (GameEngine.GameLogic.CurrentFrame >= _waitUntil)
                 {
                     SupplyGatherState = SupplyGatherStates.SearchingForSupplyTarget;
                     ClearActionConditionFlags();
@@ -196,7 +196,7 @@ public abstract class SupplyAIUpdate : AIUpdate
             case SupplyGatherStates.SearchingForSupplyTarget:
                 if (CurrentSupplyTarget == null)
                 {
-                    CurrentSupplyTarget = FindClosestSupplyCenter(context);
+                    CurrentSupplyTarget = FindClosestSupplyCenter();
                 }
 
                 if (CurrentSupplyTarget == null)
@@ -230,15 +230,15 @@ public abstract class SupplyAIUpdate : AIUpdate
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.Docking, true);
                 SupplyGatherState = SupplyGatherStates.DumpingSupplies;
                 // todo: this might not be entirely accurate since partial loads can be deposited if unloading is manually aborted early
-                _waitUntil = context.LogicFrame + ModuleData.SupplyCenterActionDelay * _numBoxes;
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + ModuleData.SupplyCenterActionDelay * _numBoxes;
                 break;
 
             case SupplyGatherStates.DumpingSupplies:
-                if (context.LogicFrame >= _waitUntil)
+                if (GameEngine.GameLogic.CurrentFrame >= _waitUntil)
                 {
                     SupplyGatherState = SupplyGatherStates.FinishedDumpingSupplies;
 
-                    var assetStore = context.GameEngine.AssetLoadContext.AssetStore;
+                    var assetStore = GameEngine.AssetLoadContext.AssetStore;
                     var bonusAmountPerBox = GetAdditionalValuePerSupplyBox(assetStore.Upgrades);
                     var amountDeposited = _currentTargetDockUpdate.DumpBoxes(assetStore, ref _numBoxes, bonusAmountPerBox);
                     GameObject.ActiveCashEvent = new CashEvent(amountDeposited, GameObject.Owner.Color);
@@ -252,6 +252,8 @@ public abstract class SupplyAIUpdate : AIUpdate
             case SupplyGatherStates.FinishedDumpingSupplies:
                 break;
         }
+
+        return sleepTime;
     }
 }
 

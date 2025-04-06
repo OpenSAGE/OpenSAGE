@@ -56,24 +56,25 @@ public sealed class ProductionUpdate : UpdateModule
         // _currentDoorState = DoorState.WaitingOpen;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         var (currentDoorState, doorStateEndFrame) = GetDoorStatus();
 
         // If door is opening, halt production until it's finished opening.
         if (currentDoorState == DoorState.Opening)
         {
-            if (context.LogicFrame >= doorStateEndFrame)
+            if (GameEngine.GameLogic.CurrentFrame >= doorStateEndFrame)
             {
                 var newObject = _productionQueue[0];
                 ProduceAndMoveOut(newObject.ObjectDefinition);
                 _productionQueue.RemoveAt(0);
                 Logger.Info($"Door waiting open for {_moduleData.DoorWaitOpenTime}");
-                SetDoorStateEndFrame(DoorState.WaitingOpen, context.LogicFrame + _moduleData.DoorWaitOpenTime);
+                SetDoorStateEndFrame(DoorState.WaitingOpen, GameEngine.GameLogic.CurrentFrame + _moduleData.DoorWaitOpenTime);
                 UpdateDoorModelConditionFlags();
             }
 
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         var isProducing = _productionQueue.Count > 0;
@@ -98,11 +99,13 @@ public sealed class ProductionUpdate : UpdateModule
 
                             SetDoorIndex();
 
-                            SetDoorStateEndFrame(DoorState.Opening, context.LogicFrame + _moduleData.DoorOpeningTime);
+                            SetDoorStateEndFrame(DoorState.Opening, GameEngine.GameLogic.CurrentFrame + _moduleData.DoorOpeningTime);
                             UpdateDoorModelConditionFlags();
                             GameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, true);
 
-                            return; // don't empty the queue - that's handled further up
+                            // don't empty the queue - that's handled further up
+                            // TODO(Port): Use correct value.
+                            return UpdateSleepTime.None;
                         case ProductionJobType.Unit:
                             // don't play audio for subsequent spawns (only for first)
                             ProduceAndMoveOut(front.ObjectDefinition, front.UnitsProduced <= 1);
@@ -113,7 +116,7 @@ public sealed class ProductionUpdate : UpdateModule
                                 if (front.UpgradeDefinition.ResearchSound != null)
                                 {
                                     // todo: if null, trigger DialogEvent EvaUSA_UpgradeComplete?
-                                    context.GameEngine.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
+                                    GameEngine.AudioSystem.PlayAudioEvent(front.UpgradeDefinition.ResearchSound.Value);
                                 }
 
                                 break;
@@ -130,7 +133,7 @@ public sealed class ProductionUpdate : UpdateModule
 
         switch (currentDoorState)
         {
-            case DoorState.WaitingOpen when context.LogicFrame >= doorStateEndFrame:
+            case DoorState.WaitingOpen when GameEngine.GameLogic.CurrentFrame >= doorStateEndFrame:
                 GameObject.ModelConditionFlags.Set(ModelConditionFlag.ConstructionComplete, false);
                 if (ProductionExit is ParkingPlaceBehaviour)
                 {
@@ -139,7 +142,7 @@ public sealed class ProductionUpdate : UpdateModule
                 CloseDoor(_doorIndex);
                 break;
 
-            case DoorState.Closing when context.LogicFrame >= doorStateEndFrame:
+            case DoorState.Closing when GameEngine.GameLogic.CurrentFrame >= doorStateEndFrame:
                 Logger.Info($"Door closed");
                 SetDoorStateEndFrame(DoorState.Closed, default);
                 UpdateDoorModelConditionFlags();
@@ -147,6 +150,9 @@ public sealed class ProductionUpdate : UpdateModule
             case DoorState.OpenForHordePayload:
                 break; //door is closed again by HordeContain
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     public void CloseDoor(int doorIndex)

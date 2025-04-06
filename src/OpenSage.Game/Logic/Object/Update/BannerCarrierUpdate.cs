@@ -19,9 +19,10 @@ public class BannerCarrierUpdate : UpdateModule
 
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 }
 

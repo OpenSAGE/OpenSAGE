@@ -50,25 +50,27 @@ public sealed class BattlePlanUpdate : UpdateModule
     //    base.OnDie(context, deathType, status);
     //}
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
+        var currentFrame = GameEngine.GameLogic.CurrentFrame;
+
         SetDoorState();
 
         switch (_state)
         {
             case BattlePlanUpdateState.None:
-                if (_desired is not BattlePlanType.None && context.LogicFrame >= _stateChangeCompleteFrame)
+                if (_desired is not BattlePlanType.None && currentFrame >= _stateChangeCompleteFrame)
                 {
                     // the state has been changed
                     _state = BattlePlanUpdateState.Activating;
                     _current = _desired;
                     PlayUnpackSound();
                     PlayAnnouncementSound();
-                    SetStateChangeCompleteFrame(context.LogicFrame);
+                    SetStateChangeCompleteFrame(currentFrame);
                 }
                 break;
             case BattlePlanUpdateState.Activating:
-                if (context.LogicFrame >= _stateChangeCompleteFrame)
+                if (currentFrame >= _stateChangeCompleteFrame)
                 {
                     _state = BattlePlanUpdateState.Active;
                     ActivateCurrentBattlePlan();
@@ -82,12 +84,12 @@ public sealed class BattlePlanUpdate : UpdateModule
                     _state = BattlePlanUpdateState.Deactivating;
                     // DisableAffectedUnits(); // todo: this currently causes an exception due to modifying the gameobject collection, but it's unclear why
                     PlayPackSound();
-                    SetStateChangeCompleteFrame(context.LogicFrame);
+                    SetStateChangeCompleteFrame(currentFrame);
                     ClearActiveBattlePlan();
                 }
                 break;
             case BattlePlanUpdateState.Deactivating:
-                if (context.LogicFrame >= _stateChangeCompleteFrame)
+                if (currentFrame >= _stateChangeCompleteFrame)
                 {
                     _state = BattlePlanUpdateState.None;
                     _current = BattlePlanType.None;
@@ -96,6 +98,9 @@ public sealed class BattlePlanUpdate : UpdateModule
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     private void ClearActiveBattlePlan()

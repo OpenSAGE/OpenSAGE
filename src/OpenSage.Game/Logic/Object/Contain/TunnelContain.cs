@@ -35,7 +35,7 @@ public sealed class TunnelContain : OpenContainModule, IDieModule
         }
     }
 
-    private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+    private protected override void UpdateModuleSpecific()
     {
         HealUnits(_moduleData.TimeForFullHeal);
     }

@@ -20,7 +20,7 @@ public class HackInternetAIUpdate : AIUpdate
 
     private protected override HackInternetAIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (StateMachine.CurrentState is IdleState)
         {
@@ -30,6 +30,9 @@ public class HackInternetAIUpdate : AIUpdate
             }
             _packingUpData = null;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     public void StartHackingInternet()

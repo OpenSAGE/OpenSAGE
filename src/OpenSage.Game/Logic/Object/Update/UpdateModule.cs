@@ -6,10 +6,6 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
 {
     private UpdateFrame _nextUpdateFrame;
 
-    protected internal UpdateFrame NextUpdateFrame => _nextUpdateFrame;
-
-    protected virtual LogicFrameSpan FramesBetweenUpdates { get; } = new(1);
-
     protected virtual UpdateOrder UpdateOrder => UpdateOrder.Order2;
 
     UpdateOrder IUpdateModule.UpdatePhase => UpdateOrder;
@@ -20,34 +16,19 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
         _nextUpdateFrame.UpdateOrder = UpdateOrder;
     }
 
-    private protected virtual void RunUpdate(BehaviorUpdateContext context) { }
-
     void IUpdateModule.Update(BehaviorUpdateContext context)
-    {
-        Update(context);
-    }
-
-    // todo: seal this method?
-    internal virtual void Update(BehaviorUpdateContext context)
     {
         if (context.LogicFrame.Value < _nextUpdateFrame.Frame)
         {
             return;
         }
 
-        SetNextUpdateFrame(context.LogicFrame + FramesBetweenUpdates);
-        RunUpdate(context);
-
         var sleepTime = Update();
 
         _nextUpdateFrame = new UpdateFrame(context.LogicFrame + sleepTime.FrameSpan, UpdateOrder);
     }
 
-    // TODO: Remove other Update methods after everything uses this.
-    public virtual UpdateSleepTime Update()
-    {
-        return UpdateSleepTime.Frames(FramesBetweenUpdates);
-    }
+    public abstract UpdateSleepTime Update();
 
     protected void SetNextUpdateFrame(LogicFrame frame)
     {

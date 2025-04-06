@@ -25,45 +25,51 @@ public class BezierProjectileBehavior : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         // TODO: Bezier implementation.
         if (!GameObject.IsProjectile)
         {
-            return;
+            // TODO: Use proper value.
+            return UpdateSleepTime.None;
         }
 
-        var direction = Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix);
-        var velocity = direction * context.GameObject.Speed;
+        var direction = Vector3.TransformNormal(Vector3.UnitX, GameObject.TransformMatrix);
+        var velocity = direction * GameObject.Speed;
 
         GameObject.SetTranslation(GameObject.Translation + velocity * (GameEngine.MsPerLogicFrame / 1000.0f));
 
         CheckForHit(
-            context,
+            GameObject,
+            GameEngine,
             _moduleData.DetonateCallsKill,
             DetonationFX ?? _moduleData.GroundHitFX?.Value);
+
+        // TODO: Use proper value.
+        return UpdateSleepTime.None;
     }
 
     internal static void CheckForHit(
-        BehaviorUpdateContext context,
+        GameObject gameObject,
+        IGameEngine gameEngine,
         bool detonateCallsKill,
         FXList groundHitFX)
     {
         // Did we hit an object?
         // TODO
 
-        if (DidHitGround(context))
+        if (DidHitGround(gameObject, gameEngine))
         {
             // TODO: Interpolate to find actual point we hit the ground?
-            Detonate(context, new WeaponTarget(context.GameObject.Translation), detonateCallsKill, groundHitFX);
+            Detonate(gameObject, gameEngine, new WeaponTarget(gameObject.Translation), detonateCallsKill, groundHitFX);
         }
     }
 
-    private static bool DidHitGround(BehaviorUpdateContext context)
+    private static bool DidHitGround(GameObject gameObject, IGameEngine gameEngine)
     {
-        var translation = context.GameObject.Translation;
+        var translation = gameObject.Translation;
 
-        var terrainHeight = context.GameEngine.Terrain.HeightMap.GetHeight(
+        var terrainHeight = gameEngine.Terrain.HeightMap.GetHeight(
             translation.X,
             translation.Y);
 
@@ -71,33 +77,34 @@ public class BezierProjectileBehavior : UpdateModule
     }
 
     private static void Detonate(
-        BehaviorUpdateContext context,
+        GameObject gameObject,
+        IGameEngine gameEngine,
         WeaponTarget target,
         bool detonateCallsKill,
         FXList groundHitFX)
     {
         // TODO: Should this ever be null?
-        if (context.GameObject.CurrentWeapon != null)
+        if (gameObject.CurrentWeapon != null)
         {
-            context.GameObject.CurrentWeapon.SetTarget(target);
-            context.GameObject.CurrentWeapon.Fire();
+            gameObject.CurrentWeapon.SetTarget(target);
+            gameObject.CurrentWeapon.Fire();
         }
 
         if (target.TargetType == WeaponTargetType.Position)
         {
             groundHitFX?.Execute(new FXListExecutionContext(
-                context.GameObject.Rotation,
-                context.GameObject.Translation,
-                context.GameEngine));
+                gameObject.Rotation,
+                gameObject.Translation,
+                gameEngine));
         }
 
         if (detonateCallsKill)
         {
-            context.GameObject.Kill(deathType: DeathType.Detonated);
+            gameObject.Kill(deathType: DeathType.Detonated);
         }
         else
         {
-            context.GameObject.Destroy();
+            gameObject.Destroy();
         }
     }
 

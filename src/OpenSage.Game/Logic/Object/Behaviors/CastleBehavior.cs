@@ -82,13 +82,15 @@ internal sealed class CastleBehavior : FoundationAIUpdate
         IsUnpacked = true;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
+        var result = base.Update();
+
         if (IsUnpacked)
         {
             // not sure if this is correct, or does any object with BASE_FOUNDATION or BASE_SITE automatically get a FoundationAIUpdate?
-            FoundationAIUpdate.CheckForStructure(context, GameObject, ref _waitUntil, _updateInterval);
-            return;
+            FoundationAIUpdate.CheckForStructure(GameObject, GameEngine, ref _waitUntil, _updateInterval);
+            return result;
         }
 
         // TODO: Figure out the other unpack conditions
@@ -97,7 +99,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
             Unpack(GameObject.Owner, instant: true);
         }
 
-        var nearbyUnits = context.GameEngine.Game.PartitionCellManager.QueryObjects(
+        var nearbyUnits = GameEngine.Game.PartitionCellManager.QueryObjects(
             GameObject,
             GameObject.Translation,
             _moduleData.ScanDistance,
@@ -106,7 +108,7 @@ internal sealed class CastleBehavior : FoundationAIUpdate
         if (!nearbyUnits.Any())
         {
             GameObject.Owner = _nativePlayer;
-            return;
+            return result;
         }
 
         // TODO: check if all nearby units are from the same owner
@@ -121,9 +123,11 @@ internal sealed class CastleBehavior : FoundationAIUpdate
             if (distance < _moduleData.ScanDistance)
             {
                 GameObject.Owner = unit.Owner;
-                return;
+                return result;
             }
         }
+
+        return result;
     }
 
     private CastleEntry FindCastle(string side)

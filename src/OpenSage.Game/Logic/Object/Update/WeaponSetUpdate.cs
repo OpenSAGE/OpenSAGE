@@ -14,9 +14,10 @@ public sealed class WeaponSetUpdate : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 }
 

@@ -209,7 +209,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     private int _unknown5;
     private uint _unknownFrame;
     public ObjectId HealedByObjectId;
-    public uint HealedEndFrame;
+    public LogicFrame HealedEndFrame;
     private BitArray<WeaponBonusType> _weaponBonusTypes = new();
     private byte _weaponSomethingPrimary;
     private byte _weaponSomethingSecondary;
@@ -1527,18 +1527,18 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         Owner.DeselectUnit(this);
     }
 
-    internal void SetBeingHealed(GameObject healer, uint endFrame)
+    internal void SetBeingHealed(GameObject healer, LogicFrameSpan duration)
     {
         HealedByObjectId = healer.Id;
-        HealedEndFrame = endFrame;
+        HealedEndFrame = _gameEngine.GameLogic.CurrentFrame + duration;
     }
 
     private void VerifyHealer()
     {
-        if (HealedByObjectId.IsValid && _gameEngine.GameLogic.CurrentFrame.Value >= HealedEndFrame)
+        if (HealedByObjectId.IsValid && _gameEngine.GameLogic.CurrentFrame >= HealedEndFrame)
         {
             HealedByObjectId = ObjectId.Invalid;
-            HealedEndFrame = 0; // todo: is this reset?
+            HealedEndFrame = LogicFrame.Zero; // todo: is this reset?
         }
     }
 
@@ -1776,7 +1776,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         reader.EndArray();
 
         reader.PersistObjectId(ref HealedByObjectId);
-        reader.PersistFrame(ref HealedEndFrame);
+        reader.PersistLogicFrame(ref HealedEndFrame);
         reader.PersistBitArray(ref WeaponSetConditions);
         reader.PersistBitArrayAsUInt32(ref _weaponBonusTypes);
 

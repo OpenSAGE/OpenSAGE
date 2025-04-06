@@ -19,19 +19,21 @@ internal sealed class AutoDepositUpdate : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (GameObject.IsBeingConstructed())
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
-        if (context.LogicFrame < _nextAwardFrame)
+        if (GameEngine.GameLogic.CurrentFrame < _nextAwardFrame)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
-        _nextAwardFrame = context.LogicFrame + _moduleData.DepositTiming;
+        _nextAwardFrame = GameEngine.GameLogic.CurrentFrame + _moduleData.DepositTiming;
         var amount = (uint)(_moduleData.DepositAmount * GameObject.ProductionModifier);
 
         if (_moduleData.UpgradedBoost.HasValue && GameObject.HasUpgrade(_moduleData.UpgradedBoost.Value.UpgradeType.Value))
@@ -48,6 +50,9 @@ internal sealed class AutoDepositUpdate : UpdateModule
                 GameObject.ExperienceTracker.AddExperiencePoints((int)amount);
             }
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     public void GrantCaptureBonus()

@@ -18,15 +18,16 @@ public class PassiveAreaEffectBehavior : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        if (context.LogicFrame < _nextPing)
+        if (GameEngine.GameLogic.CurrentFrame < _nextPing)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
-        _nextPing = context.LogicFrame + _moduleData.PingDelay;
+        _nextPing = GameEngine.GameLogic.CurrentFrame + _moduleData.PingDelay;
 
-        var nearbyObjects = context.GameEngine.Game.PartitionCellManager.QueryObjects(
+        var nearbyObjects = GameEngine.Game.PartitionCellManager.QueryObjects(
             GameObject,
             GameObject.Translation,
             _moduleData.EffectRadius,
@@ -41,6 +42,9 @@ public class PassiveAreaEffectBehavior : UpdateModule
                 nearbyObject.AddAttributeModifier(modifier.Value.Name, new AttributeModifier(modifier.Value));
             }
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 }
 

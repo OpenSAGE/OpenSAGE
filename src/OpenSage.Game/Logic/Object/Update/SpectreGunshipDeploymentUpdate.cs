@@ -9,6 +9,12 @@ public sealed class SpectreGunshipDeploymentUpdate : UpdateModule
     {
     }
 
+    public override UpdateSleepTime Update()
+    {
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

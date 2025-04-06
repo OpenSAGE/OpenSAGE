@@ -1,15 +1,17 @@
 ﻿using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
 
 public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 {
-    protected override LogicFrameSpan FramesBetweenUpdates { get; }
-
-    internal BaseRegenerateUpdate(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
+    internal BaseRegenerateUpdate(GameObject gameObject, IGameEngine gameEngine)
+        : base(gameObject, gameEngine)
     {
-        SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
-        FramesBetweenUpdates = LogicFrameSpan.OneSecond(gameEngine.LogicFramesPerSecond);
+        SetWakeFrame(
+            gameEngine.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond.IsZero
+                ? UpdateSleepTime.Forever
+                : UpdateSleepTime.None);
     }
 
     /// <summary>
@@ -17,11 +19,15 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
     /// </summary>
     public void OnDamage(in DamageInfo damageData)
     {
-        var currentFrame = GameEngine.GameLogic.CurrentFrame;
-        SetNextUpdateFrame(currentFrame + GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay);
+        var sleepTime =
+            GameEngine.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond > new Percentage(0.0f) && damageData.Request.DamageType != DamageType.Healing
+            ? UpdateSleepTime.Frames(GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenDelay)
+            : UpdateSleepTime.Forever;
+
+        SetWakeFrame(sleepTime);
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         GameObject.AttemptHealing(
             GameObject.BodyModule.MaxHealth * GameEngine.AssetLoadContext.AssetStore.GameData.Current.BaseRegenHealthPercentPerSecond / GameEngine.LogicFramesPerSecond,
@@ -29,8 +35,12 @@ public sealed class BaseRegenerateUpdate : UpdateModule, IDamageModule
 
         if (GameObject.BodyModule.Health == GameObject.BodyModule.MaxHealth)
         {
-            SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
+            return UpdateSleepTime.Forever;
         }
+
+        // We don't really need to heal every frame. Do it every 3 frames or so.
+        const int healRate = 3;
+        return UpdateSleepTime.Frames(new LogicFrameSpan(healRate));
     }
 
     internal override void Load(StatePersister reader)

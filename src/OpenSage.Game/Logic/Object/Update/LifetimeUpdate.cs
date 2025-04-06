@@ -27,13 +27,16 @@ internal sealed class LifetimeUpdate : UpdateModule
         _frameToDie = gameEngine.GameLogic.CurrentFrame + new LogicFrameSpan((uint)lifetimeFrames);
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        if (context.LogicFrame >= _frameToDie)
+        if (GameEngine.GameLogic.CurrentFrame >= _frameToDie)
         {
             GameObject.Kill(deathType: _moduleData.DeathType);
             _frameToDie = LogicFrame.MaxValue;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

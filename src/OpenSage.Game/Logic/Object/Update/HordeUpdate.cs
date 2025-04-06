@@ -14,15 +14,13 @@ public sealed class HordeUpdate : UpdateModule
 
     private bool _isInHorde;
 
-    protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.UpdateRate;
-
     internal HordeUpdate(GameObject gameObject, IGameEngine gameEngine, HordeUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         var nearby = GameEngine.Scene3D.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius);
         var nearbyInConstraints = nearby.Where(MatchesAlliance).Where(MatchesType).Select(o => o.FindBehavior<HordeUpdate>()).ToList();
@@ -47,6 +45,8 @@ public sealed class HordeUpdate : UpdateModule
                 RemoveFromHorde();
             }
         }
+
+        return UpdateSleepTime.Frames(_moduleData.UpdateRate);
     }
 
     private void AddToHorde()

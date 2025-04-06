@@ -35,9 +35,9 @@ public class SupplyCenterDockUpdate : DockUpdate
         return amount;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
+        return base.Update();
     }
 
     internal override void Load(StatePersister reader)

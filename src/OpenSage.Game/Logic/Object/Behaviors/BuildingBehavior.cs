@@ -23,7 +23,7 @@ public class BuildingBehavior : UpdateModule
         _isGlowing = false;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         // TODO: get proper values for these
         var night = false;
@@ -88,6 +88,9 @@ public class BuildingBehavior : UpdateModule
         {
             _initial = false;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 }
 

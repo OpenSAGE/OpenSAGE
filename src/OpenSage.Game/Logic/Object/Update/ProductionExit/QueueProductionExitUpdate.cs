@@ -43,14 +43,15 @@ public sealed class QueueProductionExitUpdate : UpdateModule, IHasRallyPoint, IP
         _framesUntilNextSpawn = ExitDelay;
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_framesUntilNextSpawn.Value > 0)
         {
             _framesUntilNextSpawn--;
         }
 
-        base.RunUpdate(context);
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void DrawInspector()

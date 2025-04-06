@@ -19,6 +19,12 @@ public sealed class DefaultProductionExitUpdate : UpdateModule, IHasRallyPoint, 
 
     Vector3? IProductionExit.GetNaturalRallyPoint() => _moduleData.NaturalRallyPoint;
 
+    public override UpdateSleepTime Update()
+    {
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
+    }
+
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);

@@ -85,14 +85,18 @@ public sealed class FireWeaponWhenDamagedBehavior : UpdateModule, IUpgradeableMo
         FireWeaponIfPresentAndReady(_reactionWeapons);
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (!UpgradeLogic.Triggered)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         FireWeaponIfPresentAndReady(_continuousWeapons);
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     private void FireWeaponIfPresentAndReady(Weapon?[] weapons)

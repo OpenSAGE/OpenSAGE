@@ -17,7 +17,7 @@ public sealed class GarrisonContain : OpenContainModule
     {
     }
 
-    private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+    private protected override void UpdateModuleSpecific()
     {
         var isGarrisoned = ContainedObjectIds.Count > 0;
 

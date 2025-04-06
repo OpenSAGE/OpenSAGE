@@ -121,7 +121,7 @@ internal sealed class SpawnBehavior : UpdateModule
         }
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_initial && !GameObject.IsBeingConstructed())
         {
@@ -130,6 +130,9 @@ internal sealed class SpawnBehavior : UpdateModule
         }
 
         // TODO: respawn killed/dead units
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

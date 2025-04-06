@@ -20,7 +20,7 @@ public class ExperienceUpdate : UpdateModule
         _initial = true;
     }
 
-    private void Initialize(BehaviorUpdateContext context)
+    private void Initialize()
     {
         // not sure why the required experience for rank 1 is 1 instead of 0
         if (GameObject.ExperienceTracker.CurrentExperience == 0)
@@ -28,7 +28,7 @@ public class ExperienceUpdate : UpdateModule
             GameObject.ExperienceTracker.SetExperienceAndLevel(1);
         }
 
-        _experienceLevels = FindRelevantExperienceLevels(context);
+        _experienceLevels = FindRelevantExperienceLevels();
         if (_experienceLevels != null && _experienceLevels.Count > 0)
         {
             _nextLevel = _experienceLevels.First();
@@ -45,30 +45,34 @@ public class ExperienceUpdate : UpdateModule
         _initial = false;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_initial && _experienceLevels == null)
         {
-            Initialize(context);
+            Initialize();
         }
 
         if (_experienceLevels == null || _experienceLevels.Count == 0
             || GameObject.ExperienceTracker.CurrentExperience < _nextLevel.RequiredExperience)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         if (_nextLevel.LevelUpFX != null)
         {
             _nextLevel.LevelUpFX.Value?.Execute(new FXListExecutionContext(
-                context.GameObject.Rotation,
-                context.GameObject.Translation,
-                context.GameEngine));
+                GameObject.Rotation,
+                GameObject.Translation,
+                GameEngine));
         }
 
         GameObject.ExperienceTracker.SetVeterancyLevel((VeterancyLevel)_nextLevel.Rank, false);
 
         levelUp();
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     private void levelUp()
@@ -147,9 +151,9 @@ public class ExperienceUpdate : UpdateModule
         }
     }
 
-    private List<ExperienceLevel> FindRelevantExperienceLevels(BehaviorUpdateContext context)
+    private List<ExperienceLevel> FindRelevantExperienceLevels()
     {
-        var experienceLevels = context.GameEngine.AssetLoadContext.AssetStore.ExperienceLevels;
+        var experienceLevels = GameEngine.AssetLoadContext.AssetStore.ExperienceLevels;
         var levels = experienceLevels.Where(x => x.TargetNames != null && x.TargetNames.Contains(GameObject.Definition.Name)).ToList();
         levels.Sort((x, y) => x.Rank.CompareTo(y.Rank));
         return levels.Count > 0 ? levels : null;

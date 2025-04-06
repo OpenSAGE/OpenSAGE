@@ -39,38 +39,40 @@ public sealed class MissileAIUpdate : AIUpdate
         _state = MissileState.Inactive;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
+        var currentFrame = GameEngine.GameLogic.CurrentFrame;
+
         switch (_state)
         {
             case MissileState.Inactive:
-                _nextStateChangeTime = context.LogicFrame + ModuleData.IgnitionDelay;
+                _nextStateChangeTime = currentFrame + ModuleData.IgnitionDelay;
                 _state = MissileState.WaitingForIgnition;
                 goto case MissileState.WaitingForIgnition;
 
             case MissileState.WaitingForIgnition:
-                if (context.LogicFrame >= _nextStateChangeTime)
+                if (currentFrame >= _nextStateChangeTime)
                 {
                     ModuleData.IgnitionFX?.Value?.Execute(
                         new FXListExecutionContext(
                             GameObject.Rotation,
                             GameObject.Translation,
-                            context.GameEngine));
+                            GameEngine));
 
                     if (ModuleData.DistanceToTravelBeforeTurning > 0)
                     {
-                        var pointToReachBeforeTurning = context.GameObject.Translation
-                            + Vector3.TransformNormal(Vector3.UnitX, context.GameObject.TransformMatrix) * ModuleData.DistanceToTravelBeforeTurning;
+                        var pointToReachBeforeTurning = GameObject.Translation
+                            + Vector3.TransformNormal(Vector3.UnitX, GameObject.TransformMatrix) * ModuleData.DistanceToTravelBeforeTurning;
                         AddTargetPoint(pointToReachBeforeTurning);
                     }
 
                     // TODO: What to do if target doesn't exist anymore?
-                    if (context.GameObject.CurrentWeapon.CurrentTarget != null)
+                    if (GameObject.CurrentWeapon.CurrentTarget != null)
                     {
-                        AddTargetPoint(context.GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
+                        AddTargetPoint(GameObject.CurrentWeapon.CurrentTarget.TargetPosition);
                     }
 
-                    context.GameObject.Speed = ModuleData.InitialVelocity;
+                    GameObject.Speed = ModuleData.InitialVelocity;
 
                     _state = MissileState.Moving;
                 }
@@ -78,14 +80,15 @@ public sealed class MissileAIUpdate : AIUpdate
 
             case MissileState.Moving:
                 // TODO: TryToFollowTarget
-                BezierProjectileBehavior.CheckForHit(context, ModuleData.DetonateCallsKill, DetonationFX);
+                BezierProjectileBehavior.CheckForHit(GameObject, GameEngine, ModuleData.DetonateCallsKill, DetonationFX);
                 break;
 
             default:
                 throw new InvalidOperationException();
         }
 
-        base.Update(context);
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

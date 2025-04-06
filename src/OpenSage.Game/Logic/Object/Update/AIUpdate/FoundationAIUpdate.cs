@@ -20,21 +20,25 @@ public class FoundationAIUpdate : AIUpdate
         _updateInterval = new LogicFrameSpan((uint)MathF.Ceiling(GameEngine.LogicFramesPerSecond / 2)); // 0.5s, we do not have to check every frame
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        CheckForStructure(context, GameObject, ref _waitUntil, _updateInterval);
+        var result = base.Update();
+
+        CheckForStructure(GameObject, GameEngine, ref _waitUntil, _updateInterval);
+
+        return result;
     }
 
-    internal static void CheckForStructure(BehaviorUpdateContext context, GameObject obj, ref LogicFrame waitUntil, LogicFrameSpan interval)
+    internal static void CheckForStructure(GameObject obj, IGameEngine gameEngine, ref LogicFrame waitUntil, LogicFrameSpan interval)
     {
-        if (context.LogicFrame < waitUntil)
+        if (gameEngine.GameLogic.CurrentFrame < waitUntil)
         {
             return;
         }
 
-        waitUntil = context.LogicFrame + interval;
+        waitUntil = gameEngine.GameLogic.CurrentFrame + interval;
 
-        var collidingObjects = context.GameEngine.Game.PartitionCellManager.QueryObjects(
+        var collidingObjects = gameEngine.Game.PartitionCellManager.QueryObjects(
             obj,
             obj.Translation,
             obj.Geometry.BoundingCircleRadius,

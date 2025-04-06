@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using FixedMath.NET;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.FX;
@@ -9,8 +8,6 @@ namespace OpenSage.Logic.Object;
 
 public sealed class PropagandaTowerBehavior : UpdateModule
 {
-    protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.DelayBetweenUpdates;
-
     private readonly PropagandaTowerBehaviorModuleData _moduleData;
     private uint _unknownFrame;
     private readonly List<ObjectId> _objectIds = new();
@@ -26,11 +23,12 @@ public sealed class PropagandaTowerBehavior : UpdateModule
         _allowedKinds.Set(ObjectKinds.Vehicle, true);
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (GameObject.IsBeingConstructed())
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         foreach (var unitId in ObjectsInRange)
@@ -47,7 +45,11 @@ public sealed class PropagandaTowerBehavior : UpdateModule
 
         var fx = GetFxList();
 
-        fx.Value.Execute(context);
+        fx.Value.Execute(
+            new FXListExecutionContext(
+                GameObject.Rotation,
+                GameObject.Translation,
+                GameEngine));
 
         foreach (var candidate in GameEngine.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
         {
@@ -56,6 +58,9 @@ public sealed class PropagandaTowerBehavior : UpdateModule
             _objectIds.Add(candidate.Id);
             HealUnit(candidate);
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     private GameObject GameObjectForId(ObjectId unitId)

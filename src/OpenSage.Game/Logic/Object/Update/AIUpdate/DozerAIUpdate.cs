@@ -64,10 +64,13 @@ public sealed class DozerAIUpdate : AIUpdate, IBuilderAIUpdate
         _state.ArrivedAtDestination();
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
-        _state.Update(context);
+        var sleepTime = base.Update();
+
+        _state.Update();
+
+        return sleepTime;
     }
 }
 

@@ -262,13 +262,13 @@ public class AIUpdate : UpdateModule
         // TODO(Port): Implement this.
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         StateMachine.Update();
 
         if (_turretAIUpdate != null)
         {
-            _turretAIUpdate.Update(context, ModuleData.AutoAcquireEnemiesWhenIdle);
+            _turretAIUpdate.Update(ModuleData.AutoAcquireEnemiesWhenIdle);
         }
         else
         {
@@ -282,7 +282,7 @@ public class AIUpdate : UpdateModule
 
         if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
         {
-            context.GameEngine.Quadtree.Update(GameObject);
+            GameEngine.Quadtree.Update(GameObject);
         }
 
         if (CurrentLocomotor != null)
@@ -329,7 +329,8 @@ public class AIUpdate : UpdateModule
 
                 if (!reachedAngle)
                 {
-                    return;
+                    // TODO(Port): Use correct value.
+                    return UpdateSleepTime.None;
                 }
 
                 _targetDirection = null;
@@ -342,7 +343,8 @@ public class AIUpdate : UpdateModule
             }
         }
 
-        base.Update(context);
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void DrawInspector()

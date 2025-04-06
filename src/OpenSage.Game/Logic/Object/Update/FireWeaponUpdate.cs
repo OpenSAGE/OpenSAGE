@@ -26,6 +26,12 @@ public sealed class FireWeaponUpdate : UpdateModule
     {
     }
 
+    public override UpdateSleepTime Update()
+    {
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
+    }
+
     internal override void Load(StatePersister reader)
     {
         var version = reader.PersistVersion(2);

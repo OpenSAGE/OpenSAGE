@@ -30,14 +30,15 @@ public class SupplyWarehouseDockUpdate : DockUpdate
         return false;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
-
         if (_currentBoxes <= 0 && _moduleData.DeleteWhenEmpty)
         {
             GameEngine.GameLogic.DestroyObject(GameObject);
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

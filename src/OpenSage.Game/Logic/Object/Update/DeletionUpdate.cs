@@ -8,23 +8,32 @@ internal class DeletionUpdate : UpdateModule
 {
     private readonly DeletionUpdateModuleData _moduleData;
 
-    private LogicFrame _frameToDelete;
+    private LogicFrame _dieFrame;
 
     public DeletionUpdate(GameObject gameObject, IGameEngine gameEngine, DeletionUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
 
-        _frameToDelete = gameEngine.GameLogic.CurrentFrame + gameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.MinLifetime, _moduleData.MaxLifetime);
-        SetNextUpdateFrame(_frameToDelete);
+        SetWakeFrame(UpdateSleepTime.Frames(CalculateSleepDelay(_moduleData.MinLifetime, _moduleData.MaxLifetime)));
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    private LogicFrameSpan CalculateSleepDelay(LogicFrameSpan minFrames, LogicFrameSpan maxFrames)
     {
-        if (context.LogicFrame >= _frameToDelete)
+        var delay = GameEngine.GameLogic.Random.NextLogicFrameSpan(minFrames, maxFrames);
+        if (delay < new LogicFrameSpan(1))
         {
-            context.GameEngine.GameLogic.DestroyObject(GameObject);
+            // If the delay is less than 1 frame, set it to 1 frame.
+            return new LogicFrameSpan(1);
         }
+        _dieFrame = GameEngine.GameLogic.CurrentFrame + delay;
+        return delay;
+    }
+
+    public override UpdateSleepTime Update()
+    {
+        GameEngine.GameLogic.DestroyObject(GameObject);
+        return UpdateSleepTime.Forever;
     }
 
     internal override void Load(StatePersister reader)
@@ -33,13 +42,13 @@ internal class DeletionUpdate : UpdateModule
 
         base.Load(reader);
 
-        reader.PersistLogicFrame(ref _frameToDelete);
+        reader.PersistLogicFrame(ref _dieFrame);
     }
 
     internal override void DrawInspector()
     {
         base.DrawInspector();
-        ImGui.LabelText("Frame to delete", _frameToDelete.ToString());
+        ImGui.LabelText("Frame to delete", _dieFrame.ToString());
     }
 }
 
