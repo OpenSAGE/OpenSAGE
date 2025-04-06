@@ -11,23 +11,23 @@ namespace OpenSage.Logic.Object;
 
 internal sealed class ObjectCreationListManager
 {
-    public IEnumerable<GameObject> Create(ObjectCreationList list, BehaviorUpdateContext context)
+    public IEnumerable<GameObject> Create(ObjectCreationList list, GameObject gameObject, IGameEngine gameEngine)
     {
         var objects = new List<GameObject>();
 
         foreach (var item in list.Nuggets)
         {
-            objects.AddRange(item.Execute(context));
+            objects.AddRange(item.Execute(gameObject, gameEngine));
         }
 
         return objects;
     }
 
-    public void CreateAtPosition(ObjectCreationList list, BehaviorUpdateContext context, Vector3 position)
+    public void CreateAtPosition(ObjectCreationList list, GameObject gameObject, IGameEngine gameEngine, Vector3 position)
     {
         foreach (var item in list.Nuggets)
         {
-            item.Execute(context, position);
+            item.Execute(gameObject, gameEngine, position);
         }
     }
 }
@@ -56,7 +56,7 @@ public sealed class ObjectCreationList : BaseAsset
 
 public abstract class OCNugget
 {
-    internal abstract List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position = null);
+    internal abstract List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position = null);
 }
 
 public sealed class CreateDebrisOCNugget : OCNugget
@@ -127,17 +127,17 @@ public sealed class CreateDebrisOCNugget : OCNugget
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public int RollRate { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         // TODO: Cache this.
-        var debrisObjectDefinition = context.GameEngine.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
+        var debrisObjectDefinition = gameEngine.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName("GenericDebris");
 
-        var debrisObject = context.GameEngine.GameLogic.CreateObject(debrisObjectDefinition, context.GameObject.Owner);
+        var debrisObject = gameEngine.GameLogic.CreateObject(debrisObjectDefinition, gameObject.Owner);
 
-        var lifeTime = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
-        debrisObject.LifeTime = context.LogicFrame + lifeTime;
+        var lifeTime = gameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
+        debrisObject.LifeTime = gameEngine.GameLogic.CurrentFrame + lifeTime;
 
-        debrisObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
+        debrisObject.UpdateTransform(gameObject.Translation + Offset, gameObject.Rotation);
         debrisObject.Kill();
 
         // Model
@@ -156,8 +156,8 @@ public sealed class CreateDebrisOCNugget : OCNugget
             var forceMultiplier = 200 / 30.0f * Mass; // TODO: Is this right?
             physicsBehavior.ApplyForce(
                 new Vector3(
-                    context.GameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
-                    context.GameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
+                    gameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
+                    gameEngine.GameLogic.Random.NextSingle(-0.5f, 0.5f) * DispositionIntensity * forceMultiplier,
                     DispositionIntensity * forceMultiplier));
         }
 
@@ -332,7 +332,7 @@ public sealed class CreateObjectOCNugget : OCNugget
     [AddedIn(SageGame.Bfme2)]
     public string WaypointSpawnPoints { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         var result = new List<GameObject>();
         // TODO
@@ -341,7 +341,7 @@ public sealed class CreateObjectOCNugget : OCNugget
         {
             for (var i = 0; i < Count; i++)
             {
-                var newGameObject = context.GameEngine.GameLogic.CreateObject(objectName.Value, context.GameObject.Owner);
+                var newGameObject = gameEngine.GameLogic.CreateObject(objectName.Value, gameObject.Owner);
                 // TODO: Count
                 // TODO: Disposition
                 // TODO: DispositionIntensity
@@ -352,14 +352,14 @@ public sealed class CreateObjectOCNugget : OCNugget
                 }
                 else
                 {
-                    newGameObject.UpdateTransform(context.GameObject.Translation + Offset, context.GameObject.Rotation);
+                    newGameObject.UpdateTransform(gameObject.Translation + Offset, gameObject.Rotation);
                 }
 
                 var lifetimeUpdate = newGameObject.FindBehavior<LifetimeUpdate>();
                 if (lifetimeUpdate != null)
                 {
-                    var lifetime = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
-                    lifetimeUpdate.FrameToDie = context.LogicFrame + lifetime;
+                    var lifetime = gameEngine.GameLogic.Random.NextLogicFrameSpan(MinLifetime, MaxLifetime);
+                    lifetimeUpdate.FrameToDie = gameEngine.GameLogic.CurrentFrame + lifetime;
                 }
 
                 result.Add(newGameObject);
@@ -392,7 +392,7 @@ public sealed class ApplyRandomForceOCNugget : OCNugget
     public float MaxForcePitch { get; private set; }
     public float SpinRate { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         // TODO
         return new List<GameObject>();
@@ -413,7 +413,7 @@ public sealed class FireWeaponOCNugget : OCNugget
 
     public string Weapon { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         // TODO
         return new List<GameObject>();
@@ -440,7 +440,7 @@ public sealed class AttackOCNugget : OCNugget
     public int DeliveryDecalRadius { get; private set; }
     public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         // TODO
         return new List<GameObject>();
@@ -527,7 +527,7 @@ public sealed class DeliverPayloadOCNugget : OCNugget
     public int DeliveryDecalRadius { get; private set; }
     public RadiusDecalTemplate DeliveryDecal { get; private set; }
 
-    internal override List<GameObject> Execute(BehaviorUpdateContext context, Vector3? position)
+    internal override List<GameObject> Execute(GameObject gameObject, IGameEngine gameEngine, Vector3? position)
     {
         // TODO
         return new List<GameObject>();

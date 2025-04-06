@@ -140,8 +140,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private readonly IGameEngine _gameEngine;
 
-    private readonly BehaviorUpdateContext _behaviorUpdateContext;
-
     internal BitArray<WeaponSetConditions> WeaponSetConditions;
     private readonly WeaponSet _weaponSet;
     public WeaponSet ActiveWeaponSet => _weaponSet;
@@ -472,8 +470,6 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         _gameEngine = gameEngine;
         Owner = owner ?? gameEngine.Game.PlayerManager.GetCivilianPlayer();
 
-        _behaviorUpdateContext = new BehaviorUpdateContext(gameEngine, this);
-
         _weaponSet = new WeaponSet(this, _gameEngine);
         WeaponSetConditions = new BitArray<WeaponSetConditions>();
         UpdateWeaponSet();
@@ -767,7 +763,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
                 }
                 if (behavior is IUpdateModule updateModule && updateModule.UpdatePhase == updatePhase)
                 {
-                    updateModule.Update(_behaviorUpdateContext);
+                    updateModule.Update();
                 }
             }
         }

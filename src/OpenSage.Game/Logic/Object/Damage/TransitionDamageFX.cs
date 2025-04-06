@@ -22,11 +22,11 @@ public sealed class TransitionDamageFX : DamageModule
         _moduleData = moduleData;
     }
 
-    internal override void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage)
+    public override void OnBodyDamageStateChange(in DamageInfo damageInfo, BodyDamageType oldState, BodyDamageType newState)
     {
         List<TransitionDamageParticleSystem> particleSystems = null;
 
-        switch ((fromDamage, toDamage))
+        switch ((oldState, newState))
         {
             case (BodyDamageType.Pristine, BodyDamageType.Damaged):
                 particleSystems = _moduleData.DamagedParticleSystems;
@@ -43,11 +43,11 @@ public sealed class TransitionDamageFX : DamageModule
 
         if (particleSystems != null)
         {
-            var worldMatrix = context.GameObject.TransformMatrix;
+            var worldMatrix = GameObject.TransformMatrix;
 
             foreach (var particleSystemTemplate in particleSystems)
             {
-                context.GameEngine.ParticleSystems
+                GameEngine.ParticleSystems
                     .Create(particleSystemTemplate.ParticleSystem.Value, worldMatrix);
             }
         }

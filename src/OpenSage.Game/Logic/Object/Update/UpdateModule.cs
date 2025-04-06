@@ -16,16 +16,16 @@ public abstract class UpdateModule : BehaviorModule, IUpdateModule
         _nextUpdateFrame.UpdateOrder = UpdateOrder;
     }
 
-    void IUpdateModule.Update(BehaviorUpdateContext context)
+    void IUpdateModule.Update()
     {
-        if (context.LogicFrame.Value < _nextUpdateFrame.Frame)
+        if (GameEngine.GameLogic.CurrentFrame.Value < _nextUpdateFrame.Frame)
         {
             return;
         }
 
         var sleepTime = Update();
 
-        _nextUpdateFrame = new UpdateFrame(context.LogicFrame + sleepTime.FrameSpan, UpdateOrder);
+        _nextUpdateFrame = new UpdateFrame(GameEngine.GameLogic.CurrentFrame + sleepTime.FrameSpan, UpdateOrder);
     }
 
     public abstract UpdateSleepTime Update();
@@ -127,7 +127,7 @@ internal interface IUpdateModule
 {
     UpdateOrder UpdatePhase { get; }
 
-    void Update(BehaviorUpdateContext context);
+    void Update();
 }
 
 public interface IProjectileUpdate

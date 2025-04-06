@@ -53,8 +53,7 @@ public class OCLSpecialPowerModule : SpecialPowerModule
         }
         else
         {
-            var context = new BehaviorUpdateContext(GameEngine, GameObject);
-            GameEngine.ObjectCreationLists.CreateAtPosition(_activeOcl, context, spawnPosition);
+            GameEngine.ObjectCreationLists.CreateAtPosition(_activeOcl, GameObject, GameEngine, spawnPosition);
         }
 
         if (_moduleData.CreateLocation is OCLCreateLocation.CreateAtEdgeNearSource

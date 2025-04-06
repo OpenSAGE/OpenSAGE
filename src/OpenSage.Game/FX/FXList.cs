@@ -59,13 +59,4 @@ public sealed class FXList : BaseAsset
             nugget.Execute(context);
         }
     }
-
-    internal void Execute(BehaviorUpdateContext context)
-    {
-        Execute(
-            new FXListExecutionContext(
-                context.GameObject.Rotation,
-                context.GameObject.Translation,
-                context.GameEngine));
-    }
 }

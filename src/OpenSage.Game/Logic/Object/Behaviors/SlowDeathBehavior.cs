@@ -94,7 +94,7 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
 
         if (_moduleData.OCLs.TryGetValue(phase, out var ocl) && ocl != null)
         {
-            GameEngine.ObjectCreationLists.Create(ocl.Value, new BehaviorUpdateContext(GameEngine, GameObject));
+            GameEngine.ObjectCreationLists.Create(ocl.Value, GameObject, GameEngine);
         }
 
         if (_moduleData.FXs.TryGetValue(phase, out var fx) && fx != null)

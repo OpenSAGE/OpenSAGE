@@ -16,12 +16,9 @@ internal sealed class ObjectCreationUpgrade : UpgradeModule
 
     protected override void OnUpgrade()
     {
-        // TODO: Get rid of this context thing.
-        var context = new BehaviorUpdateContext(GameEngine, GameObject);
-
         foreach (var item in _moduleData.UpgradeObject.Value.Nuggets)
         {
-            var createdObjects = item.Execute(context);
+            var createdObjects = item.Execute(GameObject, GameEngine);
 
             foreach (var createdObject in createdObjects)
             {
