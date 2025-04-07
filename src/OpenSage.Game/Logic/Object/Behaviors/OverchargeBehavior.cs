@@ -1,5 +1,4 @@
-﻿using FixedMath.NET;
-using ImGuiNET;
+﻿using ImGuiNET;
 using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
@@ -43,13 +42,13 @@ public sealed class OverchargeBehavior : UpdateModule
         }
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (!_enabled || // nothing to do if we aren't currently overcharging
-            GameObject.BodyModule.Health < GameObject.BodyModule.MaxHealth * _moduleData.NotAllowedWhenHealthBelowPercent || // must be above min health percent
-            context.LogicFrame.Value < NextUpdateFrame.Frame) // must be ready for us to do more damage
+            GameObject.BodyModule.Health < GameObject.BodyModule.MaxHealth * _moduleData.NotAllowedWhenHealthBelowPercent) // must be above min health percent
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         GameObject.AttemptDamage(new DamageInfoInput(GameObject)
@@ -58,6 +57,9 @@ public sealed class OverchargeBehavior : UpdateModule
             Amount = GameObject.BodyModule.MaxHealth * _moduleData.HealthPercentToDrainPerSecond / GameEngine.LogicFramesPerSecond,
         });
         SetNextUpdateFrame(new LogicFrame((uint)GameEngine.LogicFramesPerSecond));
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

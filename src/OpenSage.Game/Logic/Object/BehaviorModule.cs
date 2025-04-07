@@ -34,8 +34,6 @@ public abstract class BehaviorModule : ObjectModule
     {
     }
 
-    internal virtual void OnDamageStateChanged(BehaviorUpdateContext context, BodyDamageType fromDamage, BodyDamageType toDamage) { }
-
     internal override void Load(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -43,22 +41,6 @@ public abstract class BehaviorModule : ObjectModule
         reader.BeginObject("Base");
         base.Load(reader);
         reader.EndObject();
-    }
-}
-
-internal sealed class BehaviorUpdateContext
-{
-    public readonly IGameEngine GameEngine;
-    public readonly GameObject GameObject;
-
-    public LogicFrame LogicFrame => GameEngine.GameLogic.CurrentFrame;
-
-    public BehaviorUpdateContext(
-        IGameEngine gameEngine,
-        GameObject gameObject)
-    {
-        GameEngine = gameEngine;
-        GameObject = gameObject;
     }
 }
 

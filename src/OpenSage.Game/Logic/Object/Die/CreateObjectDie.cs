@@ -17,7 +17,8 @@ public sealed class CreateObjectDie : DieModule
     {
         GameEngine.ObjectCreationLists.Create(
             _moduleData.CreationList.Value,
-            new BehaviorUpdateContext(GameEngine, GameObject));
+            GameObject,
+            GameEngine);
     }
 
     internal override void Load(StatePersister reader)

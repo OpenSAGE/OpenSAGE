@@ -12,7 +12,7 @@ public sealed class OverlordContain : TransportContain
         _moduleData = moduleData;
     }
 
-    private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+    private protected override void UpdateModuleSpecific()
     {
         // todo: ExperienceSinkForRider
     }

@@ -25,7 +25,7 @@ public sealed class EjectPilotDie : DieModule
 
         var isOnGround = true; // todo: determine if unit is airborne
         var creationList = isOnGround ? _moduleData.GroundCreationList : _moduleData.AirCreationList;
-        foreach (var gameObject in GameEngine.ObjectCreationLists.Create(creationList.Value, new BehaviorUpdateContext(GameEngine, GameObject)))
+        foreach (var gameObject in GameEngine.ObjectCreationLists.Create(creationList.Value, GameObject, GameEngine))
         {
             gameObject.Rank = GameObject.Rank;
             GameEngine.AudioSystem.PlayAudioEvent(gameObject, GameObject.Definition.UnitSpecificSounds.VoiceEject?.Value);

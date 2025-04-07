@@ -94,7 +94,7 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
 
         if (_moduleData.OCLs.TryGetValue(phase, out var ocl) && ocl != null)
         {
-            GameEngine.ObjectCreationLists.Create(ocl.Value, new BehaviorUpdateContext(GameEngine, GameObject));
+            GameEngine.ObjectCreationLists.Create(ocl.Value, GameObject, GameEngine);
         }
 
         if (_moduleData.FXs.TryGetValue(phase, out var fx) && fx != null)
@@ -109,36 +109,40 @@ public class SlowDeathBehavior : UpdateModule, IDieModule
         // TODO: Weapon
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (!_isDying)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         // TODO: SlowDeathPhase.HitGround
 
         // Midpoint
-        if (!_passedMidpoint && context.LogicFrame >= _midpointTime)
+        if (!_passedMidpoint && GameEngine.GameLogic.CurrentFrame >= _midpointTime)
         {
             ExecutePhaseActions(SlowDeathPhase.Midpoint);
             _passedMidpoint = true;
         }
 
         // Destruction
-        if (context.LogicFrame >= _destructionTime)
+        if (GameEngine.GameLogic.CurrentFrame >= _destructionTime)
         {
             ExecutePhaseActions(SlowDeathPhase.Final);
-            context.GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
-            context.GameEngine.GameLogic.DestroyObject(context.GameObject);
+            GameObject.ModelConditionFlags.Set(ModelConditionFlag.Dying, false);
+            GameEngine.GameLogic.DestroyObject(GameObject);
             _isDying = false;
         }
 
         // Sinking
-        if (context.LogicFrame >= _sinkStartTime)
+        if (GameEngine.GameLogic.CurrentFrame >= _sinkStartTime)
         {
-            context.GameObject.VerticalOffset -= _moduleData.SinkRate;
+            GameObject.VerticalOffset -= _moduleData.SinkRate;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void DrawInspector()

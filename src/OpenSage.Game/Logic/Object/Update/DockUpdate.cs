@@ -90,7 +90,7 @@ public abstract class DockUpdate : UpdateModule
         }
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.DockingActive))
         {
@@ -114,6 +114,9 @@ public abstract class DockUpdate : UpdateModule
                     break;
             }
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

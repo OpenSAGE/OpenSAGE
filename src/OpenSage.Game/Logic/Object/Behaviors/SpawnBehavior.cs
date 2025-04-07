@@ -7,7 +7,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Logic.Object;
 
-internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
+internal sealed class SpawnBehavior : UpdateModule
 {
     SpawnBehaviorModuleData _moduleData;
 
@@ -121,7 +121,7 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
         }
     }
 
-    public void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_initial && !GameObject.IsBeingConstructed())
         {
@@ -130,6 +130,9 @@ internal sealed class SpawnBehavior : BehaviorModule, IUpdateModule
         }
 
         // TODO: respawn killed/dead units
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

@@ -14,7 +14,7 @@ public sealed class AutoFindHealingUpdate : UpdateModule
 
     private LogicFrameSpan _framesUntilNextScan;
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_framesUntilNextScan == LogicFrameSpan.Zero)
         {
@@ -26,6 +26,9 @@ public sealed class AutoFindHealingUpdate : UpdateModule
         {
             _framesUntilNextScan--;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

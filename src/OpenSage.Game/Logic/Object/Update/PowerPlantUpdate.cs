@@ -37,16 +37,17 @@ public sealed class PowerPlantUpdate : UpdateModule
         _rodsExtendedEndFrame = LogicFrame.MaxValue;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
-
-        if (_rodsExtended && _rodsExtendedEndFrame < context.LogicFrame)
+        if (_rodsExtended && _rodsExtendedEndFrame < GameEngine.GameLogic.CurrentFrame)
         {
             GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgrading, false);
             GameObject.Drawable.ModelConditionFlags.Set(ModelConditionFlag.PowerPlantUpgraded, true);
             _rodsExtendedEndFrame = LogicFrame.MaxValue;
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

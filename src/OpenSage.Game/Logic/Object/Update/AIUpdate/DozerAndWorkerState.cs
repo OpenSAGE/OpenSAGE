@@ -33,7 +33,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
     }
 
     // todo: This is really state _machine_ behavior, and should be moved there when we better understand the fields
-    public void Update(BehaviorUpdateContext updateContext)
+    public void Update()
     {
         if (TryGetBuildTarget(out var buildTarget))
         {
@@ -41,7 +41,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         }
         else if (TryGetRepairTarget(out var repairTarget))
         {
-            UpdateRepairTarget(repairTarget, updateContext);
+            UpdateRepairTarget(repairTarget);
         }
     }
 
@@ -72,18 +72,18 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         }
     }
 
-    private void UpdateRepairTarget(GameObject repairTarget, BehaviorUpdateContext updateContext)
+    private void UpdateRepairTarget(GameObject repairTarget)
     {
         if (repairTarget.BodyModule.Health == repairTarget.BodyModule.MaxHealth)
         {
             ClearDozerTasks();
             _gameObject.ModelConditionFlags.Set(ModelConditionFlag.ActivelyConstructing, false);
         }
-        else if (repairTarget.HealedEndFrame <= updateContext.LogicFrame.Value)
+        else if (repairTarget.HealedEndFrame <= _gameEngine.GameLogic.CurrentFrame)
         {
             // advance repair progress
             repairTarget.AttemptHealing(_moduleData.RepairHealthPercentPerSecond * repairTarget.BodyModule.MaxHealth, _gameObject);
-            repairTarget.HealedEndFrame = (updateContext.LogicFrame + LogicFrameSpan.OneSecond(_gameEngine.LogicFramesPerSecond)).Value;
+            repairTarget.HealedEndFrame = _gameEngine.GameLogic.CurrentFrame + LogicFrameSpan.OneSecond(_gameEngine.LogicFramesPerSecond);
         }
     }
 
@@ -144,7 +144,7 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         if (TryGetRepairTarget(out var repairTarget))
         {
             repairTarget.HealedByObjectId = ObjectId.Invalid;
-            repairTarget.HealedEndFrame = 0;
+            repairTarget.HealedEndFrame = LogicFrame.Zero;
         }
         _dozerTargets[1] = new DozerTarget();
     }

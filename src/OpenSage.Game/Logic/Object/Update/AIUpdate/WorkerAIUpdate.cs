@@ -92,13 +92,13 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         return GameObject.HasUpgrade(upgradeDefinition) ? ModuleData.UpgradedSupplyBoost : 0;
     }
 
-    internal override GameObject? FindClosestSupplyWarehouse(BehaviorUpdateContext context)
+    internal override GameObject? FindClosestSupplyWarehouse()
     {
         if (ModuleData.HarvestTrees)
         {
-            var nearbyTrees = context.GameEngine.Game.PartitionCellManager.QueryObjects(
-                context.GameObject,
-                context.GameObject.Translation,
+            var nearbyTrees = GameEngine.Game.PartitionCellManager.QueryObjects(
+                GameObject,
+                GameObject.Translation,
                 ModuleData.SupplyWarehouseScanDistance,
                 new PartitionQueries.KindOfQuery(ObjectKinds.Tree));
 
@@ -117,7 +117,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
                     continue;
                 }
 
-                var distance = context.GameEngine.Game.PartitionCellManager.GetDistanceBetweenObjectsSquared(context.GameObject, tree);
+                var distance = GameEngine.Game.PartitionCellManager.GetDistanceBetweenObjectsSquared(GameObject, tree);
 
                 if (distance < closestDistance)
                 {
@@ -130,27 +130,27 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         }
         else
         {
-            return base.FindClosestSupplyWarehouse(context);
+            return base.FindClosestSupplyWarehouse();
         }
     }
 
     internal override float GetHarvestActivationRange() => ModuleData.HarvestActivationRange;
     internal override LogicFrameSpan GetPreparationTime() => ModuleData.HarvestPreparationTime;
 
-    internal override bool SupplySourceHasBoxes(BehaviorUpdateContext context, SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
+    internal override bool SupplySourceHasBoxes(SupplyWarehouseDockUpdate dockUpdate, GameObject supplySource)
     {
         if (ModuleData.HarvestTrees && supplySource.Definition.KindOf.Get(ObjectKinds.Tree))
         {
             return supplySource.Supply > 0;
         }
-        return base.SupplySourceHasBoxes(context, dockUpdate, supplySource);
+        return base.SupplySourceHasBoxes(dockUpdate, supplySource);
     }
 
-    internal override void GetBox(BehaviorUpdateContext context)
+    internal override void GetBox()
     {
         if (ModuleData.HarvestTrees && CurrentSupplySource.Definition.KindOf.Get(ObjectKinds.Tree))
         {
-            CurrentSupplySource.Supply -= context.GameEngine.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
+            CurrentSupplySource.Supply -= GameEngine.AssetLoadContext.AssetStore.GameData.Current.ValuePerSupplyBox;
             if (CurrentSupplySource.Supply <= 0)
             {
                 CurrentSupplySource.Update();
@@ -158,7 +158,7 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
             }
             return;
         }
-        base.GetBox(context);
+        base.GetBox();
     }
 
     internal override void SetGatheringConditionFlags()
@@ -181,10 +181,11 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
 
     #endregion
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
-        _state.Update(context);
+        var sleepTime = base.Update();
+
+        _state.Update();
 
         var isMoving = GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving);
 
@@ -196,9 +197,11 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
                     SupplyGatherState = SupplyGatherStateToResume;
                     break;
                 }
-                _waitUntil = context.LogicFrame + ModuleData.BoredTime;
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + ModuleData.BoredTime;
                 break;
         }
+
+        return sleepTime;
     }
 
     internal override void Load(StatePersister reader)

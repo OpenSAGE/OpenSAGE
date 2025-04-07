@@ -43,10 +43,18 @@ public class TurretAIUpdate : UpdateModule
         _turretAIstate = _moduleData.InitiallyDisabled ? TurretAIStates.Disabled : TurretAIStates.ScanningForTargets;
     }
 
-    internal void Update(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
+    public override UpdateSleepTime Update()
+    {
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
+    }
+
+    internal void Update(BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
     {
         var target = GameObject.CurrentWeapon?.CurrentTarget;
         float targetYaw;
+
+        var currentFrame = GameEngine.GameLogic.CurrentFrame;
 
         if (GameObject.ModelConditionFlags.Get(ModelConditionFlag.Moving))
         {
@@ -65,7 +73,7 @@ public class TurretAIUpdate : UpdateModule
                     _turretAIstate = TurretAIStates.Turning;
                     _currentTarget = target;
                 }
-                else if (context.LogicFrame >= _waitUntil && (autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.Yes) ?? true))
+                else if (currentFrame >= _waitUntil && (autoAcquireEnemiesWhenIdle?.Get(AutoAcquireEnemiesType.Yes) ?? true))
                 {
                     _turretAIstate = TurretAIStates.ScanningForTargets;
                 }
@@ -74,12 +82,12 @@ public class TurretAIUpdate : UpdateModule
             case TurretAIStates.ScanningForTargets:
                 if (target == null)
                 {
-                    if (!FoundTargetWhileScanning(context, autoAcquireEnemiesWhenIdle))
+                    if (!FoundTargetWhileScanning(autoAcquireEnemiesWhenIdle))
                     {
-                        var scanInterval = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(
+                        var scanInterval = GameEngine.GameLogic.Random.NextLogicFrameSpan(
                             _moduleData.MinIdleScanInterval,
                             _moduleData.MaxIdleScanInterval);
-                        _waitUntil = context.LogicFrame + scanInterval;
+                        _waitUntil = currentFrame + scanInterval;
                         _turretAIstate = TurretAIStates.Idle;
                         break;
                     }
@@ -96,7 +104,7 @@ public class TurretAIUpdate : UpdateModule
             case TurretAIStates.Turning:
                 if (target == null)
                 {
-                    _waitUntil = context.LogicFrame + _moduleData.RecenterTime;
+                    _waitUntil = currentFrame + _moduleData.RecenterTime;
                     _turretAIstate = TurretAIStates.Recentering;
                     break;
                 }
@@ -120,7 +128,7 @@ public class TurretAIUpdate : UpdateModule
             case TurretAIStates.Attacking:
                 if (target == null)
                 {
-                    _waitUntil = context.LogicFrame + _moduleData.RecenterTime;
+                    _waitUntil = currentFrame + _moduleData.RecenterTime;
                     _turretAIstate = TurretAIStates.Recentering;
                 }
                 else if (target != _currentTarget)
@@ -131,7 +139,7 @@ public class TurretAIUpdate : UpdateModule
                 break;
 
             case TurretAIStates.Recentering:
-                if (context.LogicFrame >= _waitUntil)
+                if (currentFrame >= _waitUntil)
                 {
                     targetYaw = MathUtility.ToRadians(_moduleData.NaturalTurretAngle);
                     if (!Rotate(targetYaw))
@@ -156,7 +164,7 @@ public class TurretAIUpdate : UpdateModule
         return false;
     }
 
-    private bool FoundTargetWhileScanning(BehaviorUpdateContext context, BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
+    private bool FoundTargetWhileScanning(BitArray<AutoAcquireEnemiesType> autoAcquireEnemiesWhenIdle)
     {
         return false;
 

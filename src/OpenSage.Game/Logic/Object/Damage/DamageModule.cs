@@ -1,9 +1,21 @@
 ﻿namespace OpenSage.Logic.Object;
 
-public abstract class DamageModule : BehaviorModule
+public abstract class DamageModule : BehaviorModule, IDamageModule
 {
     protected DamageModule(GameObject gameObject, IGameEngine gameEngine) : base(gameObject, gameEngine)
     {
+    }
+
+    public virtual void OnDamage(in DamageInfo damageInfo) { }
+
+    public virtual void OnHealing(in DamageInfo damageInfo) { }
+
+    public virtual void OnBodyDamageStateChange(
+        in DamageInfo damageInfo,
+        BodyDamageType oldState,
+        BodyDamageType newState)
+    {
+
     }
 
     internal override void Load(StatePersister reader)
@@ -18,7 +30,7 @@ public abstract class DamageModule : BehaviorModule
 
 internal interface IDamageModule
 {
-    void OnDamage(in DamageInfo damageInfo);
+    void OnDamage(in DamageInfo damageInfo) { }
 
     void OnHealing(in DamageInfo damageInfo) { }
 

@@ -65,7 +65,7 @@ public sealed class GenerateMinefieldBehavior : BehaviorModule, IUpgradeableModu
 
     private void GenerateMinefield()
     {
-        _moduleData.GenerationFX?.Value.Execute(new BehaviorUpdateContext(GameEngine, GameObject));
+        _moduleData.GenerationFX?.Value.Execute(new FXListExecutionContext(GameObject.Rotation, GameObject.Translation, GameEngine));
 
         var mineTemplate = _moduleData.MineName?.Value;
 

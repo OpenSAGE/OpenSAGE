@@ -15,7 +15,7 @@ public sealed class HealContain : OpenContainModule
         _moduleData = moduleData;
     }
 
-    private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+    private protected override void UpdateModuleSpecific()
     {
         HealUnits(_moduleData.TimeForFullHeal);
         foreach (var unitId in ContainedObjectIds)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using FixedMath.NET;
+﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.ParticleSystems;
@@ -43,12 +41,13 @@ public class SlavedUpdateModule : UpdateModule
         _moduleData = moduleData;
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (_master == null)
         {
             // TODO: Should this ever be null?
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         var masterIsMoving = _master.ModelConditionFlags.Get(ModelConditionFlag.Moving);
@@ -78,16 +77,16 @@ public class SlavedUpdateModule : UpdateModule
                     if (!isMoving)
                     {
                         _repairStatus = RepairStatus.READY;
-                        var readyDuration = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
-                        _waitUntil = context.LogicFrame + readyDuration;
+                        var readyDuration = GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinReadyTime, _moduleData.RepairMaxReadyTime);
+                        _waitUntil = GameEngine.GameLogic.CurrentFrame + readyDuration;
                     }
                     break;
                 case RepairStatus.READY:
-                    if (context.LogicFrame >= _waitUntil)
+                    if (GameEngine.GameLogic.CurrentFrame >= _waitUntil)
                     {
-                        var range = context.GameEngine.GameLogic.Random.NextSingle(0, _moduleData.RepairRange);
-                        var height = context.GameEngine.GameLogic.Random.NextSingle(_moduleData.RepairMinAltitude, _moduleData.RepairMaxAltitude);
-                        var angle = context.GameEngine.GameLogic.Random.NextSingle(0, MathUtility.TwoPi);
+                        var range = GameEngine.GameLogic.Random.NextSingle(0, _moduleData.RepairRange);
+                        var height = GameEngine.GameLogic.Random.NextSingle(_moduleData.RepairMinAltitude, _moduleData.RepairMaxAltitude);
+                        var angle = GameEngine.GameLogic.Random.NextSingle(0, MathUtility.TwoPi);
 
                         var offset = Vector3.Transform(new Vector3(range, 0.0f, height), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
                         GameObject.AIUpdate.SetTargetPoint(_master.Translation + offset);
@@ -101,19 +100,19 @@ public class SlavedUpdateModule : UpdateModule
                         var transform = modelInstance.AbsoluteBoneTransforms[bone.Index];
                         _particleTemplate ??= _moduleData.RepairWeldingSys.Value;
 
-                        var particleSystem = context.GameEngine.ParticleSystems.Create(
+                        var particleSystem = GameEngine.ParticleSystems.Create(
                             _particleTemplate,
                             transform);
 
                         particleSystem.Activate();
 
-                        var weldDuration = context.GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
-                        _waitUntil = context.LogicFrame + weldDuration;
+                        var weldDuration = GameEngine.GameLogic.Random.NextLogicFrameSpan(_moduleData.RepairMinWeldTime, _moduleData.RepairMaxWeldTime);
+                        _waitUntil = GameEngine.GameLogic.CurrentFrame + weldDuration;
                         _repairStatus = RepairStatus.WELDING;
                     }
                     break;
                 case RepairStatus.WELDING:
-                    if (context.LogicFrame >= _waitUntil)
+                    if (GameEngine.GameLogic.CurrentFrame >= _waitUntil)
                     {
                         _repairStatus = RepairStatus.READY;
                     }
@@ -180,6 +179,9 @@ public class SlavedUpdateModule : UpdateModule
         {
             GameObject.Kill(deathType: DeathType.Exploded);
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     internal override void Load(StatePersister reader)

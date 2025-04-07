@@ -114,20 +114,20 @@ public sealed class JetAIUpdate : AIUpdate
         base.SetTargetPoint(targetPoint);
     }
 
-    internal override void Update(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        base.Update(context);
+        var sleepTime = base.Update();
 
         if (!ModuleData.KeepsParkingSpaceWhenAirborne)
         {
-            return; // helicopters are way more simple (at least for now)
+            return sleepTime; // helicopters are way more simple (at least for now)
         }
 
         if (Base == null)
         {
             // fix for mapObject aircrafts etc (e.g. ZH shellmap)
             // TODO: handle scenario of a destroyed airfield
-            return;
+            return sleepTime;
         }
 
         var parkingPlaceBehavior = Base.FindBehavior<ParkingPlaceBehaviour>();
@@ -136,7 +136,7 @@ public sealed class JetAIUpdate : AIUpdate
 
         var trans = GameObject.Translation;
 
-        var terrainHeight = context.GameEngine.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
+        var terrainHeight = GameEngine.Terrain.HeightMap.GetHeight(trans.X, trans.Y);
 
         switch (CurrentJetAIState)
         {
@@ -170,7 +170,7 @@ public sealed class JetAIUpdate : AIUpdate
                 }
 
                 //base.SetTargetPoint(GameObject.Transform.Translation + GameObject.Transform.LookDirection * _moduleData.ParkingOffset);
-                parkingPlaceBehavior.ReportParkedIdle(GameObject.Id, context.LogicFrame);
+                parkingPlaceBehavior.ReportParkedIdle(GameObject.Id, GameEngine.GameLogic.CurrentFrame);
                 CurrentJetAIState = JetAIState.Parked;
                 break;
 
@@ -188,18 +188,18 @@ public sealed class JetAIUpdate : AIUpdate
                 break;
 
             case JetAIState.MovingTowardsStart:
-                if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToStart))
+                if (isMoving || ProcessWaypointPath(parkingPlaceBehavior, _pathToStart))
                 {
                     break;
                 }
 
                 parkingPlaceBehavior.ReportEngineRunUp(GameObject.Id);
                 CurrentJetAIState = JetAIState.PreparingStart;
-                _waitUntil = context.LogicFrame + ModuleData.TakeoffPause;
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + ModuleData.TakeoffPause;
                 break;
 
             case JetAIState.PreparingStart:
-                if (context.LogicFrame < _waitUntil)
+                if (GameEngine.GameLogic.CurrentFrame < _waitUntil)
                 {
                     break;
                 }
@@ -241,11 +241,11 @@ public sealed class JetAIUpdate : AIUpdate
                     break;
                 }
                 CurrentJetAIState = JetAIState.ReachedTargetPoint;
-                _waitUntil = context.LogicFrame + ModuleData.ReturnToBaseIdleTime;
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + ModuleData.ReturnToBaseIdleTime;
                 break;
 
             case JetAIState.ReachedTargetPoint:
-                if (context.LogicFrame < _waitUntil)
+                if (GameEngine.GameLogic.CurrentFrame < _waitUntil)
                 {
                     break;
                 }
@@ -275,7 +275,7 @@ public sealed class JetAIUpdate : AIUpdate
                 break;
 
             case JetAIState.MovingBackToHangar:
-                if (isMoving || ProcessWaypointPath(context, parkingPlaceBehavior, _pathToParking))
+                if (isMoving || ProcessWaypointPath(parkingPlaceBehavior, _pathToParking))
                 {
                     break;
                 }
@@ -295,9 +295,11 @@ public sealed class JetAIUpdate : AIUpdate
         {
             Base.ProductionUpdate?.CloseDoor(parkingPlaceBehavior.ClearObjectFromSlot(GameObject.Id));
         }
+
+        return sleepTime;
     }
 
-    private bool ProcessWaypointPath(BehaviorUpdateContext context, ParkingPlaceBehaviour parkingPlaceBehavior, Queue<string> path)
+    private bool ProcessWaypointPath(ParkingPlaceBehaviour parkingPlaceBehavior, Queue<string> path)
     {
         if (_currentTaxiingTarget != null)
         {
@@ -309,10 +311,10 @@ public sealed class JetAIUpdate : AIUpdate
             var nextPoint = path.Peek();
             if (parkingPlaceBehavior.IsTaxiingPointBlocked(nextPoint))
             {
-                _waitUntil = context.LogicFrame + ModuleData.TakeoffPause;
+                _waitUntil = GameEngine.GameLogic.CurrentFrame + ModuleData.TakeoffPause;
                 return true;
             }
-            if (context.LogicFrame < _waitUntil)
+            if (GameEngine.GameLogic.CurrentFrame < _waitUntil)
             {
                 return true;
             }

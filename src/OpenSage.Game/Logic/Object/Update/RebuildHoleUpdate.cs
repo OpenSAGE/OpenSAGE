@@ -52,7 +52,7 @@ public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
     // scaffolds have a status of 0001 0000 0000 0000 0000 0100 in sav file (0100 is under construction)
     private const int UnknownScaffoldStatus = 20;
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
         if (GameObject.BodyModule.Health < GameObject.BodyModule.MaxHealth)
         {
@@ -62,7 +62,9 @@ public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
         if (_framesUntilConstructionBegins != LogicFrameSpan.Zero)
         {
             _framesUntilConstructionBegins--;
-            return;
+
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         GameObject worker;
@@ -134,6 +136,9 @@ public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
             // AIUpdate should always be WorkerAIUpdate, so throw if it's not
             throw new InvalidStateException("worker does not have WorkerAIUpdate module");
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     void IDieModule.OnDie(in DamageInfoInput damageInput)

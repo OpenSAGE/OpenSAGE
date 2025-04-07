@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using FixedMath.NET;
 using ImGuiNET;
 using OpenSage.Audio;
 using OpenSage.Data.Ini;
@@ -117,9 +116,9 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         return GameObject.BodyModule.Health <= 0;
     }
 
-    internal sealed override void Update(BehaviorUpdateContext context)
+    public sealed override UpdateSleepTime Update()
     {
-        UpdateModuleSpecific(context);
+        UpdateModuleSpecific();
 
         if (HealthTooLowToHoldUnits())
         {
@@ -132,14 +131,17 @@ public abstract class OpenContainModule : UpdateModule, IHasRallyPoint
         }
         else
         {
-            while (_evacQueue.Count > 0 && TryEvacUnit(context.LogicFrame, _evacQueue[0].ObjectId))
+            while (_evacQueue.Count > 0 && TryEvacUnit(GameEngine.GameLogic.CurrentFrame, _evacQueue[0].ObjectId))
             {
                 _evacQueue.RemoveAt(0);
             }
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
-    private protected virtual void UpdateModuleSpecific(BehaviorUpdateContext context) { }
+    private protected virtual void UpdateModuleSpecific() { }
 
     protected virtual bool TryEvacUnit(LogicFrame currentFrame, ObjectId unitId)
     {

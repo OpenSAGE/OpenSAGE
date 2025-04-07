@@ -1,5 +1,4 @@
-﻿using FixedMath.NET;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object;
@@ -8,8 +7,6 @@ namespace OpenSage.Logic.Object;
 // not UpgradeModule (but in the xsds it inherits from UpgradeModule).
 public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamageModule
 {
-    protected override LogicFrameSpan FramesBetweenUpdates => _moduleData.HealingDelay;
-
     private readonly AutoHealBehaviorModuleData _moduleData;
     private readonly UpgradeLogic _upgradeLogic;
     /// <summary>
@@ -50,11 +47,12 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
         }
     }
 
-    private protected override void RunUpdate(BehaviorUpdateContext context)
+    public override UpdateSleepTime Update()
     {
-        if (context.LogicFrame < _endOfStartHealingDelay)
+        if (GameEngine.GameLogic.CurrentFrame < _endOfStartHealingDelay)
         {
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         if (_moduleData.Radius == 0)
@@ -77,7 +75,8 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
                 HealUnit(GameObject);
             }
 
-            return;
+            // TODO(Port): Use correct value.
+            return UpdateSleepTime.None;
         }
 
         foreach (var candidate in GameEngine.Quadtree.FindNearby(GameObject, GameObject.Transform, _moduleData.Radius))
@@ -87,6 +86,9 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
 
             HealUnit(candidate);
         }
+
+        // TODO(Port): Use correct value.
+        return UpdateSleepTime.None;
     }
 
     // todo: lots of duplicated logic between this and propagandatowerbehavior
@@ -127,7 +129,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
             gameObject.AttemptHealing(_moduleData.HealingAmount, GameObject);
             if (gameObject != GameObject)
             {
-                gameObject.SetBeingHealed(GameObject, NextUpdateFrame.Frame);
+                gameObject.SetBeingHealed(GameObject, _moduleData.HealingDelay);
             }
         }
     }

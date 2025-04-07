@@ -34,7 +34,7 @@ public class TransportContain : OpenContainModule
         return unit.Definition.TransportSlotCount;
     }
 
-    private protected override void UpdateModuleSpecific(BehaviorUpdateContext context)
+    private protected override void UpdateModuleSpecific()
     {
         if (_moduleData.HealthRegenPercentPerSecond != 0)
         {
