@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
@@ -54,6 +54,14 @@ public sealed class ScriptOrCondition : Asset
         return new ScriptOrCondition()
         {
             Conditions = Conditions.Select(c => c.Copy(appendix)).ToArray()
+        };
+    }
+
+    internal ScriptOrCondition DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        return new ScriptOrCondition()
+        {
+            Conditions = Conditions.Select(c => c.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray()
         };
     }
 }

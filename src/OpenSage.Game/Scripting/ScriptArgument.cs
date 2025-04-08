@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
@@ -115,6 +115,7 @@ public sealed class ScriptArgument
         return $"({ArgumentType}) {value}";
     }
 
+    [Obsolete("Use DuplicateAndQualify instead.")]
     public ScriptArgument Copy(string appendix)
     {
         return new ScriptArgument()
@@ -125,13 +126,54 @@ public sealed class ScriptArgument
             IntValue = IntValue,
             StringValue = ArgumentType switch
             {
-                ScriptArgumentType.CounterName => StringValue + appendix,
-                ScriptArgumentType.FlagName => StringValue + appendix,
-                ScriptArgumentType.ScriptName => StringValue + appendix,
-                ScriptArgumentType.SubroutineName => StringValue + appendix,
-                ScriptArgumentType.TeamName => StringValue + appendix,
+                ScriptArgumentType.Counter => StringValue + appendix,
+                ScriptArgumentType.Flag => StringValue + appendix,
+                ScriptArgumentType.Script => StringValue + appendix,
+                ScriptArgumentType.ScriptSubroutine => StringValue + appendix,
+                ScriptArgumentType.Team => StringValue + appendix,
                 _ => StringValue
             }
+        };
+    }
+
+    public ScriptArgument DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        var newStringValue = StringValue;
+
+        switch (ArgumentType)
+        {
+            case ScriptArgumentType.Side:
+                {
+                    var tmpString = StringValue + qualifier;
+
+                    if (tmpString == playerTemplateName)
+                    {
+                        newStringValue = newPlayerName;
+                    }
+                    break;
+                }
+            case ScriptArgumentType.Team:
+                if (StringValue == "<This Team>")
+                {
+                    break;
+                }
+                // Explicit fallthrough
+                goto case ScriptArgumentType.Script;
+            case ScriptArgumentType.Script:
+            case ScriptArgumentType.Counter:
+            case ScriptArgumentType.Flag:
+            case ScriptArgumentType.ScriptSubroutine:
+                newStringValue += qualifier;
+                break;
+        }
+
+        return new ScriptArgument()
+        {
+            ArgumentType = ArgumentType,
+            FloatValue = FloatValue,
+            PositionValue = PositionValue,
+            IntValue = IntValue,
+            StringValue = newStringValue
         };
     }
 }

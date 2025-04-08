@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,6 +48,15 @@ public sealed class ScriptList : Asset, IPersistableObject
         }
 
         return null;
+    }
+
+    public ScriptList DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        return new ScriptList
+        {
+            ScriptGroups = ScriptGroups.Select(s => s.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray(),
+            Scripts = Scripts.Select(s => s.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray()
+        };
     }
 
     internal static ScriptList Parse(BinaryReader reader, MapParseContext context)

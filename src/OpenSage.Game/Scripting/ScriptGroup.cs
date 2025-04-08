@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
@@ -54,6 +54,20 @@ public sealed class ScriptGroup : Asset, IPersistableObject
         }
 
         return null;
+    }
+
+    public ScriptGroup DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        var newScriptGroup = new ScriptGroup
+        {
+            Groups = Groups.Select(g => g.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray(),
+            _isActive = _isActive,
+            IsSubroutine = IsSubroutine,
+            Name = Name + qualifier,
+            Scripts = Scripts.Select(s => s.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray()
+        };
+
+        return newScriptGroup;
     }
 
     internal static ScriptGroup Parse(BinaryReader reader, MapParseContext context)

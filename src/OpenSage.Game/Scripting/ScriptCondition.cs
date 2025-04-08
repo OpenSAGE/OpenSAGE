@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.FileFormats;
@@ -61,6 +61,18 @@ public sealed class ScriptCondition : ScriptContent<ScriptCondition, ScriptCondi
         return new ScriptCondition()
         {
             Arguments = Arguments.Select(a => a.Copy(appendix)).ToArray(),
+            ContentType = ContentType,
+            Enabled = Enabled,
+            InternalName = InternalName,
+            IsInverted = IsInverted
+        };
+    }
+
+    internal ScriptCondition DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        return new ScriptCondition()
+        {
+            Arguments = Arguments.Select(a => a.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray(),
             ContentType = ContentType,
             Enabled = Enabled,
             InternalName = InternalName,

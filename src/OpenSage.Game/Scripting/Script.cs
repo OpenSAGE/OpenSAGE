@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
@@ -144,6 +144,26 @@ public sealed class Script : Asset, IPersistableObject
         }
 
         return false;
+    }
+
+    public Script DuplicateAndQualify(string qualifier, string playerTemplateName, string newPlayerName)
+    {
+        return new Script
+        {
+            Name = Name + qualifier,
+            Comment = Comment,
+            ConditionComment = ConditionComment,
+            ActionComment = ActionComment,
+            IsActive = IsActive,
+            IsOneShot = IsOneShot,
+            IsSubroutine = IsSubroutine,
+            Easy = Easy,
+            Normal = Normal,
+            Hard = Hard,
+            DelayEvaluationSeconds = DelayEvaluationSeconds,
+            OrConditions = OrConditions.Select(c => c.DuplicateAndQualify(qualifier, playerTemplateName, newPlayerName)).ToArray(),
+        };
+
     }
 
     internal static Script Parse(BinaryReader reader, MapParseContext context)
