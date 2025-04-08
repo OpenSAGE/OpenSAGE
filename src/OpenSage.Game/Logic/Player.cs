@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -765,7 +765,7 @@ public class Player : IPersistableObject
         result.AIPlayer = isHuman || template == null || side == "FactionObserver"
             ? null
             : isSkirmish && side != "FactionCivilian"
-                ? new SkirmishAIPlayer(result)
+                ? new AISkirmishPlayer(result)
                 : new AIPlayer(result);
 
         if (template != null)

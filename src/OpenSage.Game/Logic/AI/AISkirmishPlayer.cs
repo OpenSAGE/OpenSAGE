@@ -1,13 +1,13 @@
 ﻿namespace OpenSage.Logic.AI;
 
-public sealed class SkirmishAIPlayer : AIPlayer
+public sealed class AISkirmishPlayer : AIPlayer
 {
     private int _unknownInt1;
     private int _unknownInt2;
     private float _unknownFloat1;
     private float _unknownFloat2;
 
-    internal SkirmishAIPlayer(Player owner)
+    internal AISkirmishPlayer(Player owner)
         : base(owner)
     {
 
