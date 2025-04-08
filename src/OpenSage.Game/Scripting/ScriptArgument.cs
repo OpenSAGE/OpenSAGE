@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.FileFormats;
 
@@ -52,7 +53,7 @@ public sealed class ScriptArgument
         string stringValue = null;
         Vector3? positionValue = null;
 
-        if (argumentType == ScriptArgumentType.PositionCoordinate)
+        if (argumentType == ScriptArgumentType.Coord3D)
         {
             positionValue = reader.ReadVector3();
         }
@@ -79,7 +80,7 @@ public sealed class ScriptArgument
     {
         writer.Write((uint)ArgumentType);
 
-        if (ArgumentType == ScriptArgumentType.PositionCoordinate)
+        if (ArgumentType == ScriptArgumentType.Coord3D)
         {
             writer.Write(PositionValue.Value);
         }

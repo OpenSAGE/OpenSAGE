@@ -5,7 +5,7 @@ namespace OpenSage.Scripting;
 partial class ScriptConditions
 {
     [ScriptCondition(ScriptConditionType.SkirmishPlayerFaction, "Skirmish/Player/Player is faction", "Player {0} is Faction Name: {1}")]
-    public static bool SkirmishPlayerFaction(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.PlayerName)] string playerName, [ScriptArgumentType(ScriptArgumentType.FactionName)] string factionName)
+    public static bool SkirmishPlayerFaction(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Side)] string playerName, [ScriptArgumentType(ScriptArgumentType.FactionName)] string factionName)
     {
         if (playerName.Equals(ScriptArgumentPlaceholders.LocalPlayer, StringComparison.OrdinalIgnoreCase))
         {

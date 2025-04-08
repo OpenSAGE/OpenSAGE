@@ -37,9 +37,9 @@ public class ScriptConditionsTests : IClassFixture<GameFixture>
 
         var condition = new ScriptCondition(
             ScriptConditionType.Counter,
-            new ScriptArgument(ScriptArgumentType.CounterName, "MyCounter"),
+            new ScriptArgument(ScriptArgumentType.Counter, "MyCounter"),
             new ScriptArgument(ScriptArgumentType.Comparison, (int)comparison),
-            new ScriptArgument(ScriptArgumentType.Integer, compareValue));
+            new ScriptArgument(ScriptArgumentType.Int, compareValue));
 
         var result = game.Scripting.EvaluateScriptCondition(condition);
 

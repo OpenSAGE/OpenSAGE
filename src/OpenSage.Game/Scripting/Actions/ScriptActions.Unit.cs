@@ -6,7 +6,7 @@ namespace OpenSage.Scripting;
 partial class ScriptActions
 {
     [ScriptAction(ScriptActionType.NamedStop, "Unit/Stop/Stop unit", "Stop {0} moving")]
-    public static void NamedStop(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName)
+    public static void NamedStop(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Unit)] string unitName)
     {
         if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
         {
@@ -18,7 +18,7 @@ partial class ScriptActions
     }
 
     [ScriptAction(ScriptActionType.MoveNamedUnitTo, "Unit/Move/Move unit to a location", "Move {0} to {1}")]
-    public static void MoveNamedUnitTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
+    public static void MoveNamedUnitTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Unit)] string unitName, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string waypointName)
     {
         if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
         {
@@ -36,7 +36,7 @@ partial class ScriptActions
     }
 
     [ScriptAction(ScriptActionType.NamedFollowWaypoints, "Unit/Move/Follow a waypoint path", "{0} follows waypoints, beginning at {1}")]
-    public static void NamedFollowWaypoints(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.UnitName)] string unitName, [ScriptArgumentType(ScriptArgumentType.WaypointPathName)] string waypointPathName)
+    public static void NamedFollowWaypoints(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Unit)] string unitName, [ScriptArgumentType(ScriptArgumentType.WaypointPath)] string waypointPathName)
     {
         if (!context.Scene.GameObjects.TryGetObjectByName(unitName, out var unit))
         {

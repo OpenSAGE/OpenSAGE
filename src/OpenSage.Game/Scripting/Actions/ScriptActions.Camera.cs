@@ -5,7 +5,7 @@ namespace OpenSage.Scripting;
 partial class ScriptActions
 {
     [ScriptAction(ScriptActionType.SetupCamera, "Camera/Adjust/Set up the camera", "Position camera at waypoint {0}, with zoom {1} and pitch {2}, looking towards {3}")]
-    public static void SetupCamera(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string positionWaypointName, float zoom, float pitch, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string targetWaypointName)
+    public static void SetupCamera(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string positionWaypointName, float zoom, float pitch, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string targetWaypointName)
     {
         var positionWaypoint = context.Scene.Waypoints[positionWaypointName];
         var targetWaypoint = context.Scene.Waypoints[targetWaypointName];
@@ -29,14 +29,14 @@ partial class ScriptActions
     }
 
     [ScriptAction(ScriptActionType.CameraModFinalLookToward, "Camera/Move/Set final look-toward point for camera movement", "Look toward {0} at the end of the camera movement")]
-    public static void CameraModFinalLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
+    public static void CameraModFinalLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string waypointName)
     {
         var waypoint = context.Scene.Waypoints[waypointName];
         context.Scene.TacticalView.CameraModFinalLookToward(waypoint.Position);
     }
 
     [ScriptAction(ScriptActionType.CameraModLookToward, "Camera/Move/Camera look toward point while moving", "Look toward {0} during the camera movement")]
-    public static void CameraModLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName)
+    public static void CameraModLookToward(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string waypointName)
     {
         var waypoint = context.Scene.Waypoints[waypointName];
         context.Scene.TacticalView.CameraModLookToward(waypoint.Position);
@@ -52,7 +52,7 @@ partial class ScriptActions
     // The second is for all other games.
 
     [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds", SageGame.CncGenerals, SageGame.CncGeneralsZeroHour)]
-    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string waypointName, float durationSeconds, float stutterSeconds, float? easeIn, float? easeOut)
+    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string waypointName, float durationSeconds, float stutterSeconds, float? easeIn, float? easeOut)
     {
         var destination = context.Scene.Waypoints[waypointName].Position;
 
@@ -67,7 +67,7 @@ partial class ScriptActions
     }
 
     [ScriptAction(ScriptActionType.MoveCameraTo, "Camera/Move/Move the camera to a location", "Move camera to {0} in {1} seconds, camera shutter {2} seconds, ease-in {3} seconds, ease-out {4} seconds")]
-    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string cameraName, float rawDuration, float shutter, float easeIn, float easeOut)
+    public static void MoveCameraTo(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string cameraName, float rawDuration, float shutter, float easeIn, float easeOut)
     {
         // TODO: This is a BFME+ script action
 
@@ -94,7 +94,7 @@ partial class ScriptActions
     }
 
     [ScriptAction(ScriptActionType.MoveCameraAlongWaypointPath, "Camera/Move/Move camera along a waypoint path", "Move along path starting with {0} in {1} seconds, camera shutter {2} seconds")]
-    public static void MoveCameraAlongWaypointPath(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.WaypointName)] string firstWaypointName, float rawTotalDuration, float shutter, float? easeIn = null, float? easeOut = null)
+    public static void MoveCameraAlongWaypointPath(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Waypoint)] string firstWaypointName, float rawTotalDuration, float shutter, float? easeIn = null, float? easeOut = null)
     {
         if (!context.Scene.Waypoints.TryGetByName(firstWaypointName, out var waypoint))
         {

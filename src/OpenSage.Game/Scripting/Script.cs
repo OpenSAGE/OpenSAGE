@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Map;
@@ -15,15 +15,15 @@ public sealed class Script : Asset, IPersistableObject
     public string Name { get; private set; }
 
     public string Comment { get; private set; }
-    public string ConditionsComment { get; private set; }
-    public string ActionsComment { get; private set; }
+    public string ConditionComment { get; private set; }
+    public string ActionComment { get; private set; }
 
     public bool IsActive; // TODO: Make this private.
-    public bool DeactivateUponSuccess { get; private set; }
+    public bool IsOneShot { get; private set; }
 
-    public bool ActiveInEasy { get; private set; }
-    public bool ActiveInMedium { get; private set; }
-    public bool ActiveInHard { get; private set; }
+    public bool Easy { get; private set; }
+    public bool Normal { get; private set; }
+    public bool Hard { get; private set; }
 
     public bool IsSubroutine { get; private set; }
 
@@ -31,7 +31,7 @@ public sealed class Script : Asset, IPersistableObject
     /// How often the script should be evaluated, in seconds.
     /// If zero, script should be evaluated every frame.
     /// </summary>
-    public uint EvaluationInterval { get; private set; }
+    public uint DelayEvaluationSeconds { get; private set; }
 
     /// <summary>
     /// True if script uses of the new evaluation interval types:
@@ -67,13 +67,13 @@ public sealed class Script : Asset, IPersistableObject
         var shouldExecute =
             !IsSubroutine &&
             IsActive &&
-            (EvaluationInterval == 0 || _framesUntilNextEvaluation == 0);
+            (DelayEvaluationSeconds == 0 || _framesUntilNextEvaluation == 0);
 
-        if (EvaluationInterval != 0)
+        if (DelayEvaluationSeconds != 0)
         {
             // TODO: Is there an off-by-one error here?
             _framesUntilNextEvaluation = _framesUntilNextEvaluation == 0
-                ? EvaluationInterval * context.Scripting.TickRate
+                ? DelayEvaluationSeconds * context.Scripting.TickRate
                 : _framesUntilNextEvaluation--;
         }
 
@@ -89,7 +89,7 @@ public sealed class Script : Asset, IPersistableObject
     {
         // Note: _evaluationInterval is checked here for compatiblity.
         // See Systems >> Scripting >> Subroutines in OpenSAGE docs for more information.
-        var shouldExecute = IsSubroutine && IsActive && EvaluationInterval == 0;
+        var shouldExecute = IsSubroutine && IsActive && DelayEvaluationSeconds == 0;
 
         if (shouldExecute)
         {
@@ -110,7 +110,7 @@ public sealed class Script : Asset, IPersistableObject
             ScriptActions.Execute(context, action);
         }
 
-        var shouldDeactivate = DeactivateUponSuccess && actions.Length > 0;
+        var shouldDeactivate = IsOneShot && actions.Length > 0;
 
         if (shouldDeactivate)
         {
@@ -155,22 +155,22 @@ public sealed class Script : Asset, IPersistableObject
                 Name = reader.ReadUInt16PrefixedAsciiString(),
 
                 Comment = reader.ReadUInt16PrefixedAsciiString(),
-                ConditionsComment = reader.ReadUInt16PrefixedAsciiString(),
-                ActionsComment = reader.ReadUInt16PrefixedAsciiString(),
+                ConditionComment = reader.ReadUInt16PrefixedAsciiString(),
+                ActionComment = reader.ReadUInt16PrefixedAsciiString(),
 
                 IsActive = reader.ReadBooleanChecked(),
-                DeactivateUponSuccess = reader.ReadBooleanChecked(),
+                IsOneShot = reader.ReadBooleanChecked(),
 
-                ActiveInEasy = reader.ReadBooleanChecked(),
-                ActiveInMedium = reader.ReadBooleanChecked(),
-                ActiveInHard = reader.ReadBooleanChecked(),
+                Easy = reader.ReadBooleanChecked(),
+                Normal = reader.ReadBooleanChecked(),
+                Hard = reader.ReadBooleanChecked(),
 
                 IsSubroutine = reader.ReadBooleanChecked()
             };
 
             if (version >= 2)
             {
-                result.EvaluationInterval = reader.ReadUInt32();
+                result.DelayEvaluationSeconds = reader.ReadUInt32();
 
                 if (version == 5)
                 {
@@ -257,21 +257,21 @@ public sealed class Script : Asset, IPersistableObject
             writer.WriteUInt16PrefixedAsciiString(Name);
 
             writer.WriteUInt16PrefixedAsciiString(Comment);
-            writer.WriteUInt16PrefixedAsciiString(ConditionsComment);
-            writer.WriteUInt16PrefixedAsciiString(ActionsComment);
+            writer.WriteUInt16PrefixedAsciiString(ConditionComment);
+            writer.WriteUInt16PrefixedAsciiString(ActionComment);
 
             writer.Write(IsActive);
-            writer.Write(DeactivateUponSuccess);
+            writer.Write(IsOneShot);
 
-            writer.Write(ActiveInEasy);
-            writer.Write(ActiveInMedium);
-            writer.Write(ActiveInHard);
+            writer.Write(Easy);
+            writer.Write(Normal);
+            writer.Write(Hard);
 
             writer.Write(IsSubroutine);
 
             if (Version >= 2)
             {
-                writer.Write(EvaluationInterval);
+                writer.Write(DelayEvaluationSeconds);
 
                 if (Version == 5)
                 {
@@ -331,17 +331,17 @@ public sealed class Script : Asset, IPersistableObject
     {
         return new Script()
         {
-            ActionsComment = ActionsComment,
+            ActionComment = ActionComment,
             ActionsFireSequentially = ActionsFireSequentially,
             ActionsIfFalse = ActionsIfFalse.Select(a => a.Copy(appendix)).ToArray(),
             ActionsIfTrue = ActionsIfTrue.Select(a => a.Copy(appendix)).ToArray(),
-            ActiveInEasy = ActiveInEasy,
-            ActiveInHard = ActiveInHard,
-            ActiveInMedium = ActiveInMedium,
+            Easy = Easy,
+            Hard = Hard,
+            Normal = Normal,
             Comment = Comment,
-            ConditionsComment = ConditionsComment,
-            DeactivateUponSuccess = DeactivateUponSuccess,
-            EvaluationInterval = EvaluationInterval,
+            ConditionComment = ConditionComment,
+            IsOneShot = IsOneShot,
+            DelayEvaluationSeconds = DelayEvaluationSeconds,
             EvaluationIntervalType = EvaluationIntervalType,
             IsActive = IsActive,
             IsSubroutine = IsSubroutine,

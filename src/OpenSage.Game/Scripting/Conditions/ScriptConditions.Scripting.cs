@@ -11,7 +11,7 @@ partial class ScriptConditions
     public static bool False(ScriptExecutionContext context) => false;
 
     [ScriptCondition(ScriptConditionType.Flag, "Scripting/Flag compared to value", "{0} is {1}")]
-    public static bool Flag(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.FlagName)] string flagName, bool compareValue)
+    public static bool Flag(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Flag)] string flagName, bool compareValue)
     {
         var flagValue = context.Scripting.GetFlagValue(flagName);
 
@@ -19,13 +19,13 @@ partial class ScriptConditions
     }
 
     [ScriptCondition(ScriptConditionType.TimerExpired, "Scripting/Timer expired", "{0} has expired")]
-    public static bool TimerExpired(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string timerName)
+    public static bool TimerExpired(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Counter)] string timerName)
     {
         return context.Scripting.HasTimerExpired(timerName);
     }
 
     [ScriptCondition(ScriptConditionType.Counter, "Scripting/Counter compared to value", "{0} is {1} {2}")]
-    public static bool Counter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.CounterName)] string counterName, [ScriptArgumentType(ScriptArgumentType.Comparison)] ScriptingComparison comparison, int compareValue)
+    public static bool Counter(ScriptExecutionContext context, [ScriptArgumentType(ScriptArgumentType.Counter)] string counterName, [ScriptArgumentType(ScriptArgumentType.Comparison)] ScriptingComparison comparison, int compareValue)
     {
         return EvaluateComparison(context.Scripting.GetCounterValue(counterName), comparison, compareValue);
     }
