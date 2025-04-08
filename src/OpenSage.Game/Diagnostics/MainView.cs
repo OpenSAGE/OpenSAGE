@@ -69,6 +69,7 @@ internal sealed class MainView : DisposableBase
         AddView(new CameraView(context));
         AddView(new PartitionView(context));
         AddView(new TextCacheView(context));
+        AddView(new UpdateModulesView(context));
 
         if (File.Exists(IniFileName))
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
@@ -325,6 +326,11 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
             // Fortunately, it's easy to deal with.
             updateModule.NextCallFrame = whenToWakeUp;
         }
+    }
+
+    internal void DrawUpdateModulesDiagnosticTable()
+    {
+        _sleepyUpdates.DrawDiagnosticTable();
     }
 
     public void Persist(StatePersister reader)
@@ -814,6 +820,45 @@ internal sealed class SleepyUpdateList
                 var priority2 = _inner[i2].Priority;
                 DebugUtility.AssertCrash(priority <= priority2, "Sleepy updates are broken");
             }
+        }
+    }
+
+    internal void DrawDiagnosticTable()
+    {
+        if (ImGui.BeginTable("update-modules", 4, ImGuiTableFlags.ScrollY))
+        {
+            ImGui.TableSetupScrollFreeze(0, 1);
+            ImGui.TableSetupColumn("Module");
+            ImGui.TableSetupColumn("Object");
+            ImGui.TableSetupColumn("Next Frame");
+            ImGui.TableSetupColumn("Phase");
+            ImGui.TableHeadersRow();
+
+            foreach (var updateModule in _inner)
+            {
+                ImGui.TableNextRow();
+
+                ImGui.TableNextColumn();
+                ImGui.Text(updateModule.GetType().Name);
+
+                ImGui.TableNextColumn();
+                ImGui.Text(updateModule.ParentGameObject.Name ?? updateModule.ParentGameObject.Definition.Name);
+
+                ImGui.TableNextColumn();
+                if (updateModule.NextCallFrame.Value == UpdateSleepTime.SleepForever)
+                {
+                    ImGui.Text($"Sleep forever");
+                }
+                else
+                {
+                    ImGui.Text($"{updateModule.NextCallFrame.Value:X8}");
+                }
+
+                ImGui.TableNextColumn();
+                ImGui.Text(((int)updateModule.NextCallPhase).ToString());
+            }
+
+            ImGui.EndTable();
         }
     }
 }
