@@ -268,11 +268,11 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     internal void AwakenUpdateModule(GameObject gameObject, UpdateModule updateModule, LogicFrame whenToWakeUp)
     {
         var now = CurrentFrame;
-        // DEBUG_ASSERTCRASH(whenToWakeUp >= now, ("setWakeFrame frame is in the past... are you sure this is what you want?"));
+        DebugUtility.AssertCrash(whenToWakeUp >= now, "SetWakeFrame frame is in the past... are you sure this is what you want?");
 
         if (updateModule == _currentUpdateModule)
         {
-            // DEBUG_CRASH(("You should not call setWakeFrame() from inside your update(), because it will be ignored, in favor of the return code from update.\n"));
+            DebugUtility.Crash("You should not call SetWakeFrame() from inside your Update(), because it will be ignored, in favor of the return code from Update");
             return;
         }
 
@@ -823,8 +823,13 @@ internal sealed class SleepyUpdateList
         }
     }
 
+    private readonly List<UpdateModule> _sortedList = new();
+
     internal void DrawDiagnosticTable()
     {
+        ImGui.Text($"Total update modules: {_inner.Count}");
+        ImGui.Separator();
+
         if (ImGui.BeginTable("update-modules", 4, ImGuiTableFlags.ScrollY))
         {
             ImGui.TableSetupScrollFreeze(0, 1);
@@ -834,31 +839,42 @@ internal sealed class SleepyUpdateList
             ImGui.TableSetupColumn("Phase");
             ImGui.TableHeadersRow();
 
-            foreach (var updateModule in _inner)
+            // Unfortunately, we can't directly get an ordered list out of a priority queue.
+            // So instead we copy the whole thing into a simple list and sort that.
+            // This is super slow.
+            _sortedList.Clear();
+            _sortedList.AddRange(_inner);
+            _sortedList.Sort(static (x, y) => x.Priority.CompareTo(y.Priority));
+            foreach (var updateModule in _sortedList)
             {
-                ImGui.TableNextRow();
-
-                ImGui.TableNextColumn();
-                ImGui.Text(updateModule.GetType().Name);
-
-                ImGui.TableNextColumn();
-                ImGui.Text(updateModule.ParentGameObject.Name ?? updateModule.ParentGameObject.Definition.Name);
-
-                ImGui.TableNextColumn();
-                if (updateModule.NextCallFrame.Value == UpdateSleepTime.SleepForever)
-                {
-                    ImGui.Text($"Sleep forever");
-                }
-                else
-                {
-                    ImGui.Text($"{updateModule.NextCallFrame.Value:X8}");
-                }
-
-                ImGui.TableNextColumn();
-                ImGui.Text(((int)updateModule.NextCallPhase).ToString());
+                DrawDiagnosticTableRow(updateModule);
             }
 
             ImGui.EndTable();
         }
+    }
+
+    private static void DrawDiagnosticTableRow(UpdateModule updateModule)
+    {
+        ImGui.TableNextRow();
+
+        ImGui.TableNextColumn();
+        ImGui.Text(updateModule.GetType().Name);
+
+        ImGui.TableNextColumn();
+        ImGui.Text(updateModule.ParentGameObject.Name ?? updateModule.ParentGameObject.Definition.Name);
+
+        ImGui.TableNextColumn();
+        if (updateModule.NextCallFrame.Value == UpdateSleepTime.SleepForever)
+        {
+            ImGui.Text($"Sleep forever");
+        }
+        else
+        {
+            ImGui.Text(updateModule.NextCallFrame.Value.ToString());
+        }
+
+        ImGui.TableNextColumn();
+        ImGui.Text(((int)updateModule.NextCallPhase).ToString());
     }
 }
