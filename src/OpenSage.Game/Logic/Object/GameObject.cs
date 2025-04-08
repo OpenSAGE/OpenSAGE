@@ -440,6 +440,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     /// </summary>
     public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > -_gameEngine.AssetStore.GameData.Current.Gravity * MathUtility.Square(3);
 
+    public bool IsDestroyed => _status.Get(ObjectStatus.Destroyed);
+
     // TODO(Port): Implement this.
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public float CarrierDeckHeight => 0;

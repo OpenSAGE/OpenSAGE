@@ -170,6 +170,21 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
     public void DestroyObject(GameObject gameObject)
     {
+        if (gameObject.IsDestroyed)
+        {
+            return;
+        }
+
+        _game.Scene3D?.Quadtree.Remove(gameObject);
+        _game.Scene3D?.Radar.RemoveGameObject(gameObject);
+        gameObject.PartitionObject.Remove();
+
+        gameObject.Drawable.Destroy();
+
+        gameObject.OnDestroy();
+
+        gameObject.SetObjectStatus(ObjectStatus.Destroyed, true);
+
         _destroyList.Add(gameObject);
     }
 
@@ -177,14 +192,6 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     {
         foreach (var gameObject in _destroyList)
         {
-            _game.Scene3D?.Quadtree.Remove(gameObject);
-            _game.Scene3D?.Radar.RemoveGameObject(gameObject);
-            gameObject.PartitionObject.Remove();
-
-            gameObject.Drawable.Destroy();
-
-            gameObject.OnDestroy();
-
             if (gameObject.Name != null)
             {
                 _nameLookup.Remove(gameObject.Name);
