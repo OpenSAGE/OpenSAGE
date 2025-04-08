@@ -153,7 +153,7 @@ internal sealed class JsonSaveWriter : StatePersister
     public override void PersistUpdateFrameValue(ref UpdateFrame value)
     {
         var frame = value.Frame;
-        PersistUInt32(ref frame);
+        this.PersistLogicFrame(ref frame);
 
         var updateOrder = value.UpdateOrder;
         PersistEnum(ref updateOrder);

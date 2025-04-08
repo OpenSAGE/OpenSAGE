@@ -191,6 +191,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private BitArray<DisabledType> _disabledTypes = new();
     private readonly LogicFrame[] _disabledTypesFrames = new LogicFrame[9];
+
+    internal BitArray<DisabledType> DisabledFlags => _disabledTypes;
+
     public readonly ExperienceTracker ExperienceTracker;
     private ObjectId _containerId;
     public ObjectId ContainerId => _containerId;

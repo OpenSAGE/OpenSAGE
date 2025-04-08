@@ -25,7 +25,7 @@ internal sealed class SpawnBehavior : UpdateModule
     private ushort _unknownInt3;
     private int _unknownInt4;
 
-    public UpdateOrder UpdatePhase => UpdateOrder.Order2;
+    protected override UpdateOrder UpdateOrder => UpdateOrder.Order2;
 
     internal SpawnBehavior(GameObject gameObject, IGameEngine gameEngine, SpawnBehaviorModuleData moduleData) : base(gameObject, gameEngine)
     {

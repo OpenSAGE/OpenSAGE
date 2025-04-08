@@ -18,7 +18,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
         : base(gameObject, gameEngine)
     {
         _moduleData = moduleData;
-        SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
+        SetWakeFrame(UpdateSleepTime.Forever);
         _upgradeLogic = new UpgradeLogic(moduleData.UpgradeData, OnUpgrade);
     }
 
@@ -29,7 +29,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
     private void OnUpgrade()
     {
         // todo: if unit is max health and this is a self-heal behavior, even if upgrade was triggered, nextupdateframe is still maxvalue
-        SetNextUpdateFrame(GameEngine.GameLogic.CurrentFrame);
+        SetWakeFrame(UpdateSleepTime.None);
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class AutoHealBehavior : UpdateModule, IUpgradeableModule, IDamage
         {
             var currentFrame = GameEngine.GameLogic.CurrentFrame;
             _endOfStartHealingDelay = currentFrame + _moduleData.StartHealingDelay;
-            SetNextUpdateFrame(_endOfStartHealingDelay);
+            SetWakeFrame(UpdateSleepTime.Frames(_moduleData.StartHealingDelay));
         }
     }
 

@@ -165,6 +165,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
         set => SetFlag(PhysicsFlagType.ApplyFriction2DWhenAirborne, value);
     }
 
+    public override BitArray<DisabledType> DisabledTypesToProcess { get; } = BitArray<DisabledType>.CreateAllSet();
+
     internal PhysicsBehavior(GameObject gameObject, IGameEngine gameEngine, PhysicsBehaviorModuleData moduleData)
         : base(gameObject, gameEngine)
     {
