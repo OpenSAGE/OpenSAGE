@@ -191,6 +191,9 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     private BitArray<DisabledType> _disabledTypes = new();
     private readonly LogicFrame[] _disabledTypesFrames = new LogicFrame[9];
+
+    internal BitArray<DisabledType> DisabledFlags => _disabledTypes;
+
     public readonly ExperienceTracker ExperienceTracker;
     private ObjectId _containerId;
     public ObjectId ContainerId => _containerId;
@@ -436,6 +439,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
     /// with d = g * t^2. Gravity is negative, so we must negate it here.
     /// </summary>
     public bool IsSignificantlyAboveTerrain => HeightAboveTerrain > -_gameEngine.AssetStore.GameData.Current.Gravity * MathUtility.Square(3);
+
+    public bool IsDestroyed => _status.Get(ObjectStatus.Destroyed);
 
     // TODO(Port): Implement this.
     [AddedIn(SageGame.CncGeneralsZeroHour)]

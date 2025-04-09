@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using ImGuiNET;
 using OpenSage.Content;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
@@ -17,6 +19,9 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     private readonly Dictionary<string, GameObject> _nameLookup = new();
 
     private readonly List<GameObject> _destroyList = new();
+
+    private readonly SleepyUpdateList _sleepyUpdates = new();
+    private UpdateModule _currentUpdateModule;
 
     private readonly Dictionary<string, ObjectBuildableType> _techTreeOverrides = new();
     private readonly List<string> _commandSetNamesPrefixedWithCommandButtonIndex = new();
@@ -74,6 +79,32 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         var gameObject = AddDisposable(new GameObject(objectDefinition, _game.GameEngine, player));
 
         gameObject.Id = new ObjectId(NextObjectId++);
+
+        var now = CurrentFrame;
+        if (now == LogicFrame.Zero)
+        {
+            now = new LogicFrame(1);
+        }
+
+        foreach (var module in gameObject.BehaviorModules)
+        {
+            if (module is UpdateModule updateModule)
+            {
+                var when = updateModule.NextCallFrame;
+
+                // Note that "when" can be zero here for any update module
+                // that didn't bother to call SetWakeFrame in its constructor.
+                // This is legal.
+                if (when == LogicFrame.Zero)
+                {
+                    updateModule.NextCallFrame = now;
+                }
+
+                DebugUtility.AssertCrash(updateModule.NextCallFrame >= now, $"You may not specify a zero initial sleep time for sleepy modules ({updateModule.NextCallFrame} {now})");
+
+                _sleepyUpdates.Add(updateModule);
+            }
+        }
 
         foreach (var module in gameObject.BehaviorModules)
         {
@@ -139,6 +170,21 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
     public void DestroyObject(GameObject gameObject)
     {
+        if (gameObject.IsDestroyed)
+        {
+            return;
+        }
+
+        _game.Scene3D?.Quadtree.Remove(gameObject);
+        _game.Scene3D?.Radar.RemoveGameObject(gameObject);
+        gameObject.PartitionObject.Remove();
+
+        gameObject.Drawable.Destroy();
+
+        gameObject.OnDestroy();
+
+        gameObject.SetObjectStatus(ObjectStatus.Destroyed, true);
+
         _destroyList.Add(gameObject);
     }
 
@@ -146,17 +192,16 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
     {
         foreach (var gameObject in _destroyList)
         {
-            _game.Scene3D?.Quadtree.Remove(gameObject);
-            _game.Scene3D?.Radar.RemoveGameObject(gameObject);
-            gameObject.PartitionObject.Remove();
-
-            gameObject.Drawable.Destroy();
-
-            gameObject.OnDestroy();
-
             if (gameObject.Name != null)
             {
                 _nameLookup.Remove(gameObject.Name);
+            }
+
+            foreach (var updateModule in gameObject.FindBehaviors<UpdateModule>())
+            {
+                _sleepyUpdates.Remove(updateModule.IndexInLogic);
+
+                DebugUtility.AssertCrash(updateModule.IndexInLogic == -1, "Hmm, expected index to be -1 here");
             }
 
             gameObject.Dispose();
@@ -183,12 +228,116 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
     public void Update()
     {
-        foreach (var gameObject in Objects)
+        var now = _currentFrame;
+
+        while (_sleepyUpdates.Count > 0)
         {
-            gameObject?.Update();
+            var updateModule = _sleepyUpdates.Peek();
+
+            if (updateModule.NextCallFrame > now)
+            {
+                // We're done. Everything else is sleeping.
+                // Break from the loop _before_ we pop this item off.
+                break;
+            }
+
+            // Default, if it is disabled.
+            var sleepLength = UpdateSleepTime.None;
+
+            var disabledMask = updateModule.ParentGameObject.DisabledFlags;
+            if (!disabledMask.AnyBitSet || disabledMask.Intersects(updateModule.DisabledTypesToProcess))
+            {
+                _currentUpdateModule = updateModule;
+
+                sleepLength = updateModule.Update();
+
+                DebugUtility.AssertCrash(sleepLength.FrameSpan > LogicFrameSpan.Zero, "You may not return 0 from an update");
+                if (sleepLength.FrameSpan < LogicFrameSpan.One)
+                {
+                    sleepLength = UpdateSleepTime.None;
+                }
+
+                _currentUpdateModule = null;
+            }
+
+            // Defer it till the next frame and re-push it.
+            updateModule.NextCallFrame = now + sleepLength.FrameSpan;
+            _sleepyUpdates.Rebalance(0);
         }
 
+        _sleepyUpdates.Validate();
+
         _currentFrame++;
+    }
+
+    // Sleepy update stuff.
+
+    internal void AwakenUpdateModule(GameObject gameObject, UpdateModule updateModule, LogicFrame whenToWakeUp)
+    {
+        var now = CurrentFrame;
+        DebugUtility.AssertCrash(whenToWakeUp >= now, "SetWakeFrame frame is in the past... are you sure this is what you want?");
+
+        if (updateModule == _currentUpdateModule)
+        {
+            DebugUtility.Crash("You should not call SetWakeFrame() from inside your Update(), because it will be ignored, in favor of the return code from Update");
+            return;
+        }
+
+        if (whenToWakeUp == updateModule.NextCallFrame)
+        {
+            // That was easy.
+            return;
+        }
+
+        if (now > LogicFrame.Zero && updateModule.NextCallFrame == now && whenToWakeUp == now + LogicFrameSpan.One)
+        {
+            // Subtle but important detail: if we are already awake, and someone
+            // calls SetWakeFrame(UpdateSleepTime.None), we don't want to reset
+            // our wake frame, since that would prevent us from getting called
+            // THIS frame. Since UpdateSleepTime.None really means "wake up as
+            // soon as possible", we don't want to change our status if we are
+            // already awake.
+            return;
+        }
+
+        var index = updateModule.IndexInLogic;
+        if (_objects.Contains(gameObject))
+        {
+            if (index < 0 || index >= _sleepyUpdates.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), "Sleepy update module illegal index");
+            }
+
+            if (_sleepyUpdates[index] != updateModule)
+            {
+                throw new InvalidOperationException("Sleepy update module index mismatch");
+            }
+
+            // Update the value.
+            updateModule.NextCallFrame = whenToWakeUp;
+
+            // Rebalance.
+            _sleepyUpdates.Rebalance(index);
+
+            // Validate.
+            _sleepyUpdates.Validate();
+        }
+        else
+        {
+            if (index != -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), "Sleepy update module index mismatch");
+            }
+
+            // This can happen if stuff happens during object initialization.
+            // Fortunately, it's easy to deal with.
+            updateModule.NextCallFrame = whenToWakeUp;
+        }
+    }
+
+    internal void DrawUpdateModulesDiagnosticTable()
+    {
+        _sleepyUpdates.DrawDiagnosticTable();
     }
 
     public void Persist(StatePersister reader)
@@ -491,5 +640,248 @@ internal sealed class ObjectDefinitionLookupTable : IPersistableObject
             persister.PersistAsciiString(ref Name);
             persister.PersistUInt16(ref Id);
         }
+    }
+}
+
+/// <summary>
+/// A sorted tree-based list of sleepy <see cref="UpdateModule"/>s.
+/// </summary>
+internal sealed class SleepyUpdateList
+{
+    // TODO: Find a sensible default capacity for this.
+    private readonly List<UpdateModule> _inner = new();
+
+    public int Count => _inner.Count;
+
+    public UpdateModule this[int index]
+    {
+        get => _inner[index];
+    }
+
+    public void Rebalance(int index)
+    {
+        index = RebalanceParent(index);
+        RebalanceChild(index);
+    }
+
+    private int RebalanceParent(int i)
+    {
+        DebugUtility.AssertCrash(i >= 0 && i < _inner.Count, "Bad sleepy index");
+
+        var parent = ((i + 1) >> 1) - 1;
+        while (parent >= 0 && IsLowerPriority(_inner[parent], _inner[i]))
+        {
+            var a = _inner[parent];
+            var b = _inner[i];
+
+            _inner[i] = a;
+            _inner[parent] = b;
+
+            a.IndexInLogic = i;
+            b.IndexInLogic = parent;
+
+            i = parent;
+            parent = ((parent + 1) >> 1) - 1;
+        }
+
+        return i;
+    }
+
+    private int RebalanceChild(int i)
+    {
+        DebugUtility.AssertCrash(i >= 0 && i < _inner.Count, "Bad sleepy index");
+
+        // Our children as index*2 and index*2+1.
+        var count = _inner.Count;
+        var child = ((i + 1) << 1) - 1;
+        while (child < count)
+        {
+            // Choose the higher-priority of the two children; we must be higher-priority than that.
+            if (child < count - 1 && IsLowerPriority(_inner[child], _inner[child + 1]))
+            {
+                ++child;
+            }
+
+            // If we're higher-priority than our children, we're done.
+            if (!IsLowerPriority(_inner[i], _inner[child]))
+            {
+                break;
+            }
+
+            // Doh. Swap with the highest-priority child we have.
+            var a = _inner[child];
+            var b = _inner[i];
+
+            _inner[i] = a;
+            _inner[child] = b;
+
+            a.IndexInLogic = i;
+            b.IndexInLogic = child;
+
+            i = child;
+            child = ((i + 1) << 1) - 1;
+        }
+
+        return i;
+    }
+
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="a"/> is lower priority
+    /// than <paramref name="b"/>.
+    /// </summary>
+    private static bool IsLowerPriority(UpdateModule a, UpdateModule b)
+    {
+        // Remember: lower ordinal value means higher priority.
+        // Therefore, higher ordinal value means lower priority.
+        return a.Priority > b.Priority;
+    }
+
+    public void Add(UpdateModule updateModule)
+    {
+        DebugUtility.AssertCrash(updateModule != null, "You may not pass null for sleepy update info");
+
+        _inner.Add(updateModule);
+        updateModule.IndexInLogic = _inner.Count - 1;
+
+        RebalanceParent(_inner.Count - 1);
+    }
+
+    public void Remove(int index)
+    {
+        DebugUtility.AssertCrash(index >= 0 && index < _inner.Count, "Bad sleepy index");
+
+        // Swap with the final item, toss the final item, then rebalance.
+        _inner[index].IndexInLogic = -1;
+
+        var final = _inner.Count - 1;
+        if (index < final)
+        {
+            _inner[index] = _inner[final];
+            _inner[index].IndexInLogic = index;
+            _inner.RemoveAt(final);
+            Rebalance(index);
+        }
+        else
+        {
+            _inner.RemoveAt(final);
+        }
+    }
+
+    /// <summary>
+    /// Returns the <see cref="UpdateModule"/> at the front of the list,
+    /// but does not modify the list.
+    /// </summary>
+    /// <returns></returns>
+    public UpdateModule Peek()
+    {
+        var updateModule = _inner[0];
+
+        DebugUtility.AssertCrash(updateModule.IndexInLogic == 0, $"Index mismatch: expected 0, got {updateModule.IndexInLogic}");
+
+        return updateModule;
+    }
+
+    // TODO(Port): Call this from GameLogic.LoadPostProcess().
+    public void Remake()
+    {
+        var parent = _inner.Count / 2;
+        while (true)
+        {
+            RebalanceChild(parent);
+            if (parent == 0)
+            {
+                break;
+            }
+            --parent;
+        }
+
+        Validate();
+    }
+
+    [Conditional("DEBUG")]
+    public void Validate()
+    {
+        for (var i = 0; i < _inner.Count; i++)
+        {
+            var updateModule = _inner[i];
+
+            DebugUtility.AssertCrash(updateModule.IndexInLogic == i, $"Index mismatch: expected {i}, got {updateModule.IndexInLogic}");
+
+            var priority = updateModule.Priority;
+            if (i > 0)
+            {
+                var i0 = ((i + 1) / 2) - 1;
+                var priority0 = _inner[i0].Priority;
+                DebugUtility.AssertCrash(priority >= priority0, "Sleepy updates are broken");
+            }
+
+            var i1 = (2 * (i + 1)) - 1;
+            var i2 = 2 * (i + 1);
+            if (i1 < _inner.Count)
+            {
+                var priority1 = _inner[i1].Priority;
+                DebugUtility.AssertCrash(priority <= priority1, "Sleepy updates are broken");
+            }
+            if (i2 < _inner.Count)
+            {
+                var priority2 = _inner[i2].Priority;
+                DebugUtility.AssertCrash(priority <= priority2, "Sleepy updates are broken");
+            }
+        }
+    }
+
+    private readonly List<UpdateModule> _sortedList = new();
+
+    internal void DrawDiagnosticTable()
+    {
+        ImGui.Text($"Total update modules: {_inner.Count}");
+        ImGui.Separator();
+
+        if (ImGui.BeginTable("update-modules", 4, ImGuiTableFlags.ScrollY))
+        {
+            ImGui.TableSetupScrollFreeze(0, 1);
+            ImGui.TableSetupColumn("Module");
+            ImGui.TableSetupColumn("Object");
+            ImGui.TableSetupColumn("Next Frame");
+            ImGui.TableSetupColumn("Phase");
+            ImGui.TableHeadersRow();
+
+            // Unfortunately, we can't directly get an ordered list out of a priority queue.
+            // So instead we copy the whole thing into a simple list and sort that.
+            // This is super slow.
+            _sortedList.Clear();
+            _sortedList.AddRange(_inner);
+            _sortedList.Sort(static (x, y) => x.Priority.CompareTo(y.Priority));
+            foreach (var updateModule in _sortedList)
+            {
+                DrawDiagnosticTableRow(updateModule);
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private static void DrawDiagnosticTableRow(UpdateModule updateModule)
+    {
+        ImGui.TableNextRow();
+
+        ImGui.TableNextColumn();
+        ImGui.Text(updateModule.GetType().Name);
+
+        ImGui.TableNextColumn();
+        ImGui.Text(updateModule.ParentGameObject.Name ?? updateModule.ParentGameObject.Definition.Name);
+
+        ImGui.TableNextColumn();
+        if (updateModule.NextCallFrame.Value == UpdateSleepTime.SleepForever)
+        {
+            ImGui.Text($"Sleep forever");
+        }
+        else
+        {
+            ImGui.Text(updateModule.NextCallFrame.Value.ToString());
+        }
+
+        ImGui.TableNextColumn();
+        ImGui.Text(((int)updateModule.NextCallPhase).ToString());
     }
 }

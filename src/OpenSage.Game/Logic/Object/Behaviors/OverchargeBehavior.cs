@@ -27,7 +27,7 @@ public sealed class OverchargeBehavior : UpdateModule
         }
 
         // todo: this is fine for now, but generals seems to have some way of making sure it doesn't immediately sap health on subsequent toggles
-        SetNextUpdateFrame(GameEngine.GameLogic.CurrentFrame);
+        SetWakeFrame(UpdateSleepTime.None);
     }
 
     public void Deactivate()
@@ -38,7 +38,7 @@ public sealed class OverchargeBehavior : UpdateModule
         foreach (var powerPlantUpdate in GameObject.FindBehaviors<PowerPlantUpdate>())
         {
             powerPlantUpdate.RetractRods();
-            SetNextUpdateFrame(new LogicFrame(uint.MaxValue));
+            SetWakeFrame(UpdateSleepTime.Forever);
         }
     }
 
@@ -56,10 +56,9 @@ public sealed class OverchargeBehavior : UpdateModule
             DamageType = DamageType.Penalty,
             Amount = GameObject.BodyModule.MaxHealth * _moduleData.HealthPercentToDrainPerSecond / GameEngine.LogicFramesPerSecond,
         });
-        SetNextUpdateFrame(new LogicFrame((uint)GameEngine.LogicFramesPerSecond));
 
         // TODO(Port): Use correct value.
-        return UpdateSleepTime.None;
+        return UpdateSleepTime.Frames(LogicFrameSpan.OneSecond(GameEngine.LogicFramesPerSecond));
     }
 
     internal override void Load(StatePersister reader)

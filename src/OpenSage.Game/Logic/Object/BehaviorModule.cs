@@ -121,6 +121,7 @@ public readonly struct LogicFrame : IEquatable<LogicFrame>
 public readonly struct LogicFrameSpan
 {
     public static readonly LogicFrameSpan Zero = new LogicFrameSpan(0);
+    public static readonly LogicFrameSpan One = new LogicFrameSpan(1);
 
     internal readonly uint Value;
 
