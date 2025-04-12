@@ -17,11 +17,11 @@ public sealed class CreateCrateDie : DieModule
 
     protected override void Die(in DamageInfoInput damageInput)
     {
-        var crateData = _moduleData.CrateData.Value;
+        var crateData = _moduleData.CrateData?.Value;
 
         var killer = GameEngine.GameLogic.GetObjectById(damageInput.SourceID);
 
-        if (KillerCanSpawnCrate(killer, crateData))
+        if (crateData != null && KillerCanSpawnCrate(killer, crateData))
         {
             if (GameEngine.GameLogic.Random.NextSingle(0, 1) < crateData.CreationChance)
             {
@@ -88,7 +88,7 @@ public sealed class CreateCrateDieModuleData : DieModuleData
             { "CrateData", (parser, x) => x.CrateData = parser.ParseCrateReference() }
         });
 
-    public LazyAssetReference<CrateData> CrateData { get; private set; }
+    public LazyAssetReference<CrateData>? CrateData { get; private set; }
 
     internal override CreateCrateDie CreateModule(GameObject gameObject, IGameEngine gameEngine)
     {

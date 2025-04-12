@@ -16,7 +16,6 @@ public sealed class AcademyStats(IGame game) : IPersistableObject
     // Did player run out of money before building a supply center?
     private bool _spentCashBeforeBuildingSupplyCenter;
     private uint _supplyCentersBuilt;
-    private ObjectDefinition _supplyCenterTemplate;
     private uint _supplyCenterCost;
 
     // Did player build radar (if applicable)?

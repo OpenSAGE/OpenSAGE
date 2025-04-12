@@ -36,7 +36,7 @@ internal sealed class ChinookCombatDropState : State
     {
         reader.PersistVersion(2);
 
-        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope? item) =>
+        reader.PersistListWithUInt32Count(_ropes, (StatePersister persister, ref Rope item) =>
         {
             item ??= new Rope();
             persister.PersistObjectValue(item);

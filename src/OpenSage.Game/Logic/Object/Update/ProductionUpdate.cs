@@ -381,7 +381,7 @@ public sealed class ProductionUpdate : UpdateModule
             {
                 parkingPlace.ReportSpawn(producedUnit.Id);
                 producedUnit.AIUpdate.SetLocomotor(LocomotorSetType.Taxiing);
-                var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+                var jetAIUpdate = (JetAIUpdate)producedUnit.AIUpdate;
                 jetAIUpdate.Base = GameObject;
                 jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.Parked;
             }
@@ -398,7 +398,7 @@ public sealed class ProductionUpdate : UpdateModule
     {
         if (ProductionExit is ParkingPlaceBehaviour && !ProducedAtHelipad(producedUnit.Definition))
         {
-            var jetAIUpdate = producedUnit.AIUpdate as JetAIUpdate;
+            var jetAIUpdate = (JetAIUpdate)producedUnit.AIUpdate;
             jetAIUpdate.CurrentJetAIState = JetAIUpdate.JetAIState.JustCreated;
             return;
         }

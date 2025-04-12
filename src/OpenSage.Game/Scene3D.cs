@@ -34,8 +34,8 @@ public sealed class Scene3D : DisposableBase, IScene3D
 
     // TODO: Remove or refactor these
     // RtsCameraController uses its own input handling, so these are only used for debug cameras
-    private readonly EditorCameraInputMessageHandler _editorCameraInputMessageHandler;
-    private EditorCameraInputState _editorCameraInputState;
+    //private readonly EditorCameraInputMessageHandler _editorCameraInputMessageHandler;
+    //private EditorCameraInputState _editorCameraInputState;
     public IEditorCameraController EditorCameraController { get; }
 
     public IGameEngine GameEngine { get; }
@@ -369,8 +369,9 @@ public sealed class Scene3D : DisposableBase, IScene3D
             gameObject.LocalLogicTick(gameTime, tickT, Terrain?.HeightMap);
         }
 
-        _editorCameraInputMessageHandler?.UpdateInputState(ref _editorCameraInputState);
-        EditorCameraController?.UpdateCamera(Camera, _editorCameraInputState, gameTime);
+        // TODO: Remove or refactor these
+        //_editorCameraInputMessageHandler?.UpdateInputState(ref _editorCameraInputState);
+        //EditorCameraController?.UpdateCamera(Camera, _editorCameraInputState, gameTime);
         TacticalView.Update(gameTime);
 
         DebugOverlay.Update(gameTime);

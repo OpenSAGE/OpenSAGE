@@ -461,10 +461,13 @@ public sealed class GeneralsControlBar : IControlBar
                             {
                                 var unitId = container.ContainedObjectIds[exitCommandCount++];
                                 var unit = controlBar.Game.Scene3D.GameObjects.GetObjectById(unitId);
-                                slotsUsed += container.SlotValueForUnit(unit);
-                                buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.ButtonImage);
-                                buttonControl.OverlayImage = RankOverlaySmall(controlBar, unit.Rank);
-                                buttonControl.Enabled = true;
+                                if (unit != null)
+                                {
+                                    slotsUsed += container.SlotValueForUnit(unit);
+                                    buttonControl.BackgroundImage = controlBar._window.ImageLoader.CreateFromMappedImageReference(unit.Definition.ButtonImage);
+                                    buttonControl.OverlayImage = RankOverlaySmall(controlBar, unit.Rank);
+                                    buttonControl.Enabled = true;
+                                }
                             }
                             else
                             {
