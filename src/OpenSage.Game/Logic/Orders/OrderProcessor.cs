@@ -431,27 +431,32 @@ public sealed class OrderProcessor
                     var supplyPointId = order.Arguments[0].Value.ObjectId;
                     var supplyPoint = _game.Scene3D.GameObjects.GetObjectById(supplyPointId);
 
-                    if (supplyPoint != null)
+                    foreach (var unit in player.SelectedUnits)
                     {
-                        foreach (var unit in player.SelectedUnits)
+                        var behavior = unit.FindBehavior<SupplyAIUpdate>();
+
+                        if (behavior is null)
                         {
-                            var behavior = unit.FindBehavior<SupplyAIUpdate>();
+                            continue;
+                        }
 
-                            if (behavior is null)
-                            {
-                                continue;
-                            }
-
-                            if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
-                            {
-                                behavior.CurrentSupplySource = supplyPoint;
-                                behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
-                            }
-                            else // if it's not a supply source, it's a supply center
-                            {
-                                behavior.CurrentSupplyTarget = supplyPoint;
-                                behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplyTarget;
-                            }
+                        if (supplyPoint == null)
+                        {
+                            // TODO(Port): It's probably not correct to reset both source and target if
+                            // the supply point has been destroyed.
+                            behavior.CurrentSupplySource = null;
+                            behavior.CurrentSupplyTarget = null;
+                            behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.Default;
+                        }
+                        else if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
+                        {
+                            behavior.CurrentSupplySource = supplyPoint;
+                            behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;
+                        }
+                        else // if it's not a supply source, it's a supply center
+                        {
+                            behavior.CurrentSupplyTarget = supplyPoint;
+                            behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplyTarget;
                         }
                     }
                     break;
