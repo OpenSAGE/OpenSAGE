@@ -129,7 +129,10 @@ public sealed class OrderProcessor
                         var buildTarget = _game.Scene3D.GameObjects.GetObjectById(buildTargetId);
 
                         var dozer = player.SelectedUnits.SingleOrDefault(u => u.IsKindOf(ObjectKinds.Dozer));
-                        (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
+                        if (buildTarget != null)
+                        {
+                            (dozer?.AIUpdate as IBuilderAIUpdate)?.SetBuildTarget(buildTarget); // todo: I don't love this cast; it would be nice to get rid of it
+                        }
 
                         _game.Audio.PlayAudioEvent(dozer, dozer?.Definition.UnitSpecificSounds?.VoiceBuildResponse?.Value);
                     }
@@ -143,7 +146,7 @@ public sealed class OrderProcessor
                         var upgradeDefinition = _game.AssetStore.Upgrades.GetByInternalId(upgradeDefinitionId);
                         player.BankAccount.Withdraw((uint)upgradeDefinition.BuildCost);
 
-                        gameObject.ProductionUpdate.QueueUpgrade(upgradeDefinition);
+                        gameObject?.ProductionUpdate.QueueUpgrade(upgradeDefinition);
                     }
                     break;
 
@@ -227,7 +230,10 @@ public sealed class OrderProcessor
                         var repairTargetId = order.Arguments[0].Value.ObjectId;
                         var repairTarget = _game.Scene3D.GameObjects.GetObjectById(repairTargetId);
 
-                        (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
+                        if (repairTarget != null)
+                        {
+                            (repairer?.AIUpdate as IBuilderAIUpdate)?.SetRepairTarget(repairTarget);
+                        }
 
                         _game.Audio.PlayAudioEvent(repairer, repairer?.Definition.UnitSpecificSounds?.VoiceRepair?.Value);
                     }
@@ -306,7 +312,10 @@ public sealed class OrderProcessor
                             var obj = _game.Scene3D.GameObjects.GetObjectById(objId);
 
                             var rallyPoint = order.Arguments[1].Value.Position;
-                            obj.RallyPoint = rallyPoint;
+                            if (obj != null)
+                            {
+                                obj.RallyPoint = rallyPoint;
+                            }
                         }
                         else
                         {
@@ -399,21 +408,23 @@ public sealed class OrderProcessor
                         var objectDefinitionId = order.Arguments[1].Value.ObjectId;
                         var gameObject = _game.Scene3D.GameObjects.GetObjectById(objectDefinitionId);
 
-                        var container = gameObject.FindBehavior<OpenContainModule>();
-                        foreach (var unit in player.SelectedUnits)
+                        if (gameObject != null)
                         {
-                            if (!container.CanAddUnit(unit))
+                            var container = gameObject.FindBehavior<OpenContainModule>();
+                            foreach (var unit in player.SelectedUnits)
                             {
-                                continue; // this unit can't enter the container (kindof doesn't match, or there aren't enough slots)
+                                if (!container.CanAddUnit(unit))
+                                {
+                                    continue; // this unit can't enter the container (kindof doesn't match, or there aren't enough slots)
+                                }
+
+                                // TODO: Don't put it in container right now. Tell it to move towards container.
+                                //  use AIStateMachine EnterContainerState?
+                                //  deselect unit upon entry
+                                //unit.AIUpdate.SetTargetObject(gameObject);
+                                container.Add(unit);
                             }
-
-                            // TODO: Don't put it in container right now. Tell it to move towards container.
-                            //  use AIStateMachine EnterContainerState?
-                            //  deselect unit upon entry
-                            //unit.AIUpdate.SetTargetObject(gameObject);
-                            container.Add(unit);
                         }
-
                         break;
                     }
                 case OrderType.GatherDumpSupplies:
@@ -429,7 +440,15 @@ public sealed class OrderProcessor
                             continue;
                         }
 
-                        if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
+                        if (supplyPoint == null)
+                        {
+                            // TODO(Port): It's probably not correct to reset both source and target if
+                            // the supply point has been destroyed.
+                            behavior.CurrentSupplySource = null;
+                            behavior.CurrentSupplyTarget = null;
+                            behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.Default;
+                        }
+                        else if (supplyPoint.IsKindOf(ObjectKinds.SupplySource))
                         {
                             behavior.CurrentSupplySource = supplyPoint;
                             behavior.SupplyGatherState = SupplyAIUpdate.SupplyGatherStates.SearchingForSupplySource;

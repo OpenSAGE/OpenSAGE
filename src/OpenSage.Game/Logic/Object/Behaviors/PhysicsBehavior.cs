@@ -5,7 +5,6 @@ using OpenSage.Audio;
 using OpenSage.Data.Ini;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Mathematics;
-using OpenSage.Utilities;
 
 namespace OpenSage.Logic.Object;
 
@@ -30,7 +29,8 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
     private readonly float _lateralFriction;
     private readonly float _zFriction;
 
-    private readonly AudioEvent _bounceSound;
+    // TODO(Port): Implement this.
+    //private readonly AudioEvent _bounceSound;
 
     private IProjectileUpdate _projectileUpdate;
 
@@ -869,10 +869,11 @@ public class PhysicsBehavior : UpdateModule, ICollideModule
 
     private void DoBounceSound(in Vector3 prevPos)
     {
-        if (_bounceSound == null)
-        {
-            return;
-        }
+        // TODO(Port): Implement this.
+        //if (_bounceSound == null)
+        //{
+        //    return;
+        //}
 
         // TODO(Port): Implement this.
         throw new NotImplementedException();

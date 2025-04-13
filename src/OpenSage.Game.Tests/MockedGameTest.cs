@@ -80,8 +80,10 @@ public abstract class MockedGameTest : IDisposable
         public AudioSystem Audio { get; }
         public SelectionSystem Selection { get; }
         public IGameEngine GameEngine { get; }
+#pragma warning disable CS0067 // The event 'Game.X' is never used
         public event EventHandler<GameUpdatingEventArgs> Updating;
         public event EventHandler RenderCompleted;
+#pragma warning restore CS0067 // The event 'Game.X' is never used
         public void LoadSaveFile(FileSystemEntry entry)
         {
             throw new NotImplementedException();

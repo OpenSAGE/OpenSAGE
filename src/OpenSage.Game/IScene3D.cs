@@ -66,9 +66,4 @@ public interface IScene3D : IDisposable
     void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime);
     void Render(DrawingContext2D drawingContext);
     GameObject CreateSkirmishPlayerStartingBuilding(in PlayerSetting playerSetting, Player player);
-
-    /// <summary>
-    /// Releases unmanaged and - optionally - managed resources
-    /// </summary>
-    void Dispose();
 }
