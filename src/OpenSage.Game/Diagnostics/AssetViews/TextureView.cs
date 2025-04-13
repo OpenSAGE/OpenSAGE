@@ -27,7 +27,7 @@ internal sealed class TextureView : AssetView
     {
         ImGui.BeginChild("sidebar", new Vector2(150, 0));
         {
-            ImGui.BeginChild("mip level", new Vector2(150, 200), ImGuiChildFlags.Border, 0);
+            ImGui.BeginChild("mip level", new Vector2(150, 200), ImGuiChildFlags.Borders, 0);
             {
                 for (var i = 0u; i < _texture.MipLevels; i++)
                 {
@@ -39,7 +39,7 @@ internal sealed class TextureView : AssetView
             }
             ImGui.EndChild();
 
-            ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), ImGuiChildFlags.Border, 0);
+            ImGui.BeginChild("texture viewer settings", new Vector2(150, 0), ImGuiChildFlags.Borders, 0);
             {
                 ImGui.Text("Background color");
                 {

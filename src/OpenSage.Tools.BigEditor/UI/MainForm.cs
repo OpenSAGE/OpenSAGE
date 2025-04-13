@@ -250,14 +250,14 @@ internal sealed class MainForm : DisposableBase
 
     private void DrawFilesList(Vector2 windowSize)
     {
-        ImGui.BeginChild("sidebar", new Vector2(350, 0), ImGuiChildFlags.Border);
+        ImGui.BeginChild("sidebar", new Vector2(350, 0), ImGuiChildFlags.Borders);
 
         ImGui.PushItemWidth(-1);
         ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
         UpdateSearch(searchText);
         ImGui.PopItemWidth();
 
-        ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Border);
+        ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Borders);
 
         ImGui.Columns(2, "Files", false);
 
@@ -378,7 +378,7 @@ internal sealed class MainForm : DisposableBase
 
     private void DrawStatusPanel()
     {
-        ImGui.BeginChild("statusbar", new Vector2(0, 30), ImGuiChildFlags.Border);
+        ImGui.BeginChild("statusbar", new Vector2(0, 30), ImGuiChildFlags.Borders);
 
         ImGui.Text($"{Path.GetFileName(_bigArchive.FilePath)} | Version: {_bigArchive.Version} | Size: {ImGuiUtility.GetFormatedSize(_bigArchive.Size)} | Files: {_bigArchive.Entries.Count}");
 

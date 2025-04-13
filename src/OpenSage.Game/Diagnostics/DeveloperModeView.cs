@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Diagnostics.Util;
 using OpenSage.Input;
 using Veldrid;
 
@@ -58,8 +57,6 @@ public sealed class DeveloperModeView : DisposableBase
         AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(inputMessageHandler));
 
         _commandList = AddDisposable(game.GraphicsDevice.ResourceFactory.CreateCommandList());
-
-        ImGuiUtility.SetupDocking();
 
         _mainView = AddDisposable(new MainView(new DiagnosticViewContext(game, window, _imGuiRenderer)));
     }

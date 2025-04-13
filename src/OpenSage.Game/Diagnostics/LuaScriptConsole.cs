@@ -49,7 +49,7 @@ internal sealed class LuaScriptConsole : DiagnosticView
 
         ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0, 0, 150, 1));
         ImGui.Separator();
-        ImGui.BeginChild("cmd", Vector2.Zero, ImGuiChildFlags.Border);
+        ImGui.BeginChild("cmd", Vector2.Zero, ImGuiChildFlags.Borders);
         ImGui.PushStyleColor(ImGuiCol.Text, _consoleTextColor);
         ImGui.Text(_scriptConsoleTextAll);
         ImGui.PopStyleColor();

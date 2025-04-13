@@ -312,7 +312,7 @@ internal sealed class TextCache : DisposableBase
 
     internal void DrawDiagnostic(ref object selectedObject)
     {
-        ImGui.BeginChild("text cache", Vector2.Zero, ImGuiChildFlags.Border);
+        ImGui.BeginChild("text cache", Vector2.Zero, ImGuiChildFlags.Borders);
 
         foreach (var ((key, entry), index) in _cache.WithIndex())
         {
