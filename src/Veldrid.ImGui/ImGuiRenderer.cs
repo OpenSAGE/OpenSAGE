@@ -81,6 +81,8 @@ public class ImGuiRenderer : IDisposable
 
         SetPerFrameImGuiData(1f / 60f);
 
+        ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+
         ImGui.NewFrame();
         _frameBegun = true;
     }

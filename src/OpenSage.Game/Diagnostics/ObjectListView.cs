@@ -37,7 +37,7 @@ internal sealed class ObjectListView : DiagnosticView
         UpdateSearch(searchText);
         ImGui.PopItemWidth();
 
-        ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), ImGuiChildFlags.Border);
+        ImGui.BeginChild("files list", ImGui.GetContentRegionAvail(), ImGuiChildFlags.Borders);
 
         var clipperPtr = ImGuiNative.ImGuiListClipper_ImGuiListClipper();
         var clipper = new ImGuiListClipperPtr(clipperPtr);

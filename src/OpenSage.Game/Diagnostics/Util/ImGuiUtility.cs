@@ -10,14 +10,6 @@ namespace OpenSage.Diagnostics.Util;
 
 internal static class ImGuiUtility
 {
-    public static void SetupDocking()
-    {
-        ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-
-        // Need to reload .ini file as described in https://github.com/mellinoe/veldrid/issues/410
-        ImGui.LoadIniSettingsFromDisk(ImGui.GetIO().IniFilename);
-    }
-
     public static unsafe bool InputText(string label, byte[] textBuffer, out string result)
     {
         var temp = ImGui.InputText(label, textBuffer, (uint)textBuffer.Length, ImGuiInputTextFlags.None, data => 0);

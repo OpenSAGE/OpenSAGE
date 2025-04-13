@@ -49,7 +49,7 @@ internal sealed class AptView : DiagnosticView
     {
         foreach (var aptWindow in Game.Scene2D.AptWindowManager.WindowStack)
         {
-            ImGui.BeginChild("DisplayLists", new Vector2(400, 0), ImGuiChildFlags.Border, ImGuiWindowFlags.HorizontalScrollbar);
+            ImGui.BeginChild("DisplayLists", new Vector2(400, 0), ImGuiChildFlags.Borders, ImGuiWindowFlags.HorizontalScrollbar);
 
             if (ImGui.TreeNodeEx(aptWindow.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnArrow))
             {

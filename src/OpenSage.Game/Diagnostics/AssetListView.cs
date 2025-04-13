@@ -46,7 +46,7 @@ internal sealed class AssetListView : DiagnosticView
         UpdateSearch(searchText);
         ImGui.PopItemWidth();
 
-        ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Border);
+        ImGui.BeginChild("files list", Vector2.Zero, ImGuiChildFlags.Borders);
 
         foreach (var item in _items)
         {
