@@ -4,6 +4,18 @@ namespace OpenSage;
 
 public sealed class MultiplayerSettings : BaseSingletonAsset
 {
+    public int GetColor(int color)
+    {
+        // TODO(Port): This should return an instance of MultiplayerColorDefinition
+        return 0xFF_00_FF;
+    }
+
+    public int GetNightColor(int color)
+    {
+        // TODO(Port): This should return an instance of MultiplayerColorDefinition
+        return 0x00_FF_FF;
+    }
+
     internal static void Parse(IniParser parser, MultiplayerSettings value) => parser.ParseBlockContent(value, FieldParseTable);
 
     private static readonly IniParseTable<MultiplayerSettings> FieldParseTable = new IniParseTable<MultiplayerSettings>

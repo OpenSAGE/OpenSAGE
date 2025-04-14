@@ -89,14 +89,9 @@ public sealed class Squad(IGame game) : IPersistableObject
             ClearSquad();
         }
 
-        foreach (var objectId in fromTeam.ObjectIds)
+        foreach (var obj in fromTeam.Members)
         {
-            // TODO: C++ version of Team stores objects, not IDs. Does that matter?
-            var gameObject = _game.GameLogic.GetObjectById(objectId);
-            if (gameObject != null)
-            {
-                _objectIds.Add(objectId);
-            }
+            _objectIds.Add(obj.Id);
         }
     }
 

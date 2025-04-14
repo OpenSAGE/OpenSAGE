@@ -1,12 +1,16 @@
-#nullable enable
+﻿#nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using OpenSage.Content.Translation;
+using OpenSage.Data.Map;
 using OpenSage.Logic.AI;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic;
 
@@ -14,6 +18,7 @@ namespace OpenSage.Logic;
 public class Player : IPersistableObject
 {
     public const int MaxPlayers = 16;
+    public const int NumHotkeySquads = 10;
 
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -30,25 +35,28 @@ public class Player : IPersistableObject
     private readonly ScienceSet _sciencesDisabled;
     private readonly ScienceSet _sciencesHidden;
 
-    private readonly PlayerRelationships _playerToPlayerRelationships = new PlayerRelationships();
-    private readonly PlayerRelationships _playerToTeamRelationships = new PlayerRelationships();
+    private readonly PlayerRelationships<PlayerIndex> _playerToPlayerRelationships = new();
+    private readonly PlayerRelationships<TeamId> _playerToTeamRelationships = new();
 
-    private readonly List<TeamTemplate> _teamTemplates;
+    private readonly List<TeamPrototype> _teamPrototypes;
 
-    private uint _unknown1;
-    private bool _unknown2;
-    private uint _unknown3;
-    private bool _hasInsufficientPower;
-    private readonly List<BuildListInfo> _buildListItems = new();
-    private TunnelManager? _tunnelManager;
-    public TunnelManager? TunnelManager => _tunnelManager;
-    private uint _unknown4;
-    private uint _unknown5;
-    private bool _unknown6;
+    private int _radarCount;
+    private bool _isPlayerDead;
+    private int _disableProofRadarCount;
+    private bool _radarDisabled;
+
+    private BuildListInfo[] _buildList = [];
+    public BuildListInfo[] BuildList { get => _buildList; set => _buildList = value; }
+
+    private TunnelTracker? _tunnelSystem;
+    public TunnelTracker? TunnelManager => _tunnelSystem;
+    private uint _levelUp;
+    private uint _levelDown;
+    private bool _observer;
     private readonly bool[] _attackedByPlayerIds = new bool[MaxPlayers];
-    private readonly PlayerScoreManager _scoreManager = new();
+    private readonly ScoreKeeper _scoreKeeper = new();
     internal readonly SyncedSpecialPowerTimerCollection SyncedSpecialPowerTimers = [];
-    private readonly List<ObjectIdSet> _controlGroups = new();
+    private readonly Squad[] _squads = new Squad[NumHotkeySquads];
     private readonly ObjectIdSet _destroyedObjects = new();
 
     private bool _bombardmentActive;
@@ -59,7 +67,7 @@ public class Player : IPersistableObject
 
     private StrategyData? _strategyData;
 
-    public uint Id { get; }
+    public PlayerIndex Index { get; }
     public PlayerTemplate? Template { get; }
     public string? Name;
     public string? DisplayName { get; private set; }
@@ -77,7 +85,7 @@ public class Player : IPersistableObject
     public uint SkillPointsAvailable;
     public uint SciencePurchasePoints { get; set; }
     public bool CanBuildUnits;
-    public bool CanBuildBuildings;
+    public bool CanBuildBase;
     public float GeneralsExperienceMultiplier;
     public bool ShowOnScoreScreen;
 
@@ -87,6 +95,11 @@ public class Player : IPersistableObject
 
     // TODO(Port): Implement this.
     public bool IsLogicalRetaliationModeEnabled { get; set; }
+
+    private bool _isPreorder;
+    private int _mpStartIndex;
+    private readonly Handicap _handicap;
+    private Squad? _currentSelection;
 
     // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
     public int GetEnergy(IGameObjectCollection allGameObjects)
@@ -121,7 +134,8 @@ public class Player : IPersistableObject
         return true;
     }
 
-    public ColorRgb Color { get; }
+    public ColorRgb Color { get; private set; }
+    public ColorRgb NightColor { get; private set; }
 
     public HashSet<Player> Allies { get; internal set; }
 
@@ -132,17 +146,23 @@ public class Player : IPersistableObject
     // TODO: Does the order matter? Is it ever visible in UI?
     // TODO: Yes the order does matter. For example, the sound played when moving mixed groups of units is the one for the most-recently-selected unit.
     private HashSet<GameObject> _selectedUnits;
+
+    private PlayerType _playerType;
+    private ResourceGatheringManager _resourceGatheringManager;
+
     public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
     public GameObject? HoveredUnit { get; set; }
 
     public int Team { get; init; }
 
-    public Player(uint id, PlayerTemplate? template, in ColorRgb color, IGame game)
+    public PlayerMaskType PlayerMask => (PlayerMaskType)(1 << Index.Value);
+
+    public Player(PlayerIndex index, PlayerTemplate? template, in ColorRgb color, IGame game)
     {
         _game = game;
 
-        Id = id;
+        Index = index;
         Template = template;
         Color = color;
         _selectionGroups = new HashSet<GameObject>[10];
@@ -160,9 +180,9 @@ public class Player : IPersistableObject
         _sciencesDisabled = new ScienceSet();
         _sciencesHidden = new ScienceSet();
 
-        _teamTemplates = new List<TeamTemplate>();
+        _teamPrototypes = new List<TeamPrototype>();
 
-        _tunnelManager = new TunnelManager(); // todo: one of the map factions in generals doesn't have this - probably ok?
+        _tunnelSystem = new TunnelTracker(); // todo: one of the map factions in generals doesn't have this - probably ok?
 
         Rank = new Rank(this, game.AssetStore.Ranks);
 
@@ -182,8 +202,246 @@ public class Player : IPersistableObject
             }
         }
 
-        BankAccount = new BankAccount(_game, Id);
+        BankAccount = new BankAccount(_game, Index);
         AcademyStats = new AcademyStats(_game);
+        _resourceGatheringManager = new ResourceGatheringManager();
+        _handicap = new Handicap();
+    }
+
+    internal void InitFromDict(Data.Map.Player mapPlayer)
+    {
+        var sidesList = _game.Scene3D.MapFile.SidesList;
+
+        var templateName = mapPlayer.Faction
+            ?? throw new InvalidStateException("Player has no faction.");
+
+        var template = _game.AssetStore.PlayerTemplates.GetByName(templateName) ??
+            throw new InvalidStateException($"Player template {templateName} not found.");
+
+        Init(template);
+
+        var playerDisplayName = mapPlayer.DisplayName ?? "";
+        var playerName = mapPlayer.Name ?? "";
+        Name = playerName;
+
+        var forceHuman = false;
+        var skirmish = false;
+
+        if (mapPlayer.IsSkirmish ?? false)
+        {
+            // Ensure the map actually has a skirmish player.
+            // If it doesn't have one, convert another player of the same faction to a skirmish player.
+
+            skirmish = sidesList.Players.Any(p =>
+            {
+                var faction = p.Faction ?? throw new InvalidStateException("Player has no faction.");
+                var factionPlayerTemplate = _game.AssetStore.PlayerTemplates.GetByName(faction);
+                return factionPlayerTemplate?.Side == Side;
+            });
+
+            if (!skirmish)
+            {
+                Logger.Warn($"Map has no skirmish player for side {Side}. Converting to skirmish player.");
+                forceHuman = true;
+            }
+        }
+
+        if (mapPlayer.IsHuman ?? false || forceHuman)
+        {
+            SetPlayerType(PlayerType.Human, false);
+
+            if (mapPlayer.IsPreorder ?? false)
+            {
+                _isPreorder = true;
+            }
+
+            if (sidesList.SkirmishPlayers.Count > 0)
+            {
+                // Human player gets scripts from the civilian player.
+
+                var civilianPlayer = sidesList.SkirmishPlayers.Find(p =>
+                {
+                    var faction = p.Faction ?? throw new InvalidStateException("Player has no faction.");
+                    var factionPlayerTemplate = _game.AssetStore.PlayerTemplates.GetByName(faction);
+                    return factionPlayerTemplate?.Side == "Civilian";
+                });
+
+                if (civilianPlayer != null)
+                {
+                    // BUG from C++: _mpStartIndex is used before it's set. Thefore the qualifier will always be 0, at least
+                    // the first time a player is initialized.
+                    var qualifier = _mpStartIndex.ToString();
+                    var qualTemplatePlayerName = (civilianPlayer.Name ?? "") + _mpStartIndex;
+
+                    var scripts = civilianPlayer.Scripts.DuplicateAndQualify(
+                        qualifier,
+                        qualTemplatePlayerName,
+                        Name
+                    );
+
+                    sidesList.Players[Index.Value].Scripts = scripts;
+                    // If I understood the C++ code correctly, the scripts are then removed the from the civilian player.
+                    // So scripts attached to the civilian player are moved to the human player.
+                    civilianPlayer.Scripts = new Scripting.ScriptList();
+                }
+            }
+            skirmish = false;
+        }
+        else
+        {
+            SetPlayerType(PlayerType.Computer, skirmish);
+        }
+
+        _mpStartIndex = mapPlayer.MultiplayerStartIndex ?? 0;
+
+        if (skirmish)
+        {
+            var mySide = Side;
+
+            var skirmishPlayer = sidesList.SkirmishPlayers.Find(p =>
+            {
+                var playerTemplateName = p.Faction ?? throw new InvalidStateException("Player has no faction.");
+                // TODO: This is a hack. We should port PlayerTemplateStore and centralize the logic there (there are many other exceptions)
+                var fixedPlayerTemplateName = playerTemplateName == "" ? "FactionCivilian" : playerTemplateName;
+                var playerTemplate = _game.AssetStore.PlayerTemplates.GetByName(playerTemplateName == "" ? "FactionCivilian" : playerTemplateName) ??
+                    throw new InvalidStateException($"Player template {playerTemplateName} not found.");
+                return playerTemplate.Side == mySide;
+            });
+
+            var difficultyInt = mapPlayer.SkirmishDifficulty;
+            // TODO(Port): initialize difficulty from TheScriptEngine->getGlobalDifficulty
+            var difficulty = Difficulty.Normal;
+
+            if (difficultyInt.HasValue)
+            {
+                difficulty = (Difficulty)difficultyInt.Value;
+            }
+
+            if (AIPlayer != null)
+            {
+                AIPlayer.Difficulty = difficulty;
+            }
+
+            if (skirmishPlayer == null)
+            {
+                throw new InvalidStateException($"Could not find skirmish player for side {mySide}.");
+            }
+
+            Name = $"{skirmishPlayer.Name}{_mpStartIndex}";
+            var qualifier = _mpStartIndex.ToString();
+
+            var scripts = skirmishPlayer.Scripts.DuplicateAndQualify(
+                qualifier,
+                Name,
+                Name
+            );
+
+            sidesList.Players[Index.Value].Scripts = scripts;
+
+            // Remove all teams owned by this player
+            sidesList.Teams.RemoveAll(team => team.Owner == Name);
+
+            // Now add teams
+            var originalPlayerName = skirmishPlayer.Name;
+
+            foreach (var skirmishTeam in sidesList.SkirmishTeams)
+            {
+                if (skirmishTeam.Owner != originalPlayerName)
+                {
+                    continue;
+                }
+
+                var newTeamName = $"{skirmishTeam.Name}{_mpStartIndex}";
+
+                if (sidesList.FindTeamInfo(newTeamName) is not null)
+                {
+                    continue;
+                }
+
+                skirmishTeam.Owner = Name;
+                skirmishTeam.Name = newTeamName;
+
+                // Qualify scripts
+                Span<string> nameKeys = [
+                    TeamKeys.OnCreateScript,
+                    TeamKeys.OnIdleScript,
+                    TeamKeys.OnUnitDestroyedScript,
+                    TeamKeys.OnDestroyedScript,
+                    TeamKeys.EnemySightedScript,
+                    TeamKeys.AllClearScript,
+                    TeamKeys.ProductionCondition
+                ];
+
+                foreach (var nameKey in nameKeys)
+                {
+                    if (!skirmishTeam.Properties.TryGetValue(nameKey, out var property))
+                    {
+                        continue;
+                    }
+
+                    var stringValue = property.GetAsciiString();
+                    if (string.IsNullOrEmpty(stringValue))
+                    {
+                        continue;
+                    }
+
+                    property.UpdateValue($"{stringValue}{_mpStartIndex}");
+                }
+
+                // Update teamGenericScriptHook keys as well
+                for (var i = 0; i < Logic.Team.MaxGenericScripts; i++)
+                {
+                    var key = $"{TeamKeys.GenericScriptHookPrefix}{i}";
+                    if (!skirmishTeam.Properties.TryGetValue(key, out var property))
+                    {
+                        continue;
+                    }
+
+                    var stringValue = property.GetAsciiString();
+                    if (string.IsNullOrEmpty(stringValue))
+                    {
+                        continue;
+                    }
+
+                    property.UpdateValue($"{stringValue}{_mpStartIndex}");
+                }
+
+                // Done. Now add the team.
+                sidesList.Teams.Add(skirmishTeam);
+            }
+        }
+
+        _resourceGatheringManager = new ResourceGatheringManager();
+        _tunnelSystem = new TunnelTracker();
+        _handicap.ReadFromDict(mapPlayer.Properties);
+
+        _playerToPlayerRelationships.Clear();
+        _playerToTeamRelationships.Clear();
+
+        Array.Fill(_attackedByPlayerIds, false);
+
+        if (mapPlayer.Color is { } color)
+        {
+            Color = ColorRgb.FromUInt32((uint)color | 0xff000000);
+            NightColor = Color;
+        }
+
+        if (mapPlayer.NightColor is { } nightColor)
+        {
+            NightColor = ColorRgb.FromUInt32((uint)nightColor | 0xff000000);
+        }
+
+        if (mapPlayer.StartMoney is { } startMoney)
+        {
+            BankAccount.Deposit((uint)startMoney);
+        }
+
+        for (var i = 0; i < _squads.Length; i++)
+        {
+            _squads[i] = new Squad(_game);
+        }
+
+        _currentSelection = new Squad(_game);
     }
 
     internal void SelectUnits(ICollection<GameObject> units, bool additive = false)
@@ -491,16 +749,31 @@ public class Player : IPersistableObject
         return _upgradesInProgress.Contains(template);
     }
 
+    public void RemoveTeamFromList(TeamPrototype team)
+    {
+        _teamPrototypes.Remove(team);
+    }
+
+    public void AddTeamToList(TeamPrototype team)
+    {
+        if (_teamPrototypes.Contains(team))
+        {
+            return;
+        }
+
+        _teamPrototypes.Add(team);
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(8);
 
         reader.PersistObject(BankAccount);
 
-        var upgradeQueueCount = (ushort)_upgrades.Count;
-        reader.PersistUInt16(ref upgradeQueueCount);
+        var upgradeCount = (ushort)_upgrades.Count;
+        reader.PersistUInt16(ref upgradeCount);
 
-        reader.SkipUnknownBytes(1);
+        reader.PersistBoolean(ref _isPreorder);
 
         reader.PersistObject(_sciencesDisabled);
         reader.PersistObject(_sciencesHidden);
@@ -508,7 +781,7 @@ public class Player : IPersistableObject
         reader.BeginArray("Upgrades");
         if (reader.Mode == StatePersistMode.Read)
         {
-            for (var i = 0; i < upgradeQueueCount; i++)
+            for (var i = 0; i < upgradeCount; i++)
             {
                 reader.BeginObject();
 
@@ -541,21 +814,23 @@ public class Player : IPersistableObject
         }
         reader.EndArray();
 
-        reader.PersistUInt32(ref _unknown1);
-        reader.PersistBoolean(ref _unknown2);
-        reader.PersistUInt32(ref _unknown3);
-        reader.PersistBoolean(ref _hasInsufficientPower);
+        reader.PersistInt32(ref _radarCount);
+        reader.PersistBoolean(ref _isPlayerDead);
+        reader.PersistInt32(ref _disableProofRadarCount);
+        reader.PersistBoolean(ref _radarDisabled);
+
         reader.PersistObject(_upgradesInProgress);
         reader.PersistObject(UpgradesCompleted);
 
+        // TODO(Port): This is Energy
         {
             reader.BeginObject("UnknownThing");
 
             var unknownThingVersion = reader.PersistVersion(3);
 
-            var playerId = Id;
-            reader.PersistUInt32(ref playerId);
-            if (playerId != Id)
+            var playerId = Index;
+            reader.PersistPlayerIndex(ref playerId);
+            if (playerId != Index)
             {
                 throw new InvalidStateException();
             }
@@ -569,31 +844,36 @@ public class Player : IPersistableObject
         }
 
         reader.PersistList(
-            _teamTemplates,
-            static (StatePersister persister, ref TeamTemplate item) =>
+            _teamPrototypes,
+            static (StatePersister persister, ref TeamPrototype item) =>
             {
-                var teamTemplateId = item?.ID ?? 0u;
-                persister.PersistUInt32Value(ref teamTemplateId);
+                var teamPrototypeId = (item?.Id)?.Index ?? 0u;
+                persister.PersistUInt32Value(ref teamPrototypeId);
 
                 if (persister.Mode == StatePersistMode.Read)
                 {
-                    item = persister.Game.TeamFactory.FindTeamTemplateById(teamTemplateId);
+                    var prototype = persister.Game.TeamFactory.FindTeamPrototypeById(new TeamPrototypeId(teamPrototypeId));
+                    if (prototype == null)
+                    {
+                        throw new InvalidStateException();
+                    }
+                    item = prototype;
                 }
             });
 
         if (reader.Mode == StatePersistMode.Read)
         {
-            foreach (var teamTemplate in _teamTemplates)
+            foreach (var teamPrototype in _teamPrototypes)
             {
-                if (teamTemplate.Owner != this)
+                if (teamPrototype.ControllingPlayer != this)
                 {
                     throw new InvalidStateException();
                 }
             }
         }
 
-        reader.PersistList(
-            _buildListItems,
+        reader.PersistArray(
+            _buildList,
             static (StatePersister persister, ref BuildListInfo item) =>
             {
                 item ??= new BuildListInfo();
@@ -618,20 +898,20 @@ public class Player : IPersistableObject
             reader.PersistObject(SupplyManager);
         }
 
-        var hasTunnelManager = _tunnelManager != null;
-        reader.PersistBoolean(ref hasTunnelManager);
-        if (hasTunnelManager)
+        var hasTunnelTracker = _tunnelSystem != null;
+        reader.PersistBoolean(ref hasTunnelTracker);
+        if (hasTunnelTracker)
         {
-            _tunnelManager ??= new TunnelManager();
-            reader.PersistObject(_tunnelManager);
+            _tunnelSystem ??= new TunnelTracker();
+            reader.PersistObject(_tunnelSystem);
         }
 
-        var defaultTeamId = DefaultTeam?.Id ?? 0u;
-        reader.PersistUInt32(ref defaultTeamId);
+        var defaultTeamId = DefaultTeam?.Id ?? TeamId.Invalid;
+        reader.PersistTeamId(ref defaultTeamId);
         if (reader.Mode == StatePersistMode.Read)
         {
             DefaultTeam = reader.Game.TeamFactory.FindTeamById(defaultTeamId);
-            if (DefaultTeam.Template.Owner != this)
+            if (DefaultTeam == null || DefaultTeam.Prototype.ControllingPlayer != this)
             {
                 throw new InvalidStateException();
             }
@@ -645,14 +925,14 @@ public class Player : IPersistableObject
 
         reader.PersistUInt32(ref SkillPointsTotal);
         reader.PersistUInt32(ref SkillPointsAvailable);
-        reader.PersistUInt32(ref _unknown4); // 800
-        reader.PersistUInt32(ref _unknown5); // 0
+        reader.PersistUInt32(ref _levelUp); // 800
+        reader.PersistUInt32(ref _levelDown); // 0
         reader.PersistUnicodeString(ref Name);
         reader.PersistObject(_playerToPlayerRelationships);
         reader.PersistObject(_playerToTeamRelationships);
         reader.PersistBoolean(ref CanBuildUnits);
-        reader.PersistBoolean(ref CanBuildBuildings);
-        reader.PersistBoolean(ref _unknown6);
+        reader.PersistBoolean(ref CanBuildBase);
+        reader.PersistBoolean(ref _observer);
         reader.PersistSingle(ref GeneralsExperienceMultiplier);
         reader.PersistBoolean(ref ShowOnScoreScreen);
 
@@ -670,23 +950,26 @@ public class Player : IPersistableObject
             reader.SkipUnknownBytes(66);
         }
 
-        reader.PersistObject(_scoreManager);
+        reader.PersistObject(_scoreKeeper);
         reader.SkipUnknownBytes(2);
 
         reader.PersistObject(SyncedSpecialPowerTimers);
 
-        reader.PersistList(
-            _controlGroups, static (StatePersister persister, ref ObjectIdSet item) =>
+        reader.PersistArray(
+            _squads, static (StatePersister persister, ref Squad squad) =>
             {
-                item ??= new ObjectIdSet();
-                persister.PersistObjectValue(item);
+                persister.PersistObject(squad);
             });
 
-        var unknown = true;
-        reader.PersistBoolean(ref unknown);
-        if (!unknown)
+        var currentSelectionPresent = _currentSelection != null;
+        reader.PersistBoolean(ref currentSelectionPresent);
+        if (currentSelectionPresent)
         {
-            throw new InvalidStateException();
+            if (_currentSelection == null && reader.Mode == StatePersistMode.Read)
+            {
+                _currentSelection = new Squad(_game);
+            }
+            reader.PersistObject(_currentSelection);
         }
 
         reader.PersistObject(_destroyedObjects);
@@ -708,7 +991,7 @@ public class Player : IPersistableObject
         reader.PersistBoolean(ref _unknownBool);
     }
 
-    public static Player FromMapData(uint index, Data.Map.Player mapPlayer, IGame game, bool isSkirmish)
+    public static Player FromMapData(PlayerIndex index, Data.Map.Player mapPlayer, IGame game, bool isSkirmish)
     {
         var side = mapPlayer.Faction ?? throw new InvalidStateException($"Player {mapPlayer.Name} has no faction.");
 
@@ -759,10 +1042,10 @@ public class Player : IPersistableObject
             Side = side,
             Name = name,
             DisplayName = translatedDisplayName,
-            IsHuman = isHuman,
+            IsHuman = isHuman ?? false,
         };
 
-        result.AIPlayer = isHuman || template == null || side == "FactionObserver"
+        result.AIPlayer = (isHuman ?? false) || template == null || side == "FactionObserver"
             ? null
             : isSkirmish && side != "FactionCivilian"
                 ? new AISkirmishPlayer(result)
@@ -822,7 +1105,7 @@ public class Player : IPersistableObject
         }
 
         // Check player override
-        if (_playerToPlayerRelationships.TryGetValue(that.ControllingPlayer.Id, out relationship))
+        if (that.ControllingPlayer != null && _playerToPlayerRelationships.TryGetValue(that.ControllingPlayer.Index, out relationship))
         {
             return relationship;
         }
@@ -831,9 +1114,72 @@ public class Player : IPersistableObject
         return RelationshipType.Neutral;
     }
 
-    public void SetAttackedBy(uint playerIndex)
+    public void SetAttackedBy(PlayerIndex playerIndex)
     {
         // TODO(Port): Implement this.
+    }
+
+    internal void Init(PlayerTemplate? playerTemplate)
+    {
+        // TODO(Port): Implement this - nothing will work before this
+    }
+
+    internal void Update()
+    {
+        // TODO(Port)
+    }
+
+    internal void NewMap()
+    {
+        // TODO(Port)
+    }
+
+    internal bool RemoveTeamRelationship(Team team)
+    {
+        // TODO(Port)
+        return false;
+    }
+
+    internal void UpdateTeamStates()
+    {
+        // TODO(Port)
+    }
+
+    internal void SetPlayerType(PlayerType t, bool skirmish)
+    {
+        _playerType = t;
+
+        if (t == PlayerType.Computer)
+        {
+            // TODO(Port): Also enable skirmish AI when TheAI->getAiData()->m_forceSkirmishAI
+            if (skirmish)
+            {
+                AIPlayer = new AISkirmishPlayer(this);
+            }
+            else
+            {
+                AIPlayer = new AIPlayer(this);
+            }
+        }
+    }
+
+    internal void SetPlayerRelationship(Player that, RelationshipType r)
+    {
+        if (that != null)
+        {
+            _playerToPlayerRelationships[that.Index] = r;
+        }
+    }
+
+    internal void SetDefaultTeam()
+    {
+        var teamName = $"team${Name}";
+        var team = _game.TeamFactory.FindTeam(teamName);
+        if (team != null)
+        {
+            DefaultTeam = team;
+            DefaultTeam.SetActive();
+        }
     }
 }
 
@@ -974,13 +1320,25 @@ public enum RelationshipType : uint
     Allies = 2,
 }
 
-public sealed class PlayerRelationships : IPersistableObject
+public sealed class PlayerRelationships<TKey> : IPersistableObject
+    where TKey : struct, ISideId<TKey>
 {
-    private readonly Dictionary<uint, RelationshipType> _store = new();
+    private readonly Dictionary<TKey, RelationshipType> _store = [];
 
-    public bool TryGetValue(uint playerOrTeamid, out RelationshipType relationship)
+    public RelationshipType this[TKey key]
     {
-        return _store.TryGetValue(playerOrTeamid, out relationship);
+        get => _store[key];
+        set => _store[key] = value;
+    }
+
+    public bool TryGetValue(TKey key, out RelationshipType relationship)
+    {
+        return _store.TryGetValue(key, out relationship);
+    }
+
+    public void Clear()
+    {
+        _store.Clear();
     }
 
     public void Persist(StatePersister reader)
@@ -989,9 +1347,9 @@ public sealed class PlayerRelationships : IPersistableObject
 
         reader.PersistDictionary(
             _store,
-            static (StatePersister persister, ref uint key, ref RelationshipType value) =>
+            static (StatePersister persister, ref TKey key, ref RelationshipType value) =>
         {
-            persister.PersistUInt32(ref key, "PlayerOrTeamId");
+            key.Persist(ref key, persister, "PlayerOrTeamId");
             persister.PersistEnum(ref value, "RelationshipType");
         },
         "Dictionary");
@@ -1095,7 +1453,7 @@ public enum UpgradeStatus
     Completed = 2
 }
 
-public sealed class TunnelManager : IPersistableObject
+public sealed class TunnelTracker : IPersistableObject
 {
     public ObjectIdSet TunnelIds { get; } = [];
     public List<ObjectId> ContainedObjectIds { get; } = [];
@@ -1122,7 +1480,7 @@ public sealed class TunnelManager : IPersistableObject
     }
 }
 
-public sealed class PlayerScoreManager : IPersistableObject
+public sealed class ScoreKeeper : IPersistableObject
 {
     private uint _suppliesCollected;
     private uint _moneySpent;
@@ -1144,7 +1502,7 @@ public sealed class PlayerScoreManager : IPersistableObject
     private readonly PlayerStatObjectCollection _objectsLost = new();
     private readonly PlayerStatObjectCollection _objectsCaptured = new();
 
-    internal PlayerScoreManager()
+    internal ScoreKeeper()
     {
         _numUnitsDestroyedPerPlayer = new uint[Player.MaxPlayers];
 
@@ -1257,3 +1615,110 @@ public sealed class StrategyData : IPersistableObject
         persister.PersistBitArray(ref _invalidMemberKindOf);
     }
 }
+
+public enum PlayerType
+{
+    Human,
+    Computer,
+}
+
+public sealed class ResourceGatheringManager : IPersistableObject
+{
+    // TODO(Port) all of this
+
+    private readonly List<ObjectId> _supplyWarehouses = [];
+    private readonly List<ObjectId> _supplyCenters = [];
+
+    public void Persist(StatePersister persister)
+    {
+        persister.PersistVersion(1);
+
+        persister.PersistList(
+            _supplyWarehouses,
+            static (StatePersister persister, ref ObjectId item) =>
+            {
+                persister.PersistObjectIdValue(ref item);
+            });
+
+        persister.PersistList(
+            _supplyCenters,
+            static (StatePersister persister, ref ObjectId item) =>
+            {
+                persister.PersistObjectIdValue(ref item);
+            });
+    }
+}
+
+public sealed class Handicap
+{
+    // HandicapType.Count * ThingType.Count matrix of handicaps
+    private readonly float[,] _handicaps;
+
+    public Handicap()
+    {
+        _handicaps = new float[(int)HandicapType.Count, (int)ThingType.Count];
+
+        for (var i = 0; i < _handicaps.GetLength(0); i++)
+        {
+            for (var j = 0; j < _handicaps.GetLength(1); j++)
+            {
+                _handicaps[i, j] = 1.0f;
+            }
+        }
+    }
+
+    public float GetHandicap(HandicapType t, ObjectDefinition thingTemplate)
+    {
+        var thingType = GetBestThingType(thingTemplate);
+        return _handicaps[(int)t, (int)thingType];
+    }
+
+    public void ReadFromDict(AssetPropertyCollection props)
+    {
+        Span<string> htNames = [
+            "BUILDCOST",
+            "BUILDTIME"
+        ];
+
+        Span<string> ttNames = [
+            "GENERIC",
+            "BUILDINGS"
+        ];
+
+        for (var i = 0; i < htNames.Length; i++)
+        {
+            for (var j = 0; j < ttNames.Length; j++)
+            {
+                var name = $"HANDICAP_{htNames[i]}_{ttNames[j]}";
+                if (props.TryGetValue(name, out var value) && value.GetReal() is float handicap)
+                {
+                    _handicaps[i, j] = handicap;
+                }
+            }
+        }
+    }
+
+    private static ThingType GetBestThingType(ObjectDefinition thingTemplate)
+    {
+        if (thingTemplate.IsKindOf(ObjectKinds.Structure))
+        {
+            return ThingType.Buildings;
+        }
+        return ThingType.Generic;
+    }
+
+    public enum HandicapType
+    {
+        BuildCost = 0,
+        BuildTime,
+        Count,
+    }
+
+    public enum ThingType
+    {
+        Generic = 0,
+        Buildings,
+        Count,
+    }
+}
+

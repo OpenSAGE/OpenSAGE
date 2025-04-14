@@ -11,122 +11,127 @@ namespace OpenSage.Data.Map;
 [DebuggerDisplay("Player '{Name}'")]
 public sealed class Player
 {
+    public AssetPropertyCollection Properties { get; private set; }
+
     public Player(AssetPropertyCollection properties)
     {
-        ParseProperties(properties);
+        Properties = properties;
     }
 
-    public Player() { }
+    public Player()
+    {
+        Properties = [];
+    }
 
-    public BuildListInfo[] BuildList { get; internal set; } = [];
-    public ScriptList Scripts { get; internal set; } = new ScriptList();
+    public BuildListInfo[]? BuildList { get; internal set; } = [];
+    public ScriptList? Scripts { get; internal set; } = new ScriptList();
 
     /// <summary>
     /// internal identifier for player.
     /// NOTE: an empty string for playerName is reserved to denote the Neutral player.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string? Name => Properties.GetPropOrNull(PlayerKeys.Name)?.GetAsciiString();
 
     /// <summary>
     /// true if this player is to be human-controlled. false if computer-controlled.
     /// </summary>
-    public bool IsHuman { get; set; }
+    public bool? IsHuman => Properties.GetPropOrNull(PlayerKeys.IsHuman)?.GetBoolean();
 
     /// <summary>
     /// true if this player is in skirmish or multiplayer, rather than solo.
     /// </summary>
-    public bool IsSkirmish { get; set; }
+    public bool? IsSkirmish => Properties.GetPropOrNull(PlayerKeys.IsSkirmish)?.GetBoolean();
 
     /// <summary>
     /// playertemplate to use to construct the player
     /// </summary>
-    public string Faction { get; set; } = string.Empty;
+    public string? Faction => Properties.GetPropOrNull(PlayerKeys.Faction)?.GetAsciiString();
 
     /// <summary>
     /// displayable name for player.
     /// </summary>
-    public string DisplayName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// whitespace-separated list of player(s) we start as enemies with.
-    /// </summary>
-    public string Enemies { get; set; } = string.Empty;
+    public string? DisplayName => Properties.GetPropOrNull(PlayerKeys.DisplayName)?.GetUnicodeString();
 
     /// <summary>
     /// whitespace-separated list of player(s) we start as allies with
     /// </summary>
-    public string Allies { get; set; } = string.Empty;
+    public string? Allies
+    {
+        get
+        {
+            return Properties.GetPropOrNull(PlayerKeys.Allies)?.GetAsciiString();
+        }
+        set
+        {
+            Properties.TryGetValue(PlayerKeys.Allies, out var property);
+            if (property == null)
+            {
+                Properties.AddAsciiString(PlayerKeys.Allies, value ?? string.Empty);
+            }
+            else
+            {
+                property.UpdateValue(value ?? string.Empty);
+            }
+        }
+    }
+
+    /// <summary>
+    /// whitespace-separated list of player(s) we start as enemies with.
+    /// </summary>
+    public string? Enemies
+    {
+        get
+        {
+            return Properties.GetPropOrNull(PlayerKeys.Enemies)?.GetAsciiString();
+        }
+        set
+        {
+            Properties.TryGetValue(PlayerKeys.Enemies, out var property);
+            if (property == null)
+            {
+                Properties.AddAsciiString(PlayerKeys.Enemies, value ?? string.Empty);
+            }
+            else
+            {
+                property.UpdateValue(value ?? string.Empty);
+            }
+        }
+    }
 
     /// <summary>
     /// (optional) if present, amount of money the player starts with
     /// </summary>
-    public int? StartMoney { get; set; }
+    public int? StartMoney => Properties.GetPropOrNull(PlayerKeys.StartMoney)?.GetInteger();
 
     /// <summary>
     /// (optional) if present, color to use for player (overrides player color)
     /// </summary>
-    public int? Color { get; set; }
+    public int? Color => Properties.GetPropOrNull(PlayerKeys.Color)?.GetInteger();
 
     /// <summary>
     /// (optional) if present, color to use for player at night (overrides player color)
     /// </summary>
-    public int? NightColor { get; set; }
+    public int? NightColor => Properties.GetPropOrNull(PlayerKeys.NightColor)?.GetInteger();
 
     /// <summary>
     /// (optional) if present, Player_*_Start waypoint to use for player (overrides InitialCameraPosition)
     /// </summary>
-    public int? MultiplayerStartIndex { get; set; }
+    public int? MultiplayerStartIndex => Properties.GetPropOrNull(PlayerKeys.MultiplayerStartIndex)?.GetInteger();
 
     /// <summary>
     /// (optional) if present, Difficulty level to use for player (overrides global difficulty)
     /// </summary>
-    public int? SkirmishDifficulty { get; set; }
+    public int? SkirmishDifficulty => Properties.GetPropOrNull(PlayerKeys.SkirmishDifficulty)?.GetInteger();
 
     /// <summary>
     /// (optional) if present, signifies if the player is the local player
     /// </summary>
-    public bool? MultiplayerIsLocal { get; set; }
+    public bool? MultiplayerIsLocal => Properties.GetPropOrNull(PlayerKeys.MultiplayerIsLocal)?.GetBoolean();
 
     /// <summary>
     /// (optional) if present, signifies if the player has preordered
     /// </summary>
-    public bool? IsPreorder { get; set; }
-
-    private void ParseProperties(AssetPropertyCollection properties)
-    {
-        Name = properties.GetPropOrNull("playerName")?.GetAsciiString() ?? string.Empty;
-        IsHuman = properties.GetPropOrNull("playerIsHuman")?.GetBoolean() ?? false;
-        IsSkirmish = properties.GetPropOrNull("playerIsSkirmish")?.GetBoolean() ?? false;
-        Faction = properties.GetPropOrNull("playerFaction")?.GetAsciiString() ?? string.Empty;
-        DisplayName = properties.GetPropOrNull("playerDisplayName")?.GetUnicodeString() ?? string.Empty;
-        Enemies = properties.GetPropOrNull("playerEnemies")?.GetAsciiString() ?? string.Empty;
-        Allies = properties.GetPropOrNull("playerAllies")?.GetAsciiString() ?? string.Empty;
-        StartMoney = properties.GetPropOrNull("playerStartMoney")?.GetInteger();
-        Color = properties.GetPropOrNull("playerColor")?.GetInteger();
-        NightColor = properties.GetPropOrNull("playerNightColor")?.GetInteger();
-        MultiplayerStartIndex = properties.GetPropOrNull("multiplayerStartIndex")?.GetInteger();
-        SkirmishDifficulty = properties.GetPropOrNull("skirmishDifficulty")?.GetInteger();
-        MultiplayerIsLocal = properties.GetPropOrNull("multiplayerIsLocal")?.GetBoolean();
-        IsPreorder = properties.GetPropOrNull("playerIsPreorder")?.GetBoolean();
-    }
-
-    private void SerializeProperties(AssetPropertyCollection properties)
-    {
-        properties.AddAsciiString("playerName", Name);
-        properties.AddBoolean("playerIsHuman", IsHuman);
-        properties.AddBoolean("playerIsSkirmish", IsSkirmish);
-        properties.AddAsciiString("playerFaction", Faction);
-        properties.AddUnicodeString("playerDisplayName", DisplayName);
-        properties.AddAsciiString("playerEnemies", Enemies);
-        properties.AddAsciiString("playerAllies", Allies);
-        properties.AddNullableInteger("playerStartMoney", StartMoney);
-        properties.AddNullableInteger("playerColor", Color);
-        properties.AddNullableInteger("playerNightColor", NightColor);
-        properties.AddNullableInteger("multiplayerStartIndex", MultiplayerStartIndex);
-        properties.AddNullableInteger("skirmishDifficulty", SkirmishDifficulty);
-        properties.AddNullableBoolean("multiplayerIsLocal", MultiplayerIsLocal);
-        properties.AddNullableBoolean("playerIsPreorder", IsPreorder);
-    }
+    public bool? IsPreorder => Properties.GetPropOrNull(PlayerKeys.IsPreorder)?.GetBoolean();
 
     internal static Player CreateNeutralPlayer() => CreatePlayer("Neutral");
 
@@ -134,15 +139,34 @@ public sealed class Player
 
     private static Player CreatePlayer(string side)
     {
-        var result = new Player
-        {
-            Name = $"plyr{side}",
-            IsHuman = false,
-            Faction = $"Faction{side}",
-            DisplayName = side
-        };
+        var result = new Player(new AssetPropertyCollection {
+            {"Name", $"plyr{side}" },
+            {"IsHuman", false },
+            {"Faction", $"Faction{side}" },
+            {"DisplayName", side },
+        });
 
         return result;
+    }
+
+    public void Init(AssetPropertyCollection? properties)
+    {
+        BuildList = null;
+        Scripts = null;
+
+        if (properties != null)
+        {
+            Properties = properties;
+        }
+        else
+        {
+            Properties.Clear();
+        }
+    }
+
+    public void Clear()
+    {
+        Init(null);
     }
 
     internal static Player Parse(BinaryReader reader, MapParseContext context, ushort sidesListVersion, bool mapHasAssetList)
@@ -164,15 +188,13 @@ public sealed class Player
 
     internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort sidesListVersion, bool mapHasAssetList)
     {
-        var properties = new AssetPropertyCollection();
-        SerializeProperties(properties);
-        properties.WriteTo(writer, assetNames);
+        Properties.WriteTo(writer, assetNames);
 
-        writer.Write((uint)BuildList.Length);
+        writer.Write((uint)(BuildList?.Length ?? 0));
 
         var buildListInfoFields = GetBuildListInfoFields(sidesListVersion, mapHasAssetList);
 
-        foreach (var buildListItem in BuildList)
+        foreach (var buildListItem in BuildList ?? [])
         {
             buildListItem.WriteTo(writer, buildListInfoFields);
         }
@@ -188,4 +210,22 @@ public sealed class Player
             _ => BuildListInfo.IncludeFields.Default
         };
     }
+}
+
+public static class PlayerKeys
+{
+    public const string Name = "playerName";
+    public const string IsHuman = "playerIsHuman";
+    public const string IsSkirmish = "playerIsSkirmish";
+    public const string Faction = "playerFaction";
+    public const string DisplayName = "playerDisplayName";
+    public const string Enemies = "playerEnemies";
+    public const string Allies = "playerAllies";
+    public const string StartMoney = "playerStartMoney";
+    public const string Color = "playerColor";
+    public const string NightColor = "playerNightColor";
+    public const string MultiplayerStartIndex = "multiplayerStartIndex";
+    public const string SkirmishDifficulty = "skirmishDifficulty";
+    public const string MultiplayerIsLocal = "multiplayerIsLocal";
+    public const string IsPreorder = "playerIsPreorder";
 }

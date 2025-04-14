@@ -134,13 +134,13 @@ public class ActiveBody : BodyModule
 
                             // Convert it to the neutral team so it renders gray
                             // giving visual representation that it is unmanned.
-                            obj.Team = GameEngine.Game.PlayerManager.NeutralPlayer.DefaultTeam;
+                            obj.Team = GameEngine.Game.PlayerList.NeutralPlayer.DefaultTeam;
                         }
 
                         // We don't care which team sniped the vehicle... we use
                         // this information to flag whether or not we captured a
                         // vehicle.
-                        GameEngine.Game.PlayerManager.NeutralPlayer.AcademyStats.RecordVehicleSniped();
+                        GameEngine.Game.PlayerList.NeutralPlayer.AcademyStats.RecordVehicleSniped();
                     }
 
                     alreadyHandled = true;
@@ -152,7 +152,7 @@ public class ActiveBody : BodyModule
                 {
                     // Original comment (which suggests that this code and the code
                     // mentioned in DumbProjectileBehavior) could be refactored:
-                    // 
+                    //
                     // This code is very misleading (but in a good way). One would think this is
                     // an excellent place to add the hook to kill garrisoned troops. And that is
                     // a correct assumption. Unfortunately, the vast majority of garrison slayings
@@ -295,7 +295,7 @@ public class ActiveBody : BodyModule
                 if (srcObj != null)
                 {
                     var srcPlayer = srcObj.Owner;
-                    obj.Owner.SetAttackedBy(srcPlayer.Id);
+                    obj.Owner.SetAttackedBy(srcPlayer.Index);
                 }
             }
 

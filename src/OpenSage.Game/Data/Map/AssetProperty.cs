@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using System.IO;
 using OpenSage.FileFormats;
 
@@ -95,5 +96,15 @@ public sealed class AssetProperty
     public string? GetUnicodeString()
     {
         return Value as string;
+    }
+
+    public void UpdateValue(object newValue)
+    {
+        // Ensure the new value is of the same type as the original value
+        if (newValue.GetType() != Value.GetType())
+        {
+            throw new InvalidOperationException($"Cannot update value. Expected type: {Value.GetType()}, but got: {newValue.GetType()}");
+        }
+        Value = newValue;
     }
 }

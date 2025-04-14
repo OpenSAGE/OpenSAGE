@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Tools.Sav2Json;
@@ -168,4 +169,20 @@ internal sealed class JsonSaveWriter : StatePersister
     {
         _writer.WriteNumberValue(value.Index);
     }
+
+    public override void PersistTeamPrototypeIdValue(ref TeamPrototypeId value)
+    {
+        _writer.WriteNumberValue(value.Index);
+    }
+
+    public override void PersistTeamIdValue(ref TeamId value)
+    {
+        _writer.WriteNumberValue(value.Index);
+    }
+
+    public override void PersistPlayerIndexValue(ref PlayerIndex value)
+    {
+        _writer.WriteNumberValue(value.Value);
+    }
+
 }

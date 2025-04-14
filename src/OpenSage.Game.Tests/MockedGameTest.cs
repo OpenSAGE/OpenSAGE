@@ -67,6 +67,7 @@ public abstract class MockedGameTest : IDisposable
         public GameLogic GameLogic { get; }
         public GameClient GameClient { get; }
         public PlayerManager PlayerManager { get; }
+        public PlayerList PlayerList { get; }
         public TeamFactory TeamFactory { get; }
         public PartitionCellManager PartitionCellManager { get; }
         public bool InGame { get; }
@@ -124,6 +125,8 @@ public abstract class MockedGameTest : IDisposable
 
             PlayerManager = new PlayerManager(this);
             PlayerManager.OnNewGame([OpenSage.Data.Map.Player.CreateNeutralPlayer(), OpenSage.Data.Map.Player.CreateCivilianPlayer()], GameType.Skirmish);
+
+            PlayerList = new PlayerList(this);
 
             TerrainLogic = new TerrainLogic();
             TerrainLogic.SetHeightMapData(OpenSage.Data.Map.HeightMapData.Create(0, new ushort[2, 2] { { 0, 0 }, { 0, 0 } }));

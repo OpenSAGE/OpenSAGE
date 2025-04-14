@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object;
 
 public sealed class GarrisonContain : OpenContainModule
 {
-    private uint _originalTeamId;
+    private TeamId _originalTeamId;
     private readonly Vector3[] _positions = new Vector3[120];
     private bool _originalTeamSet;
 
@@ -32,7 +32,7 @@ public sealed class GarrisonContain : OpenContainModule
             else
             {
                 // todo: DefaultTeam is not currently set on player object - this if statement can be removed once we're actually setting this
-                _originalTeamId = uint.MaxValue;
+                _originalTeamId = TeamId.Invalid;
             }
             _originalTeamSet = true;
         }
@@ -46,7 +46,7 @@ public sealed class GarrisonContain : OpenContainModule
             }
             else
             {
-                var owner = GameEngine.Game.TeamFactory.FindTeamById(_originalTeamId)?.Template.Owner;
+                var owner = GameEngine.Game.TeamFactory.FindTeamById(_originalTeamId)?.Prototype.ControllingPlayer;
                 owner ??= GameEngine.Game.PlayerManager.GetCivilianPlayer(); // todo: this behavior can be removed when DefaultTeam is set properly
 
                 GameObject.Owner = owner;
@@ -74,7 +74,7 @@ public sealed class GarrisonContain : OpenContainModule
         base.Load(reader);
         reader.EndObject();
 
-        reader.PersistUInt32(ref _originalTeamId);
+        reader.PersistTeamId(ref _originalTeamId);
 
         reader.SkipUnknownBytes(1);
 

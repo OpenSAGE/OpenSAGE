@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using OpenSage.Data.Sav;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using Xunit;
 
@@ -217,6 +218,30 @@ public class SaveFileTests : IClassFixture<GameFixture>
         {
             ObjectId comparisonValue = default;
             _comparisonReader.PersistObjectIdValue(ref comparisonValue);
+
+            CheckEquality(value, comparisonValue);
+        }
+
+        public override void PersistTeamPrototypeIdValue(ref TeamPrototypeId value)
+        {
+            TeamPrototypeId comparisonValue = default;
+            _comparisonReader.PersistTeamPrototypeIdValue(ref comparisonValue);
+
+            CheckEquality(value, comparisonValue);
+        }
+
+        public override void PersistTeamIdValue(ref TeamId value)
+        {
+            TeamId comparisonValue = default;
+            _comparisonReader.PersistTeamIdValue(ref comparisonValue);
+
+            CheckEquality(value, comparisonValue);
+        }
+
+        public override void PersistPlayerIndexValue(ref PlayerIndex value)
+        {
+            PlayerIndex comparisonValue = default;
+            _comparisonReader.PersistPlayerIndexValue(ref comparisonValue);
 
             CheckEquality(value, comparisonValue);
         }

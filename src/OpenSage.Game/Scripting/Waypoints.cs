@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
@@ -35,7 +36,7 @@ public sealed class WaypointCollection
         foreach (var waypoint in waypoints)
         {
             _waypointsByName[waypoint.Name] = waypoint;
-            _waypointsByID[waypoint.ID] = waypoint;
+            _waypointsByID[waypoint.Id] = waypoint;
 
             foreach (var pathLabel in waypoint.PathLabels)
             {
@@ -75,17 +76,22 @@ public sealed class WaypointCollection
         // However we already use 1-based indices for both, so we don't need to adjust here.
         return TryGetByName($"Player_{playerIndex}_Start", out waypoint);
     }
+
+    public bool TryGetById(int id, [NotNullWhen(true)] out Waypoint? waypoint)
+    {
+        return _waypointsByID.TryGetValue(id, out waypoint);
+    }
 }
 
 
-[DebuggerDisplay("ID = {ID}, Name = {Name}")]
+[DebuggerDisplay("Id = {Id}, Name = {Name}")]
 public sealed class Waypoint
 {
     public const string ObjectTypeName = "*Waypoints/Waypoint";
 
     private List<Waypoint>? _connectedWaypoints;
 
-    public int ID { get; }
+    public int Id { get; }
     public string Name { get; }
     public Vector3 Position { get; }
 
@@ -93,7 +99,7 @@ public sealed class Waypoint
 
     internal Waypoint(MapObject mapObject)
     {
-        ID = (int)mapObject.Properties["waypointID"].Value;
+        Id = (int)mapObject.Properties["waypointID"].Value;
         Name = (string)mapObject.Properties["waypointName"].Value;
         Position = mapObject.Position;
 

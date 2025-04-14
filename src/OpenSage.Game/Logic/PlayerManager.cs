@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Content;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic;
 
+[Obsolete("Use PlayerList instead")]
 public sealed class PlayerManager : IPersistableObject
 {
     private readonly IGame _game;
@@ -18,7 +18,7 @@ public sealed class PlayerManager : IPersistableObject
     internal PlayerManager(IGame game)
     {
         _game = game;
-        _players = Array.Empty<Player>();
+        _players = [];
     }
 
     internal void OnNewGame(Data.Map.Player[] mapPlayers, GameType gameType)
@@ -53,10 +53,10 @@ public sealed class PlayerManager : IPersistableObject
         var allies = new Dictionary<string, string[]>();
         var enemies = new Dictionary<string, string[]>();
 
-        var id = 0u;
+        var id = 0;
         foreach (var mapPlayer in mapPlayers)
         {
-            var player = Player.FromMapData(id++, mapPlayer, _game, gameType != GameType.SinglePlayer);
+            var player = Player.FromMapData(new PlayerIndex(id++), mapPlayer, _game, gameType != GameType.SinglePlayer);
             players[player.Name] = player;
             allies[player.Name] =
                 mapPlayer.Allies?.Split(' ')
@@ -75,14 +75,9 @@ public sealed class PlayerManager : IPersistableObject
         return players.Values;
     }
 
-    public Player GetPlayerByName(string name)
+    public Player GetPlayerByIndex(PlayerIndex index)
     {
-        return Array.Find(_players, x => x.Name == name);
-    }
-
-    public Player GetPlayerByIndex(uint index)
-    {
-        return _players[(int)index];
+        return _players[index.Value];
     }
 
     public int GetPlayerIndex(Player player)

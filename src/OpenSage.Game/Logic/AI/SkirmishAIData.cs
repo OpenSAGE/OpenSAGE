@@ -187,7 +187,7 @@ public class Probability
     public int Second { get; private set; }
 }
 
-public enum Difficulty
+public enum Difficulty : uint
 {
     [IniEnum("EASY")]
     Easy,

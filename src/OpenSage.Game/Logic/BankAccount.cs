@@ -6,9 +6,9 @@ namespace OpenSage.Logic;
 
 // Equivalent to the Money class in Generals
 // We can't name this class Money since it would conflict with the Money field
-public sealed class BankAccount(IGame game, uint playerIndex) : IPersistableObject
+public sealed class BankAccount(IGame game, PlayerIndex playerIndex) : IPersistableObject
 {
-    public uint PlayerIndex { get; set; } = playerIndex;
+    public PlayerIndex PlayerIndex { get; set; } = playerIndex;
 
     public uint Money;
 
@@ -55,7 +55,7 @@ public sealed class BankAccount(IGame game, uint playerIndex) : IPersistableObje
 
         if (amountToDeposit > 0)
         {
-            game.PlayerManager.GetPlayerByIndex(PlayerIndex).AcademyStats.RecordIncome();
+            game.PlayerList.GetNthPlayer(PlayerIndex)?.AcademyStats.RecordIncome();
         }
     }
 
@@ -64,5 +64,12 @@ public sealed class BankAccount(IGame game, uint playerIndex) : IPersistableObje
         reader.PersistVersion(1);
 
         reader.PersistUInt32(ref Money);
+    }
+
+    public static BankAccount FromAmount(IGame game, PlayerIndex playerIndex, uint amount)
+    {
+        var bankAccount = new BankAccount(game, playerIndex);
+        bankAccount.Deposit(amount);
+        return bankAccount;
     }
 }

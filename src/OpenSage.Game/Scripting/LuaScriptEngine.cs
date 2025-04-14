@@ -347,7 +347,7 @@ public sealed class LuaScriptEngine : GameSystem
 
     public int ObjectCountNearbyEnemies(string gameObject, string radius)
     {
-        return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Owner.Enemies.Count; //placeholder
+        return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamPrototype.ControllingPlayer.Enemies.Count; //placeholder
     }
 
     public int ObjectGetHealthFraction(string gameObject)
@@ -367,7 +367,7 @@ public sealed class LuaScriptEngine : GameSystem
 
     public string ObjectTeamName(string gameObject) //EXAMPLE C&C3: "teamPlayer_2"
     {
-        return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamTemplate.Name;
+        return Game.Scene3D.GameObjects.GetObjectById(GetLuaObjectID(gameObject)).TeamPrototype.Name;
     }
 
     public string ObjectPlayerSide(string gameObject) //EXAMPLE C&C3: "{0,0}ED46C05A" BFME: "Isengard""

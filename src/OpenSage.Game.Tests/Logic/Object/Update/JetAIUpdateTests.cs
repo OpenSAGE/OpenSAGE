@@ -1,4 +1,5 @@
 ﻿
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using Xunit;
 
@@ -10,7 +11,7 @@ public class JetAIUpdateTests : MockedGameTest
     public void CanInstantiate()
     {
         var objectDefinition = new ObjectDefinition();
-        var gameObject = new GameObject(objectDefinition, Generals.GameEngine, Generals.PlayerManager.GetPlayerByIndex(0));
+        var gameObject = new GameObject(objectDefinition, Generals.GameEngine, Generals.PlayerManager.GetPlayerByIndex(new PlayerIndex(0)));
         var moduleData = new JetAIUpdateModuleData();
         var update = new JetAIUpdate(gameObject, Generals.GameEngine, moduleData);
         Assert.NotNull(update);

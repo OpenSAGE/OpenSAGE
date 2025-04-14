@@ -96,6 +96,34 @@ public sealed class AssetPropertyCollection : KeyedCollection<string, AssetPrope
         }
     }
 
+    // Set of add methods so that we can initialize this class with a collection initializer
+
+    // TODO: This always creates an ascii string, does that actually matter?
+    public void Add(string key, string value)
+    {
+        AddAsciiString(key, value);
+    }
+
+    public void Add(string key, bool value)
+    {
+        AddBoolean(key, value);
+    }
+
+    public void Add(string key, int value)
+    {
+        AddInteger(key, value);
+    }
+
+    public void Add(string key, float value)
+    {
+        AddReal(key, value);
+    }
+
+    public void Add(string key, AssetPropertyType type, object value)
+    {
+        Add(new AssetProperty(key, type, value));
+    }
+
     protected override string GetKeyForItem(AssetProperty item)
     {
         return item.Key.Name;

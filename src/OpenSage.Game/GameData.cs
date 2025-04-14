@@ -425,7 +425,7 @@ public sealed class GameData : BaseSingletonAsset
 
         { "StandardPublicBone", (parser, x) => x.StandardPublicBones.Add(parser.ParseString()) },
 
-        { "DefaultStartingCash", (parser, x) => x.DefaultStartingCash = parser.ParseInteger() },
+        { "DefaultStartingCash", (parser, x) => x.DefaultStartingCash = parser.ParseUnsignedInteger() },
 
         { "UnlookPersistDuration", (parser, x) => x.UnlookPersistDuration = parser.ParseInteger() },
 
@@ -1175,7 +1175,7 @@ public sealed class GameData : BaseSingletonAsset
 
     public List<string> StandardPublicBones { get; } = new List<string>();
 
-    public int DefaultStartingCash { get; private set; }
+    public uint DefaultStartingCash { get; private set; }
 
     public int UnlookPersistDuration { get; private set; }
 

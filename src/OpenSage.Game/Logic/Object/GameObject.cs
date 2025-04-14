@@ -33,7 +33,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         bool useRotationAnchorOffset = true,
         in float? overwriteAngle = 0.0f)
     {
-        TeamTemplate teamTemplate = null;
+        TeamPrototype teamPrototype = null;
         if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
         {
             var name = (string)teamName.Value;
@@ -41,7 +41,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             {
                 name = name.Split('/')[1];
             }
-            teamTemplate = gameContext.Game.TeamFactory.FindTeamTemplateByName(name);
+            teamPrototype = gameContext.Game.TeamFactory.FindTeamPrototypeByName(name);
         }
 
         var gameObjectDefinition = gameContext.AssetLoadContext.AssetStore.ObjectDefinitions.GetByName(mapObject.TypeName);
@@ -52,8 +52,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             return null;
         }
 
-        var gameObject = gameContext.GameLogic.CreateObject(gameObjectDefinition, teamTemplate?.Owner);
-        gameObject.TeamTemplate = teamTemplate;
+        var gameObject = gameContext.GameLogic.CreateObject(gameObjectDefinition, teamPrototype?.ControllingPlayer);
+        gameObject.TeamPrototype = teamPrototype;
         gameObject.SetMapObjectProperties(mapObject, useRotationAnchorOffset, overwriteAngle);
 
         return gameObject;
@@ -317,7 +317,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
     string IInspectable.Name => "GameObject";
 
-    public TeamTemplate TeamTemplate { get; set; }
+    public TeamPrototype TeamPrototype { get; set; }
 
     public Team Team { get; internal set; }
 
@@ -499,7 +499,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
 
         _attributeModifiers = new Dictionary<string, AttributeModifier>();
         _gameEngine = gameContext;
-        Owner = owner ?? gameContext.Game.PlayerManager.GetCivilianPlayer();
+        Owner = owner ?? gameContext.Game.PlayerList.NeutralPlayer;
 
         _behaviorUpdateContext = new BehaviorUpdateContext(gameContext, this);
 
@@ -1636,6 +1636,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         // TODO(Port): Implement this.
     }
 
+    public void HandlePartitionCellMaintenance()
+    {
+        // TODO(Port): Implement this.
+    }
+
     public void Persist(StatePersister reader)
     {
         var version = reader.PersistVersion(9);
@@ -1656,11 +1661,11 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
             SetTransformMatrix(transform.ToMatrix4x4());
         }
 
-        var teamId = Team?.Id ?? 0u;
-        reader.PersistUInt32(ref teamId);
+        var teamId = Team?.Id ?? TeamId.Invalid;
+        reader.PersistTeamId(ref teamId);
         Team = _gameEngine.Game.TeamFactory.FindTeamById(teamId);
 
-        Owner = Team.Template.Owner;
+        Owner = Team.Prototype.ControllingPlayer;
 
         reader.PersistObjectId(ref CreatedByObjectID);
         reader.PersistObjectId(ref BuiltByObjectID);

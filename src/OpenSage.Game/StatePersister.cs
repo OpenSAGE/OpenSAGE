@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -243,6 +244,30 @@ public abstract class StatePersister : DisposableBase
 
     public abstract void PersistObjectIdValue(ref ObjectId value);
 
+    public void PersistTeamPrototypeId(ref TeamPrototypeId value, [CallerArgumentExpression("value")] string name = "")
+    {
+        PersistFieldName(name);
+        PersistTeamPrototypeIdValue(ref value);
+    }
+
+    public abstract void PersistTeamPrototypeIdValue(ref TeamPrototypeId value);
+
+    public void PersistTeamId(ref TeamId value, [CallerArgumentExpression("value")] string name = "")
+    {
+        PersistFieldName(name);
+        PersistTeamIdValue(ref value);
+    }
+
+    public abstract void PersistTeamIdValue(ref TeamId value);
+
+    public void PersistPlayerIndex(ref PlayerIndex value, [CallerArgumentExpression("value")] string name = "")
+    {
+        PersistFieldName(name);
+        PersistPlayerIndexValue(ref value);
+    }
+
+    public abstract void PersistPlayerIndexValue(ref PlayerIndex value);
+
     public abstract void PersistSpan(Span<byte> span);
 
     public abstract void PersistUpdateFrameValue(ref UpdateFrame value);
@@ -334,6 +359,24 @@ public sealed class StateReader : StatePersister
     {
         var id = _binaryReader.ReadUInt32();
         value = new ObjectId(id);
+    }
+
+    public override void PersistTeamPrototypeIdValue(ref TeamPrototypeId value)
+    {
+        var id = _binaryReader.ReadUInt32();
+        value = new TeamPrototypeId(id);
+    }
+
+    public override void PersistTeamIdValue(ref TeamId value)
+    {
+        var id = _binaryReader.ReadUInt32();
+        value = new TeamId(id);
+    }
+
+    public override void PersistPlayerIndexValue(ref PlayerIndex value)
+    {
+        var id = _binaryReader.ReadInt32();
+        value = new PlayerIndex(id);
     }
 
     public override uint BeginSegment(string segmentName)
@@ -460,6 +503,12 @@ public sealed class StateWriter : StatePersister
 
     public override void PersistObjectIdValue(ref ObjectId value) => _binaryWriter.Write(value.Index);
 
+    public override void PersistTeamPrototypeIdValue(ref TeamPrototypeId value) => _binaryWriter.Write(value.Index);
+
+    public override void PersistTeamIdValue(ref TeamId value) => _binaryWriter.Write(value.Index);
+
+    public override void PersistPlayerIndexValue(ref PlayerIndex value) => _binaryWriter.Write(value.Value);
+
     public override uint BeginSegment(string segmentName)
     {
         if (SageGame >= SageGame.Bfme)
@@ -518,6 +567,7 @@ public sealed class InvalidStateException : Exception
 public interface IPersistableObject
 {
     void Persist(StatePersister persister);
+    void LoadPostProcess() { }
 }
 
 public struct ObjectNameAndId : IPersistableObject

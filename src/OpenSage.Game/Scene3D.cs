@@ -120,17 +120,10 @@ public sealed class Scene3D : DisposableBase, IScene3D
         IGame game,
         MapFile mapFile,
         string mapPath,
-        Data.Map.Player[] mapPlayers,
-        Data.Map.Team[] mapTeams,
-        ScriptList[] mapScriptLists,
         GameType gameType)
         : this(game, () => game.Viewport, game.InputMessageBuffer, false, mapFile, mapPath)
     {
         game.Scene3D = this;
-
-        game.PlayerManager.OnNewGame(mapPlayers, gameType);
-
-        game.TeamFactory.Initialize(mapTeams);
 
         Lighting = new WorldLighting(
             mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -151,10 +144,12 @@ public sealed class Scene3D : DisposableBase, IScene3D
         Waypoints = waypoints;
         Cameras = cameras;
 
-        PlayerScripts = new PlayerScriptsList
+        game.TerrainLogic.Waypoins = Waypoints;
+
+        /*PlayerScripts = new PlayerScriptsList
         {
             ScriptLists = mapScriptLists
-        };
+        };*/
 
         TacticalView = new TacticalView(game.AssetStore.GameData.Current, Camera, game.TerrainLogic, game.Cursors, GameEngine.MsPerLogicFrame);
         RegisterInputHandler(TacticalView.LookAtTranslator, game.InputMessageBuffer);
@@ -456,11 +451,11 @@ public sealed class Scene3D : DisposableBase, IScene3D
         {
             // BFME specific logic
 
-            var castleBehaviors = new List<(CastleBehavior, TeamTemplate)>();
+            var castleBehaviors = new List<(CastleBehavior, TeamPrototype)>();
             GameObject lastGameObject = null;
             foreach (var gameObject in GameObjects.Objects)
             {
-                var team = gameObject.TeamTemplate;
+                var team = gameObject.TeamPrototype;
                 if (team?.Name == $"Player_{playerSetting.StartPosition}_Inherit")
                 {
                     var castleBehavior = gameObject.FindBehavior<CastleBehavior>();

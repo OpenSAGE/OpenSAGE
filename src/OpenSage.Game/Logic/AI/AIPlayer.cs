@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Logic.Object;
@@ -11,19 +12,28 @@ public class AIPlayer : IPersistableObject
 
     private readonly List<AIPlayerUnknownThing> _unknownThings = new();
     private readonly List<AIPlayerUnknownThing> _unknownThings2 = new();
-    private bool _unknownBool1;
-    private bool _unknownBool2;
-    private uint _unknownInt1;
-    private int _unknownInt2;
-    private uint _countdownSomething1;
-    private uint _countdownSomething2;
-    private ObjectId _unknownObjectId;
-    private uint _unknownInt5;
-    private uint _unknownInt6;
-    private int _unknownInt7;
-    private Vector3 _unknownPosition;
-    private bool _unknownBool3;
-    private float _unknownFloat;
+    private bool _readyToBuildTeam;
+    private bool _readyToBuildStructure;
+    private int _teamTimer;
+    private int _structureTimer;
+    private int _buildDelay;
+    private int _teamDelay;
+    private int _teamSeconds;
+    private ObjectId _curWarehouseId;
+    private uint _frameLastBuildingBuilt;
+    private Difficulty _difficulty;
+    private int _skillsetSelector;
+    private Vector3 _baseCenter;
+    private bool _baseCenterSet;
+    private float _baseRadius;
+
+    // TODO(Port): m_structuresToRepair, m_repairDozer, m_structuresInQueue, m_dozerQueuedForRepair, m_dozerIsRepairing, m_bridgeTimer
+
+    public Difficulty Difficulty
+    {
+        get => _difficulty;
+        internal set => _difficulty = value;
+    }
 
     internal AIPlayer(Player owner)
     {
@@ -50,56 +60,55 @@ public class AIPlayer : IPersistableObject
                 persister.PersistObjectValue(item);
             });
 
-        var playerId = _owner.Id;
-        reader.PersistUInt32(ref playerId);
-        if (playerId != _owner.Id)
+        var playerId = _owner.Index;
+        reader.PersistPlayerIndex(ref playerId);
+        if (playerId != _owner.Index)
         {
             throw new InvalidStateException();
         }
 
-        reader.PersistBoolean(ref _unknownBool1);
-        reader.PersistBoolean(ref _unknownBool2);
+        reader.PersistBoolean(ref _readyToBuildTeam);
+        reader.PersistBoolean(ref _readyToBuildStructure);
 
-        reader.PersistUInt32(ref _unknownInt1);
-        if (_unknownInt1 != 2 && _unknownInt1 != 0)
+        reader.PersistInt32(ref _teamTimer);
+        if (_teamTimer != 2 && _teamTimer != 0)
         {
             throw new InvalidStateException();
         }
 
-        reader.PersistInt32(ref _unknownInt2);
-        if (_unknownInt2 != 0 && _unknownInt2 != -1 && _unknownInt2 != 1)
+        reader.PersistInt32(ref _structureTimer);
+        if (_structureTimer != 0 && _structureTimer != -1 && _structureTimer != 1)
         {
             throw new InvalidStateException();
         }
 
-        reader.PersistUInt32(ref _countdownSomething1); // Decrements by 1 each logic frame. When it reaches 0, it resets to 60.
-        reader.PersistUInt32(ref _countdownSomething2); // Decrements by 1 each logic frame. When it reaches 0, it resets to 150.
+        reader.PersistInt32(ref _buildDelay); // Decrements by 1 each logic frame. When it reaches 0, it resets to 60.
+        reader.PersistInt32(ref _teamDelay); // Decrements by 1 each logic frame. When it reaches 0, it resets to 150.
 
-        var unknown6 = 10u;
-        reader.PersistUInt32(ref unknown6);
-        if (unknown6 != 10)
+        reader.PersistInt32(ref _teamSeconds);
+        if (_teamSeconds != 10)
         {
             throw new InvalidDataException();
         }
 
-        reader.PersistObjectId(ref _unknownObjectId);
-        reader.PersistUInt32(ref _unknownInt5); // 0, 1
+        reader.PersistObjectId(ref _curWarehouseId);
+        reader.PersistUInt32(ref _frameLastBuildingBuilt); // 0, 1
 
-        reader.PersistUInt32(ref _unknownInt6);
-        if (_unknownInt6 != 1 && _unknownInt6 != 0 && _unknownInt6 != 2)
+        reader.PersistEnum(ref _difficulty);
+        if (!Enum.IsDefined(_difficulty))
         {
             throw new InvalidStateException();
         }
 
-        reader.PersistInt32(ref _unknownInt7);
-        if (_unknownInt7 != -1 && _unknownInt7 != 0 && _unknownInt7 != 1)
+        reader.PersistInt32(ref _skillsetSelector);
+        if (_skillsetSelector != -1 && _skillsetSelector != 0 && _skillsetSelector != 1)
         {
             throw new InvalidStateException();
         }
 
-        reader.PersistVector3(ref _unknownPosition);
-        reader.PersistBoolean(ref _unknownBool3);
-        reader.PersistSingle(ref _unknownFloat);
+        reader.PersistVector3(ref _baseCenter);
+        reader.PersistBoolean(ref _baseCenterSet);
+        reader.PersistSingle(ref _baseRadius);
 
         reader.SkipUnknownBytes(22);
     }

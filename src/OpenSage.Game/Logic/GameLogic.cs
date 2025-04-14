@@ -204,6 +204,50 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         _currentFrame++;
     }
 
+    // C++ implementation doesn't receive GameInfo; instead it reads it from one of many global variables.
+    public void StartNewGame(GameType gameType, bool loadingSavedGame, GameInfo? gameInfo)
+    {
+        // TODO(Port): Port the rest of method later, hopefully with a lot of refactoring.
+
+        var isSkirmishOrSkirmishReplay = false;
+
+        if (gameInfo != null)
+        {
+            foreach (var slot in gameInfo.Slots)
+            {
+                slot.SaveOffOriginalInfo();
+
+                if (slot.IsAI)
+                {
+                    isSkirmishOrSkirmishReplay = true;
+                }
+            }
+        }
+
+        var sidesList = _game.Scene3D.MapFile.SidesList;
+
+        // TODO: This condition is not right
+        if (gameType != GameType.SinglePlayer)
+        {
+            sidesList.PrepareForMpOrSkirmish(_game);
+        }
+
+        if (gameInfo != null)
+        {
+            for (var i = 0; i < gameInfo.Slots.Count; i++)
+            {
+                var slot = gameInfo.Slots[i];
+                sidesList.AddSideAndTeamFromSlot(_game, slot, gameInfo, i, isSkirmishOrSkirmishReplay);
+            }
+        }
+
+        sidesList.AddObserverPlayer(_game);
+        sidesList.ValidateSides();
+
+        _game.TeamFactory.Reset();
+        _game.PlayerList.NewGame();
+    }
+
     public void Persist(StatePersister reader)
     {
         var version = reader.PersistVersion(10);

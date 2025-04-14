@@ -295,6 +295,14 @@ public sealed class ScriptingSystem : GameSystem, IPersistableObject
         // TODO(Port): Port this from ScriptEngine::transferObjectName().
     }
 
+    // Despite the name, this does in fact execute several actions.
+    // This is because in C++, ScriptAction (like most classes in Generals) is a node in an intrusive linked list.
+    // There is also ExecutionActions, which this method (should) call.
+    public void ExecuteAction(ScriptAction[] actions)
+    {
+        // TODO(Port): Port this from ScriptEngine::executeAction().
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(5);

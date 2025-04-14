@@ -382,6 +382,8 @@ public sealed class Game : DisposableBase, IGame
 
     public PlayerManager PlayerManager { get; }
 
+    public PlayerList PlayerList { get; }
+
     public TeamFactory TeamFactory { get; }
 
     public PartitionCellManager PartitionCellManager { get; }
@@ -549,6 +551,8 @@ public sealed class Game : DisposableBase, IGame
 
             PlayerManager = new PlayerManager(this);
 
+            PlayerList = new PlayerList(this);
+
             TeamFactory = new TeamFactory(this);
 
             PartitionCellManager = new PartitionCellManager(this);
@@ -598,24 +602,12 @@ public sealed class Game : DisposableBase, IGame
         var entry = ContentManager.GetMapEntry(mapPath);
         var mapFile = MapFile.FromFileSystemEntry(entry);
 
-        SidesListUtility.SetupGameSides(
-            this,
-            mapFile,
-            playerSettings,
-            gameType,
-            out var mapPlayers,
-            out var mapTeams,
-            out var mapScriptLists);
-
         TerrainLogic.SetHeightMapData(mapFile.HeightMapData);
 
         new Scene3D(
             this,
             mapFile,
             entry.FilePath,
-            mapPlayers,
-            mapTeams,
-            mapScriptLists,
             gameType);
     }
 
@@ -665,6 +657,9 @@ public sealed class Game : DisposableBase, IGame
         {
             throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
         }
+
+        var gameInfo = SkirmishGameInfo.FromPlayerSettings(this, playerSettings);
+        GameLogic.StartNewGame(gameType, false, gameInfo);
 
         if (gameType != GameType.SinglePlayer)
         {

@@ -120,6 +120,7 @@ public interface IGame
     internal GameLogic GameLogic { get; }
     internal GameClient GameClient { get; }
     PlayerManager PlayerManager { get; }
+    PlayerList PlayerList { get; }
     TeamFactory TeamFactory { get; }
     PartitionCellManager PartitionCellManager { get; }
     GameEngine GameEngine { get; }

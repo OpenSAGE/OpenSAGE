@@ -1,13 +1,19 @@
-﻿using System.Numerics;
+﻿#nullable enable
+
+using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Scripting;
 
 namespace OpenSage.Terrain;
 
 public sealed class TerrainLogic : IPersistableObject
 {
-    public HeightMap HeightMap { get; private set; }
+    // This is private in C++, but due to initialisation order issues we can't initialise it in the constructor.
+    internal WaypointCollection? Waypoins { get; set; }
+
+    public HeightMap? HeightMap { get; private set; }
 
     private int _activeBoundary = 0;
 
@@ -43,12 +49,23 @@ public sealed class TerrainLogic : IPersistableObject
 
     public float GetGroundHeight(float x, float y, out Vector3 normal)
     {
+        if (HeightMap == null)
+        {
+            normal = Vector3.UnitZ;
+            return 0;
+        }
+
         normal = HeightMap.GetNormal(x, y);
         return HeightMap.GetHeight(x, y);
     }
 
     public float GetGroundHeight(float x, float y)
     {
+        if (HeightMap == null)
+        {
+            return 0;
+        }
+
         return HeightMap.GetHeight(x, y);
     }
 
@@ -60,6 +77,11 @@ public sealed class TerrainLogic : IPersistableObject
 
     public AxisAlignedBoundingBox GetExtent()
     {
+        if (HeightMap == null)
+        {
+            return new AxisAlignedBoundingBox(Vector3.Zero, Vector3.Zero);
+        }
+
         var maxXY = HeightMap.Boundaries.Length switch
         {
             0 => Vector2.Zero,
@@ -74,6 +96,12 @@ public sealed class TerrainLogic : IPersistableObject
     // TODO(Port): Implement this.
     public float GetLayerHeight(float x, float y, PathfindLayerType layer, out Vector3 normal, bool clip = true)
     {
+        if (HeightMap == null)
+        {
+            normal = Vector3.UnitZ;
+            return 0;
+        }
+
         normal = Vector3.UnitZ;
         return HeightMap.GetHeight(x, y);
     }
@@ -81,6 +109,11 @@ public sealed class TerrainLogic : IPersistableObject
     // TODO(Port): Implement this.
     public float GetLayerHeight(float x, float y, PathfindLayerType layer)
     {
+        if (HeightMap == null)
+        {
+            return 0;
+        }
+
         return HeightMap.GetHeight(x, y);
     }
 
@@ -95,6 +128,24 @@ public sealed class TerrainLogic : IPersistableObject
     /// </summary>
     // TODO(Port): Implement this.
     public PathfindLayerType GetHighestLayerForDestination(in Vector3 pos, bool onlyHealthyBridges = false) => PathfindLayerType.Ground;
+
+    public Waypoint? GetWaypointById(uint id)
+    {
+        if (Waypoins != null && Waypoins.TryGetById((int)id, out var waypoint))
+        {
+            return waypoint;
+        }
+        return null;
+    }
+
+    public Waypoint? GetWaypointByName(string name)
+    {
+        if (Waypoins != null && Waypoins.TryGetByName(name, out var waypoint))
+        {
+            return waypoint;
+        }
+        return null;
+    }
 
     public void Persist(StatePersister reader)
     {
