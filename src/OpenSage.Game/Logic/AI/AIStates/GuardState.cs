@@ -25,6 +25,16 @@ internal sealed class GuardState : State
     }
 }
 
+internal static class GuardStateIds
+{
+    public static readonly StateId Inner = new(5000);
+    public static readonly StateId Idle = new(5001);
+    public static readonly StateId Outer = new(5002);
+    public static readonly StateId Return = new(5003);
+    public static readonly StateId GetCrate = new(5004);
+    public static readonly StateId AttackAggressor = new(5005);
+}
+
 internal sealed class GuardStateMachine : StateMachineBase
 {
     private ObjectId _guardObjectId;
@@ -34,9 +44,10 @@ internal sealed class GuardStateMachine : StateMachineBase
 
     public GuardStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
     {
-        AddState(5001, new GuardIdleState(this));
-        AddState(5002, new GuardUnknown5002State(this));
-        AddState(5003, new GuardMoveState(this));
+        // TODO(Port): This configuration is incomplete.
+        DefineState(GuardStateIds.Idle, new GuardIdleState(this), GuardStateIds.Inner, GuardStateIds.Return);
+        DefineState(GuardStateIds.Outer, new GuardUnknown5002State(this), GuardStateIds.GetCrate, GuardStateIds.GetCrate);
+        DefineState(GuardStateIds.Return, new GuardMoveState(this), GuardStateIds.Idle, GuardStateIds.Inner);
     }
 
     public override void Persist(StatePersister reader)

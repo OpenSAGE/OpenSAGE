@@ -6,8 +6,6 @@ namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class StopHackingInternetState : State
 {
-    public const uint StateId = 1002;
-
     private readonly HackInternetAIUpdateStateMachine _stateMachine;
 
     private LogicFrameSpan _framesUntilFinishedPacking;
@@ -17,7 +15,7 @@ internal sealed class StopHackingInternetState : State
         _stateMachine = stateMachine;
     }
 
-    public override void OnEnter()
+    public override StateReturnType OnEnter()
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
@@ -30,19 +28,21 @@ internal sealed class StopHackingInternetState : State
         GameObject.Drawable.SetAnimationDuration(frames);
 
         _framesUntilFinishedPacking = frames;
+
+        return StateReturnType.Continue;
     }
 
-    public override UpdateStateResult Update()
+    public override StateReturnType Update()
     {
         if (_framesUntilFinishedPacking-- == LogicFrameSpan.Zero)
         {
-            return UpdateStateResult.TransitionToState(IdleState.StateId);
+            return StateReturnType.Success;
         }
 
-        return UpdateStateResult.Continue();
+        return StateReturnType.Continue;
     }
 
-    public override void OnExit()
+    public override void OnExit(StateExitType status)
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
     }

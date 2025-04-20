@@ -33,8 +33,9 @@ internal sealed class AttackAreaStateMachine : StateMachineBase
 {
     public AttackAreaStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
     {
-        AddState(IdleState.StateId, new IdleState(this));
-        AddState(10, new AttackState(this));
+        // Order matters: first state is the default state.
+        DefineState(AIStateIds.AttackObject, new AttackState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Idle, new IdleState(this), AIStateIds.Idle, AIStateIds.Idle);
     }
 
     public override void Persist(StatePersister reader)

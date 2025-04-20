@@ -16,7 +16,7 @@ internal sealed class ChinookCombatDropState : State
         _stateMachine = stateMachine;
     }
 
-    public override void OnEnter()
+    public override StateReturnType OnEnter()
     {
         _ropes.Clear();
 
@@ -25,9 +25,11 @@ internal sealed class ChinookCombatDropState : State
         {
             _ropes.Add(new Rope());
         }
+
+        return StateReturnType.Continue;
     }
 
-    public override void OnExit()
+    public override void OnExit(StateExitType status)
     {
         _ropes.Clear();
     }

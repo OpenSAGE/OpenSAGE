@@ -66,9 +66,9 @@ public readonly struct LogicFrame : IEquatable<LogicFrame>
         return new LogicFrame(left.Value + 1);
     }
 
-    public static LogicFrame operator -(LogicFrame left, LogicFrame right)
+    public static LogicFrameSpan operator -(LogicFrame left, LogicFrame right)
     {
-        return new LogicFrame(left.Value - right.Value);
+        return new LogicFrameSpan(left.Value - right.Value);
     }
 
     public static LogicFrame operator -(LogicFrame left, uint right)

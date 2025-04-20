@@ -9,8 +9,6 @@ namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class HackInternetState : State
 {
-    public const uint StateId = 1001;
-
     private readonly HackInternetAIUpdateStateMachine _stateMachine;
 
     private LogicFrameSpan _framesUntilNextHack;
@@ -20,16 +18,18 @@ internal sealed class HackInternetState : State
         _stateMachine = stateMachine;
     }
 
-    public override void OnEnter()
+    public override StateReturnType OnEnter()
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, true);
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Packing, false);
 
         SetFramesUntilNextHack(GameObject);
+
+        return StateReturnType.Continue;
     }
 
-    public override UpdateStateResult Update()
+    public override StateReturnType Update()
     {
         if (_framesUntilNextHack-- == LogicFrameSpan.Zero)
         {
@@ -46,10 +46,10 @@ internal sealed class HackInternetState : State
             GameObject.ExperienceTracker.AddExperiencePoints(_stateMachine.AIUpdate.ModuleData.XpPerCashUpdate);
         }
 
-        return UpdateStateResult.Continue();
+        return StateReturnType.Continue;
     }
 
-    public override void OnExit()
+    public override void OnExit(StateExitType status)
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
     }

@@ -30,7 +30,7 @@ internal sealed class AttackMoveStateMachine : StateMachineBase
 {
     public AttackMoveStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
     {
-        AddState(IdleState.StateId, new IdleState(this));
+        DefineState(AIStateIds.Idle, new IdleState(this), AIStateIds.Idle, AIStateIds.Idle);
     }
 
     public override void Persist(StatePersister reader)

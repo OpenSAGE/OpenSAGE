@@ -63,6 +63,24 @@ internal enum ChinookState
     OnGround = 4,
 }
 
+internal static class ChinookAIStateIds
+{
+    public static readonly StateId TakingOff = new(1001);
+    public static readonly StateId Landing = new(1002);
+    public static readonly StateId MoveToAndLand = new(1003);
+    public static readonly StateId MoveToAndEvac = new(1004);
+    public static readonly StateId LandAndEvac = new(1005);
+    public static readonly StateId EvacAndTakeoff = new(1006);
+    public static readonly StateId MoveToAndEvacAndExit = new(1007);
+    public static readonly StateId LandAndEvacAndExit = new(1008);
+    public static readonly StateId EvacAndExit = new(1009);
+    public static readonly StateId TakeOffAndExit = new(1010);
+    public static readonly StateId HeadOffMap = new(1011);
+    public static readonly StateId MoveToCombatDrop = new(1012);
+    public static readonly StateId DoCombatDrop = new(1013);
+    public static readonly StateId MoveToAndEvacAndExitInit = new(1014);
+}
+
 internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
 {
     public override ChinookAIUpdate AIUpdate { get; }
@@ -72,19 +90,19 @@ internal sealed class ChinookAIUpdateStateMachine : AIUpdateStateMachine
     {
         AIUpdate = aiUpdate;
 
-        AddState(1001, new ChinookTakeoffAndLandingState(this, false)); // Takeoff
-        AddState(1002, new ChinookTakeoffAndLandingState(this, true));  // Landing
-        AddState(1003, new MoveTowardsState(this));                     // Moving towards airfield to repair at
-        AddState(1004, new MoveTowardsState(this));                     // Moving towards evacuation point
-        AddState(1005, new ChinookTakeoffAndLandingState(this, true));  // Landing for evacuation
+        DefineState(ChinookAIStateIds.TakingOff, new ChinookTakeoffAndLandingState(this, false), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.Landing, new ChinookTakeoffAndLandingState(this, true), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.MoveToAndLand, new MoveTowardsState(this), ChinookAIStateIds.Landing, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.MoveToAndEvac, new MoveTowardsState(this), ChinookAIStateIds.LandAndEvac, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.LandAndEvac, new ChinookTakeoffAndLandingState(this, true), ChinookAIStateIds.EvacAndTakeoff, AIStateIds.Idle);
         // 1006?
-        AddState(1007, new MoveTowardsState(this));                     // Moving towards reinforcement point
-        AddState(1008, new ChinookTakeoffAndLandingState(this, true));  // Landing for reinforcement
+        DefineState(ChinookAIStateIds.MoveToAndEvacAndExit, new MoveTowardsState(this), ChinookAIStateIds.LandAndEvacAndExit, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.LandAndEvacAndExit, new ChinookTakeoffAndLandingState(this, true), ChinookAIStateIds.EvacAndExit, AIStateIds.Idle);
         // 1009?
-        AddState(1010, new ChinookTakeoffAndLandingState(this, false)); // Takeoff after reinforcement
-        AddState(1011, new ChinookExitMapState(this));                  // Exit map after reinforcement
-        AddState(1012, new ChinookMoveToCombatDropState(this));         // Moving towards combat drop location
-        AddState(1013, new ChinookCombatDropState(this));               // Combat drop
+        DefineState(ChinookAIStateIds.TakeOffAndExit, new ChinookTakeoffAndLandingState(this, false), ChinookAIStateIds.HeadOffMap, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.HeadOffMap, new ChinookExitMapState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.MoveToCombatDrop, new ChinookMoveToCombatDropState(this), ChinookAIStateIds.DoCombatDrop, AIStateIds.Idle);
+        DefineState(ChinookAIStateIds.DoCombatDrop, new ChinookCombatDropState(this), AIStateIds.Idle, AIStateIds.Idle);
     }
 }
 

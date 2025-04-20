@@ -8,8 +8,6 @@ internal sealed class StartHackingInternetState : State
 {
     private readonly HackInternetAIUpdateStateMachine _stateMachine;
 
-    public const uint StateId = 1000;
-
     private LogicFrameSpan _framesUntilHackingBegins;
 
     public StartHackingInternetState(HackInternetAIUpdateStateMachine stateMachine) : base(stateMachine)
@@ -17,7 +15,7 @@ internal sealed class StartHackingInternetState : State
         _stateMachine = stateMachine;
     }
 
-    public override void OnEnter()
+    public override StateReturnType OnEnter()
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, true);
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.FiringA, false);
@@ -30,19 +28,21 @@ internal sealed class StartHackingInternetState : State
         GameObject.Drawable.SetAnimationDuration(frames);
 
         _framesUntilHackingBegins = frames;
+
+        return StateReturnType.Continue;
     }
 
-    public override UpdateStateResult Update()
+    public override StateReturnType Update()
     {
         if (_framesUntilHackingBegins-- == LogicFrameSpan.Zero)
         {
-            return UpdateStateResult.TransitionToState(HackInternetState.StateId);
+            return StateReturnType.Success;
         }
 
-        return UpdateStateResult.Continue();
+        return StateReturnType.Continue;
     }
 
-    public override void OnExit()
+    public override void OnExit(StateExitType status)
     {
         GameObject.ModelConditionFlags.Set(ModelConditionFlag.Unpacking, false);
     }

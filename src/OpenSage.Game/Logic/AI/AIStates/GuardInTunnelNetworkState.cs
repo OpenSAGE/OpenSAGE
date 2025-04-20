@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using System.Numerics;
 using OpenSage.Logic.Object;
 
@@ -31,13 +32,61 @@ internal sealed class GuardInTunnelNetworkState : State
 
 internal sealed class GuardInTunnelNetworkStateMachine : StateMachineBase
 {
+    private static class TNGuardStateIds
+    {
+        /// <summary>
+        /// Attack anything within this area till death.
+        /// </summary>
+        public static readonly StateId Inner = new(5000);
+
+        /// <summary>
+        /// Wait till something shows up to attack.
+        /// </summary>
+        public static readonly StateId Idle = new(5001);
+
+        /// <summary>
+        /// Attack anything within this area that has been aggressive, until the timer expires.
+        /// </summary>
+        public static readonly StateId Outer = new(5002);
+
+        /// <summary>
+        /// Restore to a position within the inner circle.
+        /// </summary>
+        public static readonly StateId Return = new(5003);
+
+        /// <summary>
+        /// Pick up a crate from an enemy we killed.
+        /// </summary>
+        public static readonly StateId GetCrate = new(5004);
+
+        /// <summary>
+        /// Attack something that attacked me (that I can attack).
+        /// </summary>
+        public static readonly StateId AttackAggressor = new(5005);
+    }
+
     private ObjectId _guardObjectId;
     private Vector3 _guardPosition;
 
     public GuardInTunnelNetworkStateMachine(AIUpdateStateMachine parentStateMachine) : base(parentStateMachine)
     {
-        AddState(5001, new GuardInTunnelNetworkIdleState(this));
-        AddState(5003, new GuardInTunnelNetworkEnterTunnelState(this));
+        ReadOnlySpan<StateConditionInfo> attackAggressors =
+        [
+            new StateConditionInfo(HasAttackedMeAndICanReturnFire, TNGuardStateIds.AttackAggressor)
+        ];
+
+        // Order matters: first state is the default state.
+        // Original comment says that "return" is the start state, so that if
+        // ordered to guard a position that isn't the unit's current position,
+        // it moves to that position first.
+        DefineState(TNGuardStateIds.Return, new GuardInTunnelNetworkEnterTunnelState(this), TNGuardStateIds.Idle, TNGuardStateIds.Inner, attackAggressors);
+        DefineState(TNGuardStateIds.Idle, new GuardInTunnelNetworkIdleState(this), TNGuardStateIds.Inner, TNGuardStateIds.Return);
+    }
+
+    private static bool HasAttackedMeAndICanReturnFire(State state)
+    {
+        // TODO(Port): Implement this.
+        throw new NotImplementedException();
     }
 
     public override void Persist(StatePersister reader)

@@ -223,6 +223,12 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         reader.PersistObject(_stateMachine3);
     }
 
+    internal sealed class WorkerStateIds
+    {
+        public static readonly StateId AsDozer = new(0);
+        public static readonly StateId AsSupplyTruck = new(1);
+    }
+
     internal sealed class WorkerAIUpdateStateMachine3 : StateMachineBase
     {
         public override WorkerAIUpdate AIUpdate { get; }
@@ -231,8 +237,9 @@ public class WorkerAIUpdate : SupplyAIUpdate, IBuilderAIUpdate
         {
             AIUpdate = aiUpdate;
 
-            AddState(0, new WorkerUnknown0State(this));
-            AddState(1, new WorkerUnknown1State(this));
+            // TODO(Port): This configuration is incomplete.
+            DefineState(WorkerStateIds.AsDozer, new WorkerUnknown0State(this), StateId.Invalid, StateId.Invalid);
+            DefineState(WorkerStateIds.AsSupplyTruck, new WorkerUnknown1State(this), StateId.Invalid, StateId.Invalid);
         }
 
         public override void Persist(StatePersister reader)

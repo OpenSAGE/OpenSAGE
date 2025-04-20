@@ -202,13 +202,20 @@ internal sealed class DozerAndWorkerState : IPersistableObject
         }
     }
 
+    internal static class BuilderStateIds
+    {
+        public static readonly StateId Idle = new(0);
+        public static readonly StateId Build = new(1);
+        public static readonly StateId Repair = new(2);
+    }
+
     internal sealed class BuilderStateMachine : StateMachineBase
     {
         public BuilderStateMachine(GameObject gameObject, IGameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
         {
-            AddState(0, new BuilderUnknown0State(this));
-            AddState(1, new BuilderUnknown1State(this));
-            AddState(2, new BuilderUnknown2State(this));
+            DefineState(BuilderStateIds.Idle, new BuilderUnknown0State(this), StateId.Invalid, StateId.Invalid);
+            DefineState(BuilderStateIds.Build, new BuilderUnknown1State(this), BuilderStateIds.Idle, BuilderStateIds.Idle);
+            DefineState(BuilderStateIds.Repair, new BuilderUnknown2State(this), BuilderStateIds.Idle, BuilderStateIds.Idle);
         }
 
         public override void Persist(StatePersister reader)

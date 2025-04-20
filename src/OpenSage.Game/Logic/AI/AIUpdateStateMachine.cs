@@ -11,68 +11,72 @@ internal class AIUpdateStateMachine : StateMachineBase
     private string _targetWaypointName;
     private TargetTeam _targetTeam;
 
-    private State _overrideState;
-    private LogicFrame _overrideStateUntilFrame;
+    private State _temporaryState;
+    private LogicFrame _temporaryStateFrameEnd;
 
     public AIUpdateStateMachine(GameObject gameObject, IGameEngine gameEngine, AIUpdate aiUpdate) : base(gameObject, gameEngine, aiUpdate)
     {
-        AddState(IdleState.StateId, new IdleState(this));
-        AddState(1, new MoveTowardsState(this));
-        AddState(2, new FollowWaypointsState(this, true));
-        AddState(3, new FollowWaypointsState(this, false));
-        AddState(4, new FollowWaypointsExactState(this, true));
-        AddState(5, new FollowWaypointsExactState(this, false));
-        AddState(6, new AIState6(this));
-        AddState(7, new FollowPathState(this));
-        AddState(9, new AttackState(this));
-        AddState(10, new AttackState(this));
-        AddState(11, new AttackState(this));
-        AddState(13, new DeadState(this));
-        AddState(14, new DockState(this));
-        AddState(15, new EnterContainerState(this));
-        AddState(16, new GuardState(this));
-        AddState(17, new HuntState(this));
-        AddState(18, new WanderState(this));
-        AddState(19, new PanicState(this));
-        AddState(20, new AttackTeamState(this));
-        AddState(21, new GuardInTunnelNetworkState(this));
-        AddState(23, new AIState23(this));
-        AddState(28, new AttackAreaState(this));
-        AddState(30, new AttackMoveState(this));
-        AddState(32, new AIState32(this));
-        AddState(33, new FaceState(this, FaceTargetType.FaceNamed));
-        AddState(34, new FaceState(this, FaceTargetType.FaceWaypoint));
-        AddState(35, new RappelState(this));
-        AddState(37, new ExitContainerState(this));
-        AddState(40, new WanderInPlaceState(this));
-        AddState(41, new DoNothingState(this));
+        DefineState(AIStateIds.Idle, new IdleState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.MoveTo, new MoveTowardsState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowWaypoingPathAsTeam, new FollowWaypointsState(this, true), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowWaypointPathAsIndividuals, new FollowWaypointsState(this, false), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowWaypointPathAsTeamExact, new FollowWaypointsExactState(this, true), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowWaypointPathAsIndividualsExact, new FollowWaypointsExactState(this, false), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowPath, new AIState6(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FollowExitProductionPath, new FollowPathState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.AttackPosition, new AttackState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.AttackObject, new AttackState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.ForceAttackObject, new AttackState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Dead, new DeadState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Dock, new DockState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Enter, new EnterContainerState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Guard, new GuardState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Hunt, new HuntState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Wander, new WanderState(this), AIStateIds.Idle, AIStateIds.MoveAwayFromRepulsors);
+        DefineState(AIStateIds.Panic, new PanicState(this), AIStateIds.Idle, AIStateIds.MoveAwayFromRepulsors);
+        DefineState(AIStateIds.AttackSquad, new AttackTeamState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.GuardTunnelNetwork, new GuardInTunnelNetworkState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.MoveOutOfTheWay, new AIState23(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.AttackArea, new AttackAreaState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.AttackMoveTo, new AttackMoveState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.AttackFollowWaypointPathAsTeam, new AIState32(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FaceObject, new FaceState(this, FaceTargetType.FaceNamed), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.FacePosition, new FaceState(this, FaceTargetType.FaceWaypoint), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.RappelInto, new RappelState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.Exit, new ExitContainerState(this), AIStateIds.Idle, AIStateIds.Idle);
+        DefineState(AIStateIds.WanderInPlace, new WanderInPlaceState(this), AIStateIds.MoveAwayFromRepulsors, AIStateIds.MoveAwayFromRepulsors);
+        DefineState(AIStateIds.Busy, new DoNothingState(this), AIStateIds.Idle, AIStateIds.Idle);
     }
 
-    internal override void Update()
+    internal override StateReturnType Update()
     {
-        if (_overrideState != null)
+        // TODO(Port): Debug logging.
+
+        if (_temporaryState != null)
         {
-            var overrideStateResult = _overrideState.Update();
+            // Execute this state.
+            var status = _temporaryState.Update();
 
-            var currentFrame = GameEngine.GameLogic.CurrentFrame;
-
-            var shouldContinueOverrideState = overrideStateResult.Type switch
+            if (_temporaryStateFrameEnd < GameEngine.GameLogic.CurrentFrame)
             {
-                UpdateStateResultType.Continue => _overrideStateUntilFrame >= currentFrame,
-                UpdateStateResultType.TransitionToState => false,
-                _ => throw new System.InvalidOperationException(),
-            };
-
-            if (shouldContinueOverrideState)
-            {
-                return;
+                // Ran out of time.
+                if (status.Kind == StateReturnTypeKind.Continue)
+                {
+                    status = StateReturnType.Success;
+                }
             }
-
-            _overrideState.OnExit();
-            _overrideState = null;
+            if (status.Kind == StateReturnTypeKind.Continue)
+            {
+                // TODO(Port): Debug logging.
+                return status;
+            }
+            _temporaryState.OnExit(StateExitType.Normal);
+            _temporaryState = null;
         }
 
-        base.Update();
+        // TODO(Port): Debug logging.
+
+        return base.Update();
     }
 
     public override void Persist(StatePersister reader)
@@ -100,23 +104,23 @@ internal class AIUpdateStateMachine : StateMachineBase
             reader.PersistObject(_targetTeam);
         }
 
-        const uint unsetOverrideStateId = 999999;
-        var overrideStateId = unsetOverrideStateId;
-        if (reader.Mode == StatePersistMode.Write && _overrideState != null)
+        var temporaryStateId = StateId.Invalid;
+        if (reader.Mode == StatePersistMode.Write && _temporaryState != null)
         {
-            overrideStateId = _overrideState.Id;
+            temporaryStateId = _temporaryState.Id;
+            DebugUtility.AssertCrash(temporaryStateId != StateId.Invalid, "State has invalid state id");
         }
-        reader.PersistUInt32(ref overrideStateId);
-        if (reader.Mode == StatePersistMode.Read && overrideStateId != unsetOverrideStateId)
+        reader.PersistStateId(ref temporaryStateId);
+        if (reader.Mode == StatePersistMode.Read && temporaryStateId != StateId.Invalid)
         {
-            _overrideState = GetState(overrideStateId);
+            _temporaryState = GetState(temporaryStateId);
         }
-        if (_overrideState != null)
+        if (_temporaryState != null)
         {
-            reader.PersistObject(_overrideState);
+            reader.PersistObject(_temporaryState);
         }
 
-        reader.PersistLogicFrame(ref _overrideStateUntilFrame);
+        reader.PersistLogicFrame(ref _temporaryStateFrameEnd);
     }
 }
 
@@ -135,4 +139,52 @@ internal sealed class TargetTeam : IPersistableObject
             persister.PersistObjectIdValue(ref item);
         });
     }
+}
+
+public static class AIStateIds
+{
+    public static readonly StateId Idle = new(0);
+    public static readonly StateId MoveTo = new(1);
+    public static readonly StateId FollowWaypoingPathAsTeam = new(2);
+    public static readonly StateId FollowWaypointPathAsIndividuals = new(3);
+    public static readonly StateId FollowWaypointPathAsTeamExact = new(4);
+    public static readonly StateId FollowWaypointPathAsIndividualsExact = new(5);
+    public static readonly StateId FollowPath = new(6);
+    public static readonly StateId FollowExitProductionPath = new(7);
+    public static readonly StateId Wait = new(8);
+    public static readonly StateId AttackPosition = new(9);
+    public static readonly StateId AttackObject = new(10);
+    public static readonly StateId ForceAttackObject = new(11);
+    public static readonly StateId AttackAndFollowObject = new(12);
+    public static readonly StateId Dead = new(13);
+    public static readonly StateId Dock = new(14);
+    public static readonly StateId Enter = new(15);
+    public static readonly StateId Guard = new(16);
+    public static readonly StateId Hunt = new(17);
+    public static readonly StateId Wander = new(18);
+    public static readonly StateId Panic = new(19);
+    public static readonly StateId AttackSquad = new(20);
+    public static readonly StateId GuardTunnelNetwork = new(21);
+    public static readonly StateId GetRepaired = new(22);
+    public static readonly StateId MoveOutOfTheWay = new(23);
+    public static readonly StateId MoveAndTighten = new(24);
+    public static readonly StateId MoveAndEvacuate = new(25);
+    public static readonly StateId MoveAndEvacuateAndExit = new(26);
+    public static readonly StateId MoveAndDelete = new(27);
+    public static readonly StateId AttackArea = new(28);
+    public static readonly StateId HackInternet = new(29);
+    public static readonly StateId AttackMoveTo = new(30);
+    public static readonly StateId AttackFollowWaypointPathAsIndividuals = new(31);
+    public static readonly StateId AttackFollowWaypointPathAsTeam = new(32);
+    public static readonly StateId FaceObject = new(33);
+    public static readonly StateId FacePosition = new(34);
+    public static readonly StateId RappelInto = new(35);
+    public static readonly StateId CombatDrop = new(36);
+    public static readonly StateId Exit = new(37);
+    public static readonly StateId PickUpCrate = new(38);
+    public static readonly StateId MoveAwayFromRepulsors = new(39);
+    public static readonly StateId WanderInPlace = new(40);
+    public static readonly StateId Busy = new(41);
+    public static readonly StateId ExitInstantly = new(42);
+    public static readonly StateId GuardRetaliate = new(43);
 }

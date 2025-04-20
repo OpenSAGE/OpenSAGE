@@ -112,6 +112,15 @@ public class AIUpdate : UpdateModule
     // TODO(Port): Implement this.
     public bool IsMoving => false;
 
+    public virtual bool IsIdle
+    {
+        get
+        {
+            var stateMachine = StateMachine;
+            return stateMachine.CurrentStateId == AIStateIds.Idle || stateMachine.IsInIdleState;
+        }
+    }
+
     internal AIUpdate(GameObject gameObject, IGameEngine gameEngine, AIUpdateModuleData moduleData)
         : base(gameObject, gameEngine)
     {
@@ -132,7 +141,12 @@ public class AIUpdate : UpdateModule
         }
     }
 
-    private protected virtual AIUpdateStateMachine CreateStateMachine() => new(GameObject, GameEngine, this);
+    private protected virtual AIUpdateStateMachine CreateStateMachine()
+    {
+        var result = new AIUpdateStateMachine(GameObject, GameEngine, this);
+        result.InitializeDefaultState();
+        return result;
+    }
 
     internal void SetLocomotor(LocomotorSetType type)
     {

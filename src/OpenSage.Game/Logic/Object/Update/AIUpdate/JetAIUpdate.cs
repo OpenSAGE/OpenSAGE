@@ -338,8 +338,13 @@ internal sealed class JetAIUpdateStateMachine : AIUpdateStateMachine
     {
         AIUpdate = aiUpdate;
 
-        AddState(WaitForAirfieldWinchesterState.StateId, new WaitForAirfieldWinchesterState(this));
+        DefineState(JetAIStateIds.CirclingDeadAirfield, new WaitForAirfieldWinchesterState(this), AIStateIds.Idle, AIStateIds.Idle);
     }
+}
+
+internal static class JetAIStateIds
+{
+    public static readonly StateId CirclingDeadAirfield = new(1013);
 }
 
 /// <summary>
