@@ -405,7 +405,7 @@ internal abstract class StateMachineBase : IPersistableObject, IDisposable
             _currentState ??= GetState(_defaultStateId);
             reader.PersistObject(_currentState);
         }
-            
+
         reader.PersistObjectId(ref _goalObjectId);
         reader.PersistVector3(ref _goalPosition);
         reader.PersistBoolean(ref _locked);
