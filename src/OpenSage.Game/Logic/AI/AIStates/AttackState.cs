@@ -27,14 +27,38 @@ internal sealed class AttackState : State
     }
 }
 
+internal static class AttackStateIds
+{
+    /// <summary>
+    /// Chase a moving target (optionally following it).
+    /// </summary>
+    public static readonly StateId ChaseTarget = new(0);
+
+    /// <summary>
+    /// Approach a non-moving target.
+    /// </summary>
+    public static readonly StateId ApproachTarget = new(1);
+
+    /// <summary>
+    /// Rotate to face GoalObject or GoalPosition.
+    /// </summary>
+    public static readonly StateId AimAtTarget = new(2);
+
+    /// <summary>
+    /// Fire the machine owner's current weapon.
+    /// </summary>
+    public static readonly StateId FireWeapon = new(3);
+}
+
 internal sealed class AttackStateMachine : StateMachineBase
 {
     public AttackStateMachine(StateMachineBase parentStateMachine) : base(parentStateMachine)
     {
-        AddState(0, new AttackMoveTowardsTargetState(this));
-        AddState(1, new AttackMoveTowardsTargetState(this));
-        AddState(2, new AttackAimWeaponState(this));
-        AddState(3, new AttackFireWeaponState(this));
+        // TODO(Port): These states are far from completely configured.
+        DefineState(AttackStateIds.ChaseTarget, new AttackMoveTowardsTargetState(this), StateId.ExitMachineWithFailure, StateId.ExitMachineWithFailure);
+        DefineState(AttackStateIds.ApproachTarget, new AttackMoveTowardsTargetState(this), AttackStateIds.AimAtTarget, StateId.ExitMachineWithFailure);
+        DefineState(AttackStateIds.AimAtTarget, new AttackAimWeaponState(this), AttackStateIds.FireWeapon, StateId.ExitMachineWithFailure);
+        DefineState(AttackStateIds.FireWeapon, new AttackFireWeaponState(this), AttackStateIds.AimAtTarget, AttackStateIds.AimAtTarget);
     }
 
     public override void Persist(StatePersister reader)

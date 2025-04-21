@@ -9,8 +9,6 @@ namespace OpenSage.Logic.AI.AIStates;
 /// </summary>
 internal sealed class WaitForAirfieldWinchesterState : State
 {
-    public const uint StateId = 1013;
-
     internal WaitForAirfieldWinchesterState(JetAIUpdateStateMachine stateMachine) : base(stateMachine)
     {
     }

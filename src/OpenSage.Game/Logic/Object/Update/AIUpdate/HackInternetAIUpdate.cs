@@ -22,7 +22,9 @@ public class HackInternetAIUpdate : AIUpdate
 
     public override UpdateSleepTime Update()
     {
-        if (StateMachine.CurrentState is IdleState)
+        // Have to call our parent's IsIdle, because we override it to never
+        // return true when we have a pending command...
+        if (base.IsIdle)
         {
             if (_packingUpData != null && _packingUpData.TargetPosition != default)
             {
@@ -39,14 +41,14 @@ public class HackInternetAIUpdate : AIUpdate
     {
         Stop();
 
-        StateMachine.SetState(StartHackingInternetState.StateId);
+        StateMachine.SetState(HackInternetStateIds.Unpacking);
     }
 
     internal override void SetTargetPoint(Vector3 targetPoint)
     {
         Stop();
 
-        if (StateMachine.CurrentState is StopHackingInternetState)
+        if (StateMachine.CurrentStateId == HackInternetStateIds.Packing)
         {
             // we can't move just yet
             _packingUpData = new UnknownStateData { TargetPosition = targetPoint };
@@ -59,17 +61,17 @@ public class HackInternetAIUpdate : AIUpdate
 
     internal override void Stop()
     {
-        switch (StateMachine.CurrentState)
+        if (StateMachine.CurrentStateId == HackInternetStateIds.Unpacking)
         {
-            case StartHackingInternetState:
-                // this takes effect immediately
-                StateMachine.SetState(IdleState.StateId);
-                break;
-            case HackInternetState:
-                StateMachine.SetState(StopHackingInternetState.StateId);
-                break;
-                // If we're in StopHackingInternetState, we need to see that through
+            // this takes effect immediately
+            StateMachine.SetState(AIStateIds.Idle);
         }
+        else if (StateMachine.CurrentStateId == HackInternetStateIds.HackInternet)
+        {
+            StateMachine.SetState(HackInternetStateIds.Packing);
+        }
+
+        // If we're in StopHackingInternetState, we need to see that through
 
         base.Stop();
     }
@@ -101,9 +103,23 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
     {
         AIUpdate = aiUpdate;
 
-        AddState(StartHackingInternetState.StateId, new StartHackingInternetState(this));
-        AddState(HackInternetState.StateId, new HackInternetState(this));
-        AddState(StopHackingInternetState.StateId, new StopHackingInternetState(this));
+        DefineState(
+            HackInternetStateIds.Unpacking,
+            new StartHackingInternetState(this),
+            HackInternetStateIds.HackInternet,
+            HackInternetStateIds.HackInternet);
+
+        DefineState(
+            HackInternetStateIds.HackInternet,
+            new HackInternetState(this),
+            HackInternetStateIds.Packing,
+            HackInternetStateIds.Packing);
+
+        DefineState(
+            HackInternetStateIds.Packing,
+            new StopHackingInternetState(this),
+            AIStateIds.Idle,
+            AIStateIds.Idle);
     }
 
     internal LogicFrameSpan GetVariableFrames(LogicFrameSpan time, IGameEngine gameEngine)
@@ -114,6 +130,13 @@ internal sealed class HackInternetAIUpdateStateMachine : AIUpdateStateMachine
             1.0f + variationFactor);
         return new LogicFrameSpan((uint)(time.Value * variation));
     }
+}
+
+internal static class HackInternetStateIds
+{
+    public static readonly StateId Unpacking = new(1000);
+    public static readonly StateId HackInternet = new(1001);
+    public static readonly StateId Packing = new(1002);
 }
 
 /// <summary>

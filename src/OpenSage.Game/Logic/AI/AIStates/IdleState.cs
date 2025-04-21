@@ -4,11 +4,11 @@ namespace OpenSage.Logic.AI.AIStates;
 
 internal sealed class IdleState : State
 {
-    public const uint StateId = 0;
-
     private ushort _unknownShort;
     private bool _unknownBool1;
     private bool _unknownBool2;
+
+    public override bool IsIdle => true;
 
     internal IdleState(StateMachineBase stateMachine) : base(stateMachine)
     {

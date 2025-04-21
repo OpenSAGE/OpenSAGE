@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.FileFormats;
+using OpenSage.Logic.AI;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -605,6 +606,20 @@ public static class StatePersisterExtensions
         persister.PersistUpdateFrameValue(ref value);
 
         persister.EndObject();
+    }
+
+    public static void PersistStateId(this StatePersister persister, ref StateId value, [CallerArgumentExpression("value")] string name = "")
+    {
+        persister.PersistFieldName(name);
+
+        persister.PersistStateIdValue(ref value);
+    }
+
+    public static void PersistStateIdValue(this StatePersister persister, ref StateId value)
+    {
+        var innerValue = value.Value;
+        persister.PersistUInt32Value(ref innerValue);
+        value = new StateId(innerValue);
     }
 
     public static void PersistEnumOptional<TEnum>(this StatePersister persister, ref TEnum? value, [CallerArgumentExpression("value")] string name = "")
