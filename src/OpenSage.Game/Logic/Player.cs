@@ -10,6 +10,7 @@ using OpenSage.Logic.AI;
 using OpenSage.Logic.Map;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Network;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic;
@@ -59,26 +60,27 @@ public class Player : IPersistableObject
     private readonly Squad[] _squads = new Squad[NumHotkeySquads];
     private readonly ObjectIdSet _destroyedObjects = new();
 
-    private bool _bombardmentActive;
-    private bool _holdTheLineActive;
-    private bool _searchAndDestroyActive;
+    private int _bombardBattlePlans;
+    private int _holdTheLineBattlePlans;
+    private int _searchAndDestroyBattlePlans;
 
-    private bool _unknownBool;
+    private bool _unitsShouldHunt;
 
     private StrategyData? _strategyData;
 
     public PlayerIndex Index { get; }
-    public PlayerTemplate? Template { get; }
+    public PlayerTemplate? Template { get; private set; }
     public string? Name;
     public string? DisplayName { get; private set; }
 
     public string? Side { get; private set; }
+    public string? BaseSide { get; private set; }
 
     public bool IsHuman { get; private set; }
 
     public Team? DefaultTeam { get; private set; }
 
-    public readonly BankAccount BankAccount;
+    public BankAccount BankAccount;
 
     public Rank Rank { get; set; }
     public uint SkillPointsTotal;
@@ -86,8 +88,8 @@ public class Player : IPersistableObject
     public uint SciencePurchasePoints { get; set; }
     public bool CanBuildUnits;
     public bool CanBuildBase;
-    public float GeneralsExperienceMultiplier;
-    public bool ShowOnScoreScreen;
+    public float SkillPointsModifier;
+    public bool ListInScoreScreen;
 
     public AIPlayer? AIPlayer { get; private set; }
 
@@ -148,7 +150,7 @@ public class Player : IPersistableObject
     private HashSet<GameObject> _selectedUnits;
 
     private PlayerType _playerType;
-    private ResourceGatheringManager _resourceGatheringManager;
+    private ResourceGatheringManager? _resourceGatheringManager;
 
     public IReadOnlyCollection<GameObject> SelectedUnits => _selectedUnits;
 
@@ -208,7 +210,7 @@ public class Player : IPersistableObject
         _handicap = new Handicap();
     }
 
-    internal void InitFromDict(Data.Map.Player mapPlayer)
+    internal void InitFromDict(Data.Map.Player mapPlayer, GameInfo? gameInfo)
     {
         var sidesList = _game.Scene3D.MapFile.SidesList;
 
@@ -218,7 +220,7 @@ public class Player : IPersistableObject
         var template = _game.AssetStore.PlayerTemplates.GetByName(templateName) ??
             throw new InvalidStateException($"Player template {templateName} not found.");
 
-        Init(template);
+        Init(template, gameInfo);
 
         var playerDisplayName = mapPlayer.DisplayName ?? "";
         var playerName = mapPlayer.Name ?? "";
@@ -273,7 +275,7 @@ public class Player : IPersistableObject
                     var qualifier = _mpStartIndex.ToString();
                     var qualTemplatePlayerName = (civilianPlayer.Name ?? "") + _mpStartIndex;
 
-                    var scripts = civilianPlayer.Scripts.DuplicateAndQualify(
+                    var scripts = civilianPlayer.Scripts?.DuplicateAndQualify(
                         qualifier,
                         qualTemplatePlayerName,
                         Name
@@ -330,7 +332,7 @@ public class Player : IPersistableObject
             Name = $"{skirmishPlayer.Name}{_mpStartIndex}";
             var qualifier = _mpStartIndex.ToString();
 
-            var scripts = skirmishPlayer.Scripts.DuplicateAndQualify(
+            var scripts = skirmishPlayer.Scripts?.DuplicateAndQualify(
                 qualifier,
                 Name,
                 Name
@@ -933,8 +935,8 @@ public class Player : IPersistableObject
         reader.PersistBoolean(ref CanBuildUnits);
         reader.PersistBoolean(ref CanBuildBase);
         reader.PersistBoolean(ref _observer);
-        reader.PersistSingle(ref GeneralsExperienceMultiplier);
-        reader.PersistBoolean(ref ShowOnScoreScreen);
+        reader.PersistSingle(ref SkillPointsModifier);
+        reader.PersistBoolean(ref ListInScoreScreen);
 
         reader.PersistArray(
             _attackedByPlayerIds,
@@ -943,6 +945,7 @@ public class Player : IPersistableObject
                 persister.PersistBooleanValue(ref item);
             });
 
+        // TODO(Port): _scoreKeeper
         reader.SkipUnknownBytes(4);
 
         if (reader.SageGame == SageGame.CncGenerals)
@@ -982,13 +985,10 @@ public class Player : IPersistableObject
             reader.PersistObject(_strategyData);
         }
 
-        reader.PersistBoolean(ref _bombardmentActive);
-        reader.SkipUnknownBytes(3);
-        reader.PersistBoolean(ref _holdTheLineActive);
-        reader.SkipUnknownBytes(3);
-        reader.PersistBoolean(ref _searchAndDestroyActive);
-        reader.SkipUnknownBytes(3);
-        reader.PersistBoolean(ref _unknownBool);
+        reader.PersistInt32(ref _bombardBattlePlans);
+        reader.PersistInt32(ref _holdTheLineBattlePlans);
+        reader.PersistInt32(ref _searchAndDestroyBattlePlans);
+        reader.PersistBoolean(ref _unitsShouldHunt);
     }
 
     public static Player FromMapData(PlayerIndex index, Data.Map.Player mapPlayer, IGame game, bool isSkirmish)
@@ -1077,17 +1077,19 @@ public class Player : IPersistableObject
 
     public void SetActiveBattlePlan(BattlePlanType battlePlan, float armorDamageScalar, float sightRangeScalar)
     {
-        _bombardmentActive = battlePlan is BattlePlanType.Bombardment;
-        _holdTheLineActive = battlePlan is BattlePlanType.HoldTheLine;
-        _searchAndDestroyActive = battlePlan is BattlePlanType.SearchAndDestroy;
+        // TODO: This is probably not right - these used to be flags, now they are ints, mirroring Generals
+
+        _bombardBattlePlans = battlePlan is BattlePlanType.Bombardment ? 1 : 0;
+        _holdTheLineBattlePlans = battlePlan is BattlePlanType.HoldTheLine ? 1 : 0;
+        _searchAndDestroyBattlePlans = battlePlan is BattlePlanType.SearchAndDestroy ? 1 : 0;
         _strategyData?.SetActiveBattlePlan(battlePlan, armorDamageScalar, sightRangeScalar);
     }
 
     public void ClearBattlePlan()
     {
-        _bombardmentActive = false;
-        _holdTheLineActive = false;
-        _searchAndDestroyActive = false;
+        _bombardBattlePlans = 0;
+        _holdTheLineBattlePlans = 0;
+        _searchAndDestroyBattlePlans = 0;
         _strategyData?.ClearBattlePlan();
     }
 
@@ -1119,9 +1121,116 @@ public class Player : IPersistableObject
         // TODO(Port): Implement this.
     }
 
-    internal void Init(PlayerTemplate? playerTemplate)
+    internal void Init(PlayerTemplate? playerTemplate, GameInfo? gameInfo)
     {
-        // TODO(Port): Implement this - nothing will work before this
+        SkillPointsModifier = 1.0f;
+        // TODO(Port): _attackedFrame = 0;
+
+        _isPreorder = false;
+        _isPlayerDead = false;
+
+        _radarCount = 0;
+        _disableProofRadarCount = 0;
+        _radarDisabled = false;
+
+        _bombardBattlePlans = 0;
+        _holdTheLineBattlePlans = 0;
+        _searchAndDestroyBattlePlans = 0;
+
+        // TODO(Port): m_battlePlanBonuses
+        // TODO(Port): deleteUpgradeList()
+        // TODO(Port): m_energy.init(this);
+        // TODO(Port): m_stats.init();
+
+        _buildList = [];
+        DefaultTeam = null;
+
+        AIPlayer = null;
+
+        _resourceGatheringManager = null;
+
+        for (var i = 0; i < _squads.Length; i++)
+        {
+            _squads[i] = new Squad(_game);
+        }
+
+        _currentSelection = new Squad(_game);
+        _tunnelSystem = new TunnelTracker();
+
+        CanBuildBase = true;
+        CanBuildUnits = true;
+        _observer = false;
+
+        // TODO(Port): m_cashBountyPercent = 0.0f;
+
+        ListInScoreScreen = true;
+        _unitsShouldHunt = false;
+
+        if (playerTemplate != null)
+        {
+            Side = playerTemplate.Side;
+            BaseSide = playerTemplate.BaseSide;
+            // TODO(Port): m_productionCostChanges
+            // TODO(Port): m_productionTimeChanges
+            // TODO(Port): m_productionVeterancyLevels
+            Color = playerTemplate.PreferredColor;
+            NightColor = Color;
+
+            BankAccount = BankAccount.FromAmount(_game, Index, playerTemplate.StartMoney);
+            // TODO(Port): m_handicap
+
+            if (BankAccount.Money == 0)
+            {
+                if (gameInfo != null)
+                {
+                    BankAccount = gameInfo.StartingCash;
+                } else
+                {
+                    BankAccount.Money = _game.AssetStore.GameData.Current.DefaultStartingCash;
+                }
+            }
+
+            DisplayName = "";
+            Name = "";
+            _playerType = PlayerType.Computer;
+            _observer = playerTemplate.IsObserver;
+            _isPlayerDead = playerTemplate.IsObserver; // "Observers are dead"
+        }
+        else
+        {
+            // No player template means neutral player
+
+            Side = "";
+            BaseSide = "";
+            // TODO(Port): m_productionCostChanges
+            // TODO(Port): m_productionTimeChanges
+            // TODO(Port): m_productionVeterancyLevels
+            Color = new ColorRgb(255, 255, 255);
+            NightColor = new ColorRgb(255, 255, 255);
+            BankAccount.Init();
+            _handicap.Init();
+
+            DisplayName = "";
+            Name = "";
+            _playerType = PlayerType.Computer;
+
+            // Neutral player is allied to itself
+            SetPlayerRelationship(this, RelationshipType.Allies);
+        }
+
+        _scoreKeeper.Reset(Index);
+        Template = playerTemplate;
+
+        ResetRank();
+        _sciencesDisabled.Clear();
+        _sciencesHidden.Clear();
+
+        // TODO(Port): m_specialPowerReadyTimerList handling
+        // TODO(Port): m_kindOfPercentProductionChangeList
+
+        AcademyStats.Init(this);
+
+        // TODO(Port): m_logicalRetaliationModeEnabled
     }
 
     internal void Update()
@@ -1141,6 +1250,11 @@ public class Player : IPersistableObject
     }
 
     internal void UpdateTeamStates()
+    {
+        // TODO(Port)
+    }
+
+    private void ResetRank()
     {
         // TODO(Port)
     }
@@ -1515,6 +1629,11 @@ public sealed class ScoreKeeper : IPersistableObject
         }
     }
 
+    internal void Reset(PlayerIndex index)
+    {
+        // TODO(Port)
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(1);
@@ -1657,14 +1776,7 @@ public sealed class Handicap
     public Handicap()
     {
         _handicaps = new float[(int)HandicapType.Count, (int)ThingType.Count];
-
-        for (var i = 0; i < _handicaps.GetLength(0); i++)
-        {
-            for (var j = 0; j < _handicaps.GetLength(1); j++)
-            {
-                _handicaps[i, j] = 1.0f;
-            }
-        }
+        Init();
     }
 
     public float GetHandicap(HandicapType t, ObjectDefinition thingTemplate)
@@ -1705,6 +1817,17 @@ public sealed class Handicap
             return ThingType.Buildings;
         }
         return ThingType.Generic;
+    }
+
+    public void Init()
+    {
+        for (var i = 0; i < _handicaps.GetLength(0); i++)
+        {
+            for (var j = 0; j < _handicaps.GetLength(1); j++)
+            {
+                _handicaps[i, j] = 1.0f;
+            }
+        }
     }
 
     public enum HandicapType

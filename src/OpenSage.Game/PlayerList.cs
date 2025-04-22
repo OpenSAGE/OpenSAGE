@@ -36,22 +36,22 @@ public class PlayerList : IPersistableObject
     }
 
     // TODO: Add ISubsystem?
-    public void Init()
+    public void Init(GameInfo? gameInfo)
     {
         _playerCount = 0;
 
         foreach (var player in _players)
         {
-            player.Init(null);
+            player.Init(null, gameInfo);
         }
 
         _local = _players[0];
     }
 
-    public void Reset()
+    public void Reset(GameInfo? gameInfo)
     {
         _game.TeamFactory.Clear();
-        Init();
+        Init(gameInfo);
     }
 
     public void Update()
@@ -62,11 +62,11 @@ public class PlayerList : IPersistableObject
         }
     }
 
-    public void NewGame()
+    public void NewGame(GameInfo? gameInfo)
     {
+        Reset(gameInfo);
+
         var sidesList = _game.Scene3D.MapFile.SidesList;
-        _game.TeamFactory.Clear();
-        Init();
 
         var setLocal = false;
 
@@ -80,7 +80,7 @@ public class PlayerList : IPersistableObject
             }
 
             var player = _players[_playerCount++];
-            player.InitFromDict(mapPlayer);
+            player.InitFromDict(mapPlayer, gameInfo);
 
             if (mapPlayer.Properties.GetPropOrNull(PlayerKeys.MultiplayerIsLocal)?.GetBoolean() ?? false)
             {

@@ -273,7 +273,9 @@ public abstract class BaseGameInfo<TSlot> where TSlot : GameSlot
 
     protected int _preorderMask;
     protected int _crcInterval;
-    protected bool _inGame;
+
+    // TODO(Port): This should default to false, and be set to true when e.g. opening the skirmish menu
+    protected bool _inGame = true;
     protected bool _inProgress;
     protected bool _surrendered;
     protected int _gameId;
@@ -289,6 +291,8 @@ public abstract class BaseGameInfo<TSlot> where TSlot : GameSlot
     protected int _seed;
     protected bool _useStats;
     protected BankAccount _startingCash;
+    public BankAccount StartingCash => _startingCash;
+
     protected ushort _superweaponRestriction;
     /// <summary>
     /// If true, only USA, China and GLA are allowed as playable factions (and the ones from Zero Hour are not).
@@ -311,7 +315,8 @@ public abstract class BaseGameInfo<TSlot> where TSlot : GameSlot
     {
         // TODO(Port): In Generals this is either 1 or 100, depending on build settings.
         _crcInterval = 100;
-        _inGame = false;
+        // TODO: Reset inGame if/when we make it work it correctly.
+        // _inGame = false;
         _inProgress = false;
         _gameId = 0;
         _mapName = "NOMAP";
@@ -412,7 +417,7 @@ public sealed class SkirmishGameInfo : GameInfo, IPersistableObject
         var gameInfo = new SkirmishGameInfo(game);
         gameInfo.Reset();
 
-        // TODO: This is not very efficient, but our assets system doesn't support retrieving the index of an asset by name.
+        // TODO: This is not very efficient, but our asset system doesn't support retrieving the index of an asset by name.
         var playerTemplates = game.AssetStore.PlayerTemplates.ToList();
 
         for (var i = 0; i < players.Length; i++)

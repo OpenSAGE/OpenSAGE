@@ -245,7 +245,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         sidesList.ValidateSides();
 
         _game.TeamFactory.Reset();
-        _game.PlayerList.NewGame();
+        _game.PlayerList.NewGame(gameInfo);
     }
 
     public void Persist(StatePersister reader)

@@ -1,4 +1,5 @@
-﻿using OpenSage.Logic.Object;
+﻿using System;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic;
 
@@ -133,6 +134,11 @@ public sealed class AcademyStats(IGame game) : IPersistableObject
     public void RecordVehicleSniped()
     {
         _vehiclesSniped++;
+    }
+
+    internal void Init(Player player)
+    {
+        // TODO(Port)
     }
 
     // TOOD: After porting this I realised that this doesn't seem to be used anywhere in ZH?

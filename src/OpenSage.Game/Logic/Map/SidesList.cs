@@ -30,7 +30,7 @@ public sealed class SidesList : Asset, IPersistableObject
 
     private readonly Player[] _sides = [.. Enumerable.Range(0, MaxPlayerCount).Select(_ => new Player([]))];
     private int _numSides;
-    public ArraySegment<Player> Players { get => new ArraySegment<Player>(_sides, 0, _numSides); }
+    public ArraySegment<Player> Players { get => new(_sides, 0, _numSides); }
 
     // C++ name: m_teamrec
     private List<Team> _teams = [];
@@ -64,23 +64,19 @@ public sealed class SidesList : Asset, IPersistableObject
             }
 
             var numPlayers = reader.ReadInt32();
-            var players = new List<Player>(MaxPlayerCount);
+            var sidesList = new SidesList();
 
             for (var i = 0; i < numPlayers; i++)
             {
-                players.Add(Player.Parse(reader, context, version, mapHasAssetList));
+                var player = Player.Parse(reader, context, version, mapHasAssetList);
+                sidesList.AddSide(player);
             }
 
             if (version >= 5)
             {
                 // Above version 5, teams and scripts are in separate top-level chunks.
-                var newSidesList = new SidesList
-                {
-                    Unknown = unknown,
-                };
-                Array.Copy(players.ToArray(), newSidesList._sides, numPlayers);
-                newSidesList._numSides = numPlayers;
-                return newSidesList;
+                sidesList.Unknown = unknown;
+                return sidesList;
             }
 
             var teams = new List<Team>();
@@ -116,18 +112,13 @@ public sealed class SidesList : Asset, IPersistableObject
             // Attach the player scripts to the players
             if (playerScripts != null)
             {
-                for (var i = 0; i < players.Count; i++)
+                for (var i = 0; i < numPlayers; i++)
                 {
-                    players[i].Scripts = playerScripts.ScriptLists[i];
+                    sidesList.Players[i].Scripts = playerScripts.ScriptLists[i];
                 }
             }
 
-            var sidesList = new SidesList
-            {
-                Teams = teams,
-            };
-            Array.Copy(players.ToArray(), sidesList._sides, numPlayers);
-            sidesList._numSides = numPlayers;
+            sidesList.Teams = teams;
 
             var validationResult = sidesList.ValidateSides();
             if (validationResult == ValidationResult.InvalidButFixed)
@@ -356,13 +347,7 @@ public sealed class SidesList : Asset, IPersistableObject
 
     public void AddSide(Player mapPlayer)
     {
-        if (_numSides >= MaxPlayerCount)
-        {
-            throw new InvalidOperationException("Too many players");
-        }
-
-        _sides[_numSides] = mapPlayer;
-        _numSides++;
+        AddSide(mapPlayer.Properties);
     }
 
     public void AddSide(AssetPropertyCollection properties)
@@ -370,6 +355,24 @@ public sealed class SidesList : Asset, IPersistableObject
         if (_numSides >= MaxPlayerCount)
         {
             throw new InvalidOperationException("Too many players");
+        }
+
+        // Assert that every Player in sides array is unique and not the same instance
+
+        for (var i = 0; i < _numSides; i++)
+        {
+            for (var j = 0; j < _numSides; j++)
+            {
+                if (i == j)
+                {
+                    continue;
+                }
+
+                if (_sides[i] == _sides[j])
+                {
+                    throw new InvalidOperationException($"Duplicate player {i} and {j}");
+                }
+            }
         }
 
         _sides[_numSides].Init(properties);
@@ -390,17 +393,24 @@ public sealed class SidesList : Asset, IPersistableObject
         }
 
         // Can't remove the last player
-        if (_numSides == 1)
+        if (_numSides <= 1)
         {
             return;
         }
 
-        // Shift all players towards 0 and clear the last one
-        for (var i = index; i < _numSides - 1; i++)
+        for ( ; index < _numSides - 1; index++)
         {
-            _sides[i] = _sides[i + 1];
+            _sides[index] = _sides[index + 1];
         }
-        _sides[_numSides - 1].Clear();
+
+        for (; index < _sides.Length; index++)
+        {
+            // Generals calls Clear() instead of creating new players, but that surfaced the problem that
+            // _sides might contain multiple references to the same player object
+            // I don't know why. Hopefully this workaround is good enough.
+            _sides[index] = new Player();
+        }
+
         _numSides--;
     }
 
@@ -519,6 +529,7 @@ public sealed class SidesList : Asset, IPersistableObject
         // Remove players from _sides after the copy, except:
         // - Do not remove the civilian player
         // - Ensure there is always at least one player left in _sides (why?)
+        // When we understand this code properly, we should move away from manual array management to something higher level
         for (var i = 0; i < _numSides; i++)
         {
             _skirmishSides[_numSkirmishSides] = _sides[i];
@@ -631,6 +642,8 @@ public sealed class SidesList : Asset, IPersistableObject
         var playerProps = new AssetPropertyCollection();
         var playerName = $"player{i}";
         playerProps.AddAsciiString(PlayerKeys.Name, playerName);
+        playerProps.AddBoolean(PlayerKeys.IsHuman, slot.IsHuman);
+        playerProps.AddUnicodeString(PlayerKeys.DisplayName, slot.Name);
 
         var playerTemplate = slot.PlayerTemplate switch
         {

@@ -61,7 +61,7 @@ public sealed class PlayerTemplate : BaseAsset
         { "BaseSide", (parser, x) => x.BaseSide = parser.ParseAssetReference() },
         { "PlayableSide", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
         { "IsObserver", (parser, x) => x.IsObserver = parser.ParseBoolean() },
-        { "StartMoney", (parser, x) => x.StartMoney = parser.ParseInteger() },
+        { "StartMoney", (parser, x) => x.StartMoney = parser.ParseUnsignedInteger() },
         { "PreferredColor", (parser, x) => x.PreferredColor = parser.ParseColorRgb() },
         { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseScienceReferenceArray() },
         { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseCommandSetReference() },
@@ -119,7 +119,7 @@ public sealed class PlayerTemplate : BaseAsset
 
     public bool PlayableSide { get; private set; }
     public bool IsObserver { get; private set; }
-    public int StartMoney { get; private set; }
+    public uint StartMoney { get; private set; }
     public ColorRgb PreferredColor { get; private set; }
     public LazyAssetReference<Science>[] IntrinsicSciences { get; private set; }
     public LazyAssetReference<CommandSet> PurchaseScienceCommandSetRank1 { get; private set; }

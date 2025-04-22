@@ -59,6 +59,11 @@ public sealed class BankAccount(IGame game, PlayerIndex playerIndex) : IPersista
         }
     }
 
+    public void Init()
+    {
+        Money = 0;
+    }
+
     public void Persist(StatePersister reader)
     {
         reader.PersistVersion(1);
