@@ -30,6 +30,6 @@
     <!-- Test projects only -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.3" />
   </ItemGroup>
 </Project>
