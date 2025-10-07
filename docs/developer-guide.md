@@ -30,7 +30,9 @@ You can also build like that on Windows, in case you don't want to use Visual St
 
 The standard package manage install for dotnet on linux currently installs 6.0.1xx, which does not contain some of the C# 11 preview features used in OpenSAGE. To install 6.0.402 or greater on Ubuntu, follow the [instructions here](https://github.com/dotnet/core/issues/7699) for using a .NET 6 package via **PMC** (_not_ via Jammy feed).
 
-In RPM based systems you may follow the instructions on the official [installation page](https://learn.microsoft.com/en-us/dotnet/core/install/linux-fedora?tabs=dotnet9).
+In RPM based systems you may follow the instructions on the official [installation page](https://learn.microsoft.com/en-us/dotnet/core/install/linux-fedora?tabs=dotnet8).
+
+Other methods for installation on supported Linux distributions are listed in the [official docs](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
 
 ##### `libc`
 
