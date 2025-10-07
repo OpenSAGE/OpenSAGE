@@ -11,7 +11,8 @@ On Windows you can just open the provided solution file `src/OpenSage.sln` to ge
 ### Linux & MacOS
 
 On Unix systems you want to use the .NET Core CLI tools to compile OpenSage:
-```
+
+```shell
 cd src
 dotnet build
 ```
@@ -19,23 +20,31 @@ dotnet build
 You can also build like that on Windows, in case you don't want to use Visual Studio.
 
 #### Linux dependencies
- - .NET 6.0.300+
- - `libc`
- - `libsdl2`
- - `libopenal`
+
+- .NET 6.0.300+
+- `libc`
+- `libsdl2`
+- `libopenal`
 
 ##### .NET 6.0.300+
-The standard package manage install for dotnet on linux currently installs 6.0.1xx, which does not contain some of the C# 11 preview features used in OpenSAGE. To install 6.0.402 or greater on Ubuntu, follow the instructions [here](https://github.com/dotnet/core/issues/7699) for using a .NET 6 package via **PMC** (_not_ via Jammy feed).
+
+The standard package manage install for dotnet on linux currently installs 6.0.1xx, which does not contain some of the C# 11 preview features used in OpenSAGE. To install 6.0.402 or greater on Ubuntu, follow the [instructions here](https://github.com/dotnet/core/issues/7699) for using a .NET 6 package via **PMC** (_not_ via Jammy feed).
+
+In RPM based systems you may follow the instructions on the official [installation page](https://learn.microsoft.com/en-us/dotnet/core/install/linux-fedora?tabs=dotnet9).
 
 ##### `libc`
-`sudo apt install libc-dev`
-Some distros or package managers may install the file libdl.so.2 and not libdl.so. This can be remedied via a symlink ([source](https://github.com/mellinoe/veldrid/issues/143#issuecomment-446096640)):
- - use `ldconfig -p | grep libdl` to dtermine the location of `libdl.so.2` (or similar)
- - `sudo ln -s </path/to/libdl.so.2> </same/path/libdl.so>`
 
-```
+- APT based: `sudo apt install libc-dev`
+- RPM based: `sudo dnf install glibc-devel`.
+
+Some distros or package managers may install the file libdl.so.2 and not libdl.so. This can be remedied via a symlink ([source](https://github.com/mellinoe/veldrid/issues/143#issuecomment-446096640)):
+
+- use `ldconfig -p | grep libdl` to dtermine the location of `libdl.so.2` (or similar)
+- `sudo ln -s </path/to/libdl.so.2> </same/path/libdl.so>`
+
+```shell
 ➜  ~ ldconfig -p | grep libdl
-	libdl.so.2 (libc6,x86-64) => /lib/x86_64-linux-gnu/libdl.so.2
+  libdl.so.2 (libc6,x86-64) => /lib/x86_64-linux-gnu/libdl.so.2
 ➜  ~ sudo ln -s /lib/x86_64-linux-gnu/libdl.so.2 libdl.so
 ➜  ~ ls -l /lib/x86_64-linux-gnu | grep libdl
 -rw-r--r--  1 root root         8 Oct  7 01:13 libdl.a
@@ -45,14 +54,18 @@ lrwxrwxrwx  1 root root        32 Nov  6 00:12 libdl.so -> /lib/x86_64-linux-gnu
 ```
 
 ##### `libsdl2`
-`sudo apt install libsdl2-dev`
+
+- APT based: `sudo apt install libsdl2-dev`
+- RPM based: `sudo dnf install sdl2-compat-devel`
 
 ##### `openal`
-`sudo apt install libopenal-dev`
+
+- APT based: `sudo apt install libopenal-dev`
+- RPM based: `sudo apt install openal-soft-devel`
 
 ## Running OpenSAGE
 
-OpenSage does not provide any game assets itself, so it expects the user to have the game files installed on the system. 
+OpenSage does not provide any game assets itself, so it expects the user to have the game files installed on the system.
 
 ### Windows
 
@@ -62,13 +75,13 @@ On Windows any local installations of C&C or BFME/BFME2/BFME2ROTWK are found thr
 
 Since there are no official installers of the original games on Unix systems, the game installations must be defined through environment variables here. The list of environment variables is as follows:
 
-| Game      | Environment variable  |
-|-----------|-----------------------|
-| Generals  | CNC_GENERALS_PATH     |
-| Zero Hour | CNC_GENERALS_ZH_PATH  |
-| BFME      | BFME_PATH             |
-| BFME II   | BFME2_PATH            |
-| BFME II   | BFME2_ROTWK_PATH      |
+| Game      | Environment variable |
+| --------- | -------------------- |
+| Generals  | CNC_GENERALS_PATH    |
+| Zero Hour | CNC_GENERALS_ZH_PATH |
+| BFME      | BFME_PATH            |
+| BFME II   | BFME2_PATH           |
+| BFME II   | BFME2_ROTWK_PATH     |
 
 The same identifiers do also work for Windows, in case you don't want to use the registry.
 
