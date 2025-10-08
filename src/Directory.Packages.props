@@ -1,6 +1,6 @@
 <Project>
   <ItemGroup>
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.2" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="ConsoleTables" Version="2.7.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
@@ -10,7 +10,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageVersion Include="MoonSharp" Version="2.0.0" />
-    <PackageVersion Include="NLog" Version="6.0.2" />
+    <PackageVersion Include="NLog" Version="6.0.4" />
     <PackageVersion Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageVersion Include="OptimizedPriorityQueue" Version="5.1.0" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
@@ -19,7 +19,7 @@
     <PackageVersion Include="SharpAudio.Codec" Version="1.0.27-beta" />
     <PackageVersion Include="SharpFileDialog" Version="2.0.0" />
     <PackageVersion Include="Sprintf.NET" Version="2.0.0" />
-    <PackageVersion Include="System.Text.Encoding.CodePages" Version="9.0.8" />
+    <PackageVersion Include="System.Text.Encoding.CodePages" Version="9.0.9" />
     <PackageVersion Include="System.ValueTuple" Version="4.6.1" />
     <PackageVersion Include="Veldrid" Version="4.9.0" />
     <PackageVersion Include="Veldrid.RenderDoc" Version="1.0.1" />
@@ -28,8 +28,8 @@
     <PackageVersion Include="Veldrid.SPIRV" Version="1.0.15" />
 
     <!-- Test projects only -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
 </Project>
