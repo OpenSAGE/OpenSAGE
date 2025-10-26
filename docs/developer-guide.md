@@ -21,18 +21,23 @@ You can also build like that on Windows, in case you don't want to use Visual St
 
 #### Linux dependencies
 
-- .NET 6.0.300+
+- .NET 8.0+
 - `libc`
 - `libsdl2`
 - `libopenal`
 
-##### .NET 6.0.300+
+##### .NET 8.0+
 
-The standard package manage install for dotnet on linux currently installs 6.0.1xx, which does not contain some of the C# 11 preview features used in OpenSAGE. To install 6.0.402 or greater on Ubuntu, follow the [instructions here](https://github.com/dotnet/core/issues/7699) for using a .NET 6 package via **PMC** (_not_ via Jammy feed).
+Linux distributions may have multiple forms of .NET Core installations, with the minimum version supported being 8.0.
 
-In RPM based systems you may follow the instructions on the official [installation page](https://learn.microsoft.com/en-us/dotnet/core/install/linux-fedora?tabs=dotnet8).
+If you wish to install .NET Core 8.0+ on your system, you can follow the instructions either for your distribution, for example:
 
-Other methods for installation on supported Linux distributions are listed in the [official docs](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
+- [Ubuntu Package Instructions](https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install?tabs=dotnet8&pivots=os-linux-ubuntu-2404)
+- [Fedora Package Instructions](https://learn.microsoft.com/en-us/dotnet/core/install/linux-fedora?tabs=dotnet8)
+
+Or simply follow the universal Linux [installation script instructions](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual).
+
+Do look at the main, [official Linux installation guide by MicroSoft](https://learn.microsoft.com/en-us/dotnet/core/install/linux) to see how to install .NET Core on your system.
 
 ##### `libc`
 
