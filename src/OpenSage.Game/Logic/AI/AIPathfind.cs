@@ -17,6 +17,11 @@ public partial class AIPathfind
     public const int PathfindQueueLength = 512;
 
     /// <summary>
+    /// how close a unit has to be in z to interact with the layer.
+    /// </summary>
+    public const float LayzerZCloseEnough = 10.0f;
+
+    /// <summary>
     /// Fits in 4 bits for now
     /// </summary>
     public const int MaxWallPieces = 128;
