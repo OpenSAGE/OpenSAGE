@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Tools.ReplaySketch.Services;
 
 namespace OpenSage.Tools.ReplaySketch.Model;
 
@@ -23,17 +24,9 @@ public sealed class ReplayScenario
     // -----------------------------------------------------------------
 
     /// <summary>
-    /// Returns a ready-to-edit Alpine Assault scenario: USA (slot 0) vs GLA (slot 1),
-    /// each pre-populated with 3 actions.
+    /// Loads the Alpine Assault USA vs GLA scenario from its embedded JSON profile.
+    /// Edit <c>Profiles/alpine-assault-usa-vs-gla.json</c> to change actions or timing.
     /// </summary>
-    public static ReplayScenario CreateAlpineAssaultUSAvGLA() => new()
-    {
-        MapPath = "maps/alpine assault/alpine assault.map",
-        BaseRadiusWorldUnits = 120f,
-        Players =
-        [
-            PlayerSlotConfig.CreateUSA(),
-            PlayerSlotConfig.CreateGLA(),
-        ],
-    };
+    public static ReplayScenario CreateAlpineAssaultUSAvGLA() =>
+        ScenarioProfileLoader.LoadEmbedded("alpine-assault-usa-vs-gla.json");
 }

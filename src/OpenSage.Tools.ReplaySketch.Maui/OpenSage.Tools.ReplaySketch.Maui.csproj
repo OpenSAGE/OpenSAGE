@@ -5,7 +5,7 @@
     <TargetFramework></TargetFramework>
     <!-- Build only for the current OS; MAUI requires platform-specific workloads on non-Windows -->
     <TargetPlatformMinVersion Condition="$([MSBuild]::IsOSPlatform('windows'))">10.0.19041.0</TargetPlatformMinVersion>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net10.0-windows</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net10.0-windows10.0.19041.0</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('macos'))">net10.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('linux'))">net10.0</TargetFrameworks>
     <!-- MAUI requires platform workloads; compile as a plain library on Linux -->
@@ -13,6 +13,7 @@
     <UseMaui Condition="!$([MSBuild]::IsOSPlatform('linux'))">true</UseMaui>
     <!-- On Linux there is no MAUI entry point, so build as a library -->
     <OutputType Condition="$([MSBuild]::IsOSPlatform('linux'))">Library</OutputType>
+    <OutputType Condition="!$([MSBuild]::IsOSPlatform('linux'))">Exe</OutputType>
     <RootNamespace>OpenSage.Tools.ReplaySketch.Maui</RootNamespace>
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>

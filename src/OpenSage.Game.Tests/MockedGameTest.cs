@@ -13,6 +13,7 @@ using OpenSage.Input;
 using OpenSage.Input.Cursors;
 using OpenSage.IO;
 using OpenSage.Logic;
+using OpenSage.Logic.Orders;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using OpenSage.Terrain;
@@ -83,6 +84,8 @@ public abstract class MockedGameTest : IDisposable
 #pragma warning disable CS0067 // The event 'Game.X' is never used
         public event EventHandler<GameUpdatingEventArgs> Updating;
         public event EventHandler RenderCompleted;
+        public event EventHandler<OrderProcessedEventArgs> OrderProcessed;
+        public event EventHandler<GameObjectCreatedEventArgs> ObjectCreated;
 #pragma warning restore CS0067 // The event 'Game.X' is never used
         public void LoadSaveFile(FileSystemEntry entry)
         {

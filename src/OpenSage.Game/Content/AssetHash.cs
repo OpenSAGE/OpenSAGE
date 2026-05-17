@@ -2,7 +2,7 @@
 
 namespace OpenSage.Content;
 
-internal static class AssetHash
+public static class AssetHash
 {
     public static uint GetHash(string input) => GetHashCaseSensitive(input.ToLowerInvariant());
 

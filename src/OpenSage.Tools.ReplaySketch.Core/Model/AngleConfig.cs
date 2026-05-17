@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace OpenSage.Tools.ReplaySketch.Model;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(FixedAngle), "fixed")]
+[JsonDerivedType(typeof(RandomAngle), "random")]
 public abstract record AngleConfig
 {
     public abstract float Resolve(Random rng);

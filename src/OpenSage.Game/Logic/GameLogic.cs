@@ -118,6 +118,11 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
         _game.Scene3D.Radar?.AddGameObject(gameObject);
         _game.PartitionCellManager.OnObjectAdded(gameObject);
 
+        if (_game is Game concreteGame)
+        {
+            concreteGame.RaiseObjectCreated(new GameObjectCreatedEventArgs(gameObject));
+        }
+
         return gameObject;
     }
 
@@ -262,7 +267,7 @@ internal sealed class GameLogic : DisposableBase, IGameObjectCollection, IPersis
 
             // Defer it till the next frame and re-push it.
             updateModule.NextCallFrame = now + sleepLength.FrameSpan;
-            _sleepyUpdates.Rebalance(0);
+            _sleepyUpdates.Rebalance(updateModule.IndexInLogic);
         }
 
         _sleepyUpdates.Validate();

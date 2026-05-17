@@ -127,6 +127,17 @@ public interface IGame
     event EventHandler<GameUpdatingEventArgs> Updating;
 
     /// <summary>
+    /// Fired each time an <see cref="Order"/> is processed by the <see cref="OrderProcessor"/>.
+    /// </summary>
+    event EventHandler<Logic.Orders.OrderProcessedEventArgs> OrderProcessed;
+
+    /// <summary>
+    /// Fired each time a <see cref="Logic.Object.GameObject"/> is created via
+    /// <see cref="Logic.GameLogic.CreateObject"/>.
+    /// </summary>
+    event EventHandler<Logic.GameObjectCreatedEventArgs> ObjectCreated;
+
+    /// <summary>
     /// Fired when a <see cref="Game.Render"/> completes, but before
     /// <see cref="Game.Panel"/>'s <see cref="GamePanel.Framebuffer"/>
     /// is copied to <see cref="GraphicsDevice.SwapchainFramebuffer"/>.

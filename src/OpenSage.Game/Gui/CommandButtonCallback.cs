@@ -71,7 +71,7 @@ public static class CommandButtonCallback
                     break;
                 }
                 order = CreateOrder(OrderType.CreateUnit);
-                order.AddIntegerArgument(objectDefinition.InternalId);
+                order.AddIntegerArgument((int)objectDefinition.InstanceId);
                 order.AddIntegerArgument(1);
                 break;
 

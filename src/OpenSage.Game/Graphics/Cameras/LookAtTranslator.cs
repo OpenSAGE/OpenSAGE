@@ -20,8 +20,9 @@ public sealed class LookAtTranslator(TacticalView tacticalView, CursorManager cu
     // C++: SCROLL_AMT
     private const float ScrollAmount = 100.0f;
 
-    // TODO: We probably want to make this configurable, even though it's not in the original game
     private const int EdgeScrollSize = 3;
+
+    public bool IsEdgeScrollingEnabled { get; set; } = false;
 
     private string? _prevCursor;
 
@@ -242,11 +243,7 @@ public sealed class LookAtTranslator(TacticalView tacticalView, CursorManager cu
 
                     // TODO(Port): Check TheInGameUI->getInputEnabled() and stop scrolling if it's false
 
-                    // TODO(Port): Check if we're actually running in windowed mode
-                    // (we pretty much always are, but that disables edge scrolling so let's just ignore it for now)
-                    var isWindowed = false;
-
-                    if (!isWindowed)
+                    if (IsEdgeScrollingEnabled)
                     {
                         if (IsScrolling)
                         {

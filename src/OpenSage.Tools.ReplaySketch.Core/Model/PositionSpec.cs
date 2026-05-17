@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace OpenSage.Tools.ReplaySketch.Model;
 
@@ -31,6 +32,9 @@ public sealed class PositionContext
 /// <summary>
 /// Discriminated union describing how a command position is specified.
 /// </summary>
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(LandmarkRelativePosition), "landmarkRelative")]
+[JsonDerivedType(typeof(NormalizedPosition), "normalized")]
 public abstract record PositionSpec
 {
     public abstract Vector3 Resolve(PositionContext ctx, Random rng);

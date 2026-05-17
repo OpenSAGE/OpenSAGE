@@ -46,7 +46,6 @@ public sealed class GameTestDiscoverer : IXunitTestCaseDiscoverer
 
     static GameTestDiscoverer()
     {
-        var locator = new RegistryInstallationLocator();
-        InstalledGames = GameDefinition.All.Where(game => locator.FindInstallations(game).Any()).ToSet();
+        InstalledGames = GameDefinition.All.Where(game => InstallationLocators.FindAllInstallations(game).Any()).ToSet();
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.Logic.Object;
@@ -13,21 +14,20 @@ namespace OpenSage.Tools.ReplaySketch.Services;
 
 /// <summary>
 /// Known object-definition names for the initial USA vs GLA scope.
-/// Object definition IDs (integers used in replay orders) are their
-/// 0-based index in the order all ObjectDefinitions appear across INI files.
-/// Because a full AssetStore load is expensive, we use well-known sentinel
-/// placeholder IDs here and document them.
-///
-/// Real IDs can be substituted once an INI-scanning lookup is wired up.
+/// Object definition IDs used in replay orders are the <see cref="AssetHash"/> of
+/// the lowercased definition name — the same key the <see cref="AssetStore"/> uses.
 /// </summary>
-internal static class KnownDefinitions
+public static class KnownDefinitions
 {
-    // These placeholder IDs match typical Generals skirmish replays.
-    // They should be validated/replaced with a live INI lookup before ship.
-    public const int UsaBarracks = 40;   // AmericaBarracks
-    public const int UsaRanger = 41;   // AmericaInfantryRanger
-    public const int GlaBarracks = 100;  // GLABarracks
-    public const int GlaRebel = 101;  // GLAInfantryRebel
+    public const string UsaBarracksName = "AmericaBarracks";
+    public const string UsaRangerName = "AmericaInfantryRanger";
+    public const string GlaBarracksName = "GLABarracks";
+    public const string GlaRebelName = "GLAInfantryRebel";
+
+    public static int UsaBarracks => (int)AssetHash.GetHash(UsaBarracksName);
+    public static int UsaRanger => (int)AssetHash.GetHash(UsaRangerName);
+    public static int GlaBarracks => (int)AssetHash.GetHash(GlaBarracksName);
+    public static int GlaRebel => (int)AssetHash.GetHash(GlaRebelName);
 }
 
 public static class ReplayExporter
@@ -183,13 +183,20 @@ public static class ReplayExporter
                     break;
                 }
 
+            case ActionType.GatherResources:
+                {
+                    // Command the starting supply vehicle (placeholder ObjectId 2) to begin gathering.
+                    // The vehicle's AI will locate the nearest supply source automatically.
+                    yield return Order.CreateSupplyGatherDump(playerIndex, new ObjectId(2));
+                    break;
+                }
+
             case ActionType.RecruitBasicUnit:
                 {
-                    // CreateUnit: select the barracks (dummy ObjectId 1), then queue the unit.
                     var unitDefId = isGla ? KnownDefinitions.GlaRebel : KnownDefinitions.UsaRanger;
                     var recruitOrder = new Order(playerIndex, OrderType.CreateUnit);
-                    recruitOrder.AddObjectIdArgument(new ObjectId(1));
-                    recruitOrder.AddIntegerArgument(unitDefId);
+                    recruitOrder.AddIntegerArgument(unitDefId); // arg[0] = definition InstanceId (hash)
+                    recruitOrder.AddIntegerArgument(1);         // arg[1] = place in queue
                     yield return recruitOrder;
                     break;
                 }

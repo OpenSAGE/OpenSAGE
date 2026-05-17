@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using OpenSage.Tools.ReplaySketch.Model;
 using OpenSage.Tools.ReplaySketch.Services;
@@ -128,12 +129,26 @@ internal sealed class ExportPanel
                 _lastExportError = null;
                 _exportAttempted = true;
 
-                var psi = new ProcessStartInfo(launcherPath)
+                ProcessStartInfo psi;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Arguments = $"--replay {PreviewReplayName} --noaudio --noshellmap",
-                    UseShellExecute = false,
-                    CreateNoWindow = false,
-                };
+                    // Wrap in cmd /k so the console window stays open after exit/crash
+                    psi = new ProcessStartInfo("cmd.exe")
+                    {
+                        Arguments = $"/k \"{launcherPath}\" --replay {PreviewReplayName} --noaudio --noshellmap",
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
+                    };
+                }
+                else
+                {
+                    psi = new ProcessStartInfo(launcherPath)
+                    {
+                        Arguments = $"--replay {PreviewReplayName} --noaudio --noshellmap",
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
+                    };
+                }
                 Process.Start(psi);
             }
         }

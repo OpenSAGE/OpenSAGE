@@ -20,6 +20,15 @@ internal sealed class GameSettingsView : DiagnosticView
             PathOptimizer.EnablePathSmoothing = enablePathSmooting;
         }
 
+        if (Game.Scene3D != null)
+        {
+            var enableEdgeScrolling = Game.Scene3D.TacticalView.LookAtTranslator.IsEdgeScrollingEnabled;
+            if (ImGui.Checkbox("Enable edge scrolling", ref enableEdgeScrolling))
+            {
+                Game.Scene3D.TacticalView.LookAtTranslator.IsEdgeScrollingEnabled = enableEdgeScrolling;
+            }
+        }
+
         var logicUpdateScaleFactor = Game.LogicUpdateScaleFactor;
         const float minUpdateFactor = 0.01f;
         const float maxUpdateFactor = 5f;

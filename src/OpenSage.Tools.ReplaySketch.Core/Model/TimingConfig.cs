@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace OpenSage.Tools.ReplaySketch.Model;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(FixedTiming), "fixed")]
+[JsonDerivedType(typeof(RandomTiming), "random")]
 public abstract record TimingConfig
 {
     public abstract uint Resolve(Random rng);

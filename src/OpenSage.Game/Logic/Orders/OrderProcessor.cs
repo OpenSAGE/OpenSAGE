@@ -514,6 +514,11 @@ public sealed class OrderProcessor
                     Logger.Info($"Unimplemented order type: {order.OrderType} ({args})");
                     break;
             }
+
+            if (_game is Game concreteGame)
+            {
+                concreteGame.RaiseOrderProcessed(new OrderProcessedEventArgs(order, player));
+            }
         }
     }
 }

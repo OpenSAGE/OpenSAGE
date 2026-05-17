@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Tools.ReplaySketch.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace OpenSage.Tools.ReplaySketch.Model;
 
 public sealed class ActionEntry
 {
@@ -12,6 +14,7 @@ public sealed class ActionEntry
 
     public TimingConfig Timing { get; set; }
 
+    [JsonConstructor]
     public ActionEntry(string label, ActionType type, PositionSpec? position, TimingConfig timing)
     {
         Label = label;

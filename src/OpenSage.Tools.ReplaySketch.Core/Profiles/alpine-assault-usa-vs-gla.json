@@ -1,0 +1,169 @@
+// ReplaySketch Scenario Profile — Alpine Assault: USA vs GLA
+// ===========================================================
+//
+// This file drives the default functional test and the ReplaySketch tool.
+// Edit it to add, remove, or reorder actions without touching C# code.
+//
+// ─── HOW TIMING WORKS ───────────────────────────────────────────────────────
+//
+// Each action's "timing" is a frame OFFSET from the previous action
+// (or from game start for the first action).
+// Generals runs logic at 5 fps, so 150 frames ≈ 30 seconds of game time.
+//
+//   timing.kind = "fixed"
+//     Fires at exactly `frames` after the prior action.
+//     { "kind": "fixed", "frames": 300 }
+//
+//   timing.kind = "random"
+//     Fires at a uniformly-random frame in the interval [minFrames, maxFrames].
+//     { "kind": "random", "minFrames": 100, "maxFrames": 200 }
+//
+// ─── POSITION KINDS ──────────────────────────────────────────────────────────
+//
+// Omit "position" (or set it to null) for actions that don't target a map
+// point (e.g. GatherResources, RecruitBasicUnit).
+//
+//   position.kind = "landmarkRelative"
+//     Polar offset from a named anchor point on the map.
+//
+//     landmark values:
+//       "OwnBase"   — the player's own Player_N_Start waypoint
+//       "EnemyBase" — the opponent's Player_N_Start waypoint
+//       "MapCenter" — midpoint of the playable map extents
+//
+//     distanceInBaseWidths: distance from the landmark expressed as multiples of
+//       the scenario's `baseRadiusWorldUnits` (default 120 world units).
+//
+//     angle.kind = "fixed"   → { "kind": "fixed",  "degrees": 45.0 }
+//     angle.kind = "random"  → { "kind": "random", "minDegrees": 150.0, "maxDegrees": 210.0 }
+//     Angles are in degrees, measured counter-clockwise from east (0° = east, 90° = north).
+//
+//   position.kind = "normalized"
+//     Raw 0–1 fractions of the playable map extents.
+//     normX=0 is the west edge, normX=1 is the east edge.
+//     normY=0 is the south edge, normY=1 is the north edge.
+//     { "kind": "normalized", "normX": 0.5, "normY": 0.5 }
+//
+// ─── ACTION TYPES ────────────────────────────────────────────────────────────
+//
+//   "BuildBarracks"    — issues a build order for the faction's barracks
+//                        at the given position near the Command Center
+//   "GatherResources"  — sends the starting supply truck to the nearest supply node
+//                        (no position required)
+//   "RecruitBasicUnit" — queues one infantry unit at the barracks
+//                        (Ranger for USA, Rebel for GLA; no position required)
+//   "AttackEnemyBase"  — issues a force-attack-ground order at the given position
+//                        near the enemy Command Center
+//
+// ─── PLAYER SLOT FIELDS ──────────────────────────────────────────────────────
+//
+//   factionIndex: index into the game's PlayerTemplates list
+//     USA = 2, GLA = 4 (Generals defaults)
+//
+//   color: slot color index (0-based, matches the in-game color picker order)
+//
+//   startPosition: 1-based start position matching Player_N_Start waypoints
+//
+//   team: 1-based team number (players on the same team are allies)
+//
+{
+  "mapPath": "maps/alpine assault/alpine assault.map",
+
+  // World-unit radius used as "1 base width" for landmark-relative positions.
+  // Roughly the footprint radius of a Command Center (~120 world units).
+  "baseRadiusWorldUnits": 120.0,
+
+  "players": [
+    {
+      "name": "Player1",
+      "factionIndex": 2,
+      "color": 0,
+      "startPosition": 1,
+      "team": 1,
+      "actions": [
+        {
+          "label": "Build Barracks",
+          "type": "BuildBarracks",
+          "timing": { "kind": "fixed", "frames": 300 },
+          "position": {
+            "kind": "landmarkRelative",
+            "landmark": "OwnBase",
+            "distanceInBaseWidths": 2.0,
+            "angle": { "kind": "fixed", "degrees": 45.0 }
+          }
+        },
+        {
+          "label": "Gather Resources",
+          "type": "GatherResources",
+          // Offset from BuildBarracks. Fires ~30 s after the barracks order is issued,
+          // which is enough time for the truck to be ready while construction begins.
+          "timing": { "kind": "fixed", "frames": 150 },
+          "position": null
+        },
+        {
+          "label": "Recruit Ranger",
+          "type": "RecruitBasicUnit",
+          // Offset from GatherResources. Fires once resources are likely flowing.
+          "timing": { "kind": "fixed", "frames": 150 },
+          "position": null
+        },
+        {
+          "label": "Attack Enemy Base",
+          "type": "AttackEnemyBase",
+          // Offset from RecruitBasicUnit. Gives the ranger time to emerge from the barracks.
+          "timing": { "kind": "fixed", "frames": 300 },
+          "position": {
+            "kind": "landmarkRelative",
+            "landmark": "EnemyBase",
+            "distanceInBaseWidths": 1.0,
+            // Random bearing so the attack doesn't always hit the exact same tile.
+            "angle": { "kind": "random", "minDegrees": 150.0, "maxDegrees": 210.0 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Player2",
+      "factionIndex": 4,
+      "color": 1,
+      "startPosition": 2,
+      "team": 2,
+      "actions": [
+        {
+          "label": "Build Barracks",
+          "type": "BuildBarracks",
+          "timing": { "kind": "fixed", "frames": 300 },
+          "position": {
+            "kind": "landmarkRelative",
+            "landmark": "OwnBase",
+            "distanceInBaseWidths": 2.0,
+            "angle": { "kind": "fixed", "degrees": 225.0 }
+          }
+        },
+        {
+          "label": "Gather Resources",
+          "type": "GatherResources",
+          "timing": { "kind": "fixed", "frames": 150 },
+          "position": null
+        },
+        {
+          "label": "Recruit Rebel",
+          "type": "RecruitBasicUnit",
+          "timing": { "kind": "fixed", "frames": 150 },
+          "position": null
+        },
+        {
+          "label": "Attack Enemy Base",
+          "type": "AttackEnemyBase",
+          "timing": { "kind": "fixed", "frames": 300 },
+          "position": {
+            "kind": "landmarkRelative",
+            "landmark": "EnemyBase",
+            "distanceInBaseWidths": 1.0,
+            "angle": { "kind": "random", "minDegrees": -30.0, "maxDegrees": 30.0 }
+          }
+        }
+      ]
+    }
+  ]
+}
