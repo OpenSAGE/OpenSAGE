@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using OpenSage.Audio;
 using OpenSage.Client;
 using OpenSage.Content;
@@ -399,6 +400,8 @@ public sealed class Game : DisposableBase, IGame
         Configuration config,
         GameWindow window)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         using (GameTrace.TraceDurationEvent("Game()"))
         {
             Configuration = config;
