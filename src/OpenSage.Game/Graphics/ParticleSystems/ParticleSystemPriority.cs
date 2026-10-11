@@ -4,7 +4,7 @@ namespace OpenSage.Graphics.ParticleSystems;
 
 public enum ParticleSystemPriority
 {
-    [IniEnum("NONE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("NONE", AddedIn = SageGame.Bfme)]
     None,
 
     [IniEnum("WEAPON_EXPLOSION", "WEAPON_EXPLSION")]
@@ -46,18 +46,18 @@ public enum ParticleSystemPriority
     [IniEnum("ALWAYS_RENDER")]
     AlwaysRender,
 
-    [IniEnum("ULTRA_HIGH_ONLY"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("ULTRA_HIGH_ONLY", AddedIn = SageGame.Bfme2)]
     UltraHighOnly,
 
-    [IniEnum("HIGH_OR_ABOVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIGH_OR_ABOVE", AddedIn = SageGame.Bfme)]
     HighOrAbove,
 
-    [IniEnum("MEDIUM_OR_ABOVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MEDIUM_OR_ABOVE", AddedIn = SageGame.Bfme)]
     MediumOrAbove,
 
-    [IniEnum("LOW_OR_ABOVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("LOW_OR_ABOVE", AddedIn = SageGame.Bfme)]
     LowOrAbove,
 
-    [IniEnum("VERY_LOW_OR_ABOVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("VERY_LOW_OR_ABOVE", AddedIn = SageGame.Bfme)]
     VeryLowOrAbove,
 }

@@ -130,145 +130,144 @@ public enum DamageType
     [IniEnum("COMANCHE_VULCAN")]
     ComancheVulcan = 30,
 
-    [IniEnum("FLESHY_SNIPER")]
-    FleshySniper = 31,
-
     /// <summary>
-    /// Damage that does not kill you, but produces some special effect based
+    /// Same value is used for Generals' FLESHY_SNIPER and ZH's SUBDUAL_MISSILE.
+    /// SubdualMissile is Damage that does not kill you, but produces some special effect based
     /// on your Body Module. Separate HP from normal damage.
     /// </summary>
-    [IniEnum("SUBDUAL_MISSILE"), AddedIn(SageGame.CncGeneralsZeroHour)]
-    SubdualMissile = 31, // Yes, it used the same value as Generals' FLESHY_SNIPER
+    [IniEnum("FLESHY_SNIPER")]
+    [IniEnum("SUBDUAL_MISSILE", AddedIn = SageGame.CncGeneralsZeroHour)]
+    FleshySniper_Or_SubdualMissile = 31,
 
-    [IniEnum("SUBDUAL_VEHICLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SUBDUAL_VEHICLE", AddedIn = SageGame.CncGeneralsZeroHour)]
     SubdualVehicle = 32,
 
-    [IniEnum("SUBDUAL_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SUBDUAL_BUILDING", AddedIn = SageGame.CncGeneralsZeroHour)]
     SubdualBuilding = 33,
 
-    [IniEnum("SUBDUAL_UNRESISTABLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SUBDUAL_UNRESISTABLE", AddedIn = SageGame.CncGeneralsZeroHour)]
     SubdualUnresistable = 34,
 
     /// <summary>
     /// Radiation that only affects infantry.
     /// </summary>
-    [IniEnum("MICROWAVE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("MICROWAVE", AddedIn = SageGame.CncGeneralsZeroHour)]
     Microwave = 35,
 
     /// <summary>
     /// Kills passengers up to the number specified in damage.
     /// </summary>
-    [IniEnum("KILL_GARRISONED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("KILL_GARRISONED", AddedIn = SageGame.CncGeneralsZeroHour)]
     KillGarrisoned = 36,
 
     /// <summary>
     /// Damage that gives a status condition, not that does hitpoint damage.
     /// </summary>
-    [IniEnum("STATUS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("STATUS", AddedIn = SageGame.CncGeneralsZeroHour)]
     Status = 37,
 
-    [IniEnum("SLASH"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SLASH", AddedIn = SageGame.Bfme)]
     Slash,
 
-    [IniEnum("PIERCE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PIERCE", AddedIn = SageGame.Bfme)]
     Pierce,
 
-    [IniEnum("URUK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("URUK", AddedIn = SageGame.Bfme)]
     Uruk,
 
-    [IniEnum("HERO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HERO", AddedIn = SageGame.Bfme)]
     Hero,
 
-    [IniEnum("HERO_RANGED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HERO_RANGED", AddedIn = SageGame.Bfme)]
     HeroRanged,
 
-    [IniEnum("SIEGE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SIEGE", AddedIn = SageGame.Bfme)]
     Siege,
 
-    [IniEnum("SPECIALIST"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIALIST", AddedIn = SageGame.Bfme)]
     Specialist,
 
-    [IniEnum("MAGIC"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MAGIC", AddedIn = SageGame.Bfme)]
     Magic,
 
-    [IniEnum("STRUCTURAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("STRUCTURAL", AddedIn = SageGame.Bfme)]
     Structural,
 
-    [IniEnum("CHOP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CHOP", AddedIn = SageGame.Bfme)]
     Chop,
 
-    [IniEnum("FORCE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FORCE", AddedIn = SageGame.Bfme)]
     Force,
 
-    [IniEnum("FLY_INTO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FLY_INTO", AddedIn = SageGame.Bfme)]
     FlyInto,
 
-    [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GOOD_ARROW_PIERCE", AddedIn = SageGame.Bfme)]
     GoodArrowPierce,
 
-    [IniEnum("EVIL_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EVIL_ARROW_PIERCE", AddedIn = SageGame.Bfme)]
     EvilArrowPierce,
 
-    [IniEnum("SWORD_SLASH"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SWORD_SLASH", AddedIn = SageGame.Bfme)]
     SwordSlash,
 
-    [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WITCH_KING_MORGUL_BLADE", AddedIn = SageGame.Bfme)]
     WitchKingMorgulBlade,
 
-    [IniEnum("REFLECTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REFLECTED", AddedIn = SageGame.Bfme)]
     Reflected,
 
-    [IniEnum("BALROG_SWORD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BALROG_SWORD", AddedIn = SageGame.Bfme)]
     BalrogSword,
 
-    [IniEnum("BALROG_WHIP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BALROG_WHIP", AddedIn = SageGame.Bfme)]
     BalrogWhip,
 
-    [IniEnum("ELECTRIC"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ELECTRIC", AddedIn = SageGame.Bfme)]
     Electric,
 
-    [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GIMLI_LEAP", AddedIn = SageGame.Bfme)]
     GimliLeap,
 
-    [IniEnum("BIG_ROCK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BIG_ROCK", AddedIn = SageGame.Bfme)]
     BigRock,
 
-    [IniEnum("CLUBBING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CLUBBING", AddedIn = SageGame.Bfme)]
     Clubbing,
 
-    [IniEnum("BECOME_UNDEAD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BECOME_UNDEAD", AddedIn = SageGame.Bfme2)]
     BecomeUndead,
 
-    [IniEnum("CAVALRY_RANGED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CAVALRY_RANGED", AddedIn = SageGame.Bfme2)]
     CavalryRanged,
 
-    [IniEnum("CAVALRY"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CAVALRY", AddedIn = SageGame.Bfme2)]
     Cavalry,
 
-    [IniEnum("LOGICAL_FIRE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("LOGICAL_FIRE", AddedIn = SageGame.Bfme2)]
     LogicalFire,
 
-    [IniEnum("BOLT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BOLT", AddedIn = SageGame.Bfme2)]
     Bolt,
 
-    [IniEnum("TORNADO"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("TORNADO", AddedIn = SageGame.Bfme2)]
     Tornado,
 
-    [IniEnum("FLOOD_HORSE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FLOOD_HORSE", AddedIn = SageGame.Bfme2)]
     FloodHorse,
 
-    [IniEnum("FIRE3"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRE3", AddedIn = SageGame.Bfme2)]
     Fire3,
 
-    [IniEnum("BECOME_UNDEAD_ONCE"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("BECOME_UNDEAD_ONCE", AddedIn = SageGame.Bfme2Rotwk)]
     BecomeUndeadOnce,
 
-    [IniEnum("FROST"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FROST", AddedIn = SageGame.Bfme2Rotwk)]
     Frost,
 
-    [IniEnum("NECRO1"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("NECRO1", AddedIn = SageGame.Bfme2Rotwk)]
     Necro1,
 
-    [IniEnum("NECRO2"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("NECRO2", AddedIn = SageGame.Bfme2Rotwk)]
     Necro2,
 }

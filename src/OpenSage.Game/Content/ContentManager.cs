@@ -122,6 +122,8 @@ public sealed class ContentManager : DisposableBase
 
     internal void LoadIniFile(FileSystemEntry entry)
     {
+        if (entry == null)
+            return;
         using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
         {
             var parser = new IniParser(entry, _game.AssetStore, _game.SageGame, IniDataContext, LocaleSpecificEncoding);

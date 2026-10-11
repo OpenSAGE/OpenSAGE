@@ -63,9 +63,9 @@ public enum AutoResolveDamageType
     [IniEnum("AutoResolveUnit_Fortress")]
     Fortress,
 
-    [IniEnum("AutoResolveUnit_Siege"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AutoResolveUnit_Siege", AddedIn = SageGame.Bfme2Rotwk)]
     Siege,
 
-    [IniEnum("AutoResolveUnit_Support"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AutoResolveUnit_Support", AddedIn = SageGame.Bfme2Rotwk)]
     Support,
 }

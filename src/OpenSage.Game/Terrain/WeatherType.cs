@@ -20,9 +20,9 @@ public enum WeatherType
     [IniEnum("CLOUDY")]
     Cloudy,
 
-    [IniEnum("NORMAL"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("NORMAL", AddedIn = SageGame.Bfme2)]
     Normal,
 
-    [IniEnum("SNOWY"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SNOWY", AddedIn = SageGame.Bfme2)]
     Snowy,
 }

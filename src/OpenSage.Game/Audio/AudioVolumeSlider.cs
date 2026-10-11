@@ -20,6 +20,6 @@ public enum AudioVolumeSlider
     [IniEnum("MOVIE")]
     Movie,
 
-    [IniEnum("None"), AddedIn(SageGame.Bfme)]
+    [IniEnum("None", AddedIn = SageGame.Bfme)]
     None,
 }

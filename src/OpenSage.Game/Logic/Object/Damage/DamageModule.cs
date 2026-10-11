@@ -55,7 +55,7 @@ public static class DamageConstants
     public static bool IsHealthDamagingDamage(this DamageType damageType) => damageType switch
     {
         DamageType.Status => false,
-        DamageType.SubdualMissile => false,
+        DamageType.FleshySniper_Or_SubdualMissile => false,
         DamageType.SubdualVehicle => false,
         DamageType.SubdualBuilding => false,
         DamageType.SubdualUnresistable => false,
@@ -66,7 +66,7 @@ public static class DamageConstants
 
     public static bool IsSubdualDamage(this DamageType damageType) => damageType switch
     {
-        DamageType.SubdualMissile => true,
+        DamageType.FleshySniper_Or_SubdualMissile => true,
         DamageType.SubdualVehicle => true,
         DamageType.SubdualBuilding => true,
         DamageType.SubdualUnresistable => true,

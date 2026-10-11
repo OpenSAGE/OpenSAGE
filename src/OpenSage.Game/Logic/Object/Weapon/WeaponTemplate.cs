@@ -587,7 +587,7 @@ public enum WeaponPrefireType
     /// <summary>
     ///
     /// </summary>
-    [IniEnum("PER_POSITION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PER_POSITION", AddedIn = SageGame.Bfme)]
     PerPosition
 }
 
@@ -634,43 +634,43 @@ public enum DeathType
     [IniEnum("POISONED_BETA")]
     PoisonedBeta,
 
-    [IniEnum("POISONED_GAMMA"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("POISONED_GAMMA", AddedIn = SageGame.CncGeneralsZeroHour)]
     PoisonedGamma,
 
-    [IniEnum("EXTRA_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("EXTRA_4", AddedIn = SageGame.CncGeneralsZeroHour)]
     Extra4,
 
-    [IniEnum("FADED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FADED", AddedIn = SageGame.Bfme)]
     Faded,
 
-    [IniEnum("KNOCKBACK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("KNOCKBACK", AddedIn = SageGame.Bfme)]
     Knockback,
 
-    [IniEnum("EXTRA_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EXTRA_2", AddedIn = SageGame.Bfme)]
     Extra2,
 
-    [IniEnum("SUPERNATURAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SUPERNATURAL", AddedIn = SageGame.Bfme)]
     Supernatural,
 
-    [IniEnum("SLAUGHTERED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SLAUGHTERED", AddedIn = SageGame.Bfme2)]
     Slaughtered,
 
-    [IniEnum("EXTRA_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EXTRA_1", AddedIn = SageGame.Bfme)]
     Extra1,
 
-    [IniEnum("EXTRA_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EXTRA_3", AddedIn = SageGame.Bfme)]
     Extra3,
 
-    [IniEnum("EXTRA_5"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("EXTRA_5", AddedIn = SageGame.Bfme2Rotwk)]
     Extra5,
 
-    [IniEnum("EXTRA_6"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("EXTRA_6", AddedIn = SageGame.Bfme2Rotwk)]
     Extra6,
 
-    [IniEnum("EXTRA_7"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("EXTRA_7", AddedIn = SageGame.Bfme2Rotwk)]
     Extra7,
 
-    [IniEnum("EXTRA_8"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("EXTRA_8", AddedIn = SageGame.Bfme2Rotwk)]
     Extra8,
 }
 

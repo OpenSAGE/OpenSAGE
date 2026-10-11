@@ -86,6 +86,6 @@ public enum StructureCollapsePhase
     [IniEnum("FINAL")]
     Final,
 
-    [IniEnum("ALMOST_FINAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ALMOST_FINAL", AddedIn = SageGame.Bfme)]
     AlmostFinal
 }

@@ -7,6 +7,6 @@ public enum TerrainScorchType
     [IniEnum("RANDOM")]
     Random,
 
-    [IniEnum("SCORCH_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SCORCH_4", AddedIn = SageGame.CncGeneralsZeroHour)]
     Scorch4,
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using OpenSage.Content.Translation.Providers;
 using OpenSage.IO;
 
@@ -12,6 +13,11 @@ namespace OpenSage.Content.Translation;
 
 public static class TranslationManager
 {
+    static TranslationManager()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+    }
+
     private sealed class TranslationManagerInternal : ITranslationManager
     {
         private const string Missing = "MISSING: '{0}'";

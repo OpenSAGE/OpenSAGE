@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object;
 /// The explicit numeric values are used for loading Generals .sav files.
 /// In Zero Hour and beyond, object status is persisted as a BitArray,
 /// and the numeric values are unused.
-/// 
+///
 /// TODO(Port): the numeric values here are off-by-one compared to the C++ code.
 /// This is just an artifact of how we load the values from Generals .sav files,
 /// and could be fixed on our side. The actual persisted values are
@@ -141,10 +141,9 @@ public enum ObjectStatus
     /// Masked objects are not selectable and targetable by players or AI.
     /// </summary>
     [IniEnum("MASKED")]
-    Masked = 21,
-
+    // TODO: Verify InsideGarrison is same value as Masked.
     [IniEnum("INSIDE_GARRISON")]
-    InsideGarrison = 21, // Same as Masked?
+    Masked_Or_InsideGarrison = 21,
 
     /// <summary>
     /// Object is in the general Attack state (including aim, approach, etc).
@@ -246,57 +245,57 @@ public enum ObjectStatus
     [IniEnum("DEPLOYED")]
     Deployed,
 
-    [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UNATTACKABLE", AddedIn = SageGame.Bfme)]
     Unattackable,
 
     [IniEnum("TOPPLED")]
     Toppled,
 
-    [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_1", AddedIn = SageGame.Bfme)]
     Death1,
 
-    [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_2", AddedIn = SageGame.Bfme)]
     Death2,
 
-    [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_3", AddedIn = SageGame.Bfme)]
     Death3,
 
-    [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_4", AddedIn = SageGame.Bfme)]
     Death4,
 
     [IniEnum("KILLING_SELF")]
     KillingSelf,
 
-    [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BLOODTHIRSTY", AddedIn = SageGame.Bfme)]
     BloodThirsty,
 
-    [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ENCLOSED", AddedIn = SageGame.Bfme)]
     Enclosed,
 
-    [IniEnum("RIDER1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("RIDER1", AddedIn = SageGame.Bfme)]
     Rider1,
 
-    [IniEnum("RIDER2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("RIDER2", AddedIn = SageGame.Bfme)]
     Rider2,
 
-    [IniEnum("RIDERLESS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("RIDERLESS", AddedIn = SageGame.Bfme)]
     Riderless,
 
-    [IniEnum("HOLDING_THE_RING"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("HOLDING_THE_RING", AddedIn = SageGame.Bfme2)]
     HoldingTheRing,
 
-    [IniEnum("IGNORE_AI_COMMAND"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("IGNORE_AI_COMMAND", AddedIn = SageGame.Bfme2Rotwk)]
     IgnoreAICommand,
 
-    [IniEnum("SUMMONING_REPLACEMENT"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("SUMMONING_REPLACEMENT", AddedIn = SageGame.Bfme2Rotwk)]
     SummoningReplacement,
 
-    [IniEnum("USER_DEFINED_1"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_DEFINED_1", AddedIn = SageGame.Bfme2Rotwk)]
     UserDefined1,
 
-    [IniEnum("NO_HERO_PROPERTIES"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("NO_HERO_PROPERTIES", AddedIn = SageGame.Bfme2Rotwk)]
     NoHeroProperties,
 
-    [IniEnum("HOLDING_THE_SHARD"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("HOLDING_THE_SHARD", AddedIn = SageGame.Bfme2Rotwk)]
     HoldingTheShard,
 }

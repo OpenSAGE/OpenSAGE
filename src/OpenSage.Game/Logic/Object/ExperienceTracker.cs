@@ -14,7 +14,7 @@ public class ExperienceTracker(GameObject parent, IGameEngine gameEngine) : IPer
     /// <summary>
     /// Level of experience.
     /// </summary>
-    private VeterancyLevel _currentLevel = VeterancyLevel.Regular;
+    private VeterancyLevel _currentLevel = VeterancyLevel.First_Or_Regular;
 
     // TODO: Generals used two different names for the same thing (m_currentLevel and getVeterancyLevel).
     // We could unify them.
@@ -65,7 +65,7 @@ public class ExperienceTracker(GameObject parent, IGameEngine gameEngine) : IPer
     {
         get
         {
-            if (_currentLevel == VeterancyLevel.Last)
+            if (_currentLevel == VeterancyLevel.Last_Or_Heroic)
             {
                 return null;
             }
@@ -180,9 +180,9 @@ public class ExperienceTracker(GameObject parent, IGameEngine gameEngine) : IPer
     {
         var newLevel = _currentLevel + levelsToGain;
 
-        if (newLevel > VeterancyLevel.Last)
+        if (newLevel > VeterancyLevel.Last_Or_Heroic)
         {
-            newLevel = VeterancyLevel.Last;
+            newLevel = VeterancyLevel.Last_Or_Heroic;
         }
 
         if (newLevel > _currentLevel)
@@ -199,9 +199,9 @@ public class ExperienceTracker(GameObject parent, IGameEngine gameEngine) : IPer
     {
         var newLevel = _currentLevel + levelsToGain;
 
-        if (newLevel > VeterancyLevel.Last)
+        if (newLevel > VeterancyLevel.Last_Or_Heroic)
         {
-            newLevel = VeterancyLevel.Last;
+            newLevel = VeterancyLevel.Last_Or_Heroic;
         }
 
         return newLevel > _currentLevel;

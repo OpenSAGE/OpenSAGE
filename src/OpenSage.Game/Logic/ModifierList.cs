@@ -257,25 +257,25 @@ public enum ModifierCategory
     [IniEnum("BUFF")]
     Buff,
 
-    [IniEnum("DEBUFF"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("DEBUFF", AddedIn = SageGame.Bfme2)]
     Debuff,
 
-    [IniEnum("INNATE_VISION"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INNATE_VISION", AddedIn = SageGame.Bfme2)]
     InnateVision,
 
-    [IniEnum("INNATE_ARMOR"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INNATE_ARMOR", AddedIn = SageGame.Bfme2)]
     InnateArmor,
 
-    [IniEnum("INNATE_AUTOHEAL"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INNATE_AUTOHEAL", AddedIn = SageGame.Bfme2)]
     InnateAutoheal,
 
-    [IniEnum("INNATE_HEALTH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INNATE_HEALTH", AddedIn = SageGame.Bfme2)]
     InnateHealth,
 
-    [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("INNATE_DAMAGEMULT", AddedIn = SageGame.Bfme2Rotwk)]
     InnateDamagemult,
 
-    [IniEnum("STUN"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("STUN", AddedIn = SageGame.Bfme2Rotwk)]
     Stun,
 }
 
@@ -351,33 +351,33 @@ public enum ModifierType
     [IniEnum("MINIMUM_CRUSH_VELOCITY")]
     MinimumCrushVelocity,
 
-    [IniEnum("INVULNERABLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INVULNERABLE", AddedIn = SageGame.Bfme2)]
     Invulnerable,
 
-    [IniEnum("CRUSHER_LEVEL"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CRUSHER_LEVEL", AddedIn = SageGame.Bfme2)]
     CrusherLevel,
 
-    [IniEnum("SHROUD_CLEARING"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SHROUD_CLEARING", AddedIn = SageGame.Bfme2)]
     ShroudClearing,
 
-    [IniEnum("RATE_OF_FIRE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("RATE_OF_FIRE", AddedIn = SageGame.Bfme2)]
     RateOfFire,
 
-    [IniEnum("CRUSHED_DECELERATE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CRUSHED_DECELERATE", AddedIn = SageGame.Bfme2)]
     CrushedDecelerate,
 
-    [IniEnum("COMMAND_POINT_BONUS"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("COMMAND_POINT_BONUS", AddedIn = SageGame.Bfme2)]
     CommandPointBonus,
 
-    [IniEnum("HEALTH_MULT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("HEALTH_MULT", AddedIn = SageGame.Bfme2)]
     HealthMult,
 
-    [IniEnum("RESIST_TERROR"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("RESIST_TERROR", AddedIn = SageGame.Bfme2Rotwk)]
     ResistTerror,
 
-    [IniEnum("CRUSHABLE_LEVEL"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CRUSHABLE_LEVEL", AddedIn = SageGame.Bfme2Rotwk)]
     CrushableLevel,
 
-    [IniEnum("DAMAGE_STRUCTURE_BOUNTY_ADD"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("DAMAGE_STRUCTURE_BOUNTY_ADD", AddedIn = SageGame.Bfme2Rotwk)]
     DamageStructureBountyAdd,
 }

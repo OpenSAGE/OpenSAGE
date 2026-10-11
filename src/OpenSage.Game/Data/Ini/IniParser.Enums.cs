@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using OpenSage.Mathematics;
-using Veldrid;
+using Key = Veldrid.Key;
 
 namespace OpenSage.Data.Ini;
 
@@ -107,17 +107,32 @@ partial class IniParser
     public static Dictionary<string, Enum> GetEnumMap<T>()
         where T : Enum
     {
+        // if (typeof(T) == typeof(DamageType))
+        //     Debugger.Break();
+
         var enumType = typeof(T);
         if (!CachedEnumMap.TryGetValue(enumType, out var stringToValueMap))
         {
             lock (CachedEnumMap)
             {
-                stringToValueMap = Enum.GetValues(enumType)
-                    .Cast<Enum>()
-                    .Distinct()
-                    .SelectMany(x => GetIniNames(enumType, x).Select(y => new { Name = y, Value = x }))
-                    .Where(x => x.Name != null)
-                    .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
+                try
+                {
+                    stringToValueMap = Enum
+                        .GetValues(enumType)
+                        .Cast<Enum>()
+                        .SelectMany(x => GetIniNames(enumType, x)
+                            .Select(y => new
+                            {
+                                Name = y, Value = x
+                            }))
+                        .Where(x => x.Name != null)
+                        .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
 
                 // It might have been added by another thread.
                 if (!CachedEnumMap.ContainsKey(enumType))
@@ -354,10 +369,16 @@ partial class IniParser
         return true;
     }
 
-    private static string[] GetIniNames(Type enumType, Enum value)
+    private static IEnumerable<string> GetIniNames(Type enumType, Enum value)
     {
         var field = enumType.GetTypeInfo().GetDeclaredField(value.ToString());
-        var iniEnumAttribute = field.GetCustomAttribute<IniEnumAttribute>();
-        return iniEnumAttribute?.Names ?? new string[0];
+
+        foreach (var iniAttribute in field.GetCustomAttributes<IniEnumAttribute>())
+        {
+            foreach (var name in iniAttribute.Names)
+            {
+                yield return name;
+            }
+        }
     }
 }

@@ -48,6 +48,6 @@ public enum ObjectEditorSortingFlags
     [IniEnum("OBSOLETE")]
     OBSOLETE = 1 << 12,
 
-    [IniEnum("SELECTABLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SELECTABLE", AddedIn = SageGame.Bfme2)]
     SELECTABLE = 1 << 13,
 }

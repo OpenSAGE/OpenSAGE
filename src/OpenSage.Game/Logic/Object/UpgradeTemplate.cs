@@ -183,16 +183,16 @@ public enum AIHeuristic
     [IniEnum("AI_UPGRADEHEURISTIC_FACTORY_UNITUNLOCK")]
     FactoryUnitunlock,
 
-    [IniEnum("AI_UPGRADEHEURISTIC_ANTISPECIAL"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AI_UPGRADEHEURISTIC_ANTISPECIAL", AddedIn = SageGame.Bfme2Rotwk)]
     Antispecial,
 
-    [IniEnum("AI_UPGRADEHEURISTIC_ANTIARCHER"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AI_UPGRADEHEURISTIC_ANTIARCHER", AddedIn = SageGame.Bfme2Rotwk)]
     Antiarcher,
 
-    [IniEnum("AI_UPGRADEHEURISTIC_ANTICAVALRY"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AI_UPGRADEHEURISTIC_ANTICAVALRY", AddedIn = SageGame.Bfme2Rotwk)]
     Anticavalry,
 
-    [IniEnum("AI_UPGRADEHEURISTIC_ANTIINFANTRY"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("AI_UPGRADEHEURISTIC_ANTIINFANTRY", AddedIn = SageGame.Bfme2Rotwk)]
     Antiinfantry,
 }
 
@@ -202,7 +202,7 @@ public sealed class UpgradeManager
     {
         CreateVeterancyUpgrade(assetStore, VeterancyLevel.Veteran);
         CreateVeterancyUpgrade(assetStore, VeterancyLevel.Elite);
-        CreateVeterancyUpgrade(assetStore, VeterancyLevel.Heroic);
+        CreateVeterancyUpgrade(assetStore, VeterancyLevel.Last_Or_Heroic);
     }
 
     private static void CreateVeterancyUpgrade(AssetStore assetStore, VeterancyLevel veterancyLevel)

@@ -92,7 +92,7 @@ public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
             structure.SetIsBeingConstructed();
             structure.SetObjectStatus(ObjectStatus.UnderConstruction, true);
             structure.SetUnknownStatus(UnknownScaffoldStatus, true);
-            GameObject.SetObjectStatus(ObjectStatus.InsideGarrison, true); // yup, seriously
+            GameObject.SetObjectStatus(ObjectStatus.Masked_Or_InsideGarrison, true); // yup, seriously
         }
         else
         {
@@ -112,7 +112,7 @@ public sealed class RebuildHoleUpdate : UpdateModule, IDieModule
             _structureId = ObjectId.Invalid;
             _workerId = ObjectId.Invalid;
             worker.Destroy();
-            GameObject.SetObjectStatus(ObjectStatus.InsideGarrison, false); // the hole is no longer protected
+            GameObject.SetObjectStatus(ObjectStatus.Masked_Or_InsideGarrison, false); // the hole is no longer protected
         }
         else if (!structure.IsBeingConstructed())
         {

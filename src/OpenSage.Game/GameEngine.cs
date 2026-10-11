@@ -13,11 +13,6 @@ namespace OpenSage;
 
 public sealed class GameEngine : IGameEngine
 {
-    static GameEngine()
-    {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-    }
-
     /// <summary>
     /// "Ideal" logic frames per second, used for converting module data and animations.
     /// </summary>

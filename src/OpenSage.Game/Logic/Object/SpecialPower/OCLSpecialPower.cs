@@ -263,9 +263,9 @@ public enum OCLCreateLocation
     [IniEnum("CREATE_AT_LOCATION")]
     CreateAtLocation,
 
-    [IniEnum("CREATE_AT_EDGE_NEAR_TARGET_AND_MOVE_TO_LOCATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CREATE_AT_EDGE_NEAR_TARGET_AND_MOVE_TO_LOCATION", AddedIn = SageGame.Bfme)]
     CreateAtEdgeNearTargetAndMoveToLocation,
 
-    [IniEnum("USE_SECONDARY_OBJECT_LOCATION"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("USE_SECONDARY_OBJECT_LOCATION", AddedIn = SageGame.Bfme2)]
     UseSecondaryObjectLocation,
 }
