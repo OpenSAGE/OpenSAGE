@@ -59,6 +59,6 @@ public enum MaxHealthChangeType
     [IniEnum("ADD_CURRENT_HEALTH_TOO")]
     AddCurrentHealthToo,
 
-    [IniEnum("FULLY_HEAL"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FULLY_HEAL", AddedIn = SageGame.CncGeneralsZeroHour)]
     FullyHeal,
 }

@@ -29,7 +29,7 @@ public enum LocomotorSetType
     Taxiing = 5,
 
     /// <summary>
-    /// Used for high-speed attacks 
+    /// Used for high-speed attacks
     /// </summary>
     [IniEnum("SET_SUPERSONIC")]
     Supersonic = 6,
@@ -55,6 +55,6 @@ public enum LocomotorSetType
     [IniEnum("SET_CONTAINED")]
     SetContained,
 
-    [IniEnum("SET_BURNINGDEATH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SET_BURNINGDEATH", AddedIn = SageGame.Bfme2)]
     SetBurningDeath,
 }

@@ -578,15 +578,15 @@ public enum ObjectDisposition
     [IniEnum("ANIMATED")]
     Animated,
 
-    [IniEnum("RELATIVE_ANGLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("RELATIVE_ANGLE", AddedIn = SageGame.Bfme2)]
     RelativeAngle,
 
-    [IniEnum("USE_WATER_SURFACE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("USE_WATER_SURFACE", AddedIn = SageGame.Bfme2)]
     UseWaterSurface,
 
-    [IniEnum("USE_CLIFF"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("USE_CLIFF", AddedIn = SageGame.Bfme2)]
     UseCliff,
 
-    [IniEnum("ABSOLUTE_ANGLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("ABSOLUTE_ANGLE", AddedIn = SageGame.Bfme2)]
     AbsoluteAngle,
 }

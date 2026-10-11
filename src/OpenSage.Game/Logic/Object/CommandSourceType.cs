@@ -25,6 +25,6 @@ public enum CommandSourceType
     /// <summary>
     /// Special case: a weapon that can be chosen -- this is the default case (machine gun vs flashbang).
     /// </summary>
-    [IniEnum("DEFAULT_SWITCH_WEAPON"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("DEFAULT_SWITCH_WEAPON", AddedIn = SageGame.CncGeneralsZeroHour)]
     DefaultSwitchWeapon = 4,
 }

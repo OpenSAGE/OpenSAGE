@@ -94,13 +94,13 @@ public enum EmotionType
     [IniEnum("QUARRELSOME")]
     Quarrelsome,
 
-    [IniEnum("OVERRIDE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("OVERRIDE", AddedIn = SageGame.Bfme)]
     Override,
 
-    [IniEnum("CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CHEER_FOR_ABOUT_TO_CRUSH", AddedIn = SageGame.Bfme2)]
     CheerForAboutToCrush,
 
-    [IniEnum("BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BRACE_FOR_BEING_CRUSHED", AddedIn = SageGame.Bfme2)]
     BraceForBeingCrushed,
 }
 

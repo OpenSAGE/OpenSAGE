@@ -1415,8 +1415,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         Disable(DisabledType.Held, disabledUntilFrame);
         Hidden = true;
         SetSelectable(false);
-        _status.Set(ObjectStatus.Masked, true);
-        _status.Set(ObjectStatus.InsideGarrison, true); // even if it's a vehicle, tunnel, etc
+        _status.Set(ObjectStatus.Masked_Or_InsideGarrison, true);
+        _status.Set(ObjectStatus.Masked_Or_InsideGarrison, true); // even if it's a vehicle, tunnel, etc
         Owner.DeselectUnit(this);
     }
 
@@ -1427,8 +1427,8 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         UnDisable(DisabledType.Held);
         Hidden = false;
         SetSelectable(true);
-        _status.Set(ObjectStatus.Masked, false);
-        _status.Set(ObjectStatus.InsideGarrison, false);
+        _status.Set(ObjectStatus.Masked_Or_InsideGarrison, false);
+        _status.Set(ObjectStatus.Masked_Or_InsideGarrison, false);
     }
 
     public void Disable(DisabledType type, LogicFrame frame)
@@ -1586,7 +1586,7 @@ public sealed class GameObject : Entity, IInspectable, ICollidable, IPersistable
         {
             VeterancyLevel.Veteran => VeterancyUpgradeNameVeteran,
             VeterancyLevel.Elite => VeterancyUpgradeNameElite,
-            VeterancyLevel.Heroic => VeterancyUpgradeNameHeroic,
+            VeterancyLevel.Last_Or_Heroic => VeterancyUpgradeNameHeroic,
             _ => null,
         };
         // veterancy is only ever additive, and the inis allude to the fact that it is fine to skip upgrades and go straight from e.g. Veteran to Heroic

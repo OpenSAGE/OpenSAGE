@@ -45,7 +45,7 @@ public sealed class DamageFX : BaseAsset
 
     private DamageFXGroup GetGroup(DamageType damageType, GameObject source)
     {
-        return GetGroup(damageType, source?.Rank ?? VeterancyLevel.Regular);
+        return GetGroup(damageType, source?.Rank ?? VeterancyLevel.First_Or_Regular);
     }
 
     private DamageFXGroup GetGroup(DamageType damageType, VeterancyLevel level)

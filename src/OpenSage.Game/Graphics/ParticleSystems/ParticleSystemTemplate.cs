@@ -539,13 +539,13 @@ public enum ParticleSystemShader
     [IniEnum("MULTIPLY")]
     Multiply = 4,
 
-    [IniEnum("W3D_EMISSIVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("W3D_EMISSIVE", AddedIn = SageGame.Bfme)]
     W3dEmissive,
 
-    [IniEnum("W3D_ALPHA"), AddedIn(SageGame.Bfme)]
+    [IniEnum("W3D_ALPHA", AddedIn = SageGame.Bfme)]
     W3dAlpha,
 
-    [IniEnum("W3D_DIFFUSE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("W3D_DIFFUSE", AddedIn = SageGame.Bfme)]
     W3dDiffuse,
 }
 
@@ -563,13 +563,13 @@ public enum ParticleSystemType
     [IniEnum("VOLUME_PARTICLE")]
     VolumeParticle = 4,
 
-    [IniEnum("SMUDGE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SMUDGE", AddedIn = SageGame.Bfme)]
     Smudge,
 
-    [IniEnum("GPU_PARTICLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GPU_PARTICLE", AddedIn = SageGame.Bfme)]
     GpuParticle,
 
-    [IniEnum("GPU_TERRAINFIRE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GPU_TERRAINFIRE", AddedIn = SageGame.Bfme)]
     GpuTerrainfire,
 }
 
@@ -623,6 +623,6 @@ public enum ParticleSystemWindMotion
     [IniEnum("PingPong")]
     PingPong,
 
-    [IniEnum("Circular"), AddedIn(SageGame.Bfme)]
+    [IniEnum("Circular", AddedIn = SageGame.Bfme)]
     Circular
 }

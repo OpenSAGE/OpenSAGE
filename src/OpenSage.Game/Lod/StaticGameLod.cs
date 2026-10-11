@@ -136,7 +136,7 @@ public sealed class StaticGameLod : BaseAsset
 
 public enum LodType
 {
-    [IniEnum("VeryLow"), AddedIn(SageGame.Bfme)]
+    [IniEnum("VeryLow", AddedIn = SageGame.Bfme)]
     VeryLow,
 
     [IniEnum("LOW")]
@@ -151,9 +151,9 @@ public enum LodType
     [IniEnum("VeryHigh")]
     VeryHigh,
 
-    [IniEnum("UltraHigh"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UltraHigh", AddedIn = SageGame.Bfme)]
     UltraHigh,
 
-    [IniEnum("Off"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("Off", AddedIn = SageGame.Bfme2)]
     Off,
 }

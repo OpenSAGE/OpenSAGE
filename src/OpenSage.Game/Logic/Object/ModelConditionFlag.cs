@@ -227,802 +227,802 @@ public enum ModelConditionFlag
     [IniEnum("WEAPONSET_ELITE")]
     WeaponSetElite,
 
-    [IniEnum("RIDERS_ATTACKING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDERS_ATTACKING", AddedIn = SageGame.CncGeneralsZeroHour)]
     RidersAttacking,
 
-    [IniEnum("DISGUISED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("DISGUISED", AddedIn = SageGame.CncGeneralsZeroHour)]
     Disguised,
 
-    [IniEnum("JAMMED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("JAMMED", AddedIn = SageGame.CncGeneralsZeroHour)]
     Jammed,
 
-    [IniEnum("DOCKING_BEGINNING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("DOCKING_BEGINNING", AddedIn = SageGame.CncGeneralsZeroHour)]
     DockingBeginning,
 
-    [IniEnum("RIDER1"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER1", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider1,
 
-    [IniEnum("RIDER2"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER2", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider2,
 
-    [IniEnum("RIDER3"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER3", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider3,
 
-    [IniEnum("RIDER4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER4", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider4,
 
-    [IniEnum("RIDER5"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER5", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider5,
 
-    [IniEnum("RIDER6"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER6", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider6,
 
-    [IniEnum("RIDER7"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIDER7", AddedIn = SageGame.CncGeneralsZeroHour)]
     Rider7,
 
-    [IniEnum("TOPPLED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("TOPPLED", AddedIn = SageGame.CncGeneralsZeroHour)]
     Toppled,
 
-    [IniEnum("CENTER_TO_LEFT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("CENTER_TO_LEFT", AddedIn = SageGame.CncGeneralsZeroHour)]
     CenterToLeft,
 
-    [IniEnum("LEFT_TO_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("LEFT_TO_CENTER", AddedIn = SageGame.CncGeneralsZeroHour)]
     LeftToCenter,
 
-    [IniEnum("CENTER_TO_RIGHT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("CENTER_TO_RIGHT", AddedIn = SageGame.CncGeneralsZeroHour)]
     CenterToRight,
 
-    [IniEnum("RIGHT_TO_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("RIGHT_TO_CENTER", AddedIn = SageGame.CncGeneralsZeroHour)]
     RightToCenter,
 
-    [IniEnum("USER_1"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("USER_1", AddedIn = SageGame.CncGeneralsZeroHour)]
     User1,
 
-    [IniEnum("USER_2"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("USER_2", AddedIn = SageGame.CncGeneralsZeroHour)]
     User2,
 
-    [IniEnum("SECOND_LIFE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SECOND_LIFE", AddedIn = SageGame.CncGeneralsZeroHour)]
     SecondLife,
 
-    [IniEnum("ARMORSET_CRATEUPGRADE_ONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("ARMORSET_CRATEUPGRADE_ONE", AddedIn = SageGame.CncGeneralsZeroHour)]
     ArmorSetCrateUpgradeOne,
 
-    [IniEnum("ARMORSET_CRATEUPGRADE_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("ARMORSET_CRATEUPGRADE_TWO", AddedIn = SageGame.CncGeneralsZeroHour)]
     ArmorSetCrateUpgradeTwo,
 
-    [IniEnum("TAKING_DAMAGE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("TAKING_DAMAGE", AddedIn = SageGame.CncGeneralsZeroHour)]
     TakingDamage,
 
-    [IniEnum("HERO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HERO", AddedIn = SageGame.Bfme)]
     Hero,
 
-    [IniEnum("UPGRADE_ECONOMY_BONUS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UPGRADE_ECONOMY_BONUS", AddedIn = SageGame.Bfme)]
     UpgradeEconomyBonus,
 
-    [IniEnum("WAR_CHANT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WAR_CHANT", AddedIn = SageGame.Bfme)]
     WarChant,
 
-    [IniEnum("JUST_BUILT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("JUST_BUILT", AddedIn = SageGame.Bfme)]
     JustBuilt,
 
-    [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_AFRAID", AddedIn = SageGame.Bfme)]
     EmotionAfraid,
 
-    [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MOUNTED", AddedIn = SageGame.Bfme)]
     Mounted,
 
-    [IniEnum("EMOTION_TAUNTING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_TAUNTING", AddedIn = SageGame.Bfme)]
     EmotionTaunting,
 
-    [IniEnum("EMOTION_ALERT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_ALERT", AddedIn = SageGame.Bfme)]
     EmotionAlert,
 
-    [IniEnum("EMOTION_CELEBRATING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_CELEBRATING", AddedIn = SageGame.Bfme)]
     EmotionCelebrating,
 
-    [IniEnum("EMOTION_UNCONTROLLABLY_AFRAID"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_UNCONTROLLABLY_AFRAID", AddedIn = SageGame.Bfme)]
     EmotionUncontrollablyAfraid,
 
-    [IniEnum("EMOTION_TERROR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_TERROR", AddedIn = SageGame.Bfme)]
     EmotionTerror,
 
-    [IniEnum("EMOTION_POINTING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_POINTING", AddedIn = SageGame.Bfme)]
     EmotionPointing,
 
-    [IniEnum("EMOTION_DOOM"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_DOOM", AddedIn = SageGame.Bfme)]
     EmotionDoom,
 
-    [IniEnum("WADING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WADING", AddedIn = SageGame.Bfme)]
     Wading,
 
-    [IniEnum("ENGAGED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ENGAGED", AddedIn = SageGame.Bfme)]
     Engaged,
 
-    [IniEnum("STUNNED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("STUNNED", AddedIn = SageGame.Bfme)]
     Stunned,
 
-    [IniEnum("STUNNED_STANDING_UP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("STUNNED_STANDING_UP", AddedIn = SageGame.Bfme)]
     StunnedStandingUp,
 
-    [IniEnum("STUNNED_FLAILING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("STUNNED_FLAILING", AddedIn = SageGame.Bfme)]
     StunnedFlailing,
 
-    [IniEnum("THROWN_PROJECTILE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("THROWN_PROJECTILE", AddedIn = SageGame.Bfme)]
     ThrownProjectile,
 
-    [IniEnum("PASSENGER"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PASSENGER", AddedIn = SageGame.Bfme)]
     Passenger,
 
-    [IniEnum("GUARDING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GUARDING", AddedIn = SageGame.Bfme)]
     Guarding,
 
-    [IniEnum("EMOTION_QUARRELSOME"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_QUARRELSOME", AddedIn = SageGame.Bfme)]
     EmotionQuarrelsome,
 
-    [IniEnum("DECELERATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DECELERATE", AddedIn = SageGame.Bfme)]
     Decelerate,
 
-    [IniEnum("ACCELERATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ACCELERATE", AddedIn = SageGame.Bfme)]
     Accelerate,
 
-    [IniEnum("TURN_LEFT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURN_LEFT", AddedIn = SageGame.Bfme)]
     TurnLeft,
 
-    [IniEnum("TURN_RIGHT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURN_RIGHT", AddedIn = SageGame.Bfme)]
     TurnRight,
 
-    [IniEnum("BACKING_UP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BACKING_UP", AddedIn = SageGame.Bfme)]
     BackingUp,
 
-    [IniEnum("CHANT_FOR_GROND"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CHANT_FOR_GROND", AddedIn = SageGame.Bfme)]
     ChantForGrond,
 
-    [IniEnum("WANDER"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WANDER", AddedIn = SageGame.Bfme)]
     Wander,
 
-    [IniEnum("HARVEST_PREPARATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HARVEST_PREPARATION", AddedIn = SageGame.Bfme)]
     HarvestPreparation,
 
-    [IniEnum("HARVEST_ACTION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HARVEST_ACTION", AddedIn = SageGame.Bfme)]
     HarvestAction,
 
-    [IniEnum("SPECIAL_ENEMY_NEAR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIAL_ENEMY_NEAR", AddedIn = SageGame.Bfme)]
     SpecialEnemyNear,
 
-    [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_1", AddedIn = SageGame.Bfme)]
     Death1,
 
-    [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_2", AddedIn = SageGame.Bfme)]
     Death2,
 
-    [IniEnum("EMOTION_MORALE_HIGH"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_MORALE_HIGH", AddedIn = SageGame.Bfme)]
     EmotionMoraleHigh,
 
-    [IniEnum("EMOTION_MORALE_LOW"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_MORALE_LOW", AddedIn = SageGame.Bfme)]
     EmotionMoraleLow,
 
-    [IniEnum("HIT_REACTION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIT_REACTION", AddedIn = SageGame.Bfme)]
     HitReaction,
 
-    [IniEnum("HIT_LEVEL_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIT_LEVEL_1", AddedIn = SageGame.Bfme)]
     HitLevel1,
 
-    [IniEnum("SELECTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SELECTED", AddedIn = SageGame.Bfme)]
     Selected,
 
-    [IniEnum("PACKING_TYPE_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PACKING_TYPE_1", AddedIn = SageGame.Bfme)]
     PackingType1,
 
-    [IniEnum("PACKING_TYPE_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PACKING_TYPE_2", AddedIn = SageGame.Bfme)]
     PackingType2,
 
-    [IniEnum("PREPARING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PREPARING", AddedIn = SageGame.Bfme)]
     Preparing,
 
-    [IniEnum("HIDDEN"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIDDEN", AddedIn = SageGame.Bfme)]
     Hidden,
 
-    [IniEnum("BURNT_MODEL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BURNT_MODEL", AddedIn = SageGame.Bfme)]
     BurntModel,
 
-    [IniEnum("PASSENGER_VARIATION_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PASSENGER_VARIATION_1", AddedIn = SageGame.Bfme)]
     PassengerVariation1,
 
-    [IniEnum("PASSENGER_VARIATION_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PASSENGER_VARIATION_2", AddedIn = SageGame.Bfme)]
     PassengerVariation2,
 
-    [IniEnum("DESTROYED_WEAPON"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_WEAPON", AddedIn = SageGame.Bfme)]
     DestroyedWeapon,
 
-    [IniEnum("HIT_LEVEL_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIT_LEVEL_2", AddedIn = SageGame.Bfme)]
     HitLevel2,
 
-    [IniEnum("HIT_LEVEL_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIT_LEVEL_3", AddedIn = SageGame.Bfme)]
     HitLevel3,
 
-    [IniEnum("REACT_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REACT_1", AddedIn = SageGame.Bfme)]
     React1,
 
-    [IniEnum("REACT_2"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REACT_2", AddedIn = SageGame.Bfme)]
     React2,
 
-    [IniEnum("REACT_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REACT_3", AddedIn = SageGame.Bfme)]
     React3,
 
-    [IniEnum("REACT_4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REACT_4", AddedIn = SageGame.Bfme)]
     React4,
 
-    [IniEnum("REACT_5"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REACT_5", AddedIn = SageGame.Bfme)]
     React5,
 
-    [IniEnum("AIM_HIGH"), AddedIn(SageGame.Bfme)]
+    [IniEnum("AIM_HIGH", AddedIn = SageGame.Bfme)]
     AimHigh,
 
-    [IniEnum("WORLD_BUILDER"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WORLD_BUILDER", AddedIn = SageGame.Bfme)]
     WorldBuilder,
 
-    [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_3", AddedIn = SageGame.Bfme)]
     Death3,
 
-    [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEATH_4", AddedIn = SageGame.Bfme)]
     Death4,
 
-    [IniEnum("WALKING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WALKING", AddedIn = SageGame.Bfme)]
     Walking,
 
-    [IniEnum("EMOTION_LOOK_TO_SKY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_LOOK_TO_SKY", AddedIn = SageGame.Bfme)]
     EmotionLookToSky,
 
-    [IniEnum("USER_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("USER_3", AddedIn = SageGame.Bfme)]
     User3,
 
-    [IniEnum("SIEGE_CONTAIN"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SIEGE_CONTAIN", AddedIn = SageGame.Bfme)]
     SiegeContain,
 
-    [IniEnum("USING_SPECIAL_ABILITY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("USING_SPECIAL_ABILITY", AddedIn = SageGame.Bfme)]
     UsingSpecialAbility,
 
-    [IniEnum("AIM_LOW"), AddedIn(SageGame.Bfme)]
+    [IniEnum("AIM_LOW", AddedIn = SageGame.Bfme)]
     AimLow,
 
-    [IniEnum("RUNNING_OFF_MAP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("RUNNING_OFF_MAP", AddedIn = SageGame.Bfme)]
     RunningOffMap,
 
-    [IniEnum("TURN_LEFT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURN_LEFT_HIGH_SPEED", AddedIn = SageGame.Bfme)]
     TurnLeftHighSpeed,
 
-    [IniEnum("TURN_RIGHT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURN_RIGHT_HIGH_SPEED", AddedIn = SageGame.Bfme)]
     TurnRightHighSpeed,
 
-    [IniEnum("CHARGING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CHARGING", AddedIn = SageGame.Bfme)]
     Charging,
 
-    [IniEnum("DECAY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DECAY", AddedIn = SageGame.Bfme)]
     Decay,
 
-    [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CLUB", AddedIn = SageGame.Bfme)]
     Club,
 
-    [IniEnum("POST_RUBBLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("POST_RUBBLE", AddedIn = SageGame.Bfme)]
     PostRubble,
 
-    [IniEnum("USER_4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("USER_4", AddedIn = SageGame.Bfme)]
     User4,
 
-    [IniEnum("USER_5"), AddedIn(SageGame.Bfme)]
+    [IniEnum("USER_5", AddedIn = SageGame.Bfme)]
     User5,
 
-    [IniEnum("AWAY_FROM_TREES"), AddedIn(SageGame.Bfme)]
+    [IniEnum("AWAY_FROM_TREES", AddedIn = SageGame.Bfme)]
     AwayFromTrees,
 
-    [IniEnum("DESTROYED_FRONT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_FRONT", AddedIn = SageGame.Bfme)]
     DestroyedFront,
 
-    [IniEnum("DESTROYED_RIGHT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_RIGHT", AddedIn = SageGame.Bfme)]
     DestroyedRight,
 
-    [IniEnum("DESTROYED_LEFT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_LEFT", AddedIn = SageGame.Bfme)]
     DestroyedLeft,
 
-    [IniEnum("DESTROYED_BACK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_BACK", AddedIn = SageGame.Bfme)]
     DestroyedBack,
 
-    [IniEnum("EMOTION_COWER"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_COWER", AddedIn = SageGame.Bfme)]
     EmotionCower,
 
-    [IniEnum("HORDE_EMPTY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HORDE_EMPTY", AddedIn = SageGame.Bfme)]
     HordeEmpty,
 
-    [IniEnum("BASE_BUILD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BASE_BUILD", AddedIn = SageGame.Bfme)]
     BaseBuild,
 
-    [IniEnum("UPGRADE_NUMENOR_STONEWORK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UPGRADE_NUMENOR_STONEWORK", AddedIn = SageGame.Bfme)]
     UpgradeNumenorStonework,
 
-    [IniEnum("UPGRADE_TREBUCHET"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UPGRADE_TREBUCHET", AddedIn = SageGame.Bfme)]
     UpgradeTrebuchet,
 
-    [IniEnum("UPGRADE_POSTERN_GATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UPGRADE_POSTERN_GATE", AddedIn = SageGame.Bfme)]
     UpgradePosternGate,
 
-    [IniEnum("UPGRADE_GARRISON"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UPGRADE_GARRISON", AddedIn = SageGame.Bfme)]
     UpgradeGarrison,
 
-    [IniEnum("LEVELED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("LEVELED", AddedIn = SageGame.Bfme)]
     Leveled,
 
-    [IniEnum("SPECIAL_POWER_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIAL_POWER_1", AddedIn = SageGame.Bfme)]
     SpecialPower1,
 
-    [IniEnum("COLLAPSING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("COLLAPSING", AddedIn = SageGame.Bfme)]
     Collapsing,
 
-    [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TAINT", AddedIn = SageGame.Bfme)]
     Taint,
 
-    [IniEnum("TRANSPORT_MOVING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TRANSPORT_MOVING", AddedIn = SageGame.Bfme)]
     TransportMoving,
 
-    [IniEnum("WEAPON_TOGGLING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPON_TOGGLING", AddedIn = SageGame.Bfme)]
     WeaponToggling,
 
-    [IniEnum("UNCONTROLLABLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UNCONTROLLABLE", AddedIn = SageGame.Bfme)]
     Uncontrollable,
 
-    [IniEnum("COMING_OUT_OF_FACTORY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("COMING_OUT_OF_FACTORY", AddedIn = SageGame.Bfme)]
     ComingOutOfFactory,
 
-    [IniEnum("ALTERNATE_FORMATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ALTERNATE_FORMATION", AddedIn = SageGame.Bfme)]
     AlternateFormation,
 
-    [IniEnum("USING_COMBO_LOCOMOTOR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("USING_COMBO_LOCOMOTOR", AddedIn = SageGame.Bfme)]
     UsingComboLocomotor,
 
-    [IniEnum("SPECIAL_WEAPON_ONE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIAL_WEAPON_ONE", AddedIn = SageGame.Bfme)]
     SpecialWeaponOne,
 
-    [IniEnum("SPECIAL_WEAPON_TWO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIAL_WEAPON_TWO", AddedIn = SageGame.Bfme)]
     SpecialWeaponTwo,
 
-    [IniEnum("WEAPON_TOGGLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPON_TOGGLE", AddedIn = SageGame.Bfme)]
     WeaponToggle,
 
-    [IniEnum("EATING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EATING", AddedIn = SageGame.Bfme)]
     Eating,
 
-    [IniEnum("QUARRELSOME_FIGHTING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("QUARRELSOME_FIGHTING", AddedIn = SageGame.Bfme)]
     QuarrelsomeFighting,
 
-    [IniEnum("WEAPONSTATE_CONTAINED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSTATE_CONTAINED", AddedIn = SageGame.Bfme)]
     WeaponstateContained,
 
-    [IniEnum("DIVING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DIVING", AddedIn = SageGame.Bfme)]
     Diving,
 
-    [IniEnum("ABOUT_TO_HIT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ABOUT_TO_HIT", AddedIn = SageGame.Bfme)]
     AboutToHit,
 
-    [IniEnum("PASSENGER_VARIATION_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PASSENGER_VARIATION_3", AddedIn = SageGame.Bfme)]
     PassengerVariation3,
 
-    [IniEnum("PASSENGER_VARIATION_4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PASSENGER_VARIATION_4", AddedIn = SageGame.Bfme)]
     PassengerVariation4,
 
-    [IniEnum("DESTROYED_WHILST_BEING_CONSTRUCTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DESTROYED_WHILST_BEING_CONSTRUCTED", AddedIn = SageGame.Bfme)]
     DestroyedWhilstBeingConstructed,
 
-    [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ELVEN_WOOD", AddedIn = SageGame.Bfme)]
     ElvenWood,
 
-    [IniEnum("HORDEBRAIN_NOT_STEALTHED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HORDEBRAIN_NOT_STEALTHED", AddedIn = SageGame.Bfme)]
     HordebrainNotStealthed,
 
-    [IniEnum("AIM_NEAR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("AIM_NEAR", AddedIn = SageGame.Bfme)]
     AimNear,
 
-    [IniEnum("WEAPONSET_ENRAGED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSET_ENRAGED", AddedIn = SageGame.Bfme)]
     WeaponsetEnraged,
 
-    [IniEnum("INITIAL_ENRAGED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("INITIAL_ENRAGED", AddedIn = SageGame.Bfme)]
     InitialEnraged,
 
-    [IniEnum("GRAB_BUILDING_CHUNK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GRAB_BUILDING_CHUNK", AddedIn = SageGame.Bfme)]
     GrabBuildingChunk,
 
-    [IniEnum("WEAPONSET_HERO_MODE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSET_HERO_MODE", AddedIn = SageGame.Bfme)]
     WeaponsetHeroMode,
 
-    [IniEnum("ATTACKING_STRUCTURE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ATTACKING_STRUCTURE", AddedIn = SageGame.Bfme)]
     AttackingStructure,
 
-    [IniEnum("SPECIAL_WEAPON_THREE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPECIAL_WEAPON_THREE", AddedIn = SageGame.Bfme)]
     SpecialWeaponThree,
 
-    [IniEnum("EMOTION_GUNG_HO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EMOTION_GUNG_HO", AddedIn = SageGame.Bfme)]
     EmotionGungHo,
 
-    [IniEnum("RESURRECTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("RESURRECTED", AddedIn = SageGame.Bfme)]
     Resurrected,
 
-    [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ONE_RING", AddedIn = SageGame.Bfme)]
     OneRing,
 
-    [IniEnum("PUTTING_ON_RING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PUTTING_ON_RING", AddedIn = SageGame.Bfme)]
     PuttingOnRing,
 
-    [IniEnum("TAKING_OFF_RING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TAKING_OFF_RING", AddedIn = SageGame.Bfme)]
     TakingOffRing,
 
-    [IniEnum("TURRET_ANGLE_90"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURRET_ANGLE_90", AddedIn = SageGame.Bfme)]
     TurretAngle90,
 
-    [IniEnum("TURRET_ANGLE_180"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURRET_ANGLE_180", AddedIn = SageGame.Bfme)]
     TurretAngle180,
 
-    [IniEnum("TURRET_ANGLE_270"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TURRET_ANGLE_270", AddedIn = SageGame.Bfme)]
     TurretAngle270,
 
-    [IniEnum("DEBUG"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEBUG", AddedIn = SageGame.Bfme)]
     Debug,
 
-    [IniEnum("PACKING_TYPE_3"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PACKING_TYPE_3", AddedIn = SageGame.Bfme)]
     PackingType3,
 
-    [IniEnum("OATH_FULLFILLED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("OATH_FULLFILLED", AddedIn = SageGame.Bfme)]
     OathFullfilled,
 
-    [IniEnum("EMOTION_AMUSED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("EMOTION_AMUSED", AddedIn = SageGame.Bfme2)]
     EmotionAmused,
 
-    [IniEnum("BUILD_VARIATION_ONE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BUILD_VARIATION_ONE", AddedIn = SageGame.Bfme2)]
     BuildVariationOne,
 
-    [IniEnum("BUILD_VARIATION_TWO"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BUILD_VARIATION_TWO", AddedIn = SageGame.Bfme2)]
     BuildVariationTwo,
 
-    [IniEnum("BUILD_PLACEMENT_CURSOR"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BUILD_PLACEMENT_CURSOR", AddedIn = SageGame.Bfme2)]
     BuildPlacementCursor,
 
-    [IniEnum("PHANTOM_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PHANTOM_STRUCTURE", AddedIn = SageGame.Bfme2)]
     PhantomStructure,
 
-    [IniEnum("CREATE_A_HERO_00"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_00", AddedIn = SageGame.Bfme2)]
     CreateAHero00,
 
-    [IniEnum("CREATE_A_HERO_01"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_01", AddedIn = SageGame.Bfme2)]
     CreateAHero01,
 
-    [IniEnum("CREATE_A_HERO_02"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_02", AddedIn = SageGame.Bfme2)]
     CreateAHero02,
 
-    [IniEnum("CREATE_A_HERO_03"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_03", AddedIn = SageGame.Bfme2)]
     CreateAHero03,
 
-    [IniEnum("CREATE_A_HERO_04"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_04", AddedIn = SageGame.Bfme2)]
     CreateAHero04,
 
-    [IniEnum("CREATE_A_HERO_05"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_05", AddedIn = SageGame.Bfme2)]
     CreateAHero05,
 
-    [IniEnum("CREATE_A_HERO_06"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_06", AddedIn = SageGame.Bfme2)]
     CreateAHero06,
 
-    [IniEnum("CREATE_A_HERO_07"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_07", AddedIn = SageGame.Bfme2)]
     CreateAHero07,
 
-    [IniEnum("CREATE_A_HERO_08"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_08", AddedIn = SageGame.Bfme2)]
     CreateAHero08,
 
-    [IniEnum("CREATE_A_HERO_09"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_09", AddedIn = SageGame.Bfme2)]
     CreateAHero09,
 
-    [IniEnum("CREATE_A_HERO_10"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_10", AddedIn = SageGame.Bfme2)]
     CreateAHero10,
 
-    [IniEnum("CREATE_A_HERO_11"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_11", AddedIn = SageGame.Bfme2)]
     CreateAHero11,
 
-    [IniEnum("CREATE_A_HERO_12"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_12", AddedIn = SageGame.Bfme2)]
     CreateAHero12,
 
-    [IniEnum("CREATE_A_HERO_13"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_13", AddedIn = SageGame.Bfme2)]
     CreateAHero13,
 
-    [IniEnum("CREATE_A_HERO_14"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_14", AddedIn = SageGame.Bfme2)]
     CreateAHero14,
 
-    [IniEnum("CREATE_A_HERO_15"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_15", AddedIn = SageGame.Bfme2)]
     CreateAHero15,
 
-    [IniEnum("CREATE_A_HERO_16"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_16", AddedIn = SageGame.Bfme2)]
     CreateAHero16,
 
-    [IniEnum("CREATE_A_HERO_17"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_17", AddedIn = SageGame.Bfme2)]
     CreateAHero17,
 
-    [IniEnum("CREATE_A_HERO_18"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_18", AddedIn = SageGame.Bfme2)]
     CreateAHero18,
 
-    [IniEnum("CREATE_A_HERO_19"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_19", AddedIn = SageGame.Bfme2)]
     CreateAHero19,
 
-    [IniEnum("CREATE_A_HERO_20"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_20", AddedIn = SageGame.Bfme2)]
     CreateAHero20,
 
-    [IniEnum("CREATE_A_HERO_21"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_21", AddedIn = SageGame.Bfme2)]
     CreateAHero21,
 
-    [IniEnum("CREATE_A_HERO_22"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_22", AddedIn = SageGame.Bfme2)]
     CreateAHero22,
 
-    [IniEnum("CREATE_A_HERO_23"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_23", AddedIn = SageGame.Bfme2)]
     CreateAHero23,
 
-    [IniEnum("CREATE_A_HERO_24"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_24", AddedIn = SageGame.Bfme2)]
     CreateAHero24,
 
-    [IniEnum("CREATE_A_HERO_25"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_25", AddedIn = SageGame.Bfme2)]
     CreateAHero25,
 
-    [IniEnum("CREATE_A_HERO_26"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_26", AddedIn = SageGame.Bfme2)]
     CreateAHero26,
 
-    [IniEnum("CREATE_A_HERO_27"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_27", AddedIn = SageGame.Bfme2)]
     CreateAHero27,
 
-    [IniEnum("INVISIBLE_STEALTH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("INVISIBLE_STEALTH", AddedIn = SageGame.Bfme2)]
     InvisibleStealth,
 
-    [IniEnum("CREATE_A_HERO_IN_CREATION_SCREEN"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_IN_CREATION_SCREEN", AddedIn = SageGame.Bfme2)]
     CreateAHeroInCreationScreen,
 
-    [IniEnum("CREATE_A_HERO_EXAMINE_SELF"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_EXAMINE_SELF", AddedIn = SageGame.Bfme2)]
     CreateAHeroExamineSelf,
 
-    [IniEnum("CREATE_A_HERO_SELECTED_CHEER"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_SELECTED_CHEER", AddedIn = SageGame.Bfme2)]
     CreateAHeroSelectedCheer,
 
-    [IniEnum("CREATE_A_HERO_EXAMINE_WEAPON_RIGHT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_EXAMINE_WEAPON_RIGHT", AddedIn = SageGame.Bfme2)]
     CreateAHeroExamineWeaponRight,
 
-    [IniEnum("USER_75"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("USER_75", AddedIn = SageGame.Bfme2)]
     User75,
 
-    [IniEnum("SPECIAL_WEAPON_FOUR"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SPECIAL_WEAPON_FOUR", AddedIn = SageGame.Bfme2)]
     SpecialWeaponFour,
 
-    [IniEnum("SPECIAL_WEAPON_FIVE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SPECIAL_WEAPON_FIVE", AddedIn = SageGame.Bfme2)]
     SpecialWeaponFive,
 
-    [IniEnum("SPECIAL_WEAPON_SIX"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SPECIAL_WEAPON_SIX", AddedIn = SageGame.Bfme2)]
     SpecialWeaponSix,
 
-    [IniEnum("PACKING_TYPE_4"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PACKING_TYPE_4", AddedIn = SageGame.Bfme2)]
     PackingType4,
 
-    [IniEnum("PACKING_TYPE_5"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PACKING_TYPE_5", AddedIn = SageGame.Bfme2)]
     PackingType5,
 
-    [IniEnum("PACKING_TYPE_6"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PACKING_TYPE_6", AddedIn = SageGame.Bfme2)]
     PackingType6,
 
-    [IniEnum("CREATE_A_HERO_65"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CREATE_A_HERO_65", AddedIn = SageGame.Bfme2)]
     CreateAHero65,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_1"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_IMPROVEMENT_1", AddedIn = SageGame.Bfme2)]
     FortressImprovement1,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_2"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_IMPROVEMENT_2", AddedIn = SageGame.Bfme2)]
     FortressImprovement2,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_3"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_IMPROVEMENT_3", AddedIn = SageGame.Bfme2)]
     FortressImprovement3,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_4"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_IMPROVEMENT_4", AddedIn = SageGame.Bfme2)]
     FortressImprovement4,
 
-    [IniEnum("UPGRADE_FORTRESS_MONUMENT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("UPGRADE_FORTRESS_MONUMENT", AddedIn = SageGame.Bfme2)]
     UpgradeFortressMonument,
 
-    [IniEnum("LEASHED_RETURNING"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("LEASHED_RETURNING", AddedIn = SageGame.Bfme2)]
     LeashedReturning,
 
-    [IniEnum("FORTRESS_MONUMENT_CREATURE_AVAILABLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_MONUMENT_CREATURE_AVAILABLE", AddedIn = SageGame.Bfme2)]
     FortressMonumentCreatureAvailable,
 
-    [IniEnum("FORTRESS_MONUMENT_CREATURE_UNAVAILABLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_MONUMENT_CREATURE_UNAVAILABLE", AddedIn = SageGame.Bfme2)]
     FortressMonumentCreatureUnavailable,
 
-    [IniEnum("SWIMMING"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SWIMMING", AddedIn = SageGame.Bfme2)]
     Swimming,
 
-    [IniEnum("BURNINGDEATH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BURNINGDEATH", AddedIn = SageGame.Bfme2)]
     BurningDeath,
 
-    [IniEnum("ARMORSET_PLAYER_UPGRADE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("ARMORSET_PLAYER_UPGRADE", AddedIn = SageGame.Bfme2)]
     ArmorsetPlayerUpgrade,
 
-    [IniEnum("SAIL_BLOWN_LEFT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SAIL_BLOWN_LEFT", AddedIn = SageGame.Bfme2)]
     SailBlownLeft,
 
-    [IniEnum("SAIL_BLOWN_Right"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SAIL_BLOWN_Right", AddedIn = SageGame.Bfme2)]
     SailBlownRight,
 
-    [IniEnum("ATTACKING_POSITION"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("ATTACKING_POSITION", AddedIn = SageGame.Bfme2)]
     AttackingPosition,
 
-    [IniEnum("PARALYZED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PARALYZED", AddedIn = SageGame.Bfme2)]
     Paralyzed,
 
-    [IniEnum("PORCUPINE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PORCUPINE", AddedIn = SageGame.Bfme2)]
     Porcupine,
 
-    [IniEnum("STONED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("STONED", AddedIn = SageGame.Bfme2)]
     Stoned,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_8"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FORTRESS_IMPROVEMENT_8", AddedIn = SageGame.Bfme2)]
     FortressImprovement8,
 
-    [IniEnum("UPGRADE_BOILING_OIL"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("UPGRADE_BOILING_OIL", AddedIn = SageGame.Bfme2)]
     UpgradeBoilingOil,
 
-    [IniEnum("UPGRADE_IVORY_TOWER"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("UPGRADE_IVORY_TOWER", AddedIn = SageGame.Bfme2)]
     UpgradeIvoryTower,
 
-    [IniEnum("UPGRADE_HOUSE_OF_HEALING"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("UPGRADE_HOUSE_OF_HEALING", AddedIn = SageGame.Bfme2)]
     UpgradeHouseOfHealing,
 
-    [IniEnum("USER_6"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("USER_6", AddedIn = SageGame.Bfme2)]
     User6,
 
-    [IniEnum("START_CAPTURE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("START_CAPTURE", AddedIn = SageGame.Bfme2)]
     StartCapture,
 
-    [IniEnum("CANCEL_CAPTURE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CANCEL_CAPTURE", AddedIn = SageGame.Bfme2)]
     CancelCapture,
 
-    [IniEnum("CREATE_A_HERO_29"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_29", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero29,
 
-    [IniEnum("CREATE_A_HERO_30"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_30", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero30,
 
-    [IniEnum("CREATE_A_HERO_31"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_31", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero31,
 
-    [IniEnum("CREATE_A_HERO_32"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_32", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero32,
 
-    [IniEnum("CREATE_A_HERO_33"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_33", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero33,
 
-    [IniEnum("CREATE_A_HERO_34"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_34", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero34,
 
-    [IniEnum("SPECIAL_POWER_2"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("SPECIAL_POWER_2", AddedIn = SageGame.Bfme2Rotwk)]
     SpecialPower2,
 
-    [IniEnum("USER_7"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_7", AddedIn = SageGame.Bfme2Rotwk)]
     User7,
 
-    [IniEnum("USER_8"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_8", AddedIn = SageGame.Bfme2Rotwk)]
     User8,
 
-    [IniEnum("USER_9"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_9", AddedIn = SageGame.Bfme2Rotwk)]
     User9,
 
-    [IniEnum("CREATE_A_HERO_35"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_35", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero35,
 
-    [IniEnum("CREATE_A_HERO_36"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_36", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero36,
 
-    [IniEnum("CREATE_A_HERO_37"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_37", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero37,
 
-    [IniEnum("CREATE_A_HERO_38"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_38", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero38,
 
-    [IniEnum("CREATE_A_HERO_39"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_39", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero39,
 
-    [IniEnum("CREATE_A_HERO_40"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("CREATE_A_HERO_40", AddedIn = SageGame.Bfme2Rotwk)]
     CreateAHero40,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_6"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FORTRESS_IMPROVEMENT_6", AddedIn = SageGame.Bfme2Rotwk)]
     FortressImprovement6,
 
-    [IniEnum("USER_10"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_10", AddedIn = SageGame.Bfme2Rotwk)]
     User10,
 
-    [IniEnum("USER_11"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_11", AddedIn = SageGame.Bfme2Rotwk)]
     User11,
 
-    [IniEnum("DEATH_5"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("DEATH_5", AddedIn = SageGame.Bfme2Rotwk)]
     Death5,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_5"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FORTRESS_IMPROVEMENT_5", AddedIn = SageGame.Bfme2Rotwk)]
     FortressImprovement5,
 
-    [IniEnum("ARMORSET_PLAYER_UPGRADE_2"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("ARMORSET_PLAYER_UPGRADE_2", AddedIn = SageGame.Bfme2Rotwk)]
     ArmorsetPlayerUpgrade2,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_7"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FORTRESS_IMPROVEMENT_7", AddedIn = SageGame.Bfme2Rotwk)]
     FortressImprovement7,
 
-    [IniEnum("FORTRESS_IMPROVEMENT_9"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FORTRESS_IMPROVEMENT_9", AddedIn = SageGame.Bfme2Rotwk)]
     FortressImprovement9,
 
-    [IniEnum("SPECIAL_POWER_3"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("SPECIAL_POWER_3", AddedIn = SageGame.Bfme2Rotwk)]
     SpecialPower3,
 
-    [IniEnum("EMOTION_DISSIDENT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("EMOTION_DISSIDENT", AddedIn = SageGame.Bfme2)]
     EmotionDissident,
 
-    [IniEnum("EMOTION_CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("EMOTION_CHEER_FOR_ABOUT_TO_CRUSH", AddedIn = SageGame.Bfme2)]
     EmotionCheerForAboutToCrush,
 
-    [IniEnum("EMOTION_BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("EMOTION_BRACE_FOR_BEING_CRUSHED", AddedIn = SageGame.Bfme2)]
     EmotionBraceForBeingCrushed,
 
-    [IniEnum("WEAPONSET_TOGGLE_2"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("WEAPONSET_TOGGLE_2", AddedIn = SageGame.Bfme2Rotwk)]
     WeaponsetToggle2,
 
-    [IniEnum("USER_20"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_20", AddedIn = SageGame.Bfme2Rotwk)]
     User20,
 
-    [IniEnum("USER_12"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_12", AddedIn = SageGame.Bfme2Rotwk)]
     User12,
 
-    [IniEnum("USER_13"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_13", AddedIn = SageGame.Bfme2Rotwk)]
     User13,
 
-    [IniEnum("USER_14"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_14", AddedIn = SageGame.Bfme2Rotwk)]
     User14,
 
-    [IniEnum("USER_15"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_15", AddedIn = SageGame.Bfme2Rotwk)]
     User15,
 
-    [IniEnum("USER_41"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_41", AddedIn = SageGame.Bfme2Rotwk)]
     User41,
 
-    [IniEnum("USER_40"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_40", AddedIn = SageGame.Bfme2Rotwk)]
     User40,
 
-    [IniEnum("USER_30"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_30", AddedIn = SageGame.Bfme2Rotwk)]
     User30,
 
-    [IniEnum("USER_31"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_31", AddedIn = SageGame.Bfme2Rotwk)]
     User31,
 
-    [IniEnum("USER_32"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_32", AddedIn = SageGame.Bfme2Rotwk)]
     User32,
 
-    [IniEnum("USER_33"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_33", AddedIn = SageGame.Bfme2Rotwk)]
     User33,
 
-    [IniEnum("USER_34"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_34", AddedIn = SageGame.Bfme2Rotwk)]
     User34,
 
-    [IniEnum("USER_35"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_35", AddedIn = SageGame.Bfme2Rotwk)]
     User35,
 
-    [IniEnum("USER_36"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_36", AddedIn = SageGame.Bfme2Rotwk)]
     User36,
 
-    [IniEnum("USER_37"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_37", AddedIn = SageGame.Bfme2Rotwk)]
     User37,
 
-    [IniEnum("USER_38"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_38", AddedIn = SageGame.Bfme2Rotwk)]
     User38,
 
-    [IniEnum("USER_39"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_39", AddedIn = SageGame.Bfme2Rotwk)]
     User39,
 
-    [IniEnum("USER_42"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_42", AddedIn = SageGame.Bfme2Rotwk)]
     User42,
 
-    [IniEnum("USER_60"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("USER_60", AddedIn = SageGame.Bfme2Rotwk)]
     User60,
 
     // Weapons
@@ -1042,7 +1042,7 @@ public enum ModelConditionFlag
     [IniEnum("PREATTACK_D")]
     PreAttackD,
 
-    [IniEnum("PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PREATTACK_E", AddedIn = SageGame.Bfme2)]
     PreAttackE,
 
     [IniEnum("FIRING_A")]
@@ -1054,43 +1054,43 @@ public enum ModelConditionFlag
     [IniEnum("FIRING_C")]
     FiringC,
 
-    [IniEnum("FIRING_D"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_D", AddedIn = SageGame.Bfme2)]
     FiringD,
 
-    [IniEnum("FIRING_E"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_E", AddedIn = SageGame.Bfme2)]
     FiringE,
 
-    [IniEnum("FIRING_ANY"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_ANY", AddedIn = SageGame.Bfme2)]
     FiringAny,
 
-    [IniEnum("FIRING_OR_RELOADING_A"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FIRING_OR_RELOADING_A", AddedIn = SageGame.Bfme)]
     FiringOrReloadingA,
 
-    [IniEnum("FIRING_OR_RELOADING_B"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FIRING_OR_RELOADING_B", AddedIn = SageGame.Bfme2Rotwk)]
     FiringOrReloadingB,
 
-    [IniEnum("FIRING_OR_RELOADING_C"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_OR_RELOADING_C", AddedIn = SageGame.Bfme2)]
     FiringOrReloadingC,
 
-    [IniEnum("FIRING_OR_RELOADING_D"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("FIRING_OR_RELOADING_D", AddedIn = SageGame.Bfme2Rotwk)]
     FiringOrReloadingD,
 
-    [IniEnum("FIRING_OR_RELOADING_E"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_OR_RELOADING_E", AddedIn = SageGame.Bfme2)]
     FiringOrReloadingE,
 
-    [IniEnum("FIRING_OR_PREATTACK_A"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FIRING_OR_PREATTACK_A", AddedIn = SageGame.Bfme)]
     FiringOrPreAttackA,
 
-    [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FIRING_OR_PREATTACK_B", AddedIn = SageGame.Bfme)]
     FiringOrPreAttackB,
 
-    [IniEnum("FIRING_OR_PREATTACK_C"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FIRING_OR_PREATTACK_C", AddedIn = SageGame.Bfme)]
     FiringOrPreAttackC,
 
-    [IniEnum("FIRING_OR_PREATTACK_D"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_OR_PREATTACK_D", AddedIn = SageGame.Bfme2)]
     FiringOrPreAttackD,
 
-    [IniEnum("FIRING_OR_PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRING_OR_PREATTACK_E", AddedIn = SageGame.Bfme2)]
     FiringOrPreAttackE,
 
     [IniEnum("BETWEEN_FIRING_SHOTS_A")]
@@ -1126,10 +1126,10 @@ public enum ModelConditionFlag
     [IniEnum("FIRING_PRIMARY")]
     FiringPrimary,
 
-    [IniEnum("FIRING_SECONDARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FIRING_SECONDARY", AddedIn = SageGame.CncGeneralsZeroHour)]
     FiringSecondary,
 
-    [IniEnum("FIRING_TERTIARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FIRING_TERTIARY", AddedIn = SageGame.CncGeneralsZeroHour)]
     FiringTertiary,
 
     [IniEnum("USING_WEAPON_A")]
@@ -1138,7 +1138,7 @@ public enum ModelConditionFlag
     [IniEnum("USING_WEAPON_B")]
     UsingWeaponB,
 
-    [IniEnum("USING_WEAPON_C"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("USING_WEAPON_C", AddedIn = SageGame.CncGeneralsZeroHour)]
     UsingWeaponC,
 
     [IniEnum("USING_WEAPON_D")]
@@ -1147,13 +1147,13 @@ public enum ModelConditionFlag
     [IniEnum("USING_WEAPON_E")]
     UsingWeaponE,
 
-    [IniEnum("SWAPPING_TO_WEAPONSET_1"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SWAPPING_TO_WEAPONSET_1", AddedIn = SageGame.Bfme2)]
     SwappingToWeaponset1,
 
-    [IniEnum("SWAPPING_TO_WEAPONSET_2"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SWAPPING_TO_WEAPONSET_2", AddedIn = SageGame.Bfme2)]
     SwappingToWeaponset2,
 
-    [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSET_TOGGLE_1", AddedIn = SageGame.Bfme)]
     WeaponSetToggle1,
 
     [IniEnum("WEAPONSET_PLAYER_UPGRADE")]
@@ -1165,25 +1165,25 @@ public enum ModelConditionFlag
     [IniEnum("WEAPONSET_CRATEUPGRADE_TWO")]
     WeaponSetCrateUpgradeTwo,
 
-    [IniEnum("WEAPONSET_RAMPAGE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSET_RAMPAGE", AddedIn = SageGame.Bfme)]
     WeaponsetRampage,
 
-    [IniEnum("WEAPONLOCK_PRIMARY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONLOCK_PRIMARY", AddedIn = SageGame.Bfme)]
     WeaponLockPrimary,
 
-    [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONLOCK_SECONDARY", AddedIn = SageGame.Bfme)]
     WeaponLockSecondary,
 
-    [IniEnum("WEAPONLOCK_TERTIARY"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("WEAPONLOCK_TERTIARY", AddedIn = SageGame.Bfme2Rotwk)]
     WeaponLockTertiary,
 
-    [IniEnum("WEAPONSTATE_ONE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSTATE_ONE", AddedIn = SageGame.Bfme)]
     WeaponStateOne,
 
-    [IniEnum("WEAPONSTATE_TWO"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSTATE_TWO", AddedIn = SageGame.Bfme)]
     WeaponStateTwo,
 
-    [IniEnum("WEAPONSTATE_CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WEAPONSTATE_CLOSE_RANGE", AddedIn = SageGame.Bfme)]
     WeaponStateCloseRange,
 }
 

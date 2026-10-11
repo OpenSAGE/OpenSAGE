@@ -305,7 +305,7 @@ public sealed class GeneralsControlBar : IControlBar
             {
                 VeterancyLevel.Veteran => controlBar.Rank1OverlayLarge,
                 VeterancyLevel.Elite => controlBar.Rank2OverlayLarge,
-                VeterancyLevel.Heroic => controlBar.Rank3OverlayLarge,
+                VeterancyLevel.Last_Or_Heroic => controlBar.Rank3OverlayLarge,
                 _ => null,
             };
         }
@@ -316,7 +316,7 @@ public sealed class GeneralsControlBar : IControlBar
             {
                 VeterancyLevel.Veteran => controlBar.Rank1OverlaySmall,
                 VeterancyLevel.Elite => controlBar.Rank2OverlaySmall,
-                VeterancyLevel.Heroic => controlBar.Rank3OverlaySmall,
+                VeterancyLevel.Last_Or_Heroic => controlBar.Rank3OverlaySmall,
                 _ => null,
             };
         }
@@ -399,7 +399,7 @@ public sealed class GeneralsControlBar : IControlBar
                 .OfType<VeterancyGainCreateModuleData>()
                 .OrderByDescending(d => d.StartingLevel) // start with the highest rank
                 .FirstOrDefault(d => d.ScienceRequired == null || player.HasScience(d.ScienceRequired.Value)) // take the first one that actively applies
-                ?.StartingLevel ?? VeterancyLevel.Regular; // or default to regular if there isn't one
+                ?.StartingLevel ?? VeterancyLevel.First_Or_Regular; // or default to regular if there isn't one
 
             return RankOverlaySmall(controlBar, startingVeterancy);
         }

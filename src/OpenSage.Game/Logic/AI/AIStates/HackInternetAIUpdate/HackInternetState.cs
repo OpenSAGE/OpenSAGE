@@ -63,10 +63,10 @@ internal sealed class HackInternetState : State
 
     private int GetCashGrant(GameObject gameObject) => gameObject.Rank switch
     {
-        VeterancyLevel.Regular => _stateMachine.AIUpdate.ModuleData.RegularCashAmount,
+        VeterancyLevel.First_Or_Regular => _stateMachine.AIUpdate.ModuleData.RegularCashAmount,
         VeterancyLevel.Veteran => _stateMachine.AIUpdate.ModuleData.VeteranCashAmount,
         VeterancyLevel.Elite => _stateMachine.AIUpdate.ModuleData.EliteCashAmount,
-        VeterancyLevel.Heroic => _stateMachine.AIUpdate.ModuleData.HeroicCashAmount,
+        VeterancyLevel.Last_Or_Heroic => _stateMachine.AIUpdate.ModuleData.HeroicCashAmount,
         _ => throw new ArgumentOutOfRangeException(nameof(GameObject.Rank)),
     };
 

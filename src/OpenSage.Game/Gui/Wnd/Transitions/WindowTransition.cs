@@ -113,24 +113,24 @@ public enum WindowTransitionStyle
     [IniEnum("SCORESCALEUP")]
     ScoreScaleUp,
 
-    [IniEnum("COUNTUP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("COUNTUP", AddedIn = SageGame.Bfme)]
     CountUp,
 
-    [IniEnum("FULLFADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FULLFADE", AddedIn = SageGame.Bfme)]
     FullFade,
 
-    [IniEnum("CONTROLBARARROW"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CONTROLBARARROW", AddedIn = SageGame.Bfme)]
     ControlBarArrow,
 
-    [IniEnum("SOUNDFADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SOUNDFADE", AddedIn = SageGame.Bfme)]
     SoundFade,
 
-    [IniEnum("FREEZE_POST_LOAD_SOUNDS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FREEZE_POST_LOAD_SOUNDS", AddedIn = SageGame.Bfme)]
     FreezePostLoadSounds,
 
-    [IniEnum("IMAGEFADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("IMAGEFADE", AddedIn = SageGame.Bfme)]
     ImageFade,
 
-    [IniEnum("IMAGECROSSFADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("IMAGECROSSFADE", AddedIn = SageGame.Bfme)]
     ImageCrossFade,
 }

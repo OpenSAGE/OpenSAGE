@@ -38,6 +38,6 @@ public enum AudioTypeFlags
     [IniEnum("global")]
     Global = 512,
 
-    [IniEnum("FAKE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FAKE", AddedIn = SageGame.Bfme)]
     Fake = 1024,
 }

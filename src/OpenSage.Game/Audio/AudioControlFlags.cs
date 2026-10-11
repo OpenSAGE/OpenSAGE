@@ -12,7 +12,7 @@ public enum AudioControlFlags
     [IniEnum("loop")]
     Loop = 1 << 0,
 
-    [IniEnum("sequential"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("sequential", AddedIn = SageGame.Bfme2)]
     Sequential = 1 << 1,
 
     [IniEnum("randomstart")]

@@ -385,7 +385,7 @@ public sealed class GameData : BaseSingletonAsset
 
         { "HealthBonus_Veteran", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Veteran] = parser.ParsePercentage() },
         { "HealthBonus_Elite", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Elite] = parser.ParsePercentage() },
-        { "HealthBonus_Heroic", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Heroic] = parser.ParsePercentage() },
+        { "HealthBonus_Heroic", (parser, x) => x.HealthBonus[(int)VeterancyLevel.Last_Or_Heroic] = parser.ParsePercentage() },
 
         { "HumanSoloPlayerHealthBonus_Easy", (parser, x) => x.HumanSoloPlayerHealthBonusEasy = parser.ParsePercentage() },
         { "HumanSoloPlayerHealthBonus_Normal", (parser, x) => x.HumanSoloPlayerHealthBonusNormal = parser.ParsePercentage() },
@@ -1665,19 +1665,19 @@ public enum WeaponBonusType
     [IniEnum("SOLO_AI_HARD")]
     SoloAIHard,
 
-    [IniEnum("TARGET_FAERIE_FIRE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("TARGET_FAERIE_FIRE", AddedIn = SageGame.CncGeneralsZeroHour)]
     TargetFaerieFire,
 
-    [IniEnum("FANATICISM"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FANATICISM", AddedIn = SageGame.CncGeneralsZeroHour)]
     Fanaticism,
 
-    [IniEnum("FRENZY_ONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FRENZY_ONE", AddedIn = SageGame.CncGeneralsZeroHour)]
     FrenzyOne,
 
-    [IniEnum("FRENZY_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FRENZY_TWO", AddedIn = SageGame.CncGeneralsZeroHour)]
     FrenzyTwo,
 
-    [IniEnum("FRENZY_THREE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FRENZY_THREE", AddedIn = SageGame.CncGeneralsZeroHour)]
     FrenzyThree,
 }
 

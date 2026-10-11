@@ -218,7 +218,7 @@ public sealed class CommandButton : BaseAsset
 
 public enum CommandType
 {
-    [IniEnum("NONE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("NONE", AddedIn = SageGame.Bfme2)]
     None,
 
     [IniEnum("PLACE_BEACON")]
@@ -230,7 +230,7 @@ public enum CommandType
     [IniEnum("SPECIAL_POWER_FROM_COMMAND_CENTER")]
     SpecialPowerFromCommandCenter,
 
-    [IniEnum("SPECIAL_POWER_FROM_SHORTCUT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SPECIAL_POWER_FROM_SHORTCUT", AddedIn = SageGame.CncGeneralsZeroHour)]
     SpecialPowerFromShortcut,
 
     [IniEnum("OBJECT_UPGRADE")]
@@ -308,94 +308,94 @@ public enum CommandType
     [IniEnum("HACK_INTERNET")]
     HackInternet,
 
-    [IniEnum("SABOTAGE_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SABOTAGE_BUILDING", AddedIn = SageGame.CncGeneralsZeroHour)]
     SabotageBuilding,
 
-    [IniEnum("SELECT_ALL_UNITS_OF_TYPE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SELECT_ALL_UNITS_OF_TYPE", AddedIn = SageGame.CncGeneralsZeroHour)]
     SelectAllUnitsOfType,
 
-    [IniEnum("SPECIAL_POWER_CONSTRUCT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SPECIAL_POWER_CONSTRUCT", AddedIn = SageGame.CncGeneralsZeroHour)]
     SpecialPowerConstruct,
 
-    [IniEnum("SPECIAL_POWER_CONSTRUCT_FROM_SHORTCUT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SPECIAL_POWER_CONSTRUCT_FROM_SHORTCUT", AddedIn = SageGame.CncGeneralsZeroHour)]
     SpecialPowerConstructFromShortcut,
 
-    [IniEnum("HORDE_TOGGLE_FORMATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HORDE_TOGGLE_FORMATION", AddedIn = SageGame.Bfme)]
     HordeToggleFormation,
 
-    [IniEnum("TOGGLE_WEAPONSET"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_WEAPONSET", AddedIn = SageGame.Bfme)]
     ToggleWeaponSet,
 
-    [IniEnum("WAKE_AUTO_PICKUP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WAKE_AUTO_PICKUP", AddedIn = SageGame.Bfme)]
     WakeAutoPickup,
 
-    [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BLOODTHIRSTY", AddedIn = SageGame.Bfme)]
     Bloodthirsty,
 
-    [IniEnum("MONSTERDOCK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MONSTERDOCK", AddedIn = SageGame.Bfme)]
     MonsterDock,
 
-    [IniEnum("CREW_EVACUATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CREW_EVACUATE", AddedIn = SageGame.Bfme)]
     CrewEvacuate,
 
-    [IniEnum("TOGGLE_WEAPON"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_WEAPON", AddedIn = SageGame.Bfme)]
     ToggleWeapon,
 
-    [IniEnum("EVACUATE_CONTESTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EVACUATE_CONTESTED", AddedIn = SageGame.Bfme)]
     EvacuateContested,
 
-    [IniEnum("FOUNDATION_CONSTRUCT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FOUNDATION_CONSTRUCT", AddedIn = SageGame.Bfme)]
     FoundationConstruct,
 
-    [IniEnum("CASTLE_UNPACK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CASTLE_UNPACK", AddedIn = SageGame.Bfme)]
     CastleUnpack,
 
-    [IniEnum("CASTLE_UNPACK_EXPLICIT_OBJECT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CASTLE_UNPACK_EXPLICIT_OBJECT", AddedIn = SageGame.Bfme)]
     CastleUnpackExplicitObject,
 
-    [IniEnum("CASTLE_UPGRADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CASTLE_UPGRADE", AddedIn = SageGame.Bfme)]
     CastleUpgrade,
 
-    [IniEnum("REVIVE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REVIVE", AddedIn = SageGame.Bfme)]
     Revive,
 
-    [IniEnum("FOUNDATION_CONSTRUCT_CANCEL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FOUNDATION_CONSTRUCT_CANCEL", AddedIn = SageGame.Bfme)]
     FoundationConstructCancel,
 
-    [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPELL_BOOK", AddedIn = SageGame.Bfme)]
     SpellBook,
 
-    [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ONE_RING", AddedIn = SageGame.Bfme)]
     OneRing,
 
-    [IniEnum("TOGGLE_NO_AUTO_ACQUIRE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_NO_AUTO_ACQUIRE", AddedIn = SageGame.Bfme)]
     ToggleNoAutoAcquire,
 
-    [IniEnum("TOGGLE_GATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_GATE", AddedIn = SageGame.Bfme)]
     ToggleGate,
 
-    [IniEnum("START_SELF_REPAIR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("START_SELF_REPAIR", AddedIn = SageGame.Bfme)]
     StartSelfRepair,
 
-    [IniEnum("POP_VISIBLE_COMMAND_RANGE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("POP_VISIBLE_COMMAND_RANGE", AddedIn = SageGame.Bfme2)]
     PopVisibleCommandRange,
 
-    [IniEnum("TOGGLE_STANCE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("TOGGLE_STANCE", AddedIn = SageGame.Bfme2)]
     ToggleStance,
 
-    [IniEnum("SET_STANCE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SET_STANCE", AddedIn = SageGame.Bfme2)]
     SetStance,
 
-    [IniEnum("PUSH_VISIBLE_COMMAND_RANGE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("PUSH_VISIBLE_COMMAND_RANGE", AddedIn = SageGame.Bfme2)]
     PushVisibleCommandRange,
 
-    [IniEnum("START_NEIGHBORHOOD_REPAIR"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("START_NEIGHBORHOOD_REPAIR", AddedIn = SageGame.Bfme2)]
     StartNeighborhoodRepair,
 
-    [IniEnum("CANCEL_NEIGHBORHOOD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("CANCEL_NEIGHBORHOOD", AddedIn = SageGame.Bfme2)]
     CancelNeighborhood,
 
-    [IniEnum("SPECIAL_POWER_TOGGLE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SPECIAL_POWER_TOGGLE", AddedIn = SageGame.Bfme2)]
     SpecialPowerToggle,
 }
 
@@ -468,59 +468,59 @@ public enum CommandButtonOption
     [IniEnum("USES_MINE_CLEARING_WEAPONSET")]
     UsesMineClearingWeaponSet,
 
-    [IniEnum("CAN_USE_WAYPOINTS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("CAN_USE_WAYPOINTS", AddedIn = SageGame.CncGeneralsZeroHour)]
     CanUseWaypoints,
 
-    [IniEnum("MUST_BE_STOPPED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("MUST_BE_STOPPED", AddedIn = SageGame.CncGeneralsZeroHour)]
     MustBeStopped,
 
-    [IniEnum("TOGGLE_IMAGE_ON_FORMATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_IMAGE_ON_FORMATION", AddedIn = SageGame.Bfme)]
     ToggleImageOnFormation,
 
-    [IniEnum("TOGGLE_IMAGE_ON_WEAPONSET"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_IMAGE_ON_WEAPONSET", AddedIn = SageGame.Bfme)]
     ToggleImageOnWeaponSet,
 
-    [IniEnum("ALLOW_SHRUBBERY_TARGET"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ALLOW_SHRUBBERY_TARGET", AddedIn = SageGame.Bfme)]
     AllowShrubberyTarget,
 
-    [IniEnum("ALLOW_ROCK_TARGET"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ALLOW_ROCK_TARGET", AddedIn = SageGame.Bfme)]
     AllowRockTarget,
 
-    [IniEnum("NONPRESSABLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("NONPRESSABLE", AddedIn = SageGame.Bfme)]
     NonPressable,
 
-    [IniEnum("CANCELABLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CANCELABLE", AddedIn = SageGame.Bfme)]
     Cancelable,
 
-    [IniEnum("UNMOUNTED_ONLY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("UNMOUNTED_ONLY", AddedIn = SageGame.Bfme)]
     UnmountedOnly,
 
-    [IniEnum("MOUNTED_ONLY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MOUNTED_ONLY", AddedIn = SageGame.Bfme)]
     MountedOnly,
 
-    [IniEnum("ON_GROUND_ONLY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ON_GROUND_ONLY", AddedIn = SageGame.Bfme)]
     OnGroundOnly,
 
-    [IniEnum("HIDE_WHILE_DISABLED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HIDE_WHILE_DISABLED", AddedIn = SageGame.Bfme)]
     HideWhileDisabled,
 
-    [IniEnum("NO_PLAY_UNIT_SPECIFIC_SOUND_FOR_AUTO_ABILITY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("NO_PLAY_UNIT_SPECIFIC_SOUND_FOR_AUTO_ABILITY", AddedIn = SageGame.Bfme)]
     NoPlayUnitSpecificSoundForAutoAbility,
 
-    [IniEnum("TOGGLE_IMAGE_ON_WEAPON"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TOGGLE_IMAGE_ON_WEAPON", AddedIn = SageGame.Bfme)]
     ToggleImageOnWeapon,
 
-    [IniEnum("NEEDS_CASTLE_KINDOF"), AddedIn(SageGame.Bfme)]
+    [IniEnum("NEEDS_CASTLE_KINDOF", AddedIn = SageGame.Bfme)]
     NeedsCastleKindOf,
 
-    [IniEnum("OK_FOR_MULTI_EXECUTE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("OK_FOR_MULTI_EXECUTE", AddedIn = SageGame.Bfme2)]
     OkForMultiExecute,
 }
 
 //only used in Generals, ZH and BFME, since BFME2 those types are replaced by named blocks
 public enum CommandButtonRadiusCursorType
 {
-    [IniEnum("NONE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("NONE", AddedIn = SageGame.Bfme)]
     None,
 
     [IniEnum("DAISYCUTTER")]
@@ -595,105 +595,105 @@ public enum CommandButtonRadiusCursorType
     [IniEnum("OFFENSIVE_SPECIALPOWER")]
     OffensiveSpecialPower,
 
-    [IniEnum("SPECTREGUNSHIP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("SPECTREGUNSHIP", AddedIn = SageGame.CncGeneralsZeroHour)]
     SpectreGunship,
 
-    [IniEnum("FRENZY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("FRENZY", AddedIn = SageGame.CncGeneralsZeroHour)]
     Frenzy,
 
-    [IniEnum("CLEARMINES"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("CLEARMINES", AddedIn = SageGame.CncGeneralsZeroHour)]
     ClearMines,
 
-    [IniEnum("AMBULANCE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("AMBULANCE", AddedIn = SageGame.CncGeneralsZeroHour)]
     Ambulance,
 
-    [IniEnum("HELIX_NAPALM_BOMB"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("HELIX_NAPALM_BOMB", AddedIn = SageGame.CncGeneralsZeroHour)]
     HelixNapalmBomb,
 
-    [IniEnum("FIRE_BREATH"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FIRE_BREATH", AddedIn = SageGame.Bfme)]
     FireBreath,
 
-    [IniEnum("TRAINING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TRAINING", AddedIn = SageGame.Bfme)]
     Training,
 
-    [IniEnum("SUMMON_OATH_BREAKERS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SUMMON_OATH_BREAKERS", AddedIn = SageGame.Bfme)]
     SummonOathBreakers,
 
-    [IniEnum("KINGS_FAVOR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("KINGS_FAVOR", AddedIn = SageGame.Bfme)]
     KingsFavor,
 
-    [IniEnum("CAPTAIN_OF_GONDOR"), AddedIn(SageGame.Bfme)]
+    [IniEnum("CAPTAIN_OF_GONDOR", AddedIn = SageGame.Bfme)]
     CaptainOfGondor,
 
-    [IniEnum("ARROWSTORM"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ARROWSTORM", AddedIn = SageGame.Bfme)]
     ArrowStorm,
 
-    [IniEnum("ATHELAS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ATHELAS", AddedIn = SageGame.Bfme)]
     Athelas,
 
-    [IniEnum("ARCHERY_TRAINING"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ARCHERY_TRAINING", AddedIn = SageGame.Bfme)]
     ArcheryTraining,
 
-    [IniEnum("LIGHTNING_SWORD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("LIGHTNING_SWORD", AddedIn = SageGame.Bfme)]
     LightningSword,
 
-    [IniEnum("LEAP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("LEAP", AddedIn = SageGame.Bfme)]
     Leap,
 
-    [IniEnum("FELL_BEAST_SWOOP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FELL_BEAST_SWOOP", AddedIn = SageGame.Bfme)]
     FellBeastSwoop,
 
-    [IniEnum("EAGLE_SWOOP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EAGLE_SWOOP", AddedIn = SageGame.Bfme)]
     EagleSwoop,
 
-    [IniEnum("REVEAL_MAP_AREA"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REVEAL_MAP_AREA", AddedIn = SageGame.Bfme)]
     RevealMapArea,
 
-    [IniEnum("WAR_CHANT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WAR_CHANT", AddedIn = SageGame.Bfme)]
     WarChant,
 
-    [IniEnum("INDUSTRY"), AddedIn(SageGame.Bfme)]
+    [IniEnum("INDUSTRY", AddedIn = SageGame.Bfme)]
     Industry,
 
-    [IniEnum("DEVASTATION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DEVASTATION", AddedIn = SageGame.Bfme)]
     Devastation,
 
-    [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("TAINT", AddedIn = SageGame.Bfme)]
     Taint,
 
-    [IniEnum("EYE_OF_SAURON"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EYE_OF_SAURON", AddedIn = SageGame.Bfme)]
     EyeOfSauron,
 
-    [IniEnum("SUMMON_BALROG"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SUMMON_BALROG", AddedIn = SageGame.Bfme)]
     SummonBalrog,
 
-    [IniEnum("HEAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HEAL", AddedIn = SageGame.Bfme)]
     Heal,
 
-    [IniEnum("ELVEN_ALLIES"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ELVEN_ALLIES", AddedIn = SageGame.Bfme)]
     ElvenAllies,
 
-    [IniEnum("ROHAN_ALLIES"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ROHAN_ALLIES", AddedIn = SageGame.Bfme)]
     RohanAllies,
 
-    [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ELVEN_WOOD", AddedIn = SageGame.Bfme)]
     ElvenWood,
 
-    [IniEnum("ENT_ALLIES"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ENT_ALLIES", AddedIn = SageGame.Bfme)]
     EntAllies,
 
-    [IniEnum("ARMY_OF_THE_DEAD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ARMY_OF_THE_DEAD", AddedIn = SageGame.Bfme)]
     ArmyOfTheDead,
 
-    [IniEnum("EAGLE_ALLIES"), AddedIn(SageGame.Bfme)]
+    [IniEnum("EAGLE_ALLIES", AddedIn = SageGame.Bfme)]
     EagleAllies,
 
-    [IniEnum("PALANTIR_VISION"), AddedIn(SageGame.Bfme)]
+    [IniEnum("PALANTIR_VISION", AddedIn = SageGame.Bfme)]
     PalantirVision,
 
-    [IniEnum("SPEECH_CRAFT"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SPEECH_CRAFT", AddedIn = SageGame.Bfme)]
     SpeechCraft,
 
-    [IniEnum("DOMINATE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("DOMINATE", AddedIn = SageGame.Bfme)]
     Dominate,
 }

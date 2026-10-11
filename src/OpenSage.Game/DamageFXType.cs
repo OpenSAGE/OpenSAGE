@@ -20,63 +20,63 @@ public enum DamageFXType
     [IniEnum("SMALL_ROCK")]
     SmallRock,
 
-    [IniEnum("BIG_ROCK"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BIG_ROCK", AddedIn = SageGame.Bfme2)]
     BigRock,
 
-    [IniEnum("FLAME"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FLAME", AddedIn = SageGame.Bfme2)]
     Flame,
 
-    [IniEnum("ELECTRIC"), AddedIn(SageGame.Bfme)]
+    [IniEnum("ELECTRIC", AddedIn = SageGame.Bfme)]
     Electric,
 
-    [IniEnum("BALROG_SWORD"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BALROG_SWORD", AddedIn = SageGame.Bfme)]
     BalrogSword,
 
-    [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GOOD_ARROW_PIERCE", AddedIn = SageGame.Bfme)]
     GoodArrowPierce,
 
-    [IniEnum("REFLECTED"), AddedIn(SageGame.Bfme)]
+    [IniEnum("REFLECTED", AddedIn = SageGame.Bfme)]
     Reflected,
 
-    [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("GIMLI_LEAP", AddedIn = SageGame.Bfme)]
     GimliLeap,
 
-    [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("WITCH_KING_MORGUL_BLADE", AddedIn = SageGame.Bfme)]
     WitchKingMorgulBlade,
 
-    [IniEnum("STRUCTURAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("STRUCTURAL", AddedIn = SageGame.Bfme)]
     Structural,
 
-    [IniEnum("BALROG_WHIP"), AddedIn(SageGame.Bfme)]
+    [IniEnum("BALROG_WHIP", AddedIn = SageGame.Bfme)]
     BalrogWhip,
 
-    [IniEnum("POISON"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("POISON", AddedIn = SageGame.Bfme2)]
     Poison,
 
-    [IniEnum("BOLT"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("BOLT", AddedIn = SageGame.Bfme2)]
     Bolt,
 
-    [IniEnum("TORNADO"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("TORNADO", AddedIn = SageGame.Bfme2)]
     Tornado,
 
-    [IniEnum("FIRE1"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRE1", AddedIn = SageGame.Bfme2)]
     Fire1,
 
-    [IniEnum("FIRE2"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRE2", AddedIn = SageGame.Bfme2)]
     Fire2,
 
-    [IniEnum("FIRE3"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FIRE3", AddedIn = SageGame.Bfme2)]
     Fire3,
 
-    [IniEnum("FLOOD_HORSE"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("FLOOD_HORSE", AddedIn = SageGame.Bfme2)]
     FloodHorse,
 
-    [IniEnum("UNDEFINED"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("UNDEFINED", AddedIn = SageGame.Bfme2)]
     Undefined,
 
-    [IniEnum("NECRO1"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("NECRO1", AddedIn = SageGame.Bfme2Rotwk)]
     Necro1,
 
-    [IniEnum("NECRO2"), AddedIn(SageGame.Bfme2Rotwk)]
+    [IniEnum("NECRO2", AddedIn = SageGame.Bfme2Rotwk)]
     Necro2,
 }

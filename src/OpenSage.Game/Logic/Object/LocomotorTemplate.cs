@@ -632,22 +632,22 @@ public enum LocomotorAppearance
     [IniEnum("OTHER")]
     Other,
 
-    [IniEnum("MOTORCYCLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+    [IniEnum("MOTORCYCLE", AddedIn = SageGame.CncGeneralsZeroHour)]
     Motorcycle,
 
-    [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("GIANT_BIRD", AddedIn = SageGame.Bfme2)]
     GiantBird,
 
-    [IniEnum("HUGE_TWO_LEGS"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HUGE_TWO_LEGS", AddedIn = SageGame.Bfme)]
     HugeTwoLegs,
 
-    [IniEnum("HORDE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("HORDE", AddedIn = SageGame.Bfme)]
     Horde,
 
-    [IniEnum("FOUR_LEGS_HUGE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FOUR_LEGS_HUGE", AddedIn = SageGame.Bfme)]
     FourLegsHuge,
 
-    [IniEnum("SHIP"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SHIP", AddedIn = SageGame.Bfme2)]
     Ship,
 }
 
@@ -671,13 +671,13 @@ public enum Surfaces
     [IniEnum("RUBBLE")]
     Rubble = 0x10,
 
-    [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("OBSTACLE", AddedIn = SageGame.Bfme)]
     Obstacle = 0x20,
 
-    [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme)]
+    [IniEnum("IMPASSABLE", AddedIn = SageGame.Bfme)]
     Impassable = 0x40,
 
-    [IniEnum("DEEP_WATER"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("DEEP_WATER", AddedIn = SageGame.Bfme2)]
     DeepWater = 0x80,
 }
 
@@ -752,10 +752,10 @@ public enum LocomotorBehaviorZ
     [IniEnum("RELATIVE_TO_HIGHEST_LAYER")]
     RelativeToHighestLayer,
 
-    [IniEnum("FLOATING_Z"), AddedIn(SageGame.Bfme)]
+    [IniEnum("FLOATING_Z", AddedIn = SageGame.Bfme)]
     FloatingZ,
 
-    [IniEnum("SCALING_WALLS"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("SCALING_WALLS", AddedIn = SageGame.Bfme2)]
     ScalingWalls,
 }
 

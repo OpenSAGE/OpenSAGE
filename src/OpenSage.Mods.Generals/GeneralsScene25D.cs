@@ -88,7 +88,7 @@ public class GeneralsScene25D(IScene3D scene3D, AssetStore assetStore) : Scene25
         {
             VeterancyLevel.Veteran => _veteranPip,
             VeterancyLevel.Elite => _elitePip,
-            VeterancyLevel.Heroic => _heroicPip,
+            VeterancyLevel.Last_Or_Heroic => _heroicPip,
             _ => throw new ArgumentOutOfRangeException(nameof(gameObject.Rank), gameObject.Rank, "Rank not supported"),
         };
 

@@ -89,18 +89,18 @@ public enum GpuType
     [IniEnum("R300")]
     R300,
 
-    [IniEnum("RADEON_9800"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("RADEON_9800", AddedIn = SageGame.Bfme2)]
     Radeon9800,
 
-    [IniEnum("_MINIMUM_FOR_LOW_LOD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("_MINIMUM_FOR_LOW_LOD", AddedIn = SageGame.Bfme2)]
     MinimumForLowLod,
 
-    [IniEnum("_MINIMUM_FOR_MEDIUM_LOD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("_MINIMUM_FOR_MEDIUM_LOD", AddedIn = SageGame.Bfme2)]
     MinimumForMediumLod,
 
-    [IniEnum("_MINIMUM_FOR_HIGH_LOD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("_MINIMUM_FOR_HIGH_LOD", AddedIn = SageGame.Bfme2)]
     MinimumForHighLod,
 
-    [IniEnum("_MINIMUM_FOR_ULTRA_HIGH_LOD"), AddedIn(SageGame.Bfme2)]
+    [IniEnum("_MINIMUM_FOR_ULTRA_HIGH_LOD", AddedIn = SageGame.Bfme2)]
     MinimumForUltraHighLod,
 }

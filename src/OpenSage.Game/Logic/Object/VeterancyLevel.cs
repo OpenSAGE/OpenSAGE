@@ -6,7 +6,8 @@ namespace OpenSage.Logic.Object;
 public enum VeterancyLevel
 {
     [IniEnum("REGULAR")]
-    Regular = 0,
+    [IniEnum("FIRST")]
+    First_Or_Regular = 0,
 
     [IniEnum("VETERAN")]
     Veteran = 1,
@@ -15,10 +16,9 @@ public enum VeterancyLevel
     Elite = 2,
 
     [IniEnum("HEROIC")]
-    Heroic = 3,
+    [IniEnum("LAST")]
+    Last_Or_Heroic = 3,
 
+    // TODO: Assign a numeric value
     Count,
-
-    First = Regular,
-    Last = Heroic
 }

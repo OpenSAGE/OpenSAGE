@@ -631,7 +631,7 @@ public class ActiveBody : BodyModule
                 {
                     VeterancyLevel.Veteran => GameObject.Definition.SoundPromotedVeteran?.Value,
                     VeterancyLevel.Elite => GameObject.Definition.SoundPromotedElite?.Value,
-                    VeterancyLevel.Heroic => GameObject.Definition.SoundPromotedHero?.Value,
+                    VeterancyLevel.Last_Or_Heroic => GameObject.Definition.SoundPromotedHero?.Value,
                     _ => throw new ArgumentOutOfRangeException(nameof(newLevel))
                 };
                 GameEngine.AudioSystem.PlayAudioEvent(GameObject, veterancyChanged);
@@ -674,7 +674,7 @@ public class ActiveBody : BodyModule
 
         switch (newLevel)
         {
-            case VeterancyLevel.Regular:
+            case VeterancyLevel.First_Or_Regular:
                 ClearArmorSetFlag(ArmorSetCondition.Veteran);
                 ClearArmorSetFlag(ArmorSetCondition.Elite);
                 ClearArmorSetFlag(ArmorSetCondition.Hero);
@@ -692,7 +692,7 @@ public class ActiveBody : BodyModule
                 ClearArmorSetFlag(ArmorSetCondition.Hero);
                 break;
 
-            case VeterancyLevel.Heroic:
+            case VeterancyLevel.Last_Or_Heroic:
                 ClearArmorSetFlag(ArmorSetCondition.Veteran);
                 ClearArmorSetFlag(ArmorSetCondition.Elite);
                 SetArmorSetFlag(ArmorSetCondition.Hero);

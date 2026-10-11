@@ -40,6 +40,6 @@ public enum AnimationFlags
     [IniEnum("RESTART_ANIM_WHEN_COMPLETE")]
     RestartAnimWhenComplete = 1 << 8,
 
-    [IniEnum("MAINTAIN_FRAME_ACROSS_STATES4"), AddedIn(SageGame.Bfme)]
+    [IniEnum("MAINTAIN_FRAME_ACROSS_STATES4", AddedIn = SageGame.Bfme)]
     MaintainFrameAcrossStates4 = 1 << 9,
 }

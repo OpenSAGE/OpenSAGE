@@ -556,6 +556,6 @@ public enum RadiusDecalStyle
     [IniEnum("SHADOW_ADDITIVE_DECAL")]
     ShadowAdditiveDecal,
 
-    [IniEnum("SHADOW_MERGE_DECAL"), AddedIn(SageGame.Bfme)]
+    [IniEnum("SHADOW_MERGE_DECAL", AddedIn = SageGame.Bfme)]
     ShadowMergeDecal
 }
